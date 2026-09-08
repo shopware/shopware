@@ -122,10 +122,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         await flushPromises();
     });
 
-    afterEach(() => {
-        wrapper.unmount();
-    });
-
     it('should sort criterias by their position', async () => {
         function getRowValuesAt(index) {
             function getContentOfCell(columnName) {

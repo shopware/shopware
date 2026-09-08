@@ -20,7 +20,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 sync: true,
             }),
             {
-                attachTo: document.body,
                 global: {
                     renderStubDefaultSlot: true,
                     provide: {
@@ -69,6 +68,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-loader': true,
                         'sw-context-menu-item': true,
                         'sw-context-menu': true,

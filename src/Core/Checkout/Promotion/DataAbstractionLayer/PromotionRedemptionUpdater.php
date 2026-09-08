@@ -141,6 +141,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
+        // promotion_id is only ever written for promotion line items, so it already implies the type
         $sql = <<<'SQL'
             SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
                    COUNT(DISTINCT order_line_item.order_id) as total,
@@ -149,14 +150,14 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                      LEFT JOIN order_customer
                                ON (order_customer.order_id = order_line_item.order_id
                                    AND order_customer.order_version_id = order_line_item.order_version_id)
-            WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId AND order_line_item.type = :type
+            WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId
             GROUP BY order_line_item.promotion_id, order_customer.customer_id
         SQL;
 
         /** @var list<array{promotion_id: string, total: numeric-string, customer_id: ?string}> $promotions */
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
-            ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
 

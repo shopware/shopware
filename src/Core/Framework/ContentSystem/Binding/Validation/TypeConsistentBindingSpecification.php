@@ -34,6 +34,8 @@ final class TypeConsistentBindingSpecification extends Constraint
 
     public string $inputsEntryDefaultTypeMessage = 'inputs entry "{{ key }}" default value must match the declared type "{{ type }}"';
 
+    public string $inputsEntryNullDefaultOnTranslatableMessage = 'inputs entry "{{ key }}" targets a translatable property of type "{{ type }}", so its default may not be null: null is not a valid language-map entry';
+
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

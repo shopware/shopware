@@ -5,10 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -161,6 +164,21 @@ class StoredTreeTest extends TestCase
             static fn (StoredElement $child): string => $child->id,
             $parent->slots['aside']
         ));
+    }
+
+    #[TestDox('insertIntoSlot leaves a sibling language-map property value unchanged while rebuilding the slot')]
+    public function testInsertIntoSlotLeavesASiblingLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $sibling = StoredElementBuilder::create('core:text', 'child-a')->withProperty('text', $translations)->build();
+        $tree = new StoredTree([StoredElementBuilder::create('core:section', 'root-1')->withSlot('main', [$sibling])->build()]);
+
+        $inserted = $tree->insertIntoSlot('root-1', 'main', null, [$this->element('child-new')]);
+
+        $carried = $inserted->find('child-a')?->property('text');
+        static::assertNotNull($carried);
+        static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
     }
 
     #[TestDox('insertIntoSlot returns a structurally unchanged forest for a parent id the forest does not carry')]

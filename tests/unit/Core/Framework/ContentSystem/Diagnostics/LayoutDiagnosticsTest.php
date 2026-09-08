@@ -709,7 +709,7 @@ class LayoutDiagnosticsTest extends TestCase
         // replaced tree diagnoses as resolvable.
         $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
         $bindingRegistry->method('all')->willReturn([]);
-        $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
+        $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry($specs));
 
         $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))
             ->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));

@@ -2,12 +2,17 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -15,7 +20,9 @@ use Shopware\Core\Framework\Log\Package;
  * `with*()` copiers. Two modes: {@see self::apply()} overwrites the same `resolves`/attribution keys,
  * {@see self::applyFillOnly()} wires and attributes only keys the element carries no data requirement for yet.
  * Both seed an `inputs` default only when the element does not already carry the property
- * ({@see StoredElement::property()} presence gate, so an authored value always wins, including an explicit null).
+ * ({@see StoredElement::property()} presence gate, so an authored value always wins, including an explicit null),
+ * and both seed it in the storage shape the target property declares — a translatable property's default lands
+ * under the anchor language key, resolved through the element-type registry.
  *
  * @internal
  */
@@ -24,6 +31,7 @@ final class BindingApplicator
 {
     public function __construct(
         private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
     ) {
     }
 
@@ -86,6 +94,8 @@ final class BindingApplicator
      */
     private function seedInputDefaults(StoredElement $element, BindingSpecification $specification): array
     {
+        // An unregistered component cannot answer whether a key is translatable, so its defaults seed raw.
+        $properties = $this->registry->has($element->component) ? $this->registry->get($element->component)->properties() : [];
         $defaults = [];
 
         foreach ($specification->inputs() as $key => $input) {
@@ -97,10 +107,27 @@ final class BindingApplicator
                 continue;
             }
 
-            $defaults[$key] = StoredValue::fromDecoded($input->default);
+            $defaults[$key] = StoredValue::fromDecoded($this->inStoredShape($input->default, $properties[$key] ?? null));
         }
 
         return $defaults;
+    }
+
+    /**
+     * The shape rule {@see PropertyType::storedDefault()} states, applied to a specification's own default: a
+     * translatable property stores one value per language, so its default seeds under the anchor language key and
+     * every other property seeds the bare value. `storedDefault()` reads the type's declared default rather than
+     * this one, so the rule is shared but the producer cannot be — including its qualifier that only a non-null
+     * default is wrapped, null being no valid language-map entry and rejected on a translatable target by
+     * {@see TypeConsistentBindingSpecification}.
+     */
+    private function inStoredShape(mixed $default, ?PropertySpecification $property): mixed
+    {
+        if ($default === null || $property === null || !$property->type()->translatable()) {
+            return $default;
+        }
+
+        return [Defaults::LANGUAGE_SYSTEM => $default];
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
 /**
  * @internal
@@ -131,6 +133,28 @@ class InsertElementTest extends TestCase
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->roots[0]->dataRequirements);
         static::assertSame('seeded', $result->roots[0]->property('mediaId')?->jsonSerialize());
         static::assertSame(['media' => 'core:media-picker'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('seeds a translatable input default under the anchor language key on a bound insert')]
+    public function testInsertSeedsTranslatableInputDefaultAsAnchorMap(): void
+    {
+        // The declared property carries no default of its own, so the anchor map can only come from the
+        // specification's input default going through the applicator's shape rule.
+        $typeRegistry = $this->registry([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')->primitive('text', 'string', translatable: true)->build(),
+        ]);
+        $spec = new BindingSpecification('text-seed', 'Sw:Content:Text', 'Text seed', [], ['text' => new BindingInput(true, 'Autumn sale', false)], 'core');
+
+        $insert = new InsertElement(
+            $typeRegistry,
+            'Sw:Content:Text',
+            $this->bindingRegistry(['core:text-seed' => $spec]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class), $typeRegistry),
+            'core:text-seed',
+        );
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->roots[0]->property('text')?->jsonSerialize());
     }
 
     #[TestDox('does not throw and applies no wiring or attribution when the type has no default specification')]
@@ -299,17 +323,17 @@ class InsertElementTest extends TestCase
         return $registry;
     }
 
-    private function applicator(AbstractContentDataLoaderConfig $config): BindingApplicator
+    private function applicator(AbstractContentDataLoaderConfig $config, ?AbstractContentSystemElementTypeRegistry $typeRegistry = null): BindingApplicator
     {
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return new BindingApplicator($serializers);
+        return new BindingApplicator($serializers, $typeRegistry ?? $this->registry([]));
     }
 
     private function unboundApplicator(): BindingApplicator
     {
-        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
+        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry([]));
     }
 
     /**

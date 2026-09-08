@@ -590,6 +590,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BindingApplicator::class)
         ->args([
             service(DataLoaderConfigSerializerProvider::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     // What an element type stores (as opposed to its hydrated properties): the storageSchema introspection fold

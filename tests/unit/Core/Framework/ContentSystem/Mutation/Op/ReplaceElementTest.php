@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -31,6 +32,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
@@ -138,6 +140,21 @@ class ReplaceElementTest extends TestCase
         $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
 
         static::assertSame('Authored', $result->roots[0]->property('headline')?->jsonSerialize());
+    }
+
+    #[TestDox('carries an authored present null under a declared non-translatable string key and does not reseed the type default')]
+    public function testReplaceCarriesAuthoredNullOverNewTypeDefault(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
+
+        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        $headline = $result->roots[0]->property('headline');
+
+        static::assertNotNull($headline);
+        static::assertTrue($headline->isNull());
+        static::assertSame([], $replace->droppedProperties());
     }
 
     /**
@@ -354,6 +371,45 @@ class ReplaceElementTest extends TestCase
         static::assertSame('Default tagline', $result->roots[0]->property('tagline')?->jsonSerialize());
     }
 
+    #[TestDox('carries a language map over to a new type that declares the property as translatable')]
+    public function testReplaceCarriesTranslatableLanguageMap(): void
+    {
+        $german = Uuid::randomHex();
+        $authored = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('text', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->translatableRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        // The carried map differs from the type's own anchor-only default, so a dropped-then-reseeded value would
+        // not reproduce it.
+        static::assertSame($authored, $result->roots[0]->property('text')?->jsonSerialize());
+        static::assertSame([], $replace->droppedProperties());
+    }
+
+    #[TestDox('drops and reports a language map when the new type declares the key as a non-translatable string')]
+    public function testReplaceDropsLanguageMapUnderNonTranslatableStringKey(): void
+    {
+        $authored = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('headline'));
+        static::assertSame(['headline' => $authored], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    #[TestDox('fills an absent translatable key with the anchor language map rather than the bare scalar default')]
+    public function testReplaceSeedsTranslatableDefaultAsAnchorMap(): void
+    {
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
+
+        $result = (new ReplaceElement($this->translatableRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Default text'], $result->roots[0]->property('text')?->jsonSerialize());
+    }
+
     #[TestDox('seeds the new type default for a key whose type-incompatible old value was dropped')]
     public function testReplaceSeedsNewTypeDefaultForDroppedIncompatibleKey(): void
     {
@@ -545,6 +601,19 @@ class ReplaceElementTest extends TestCase
         return $registry;
     }
 
+    private function translatableRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->primitive('text', 'string', default: 'Default text', translatable: true)
+            ->build()];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
+    }
+
     private function primitive(string $type): PropertySpecification
     {
         return new PropertySpecification('prop', new PropertyType($type, false, null, null), false, '', '', null);
@@ -571,11 +640,11 @@ class ReplaceElementTest extends TestCase
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return new BindingApplicator($serializers);
+        return new BindingApplicator($serializers, $this->registry());
     }
 
     private function unboundApplicator(): BindingApplicator
     {
-        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
+        return new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry());
     }
 }

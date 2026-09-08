@@ -5,13 +5,16 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -106,6 +109,20 @@ class AttachElementTest extends TestCase
         static::assertCount(3, $result->roots);
         static::assertSame(['block-a', 'block-b'], [$result->roots[0]->id, $result->roots[1]->id]);
         static::assertNotSame('incoming', $result->roots[2]->id);
+    }
+
+    #[TestDox('keeps a language-map property value on the reminted subtree unchanged')]
+    public function testAttachKeepsLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $incoming = StoredElementBuilder::create('Sw:Card', 'incoming')->withProperty('text', $translations)->build();
+
+        $result = (new AttachElement($this->registry(), $incoming))->apply(new StoredTree([]));
+
+        $carried = $result->roots[0]->property('text');
+        static::assertNotNull($carried);
+        static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]

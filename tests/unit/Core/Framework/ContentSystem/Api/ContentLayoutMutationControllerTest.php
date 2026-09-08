@@ -236,7 +236,7 @@ class ContentLayoutMutationControllerTest extends TestCase
             $this->decoder(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
         );
     }
 

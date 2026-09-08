@@ -379,6 +379,55 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('must match the declared type', (string) $violations->get(0)->getMessage());
     }
 
+    #[TestDox('accepts an inputs entry whose scalar default targets a translatable property')]
+    public function testInputsEntryScalarDefaultOnTranslatableTargetIsAccepted(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['caption' => ['default' => 'Autumn sale']],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('flags a null inputs default on a translatable target as a violation')]
+    public function testInputsEntryNullDefaultOnTranslatableTargetIsViolation(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['caption' => ['default' => null]],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].inputs[caption].default', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('not a valid language-map entry', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('accepts a null inputs default on a non-translatable target')]
+    public function testInputsEntryNullDefaultOnNonTranslatableTargetIsAccepted(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: [],
+            inputs: ['mediaId' => ['default' => null]],
+        );
+
+        static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -512,6 +561,7 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             [
                 'media' => new PropertySpecification('media', new PropertyType(MediaEntity::class, false, null, null), false, '', '', null),
                 'mediaId' => new PropertySpecification('mediaId', new PropertyType('string', false, null, null), false, '', '', null),
+                'caption' => new PropertySpecification('caption', new PropertyType('string', true, null, null), false, '', '', null),
             ],
             [],
         );

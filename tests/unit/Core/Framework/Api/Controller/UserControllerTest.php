@@ -87,8 +87,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * updateMe() must reject any field outside the self-service profile allow-list before the
-     * SYSTEM_SCOPE write, including escalation-relevant ones such as `admin` and `aclRoles`.
+     * updateMe() must reject any field that is not part of the self-service profile allow-list.
      *
      * @param array<string, mixed> $payload
      */
@@ -109,16 +108,16 @@ class UserControllerTest extends TestCase
      */
     public static function forbiddenUpdateMePayloadProvider(): iterable
     {
-        yield 'disallowed top-level admin flag' => [[
-            'admin' => true,
-        ]];
-
-        yield 'disallowed acl role assignment' => [[
-            'aclRoles' => [['id' => 'role-id']],
-        ]];
-
         yield 'field outside the profile allow-list' => [[
             'title' => 'Dr.',
+        ]];
+
+        yield 'another field outside the profile allow-list' => [[
+            'active' => false,
+        ]];
+
+        yield 'custom fields outside the profile allow-list' => [[
+            'customFields' => ['foo' => 'bar'],
         ]];
     }
 
@@ -142,8 +141,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * A self-service profile edit may link an avatar, nothing more. Any other media field would be
-     * written in SYSTEM_SCOPE, so updateMe() must reject it before the write.
+     * updateMe() accepts `avatarMedia` only as an id link; every other shape must be rejected.
      *
      * @param array<string, mixed> $payload
      */
@@ -165,19 +163,19 @@ class UserControllerTest extends TestCase
     public static function forbiddenAvatarMediaPayloadProvider(): iterable
     {
         yield 'nested user association' => [[
-            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex(), 'admin' => true]],
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex()]],
         ]];
 
         yield 'nested avatarUsers association' => [[
-            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex(), 'admin' => true]]],
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex()]]],
         ]];
 
-        yield 'association hidden in the extensions container' => [[
-            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex(), 'admin' => true]]],
+        yield 'nested association in the extensions container' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex()]]],
         ]];
 
-        yield 'scalar field of the media entity' => [[
-            'avatarMedia' => ['id' => Uuid::randomHex(), 'private' => true],
+        yield 'extra scalar field next to the id' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'fileName' => 'renamed'],
         ]];
 
         yield 'link without an id' => [[

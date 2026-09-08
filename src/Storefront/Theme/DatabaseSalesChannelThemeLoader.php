@@ -34,11 +34,7 @@ final class DatabaseSalesChannelThemeLoader
      */
     public function load(string $salesChannelId): array
     {
-        if (!empty($this->themes[$salesChannelId])) {
-            return $this->themes[$salesChannelId];
-        }
-
-        return $this->readFromDB($salesChannelId);
+        return $this->themes[$salesChannelId] ??= $this->readFromDB($salesChannelId);
     }
 
     public function reset(): void
@@ -51,56 +47,101 @@ final class DatabaseSalesChannelThemeLoader
      */
     private function readFromDB(string $salesChannelId): array
     {
-        $themes = $this->connection->fetchAssociative('
-            SELECT LOWER(HEX(theme.id)) themeId, theme.technical_name as themeName, parentTheme.technical_name as parentThemeName, LOWER(HEX(parentTheme.parent_theme_id)) as grandParentThemeId
-            FROM sales_channel
-                LEFT JOIN theme_sales_channel ON sales_channel.id = theme_sales_channel.sales_channel_id
-                LEFT JOIN theme ON theme_sales_channel.theme_id = theme.id
-                LEFT JOIN theme AS parentTheme ON parentTheme.id = theme.parent_theme_id
-            WHERE sales_channel.id = :salesChannelId
+        $rows = $this->connection->fetchAllAssociative('
+            SELECT LOWER(HEX(theme.id)) AS themeId,
+                   theme.technical_name AS technicalName,
+                   LOWER(HEX(theme.parent_theme_id)) AS parentThemeId,
+                   JSON_EXTRACT(theme.base_config, \'$.configInheritance\') AS configInheritance,
+                   theme_sales_channel.sales_channel_id IS NOT NULL AS assigned
+            FROM theme
+                LEFT JOIN theme_sales_channel
+                    ON theme_sales_channel.theme_id = theme.id
+                    AND theme_sales_channel.sales_channel_id = :salesChannelId
         ', [
             'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
         ]);
 
-        if (\is_array($themes) && isset($themes['grandParentThemeId']) && \is_string($themes['grandParentThemeId'])) {
-            $themes['grandParentNames'] = $this->getGrantParents($themes['grandParentThemeId']);
+        $themesById = [];
+        $idsByTechnicalName = [];
+        $assignedThemeId = null;
+
+        foreach ($rows as $row) {
+            $themeId = (string) $row['themeId'];
+            $themesById[$themeId] = $row;
+
+            if (\is_string($row['technicalName'])) {
+                $idsByTechnicalName[$row['technicalName']] = $themeId;
+            }
+
+            if ($assignedThemeId === null && (int) $row['assigned'] === 1) {
+                $assignedThemeId = $themeId;
+            }
         }
 
-        $usedThemes = array_filter([
-            $themes['themeName'] ?? null,
-            $themes['parentThemeName'] ?? null,
-        ]);
-
-        if (isset($themes['grandParentNames'])) {
-            $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
+        if ($assignedThemeId === null) {
+            return [];
         }
 
-        return $this->themes[$salesChannelId] = $usedThemes ?: [];
+        $technicalNames = [];
+        $visited = [$assignedThemeId => true];
+        $queue = [$assignedThemeId];
+
+        while (($themeId = array_shift($queue)) !== null) {
+            $row = $themesById[$themeId];
+
+            if (\is_string($row['technicalName'])) {
+                $technicalNames[$row['technicalName']] = true;
+            }
+
+            foreach ($this->getAncestorIds($row, $idsByTechnicalName) as $ancestorId) {
+                if (isset($visited[$ancestorId]) || !isset($themesById[$ancestorId])) {
+                    continue;
+                }
+
+                $visited[$ancestorId] = true;
+                $queue[] = $ancestorId;
+            }
+        }
+
+        return array_keys($technicalNames);
     }
 
     /**
+     * `parent_theme_id` holds one ancestor, `configInheritance` may name several. Both are sources.
+     *
+     * @param array<string, mixed> $row
+     * @param array<string, string> $idsByTechnicalName
+     *
      * @return array<int, string>
      */
-    private function getGrantParents(mixed $grandParentThemeId): array
+    private function getAncestorIds(array $row, array $idsByTechnicalName): array
     {
-        $grandParents = $this->connection->fetchAssociative('
-            SELECT theme.technical_name as themeName, parentTheme.technical_name as parentThemeName, LOWER(HEX(parentTheme.parent_theme_id)) as grandParentThemeId
-            FROM theme
-                LEFT JOIN theme AS parentTheme ON parentTheme.id = theme.parent_theme_id
-            WHERE theme.id = :id
-        ', [
-            'id' => Uuid::fromHexToBytes($grandParentThemeId),
-        ]);
+        $ancestorIds = [];
 
-        $filtered = array_filter([
-            $grandParents['themeName'] ?? null,
-            $grandParents['parentThemeName'] ?? null,
-        ]);
-
-        if (\is_array($grandParents) && isset($grandParents['grandParentThemeId']) && \is_string($grandParents['grandParentThemeId'])) {
-            $filtered = array_merge($filtered, $this->getGrantParents($grandParents['grandParentThemeId']));
+        // Must stay first: theme copies have no technical name, index 0 comes from the database parent.
+        if (\is_string($row['parentThemeId'])) {
+            $ancestorIds[] = $row['parentThemeId'];
         }
 
-        return $filtered;
+        $configInheritance = json_decode((string) $row['configInheritance'], true);
+
+        if (!\is_array($configInheritance)) {
+            return $ancestorIds;
+        }
+
+        // configInheritance is ordered from least to most specific
+        foreach (array_reverse($configInheritance) as $technicalName) {
+            if (!\is_string($technicalName)) {
+                continue;
+            }
+
+            $ancestorId = $idsByTechnicalName[ltrim($technicalName, '@')] ?? null;
+
+            if ($ancestorId !== null && $ancestorId !== $row['themeId']) {
+                $ancestorIds[] = $ancestorId;
+            }
+        }
+
+        return $ancestorIds;
     }
 }

@@ -116,12 +116,12 @@ final class ElementStyleNormalizer
      */
     private function isUnsetValue(mixed $value, ?StyleOptionSpecification $option): bool
     {
-        if ($value === '') {
-            return true;
-        }
-
         if ($option === null) {
             return false;
+        }
+
+        if ($value === '') {
+            return true;
         }
 
         if (!\is_array($value)) {

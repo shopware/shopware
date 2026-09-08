@@ -480,6 +480,37 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
             ContentSystemException::invalidFieldValueType('providesContext[product].distribution', implode('|', DistributionStrategy::values()), 'string'),
         ];
 
+        yield 'a broadcast provider carrying a keyed-only field' => [
+            self::baseWire([
+                'providesContext' => [
+                    'product' => ['type' => 'single', 'distribution' => 'broadcast', 'keyProperty' => 'sku'],
+                ],
+            ]),
+            ContentSystemException::invalidFieldValueType(
+                'providesContext[product]',
+                'only known provider keys',
+                'unknown key "keyProperty"'
+            ),
+        ];
+
+        yield 'an invalid provider context type is reported before a non-string config key' => [
+            self::baseWire([
+                'providesContext' => [
+                    'product' => (array) json_decode(
+                        '{"type":"bogus-type","distribution":"broadcast","12":"x"}',
+                        true,
+                        512,
+                        \JSON_THROW_ON_ERROR
+                    ),
+                ],
+            ]),
+            ContentSystemException::invalidFieldValueType(
+                'providesContext[product].type',
+                implode('|', ContextType::values()),
+                'string'
+            ),
+        ];
+
         yield 'a consumer entry missing type' => [
             self::baseWire(['acceptsContext' => ['items' => ['required' => true]]]),
             ContentSystemException::invalidFieldValueType('acceptsContext[items].type', implode('|', ContextType::values()), 'null'),

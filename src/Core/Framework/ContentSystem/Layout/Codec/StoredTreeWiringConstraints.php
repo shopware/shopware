@@ -154,7 +154,9 @@ final class StoredTreeWiringConstraints
 
     /**
      * The fields a provider carries beyond `type` and `distribution` depend on the declared strategy, which the
-     * `Collection` above admits as extra fields; each strategy's own constraint set is applied here.
+     * `Collection` above admits as extra fields. This descriptor independently closes the selected strategy's
+     * key set from its constraints, while {@see StoredElementWiringDecoder} uses the config object's canonical
+     * `toArray()` shape.
      */
     private function validateDistributionFields(mixed $value, ExecutionContextInterface $context): void
     {
@@ -175,7 +177,20 @@ final class StoredTreeWiringConstraints
             return;
         }
 
-        foreach ($configClass::buildConstraints() as $fieldName => $fieldConstraints) {
+        $constraints = $configClass::buildConstraints();
+        $knownKeys = ['type', 'distribution', ...array_keys($constraints)];
+
+        foreach (array_keys($value) as $fieldName) {
+            if (!\is_string($fieldName) || \in_array($fieldName, $knownKeys, true)) {
+                continue;
+            }
+
+            $context->buildViolation('This field was not expected.')
+                ->atPath("[$fieldName]")
+                ->addViolation();
+        }
+
+        foreach ($constraints as $fieldName => $fieldConstraints) {
             $fieldValue = $value[$fieldName] ?? null;
 
             foreach ($fieldConstraints as $constraint) {

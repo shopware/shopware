@@ -569,6 +569,31 @@ class SalesChannelValidatorTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function currencyExcludedSalesChannelTypeProvider(): iterable
+    {
+        yield 'product comparison' => [Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON];
+        yield 'agentic commerce' => [Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE];
+    }
+
+    #[DataProvider('currencyExcludedSalesChannelTypeProvider')]
+    public function testExcludedSalesChannelTypeSucceedsWithoutDefaultCurrencyInCurrencyList(string $typeId): void
+    {
+        $id = Uuid::randomHex();
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
+        $data['typeId'] = $typeId;
+        $data['currencies'] = [];
+
+        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+
+        $count = (int) static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT COUNT(*) FROM sales_channel_currency WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        static::assertSame(0, $count);
+    }
+
+    /**
      * @param list<string> $languages
      *
      * @return array<string, mixed>

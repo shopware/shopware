@@ -6,8 +6,11 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Clock\ClockInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -31,8 +34,8 @@ final readonly class WebhookClient
         $start = $this->clock->now()->getTimestamp();
 
         try {
-            $response = $this->guzzle->send($request->request, $request->options);
-        } catch (TransferException $e) {
+            $response = $this->sendResponse($request->request, $request->options);
+        } catch (TransferException|AppException $e) {
             return $this->createFailureResult($e, $this->clock->now()->getTimestamp() - $start);
         }
 
@@ -69,7 +72,7 @@ final readonly class WebhookClient
             $requestFactories[$key] = function () use ($wr, $key, &$startTimes) {
                 $startTimes[$key] = $this->clock->now()->getTimestamp();
 
-                return $this->guzzle->sendAsync($wr->request, $wr->options);
+                return $this->sendAsync($wr->request, $wr->options);
             };
         }
 
@@ -94,6 +97,27 @@ final readonly class WebhookClient
         $pool->promise()->wait();
 
         return $results;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function sendAsync(RequestInterface $request, array $options): PromiseInterface
+    {
+        $options['allow_redirects'] = ['max' => 5, 'strict' => true];
+
+        return $this->guzzle->sendAsync($request, $options);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function sendResponse(RequestInterface $request, array $options): ResponseInterface
+    {
+        return $this->sendAsync($request, $options)->wait();
     }
 
     /**

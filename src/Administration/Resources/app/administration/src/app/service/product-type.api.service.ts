@@ -2,7 +2,7 @@
  * @private
  * @sw-package inventory
  */
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 
 import ApiService from 'src/core/service/api.service';
 import type { ApiResponse } from 'src/core/service/api.service';
@@ -10,7 +10,7 @@ import type { LoginService } from 'src/core/service/login.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ProductTypeApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint: string = '_action/product/types') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint: string = '_action/product/types') {
         super(httpClient, loginService, apiEndpoint);
 
         this.name = 'productTypeApiService';

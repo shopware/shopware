@@ -4,6 +4,7 @@ namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -109,8 +110,9 @@ class StoredElementBuilder
         bool $redistribute = false,
         ?string $consumerAlias = null,
         ?string $propertyAlias = null,
+        ConsumerScope $scope = ConsumerScope::Parent,
     ): self {
-        $this->consumers[$key] = new ContextConsumer($type, $required, $redistribute, $consumerAlias, $propertyAlias);
+        $this->consumers[$key] = new ContextConsumer($type, $required, $redistribute, $consumerAlias, $propertyAlias, $scope);
 
         return $this;
     }

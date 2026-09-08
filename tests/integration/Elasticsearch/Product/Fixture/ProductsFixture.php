@@ -598,7 +598,7 @@ class ProductsFixture
                     [
                         'media' => [
                             'fileName' => 'foo',
-                            'fileExtension' => 'bar',
+                            'fileExtension' => 'png',
                             'private' => true,
                         ],
                     ],

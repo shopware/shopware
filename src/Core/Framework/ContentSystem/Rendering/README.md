@@ -14,6 +14,6 @@ In SKELETON mode no loader runs and no delivery is computed — the mint is hand
 
 ## Distribution
 
-`ContextDistributor` is the rule for one parent and its direct children; reaching further down takes explicit re-providing (`acceptsContext` + `providesContext`). The forest walk is separate and belongs to `ContextDeliveryResolver`; it runs top-down, so a container that receives context and re-provides it distributes what it was given.
+`ContextDistributor` is the rule for one parent and its direct children; carrying element-provided context further down takes explicit re-providing (`acceptsContext` + `providesContext`). Root-ambient context does not travel this way at all: it is an argument to `ContextDeliveryResolver::resolve()` and fills each element's `ConsumerScope::Root` consumers directly, at any depth. The forest walk is separate and belongs to `ContextDeliveryResolver`; it runs top-down, so a container that receives context and re-provides it distributes what it was given.
 
 The strategies `ContextDistributor` dispatches on are declared in `Layout/Element/Context/Distribution/`. What each one means, and the context-flow rules bounding how far a distributed context reaches, are owned by [Layout/Element/Context/docs/distribution-strategies.md](../Layout/Element/Context/docs/distribution-strategies.md).

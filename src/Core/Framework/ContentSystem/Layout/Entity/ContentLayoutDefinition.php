@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Entity;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -55,11 +56,11 @@ class ContentLayoutDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new StringField('name', 'name', 255))->addFlags(new ApiAware(), new Required()),
-            (new StringField('version', 'version', 20))->addFlags(new ApiAware(), new Required()),
-            (new StoredElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(), new Required()),
-            (new StringField(self::ROOT_SOURCE_FIELD, 'rootSource'))->addFlags(new ApiAware(), new Required(), new Immutable()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new PrimaryKey(), new Required()),
+            (new StringField('name', 'name', 255))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('version', 'version', 20))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StoredElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField(self::ROOT_SOURCE_FIELD, 'rootSource'))->addFlags(new ApiAware(AdminApiSource::class), new Required(), new Immutable()),
 
             (new OneToManyAssociationField('productContentLayouts', ProductContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('categoryContentLayouts', CategoryContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),

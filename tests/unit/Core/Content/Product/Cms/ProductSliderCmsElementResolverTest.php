@@ -41,11 +41,15 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     public function testGetType(): void
     {
+        $this->logger->expects($this->never())->method('error');
+
         static::assertSame('product-slider', $this->getResolver()->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
     {
+        $this->logger->expects($this->never())->method('error');
+
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, null));
 
         $slot = $this->getSlot();
@@ -72,6 +76,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     public function testCollect(): void
     {
+        $this->logger->expects($this->never())->method('error');
+
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
         $collection = new CriteriaCollection();
@@ -91,6 +97,9 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
+        // No processor is registered, so the resolver logs the missing "static" processor.
+        $this->logger->expects($this->once())->method('error');
+
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, null));
 
         $slot = $this->getSlot();
@@ -122,6 +131,8 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     public function testEnrich(): void
     {
+        $this->logger->expects($this->never())->method('error');
+
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, 'VALID-VALUE'));
 
         $slot = $this->getSlot();

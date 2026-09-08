@@ -355,6 +355,39 @@ class ThumbnailServiceTest extends TestCase
         static::assertSame(0, $actual);
     }
 
+    public function testUpdateThumbnailsWithForceRegeneratesExistingThumbnails(): void
+    {
+        // Use the same mediaThumbnailSizeId, without force nothing would be regenerated
+        $mediaThumbnailEntity = $this->createMediaThumbnailEntity('abc');
+        $mediaFolderEntity = $this->createMediaFolderEntity('abc');
+
+        $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
+        $mediaThumbnailEntity->setMedia($mediaEntity);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('transactional')
+            ->willReturnCallback(function (\Closure $func) use ($mediaEntity, $mediaFolderEntity) {
+                $reflection = new \ReflectionFunction($func);
+                $staticVars = $reflection->getStaticVariables();
+
+                static::assertSame([['id' => 'media-thumbnail-id-1']], $staticVars['delete']);
+                static::assertSame($mediaEntity, $staticVars['media']);
+                static::assertSame($mediaFolderEntity->getConfiguration(), $staticVars['config']);
+                static::assertSame($this->context, $staticVars['context']);
+                static::assertInstanceOf(MediaThumbnailSizeCollection::class, $staticVars['toBeCreatedSizes']);
+                static::assertCount(1, $staticVars['toBeCreatedSizes']->getElements());
+
+                return [['id' => Uuid::randomHex()]];
+            });
+
+        $thumbnailService = $this->createThumbnailService(connection: $connection);
+
+        $actual = $thumbnailService->updateThumbnails($mediaEntity, $this->context, false, true);
+
+        static::assertSame(1, $actual);
+    }
+
     public function testDeleteThumbnailsExecutesRepository(): void
     {
         $expected = [

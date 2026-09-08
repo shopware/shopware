@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
@@ -58,7 +59,11 @@ class ProductExportGenerateCommandTest extends TestCase
         ]);
     }
 
-    public function testExecuteWithValidData(): void
+    /**
+     * @param Defaults::SALES_CHANNEL_TYPE_* $typeId
+     */
+    #[DataProvider('allowedSalesChannelTypeProvider')]
+    public function testExecuteWithValidData(string $typeId): void
     {
         $salesChannelId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -67,7 +72,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChannelId);
-        $salesChannelEntity->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannelEntity->setTypeId($typeId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannelEntity);
 
         $this->salesChannelContextFactory->method('create')->willReturn($salesChannelContext);
@@ -83,6 +88,15 @@ class ProductExportGenerateCommandTest extends TestCase
         ]);
 
         static::assertSame(0, $commandTester->getStatusCode());
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function allowedSalesChannelTypeProvider(): iterable
+    {
+        yield 'storefront' => [Defaults::SALES_CHANNEL_TYPE_STOREFRONT];
+        yield 'headless' => [Defaults::SALES_CHANNEL_TYPE_API];
     }
 
     private function createCommandTester(?ProductExporterInterface $productExporter = null): CommandTester

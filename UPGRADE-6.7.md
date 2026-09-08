@@ -1,3 +1,175 @@
+# 6.7.15.0
+
+## Document generation v1 deprecated for removal in Shopware 6.9
+
+The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
+
+### Deprecated classes
+
+All classes below live under `Shopware\Core\Checkout\Document`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally.
+
+| Deprecated | Replacement |
+|---|---|
+| `Controller\DocumentController` | `Controller\DocumentV2Controller` |
+| `DocumentGeneratorController` | `Controller\DocumentV2Controller` |
+| `DocumentConfiguration` | `Config\DocumentConfig` |
+| `DocumentConfigurationFactory` | none |
+| `DocumentException` | `DocumentV2Exception` |
+| `DocumentGenerationResult` | `Struct\RenderResult` |
+| `Renderer\RendererResult` | `Struct\RenderResult` |
+| `Renderer\DocumentRendererConfig` | `Struct\RenderInput` |
+| `Struct\DocumentGenerateOperation` | `Generation\DocumentGenerationRequest` |
+| `Service\DocumentGenerator` | `POST /api/_action/order/document-v2/create` |
+| `Service\HtmlRenderer` | none |
+| `Service\PdfRenderer` | none |
+| `Renderer\AbstractDocumentRenderer` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `Service\AbstractDocumentTypeRenderer` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `Extension\HtmlRendererExtension` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `Extension\PdfRendererExtension` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `FileGenerator\FileGeneratorInterface` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `FileGenerator\FileTypes` | `DocumentFormat` |
+| `Twig\DocumentTemplateRenderer` | none |
+| `Renderer\InvoiceRenderer` | Data provider for `DocumentType::INVOICE` |
+| `Renderer\StornoRenderer` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Renderer\DeliveryNoteRenderer` | Data provider for `DocumentType::DELIVERY_NOTE` |
+| `Renderer\CreditNoteRenderer` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Renderer\ZugferdRenderer` | Data provider for `DocumentType::INVOICE` |
+| `Renderer\ZugferdEmbeddedRenderer` | Data provider for `DocumentType::INVOICE` |
+| `Renderer\ZugferdCancellationInvoiceRenderer` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Renderer\ZugferdEmbeddedCancellationInvoiceRenderer` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Renderer\ZugferdCreditNoteRenderer` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Renderer\ZugferdEmbeddedCreditNoteRenderer` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Event\InvoiceOrdersEvent` | Data provider for `DocumentType::INVOICE` |
+| `Event\StornoOrdersEvent` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Event\DeliveryNoteOrdersEvent` | Data provider for `DocumentType::DELIVERY_NOTE` |
+| `Event\CreditNoteOrdersEvent` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Event\ZugferdCancellationInvoiceOrdersEvent` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Event\ZugferdCreditNoteOrdersEvent` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Zugferd\ZugferdInvoiceOrdersEvent` | Data provider for `DocumentType::INVOICE` |
+| `Event\DocumentOrderEvent` | Data provider (base class of the events above) |
+| `Event\DocumentOrderCriteriaEvent` | `AbstractDocumentDataProvider::enrichOrderCriteria()` |
+| `Event\DocumentTemplateRendererParameterEvent` | `AbstractDocumentDataProvider::provideRenderingData()` |
+| `DocumentEvents` | none |
+| `DocumentGenerator\Counter` | none |
+| `DocumentIdCollection` | none |
+| `DocumentIdStruct` | none |
+| `Renderer\DocumentRendererRegistry` | none |
+| `Renderer\OrderDocumentCriteriaFactory` | none |
+| `Service\DocumentConfigLoader` | none |
+| `Service\DocumentFileRendererRegistry` | none |
+| `Service\DocumentMerger` | none |
+| `Zugferd\ZugferdBuilder` | none |
+| `Zugferd\ZugferdDocument` | none |
+| `Zugferd\ZugferdInvoiceGeneratedEvent` | none |
+| `Zugferd\ZugferdInvoiceItemAddedEvent` | none |
+
+### Deprecated entities
+
+The `document_type` and `document_type_translation` entities are deprecated with `reason:remove-entity` (removed in 6.9). Document types are code-registered strings. Read `document.typeName` (`document.type_name`) instead of the `documentType` association. The affected classes:
+
+- `Aggregate\DocumentType\DocumentTypeEntity`
+- `Aggregate\DocumentType\DocumentTypeDefinition`
+- `Aggregate\DocumentType\DocumentTypeCollection`
+- `Aggregate\DocumentTypeTranslation\DocumentTypeTranslationEntity`
+- `Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition`
+- `Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection`
+
+### Relocated classes
+
+The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names (annotated with `#[NamespaceChange]`):
+
+| Current location | Location from 6.9 |
+|---|---|
+| `DocumentEntity` | `DocumentV2\DocumentEntity` |
+| `DocumentDefinition` | `DocumentV2\DocumentDefinition` |
+| `DocumentCollection` | `DocumentV2\DocumentCollection` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
+| `Renderer\RenderedDocument` | `DocumentV2\Struct\RenderedDocument` |
+| `SalesChannel\AbstractDocumentRoute` | `DocumentV2\SalesChannel\AbstractDocumentRoute` |
+| `SalesChannel\DocumentRoute` | `DocumentV2\SalesChannel\DocumentRoute` |
+| `Service\ReferenceInvoiceLoader` | `DocumentV2\Service\ReferenceInvoiceLoader` |
+
+## Document generation v2 experimental public surface
+
+The following classes are marked `@experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK`. They may change in any 6.7 release and become the stable public API with Shopware 6.8 (all under `Shopware\Core\Checkout\DocumentV2`):
+
+- `Type\AbstractDocumentType`
+- `Provider\AbstractDocumentDataProvider`
+- `Renderer\AbstractDocumentRenderer`
+- `Provider\ReferencesDocument`
+- `Provider\RendersReferencedSnapshot`
+- `Provider\RenderData\DocumentMetaRenderData`
+- `Struct\AbstractRenderData`
+- `Struct\ProviderInput`
+- `Struct\RenderInput`
+- `Struct\RenderResult`
+- `Struct\RenderState`
+- `Struct\ReferencedDocument`
+- `Config\DocumentConfig`
+- `Config\DocumentCompanyInfo`
+- `Config\DocumentDisplayOptions`
+- `DocumentType`
+- `DocumentFormat`
+- `DocumentSourceEntity`
+- `DocumentV2Exception`
+- `Aggregate\DocumentFile\DocumentFileEntity`
+- `Aggregate\DocumentFile\DocumentFileDefinition`
+- `Aggregate\DocumentFile\DocumentFileCollection`
+- `Generation\DocumentGenerationRequest`
+- `Controller\DocumentV2Controller`
+- `Template\ZugferdTwigExtension`
+
+The service tags `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` and the events `document.generation.completed` / `document.generation.deleted` belong to this surface as well. Everything else in the `DocumentV2` namespace is `@internal`.
+
+## Company information required for document generation v2
+
+With the `DOCUMENT_GENERATION_REWORK` flag enabled, document company data is read from the new "Company information" card in Settings > Basic information (system config domain `core.basicInformation`, per sales channel). The company fields on `document_base_config` and `document_base_config_sales_channel` are no longer used.
+
+Existing values are not migrated. When the card is empty for a sales channel, v2 falls back to the legacy document settings. As soon as one card field is set, the legacy values are ignored completely.
+
+Generation throws `DocumentV2Exception` (`DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS`) when `companyName`, `companyStreet`, `companyZipcode`, `companyCity`, or a valid company country is missing.
+
+## Document generation v2 always keeps an accessible HTML version
+
+With the `DOCUMENT_GENERATION_REWORK` flag enabled, every generated document keeps an accessible HTML version, even when HTML was not among the requested formats.
+A PDF-only invoice, for example, still produces and stores its HTML representation alongside the PDF. This HTML version is linked in the order and in document-related flow mails, so recipients can open the document directly in the browser without downloading the PDF.
+
+## Administration: legacy document generation components deprecated
+
+Deprecated with `@deprecated tag:v6.9.0`, removed in Shopware 6.9.
+
+### Services
+
+- `DocumentApiService` (`core/service/api/document.api.service.js`), including the exported `DocumentEvents` constant. Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
+
+### Components
+
+The following components are fully deprecated including their registration, template, and all Twig blocks:
+
+- `sw-order-document-settings-modal` (block `sw_order_document_settings_modal` and its children)
+- `sw-order-document-settings-invoice-modal`
+- `sw-order-document-settings-credit-note-modal`
+- `sw-order-document-settings-delivery-note-modal`
+- `sw-order-document-settings-storno-modal`
+- `sw-order-select-document-type-modal` (block `sw_order_select_document_type_modal` and its children)
+
+### Deprecated members of surviving components
+
+`sw-order-document-card`:
+
+- the Twig block `sw_order_document_card_grid_column_modal` and the `sw-order-select-document-type-modal` usage in its template
+- the `documentService` inject and the `DocumentEvents` import
+- the `showModal` data property and the `documentModal` computed property
+- the methods `convertStoreEventToVueEvent()`, `createDocument()`, `onCancelCreation()`, `onPrepareDocument()`, `openDocument()`
+- the v1-only branches inside the surviving download and creation methods
+
+`sw-bulk-edit-save-modal-process` (order bulk edit): the methods `createDocument()`, `getDocumentGenerationResult()`, `getFailedDocumentGenerationItems()`
+
 # 6.7.14.0
 
 ## Product export templates: media URLs are encoded automatically

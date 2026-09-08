@@ -5,31 +5,23 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Codec;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * The element, slot and style tiers of the write descriptor. The element-local and provider-field wiring
+ * tiers sit in {@see StoredTreeWiringConstraintsTest}; both files share {@see StoredTreeConstraintsTestCase}.
+ *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoredTreeConstraints::class)]
-class StoredTreeConstraintsTest extends TestCase
+class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
 {
     #[TestDox('reports no violation for a well-formed forest carrying every element field')]
     public function testValidatesAWellFormedForest(): void
@@ -64,21 +56,6 @@ class StoredTreeConstraintsTest extends TestCase
         ];
 
         static::assertCount(0, $this->validate($forest));
-    }
-
-    #[TestDox('reports no violation for a style option the registry knows')]
-    public function testAcceptsAKnownStyleOption(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'style' => ['col-span' => ['md' => 6]],
-            ],
-        ]);
-
-        static::assertCount(0, $violations);
     }
 
     #[TestDox('attaches the property-type rule to every element, reporting a root and a nested child at their own paths')]
@@ -119,16 +96,6 @@ class StoredTreeConstraintsTest extends TestCase
     public function testAcceptsAValidStyle(array $style): void
     {
         static::assertCount(0, $this->validate([$this->element(['style' => $style])]));
-    }
-
-    /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('acceptsDistributionProvider')]
-    #[TestDox('reports no violation for $_dataName')]
-    public function testAcceptsAWellFormedDistribution(array $provider): void
-    {
-        static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
     }
 
     #[TestDox('derives the style constraints fresh on each call so a changed registry reaches the next write')]
@@ -180,26 +147,6 @@ class StoredTreeConstraintsTest extends TestCase
             '[0][slots][main][0].[slots][inner][0].[id]',
             $violations->get(0)->getPropertyPath()
         );
-    }
-
-    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
-    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
-    }
-
-    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
-    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
-    {
-        $provider = ['type' => 'single', 'distribution' => 'unknown'];
-
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
     }
 
     #[TestDox('reports a violation for a style option the registry does not know')]
@@ -271,48 +218,6 @@ class StoredTreeConstraintsTest extends TestCase
         );
     }
 
-    #[TestDox('reports a violation for a consumer alias declared without redistribution')]
-    public function testRejectsAConsumerAliasWithoutRedistribute(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'acceptsContext' => [
-                    'items' => ['type' => 'single', 'required' => true, 'consumerAlias' => 'inner'],
-                ],
-            ],
-        ]);
-
-        static::assertCount(1, $violations);
-        static::assertSame(
-            'This value requires "redistribute" to be true.',
-            (string) $violations->get(0)->getMessage()
-        );
-    }
-
-    #[TestDox('reports a violation for a property alias carrying dot notation')]
-    public function testRejectsAPropertyAliasWithDotNotation(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'acceptsContext' => [
-                    'items' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product.name'],
-                ],
-            ],
-        ]);
-
-        static::assertCount(1, $violations);
-        static::assertSame(
-            'This value should be a simple property name without dot notation.',
-            (string) $violations->get(0)->getMessage()
-        );
-    }
-
     /**
      * @param array<string, mixed> $style
      */
@@ -328,19 +233,6 @@ class StoredTreeConstraintsTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('rejectsDistributionProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAMalformedDistribution(array $provider, string $expectedPath): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
-    }
-
-    /**
      * @return iterable<string, array{array<string, mixed>}>
      */
     public static function acceptsStyleProvider(): iterable
@@ -352,7 +244,6 @@ class StoredTreeConstraintsTest extends TestCase
         yield 'an empty style' => [[]];
         yield 'a flat integer option sent as a scalar' => [['z-index' => 10]];
         yield 'a flat string option within its maxLength' => [['flat-label' => 'short']];
-        yield 'coexisting flat and breakpoint-aware options' => [['z-index' => 10, 'col-span' => ['md' => 6]]];
     }
 
     /**
@@ -369,133 +260,5 @@ class StoredTreeConstraintsTest extends TestCase
         yield 'a flat integer option sent as a breakpoint map' => [['z-index' => ['md' => 10]], '[0][style][z-index]'];
         yield 'a breakpoint-aware option sent as a bare scalar' => [['col-span' => 6], '[0][style][col-span]'];
         yield 'a flat string option exceeding its maxLength' => [['flat-label' => '123456789'], '[0][style][flat-label]'];
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function acceptsDistributionProvider(): iterable
-    {
-        yield 'a broadcast provider carrying nothing beyond its two declared fields' => [
-            ['type' => 'single', 'distribution' => 'broadcast'],
-        ];
-
-        yield 'an indexed provider carrying nothing beyond its two declared fields' => [
-            ['type' => 'single', 'distribution' => 'indexed'],
-        ];
-
-        yield 'an iterator provider carrying nothing beyond its two declared fields' => [
-            ['type' => 'collection', 'distribution' => 'iterator'],
-        ];
-
-        yield 'a keyed provider carrying its key property' => [
-            ['type' => 'collection', 'distribution' => 'keyed', 'keyProperty' => 'sku'],
-        ];
-
-        yield 'a sliced provider carrying its slice size' => [
-            ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 5],
-        ];
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>, string}>
-     */
-    public static function rejectsDistributionProvider(): iterable
-    {
-        yield 'a broadcast provider whose consumer alias is not a string' => [
-            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 42],
-            '[0][providesContext][product][consumerAlias]',
-        ];
-
-        yield 'an indexed provider whose consumer alias is not a string' => [
-            ['type' => 'single', 'distribution' => 'indexed', 'consumerAlias' => 42],
-            '[0][providesContext][product][consumerAlias]',
-        ];
-
-        yield 'an iterator provider whose consumer alias is not a string' => [
-            ['type' => 'collection', 'distribution' => 'iterator', 'consumerAlias' => 42],
-            '[0][providesContext][product][consumerAlias]',
-        ];
-
-        yield 'a keyed provider with no key property' => [
-            ['type' => 'collection', 'distribution' => 'keyed'],
-            '[0][providesContext][product][keyProperty]',
-        ];
-
-        yield 'a sliced provider with no slice size' => [
-            ['type' => 'collection', 'distribution' => 'sliced'],
-            '[0][providesContext][product][sliceSize]',
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $overrides
-     *
-     * @return array<string, mixed>
-     */
-    private function element(array $overrides): array
-    {
-        return ['id' => 'root-1', 'component' => 'core:text', 'properties' => [], ...$overrides];
-    }
-
-    /**
-     * @param list<array<array-key, mixed>> $forest
-     */
-    private function validate(array $forest): ConstraintViolationListInterface
-    {
-        return $this->validator()->validate($forest, $this->constraints()->build());
-    }
-
-    /**
-     * The descriptor attaches a constraint whose validator carries the element-type registry, so the default
-     * factory (which builds every validator with `new`) cannot supply it.
-     */
-    private function validator(): ValidatorInterface
-    {
-        return Validation::createValidatorBuilder()
-            ->setConstraintValidatorFactory(new ConstraintValidatorFactory([
-                PropertyTypeConformanceValidator::class => new PropertyTypeConformanceValidator($this->typeRegistry()),
-            ]))
-            ->getValidator();
-    }
-
-    /**
-     * Knows one type, `core:text`, declaring one string property. Every other payload in this file names a
-     * component the registry does not know or a key that type does not declare, so the property-type rule is
-     * inert for them and each test still pins the part of the descriptor it was written for.
-     */
-    private function typeRegistry(): AbstractContentSystemElementTypeRegistry
-    {
-        $specs = ['core:text' => new ContentSystemElementTypeSpecification(
-            'core:text',
-            'Text',
-            '',
-            null,
-            null,
-            new CopilotSpecification('', []),
-            ['headline' => new PropertySpecification('headline', new PropertyType('string', false, null, null), false, '', '', null)],
-            [],
-        )];
-
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
-        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
-
-        return $registry;
-    }
-
-    private function constraints(): StoredTreeConstraints
-    {
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturn([
-            'col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), true, null, 'core'),
-            'align-self' => new StyleOptionSpecification('align-self', new StyleOptionValueType('string', ['auto', 'start', 'center'], null, null, 'auto'), true, null, 'core'),
-            'margin' => new StyleOptionSpecification('margin', new StyleOptionValueType('string', null, null, 8, null), true, null, 'core'),
-            'display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), true, null, 'core'),
-            'z-index' => new StyleOptionSpecification('z-index', new StyleOptionValueType('integer', null, null, null, null), false, null, 'core'),
-            'flat-label' => new StyleOptionSpecification('flat-label', new StyleOptionValueType('string', null, null, 8, null), false, null, 'core'),
-        ]);
-
-        return new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver());
     }
 }

@@ -79,6 +79,18 @@ class SwTwigFunctionTest extends TestCase
             'arguments' => ['arg1', 'arg2'],
             'expected' => 'result',
         ];
+
+        yield 'hasser method' => [
+            'object' => $object,
+            'attribute' => 'children',
+            'expected' => true,
+        ];
+
+        yield 'isser method takes precedence over hasser method' => [
+            'object' => $object,
+            'attribute' => 'variants',
+            'expected' => false,
+        ];
     }
 
     /**
@@ -169,5 +181,20 @@ class StructForTests extends Struct
         }
 
         return 'result';
+    }
+
+    public function hasChildren(): bool
+    {
+        return true;
+    }
+
+    public function isVariants(): bool
+    {
+        return false;
+    }
+
+    public function hasVariants(): bool
+    {
+        return true;
     }
 }

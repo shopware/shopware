@@ -358,6 +358,8 @@ class SnippetServiceTest extends TestCase
             },
         ]);
 
+        $this->connection->expects($this->never())->method('fetchOne');
+
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,
             snippetSetRepository: $snippetSetRepository,
@@ -453,6 +455,8 @@ class SnippetServiceTest extends TestCase
 
         $snippetSetRepository = new StaticEntityRepository([$snippetSetCollection]);
         $snippetRepository = new StaticEntityRepository([new SnippetCollection()]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
 
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,

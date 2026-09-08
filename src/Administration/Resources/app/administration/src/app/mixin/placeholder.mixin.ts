@@ -9,6 +9,8 @@ import { defineComponent } from 'vue';
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-placeholder`; change both together.
  */
 export default Shopware.Mixin.register(
     'placeholder',

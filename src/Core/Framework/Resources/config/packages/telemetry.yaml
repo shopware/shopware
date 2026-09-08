@@ -72,6 +72,22 @@ shopware:
                         transport:
                             policy: open
 
+                scheduled_task.run.duration:
+                    # per-task-name performance signal, kept separate from overall messenger noise;
+                    # only terminal outcomes are recorded (retried attempts are covered by the messenger metrics)
+                    description: 'Scheduled task execution duration (worker received to handled/failed), per task/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-second cache invalidation up to long sitemap/product-export generation
+                        buckets: [10, 100, 1000, 10000, 60000, 300000, 600000]
+                    labels:
+                        # see TaskNameResolver
+                        task_name:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
                 dal.associations.count:
                     description: 'Number of associations loaded'
                     type: 'histogram'
@@ -229,3 +245,94 @@ shopware:
                             policy: open
                         operation:
                             allowed_values: [read, write, delete, none]
+
+                number_range.allocation.duration:
+                    # IncrementStorage::reserve duration; rising p95/p99 with storage=mysql under order load =
+                    # number_range_state row-lock contention, the leading indicator for switching to the Redis storage
+                    description: 'Number range increment reservation duration, per type/storage/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # single indexed statement; anything beyond tens of ms indicates lock contention
+                        buckets: [1, 5, 10, 50, 100, 1000]
+                    labels:
+                        # see NumberRangeTypeResolver
+                        number_range_type:
+                            policy: open
+                        # configured storage key (known core: mysql, redis; plugin-registered backends pass through)
+                        storage:
+                            policy: open
+                        # a reserve failing on lock wait timeout is the contention signal itself
+
+                api.sync.operations.count:
+                    description: 'Operations per Sync API request'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 5, 10, 25, 50, 100, 500]
+
+                api.sync.entities.affected:
+                    # pre-aggregated per request: one emit per (entity_group, action) pair
+                    description: 'Entities written/deleted via the Sync API, per entity group and action'
+                    type: 'counter'
+                    labels:
+                        # see EntityGroupResolver
+                        entity_group:
+                            policy: open
+                        action:
+                            allowed_values: [upsert, delete]
+
+                api.sync.duration:
+                    description: 'Total Sync API request duration'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # small payloads up to bulk imports
+                        buckets: [10, 100, 1000, 10000, 60000, 300000]
+                    labels:
+                        # 'default' = no explicit behavior requested (synchronous indexing)
+                        indexing_behavior:
+                            allowed_values: ['use-queue-indexing', 'disable-indexing', 'default']
+                        # failed requests are timed too, kept out of the healthy distribution
+
+                flow.execution.duration:
+                    # end-to-end flow engine wall time; one inbound event fans out across all matched flows, each timed separately.
+                    # heavy actions that offload to queue (mail, webhooks) are not included in the flow engine wall time
+                    # and are covered by the queue metrics.
+                    # the result label keeps failed-run latency out of the healthy distribution.
+                    description: 'Flow execution wall time per matched flow, per trigger group and outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 5000]
+                    labels:
+                        # see TriggerGroupResolver
+                        trigger_group:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
+                mail.send.count:
+                    # result=sent means the mail was handed off (default delivery is async), not delivered;
+                    # actual delivery is covered by messenger.message.handled.count (message_group=mail)
+                    description: 'Mail send handoffs, per mail group and outcome'
+                    type: 'counter'
+                    labels:
+                        # see MailGroupResolver (uses the triggering event name; mails sent outside a flow resolve to other)
+                        mail_group:
+                            policy: open
+                        result:
+                            allowed_values: [sent, failed]
+
+                mail.send.duration:
+                    # AbstractMailSender::send() enqueues the mail and returns before the transport runs, so this is
+                    # the handoff time, not the SMTP round-trip (that runs in a worker: messenger.message.handling.duration,
+                    # message_group=mail). Only a synchronous mailer transport (uncommon in prod) makes this the full send.
+                    description: 'Mail send handoff duration (AbstractMailSender::send)'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [10, 50, 100, 500, 1000, 5000, 30000]
+                    labels:
+                        # failures are timed too, but kept out of the healthy distribution
+                        result:
+                            allowed_values: [sent, failed]

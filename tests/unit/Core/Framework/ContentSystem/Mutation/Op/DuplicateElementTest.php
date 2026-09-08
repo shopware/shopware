@@ -8,11 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
@@ -59,10 +62,30 @@ class DuplicateElementTest extends TestCase
         static::assertSame([$clone->id, $clonedChild->id], $duplicate->affected());
     }
 
+    #[TestDox('reports the whole clone subtree as created and never the original it copied')]
+    public function testDuplicateCreatedIsTheWholeCloneSubtree(): void
+    {
+        $tree = new StoredTree([new StoredElement('root', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('child', 'Sw:Block')],
+        ])]);
+
+        $duplicate = new DuplicateElement('root');
+        $result = $duplicate->apply($tree);
+
+        $clone = $result->roots[1];
+        static::assertSame([$clone->id, $clone->slots['content'][0]->id], $duplicate->created());
+        static::assertNotContains('root', $duplicate->created());
+        static::assertNotContains('child', $duplicate->created());
+    }
+
     #[TestDox('reports only the clone id as affected when the duplicated element has no children')]
     public function testDuplicateLeafAffectedIsCloneIdOnly(): void
     {
-        $tree = new StoredTree([new StoredElement('original', 'Sw:Card'), new StoredElement('other', 'Sw:Block')]);
+        $headline = StoredValue::ofString('Autumn sale');
+        $tree = new StoredTree([
+            new StoredElement('original', 'Sw:Card', [], ['headline' => $headline]),
+            new StoredElement('other', 'Sw:Block'),
+        ]);
 
         $duplicate = new DuplicateElement('original');
         $result = $duplicate->apply($tree);
@@ -71,7 +94,7 @@ class DuplicateElementTest extends TestCase
         static::assertNotSame('original', $clone->id);
         static::assertSame('original', $result->roots[0]->id);
         static::assertSame('Sw:Card', $clone->component);
-        static::assertSame([], $clone->properties());
+        static::assertSame(['headline' => $headline], $clone->properties());
         static::assertSame([$clone->id], $duplicate->affected());
     }
 
@@ -88,6 +111,30 @@ class DuplicateElementTest extends TestCase
         static::assertSame(['product' => $requirement], $result->roots[1]->dataRequirements);
         static::assertSame($contextDefinitions, $result->roots[1]->contextDefinitions);
         static::assertSame($style->toArray(), $result->roots[1]->style->toArray());
+    }
+
+    /**
+     * The consumer-scope carry-through, read as the VALUE rather than as instance identity: the clone is
+     * reconstructed with fresh ids, and a reconstruction that rebuilt each consumer field by field would keep
+     * the type and the required flag while silently dropping the scope back to its `parent` default. That
+     * defect turns a duplicated element from one that receives the page's root context into one that
+     * receives nothing, with no error anywhere.
+     */
+    #[TestDox('carries the root consumer scope over to the reconstructed clone')]
+    public function testDuplicatePreservesTheRootConsumerScopeOnClone(): void
+    {
+        $original = StoredElementBuilder::create('Sw:Card', 'original')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $tree = new StoredTree([$original]);
+
+        $result = (new DuplicateElement('original'))->apply($tree);
+
+        $clone = $result->roots[1];
+        static::assertNotSame('original', $clone->id);
+        $consumer = $clone->contextDefinitions->getAllConsumers()['product'] ?? null;
+        static::assertInstanceOf(ContextConsumer::class, $consumer);
+        static::assertSame(ConsumerScope::Root, $consumer->scope);
     }
 
     #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]
@@ -131,6 +178,54 @@ class DuplicateElementTest extends TestCase
         static::assertSame('Sw:Card', $result->roots[0]->component);
         static::assertSame('original', $result->roots[1]->id);
         static::assertSame('other', $result->roots[2]->id);
+    }
+
+    /**
+     * The remint read as distinctness WITHIN the clone, which the comparison against the original literals
+     * cannot see: a remint that minted one id and reused it for every node in the subtree still differs from
+     * every original id, and still writes a forest whose element ids collide.
+     */
+    #[TestDox('repeats zero ids across a cloned subtree three levels deep')]
+    public function testDuplicateDeepSubtreeRepeatsZeroIds(): void
+    {
+        $tree = new StoredTree([new StoredElement('root', 'Sw:Block', [], [], [
+            'content' => [
+                new StoredElement('inner', 'Sw:Block', [], [], [
+                    'content' => [new StoredElement('leaf', 'Sw:Card')],
+                ]),
+                new StoredElement('sibling', 'Sw:Card'),
+            ],
+        ])]);
+
+        $result = (new DuplicateElement('root'))->apply($tree);
+
+        $clone = $result->roots[1];
+        $ids = [
+            $clone->id,
+            $clone->slots['content'][0]->id,
+            $clone->slots['content'][0]->slots['content'][0]->id,
+            $clone->slots['content'][1]->id,
+        ];
+        $repeated = array_keys(array_filter(
+            array_count_values($ids),
+            static fn (int $count): bool => $count > 1,
+        ));
+        static::assertSame([], $repeated);
+    }
+
+    #[TestDox('inserts the clone at a zero index inside the parent slot when given')]
+    public function testDuplicateNestedAtZeroIndex(): void
+    {
+        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('original', 'Sw:Card')],
+        ])]);
+
+        $result = (new DuplicateElement('original', 0))->apply($tree);
+
+        $children = $result->roots[0]->slots['content'];
+        static::assertCount(2, $children);
+        static::assertNotSame('original', $children[0]->id);
+        static::assertSame('original', $children[1]->id);
     }
 
     #[TestDox('rejects duplicating an element absent from the tree with a 400')]

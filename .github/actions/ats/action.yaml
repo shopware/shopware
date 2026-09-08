@@ -175,7 +175,8 @@ runs:
       uses: shopware/github-actions/npm-ci-retry@main
       with:
         working-directory: ${{ inputs.directory }}
-        command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
+        # A stalled apt mirror hangs without failing, so the retry loop never fires; time each attempt out so it can retry (normal runtime is ~2 minutes).
+        command: timeout 10m bash -c 'sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium'
 
     - name: Run your tests
       shell: bash

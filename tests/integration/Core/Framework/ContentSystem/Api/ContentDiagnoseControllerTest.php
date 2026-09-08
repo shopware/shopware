@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -69,17 +70,36 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame('definitely-not-a-style-option', $violations[0]['key']);
     }
 
-    #[TestDox('reports a numeric wiring key as an invalid_config violation attributed to the offending element')]
-    public function testDiagnoseReportsNumericWiringKeyAsInvalidConfigViolation(): void
+    /**
+     * The element-local client defects reach the route as catalogued client-defect codes, so the diagnose body
+     * reports each on the offending element instead of the request failing: the codec throws on decode, and the
+     * lintable decode collects a catalogued code as an `invalid_config` violation in a 200 body.
+     *
+     * The layout carries a well-formed sibling beside the defective element. Without it the attribution and the
+     * count assert nothing: one root yields at most one caught exception, and the lintable decode attributes to
+     * the id the pre-decode gate read off that same and only element, so both would hold whatever the route did.
+     *
+     * @param array<string, mixed> $defect
+     */
+    #[DataProvider('elementLocalClientDefectProvider')]
+    #[TestDox('reports $_dataName as an invalid_config violation attributed to the offending element')]
+    public function testDiagnoseReportsAnElementLocalClientDefect(array $defect, string $expectedMessage): void
     {
         $elementId = $this->ids->get('element');
-        $element = [
-            'id' => $elementId,
-            'component' => $this->registeredComponent(),
-            'properties' => [1 => 'x'],
-        ];
 
-        $body = $this->diagnose(['layout' => [$element]]);
+        $body = $this->diagnose(['layout' => [
+            [
+                'id' => $elementId,
+                'component' => $this->registeredComponent(),
+                'properties' => [],
+                ...$defect,
+            ],
+            [
+                'id' => $this->ids->get('well-formed-sibling'),
+                'component' => $this->registeredComponent(),
+                'properties' => [],
+            ],
+        ]]);
 
         static::assertFalse($body['diagnostics']['wellFormed']);
 
@@ -90,7 +110,7 @@ class ContentDiagnoseControllerTest extends TestCase
 
         static::assertCount(1, $violations);
         static::assertSame($elementId, $violations[0]['elementId']);
-        static::assertSame('Element property map key must be string, got int', $violations[0]['message']);
+        static::assertSame($expectedMessage, $violations[0]['message']);
     }
 
     #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
@@ -102,6 +122,66 @@ class ContentDiagnoseControllerTest extends TestCase
         ]);
 
         static::assertArrayHasKey('resolvable', $body['diagnostics']);
+    }
+
+    #[TestDox('serves a root-ambient candidate as origin root with a null provider element id at every depth, beside the ancestor-provided parent candidate')]
+    public function testDiagnoseServesRootAndParentOriginsForANestedElement(): void
+    {
+        // Sw:Product:PriceDisplay declares a SalesChannelProductEntity `product` property, and the `product`
+        // root source supplies exactly that FQCN as root-ambient context, so both elements are offered it. The
+        // root element takes that ambient value through its own root-scoped consumer, which is what backs the
+        // `product` it provides downstream and puts a second, element-addressed candidate beside the ambient
+        // one on the child. Without that consumer nothing would deliver a value into the root element at
+        // render, and its provider would be exposed to no one.
+        $rootId = $this->ids->get('provider-root');
+        $childId = $this->ids->get('nested-child');
+
+        $body = $this->diagnose([
+            'rootSource' => 'product',
+            'layout' => [[
+                'id' => $rootId,
+                'component' => 'Sw:Product:PriceDisplay',
+                'properties' => [],
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'scope' => 'root']],
+                'slots' => ['content' => [[
+                    'id' => $childId,
+                    'component' => 'Sw:Product:PriceDisplay',
+                    'properties' => [],
+                ]]],
+            ]],
+        ]);
+
+        $topLevelRoots = $this->candidatesWithOrigin($this->productResolution($body, $rootId), 'root');
+        $nested = $this->productResolution($body, $childId);
+        $nestedRoots = $this->candidatesWithOrigin($nested, 'root');
+        $nestedParents = $this->candidatesWithOrigin($nested, 'parent');
+
+        // Depth-independence: the ambient offer reaches the nested element with no wiring in between, and it
+        // carries no provider address, because no element supplies it.
+        static::assertCount(1, $topLevelRoots);
+        static::assertNull($topLevelRoots[0]['providerElementId']);
+        static::assertCount(1, $nestedRoots);
+        static::assertNull($nestedRoots[0]['providerElementId']);
+        static::assertSame('product', $nestedRoots[0]['contextKey']);
+
+        // Element-provided context keeps the `parent` origin and names the ancestor that provides it.
+        static::assertCount(1, $nestedParents);
+        static::assertSame($rootId, $nestedParents[0]['providerElementId']);
+
+        // Root outranks Parent in the default pick.
+        static::assertSame('root', $nested['resolved']['origin']);
+    }
+
+    #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
+    public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
+    {
+        $body = $this->diagnose([
+            'layout' => [$this->element($this->registeredComponent())],
+            'rootSource' => '',
+        ]);
+
+        static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
     #[TestDox('rejects an unknown rootSource with a 400 and the unknownRootSource code, never reaching resolve')]
@@ -134,15 +214,76 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
     }
 
-    #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
-    public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function elementLocalClientDefectProvider(): iterable
     {
-        $body = $this->diagnose([
-            'layout' => [$this->element($this->registeredComponent())],
-            'rootSource' => '',
-        ]);
+        yield 'a numeric wiring key' => [
+            ['properties' => [1 => 'x']],
+            'Element property map key must be string, got int',
+        ];
 
-        static::assertTrue($body['diagnostics']['wellFormed']);
+        yield 'two consumers sharing one base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => false],
+                'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],
+            ]],
+            'Property key "product" is used by both context "product" and "category". Each propertyAlias must be unique within an element.',
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => false, 'redistribute' => true],
+            ]],
+            'Context key "product.manufacturer" uses dot notation and cannot be redistributed. Only base keys support redistribution.',
+        ];
+
+        yield 'a redistributing consumer whose derived key an authored provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'redistribute' => true]],
+            ],
+            'Context key "product" has both redistribute:true and explicit providesContext. Use one or the other.',
+        ];
+    }
+
+    /**
+     * The `product` property resolution of one element, off the diagnose body's resolutions map.
+     *
+     * @param array<string, mixed> $body
+     *
+     * @return array<string, mixed>
+     */
+    private function productResolution(array $body, string $elementId): array
+    {
+        static::assertIsArray($body['resolutions']);
+        static::assertArrayHasKey($elementId, $body['resolutions']);
+        static::assertIsArray($body['resolutions'][$elementId]);
+
+        $matches = array_values(array_filter(
+            $body['resolutions'][$elementId],
+            static fn (array $resolution): bool => $resolution['key'] === 'product',
+        ));
+
+        static::assertCount(1, $matches);
+
+        return $matches[0];
+    }
+
+    /**
+     * @param array<string, mixed> $resolution
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function candidatesWithOrigin(array $resolution, string $origin): array
+    {
+        static::assertIsArray($resolution['candidates']);
+
+        return array_values(array_filter(
+            $resolution['candidates'],
+            static fn (array $candidate): bool => $candidate['origin'] === $origin,
+        ));
     }
 
     /**

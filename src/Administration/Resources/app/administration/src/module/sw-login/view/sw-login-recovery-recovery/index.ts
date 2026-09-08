@@ -21,6 +21,11 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('notification'),
     ],
 
+    emits: [
+        'is-loading',
+        'is-not-loading',
+    ],
+
     props: {
         hash: {
             type: String,
@@ -80,6 +85,13 @@ export default Component.wrapComponentConfig({
                 })
                 .catch(() => {
                     this.hashValid = false;
+
+                    void this.$router.replace({
+                        name: 'sw.login.index.recovery',
+                        state: {
+                            linkExpired: true,
+                        },
+                    });
                 });
         },
 
@@ -96,25 +108,40 @@ export default Component.wrapComponentConfig({
         },
 
         updatePassword() {
-            if (this.validatePasswords()) {
-                this.userRecoveryService
-                    .updateUserPassword(this.hash, this.newPassword, this.newPasswordConfirm)
-                    .then(() => {
-                        void this.$router.push({ name: 'sw.login.index' });
-                    })
-                    .catch((error) => {
+            if (!this.validatePasswords()) {
+                return;
+            }
+
+            this.$emit('is-loading');
+
+            this.userRecoveryService
+                .updateUserPassword(this.hash, this.newPassword, this.newPasswordConfirm)
+                .then(() => {
+                    void this.$router.push({ name: 'sw.login.index' });
+                })
+                .catch((error: unknown) => {
+                    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+                    // @ts-expect-error
+                    let apiError = error?.response?.data?.errors as unknown;
+                    apiError = Array.isArray(apiError) ? apiError[0] : undefined;
+                    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+
+                    if (apiError) {
                         Shopware.Store.get('error').addApiError({
                             expression: `user.${this.hash}.password`,
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                            error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                            error: new Shopware.Classes.ShopwareError(apiError),
                         });
+                    }
 
-                        this.createNotificationError({
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                            message: error.message,
-                        });
+                    this.createNotificationError({
+                        // @ts-expect-error
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        message: error?.message,
                     });
-            }
+                })
+                .finally(() => {
+                    this.$emit('is-not-loading');
+                });
         },
     },
 });

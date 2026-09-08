@@ -84,4 +84,15 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
                 .exists(),
         ).toBeTruthy();
     });
+
+    it('should hide the system config when a headless sales channel is selected', async () => {
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find(`.${classes.systemConfig}`).exists()).toBe(true);
+
+        // the seo url template card reports that a headless sales channel was selected
+        wrapper.vm.onSalesChannelChanged(true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find(`.${classes.systemConfig}`).exists()).toBe(false);
+    });
 });

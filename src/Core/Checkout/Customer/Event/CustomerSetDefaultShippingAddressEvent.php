@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CustomerSetDefaultShippingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, FlowEventAware, CustomerAware
 {

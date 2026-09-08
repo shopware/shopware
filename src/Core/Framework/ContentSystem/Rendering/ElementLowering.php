@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,6 +25,15 @@ use Symfony\Component\HttpFoundation\Request;
  * distribution before a later element has loaded, and the value that element was going to provide is not
  * there yet. That is why {@see ContextDeliveryResolver::resolve()} takes the loader values as an argument
  * rather than resolving them itself, and this class is what fills that argument.
+ *
+ * THE PAGE-LEVEL DATA IS RESOLVED HERE TOO, and separately. It belongs to the rendering specification rather
+ * than to any element, so it arrives as an argument beside the forest and is run once per render against the
+ * {@see VirtualRootWrapper} element, whose placeholder values are what its loaders' `propertyReference` inputs
+ * dereference against. The resulting map is handed to {@see ContextDeliveryResolver::resolve()} as the
+ * root-ambient context, which is the only route by which it reaches an element. It is an explicit input on
+ * that call rather than something read off the tree, so the partial prune cannot take root context with it.
+ * The same map is also filed into the forest's loader values under the wrapper's own id, which on a partial
+ * render that pruned the wrapper away addresses no element of that forest and is read by nothing.
  *
  * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
  * each slot's children load in declaration order. What that order buys is narrower than it looks:
@@ -48,9 +59,12 @@ final readonly class ElementLowering
      * an empty loader-value map. That is not an optimisation: a skeleton is a structural answer, so no loader
      * runs, nothing is contributed to `$cacheContext`, and {@see RenderedTreeFactory} reads neither argument
      * in that mode. The two modes differ in data resolution alone — the traversal that shapes the tree is one
-     * code path either way.
+     * code path either way. The ambient resolution below follows that split: a skeleton runs no page-level
+     * loader either, and the delivery step it never reaches would have taken an empty ambient map.
      *
      * @param list<StoredElement> $forest roots in order
+     * @param list<DataRequirement> $pageDataRequirements the rendering specification's page-level requirements
+     * @param StoredElement|null $virtualRoot the wrapper the preparation minted, or null when it did not wrap
      *
      * @throws ContentSystemException when a required consumer's path cannot be resolved
      */
@@ -60,18 +74,57 @@ final readonly class ElementLowering
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
+        array $pageDataRequirements,
+        ?StoredElement $virtualRoot,
     ): LoweringResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
 
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
+        $ambient = [];
+
+        // No wrapper or no page-level requirements: nothing ambient to resolve.
+        if ($virtualRoot !== null && $pageDataRequirements !== []) {
+            $ambient = $this->dataResolver->resolveRequirements(
+                $virtualRoot,
+                $this->indexByRequirementKey($pageDataRequirements),
+                $context,
+                $request,
+                $cacheContext,
+            );
+
+            // Filed under the wrapper's id because that is the element these values were resolved against,
+            // which keeps the map's "loader values by element id" contract true. The wrapper carries no data
+            // requirements of its own, so this entry adds no rendered property to it and nothing loads twice.
+            $loaderValues[$virtualRoot->id] = $ambient;
+        }
 
         // Context distribution is about dataflow, not about where a value came from, so it sees the plain
         // values: a provider hands a child what it renders, and the identity beside it means nothing there.
-        $deliveries = $this->deliveryResolver->resolve($forest, $this->plainValues($loaderValues));
+        $deliveries = $this->deliveryResolver->resolve(
+            $forest,
+            $this->plainValues($loaderValues),
+            array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient),
+        );
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
+    }
+
+    /**
+     * @param list<DataRequirement> $requirements
+     *
+     * @return array<string, DataRequirement>
+     */
+    private function indexByRequirementKey(array $requirements): array
+    {
+        $indexed = [];
+
+        foreach ($requirements as $requirement) {
+            $indexed[$requirement->key] = $requirement;
+        }
+
+        return $indexed;
     }
 
     /**

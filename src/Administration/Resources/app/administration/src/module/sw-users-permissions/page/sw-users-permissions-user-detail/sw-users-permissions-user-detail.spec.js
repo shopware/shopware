@@ -438,6 +438,26 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldActive.props().disabled).toBe(true);
     });
 
+    it('should show the theme select only for the own user', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+
+        await wrapper.setData({
+            isLoading: false,
+            userId: 'current-user-id',
+            currentUser: { id: 'current-user-id' },
+            user: { id: 'current-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-theme').exists()).toBe(true);
+
+        await wrapper.setData({
+            userId: 'other-user-id',
+            user: { id: 'other-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-theme').exists()).toBe(false);
+    });
+
     it('should change the password', async () => {
         wrapper = await createWrapper('users_and_permissions.editor', {
             global: {

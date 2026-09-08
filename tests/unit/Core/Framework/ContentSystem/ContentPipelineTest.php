@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
@@ -799,29 +800,113 @@ class ContentPipelineTest extends TestCase
         static::assertSame(0, $loads);
     }
 
-    #[TestDox('delivers a page-level data requirement to a consuming root through the virtual root')]
-    public function testPageLevelDataRequirementReachesAConsumingRootThroughTheVirtualRoot(): void
+    /**
+     * The exclusivity pin at the pipeline seam, and the replacement for the virtual root's broadcast. The two
+     * roots declare the SAME page-level key and differ only in consumer scope, so a run that still broadcast
+     * page context from the wrapper would fill both maps and the second assertion would fail.
+     */
+    #[TestDox('delivers a page-level data requirement to a root-scoped consumer and not to a parent-scope one')]
+    public function testPageLevelDataRequirementReachesARootScopedConsumerOnly(): void
     {
-        $root = StoredElementBuilder::create('section', 'root-id')
+        $rootScoped = StoredElementBuilder::create('section', 'root-scoped-id')
+            ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $parentScoped = StoredElementBuilder::create('section', 'parent-scoped-id')
             ->withConsumer('language', ContextType::Single)
             ->build();
-        $layout = $this->createSingleRootLayout($root);
+        $layout = RenderableLayout::create(
+            LayoutReference::create($this->ids->get('layout'), 'Scope Layout', '1.0'),
+            [$rootScoped, $parentScoped]
+        );
+
+        // Fixture guard: neither root provides anything or holds a value under the consumed key, so the
+        // page-level requirement is the only possible source for either of them.
+        static::assertSame([], $rootScoped->contextDefinitions->getAllProviders());
+        static::assertNull($rootScoped->property('language'));
+        static::assertNull($parentScoped->property('language'));
+
+        $pageData = new StubStruct();
+        $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            $this->pageLevelSpecification(),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame($pageData, $this->renderedElement($result->tree, 'root-scoped-id')->properties['language']);
+        static::assertSame([], $this->renderedElement($result->tree, 'parent-scoped-id')->properties);
+    }
+
+    /**
+     * The depth claim through the whole pipeline: two containers sit between the layout root and the
+     * consumer, and neither carries any wiring at all. Under the broadcast mechanism this reached only the
+     * top level and had to be relayed hop by hop.
+     */
+    #[TestDox('delivers a page-level data requirement to a root-scoped consumer three levels down')]
+    public function testPageLevelDataRequirementReachesADeeplyNestedRootScopedConsumer(): void
+    {
+        $layout = $this->createSingleRootLayout($this->nestedRootScopedConsumerTree());
+
+        // Fixture guard: every element between the root and the consumer is wiring-free, so nothing can
+        // relay the value down a hop at a time.
+        $middle = $this->findStoredChild($layout->elements[0], 'middle-id');
+        static::assertNotNull($middle);
+        static::assertSame([], $middle->contextDefinitions->getAllConsumers());
+        static::assertSame([], $middle->contextDefinitions->getAllProviders());
+
+        $pageData = new StubStruct();
+        $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            $this->pageLevelSpecification(),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame($pageData, $this->renderedElement($result->tree, 'consumer-id')->properties['language']);
+    }
+
+    /**
+     * The prune-independence pin. The partial render targets the deep consumer, and the prune keeps only the
+     * path its `requiresParentData()` rule demands — so whether the wrapper survives into the rendered tree
+     * is a question about the finishing steps, not about root context. The ambient map is read off the
+     * PRE-prune forest, so the answer here must be the same as in the full render above.
+     */
+    #[TestDox('delivers a page-level data requirement to a root-scoped consumer on a partial render')]
+    public function testPageLevelDataRequirementSurvivesThePartialPrune(): void
+    {
+        $layout = $this->createSingleRootLayout($this->nestedRootScopedConsumerTree());
         $specification = new RenderingSpecification(
             [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
             PlaceholderValues::from([]),
-            new Request()
+            new Request(),
+            'consumer-id'
         );
 
-        // Fixture guard: the layout itself provides nothing and holds no value under the consumed key,
-        // so the virtual root the pipeline wraps around it is the only possible source.
-        static::assertSame([], $root->contextDefinitions->getAllProviders());
-        static::assertNull($root->property('language'));
+        // Fixture guard, and what makes this test discriminate: the prune stops at the wiring-free container
+        // above the target, so the wrapper is NOT in the tree the render step lowers. A mechanism that read
+        // root context off the rendered forest would find no wrapper here and deliver nothing.
+        $preparation = (new StoredTreePreparer(
+            new VirtualRootWrapper(),
+            new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+        ))->prepare($layout->elements, $specification, RenderingMode::FULL);
+        static::assertFalse($preparation->scaffolding->virtualRootSurvivedPrune);
+        static::assertSame(['middle-id', 'consumer-id'], $this->collectStoredIds($preparation->tree));
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $preparation->prePruneForest[0]->id);
 
         $pageData = new StubStruct();
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
-        $loader->method('load')->willReturn(ContentDataLoaderResult::cached($pageData, 'language-1'));
-        $this->lowering = $this->createLowering(['language' => $loader]);
+        $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning($pageData)]);
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -834,8 +919,85 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $elements = $result->tree;
-        static::assertSame($pageData, $elements[0]->properties['language']);
+        // The extract really ran: the served forest is the bare target, with none of its ancestors.
+        static::assertSame(['consumer-id'], $this->collectRenderedIds($result->tree));
+        static::assertSame($pageData, $result->tree[0]->properties['language']);
+    }
+
+    /**
+     * The no-double-loading pin. Under the broadcast mechanism the wrapper carried the page-level
+     * requirements itself; the ambient path replaces that rather than adding to it, and only a call-count
+     * expectation can tell one run from two — the served value is identical either way.
+     */
+    #[TestDox('runs each page-level data requirement exactly once per render')]
+    public function testPageLevelDataRequirementsLoadExactlyOnce(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+
+        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct(), 'language-1'));
+        $this->lowering = $this->createLowering(['language' => $loader]);
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->createPipeline()->load(
+            $layout,
+            $this->pageLevelSpecification(),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+    }
+
+    /**
+     * An exact-key root delivery hands on the loader's own instance, so the value index collapses every
+     * element that received it onto ONE ref. Two consumers make the sharing observable: distinct refs would
+     * mean the response carried the page entity twice.
+     */
+    #[TestDox('shares one value-index ref between two root-scoped consumers of the same page-level key')]
+    public function testExactKeyRootDeliveriesShareOneValueIndexRef(): void
+    {
+        $layout = RenderableLayout::create(
+            LayoutReference::create($this->ids->get('layout'), 'Shared Ref Layout', '1.0'),
+            [
+                StoredElementBuilder::create('section', 'first-id')
+                    ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+                StoredElementBuilder::create('section', 'second-id')
+                    ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ]
+        );
+
+        $this->lowering = $this->createLowering(['language' => $this->pageLoaderReturning(new StubStruct())]);
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            $this->pageLevelSpecification(),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            true,
+            Generator::generateSalesChannelContext()
+        );
+
+        $index = $result->index;
+        static::assertNotNull($index);
+        $assignments = $index->assignments();
+        static::assertSame(
+            $assignments['first-id']['language'],
+            $assignments['second-id']['language']
+        );
+        // One ref in the data map, not two pointing at equal-looking values.
+        static::assertCount(1, $index->data());
     }
 
     /**
@@ -1287,7 +1449,10 @@ class ContentPipelineTest extends TestCase
                     new ValueFingerprinter(),
                 ),
             ),
-            new ContextDeliveryResolver(new ContextDistributor(new ContextPathResolver())),
+            new ContextDeliveryResolver(
+                new ContextDistributor(new ContextPathResolver()),
+                new ContextPathResolver()
+            ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
         );
     }
@@ -1313,6 +1478,45 @@ class ContentPipelineTest extends TestCase
         );
 
         return $registry;
+    }
+
+    private function pageLevelSpecification(): RenderingSpecification
+    {
+        return new RenderingSpecification(
+            [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
+            PlaceholderValues::from([]),
+            new Request()
+        );
+    }
+
+    /**
+     * @return AbstractContentDataLoader<Struct>&Stub
+     */
+    private function pageLoaderReturning(Struct $data): AbstractContentDataLoader&Stub
+    {
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+        $loader->method('load')->willReturn(ContentDataLoaderResult::cached($data, 'language-1'));
+
+        return $loader;
+    }
+
+    /**
+     * A root over a container over the consumer, so the consumer sits three levels below the layout root and
+     * four below the virtual root, with no wiring anywhere on the path.
+     */
+    private function nestedRootScopedConsumerTree(): StoredElement
+    {
+        $consumer = StoredElementBuilder::create('section', 'consumer-id')
+            ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $middle = StoredElementBuilder::create('section', 'middle-id')
+            ->withSlot('default', [$consumer])
+            ->build();
+
+        return StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [$middle])
+            ->build();
     }
 
     private function createSingleRootLayout(StoredElement $root): RenderableLayout

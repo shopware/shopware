@@ -17,6 +17,7 @@ class MutationPipeline
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly ContextConsumerMirror $contextMirror,
     ) {
     }
 
@@ -30,6 +31,13 @@ class MutationPipeline
 
         $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext);
 
-        return MutationResult::fromAnalyzedMutation($mutated, $analysis, $mutation);
+        $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $mutation->created());
+
+        // Re-analyze only when the wiring changed the tree, so the returned diagnostics and resolutions describe the returned tree.
+        if ($wired !== $mutated) {
+            $analysis = $this->diagnostics->analyze($wired->roots, $rootContext);
+        }
+
+        return MutationResult::fromAnalyzedMutation($wired, $analysis, $mutation);
     }
 }

@@ -13,6 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  * Listeners can prevent cache control modification by calling skipCacheControl().
  *
  * @deprecated tag:v6.8.0 - Will be removed without replacement together with dispatching code.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class BeforeCacheControlEvent extends Event

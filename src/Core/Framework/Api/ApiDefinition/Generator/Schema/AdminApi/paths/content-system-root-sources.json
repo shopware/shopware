@@ -1,0 +1,81 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Root Sources",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-root-sources.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system root sources",
+                "description": "Get the valid root sources a content layout can be bound to, each with the root-ambient context it supplies.",
+                "operationId": "content-system-root-sources",
+                "responses": {
+                    "200": {
+                        "description": "Returns the registered root sources in registration order.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["rootSources"],
+                                    "properties": {
+                                        "rootSources": {
+                                            "type": "array",
+                                            "description": "One entry per registered root source, in registration order: entity types first, then the section keys, then \"none\".",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["id", "kind", "providedContext"],
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "description": "The root-source id a layout's rootSource field carries: a DAL entity name, a section key, or \"none\"."
+                                                    },
+                                                    "kind": {
+                                                        "type": "string",
+                                                        "enum": ["entity", "section", "none"],
+                                                        "description": "Which family the id belongs to: \"entity\" for an assignable DAL entity type, \"section\" for a section key, \"none\" for the binding that supplies no root-ambient context."
+                                                    },
+                                                    "providedContext": {
+                                                        "type": "array",
+                                                        "description": "The root-ambient context entries this source supplies. An empty set serializes as [], never {}. The \"none\" source supplies no entries, and the header and footer sections shipped with the platform supply none either.",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "required": ["contextKey", "fqcn", "contextType", "distribution"],
+                                                            "properties": {
+                                                                "contextKey": {
+                                                                    "type": "string",
+                                                                    "description": "The key a root-scoped consumer matches on."
+                                                                },
+                                                                "fqcn": {
+                                                                    "type": "string",
+                                                                    "description": "Fully qualified class name of the supplied value."
+                                                                },
+                                                                "contextType": {
+                                                                    "type": "string",
+                                                                    "enum": ["single", "collection"],
+                                                                    "description": "Whether the entry supplies a single value or a collection."
+                                                                },
+                                                                "distribution": {
+                                                                    "type": "string",
+                                                                    "enum": ["broadcast", "indexed", "keyed", "sliced", "iterator"],
+                                                                    "description": "How the value is distributed to consumers."
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

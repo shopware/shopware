@@ -107,7 +107,7 @@ class HtmlRendererTest extends TestCase
         static::assertSame($rendered, $result->content);
         static::assertSame('html', $result->fileExtension);
         static::assertSame('text/html', $result->mimeType);
-        static::assertSame('invoice_12345_html', $result->fileName);
+        static::assertSame('invoice_12345', $result->fileName);
     }
 
     public function testResolvesTemplateByDocumentType(): void

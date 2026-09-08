@@ -304,6 +304,12 @@ export default {
         ]),
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -323,7 +329,6 @@ export default {
                 path: 'page',
                 scope: this,
             });
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
@@ -517,8 +522,17 @@ export default {
                 return true;
             }
 
+            if (this.page.sections.length !== this.pageOrigin.sections.length) {
+                return true;
+            }
+
             for (let i = 0; i < this.page.sections.length; i += 1) {
                 const section = this.page.sections[i];
+                const originSection = this.pageOrigin.sections.get(section.id);
+
+                if (!originSection || section.blocks.length !== originSection.blocks.length) {
+                    return true;
+                }
 
                 if (section._isDirty) {
                     return true;
@@ -526,6 +540,11 @@ export default {
 
                 for (let j = 0; j < section.blocks.length; j += 1) {
                     const block = section.blocks[j];
+                    const originBlock = originSection.blocks.get(block.id);
+
+                    if (!originBlock) {
+                        return true;
+                    }
 
                     if (block._isDirty) {
                         return true;
@@ -533,7 +552,12 @@ export default {
 
                     for (let k = 0; k < block.slots.length; k += 1) {
                         const slot = block.slots[k];
-                        const originSlot = this.pageOrigin.sections.get(section.id).blocks.get(block.id).slots.get(slot.id);
+                        const originSlot = originBlock.slots.get(slot.id);
+
+                        if (!originSlot) {
+                            return true;
+                        }
+
                         const slotDiff = getObjectDiff(originSlot, slot);
 
                         if (slot._isDirty || !isEmpty(slotDiff)) {

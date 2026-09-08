@@ -82,6 +82,38 @@
                     }
                 ]
             },
+            "ContentLayoutInsertPresetRequest": {
+                "title": "Insert preset request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["presetId"],
+                        "properties": {
+                            "presetId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The globally unique id of the preset to insert; see `GET /api/_info/content-system-layout-presets.json`.",
+                                "example": "core.media-and-text"
+                            },
+                            "parentElementId": {
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
+                                "description": "Id of the parent element to insert the preset subtree into; inserted at the root when omitted.",
+                                "default": null
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the parent slot to insert into. Required when `parentElementId` is given.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
             "ContentLayoutRemoveElementRequest": {
                 "title": "Remove element request (draft)",
                 "type": "object",

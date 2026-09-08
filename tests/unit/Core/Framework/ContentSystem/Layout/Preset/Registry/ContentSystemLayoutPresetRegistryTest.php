@@ -50,7 +50,7 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
         ]);
 
         $payload = [['id' => 'el-1', 'component' => 'Sw:Content:Text', 'properties' => []]];
-        $compiler = $this->createStub(LayoutPresetPayloadCompiler::class);
+        $compiler = static::createStub(LayoutPresetPayloadCompiler::class);
         $compiler->method('compile')->willReturn($payload);
 
         $all = $this->createRegistry($compiler)->all();
@@ -73,7 +73,7 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     public function testAllReturnsEmptyWhenDirectoryMissing(): void
     {
         $registry = new ContentSystemLayoutPresetRegistry(
-            $this->createStub(LayoutPresetPayloadCompiler::class),
+            static::createStub(LayoutPresetPayloadCompiler::class),
             $this->tempDir . '/does-not-exist',
         );
 
@@ -180,7 +180,7 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
             'layout' => [['component' => 'Sw:Content:Text']],
         ]);
 
-        $compiler = $this->createStub(LayoutPresetPayloadCompiler::class);
+        $compiler = static::createStub(LayoutPresetPayloadCompiler::class);
         $compiler->method('compile')->willThrowException(ContentSystemException::layoutPresetInvalidLayout('nope'));
 
         try {
@@ -194,7 +194,7 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     private function createRegistry(?LayoutPresetPayloadCompiler $compiler = null): ContentSystemLayoutPresetRegistry
     {
         return new ContentSystemLayoutPresetRegistry(
-            $compiler ?? $this->createStub(LayoutPresetPayloadCompiler::class),
+            $compiler ?? static::createStub(LayoutPresetPayloadCompiler::class),
             $this->tempDir,
         );
     }

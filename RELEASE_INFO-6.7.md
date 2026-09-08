@@ -5,6 +5,11 @@
 ### Aggregation identifiers reject unsafe characters
 
 Aggregation names and range aggregation keys containing a backtick, question mark, colon, or control character are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400).
+## API
+
+### User and integration cloning is no longer available
+
+`POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
 
 # 6.7.14.0
 

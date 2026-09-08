@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -55,6 +57,11 @@ class IntegrationDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.0.0.0';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection(Context::SYSTEM_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection

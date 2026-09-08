@@ -123,6 +123,12 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Dynamic product group assignments follow condition changes
+
+Deleting, editing or moving a condition now updates `product_stream_mapping` and the derived `product.streamIds`; previously only adding one did, so rules, promotions and product exports could match on removed conditions.
+
+A group left without conditions, or invalid for another reason, now loses its assignments. A product export bound to such a group fails instead of exporting what it matched before.
+
 ### `JsonField::addPropertyMapping()` for entity extensions
 
 `Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.
@@ -161,6 +167,11 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
     $event->getSortings()->add($mySorting);
 }
 ```
+### Adding a product to an existing order applies line item factory decorators
+
+`POST /api/_action/order/{orderId}/product/{productId}` now builds the line item through the `LineItemFactoryRegistry` instead of creating a plain `product` line item directly, so extensions that decorate a `LineItemFactoryInterface` are applied when a product is added to an existing order, the same way they already are in the cart. A decorator that returns a different line item type — or a cart collector that replaces the line item with several others — therefore takes effect in the administration order detail page as well.
+
+When the calculation replaces the added line item, or adds further line items next to it, those receive the delivery positions as well. Adding a product that stays a single product line item is unchanged, including its delivery position.
 
 ### `PromotionCartInformationTrait` helper methods deprecated
 
@@ -204,6 +215,18 @@ Two consequences for operators:
 
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
+### Order and category tags are versioned
+
+Tag assignments of orders and categories are now part of the entity version. Creating a version copies the existing assignments into it, and reading, filtering or aggregating `tags` returns the assignments of the version in the context instead of the live ones. Assignments made in a version reach the live entity on merge and are dropped when the version is discarded.
+
+The tag association routes and a nested `tags` payload on the order or category both write the mapping for the version in the request context. Writing `order_tag` or `category_tag` rows directly assigns the live version unless the payload carries `orderVersionId` or `categoryVersionId`.
+
+### An already ordered cart cannot be ordered a second time
+
+`POST /store-api/checkout/order` re-checks inside its cart lock whether the cart is still stored, and answers `404 CHECKOUT__CART_TOKEN_NOT_FOUND` when it is not. Two overlapping submits of the same cart — two browser tabs on the checkout confirm page, a retried request — previously produced two orders whenever the second request had loaded its cart before the first one deleted it, because that stale cart still passed the cart hash check.
+
+`Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
+
 ## API
 
 ### Store API currency headers validate sales channel availability
@@ -246,8 +269,15 @@ GET /store-api/product/{productId}?skipBreadcrumb=1
 The `translated` object of a breadcrumb entry is now limited to `linkType`, `internalLink`, `externalLink`, `linkNewTab`, `description`, `metaTitle`, `metaDescription` and `keywords`. `slotConfig` and `customFields` are no longer part of it, on this field and on `GET /store-api/breadcrumb/{id}`: a breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` and `store_api_aware` filters that a `category` payload gets, and both keys could otherwise expose data withheld from the Store API. Read them from the `category` payload instead.
 
 `GET /store-api/breadcrumb/{id}` stays available, for example to load a breadcrumb from a listing without loading the full product.
+### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
+
+Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
 
 ## Administration
+
+### Order drafts are cleaned up when leaving the detail page
+
+Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
 
 ### Optional order confirmation mail for Administration-created orders
 
@@ -467,6 +497,14 @@ lineItem.payload.features[].value = { id, type, content, display }
 The button is looked up with the plugin's existing `buyButtonSelector` option, which defaults to `button[type="submit"].btn-buy`. The new `loadingIndicatorPosition` option (`before`, `after` or `inner`, default `inner`) controls where the indicator is rendered. A buy button that does not match `buyButtonSelector` is left untouched.
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
+
+## App System
+
+### Target validation can be disabled for local development
+
+The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
+
+While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
 
 # 6.7.14.0
 

@@ -85,7 +85,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
             permissions: [] as unknown as privileges,
             version: '1.0.0',
             type: 'app',
-            integrationId: '123',
+            integrationId: '123' as EntityKey<'integration'>,
             active: true,
         });
 

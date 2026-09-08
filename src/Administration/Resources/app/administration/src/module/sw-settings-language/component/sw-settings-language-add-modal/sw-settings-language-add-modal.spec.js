@@ -65,9 +65,28 @@ describe('module/sw-settings-language/component/sw-settings-language-add-modal',
 
         expect(getList).toHaveBeenCalled();
         expect(wrapper.vm.languageOptions).toEqual([
-            { value: 'fr-FR', label: 'Français', disabled: false, isPseudoLanguage: false },
-            { value: 'it-IT', label: 'Italiano', disabled: true, isPseudoLanguage: false },
+            { value: 'fr-FR', label: 'Français (French, France)', disabled: false, isPseudoLanguage: false },
+            { value: 'it-IT', label: 'Italiano (Italian, Italy)', disabled: true, isPseudoLanguage: false },
         ]);
+    });
+
+    it('labels the options in the UI language and keeps the given name for pseudo languages', async () => {
+        const { wrapper } = await createWrapper();
+        const localeNameSpy = jest.spyOn(Shopware.Utils.format, 'localeName');
+
+        wrapper.vm.translations = [
+            { locale: 'ach-UG', name: 'Acholi', lastUpdate: null, isPseudoLanguage: true },
+            { locale: 'fr-FR', name: 'Français', lastUpdate: null, isPseudoLanguage: false },
+        ];
+
+        expect(wrapper.vm.languageOptions.map((option) => option.label)).toEqual([
+            'Français (French, France)',
+            'Acholi',
+        ]);
+        expect(localeNameSpy).toHaveBeenCalledWith('fr-FR');
+        expect(localeNameSpy).not.toHaveBeenCalledWith('ach-UG');
+
+        localeNameSpy.mockRestore();
     });
 
     it('disables an existing but unlinked language', async () => {

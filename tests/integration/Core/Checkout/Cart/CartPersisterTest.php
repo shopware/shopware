@@ -183,6 +183,29 @@ class CartPersisterTest extends TestCase
         static::assertFalse($token);
     }
 
+    public function testExistsReflectsStoredCart(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $context = $this->getSalesChannelContext($cart->getToken());
+
+        static::assertFalse($persister->exists($cart->getToken(), $context));
+
+        $persister->save($cart, $context);
+
+        static::assertTrue($persister->exists($cart->getToken(), $context));
+
+        $persister->delete($cart->getToken(), $context);
+
+        static::assertFalse($persister->exists($cart->getToken(), $context));
+    }
+
     public function testRetokenizedCartIsInsertedUnderTheNewToken(): void
     {
         $cart = new Cart(Uuid::randomHex());

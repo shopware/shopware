@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -309,7 +309,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result')[0];
+        const results =
+            wrapper.findAll('.sw-select-result')[0] ?? new DOMWrapper(document.body).findAll('.sw-select-result')[0];
         await results.trigger('click');
         await flushPromises();
 

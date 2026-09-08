@@ -81,6 +81,21 @@ class CompanyAccountNameTest extends TestCase
         static::assertSame('Acme GmbH', $customer->getDisplayName());
     }
 
+    public function testCompanyAccountRegistersWithTheNameFieldsHidden(): void
+    {
+        $this->setNameFields(show: false, required: true);
+
+        $this->register($this->companyRegistrationData());
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $customer = $this->loadCustomer('company-no-contact@example.com');
+
+        static::assertSame('', $customer->getFirstName());
+        static::assertSame('', $customer->getLastName());
+        static::assertSame('Acme GmbH', $customer->getCompany());
+    }
+
     public function testCompanyAddressStaysEditableWithoutAContactPerson(): void
     {
         $this->setNameFields(show: true, required: false);

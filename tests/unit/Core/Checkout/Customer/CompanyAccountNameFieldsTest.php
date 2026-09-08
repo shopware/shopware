@@ -107,6 +107,9 @@ class CompanyAccountNameFieldsTest extends TestCase
         yield 'shown but optional' => [true, false, false];
         yield 'hidden cannot be required' => [false, true, false];
         yield 'hidden and optional' => [false, false, false];
+        yield 'never saved keeps the names required' => [null, null, true];
+        yield 'only the required flag saved' => [null, false, false];
+        yield 'only the show flag saved' => [false, null, false];
     }
 
     private function config(?bool $show, ?bool $required): StaticSystemConfigService

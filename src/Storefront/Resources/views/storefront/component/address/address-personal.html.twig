@@ -149,8 +149,11 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
-        {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+        {# Both settings default to on when they were never saved, the same way CompanyAccountNameFields::areRequired()
+           and ShopLoginRegistrationSettings::fromConfig() read them. Without the fallback an install that never
+           stored the values would hide the fields here while the backend still demanded them. #}
+        {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') ?? true %}
+        {% set companyNameFieldsRequired = companyNameFieldsShown and (config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') ?? true) %}
 
         {% set companyOnlyForm = onlyCompanyRegistration or hasSelectedBusiness %}
         {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}

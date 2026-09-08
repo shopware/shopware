@@ -216,7 +216,7 @@ Checklist before upgrading to 6.8:
 
 The removal is documented in `UPGRADE-6.8.md`, section "Axios 1.x is the only HTTP client of the Administration".
 
-The architectural rationale for keeping both transports behind a Shopware-owned boundary is documented in [Keep Administration HTTP transports behind a compatibility facade](../../../../../../../adr/2026-07-23-administration-http-client-compatibility-facade.md).
+The architectural rationale for the facade, and the decision to end the second transport, is documented in [One Axios transport behind the Administration HTTP client facade](../../../../../../../adr/2026-09-08-administration-single-axios-transport.md).
 
 ## Troubleshooting
 

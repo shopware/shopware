@@ -21,13 +21,19 @@ class Migration1788485938AddPromotionRedemptionIndexToOrderLineItemTest extends 
 
     private const FK_INDEX_NAME = 'fk.order_line_item.promotion_id';
 
-    private const INDEX_COLUMNS = ['promotion_id', 'version_id', 'type', 'order_id', 'order_version_id'];
+    private const INDEX_COLUMNS = ['promotion_id', 'version_id', 'order_id', 'order_version_id'];
 
     private Connection $connection;
 
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    protected function tearDown(): void
+    {
+        // DDL is not transactional, so the shared schema has to be put back by hand
+        $this->rollback();
     }
 
     public function testGetCreationTimestamp(): void

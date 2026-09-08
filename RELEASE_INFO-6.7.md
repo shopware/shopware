@@ -12,7 +12,6 @@ The subsequent entity-written container events remain separate and keep their hi
 
 MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error is now reported instead.
 
-### `system:install` dispatches `SystemInstallCompletedEvent`
 ### Document generation v2 (experimental)
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.

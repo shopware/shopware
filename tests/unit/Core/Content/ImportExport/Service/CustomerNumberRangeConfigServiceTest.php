@@ -112,7 +112,7 @@ class CustomerNumberRangeConfigServiceTest extends TestCase
         $boundParameters = [];
         $result = static::createStub(Result::class);
         $result->method('fetchAssociative')->willReturn(false);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
         $queryBuilder->method('innerJoin')->willReturn($queryBuilder);

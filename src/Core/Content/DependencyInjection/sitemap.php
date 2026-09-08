@@ -25,6 +25,7 @@ use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapLister;
+use Shopware\Core\Content\Sitemap\Service\SitemapSalesChannelLoader;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -130,12 +131,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.sitemap.config_handler');
 
-    $services->set(SitemapGenerateCommand::class)
+    $services->set(SitemapSalesChannelLoader::class)
         ->args([
             service('sales_channel.repository'),
+            service('event_dispatcher'),
+        ]);
+
+    $services->set(SitemapGenerateCommand::class)
+        ->args([
+            service(SitemapSalesChannelLoader::class),
             service(SitemapExporter::class),
             service(SalesChannelContextFactory::class),
-            service('event_dispatcher'),
         ])
         ->tag('console.command');
 
@@ -146,10 +152,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('scheduled_task.repository'),
             service('logger'),
-            service('sales_channel.repository'),
+            service(SitemapSalesChannelLoader::class),
             service(SystemConfigService::class),
             service('messenger.default_bus'),
-            service('event_dispatcher'),
         ])
         ->tag('messenger.message_handler');
 

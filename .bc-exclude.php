@@ -63,6 +63,11 @@ return [
         // Optional parameter added with default null; existing callers are unaffected
         preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
 
+        // Optional parameter added with default null; callers are unaffected and decorations go through
+        // AbstractCartLoadRoute::load(), which keeps its signature until the change announced for 6.8.
+        // CartLoadRoute is not an extension point, its getDecorated() throws a DecorationPatternException.
+        preg_quote('ADDED: Parameter cart was added to Method load() of class Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute', '/'),
+
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.
         preg_quote('CHANGED: Property Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode#$caseSensitiveCheck changed default value from true to NULL', '/'),

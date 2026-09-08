@@ -18,6 +18,7 @@ use Shopware\Core\Content\Sitemap\Service\SitemapHandleInterface;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -121,6 +122,68 @@ class SitemapExporterTest extends TestCase
         $cartRuleLoader->expects($this->never())->method('loadByToken');
     }
 
+    public function testGenerateSkipsHeadlessSalesChannelWithoutExternalStorefrontDomain(): void
+    {
+        $urlProvider = $this->createMock(CustomUrlProvider::class);
+        $urlProvider->expects($this->never())->method('getUrls');
+
+        $sitemapHandlerFactory = $this->createMock(SitemapHandleFactoryInterface::class);
+        $sitemapHandlerFactory->expects($this->never())->method('create');
+
+        $cache = static::createStub(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn(new CacheItem());
+
+        $exporter = $this->createSitemapExporter($cache, [$urlProvider], $sitemapHandlerFactory);
+
+        $languageId = Uuid::randomHex();
+        $salesChannel = $this->createSalesChannel('headlessSalesChannel', $languageId, typeId: Defaults::SALES_CHANNEL_TYPE_API);
+        $salesChannel->setDomains(new SalesChannelDomainCollection([
+            $this->createSalesChannelDomain('plainDomain', 'default.headless0', $languageId),
+        ]));
+
+        $result = $exporter->generate($this->createSalesChannelContext($salesChannel, []));
+
+        static::assertTrue($result->isFinish());
+    }
+
+    public function testGenerateWritesOnlyExternalStorefrontDomainsForHeadlessSalesChannel(): void
+    {
+        $url = new Url();
+        $url->setLoc('awesome-product');
+
+        $urlProvider = $this->createMock(CustomUrlProvider::class);
+        $urlProvider->expects($this->once())->method('getUrls')->willReturn(new UrlResult([$url], null));
+
+        $sitemapHandle = $this->createMock(SitemapHandleInterface::class);
+        $sitemapHandle->expects($this->once())->method('write')->willReturnCallback(static function (array $urls): void {
+            static::assertCount(1, $urls);
+            static::assertInstanceOf(Url::class, $urls[0]);
+            static::assertSame('https://frontend.example/awesome-product', $urls[0]->getLoc());
+        });
+
+        $sitemapHandlerFactory = $this->createMock(SitemapHandleFactoryInterface::class);
+        $sitemapHandlerFactory->expects($this->once())
+            ->method('create')
+            ->with(static::anything(), static::anything(), 'https://frontend.example', 'externalDomain')
+            ->willReturn($sitemapHandle);
+
+        $cache = static::createStub(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willReturn(new CacheItem());
+
+        $exporter = $this->createSitemapExporter($cache, [$urlProvider], $sitemapHandlerFactory);
+
+        $languageId = Uuid::randomHex();
+        $salesChannel = $this->createSalesChannel('headlessSalesChannel', $languageId, typeId: Defaults::SALES_CHANNEL_TYPE_API);
+        $salesChannel->setDomains(new SalesChannelDomainCollection([
+            $this->createSalesChannelDomain('externalDomain', 'https://frontend.example', $languageId, isExternalStorefront: true),
+            $this->createSalesChannelDomain('plainDomain', 'default.headless0', $languageId),
+        ]));
+
+        $result = $exporter->generate($this->createSalesChannelContext($salesChannel, []));
+
+        static::assertTrue($result->isFinish());
+    }
+
     public function testGenerateThrowsExceptionINoSitemapHandlesCreated(): void
     {
         $cache = static::createStub(CacheItemPoolInterface::class);
@@ -171,11 +234,13 @@ class SitemapExporterTest extends TestCase
 
     private function createSalesChannel(
         string $salesChannelId,
-        ?string $languageId = null
+        ?string $languageId = null,
+        string $typeId = Defaults::SALES_CHANNEL_TYPE_STOREFRONT
     ): SalesChannelEntity {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
         $salesChannel->setLanguageId($languageId ?? Uuid::randomHex());
+        $salesChannel->setTypeId($typeId);
 
         return $salesChannel;
     }
@@ -183,12 +248,14 @@ class SitemapExporterTest extends TestCase
     private function createSalesChannelDomain(
         string $domainId,
         string $domainUrl,
-        ?string $languageId = null
+        ?string $languageId = null,
+        bool $isExternalStorefront = false
     ): SalesChannelDomainEntity {
         $salesChannelDomain = new SalesChannelDomainEntity();
         $salesChannelDomain->setId($domainId);
         $salesChannelDomain->setUrl($domainUrl);
         $salesChannelDomain->setLanguageId($languageId ?? Uuid::randomHex());
+        $salesChannelDomain->setIsExternalStorefront($isExternalStorefront);
 
         return $salesChannelDomain;
     }

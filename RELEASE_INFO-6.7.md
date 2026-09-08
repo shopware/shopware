@@ -1,3 +1,11 @@
+# 6.7.14.1
+
+## API
+
+### User and integration cloning is no longer available
+
+`POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
+
 # 6.7.14.0
 
 ## Features

@@ -129,6 +129,10 @@ class UserControllerTest extends TestCase
             'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex(), 'admin' => true]]],
         ]];
 
+        yield 'association hidden in the extensions container' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex(), 'admin' => true]]],
+        ]];
+
         yield 'scalar field of the media entity' => [[
             'avatarMedia' => ['id' => Uuid::randomHex(), 'private' => true],
         ]];

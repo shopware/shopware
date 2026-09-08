@@ -7,6 +7,14 @@ import template from './sw-bulk-edit-save-modal-error.html.twig';
 export default {
     template,
 
+    props: {
+        failedItems: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+    },
+
     emits: [
         'title-set',
         'buttons-update',

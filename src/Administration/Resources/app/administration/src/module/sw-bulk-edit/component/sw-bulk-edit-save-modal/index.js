@@ -54,6 +54,11 @@ export default {
                 return {};
             },
         },
+        failedItems: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {

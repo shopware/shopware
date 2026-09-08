@@ -11,7 +11,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
-import { getCurrentInstance } from 'vue';
+import { getCurrentInstance, isRef } from 'vue';
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
@@ -67,8 +67,9 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 return;
             }
 
-            // Deliberately skips `setupState`: reading through the instance proxy would resolve to the
-            // override's own result and loop. Mirrors Vue's own order minus that first step.
+            // Deliberately skips `setupState`: what an earlier override or the component's own setup()
+            // put there is served from the per-override snapshot below. Mirrors Vue's own order minus
+            // that first step.
             const readBaseState = (key: string): unknown => {
                 const data = instance.data as AnyRecord;
 
@@ -101,22 +102,54 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 (instance as unknown as { ctx: AnyRecord }).ctx[key] = next;
             };
 
-            // Override callbacks read `previousState.x.value`, so every key is served as a ref-like
-            // accessor. A proxy avoids having to enumerate data, computed and methods upfront.
-            const previousState = new Proxy(
-                {},
-                {
-                    get: (_target, key: string) => ({
-                        __v_isRef: true,
-                        get value() {
-                            return readBaseState(key);
-                        },
-                        set value(next: unknown) {
-                            writeBaseState(key, next);
-                        },
-                    }),
-                },
-            );
+            // Override callbacks read `previousState.x.value`, so plain values are served as a ref-like
+            // accessor. Refs pass through as they are; functions stay callable as `previousState.x()`,
+            // matching what createExtendableSetup() hands to overrides of migrated components.
+            const toRefLike = (read: () => unknown, write: (next: unknown) => void): unknown => {
+                const current = read();
+
+                if (isRef(current) || typeof current === 'function') {
+                    return current;
+                }
+
+                return {
+                    __v_isRef: true,
+                    get value() {
+                        return read();
+                    },
+                    set value(next: unknown) {
+                        write(next);
+                    },
+                };
+            };
+
+            // Resolves `installed` first, then the base state - the same order Vue's instance proxy uses,
+            // with `installed` standing in for setupState. A proxy avoids having to enumerate data,
+            // computed and methods upfront.
+            const createPreviousState = (installed: AnyRecord): AnyRecord =>
+                new Proxy({} as AnyRecord, {
+                    get: (_target, key) => {
+                        // Vue probes objects with `__v_isRef`, `__v_raw` & co and with symbol keys.
+                        // Answering those with an accessor would make the proxy itself look like a ref.
+                        if (typeof key !== 'string' || key.startsWith('__v_')) {
+                            return undefined;
+                        }
+
+                        if (Object.prototype.hasOwnProperty.call(installed, key)) {
+                            return toRefLike(
+                                () => installed[key],
+                                (next) => {
+                                    bag[key] = next;
+                                },
+                            );
+                        }
+
+                        return toRefLike(
+                            () => readBaseState(key),
+                            (next) => writeBaseState(key, next),
+                        );
+                    },
+                });
 
             const context = {
                 attrs: instance.attrs,
@@ -128,6 +161,10 @@ export function attachSetupOverrideShim(componentName: string, config: Component
             // Vue activates the component's effect scope around lifecycle hooks, so watchers and
             // computeds the overrides create here are disposed on unmount without further handling.
             _overridesMap[componentName].forEach((override) => {
+                // Snapshot per override: the bag already holds the component's own setup() result and
+                // everything earlier overrides installed, so override N sees N-1 - but not its own
+                // result, which is only written after the call. That keeps the read from looping.
+                const previousState = createPreviousState({ ...bag });
                 const result = override(previousState as never, instance.props as never, context) as AnyRecord;
 
                 if (result === undefined) {

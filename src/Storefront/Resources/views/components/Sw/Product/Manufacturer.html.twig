@@ -39,11 +39,7 @@
             }) %}
         {% endif %}
 
-        {% block link %}
-            {% if manufacturerLinkHref %}
-                <a {{ attributes.nested('link').defaults(linkAttributes) }}>
-            {% endif %}
-
+        {% set manufacturerContent %}
             {% if manufacturer.media %}
                 {% block media %}
                     <twig:Sw:Media:Image
@@ -58,9 +54,15 @@
                     <span {{ attributes.nested('name').defaults({ class: 'sw-product-manufacturer__name' }) }}>{{ manufacturerName }}</span>
                 {% endblock %}
             {% endif %}
+        {% endset %}
 
+        {% block link %}
             {% if manufacturerLinkHref %}
+                <a {{ attributes.nested('link').defaults(linkAttributes) }}>
+                    {{ manufacturerContent }}
                 </a>
+            {% else %}
+                {{ manufacturerContent }}
             {% endif %}
         {% endblock %}
     {% endif %}

@@ -21,15 +21,14 @@
     <form class="{{ variantSelectionCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults(attributeDefaults) }}>
         {% block groups %}
             {% for group in configuratorSettings %}
-                {% set groupName = 'sw-product-variant-selection__group-' ~ group.id %}
                 {% set displayType = group.displayType %}
                 {% if displayType === 'select' %}
-                    <div {{ attributes.nested(groupName).defaults({ class: 'sw-product-variant-selection__group mb-3' }) }}>
-                        <label {{ attributes.nested(groupName ~ '-label').defaults({ class: 'sw-product-variant-selection__label fs-5 fw-bold', for: group.id }) }}>
+                    <div {{ attributes.nested('group').defaults({ class: 'sw-product-variant-selection__group mb-3' }) }}>
+                        <label {{ attributes.nested('group-label').defaults({ class: 'sw-product-variant-selection__label fs-5 fw-bold', for: group.id }) }}>
                             {{ 'component.product.configurator.legend'|trans({ '%group_name%': group.translated.name, '%hidden_cls%': 'visually-hidden' })|sw_sanitize }}
                         </label>
                         {% block select_options %}
-                            <select {{ attributes.nested(groupName ~ '-input').defaults({ class: 'sw-product-variant-selection__select form-select', name: group.id, id: group.id }) }}>
+                            <select {{ attributes.nested('group-select').defaults({ class: 'sw-product-variant-selection__select form-select', name: group.id, id: group.id }) }}>
                                 {% for option in group.options %}
                                     <option value="{{ option.id }}"{% if option.id in product.optionIds %} selected{% endif %}{% if not option.combinable %} disabled{% endif %}>
                                         {{ option.translated.name }}{% if not option.combinable %} ({{ 'detail.unavailable'|trans|sw_sanitize }}){% endif %}
@@ -39,22 +38,22 @@
                         {% endblock %}
                     </div>
                 {% else %}
-                    <fieldset {{ attributes.nested(groupName).defaults({ class: 'sw-product-variant-selection__group mb-3' }) }}>
-                        <legend {{ attributes.nested(groupName ~ '-label').defaults({ class: 'sw-product-variant-selection__legend fs-5 fw-bold' }) }}>{{ group.translated.name }}</legend>
+                    <fieldset {{ attributes.nested('group').defaults({ class: 'sw-product-variant-selection__group mb-3' }) }}>
+                        <legend {{ attributes.nested('group-label').defaults({ class: 'sw-product-variant-selection__legend fs-5 fw-bold' }) }}>{{ group.translated.name }}</legend>
                         {% block options %}
-                            <div {{ attributes.nested(groupName ~ '-options').defaults({ class: 'sw-product-variant-selection__options d-flex flex-wrap gap-2' }) }}>
+                            <div {{ attributes.nested('options').defaults({ class: 'sw-product-variant-selection__options d-flex flex-wrap gap-2' }) }}>
                                 {% for option in group.options %}
                                     {% set identifier = [group.id, option.id]|join('-') %}
                                     {% set isActive = option.id in product.optionIds %}
                                     {% set media = option.configuratorSetting.media ?? option.media ?? null %}
                                     {% set optionType = option.configuratorSetting.media ? 'media' : group.displayType %}
-                                    <div {{ attributes.nested(groupName ~ '-option-' ~ option.id).defaults({ class: 'sw-product-variant-selection__option' }) }}>
+                                    <div {{ attributes.nested('option').defaults({ class: 'sw-product-variant-selection__option' }) }}>
                                         {% block option %}
-                                            <input {{ attributes.nested(groupName ~ '-input-' ~ option.id).defaults({ class: 'sw-product-variant-selection__input btn-check', type: 'radio', name: group.id, value: option.id, id: identifier, checked: isActive, disabled: not option.combinable, 'aria-labelledby': identifier ~ '-label' }) }}>
-                                            <label {{ attributes.nested(groupName ~ '-option-label-' ~ option.id).defaults({ class: 'sw-product-variant-selection__option-label btn btn-outline-secondary is--display-' ~ optionType ~ (not option.combinable ? ' is--unavailable' : ''), for: identifier, id: identifier ~ '-label' }) }}{% if optionType === 'color' and option.colorHexCode %} style="--sw-product-variant-selection-option-color: {{ option.colorHexCode }}"{% endif %}>
+                                            <input {{ attributes.nested('option-input').defaults({ class: 'sw-product-variant-selection__input btn-check', type: 'radio', name: group.id, value: option.id, id: identifier, checked: isActive, disabled: not option.combinable, 'aria-labelledby': identifier ~ '-label' }) }}>
+                                            <label {{ attributes.nested('option-label').defaults({ class: 'sw-product-variant-selection__option-label btn btn-outline-secondary is--display-' ~ optionType ~ (not option.combinable ? ' is--unavailable' : ''), for: identifier, id: identifier ~ '-label' }) }}{% if optionType === 'color' and option.colorHexCode %} style="--sw-product-variant-selection-option-color: {{ option.colorHexCode }}"{% endif %}>
                                                 {% if optionType === 'media' and media %}
                                                     <twig:Sw:Media
-                                                        {{ ...attributes.nested(groupName ~ '-media-' ~ option.id) }}
+                                                        {{ ...attributes.nested('option-media') }}
                                                         :media="media"
                                                         sizes="52px"
                                                         class="sw-product-variant-selection__media"

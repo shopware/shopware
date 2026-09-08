@@ -25,6 +25,10 @@ They stay available in Flow Builder, so `{{ contextToken }}`, `{{ confirmUrl }}`
 
 A flow event value is kept out of webhook payloads by passing `[EventDataCollection::HIDDEN_FROM_WEBHOOK => true]` as the options argument of `EventDataCollection::add()`.
 
+### Customer confirmation hashes are no longer included in API responses
+
+Customer registration confirmation hashes are no longer included in API responses or webhook customer payloads. The internal registration confirmation flow is unchanged.
+
 ## Core
 
 ### `EventDataCollection` will become final

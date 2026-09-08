@@ -178,6 +178,7 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('Max', $data['data']['payload']['customer']['firstName']);
         static::assertSame('Mustermann', $data['data']['payload']['customer']['lastName']);
+        static::assertArrayNotHasKey('hash', $data['data']['payload']['customer']);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId'], $data['source']['sequence']);
@@ -1617,6 +1618,7 @@ class WebhookManagerTest extends TestCase
             'customerNumber' => '12345',
             'vatIds' => ['DE123456789'],
             'company' => 'Test',
+            'hash' => 'customer-confirmation-hash',
         ];
 
         static::getContainer()->get('customer.repository')

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -98,13 +99,12 @@ final readonly class WiringPlanner
     private function validatePropertyAliases(array $consumers): void
     {
         $propertyKeys = [];
+        $consumerBaseKey = new ConsumerBaseKeyResolver();
 
         foreach ($consumers as $contextKey => $consumer) {
             $propertyKey = $consumer->propertyAlias ?? $contextKey;
 
-            $baseKey = str_contains($propertyKey, '.')
-                ? substr($propertyKey, 0, (int) strpos($propertyKey, '.'))
-                : $propertyKey;
+            $baseKey = $consumerBaseKey->resolve($propertyKey);
 
             if (\array_key_exists($baseKey, $propertyKeys)) {
                 throw ContentSystemException::propertyAliasCollision(

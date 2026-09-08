@@ -49,6 +49,7 @@ class InsertElementTest extends TestCase
         static::assertTrue(Uuid::isValid($result->roots[1]->id));
         static::assertTrue($result->roots[1]->style->isEmpty());
         static::assertSame([$result->roots[1]->id], $insert->affected());
+        static::assertSame([$result->roots[1]->id], $insert->created());
     }
 
     #[TestDox('splices the new element into a parent slot at the given index')]

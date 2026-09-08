@@ -6,6 +6,16 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
     const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
         .methods;
 
+    it('prevents drag event propagation from action buttons', () => {
+        const event = {
+            stopPropagation: jest.fn(),
+        };
+
+        methods.preventDrag.call({}, event);
+
+        expect(event.stopPropagation).toHaveBeenCalled();
+    });
+
     it('uses configured type icon when available', () => {
         const vm = {
             contentElement: {

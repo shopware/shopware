@@ -20,6 +20,8 @@
             class="sw-experience-studio-sidebar-tree-node__toggle"
             type="button"
             :aria-label="isExpanded ? $t('global.default.close') : $t('global.default.open')"
+            @mousedown="preventDrag"
+            @touchstart="preventDrag"
             @click.stop="onToggleExpand"
         >
             <mt-icon
@@ -54,6 +56,8 @@
                 type="button"
                 :disabled="!allowEdit || undefined"
                 :aria-label="$t('sw-experience-studio.detail.sidebarTree.duplicateElement')"
+                @mousedown="preventDrag"
+                @touchstart="preventDrag"
                 @click.stop="onDuplicateElement"
             >
                 <mt-icon
@@ -71,6 +75,8 @@
                 type="button"
                 :disabled="!allowEdit || undefined"
                 :aria-label="$t('sw-experience-studio.detail.sidebarTree.deleteElement')"
+                @mousedown="preventDrag"
+                @touchstart="preventDrag"
                 @click.stop="onDeleteElement"
             >
                 <mt-icon

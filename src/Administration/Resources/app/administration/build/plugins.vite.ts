@@ -27,6 +27,7 @@ import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
 import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
+import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
@@ -79,6 +80,9 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                 pluginEntryFile: extension.filePath,
             }),
             ShopwareSetupPlugin({
+                administrationRoot: path.dirname(__dirname),
+            }),
+            VirtualShopwareModulesPlugin({
                 administrationRoot: path.dirname(__dirname),
             }),
             vue({

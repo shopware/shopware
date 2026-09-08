@@ -47,4 +47,10 @@ describe('extension-tooling type surface', () => {
 
         expect(adminTypes).toContain("'../build/vue-setup-transform/shopware-setup-macros'");
     });
+
+    it('carries the shopware:* module declarations so extensions can import them', () => {
+        const adminTypes = fs.readFileSync(adminTypesPath, 'utf8');
+
+        expect(adminTypes).toContain("'../src/shopware-virtual-modules'");
+    });
 });

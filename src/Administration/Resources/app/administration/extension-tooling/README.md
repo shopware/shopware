@@ -12,10 +12,16 @@ below).
 | File | Purpose |
 | --- | --- |
 | `tsconfig.base.json` | Strict TypeScript preset for extension code (ESNext, Bundler resolution, `noEmit`). Resolves `vue`, `@vue/*`, and `src/*` into the installed Administration. |
-| `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, and `html-shim.d.ts`. Injected into every extension program via `files`. |
+| `admin-types.d.ts` | The one type surface: imports the live `global.types.ts`, the generated `entity-schema-definition.d.ts`, `html-shim.d.ts`, and `shopware-virtual-modules.d.ts`. Injected into every extension program via `files`. |
 | `eslint.mjs` | Parameterized flat-config factory `shopwareAdminExtension(options)`. All plugins resolve from the Administration's `node_modules`. |
 | `legacy-twig.mjs` | Lint preset for legacy `.html.twig` component templates (Twig-Vue processor). |
 | `host-modules.json` | Declares the bare modules the Administration host provides to extensions at runtime. v1: `vue` only — the Vite externals plugin replaces exactly the bare `vue` import. If a module is added there, it must be added here and to `tsconfig.base.json` `paths` in the same change. |
+
+The `shopware:*` modules (`shopware:utils`, `shopware:data`, `shopware:mixins`, `shopware:stores`) are
+not host modules. They resolve to no file: a Vite plugin generates them from the global `Shopware` object,
+and `admin-types.d.ts` carries their ambient declarations. Adding one means changing
+`build/vite-plugins/virtual-shopware-modules` and `src/shopware-virtual-modules.d.ts`, not this table.
+See [`shopware:*` Modules](../technical-docs/05-global-object/04-virtual-modules.md).
 
 ## How extensions use it
 

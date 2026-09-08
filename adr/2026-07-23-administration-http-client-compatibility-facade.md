@@ -19,17 +19,17 @@ During the transition, direct HTTP requests can select the legacy or new transpo
 
 Repository requests always use Axios v1 internally. Repository options cannot select the transport. Any repository incompatibility is fixed centrally in Shopware rather than worked around by each extension.
 
-## Outcome with Shopware 6.8
+## Version 6.8 Major Checklist
 
-The transitional half of this decision ended with Shopware 6.8. The facade stayed, the second transport did not.
+The transitional half of this decision ends with Shopware 6.8. The facade stays, the second transport does not.
 
-- The axios 0.x dependency was removed and the `axios-v1` alias was renamed back to `axios`.
-- The `useAxiosV1` request flag and the version dispatcher in `src/core/factory/http.factory.js` were removed. The factory returns a single configured axios client.
-- The mirrored interceptor manager and mirrored defaults were removed; a single transport needs no mirroring.
-- `src/core/factory/http-client-adapter.ts` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` escape hatches were removed.
-- The axios 0.x advisory suppressions were dropped from `scripts/runNpmAudit.ts`.
+- Remove the axios 0.x dependency and rename the `axios-v1` alias back to `axios`.
+- Remove the `useAxiosV1` request flag and the version dispatcher in `src/core/factory/http.factory.js`.
+- Remove the mirrored interceptor manager and mirrored defaults; a single transport needs no mirroring.
+- Remove `src/core/factory/http-client-adapter.ts` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` escape hatches.
+- Drop the axios 0.x advisory suppressions from `scripts/runNpmAudit.ts`.
 
-Structural `AxiosInstance` compatibility is no longer a goal. `HttpClient`, `HttpRequestConfig` and `HttpResponse` are the contract.
+Structural `AxiosInstance` compatibility stops being a goal at that point. `HttpClient`, `HttpRequestConfig` and `HttpResponse` are the contract.
 
 ## Consequences
 
@@ -39,4 +39,4 @@ The facade also provides a stable boundary for future HTTP-library upgrades. Ver
 
 Maintaining two transports and transitional Axios compatibility adds temporary complexity. Code that directly depends on Axios-specific behavior must still migrate before the legacy transport and compatibility surface can be removed.
 
-See [The Administration HTTP client](../src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md) for the supported usage and the migration path from axios 0.x.
+See the [Axios migration guide](../src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md) for the supported migration path.

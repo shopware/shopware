@@ -20,6 +20,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 sync: true,
             }),
             {
+                attachTo: document.body,
                 global: {
                     renderStubDefaultSlot: true,
                     provide: {
@@ -68,13 +69,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
-                        'sw-popover-deprecated': {
-                            props: ['popoverClass'],
-                            template: `
-                    <div class="sw-popover" :class="popoverClass">
-                        <slot></slot>
-                    </div>`,
-                        },
                         'sw-loader': true,
                         'sw-context-menu-item': true,
                         'sw-context-menu': true,
@@ -126,6 +120,10 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
+    });
+
+    afterEach(() => {
+        wrapper.unmount();
     });
 
     it('should sort criterias by their position', async () => {
@@ -309,9 +307,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results =
-            wrapper.findAll('.sw-select-result')[0] ?? new DOMWrapper(document.body).findAll('.sw-select-result')[0];
-        await results.trigger('click');
+        const result = new DOMWrapper(document.body).get('.sw-select-result');
+        await result.trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productSortingEntity.fields).toEqual([

@@ -6,7 +6,12 @@ import {
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
+    readTranslatableValue,
+    writeTranslatableValue,
 } from './element-settings.util';
+
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
 
 describe('module/sw-experience-studio/util/element-settings.util', () => {
     const stringProperty: ContentSystemElementTypeProperty = {
@@ -580,5 +585,71 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 { mode: 'explicit' },
             ),
         ).toBe(true);
+    });
+
+    it('reads the anchor language entry from a language map', () => {
+        expect(
+            readTranslatableValue({
+                [GERMAN_LANGUAGE_ID]: 'Hallo',
+                [ANCHOR_LANGUAGE_ID]: 'Hello',
+            }),
+        ).toBe('Hello');
+    });
+
+    it('reads an empty string from a language map without the anchor entry', () => {
+        expect(readTranslatableValue({ [GERMAN_LANGUAGE_ID]: 'Hallo' })).toBe('');
+    });
+
+    it.each([
+        ['Hello'],
+        [['Hello']],
+        [null],
+        [undefined],
+    ])('reads an empty string from the non-map value %p', (value) => {
+        expect(readTranslatableValue(value)).toBe('');
+    });
+
+    it('reads an empty string when the anchor entry is not a string', () => {
+        expect(readTranslatableValue({ [ANCHOR_LANGUAGE_ID]: null })).toBe('');
+    });
+
+    it('writes the anchor entry while preserving every other language entry', () => {
+        expect(
+            writeTranslatableValue(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                },
+                'Hello again',
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello again',
+            [GERMAN_LANGUAGE_ID]: 'Hallo',
+        });
+    });
+
+    it.each([
+        ['Hello'],
+        [['Hello']],
+        [null],
+        [undefined],
+    ])('writes a single-entry language map over the non-map value %p', (current) => {
+        expect(writeTranslatableValue(current, 'Hello again')).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello again',
+        });
+    });
+
+    it('drops non-string entries when writing the anchor entry', () => {
+        expect(
+            writeTranslatableValue(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: null,
+                },
+                'Hello again',
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello again',
+        });
     });
 });

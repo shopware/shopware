@@ -22,6 +22,7 @@ import {
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
+import { readTranslatableValue, writeTranslatableValue } from 'src/module/sw-experience-studio/util/element-settings.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
@@ -612,7 +613,18 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, { text: normalizedValue }) ? {} : false;
+                const location = findElementLocation(layout, payload.elementId);
+                const element = location ? location.elements[location.index] : null;
+
+                if (!element) {
+                    return false;
+                }
+
+                const nextValue = this.isTranslatableProperty(element.component, 'text')
+                    ? writeTranslatableValue(element.properties?.text, normalizedValue)
+                    : normalizedValue;
+
+                return updateElementPropertiesInLayout(layout, payload.elementId, { text: nextValue }) ? {} : false;
             });
         },
 
@@ -1128,12 +1140,24 @@ export default Shopware.Component.wrapComponentConfig({
             return typeSpecification.properties.text?.adminUI?.component === 'text-editor';
         },
 
+        isTranslatableProperty(component: string, propertyKey: string): boolean {
+            const typeSpecification = this.elementTypeStore.getByName(component);
+
+            return typeSpecification?.properties[propertyKey]?.translatable === true;
+        },
+
         getElementTextValue(element: ContentElementNode | null): string {
             if (!element) {
                 return '';
             }
 
-            return typeof element.properties?.text === 'string' ? element.properties.text : '';
+            const storedValue = element.properties?.text;
+
+            if (this.isTranslatableProperty(element.component, 'text')) {
+                return readTranslatableValue(storedValue);
+            }
+
+            return typeof storedValue === 'string' ? storedValue : '';
         },
 
         onUndo(): void {

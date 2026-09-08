@@ -86,6 +86,55 @@ export function getElementPropertyStorageKey(
 }
 
 /**
+ * Reads the anchor-language entry out of a translatable property value.
+ *
+ * A value that is not a language map, and a map without the anchor entry, both
+ * read as an empty string: the studio edits the anchor language only.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function readTranslatableValue(value: unknown): string {
+    if (!isLanguageMap(value)) {
+        return '';
+    }
+
+    const anchorValue = value[anchorLanguageId()];
+
+    return typeof anchorValue === 'string' ? anchorValue : '';
+}
+
+/**
+ * Replaces the anchor-language entry, preserving every other language entry the
+ * current value carries.
+ *
+ * Entries whose value is not a string are dropped: a language map holds strings.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function writeTranslatableValue(current: unknown, next: string): Record<string, string> {
+    if (!isLanguageMap(current)) {
+        return { [anchorLanguageId()]: next };
+    }
+
+    const languageMap: Record<string, string> = {};
+
+    for (const [
+        languageId,
+        entry,
+    ] of Object.entries(current)) {
+        if (typeof entry === 'string') {
+            languageMap[languageId] = entry;
+        }
+    }
+
+    languageMap[anchorLanguageId()] = next;
+
+    return languageMap;
+}
+
+/**
  * @private
  * @sw-package discovery
  */
@@ -200,6 +249,14 @@ export function getInitialPropertyValue(
     }
 
     return null;
+}
+
+function anchorLanguageId(): string {
+    return Shopware.Defaults.systemLanguageId;
+}
+
+function isLanguageMap(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function propertyHasType(property: ContentSystemElementTypeProperty, type: string): boolean {

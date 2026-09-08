@@ -1,4 +1,5 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
+import { readTranslatableValue } from './element-settings.util';
 
 /**
  * @private
@@ -15,8 +16,12 @@ export function getContentElementLabel(element: ContentElementNode): string {
     for (const key of nameKeys) {
         const value = properties[key];
 
-        if (typeof value === 'string' && value.trim() !== '') {
-            return value;
+        // a plain-object value here is only ever a language map: these keys never store any other object shape
+        const candidate =
+            typeof value === 'object' && value !== null && !Array.isArray(value) ? readTranslatableValue(value) : value;
+
+        if (typeof candidate === 'string' && candidate.trim() !== '') {
+            return candidate;
         }
     }
 

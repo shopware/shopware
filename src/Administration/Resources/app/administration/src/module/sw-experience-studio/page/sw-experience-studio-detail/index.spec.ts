@@ -2,8 +2,21 @@ import type { ContentElementNode } from 'src/core/service/content-element.types'
 import type { ContentLayoutDraftMutationResponse } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import detailComponent from './index';
 
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+
 describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+
+    const elementTypeStoreFor = (translatable: boolean) => ({
+        getByName: () => ({
+            properties: {
+                text: {
+                    translatable,
+                },
+            },
+        }),
+    });
 
     it('starts inline session for text elements', () => {
         const vm = {
@@ -79,6 +92,115 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         methods.onInlineEditCancel.call(vm, { elementId: 'element-1' });
         expect(clearInlineEditSession).toHaveBeenCalledTimes(1);
+    });
+
+    it('reads the anchor language entry of a translatable text property', () => {
+        const vm = {
+            elementTypeStore: elementTypeStoreFor(true),
+            isTranslatableProperty: methods.isTranslatableProperty,
+        };
+
+        const textValue = methods.getElementTextValue.call(vm, {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            properties: {
+                text: {
+                    [GERMAN_LANGUAGE_ID]: 'Hallo',
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                },
+            },
+        });
+
+        expect(textValue).toBe('Hello');
+    });
+
+    it('reads the scalar value of a non-translatable text property', () => {
+        const vm = {
+            elementTypeStore: elementTypeStoreFor(false),
+            isTranslatableProperty: methods.isTranslatableProperty,
+        };
+
+        const textValue = methods.getElementTextValue.call(vm, {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            properties: {
+                text: 'Hello',
+            },
+        });
+
+        expect(textValue).toBe('Hello');
+    });
+
+    it('commits an inline edit of a translatable text property as a language map that keeps the other entries', () => {
+        const workingLayout: ContentElementNode[] = [
+            {
+                id: 'element-1',
+                component: 'Sw:Content:Text',
+                properties: {
+                    text: {
+                        [ANCHOR_LANGUAGE_ID]: 'Hello',
+                        [GERMAN_LANGUAGE_ID]: 'Hallo',
+                    },
+                },
+            },
+        ];
+        const vm = {
+            inlineEditSession: {
+                elementId: 'element-1',
+                originalValue: 'Hello',
+                draftValue: 'Hello again',
+                isEditing: true,
+            },
+            clearInlineEditSession: jest.fn(),
+            applyLayoutMutation: (mutator: (layout: ContentElementNode[]) => unknown) => mutator(workingLayout),
+            elementTypeStore: elementTypeStoreFor(true),
+            isTranslatableProperty: methods.isTranslatableProperty,
+        };
+
+        methods.onInlineEditCommit.call(vm, {
+            elementId: 'element-1',
+            value: 'Hello again',
+        });
+
+        expect(workingLayout[0].properties).toEqual({
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Hello again',
+                [GERMAN_LANGUAGE_ID]: 'Hallo',
+            },
+        });
+    });
+
+    it('commits an inline edit of a non-translatable text property as a bare string', () => {
+        const workingLayout: ContentElementNode[] = [
+            {
+                id: 'element-1',
+                component: 'Sw:Content:Text',
+                properties: {
+                    text: 'Hello',
+                },
+            },
+        ];
+        const vm = {
+            inlineEditSession: {
+                elementId: 'element-1',
+                originalValue: 'Hello',
+                draftValue: 'Hello again',
+                isEditing: true,
+            },
+            clearInlineEditSession: jest.fn(),
+            applyLayoutMutation: (mutator: (layout: ContentElementNode[]) => unknown) => mutator(workingLayout),
+            elementTypeStore: elementTypeStoreFor(false),
+            isTranslatableProperty: methods.isTranslatableProperty,
+        };
+
+        methods.onInlineEditCommit.call(vm, {
+            elementId: 'element-1',
+            value: 'Hello again',
+        });
+
+        expect(workingLayout[0].properties).toEqual({
+            text: 'Hello again',
+        });
     });
 
     it('uses layout rootSource for draft mutation payloads', () => {

@@ -3,6 +3,9 @@ import { findElementLocation, updateElementPropertiesInLayout, updateElementStyl
 
 const { cloneDeep } = Shopware.Utils.object;
 
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+
 describe('module/sw-experience-studio/util/content-element.util', () => {
     const rootElement: ContentElementNode = {
         id: 'root-1',
@@ -16,7 +19,9 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
                     id: 'child-1',
                     component: 'content:text',
                     properties: {
-                        text: 'Hello',
+                        text: {
+                            [ANCHOR_LANGUAGE_ID]: 'Hello',
+                        },
                     },
                 },
                 {
@@ -59,26 +64,56 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
         const testLayout = cloneDeep(layout);
 
         const updated = updateElementPropertiesInLayout(testLayout, 'child-1', {
-            text: 'Updated text',
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Updated text',
+            },
             visibility: 'public',
         });
 
         expect(updated).toBe(true);
         expect(testLayout[0].slots!.content[0].properties).toEqual({
-            text: 'Updated text',
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Updated text',
+            },
             visibility: 'public',
+        });
+    });
+
+    it('replaces a language map wholesale instead of merging its entries', () => {
+        const testLayout = cloneDeep(layout);
+        testLayout[0].slots!.content[0].properties = {
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Hello',
+                [GERMAN_LANGUAGE_ID]: 'Hallo',
+            },
+        };
+
+        updateElementPropertiesInLayout(testLayout, 'child-1', {
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Hello again',
+            },
+        });
+
+        expect(testLayout[0].slots!.content[0].properties).toEqual({
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Hello again',
+            },
         });
     });
 
     it('returns false when updating properties for a missing element', () => {
         const testLayout = cloneDeep(layout);
         const updated = updateElementPropertiesInLayout(testLayout, 'missing', {
-            text: 'Updated text',
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Updated text',
+            },
         });
 
         expect(updated).toBe(false);
         expect(testLayout[0].slots!.content[0].properties).toEqual({
-            text: 'Hello',
+            text: {
+                [ANCHOR_LANGUAGE_ID]: 'Hello',
+            },
         });
     });
 

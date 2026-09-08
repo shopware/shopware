@@ -7,6 +7,8 @@ import {
     getInitialPropertyValue,
     getPropertyControlType,
     isPropertyVisible,
+    readTranslatableValue,
+    writeTranslatableValue,
 } from '../../util/element-settings.util';
 import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
@@ -118,11 +120,19 @@ export default Shopware.Component.wrapComponentConfig({
                 return values;
             }
 
-            for (const key of Object.keys(typeSpecification.properties)) {
+            for (const [
+                key,
+                property,
+            ] of Object.entries(typeSpecification.properties)) {
                 const storageKey = getElementPropertyStorageKey(typeSpecification, key);
 
                 if (storageKey !== key && Object.prototype.hasOwnProperty.call(properties, storageKey)) {
                     values[key] = properties[storageKey];
+                }
+
+                // An absent key stays absent so the field controls still fall back to the declared default.
+                if (property.translatable && Object.prototype.hasOwnProperty.call(values, key)) {
+                    values[key] = readTranslatableValue(values[key]);
                 }
             }
 
@@ -151,9 +161,13 @@ export default Shopware.Component.wrapComponentConfig({
                 ) => {
                     const storageKey = getElementPropertyStorageKey(typeSpecification, key);
                     const elementProperties = selectedElement?.properties ?? {};
-                    const currentValue = Object.prototype.hasOwnProperty.call(elementProperties, storageKey)
+                    const storedValue = Object.prototype.hasOwnProperty.call(elementProperties, storageKey)
                         ? elementProperties[storageKey]
                         : elementProperties[key];
+                    const currentValue =
+                        property.translatable && storedValue !== undefined
+                            ? readTranslatableValue(storedValue)
+                            : storedValue;
                     accumulator[key] = getInitialPropertyValue(property, currentValue);
 
                     return accumulator;
@@ -242,11 +256,17 @@ export default Shopware.Component.wrapComponentConfig({
             const storageKey = typeSpecification
                 ? getElementPropertyStorageKey(typeSpecification, payload.key)
                 : payload.key;
+            const isTranslatable = typeSpecification?.properties[payload.key]?.translatable === true;
+            // A non-string control value cannot be a language-map entry; it travels on so the write rejects it.
+            const value =
+                isTranslatable && typeof payload.value === 'string'
+                    ? writeTranslatableValue(selectedElement.properties?.[storageKey], payload.value)
+                    : payload.value;
 
             this.$emit('update-properties', {
                 elementId: selectedElement.id,
                 properties: {
-                    [storageKey]: payload.value,
+                    [storageKey]: value,
                 },
             });
         },

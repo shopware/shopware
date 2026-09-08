@@ -251,7 +251,8 @@ class UserControllerTest extends TestCase
     /**
      * A user who may only edit their own profile (user_change_me) must not be able to elevate
      * themselves to admin. Top-level "admin" is already rejected; this guards the nested variant
-     * where the flag is hidden inside an allowed association (avatarMedia -> user / avatarUsers).
+     * where the flag is hidden inside an allowed association (avatarMedia -> user / avatarUsers),
+     * directly or through the media entity's `extensions` container.
      *
      * @param callable(string): array<string, mixed> $payloadFactory
      */
@@ -308,6 +309,26 @@ class UserControllerTest extends TestCase
                 'avatarMedia' => [
                     'id' => Uuid::randomHex(),
                     'avatarUsers' => [['id' => $userId, 'admin' => true]],
+                ],
+            ],
+        ];
+
+        // The DAL write layer resolves keys inside `extensions` against the entity's fields,
+        // associations included, so the same escalation is reachable one level deeper.
+        yield 'via avatarMedia.extensions.user' => [
+            static fn (string $userId): array => [
+                'avatarMedia' => [
+                    'id' => Uuid::randomHex(),
+                    'extensions' => ['user' => ['id' => $userId, 'admin' => true]],
+                ],
+            ],
+        ];
+
+        yield 'via avatarMedia.extensions.avatarUsers' => [
+            static fn (string $userId): array => [
+                'avatarMedia' => [
+                    'id' => Uuid::randomHex(),
+                    'extensions' => ['avatarUsers' => [['id' => $userId, 'admin' => true]]],
                 ],
             ],
         ];

@@ -74,12 +74,16 @@ Three rules follow from this:
    ordinary `it()` carrying an `@deprecated` comment, not an `it.deprecated()`. The registered test
    name gains a `(removed in <version>)` suffix so legacy/v6.8 pairs do not share a title.
 
-   Two failure modes stay outside the inversion, because Jest can only invert what the test
-   callback itself throws:
+   Jest can only invert what the test callback itself throws, so the console guard cooperates: the
+   environment marks such a test, and `prepare_environment.js` stops asserting on console output and
+   unhandled rejections for it. A removed code path warning on its way out is part of the expected
+   failure, not a failure of its own — and the guard raises its own in `afterEach`, where the
+   inversion can no longer reach it.
 
-   - A failure raised from a hook — including the `console.warn`/`console.error` guard, which
-     asserts in `afterEach` — is reported as a plain failure. A deprecation warning that only
-     appears before the major therefore has to be silenced through `global.allowedErrors`.
+   Two things stay outside the inversion:
+
+   - A failure raised from a spec's own hook, and an error Vue throws asynchronously from its
+     scheduler — a crash on re-render rather than on mount. Both are reported as plain failures.
    - The test now runs where it used to be skipped, so state it leaves behind (a half-mounted
      component, a global) reaches its neighbours.
 

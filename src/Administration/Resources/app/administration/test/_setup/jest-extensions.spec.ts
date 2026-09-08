@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import { createActiveFeatureFlagsTest, createDeprecatedTest } from './jest-extensions';
 
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
+const pendingExpectedFailureSymbol = Symbol.for('shopware.pendingTestExpectsFailure');
 
 const defaultActiveFeatureFlags =
     (Reflect.get(globalThis, Symbol.for('shopware.defaultActiveFeatureFlags')) as string[] | undefined) ?? [];
@@ -47,6 +48,34 @@ describe('Jest feature flag extensions', () => {
             expect.any(Function),
             undefined,
         );
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('marks a deprecated test as expected to fail while it registers', () => {
+        const testFunction = createTestFunctionSpy();
+        let markedAtRegistration: unknown;
+        (testFunction.failing as unknown as jest.Mock).mockImplementation(() => {
+            markedAtRegistration = Reflect.get(globalThis, pendingExpectedFailureSymbol);
+        });
+
+        createDeprecatedTest(testFunction)('v6.8.0.0')('deprecated test', jest.fn());
+
+        // The console guard reads this through the environment, so it has to be set while Jest adds
+        // the test, not while the test runs.
+        expect(markedAtRegistration).toBe(true);
+        // The slot must not outlive the registration, or the next plain it() would inherit it.
+        expect(Reflect.has(globalThis, pendingExpectedFailureSymbol)).toBeFalsy();
+    });
+
+    it('does not mark a deprecated test whose removal flag is inactive', () => {
+        const testFunction = createTestFunctionSpy();
+        let markedAtRegistration: unknown;
+        (testFunction as unknown as jest.Mock).mockImplementation(() => {
+            markedAtRegistration = Reflect.get(globalThis, pendingExpectedFailureSymbol);
+        });
+
+        createDeprecatedTest(testFunction)('v99.0.0.0')('deprecated test', jest.fn());
+
+        expect(markedAtRegistration).toBeUndefined();
     });
 
     it('keeps the removal version unshortened in the suffix', () => {

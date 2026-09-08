@@ -13,6 +13,7 @@ type EachRegister = (name: string, callback: jest.ProvidesCallback, timeout?: nu
 // invokes as (strings, ...values). Forward every argument so interpolated values are not dropped.
 type EachArgs = [table: EachTable] | [strings: TemplateStringsArray, ...values: unknown[]];
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
+const pendingExpectedFailureSymbol = Symbol.for('shopware.pendingTestExpectsFailure');
 
 function getActiveFeatureFlags(): string[] {
     return globalThis.activeFeatureFlags ?? [];
@@ -35,6 +36,24 @@ function withPendingFeatureFlags<T>(featureFlags: readonly string[], register: (
     }
 }
 
+/**
+ * Marks the tests registered by `register` as expected to fail.
+ *
+ * The environment picks this up on `add_test` and republishes it for the running test, which is what
+ * lets `prepare_environment.js` keep its console guard quiet for a test whose failure is the point.
+ * Same slot mechanism as `withPendingFeatureFlags`, for the same reason: `it.each` hands its own
+ * wrapper to `it()`, so a property on the callback would not survive a table.
+ */
+function withPendingExpectedFailure<T>(register: () => T): T {
+    Reflect.set(globalThis, pendingExpectedFailureSymbol, true);
+
+    try {
+        return register();
+    } finally {
+        Reflect.deleteProperty(globalThis, pendingExpectedFailureSymbol);
+    }
+}
+
 /** @private */
 export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated'] {
     return (removedIn: string) => {
@@ -43,24 +62,23 @@ export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated
             return normalizeFeatureFlag(featureFlag) === normalizedRemovedIn;
         });
         // Inverted instead of skipped: with the removal flag on, the behaviour the test asserts is
-        // gone, so the test still passing means `removedIn` names the wrong version. Jest cannot
-        // invert a failure that happens in `beforeEach`, so setup that breaks under the flag still
-        // reports as a plain failure.
+        // gone, so the test still passing means `removedIn` names the wrong version. Jest only
+        // inverts what the callback itself throws, so a throw from a spec's own `beforeEach` still
+        // reports as a plain failure; the console guard is covered by the marker below.
         const register = isRemoved ? testFunction.failing : testFunction;
+        const publish = isRemoved ? withPendingExpectedFailure : <T>(registerTest: () => T) => registerTest();
 
         // Applied before Jest interpolates `%s` and friends, so the suffix trails the whole title.
         const withSuffix = (name: string) => `${name} (removed in ${removedIn})`;
 
         const run = ((name: string, callback?: TestCallback, timeout?: number) => {
-            register(withSuffix(name), callback as jest.ProvidesCallback, timeout);
+            publish(() => register(withSuffix(name), callback as jest.ProvidesCallback, timeout));
         }) as jest.FeatureFlagTest;
 
         run.each = ((...eachArgs: EachArgs) =>
             (name: string, callback: jest.ProvidesCallback, timeout?: number) =>
-                (register.each as (...args: EachArgs) => EachRegister)(...eachArgs)(
-                    withSuffix(name),
-                    callback,
-                    timeout,
+                publish(() =>
+                    (register.each as (...args: EachArgs) => EachRegister)(...eachArgs)(withSuffix(name), callback, timeout),
                 )) as jest.It['each'];
 
         return run;

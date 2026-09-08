@@ -70,6 +70,7 @@ import findByPlaceholder from '../_helper_/find-by-placeholder';
 import CacheService from '../../src/app/service/cache.service';
 
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
+const expectedFailureSymbol = Symbol.for('shopware.currentTestExpectsFailure');
 global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
 
 // initialize the Stores
@@ -726,6 +727,14 @@ beforeEach(() => {
 // eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
     hasActiveTest = false;
+
+    // A test registered through `it.deprecated()` under its removal flag is expected to fail, so its
+    // console output and rejections belong to that failure. Jest inverts only what the callback
+    // throws, and this hook runs too late to be inverted. The `beforeEach` above resets every flag
+    // read below, so leaving them set cannot reach the next test.
+    if (global[expectedFailureSymbol]) {
+        return;
+    }
 
     if (unhandledRejectionError) {
         const rejectionError = unhandledRejectionError;

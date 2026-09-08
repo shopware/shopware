@@ -20,6 +20,7 @@ globalThis.activeFeatureFlags = [...majorFeatureFlags];
 
 describe('Jest feature flag extensions with a major baseline', () => {
     let deprecatedTestRan = false;
+    let noisyDeprecatedTestRan = false;
     let featureFlagsInSetup: string[] = [];
 
     beforeEach(() => {
@@ -32,6 +33,9 @@ describe('Jest feature flag extensions with a major baseline', () => {
 
         // eslint-disable-next-line jest/no-standalone-expect -- The inverted test runs, unlike a skipped one.
         expect(deprecatedTestRan).toBeTruthy();
+
+        // eslint-disable-next-line jest/no-standalone-expect -- Same, for the one that also writes to the console.
+        expect(noisyDeprecatedTestRan).toBeTruthy();
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the v6.8 major-baseline fixture.
@@ -40,6 +44,22 @@ describe('Jest feature flag extensions with a major baseline', () => {
 
         // Registered through `it.failing` because the flag is on, so this failure is the pass.
         expect(Shopware.Feature.isActive('v6.8.0.0')).toBeFalsy();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the v6.8 major-baseline fixture.
+    it.deprecated('v6.8.0.0')('counts console output during an expected failure as part of it', () => {
+        noisyDeprecatedTestRan = true;
+
+        // Removed code paths warn on their way out. Without the expected-failure marker the console
+        // guard turns this into a failure of its own, thrown from an `afterEach` where `it.failing`
+        // can no longer invert it.
+        console.warn('expected console.warn from a deprecated test that is expected to fail');
+
+        expect(Shopware.Feature.isActive('v6.8.0.0')).toBeFalsy();
+    });
+
+    it('clears the expected-failure marker once a deprecated test is done', () => {
+        expect(Reflect.get(globalThis, Symbol.for('shopware.currentTestExpectsFailure'))).toBeUndefined();
     });
 
     it.activeFeatureFlags(['EXPERIMENTAL_FEATURE'])('adds per-test flags without replacing the major baseline', () => {

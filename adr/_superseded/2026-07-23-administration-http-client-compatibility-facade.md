@@ -5,6 +5,10 @@ area: administration
 tags: [administration, axios, compatibility, extensions]
 ---
 
+> **Status:** Superseded on 2026-09-08
+> This ADR has been replaced by [2026-09-08-administration-single-axios-transport.md](../2026-09-08-administration-single-axios-transport.md).
+> The new ADR keeps the facade and ends the second transport: axios 1.x becomes the only transport with Shopware 6.8.
+
 ## Context
 
 The Administration HTTP client has historically exposed Axios behavior to extensions. Replacing Axios 0.x with Axios 1.x directly would therefore affect interceptor and default configuration, request cancellation, TypeScript types, and test mocks across the extension ecosystem.
@@ -18,18 +22,6 @@ The Administration exposes a Shopware-owned HTTP client facade while keeping the
 During the transition, direct HTTP requests can select the legacy or new transport with `useAxiosV1`. Interceptors and defaults registered through the facade are applied to both transports, and the facade retains the compatibility needed by existing Axios-based types and test tooling. New code should use Shopware's HTTP client types instead of depending on an Axios instance.
 
 Repository requests always use Axios v1 internally. Repository options cannot select the transport. Any repository incompatibility is fixed centrally in Shopware rather than worked around by each extension.
-
-## Version 6.8 Major Checklist
-
-The transitional half of this decision ends with Shopware 6.8. The facade stays, the second transport does not.
-
-- Remove the axios 0.x dependency and rename the `axios-v1` alias back to `axios`.
-- Remove the `useAxiosV1` request flag and the version dispatcher in `src/core/factory/http.factory.js`.
-- Remove the mirrored interceptor manager and mirrored defaults; a single transport needs no mirroring.
-- Remove `src/core/factory/http-client-adapter.ts` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` escape hatches.
-- Drop the axios 0.x advisory suppressions from `scripts/runNpmAudit.ts`.
-
-Structural `AxiosInstance` compatibility stops being a goal at that point. `HttpClient`, `HttpRequestConfig` and `HttpResponse` are the contract.
 
 ## Consequences
 

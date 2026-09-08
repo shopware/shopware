@@ -1551,7 +1551,7 @@ httpClient.interceptors.request.eject(interceptorId);
 
 With a single transport there is nothing left to mirror, so a handler is registered exactly once. Code that registered a handler on `interceptorsV0` or `interceptorsV1` to avoid the previous mirroring must move to `httpClient.interceptors`.
 
-The architectural rationale for the facade is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
+The architectural rationale for the facade is documented in [One Axios transport behind the Administration HTTP client facade](adr/2026-09-08-administration-single-axios-transport.md).
 
 ## Removal of "sw-empty-state"
 

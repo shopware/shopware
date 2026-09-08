@@ -11,25 +11,10 @@ meta:
       - "Use slots to customize the grid and pagination."
 
 properties:
-  navigationId:
-    type: string
-    title: "Navigation ID"
-    description: "Category id the product_listing loader loads from. Resolved per request from the layout's category root, so it needs no editorial input."
-    default: "{{categoryId}}"
-    adminUI:
-      helpText: "Filled automatically from the page you are on, so leave this as it is."
-
   listing:
     type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
     title: "Listing"
-    description: "Hydrated listing result containing products, sorting, and aggregations."
-    resolvedBy:
-      product_listing:
-        associations:
-          - cover
-          - cover.media
-          - cover.media.thumbnails
-          - manufacturer
+    description: "Hydrated listing result containing products, sorting, and aggregations. Received as root-scoped context from the page, which loads it once, so a listing and a filter panel beside it share one load."
 
   limit:
     type: integer

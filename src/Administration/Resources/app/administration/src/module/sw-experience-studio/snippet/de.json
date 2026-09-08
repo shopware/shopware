@@ -19,11 +19,6 @@
           "background": "Hintergrund"
         }
       },
-      "sw-filter-panel": {
-        "panels": {
-          "filter": "Filter"
-        }
-      },
       "sw-product-listing": {
         "panels": {
           "sorting": "Sortierung"

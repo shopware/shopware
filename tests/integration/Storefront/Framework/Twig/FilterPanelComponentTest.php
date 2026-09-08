@@ -14,8 +14,6 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
-use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
@@ -39,38 +37,26 @@ class FilterPanelComponentTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * The canonicity test only validates bindings that exist, so dropping `resolvedBy` would pass it while
-     * leaving the element unwired.
+     * The panel takes the listing from root context rather than loading its own, so a panel beside a product
+     * listing is one load rather than two. A `resolvedBy` here would be fill-applied on insert, and the
+     * consumer mirror skips an element whose key already has a data requirement — restoring the second load.
      */
-    public function testElementTypeBindsTheListingLoader(): void
+    public function testTheListingIsReceivedAsContextRatherThanLoaded(): void
     {
         $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
 
-        $specification = $registry->all()['core:Sw:Filter:Panel'] ?? null;
-        static::assertInstanceOf(BindingSpecification::class, $specification);
-        static::assertSame('Sw:Filter:Panel', $specification->type());
-
-        $binding = $specification->resolves()['productListing'] ?? null;
-        static::assertInstanceOf(LoaderBinding::class, $binding);
-        static::assertSame('product_listing', $binding->loader);
-
-        // The loader reads `navigationId` by default. Naming that key in the binding would be read as
-        // a resolvedBy storage key and rejected for colliding with the declared property of the same
-        // name, so the default has to stay implicit.
-        static::assertArrayNotHasKey('property', $binding->config);
+        static::assertArrayNotHasKey('core:Sw:Filter:Panel', $registry->all());
+        static::assertSame([], $registry->byType('Sw:Filter:Panel'));
     }
 
     /**
-     * One layout serves every category page, so a stored id would be right on one and wrong on all the others.
+     * Optional, so a panel on a layout whose root context has no listing renders filterless instead of failing
+     * the write boundary's resolvability gate.
      */
-    public function testNavigationIdFollowsThePageInsteadOfBeingConfigured(): void
+    public function testTheListingPropertyIsOptional(): void
     {
-        static::assertSame('{{categoryId}}', $this->properties()['navigationId']->toSchema()['default']);
-
-        // A required primitive with a default is reported unresolved until a write seeds it, so the
-        // placeholder-carrying property has to stay optional.
-        static::assertFalse($this->properties()['navigationId']->required());
+        static::assertFalse($this->properties()['productListing']->required());
     }
 
     /**

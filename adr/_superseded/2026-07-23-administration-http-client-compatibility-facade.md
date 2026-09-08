@@ -31,4 +31,4 @@ The facade also provides a stable boundary for future HTTP-library upgrades. Ver
 
 Maintaining two transports and transitional Axios compatibility adds temporary complexity. Code that directly depends on Axios-specific behavior must still migrate before the legacy transport and compatibility surface can be removed.
 
-See the [Axios migration guide](../src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md) for the supported migration path.
+See the [Axios migration guide](../../src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md) for the supported migration path.

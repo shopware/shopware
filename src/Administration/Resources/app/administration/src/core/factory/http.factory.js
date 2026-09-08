@@ -2,8 +2,6 @@
  * @sw-package framework
  *
  * @module core/factory/http
- *
- * @deprecated tag:v6.8.0 - The version dispatcher will be removed. Axios 1.x becomes the only transport.
  */
 import Axios from 'axios';
 import AxiosV1 from 'axios-v1';
@@ -48,7 +46,7 @@ function createClient() {
         timeout: 30000, // 30 second timeout
     };
 
-    // @deprecated tag:v6.8.0 - Only the axios 1.x instance will remain.
+    // @deprecated tag:v6.8.0 - Remove this instance, axios 1.x is the only transport.
     const axiosV0 = Axios.create(baseConfig);
     const axiosV1 = AxiosV1.create(baseConfig);
 
@@ -308,6 +306,9 @@ function createMirroredObject(primary, secondary, originalAdapters = null) {
     });
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function isObject(value) {
     return value !== null && typeof value === 'object';
 }

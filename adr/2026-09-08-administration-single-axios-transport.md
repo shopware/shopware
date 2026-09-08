@@ -14,7 +14,7 @@ The incremental path worked. Repository calls moved to Axios 1.x without a singl
 
 Coexistence has a standing price:
 
-- Twelve npm audit advisories stay suppressed because they only affect the Axios 0.x line, CVE-2023-45857 among them.
+- Twelve npm audit advisories stay suppressed because they only affect the Axios 0.x line: proxy bypasses, proxy authorization leaks, prototype pollution gadgets, form serializer denial of service and a ReDoS. They are listed with that reason in the Administration's `scripts/runNpmAudit.ts`.
 - `httpClient.interceptors` and `httpClient.defaults` are hand-written proxies that clone every handler and mirror every property write into both clients, rather than the Axios ones.
 - The request methods (`get`, `post`, `postForm`, `getUri` and the rest) are re-implemented on a dispatcher function, because the facade is not an Axios instance.
 - Six undocumented escape hatches (`axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0`, `defaultsV1`) let extensions reach past the facade to tell the two transports apart.

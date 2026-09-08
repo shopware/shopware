@@ -1465,20 +1465,20 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 
 ## Axios 1.x is the only HTTP client of the Administration
 
-Until Shopware 6.7 the Administration performed its HTTP requests with axios 0.30.2. It now uses axios 1.x, and axios 0.x is gone. This resolves CVE-2023-45857 and eleven further advisories that only affect the axios 0.x line.
+Until Shopware 6.7 the Administration performed its HTTP requests with legacy axios 0.x. It now uses axios 1.x, and axios 0.x is gone. This resolves twelve npm audit advisories that only affect the axios 0.x line and had to be suppressed while that line was still shipped: proxy bypasses, proxy authorization leaks, prototype pollution gadgets, form serializer denial of service and a ReDoS.
 
 Most code keeps working untouched. `httpClient.get`, `.post`, interceptors, defaults and the `error.response` properties behave the same. The differences below matter if your code cancels requests, inspects axios internals, or imports axios types directly.
 
 The removal was announced with Shopware 6.7.15.0.
 
-### Key differences between axios 0.30.2 and axios 1.x
+### Key differences between legacy axios 0.x and axios 1.x
 
 **Request cancellation**
 
 Axios 0.x used `CancelToken`. Axios 1.x uses the standard `AbortController`:
 
 ```javascript
-// Axios 0.30.2
+// Legacy axios 0.x
 const source = httpClient.CancelToken.source();
 
 httpClient.get('/api/endpoint', {
@@ -1537,7 +1537,7 @@ this.httpClient.get('/api/endpoint', {
 });
 ```
 
-If you never set the flag, your direct requests ran on axios 0.30.2, which is the starting point this section is written for. Repository calls are unaffected either way; they already used axios 1.x during 6.7.
+If you never set the flag, your direct requests ran on legacy axios 0.x, which is the starting point this section is written for. Repository calls are unaffected either way; they already used axios 1.x during 6.7.
 
 The flag is a transitional aid, deprecated with 6.7.15.0 and removed together with axios 0.x:
 

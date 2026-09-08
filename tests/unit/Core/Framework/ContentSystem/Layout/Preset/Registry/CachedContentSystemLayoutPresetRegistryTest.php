@@ -6,9 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPreset;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
@@ -107,8 +107,8 @@ class CachedContentSystemLayoutPresetRegistryTest extends TestCase
         $registry->get('core.unknown');
     }
 
-    private function createPreset(string $id): LayoutPreset
+    private function createPreset(string $id): ContentSystemLayoutPresetSpecification
     {
-        return new LayoutPreset($id, 'Name', null, null, []);
+        return new ContentSystemLayoutPresetSpecification($id, 'Name', null, null, []);
     }
 }

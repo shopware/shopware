@@ -41,6 +41,11 @@ abstract class Plugin extends Bundle
         return 'Resources/content-system/types';
     }
 
+    public static function getLayoutPresetDirectory(): string
+    {
+        return 'Resources/content-system/presets';
+    }
+
     public function install(InstallContext $installContext): void
     {
     }

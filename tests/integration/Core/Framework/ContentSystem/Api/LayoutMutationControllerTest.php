@@ -154,7 +154,7 @@ class LayoutMutationControllerTest extends TestCase
     {
         $body = $this->mutate('insert-preset', [
             'layout' => [$this->element('block-a', TestElementTypeLoader::RESOLVABLE)],
-            'presetId' => 'core.media-and-text',
+            'presetId' => 'Sw:MediaAndText',
         ]);
 
         static::assertCount(2, $body['layout']);
@@ -182,7 +182,7 @@ class LayoutMutationControllerTest extends TestCase
     {
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-preset', [
             'layout' => [$this->element('block-a', TestElementTypeLoader::RESOLVABLE)],
-            'presetId' => 'core.does-not-exist',
+            'presetId' => 'Sw:DoesNotExist',
         ]);
         $response = $this->getBrowser()->getResponse();
 

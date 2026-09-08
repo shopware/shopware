@@ -1,16 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ContentSystem\Layout\Preset;
+namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification;
 
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
+ * @codeCoverageIgnore
+ *
  * @phpstan-type PresetPayload list<array<string, mixed>>
  */
 #[Package('framework')]
-final readonly class LayoutPreset
+final readonly class ContentSystemLayoutPresetSpecification
 {
     /**
      * @param PresetPayload $payload

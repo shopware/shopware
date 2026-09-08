@@ -68,8 +68,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSer
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -483,9 +486,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
         ]);
 
-    $services->set(ContentSystemLayoutPresetRegistry::class)
+    $services->set(LayoutPresetSerializer::class)
         ->args([
             service(LayoutPresetPayloadCompiler::class),
+        ]);
+
+    $services->set(LayoutPresetNameResolver::class);
+
+    $services->set(YamlLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSerializer::class),
+            service(LayoutPresetNameResolver::class),
+        ])
+        ->arg('$directories', [])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            tagged_iterator('content_system.layout_preset_loader'),
         ]);
 
     $services->set(CachedContentSystemLayoutPresetRegistry::class)

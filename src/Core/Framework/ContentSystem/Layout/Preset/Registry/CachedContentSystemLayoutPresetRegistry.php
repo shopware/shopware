@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPreset;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -38,7 +38,7 @@ class CachedContentSystemLayoutPresetRegistry extends AbstractContentSystemLayou
         return \array_key_exists($id, $this->all());
     }
 
-    public function get(string $id): LayoutPreset
+    public function get(string $id): ContentSystemLayoutPresetSpecification
     {
         return $this->all()[$id] ?? throw ContentSystemException::layoutPresetNotFound($id);
     }

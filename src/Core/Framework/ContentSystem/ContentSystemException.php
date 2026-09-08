@@ -60,6 +60,8 @@ class ContentSystemException extends HttpException
     public const LAYOUT_PRESET_LOAD_FAILED = 'CONTENT_SYSTEM__LAYOUT_PRESET_LOAD_FAILED';
     public const LAYOUT_PRESET_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_PRESET_NOT_FOUND';
     public const LAYOUT_PRESET_INVALID_LAYOUT = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_LAYOUT';
+    public const LAYOUT_PRESET_INVALID = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID';
+    public const LAYOUT_PRESET_INVALID_FILENAME = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -677,8 +679,18 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_CONFLICT,
             self::LAYOUT_PRESET_DUPLICATE,
-            'Layout preset "{{ id }}" is defined more than once. The "id" must be unique across all presets.',
+            'Layout preset "{{ id }}" is defined more than once.',
             ['id' => $id]
+        );
+    }
+
+    public static function layoutPresetInvalidFilename(string $segment, string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESET_INVALID_FILENAME,
+            'Invalid layout preset filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
+            ['segment' => $segment, 'file' => $file]
         );
     }
 
@@ -709,6 +721,16 @@ class ContentSystemException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::LAYOUT_PRESET_INVALID_LAYOUT,
             'Invalid preset layout: {{ reason }}',
+            ['reason' => $reason]
+        );
+    }
+
+    public static function layoutPresetInvalid(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESET_INVALID,
+            'Invalid preset: {{ reason }}',
             ['reason' => $reason]
         );
     }

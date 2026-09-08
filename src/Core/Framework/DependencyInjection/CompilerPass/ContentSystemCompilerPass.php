@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetSourceDirectory;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
@@ -14,19 +16,18 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
- * Discovers the element-type YAML directories (core, bundles, plugins, and — in dev — apps) once and injects the
- * resulting directory set into both {@see YamlTypeLoader} and {@see YamlBindingSpecificationLoader}: the type loader
- * scans them for element-type definitions, the binding loader scans the same files for their inline `bindings:`
- * sections. Each loader receives its own {@see ElementTypeSourceDirectory} definition instances.
- *
  * @internal
  */
 #[Package('framework')]
-final class ContentSystemElementTypeCompilerPass implements CompilerPassInterface
+final class ContentSystemCompilerPass implements CompilerPassInterface
 {
     private const STANDARD_TYPE_DIRECTORY = 'Resources/content-system/types';
 
-    private const CORE_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Layout/Type/Definitions';
+    private const STANDARD_PRESET_DIRECTORY = 'Resources/content-system/presets';
+
+    private const CORE_TYPE_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Layout/Type/Definitions';
+
+    private const CORE_PRESET_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Layout/Preset/Definitions';
 
     private const CORE_PREFIX = 'Sw';
 
@@ -34,37 +35,42 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     {
         $hasTypeLoader = $container->hasDefinition(YamlTypeLoader::class);
         $hasBindingLoader = $container->hasDefinition(YamlBindingSpecificationLoader::class);
+        $hasPresetLoader = $container->hasDefinition(YamlLayoutPresetLoader::class);
 
-        if (!$hasTypeLoader && !$hasBindingLoader) {
+        if (!$hasTypeLoader && !$hasBindingLoader && !$hasPresetLoader) {
             return;
         }
 
-        $directories = [];
+        $typeDirectories = [];
+        $presetDirectories = [];
 
-        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', self::CORE_PREFIX, $directories);
-        $this->loadFromBundleMetadata($container, $directories);
-        $this->loadFromPlugins($container, $directories);
+        $this->loadTypeDirectory(self::CORE_TYPE_DEFINITIONS_DIRECTORY, 'core', self::CORE_PREFIX, $typeDirectories);
+        $this->loadPresetDirectory(self::CORE_PRESET_DEFINITIONS_DIRECTORY, 'core', self::CORE_PREFIX, $presetDirectories);
+        $this->loadFromBundleMetadata($container, $typeDirectories, $presetDirectories);
+        $this->loadFromPlugins($container, $typeDirectories, $presetDirectories);
 
-        // In prod, app types/bindings are loaded from the database by DatabaseTypeLoader / DatabaseBindingSpecificationLoader instead
         if ($container->getParameter('kernel.environment') === 'dev') {
-            $this->loadFromApps($container, $directories);
+            $this->loadFromApps($container, $typeDirectories, $presetDirectories);
         }
 
         if ($hasTypeLoader) {
-            $container->getDefinition(YamlTypeLoader::class)->setArgument('$directories', $this->toDefinitions($directories));
+            $container->getDefinition(YamlTypeLoader::class)->setArgument('$directories', $this->toTypeDefinitions($typeDirectories));
         }
 
         if ($hasBindingLoader) {
-            $container->getDefinition(YamlBindingSpecificationLoader::class)->setArgument('$directories', $this->toDefinitions($directories));
+            $container->getDefinition(YamlBindingSpecificationLoader::class)->setArgument('$directories', $this->toTypeDefinitions($typeDirectories));
+        }
+
+        if ($hasPresetLoader) {
+            $container->getDefinition(YamlLayoutPresetLoader::class)->setArgument('$directories', $this->toPresetDefinitions($presetDirectories));
         }
     }
 
     /**
-     * Active plugins excluded — loaded separately via loadFromPlugins to support custom type directories.
-     *
-     * @param list<array{string, string, string}> $directories
+     * @param list<array{string, string, string}> $typeDirectories
+     * @param list<array{string, string, string}> $presetDirectories
      */
-    private function loadFromBundleMetadata(ContainerBuilder $container, array &$directories): void
+    private function loadFromBundleMetadata(ContainerBuilder $container, array &$typeDirectories, array &$presetDirectories): void
     {
         $bundleMetadata = $container->getParameter('kernel.bundles_metadata');
         if (!\is_array($bundleMetadata)) {
@@ -88,26 +94,24 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
                 continue;
             }
 
-            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, self::CORE_PREFIX, $directories);
+            $this->loadTypeDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, self::CORE_PREFIX, $typeDirectories);
+            $this->loadPresetDirectory($metadata['path'] . '/' . self::STANDARD_PRESET_DIRECTORY, 'bundle:' . $bundleName, self::CORE_PREFIX, $presetDirectories);
         }
     }
 
     /**
-     * @param list<array{string, string, string}> $directories
+     * @param list<array{string, string, string}> $typeDirectories
+     * @param list<array{string, string, string}> $presetDirectories
      */
-    private function loadFromPlugins(ContainerBuilder $container, array &$directories): void
+    private function loadFromPlugins(ContainerBuilder $container, array &$typeDirectories, array &$presetDirectories): void
     {
         foreach ($this->getActivePluginClasses($container) as $pluginClass => $pluginMeta) {
-            $relativeDirectory = $pluginClass::getContentTypeDirectory();
-
-            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, 'plugin:' . $pluginMeta['name'], $pluginMeta['name'], $directories);
+            $this->loadTypeDirectory($pluginMeta['path'] . '/' . $pluginClass::getContentTypeDirectory(), 'plugin:' . $pluginMeta['name'], $pluginMeta['name'], $typeDirectories);
+            $this->loadPresetDirectory($pluginMeta['path'] . '/' . $pluginClass::getLayoutPresetDirectory(), 'plugin:' . $pluginMeta['name'], $pluginMeta['name'], $presetDirectories);
         }
     }
 
     /**
-     * Narrows the untyped kernel.active_plugins parameter to a typed array
-     * so callers can safely call static methods on the plugin class strings.
-     *
      * @return array<class-string, array{name: string, path: string, class: string}>
      */
     private function getActivePluginClasses(ContainerBuilder $container): array
@@ -153,12 +157,10 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     }
 
     /**
-     * DBAL exceptions are silently swallowed because the compiler pass may run
-     * before the database exists (fresh install, CI).
-     *
-     * @param list<array{string, string, string}> $directories
+     * @param list<array{string, string, string}> $typeDirectories
+     * @param list<array{string, string, string}> $presetDirectories
      */
-    private function loadFromApps(ContainerBuilder $container, array &$directories): void
+    private function loadFromApps(ContainerBuilder $container, array &$typeDirectories, array &$presetDirectories): void
     {
         $connection = $container->get(Connection::class);
 
@@ -174,30 +176,49 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         }
 
         foreach ($apps as $app) {
-            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $app['name'], $directories);
+            $this->loadTypeDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $app['name'], $typeDirectories);
+            $this->loadPresetDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_PRESET_DIRECTORY), 'app:' . $app['name'], $app['name'], $presetDirectories);
         }
     }
 
     /**
      * @param list<array{string, string, string}> $directories
      */
-    private function loadFromDirectory(string $directory, string $source, string $prefix, array &$directories): void
+    private function loadTypeDirectory(string $directory, string $source, string $prefix, array &$directories): void
     {
         $directories[] = [$source, $directory, $prefix];
     }
 
     /**
-     * Maps the discovered directory triples to fresh {@see ElementTypeSourceDirectory} definitions, so each loader
-     * argument gets its own definition instances rather than sharing them across the two services.
-     *
+     * @param list<array{string, string, string}> $directories
+     */
+    private function loadPresetDirectory(string $directory, string $source, string $prefix, array &$directories): void
+    {
+        $directories[] = [$source, $directory, $prefix];
+    }
+
+    /**
      * @param list<array{string, string, string}> $directories
      *
      * @return list<Definition>
      */
-    private function toDefinitions(array $directories): array
+    private function toTypeDefinitions(array $directories): array
     {
         return array_map(
             static fn (array $directory): Definition => new Definition(ElementTypeSourceDirectory::class, $directory),
+            $directories,
+        );
+    }
+
+    /**
+     * @param list<array{string, string, string}> $directories
+     *
+     * @return list<Definition>
+     */
+    private function toPresetDefinitions(array $directories): array
+    {
+        return array_map(
+            static fn (array $directory): Definition => new Definition(LayoutPresetSourceDirectory::class, $directory),
             $directories,
         );
     }

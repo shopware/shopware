@@ -21,8 +21,8 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPreset;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
@@ -334,7 +334,7 @@ class InfoController extends AbstractController
     public function getContentSystemLayoutPresets(): JsonResponse
     {
         $presets = array_map(
-            static fn (LayoutPreset $preset) => $preset->toArray(),
+            static fn (ContentSystemLayoutPresetSpecification $preset) => $preset->toArray(),
             array_values($this->layoutPresetRegistry->all())
         );
 

@@ -1,4 +1,5 @@
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
 
 /**
@@ -202,6 +203,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigRepositoryMock.save.mockResolvedValue();
         documentV2ServiceMock.getAvailableDocumentTypes.mockClear();
         localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
@@ -750,13 +752,20 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     });
 
     it('should set filenameInfixes on save to null when no infixes were configured', async () => {
+        let savedConfig;
+        documentBaseConfigRepositoryMock.save.mockImplementationOnce((config) => {
+            savedConfig = JSON.parse(JSON.stringify(config));
+
+            return Promise.resolve();
+        });
+
         const wrapper = await createWrapper({}, ['document.editor'], true);
         await flushPromises();
 
         await wrapper.find('.sw-settings-document-detail__save-action').trigger('click');
         await flushPromises();
 
-        expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalledWith({
+        expect(savedConfig).toEqual({
             config: {
                 displayAdditionalNoteDelivery: false,
                 displayCompanyAddress: false,
@@ -831,4 +840,78 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             salesChannels: [],
         });
     });
+
+    it.each([
+        {
+            variant: 'the other format',
+            field: 'pdf',
+            parameters: { '{{ formats }}': 'zugferd_embedded_pdf, html' },
+            snippet: 'sw-settings-document.errors.duplicateFilenameInfix',
+            snippetParams: {
+                formats:
+                    'sw-order.components.createDocumentModal.fileFormats.zugferd_embedded_pdf, ' +
+                    'sw-order.components.createDocumentModal.fileFormats.html',
+            },
+        },
+        {
+            variant: 'the affected sales channel configurations',
+            field: 'zugferd_embedded_pdf',
+            parameters: { '{{ formats }}': 'pdf', '{{ configs }}': 'Storefront invoice, B2B invoice' },
+            snippet: 'sw-settings-document.errors.duplicateFilenameInfixInSalesChannelConfig',
+            snippetParams: {
+                formats: 'sw-order.components.createDocumentModal.fileFormats.pdf',
+                configs: 'Storefront invoice, B2B invoice',
+            },
+        },
+        {
+            variant: 'the inherited infix on an empty field',
+            field: 'zugferd_embedded_pdf',
+            parameters: { '{{ formats }}': 'pdf', '{{ infix }}': '_zugferd' },
+            snippet: 'sw-settings-document.errors.duplicateFilenameInfixInherited',
+            snippetParams: {
+                formats: 'sw-order.components.createDocumentModal.fileFormats.pdf',
+                infix: '_zugferd',
+            },
+        },
+    ])(
+        'should show the duplicate filename infix error naming $variant',
+        async ({ field, parameters, snippet, snippetParams }) => {
+            documentBaseConfigRepositoryMock.save.mockImplementationOnce(() => {
+                Shopware.Store.get('error').addApiError({
+                    expression: `document_base_config.documentConfigWithFormats.filenameInfixes.${field}`,
+                    error: new ShopwareError({
+                        code: 'DOCUMENT_BASE_CONFIG_DUPLICATE_FILENAME_INFIX',
+                        meta: { parameters },
+                    }),
+                });
+
+                return Promise.reject({
+                    response: { data: { errors: [{ code: 'DOCUMENT_BASE_CONFIG_DUPLICATE_FILENAME_INFIX' }] } },
+                });
+            });
+            const translate = jest.spyOn(config.global.mocks, '$t');
+
+            const wrapper = await createWrapper(
+                {
+                    props: { documentConfigId: 'documentConfigWithFormats' },
+                },
+                ['document.editor'],
+                true,
+            );
+            await flushPromises();
+            wrapper.vm.createNotificationError = jest.fn();
+
+            await wrapper.get('.sw-settings-document-detail__save-action').trigger('click');
+            await flushPromises();
+
+            const fieldsWithError = wrapper
+                .findAll('.sw-settings-document-detail__field_file_name_infix')
+                .filter((infixField) => infixField.find('.mt-field__error').exists());
+            expect(fieldsWithError).toHaveLength(1);
+            expect(fieldsWithError[0].find(`#sw-field--documentConfig-filenameInfixes-${field}`).exists()).toBe(true);
+            expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+            expect(translate).toHaveBeenCalledWith(snippet, snippetParams);
+            translate.mockRestore();
+        },
+    );
 });

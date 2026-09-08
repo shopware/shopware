@@ -77,6 +77,8 @@ class AppException extends HttpException
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
+    final public const CONTENT_SYSTEM_LAYOUT_PRESET_LOAD_FAILED = 'FRAMEWORK__APP_LAYOUT_PRESET_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_LAYOUT_PRESET_DUPLICATE = 'FRAMEWORK__APP_LAYOUT_PRESET_DUPLICATE';
     final public const CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED = 'FRAMEWORK__APP_STYLE_OPTION_LOAD_FAILED';
     final public const CONTENT_SYSTEM_STYLE_OPTION_DUPLICATE = 'FRAMEWORK__APP_STYLE_OPTION_DUPLICATE';
     final public const CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED = 'FRAMEWORK__APP_BINDING_SPECIFICATION_LOAD_FAILED';
@@ -675,6 +677,31 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED,
             'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    public static function contentSystemLayoutPresetDuplicate(array $ids, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_LAYOUT_PRESET_DUPLICATE,
+            'Layout preset id collision while persisting presets for "{{ source }}" (ids: {{ ids }}). A concurrent registration claimed the same id.',
+            ['source' => $source, 'ids' => implode(', ', $ids)],
+            $previous
+        );
+    }
+
+    public static function contentSystemLayoutPresetLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_LAYOUT_PRESET_LOAD_FAILED,
+            'Failed to load layout preset from "{{ file }}": {{ reason }}',
             ['file' => $file, 'reason' => $reason],
             $previous
         );

@@ -68,6 +68,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSer
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
@@ -498,6 +499,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LayoutPresetNameResolver::class),
         ])
         ->arg('$directories', [])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(DatabaseLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSerializer::class),
+            service(Connection::class),
+            param('kernel.environment'),
+            service('logger'),
+        ])
         ->tag('content_system.layout_preset_loader');
 
     $services->set(ContentSystemLayoutPresetRegistry::class)

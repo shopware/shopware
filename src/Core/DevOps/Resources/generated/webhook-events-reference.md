@@ -16,8 +16,6 @@
 |`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
-|`document.generation.completed` | Triggers when a document is generated or uploaded for an order | - | {"documentId":"string","documentType":"string","documentNumber":"string","orderId":"string","orderVersionId":"string"}
-|`document.generation.deleted` | Triggers when a document is deleted | - | {"documentId":"string","documentNumber":"string","deletedAt":"string","orderId":"string","orderVersionId":"string"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","recipients":"array"}
 |`newsletter.confirm` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}

@@ -34,7 +34,11 @@ final class DatabaseSalesChannelThemeLoader
      */
     public function load(string $salesChannelId): array
     {
-        return $this->themes[$salesChannelId] ??= $this->readFromDB($salesChannelId);
+        if (($this->themes[$salesChannelId] ?? []) !== []) {
+            return $this->themes[$salesChannelId];
+        }
+
+        return $this->themes[$salesChannelId] = $this->readFromDB($salesChannelId);
     }
 
     public function reset(): void

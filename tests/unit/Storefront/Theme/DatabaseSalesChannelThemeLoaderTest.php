@@ -124,13 +124,24 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
 
     public function testResultIsMemoisedPerSalesChannel(): void
     {
+        $this->connection->expects($this->exactly(2))->method('fetchAllAssociative')->willReturn([
+            self::row('storefront', 'Storefront', assigned: true),
+        ]);
+
+        $salesChannelId = Uuid::randomHex();
+        static::assertSame(['Storefront'], $this->themeLoader->load($salesChannelId));
+        static::assertSame(['Storefront'], $this->themeLoader->load($salesChannelId));
+
+        static::assertSame(['Storefront'], $this->themeLoader->load(Uuid::randomHex()));
+    }
+
+    public function testEmptyResultIsNotMemoised(): void
+    {
         $this->connection->expects($this->exactly(2))->method('fetchAllAssociative')->willReturn([]);
 
         $salesChannelId = Uuid::randomHex();
         static::assertSame([], $this->themeLoader->load($salesChannelId));
         static::assertSame([], $this->themeLoader->load($salesChannelId));
-
-        static::assertSame([], $this->themeLoader->load(Uuid::randomHex()));
     }
 
     public function testResetClearsTheMemoisedResult(): void

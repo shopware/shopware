@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { computed, h, ref, watch } from 'vue';
+import { computed, h, isRef, ref, watch } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
 import { _overridesMap } from './index';
@@ -136,7 +136,8 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
         _overridesMap['sw-shim-methods'] = [
             (previousState: PreviousState) => {
-                const original = previousState.greet.value as () => string;
+                // Methods arrive raw, not as a ref - the same shape createExtendableSetup() hands out.
+                const original = previousState.greet as unknown as () => string;
                 originalResult = original();
 
                 return { greet: () => `${original()} + override` };
@@ -164,6 +165,166 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         // inside the override, which is what makes a super-style call possible.
         expect(originalResult).toBe('hello world');
         expect(wrapper.text()).toBe('hello world + override');
+    });
+
+    it('lets a later override read what an earlier override installed', async () => {
+        _overridesMap['sw-shim-chain'] = [
+            (previousState: PreviousState) => ({
+                label: computed(() => `${String(previousState.label.value)} +1`),
+            }),
+            (previousState: PreviousState) => ({
+                label: computed(() => `${String(previousState.label.value)} +2`),
+            }),
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-chain', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        // Would read "base +2" if the second override resolved against the base state only.
+        expect(wrapper.text()).toBe('base +1 +2');
+    });
+
+    it('exposes keys an earlier override introduced to later overrides', async () => {
+        _overridesMap['sw-shim-new-key'] = [
+            () => ({ extra: computed(() => 'from first') }),
+            (previousState: PreviousState) => ({
+                label: computed(() => `${String(previousState.extra.value)} / second`),
+            }),
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-new-key', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        expect(wrapper.text()).toBe('from first / second');
+    });
+
+    it('does not let an earlier override see a later override', async () => {
+        let seenByFirst: unknown = 'unset';
+
+        _overridesMap['sw-shim-order'] = [
+            (previousState: PreviousState) => {
+                seenByFirst = previousState.label.value;
+
+                return {};
+            },
+            () => ({ label: computed(() => 'second') }),
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-order', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        expect(seenByFirst).toBe('base');
+        expect(wrapper.text()).toBe('second');
+    });
+
+    it("exposes the component's own setup() result through previousState", async () => {
+        _overridesMap['sw-shim-setup-keys'] = [
+            (previousState: PreviousState) => ({
+                fromSetup: computed(() => `${String(previousState.fromSetup.value)} / overridden`),
+            }),
+        ] as never;
+
+        const config = {
+            template: '<p>{{ fromSetup }}</p>',
+            setup() {
+                return { fromSetup: ref('own setup') };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-setup-keys', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        // setup() keys live in the bag, not in data/props/ctx - only the snapshot makes them visible.
+        expect(wrapper.text()).toBe('own setup / overridden');
+    });
+
+    it('chains a method replaced by an earlier override into a later one', async () => {
+        _overridesMap['sw-shim-method-chain'] = [
+            (previousState: PreviousState) => {
+                const original = previousState.greet as unknown as () => string;
+
+                return { greet: () => `${original()} + first` };
+            },
+            (previousState: PreviousState) => {
+                const previous = previousState.greet as unknown as () => string;
+
+                return { greet: () => `${previous()} + second` };
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ greet() }}</p>',
+            data() {
+                return { name: 'world' };
+            },
+            methods: {
+                greet(this: { name: string }) {
+                    return `hello ${this.name}`;
+                },
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-method-chain', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        expect(wrapper.text()).toBe('hello world + first + second');
+    });
+
+    it('does not present previousState itself as a ref', async () => {
+        let looksLikeRef: boolean | undefined;
+
+        _overridesMap['sw-shim-not-a-ref'] = [
+            (previousState: PreviousState) => {
+                looksLikeRef = isRef(previousState);
+
+                return {};
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-not-a-ref', config);
+
+        mount(config as never);
+        await flushPromises();
+
+        expect(looksLikeRef).toBe(false);
     });
 
     it('leaves a setup() that returns a render function untouched', async () => {

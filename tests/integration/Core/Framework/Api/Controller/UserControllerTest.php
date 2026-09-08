@@ -335,6 +335,40 @@ class UserControllerTest extends TestCase
         );
     }
 
+    /**
+     * `avatarMedia` reaches the media entity itself, so a scalar media field would let a profile
+     * edit change media that belongs to somebody else, without the media:update privilege.
+     */
+    public function testSetOwnProfileCannotChangeMediaFieldsViaNestedWrite(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $mediaId = Uuid::randomHex();
+        static::getContainer()->get('media.repository')->create(
+            [['id' => $mediaId, 'title' => 'foreign media']],
+            Context::createDefaultContext()
+        );
+
+        $browser->jsonRequest('PATCH', '/api/_info/me', [
+            'avatarMedia' => ['id' => $mediaId, 'private' => true],
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode((string) $response->getContent(), true)['errors'][0]['code']
+        );
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            0,
+            (int) $connection->fetchOne('SELECT private FROM media WHERE id = UNHEX(:id)', ['id' => $mediaId]),
+            'Self-service profile edits must never change the media entity.'
+        );
+    }
+
     public function testPreventChangeOfUSerWithoutPermission(): void
     {
         $ids = new IdsCollection();

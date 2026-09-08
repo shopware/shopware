@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Diagnostics;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -48,6 +50,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoader
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
@@ -1028,6 +1031,155 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertArrayNotHasKey('el-1', $analysis->resolutions);
     }
 
+    #[DataProvider('acceptsAnchorTranslationProvider')]
+    #[TestDox('treats a required translatable property whose anchor entry carries a string as resolvable')]
+    public function testRequiredTranslatableWithAnchorEntryResolves(string $anchorTranslation): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry holds the null variant')]
+    public function testRequiredTranslatableWithNullAnchorEntryIsUnresolved(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => null])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        // Pins the state this case turns on, and separates it from the absent-anchor case below: the anchor key
+        // is PRESENT and its stored value's variant is null.
+        $stored = $element->property('text');
+        static::assertNotNull($stored);
+        static::assertTrue($stored->asMap()[Defaults::LANGUAGE_SYSTEM]->isNull());
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose language map carries no anchor entry')]
+    public function testRequiredTranslatableWithAbsentAnchorEntryIsUnresolved(): void
+    {
+        $otherLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [$otherLanguageId => 'Ciao'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
+        )->analyze([$element], [])->report;
+
+        // Pins the state this case turns on: a present, non-empty map whose anchor key is ABSENT — the state a
+        // present-and-not-null satisfaction test would credit as resolved.
+        $stored = $element->property('text');
+        static::assertNotNull($stored);
+        static::assertArrayNotHasKey(Defaults::LANGUAGE_SYSTEM, $stored->asMap());
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('emits one unfilled_required_input when the stored-wired translatable input property carries no anchor entry')]
+    public function testStoredRequiredReferenceWithAnchorlessTranslatableInputGates(): void
+    {
+        $otherLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperty('productId', [$otherLanguageId => 'a-product-id'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string', translatable: true)
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
+        )->analyze([$element], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    /**
+     * @param array<string, mixed>|string|null $value
+     */
+    #[DataProvider('rejectsTranslatableShapeProvider')]
+    #[TestDox('reports $_dataName on a translatable property as an intrinsic mismatched_property_type error')]
+    public function testMismatchedTranslatableShapeIsIntrinsicError(array|string|null $value, string $actualType): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('text', $value)->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()])
+            ->analyze([$element], null)->report;
+
+        $violation = $this->onlyIntrinsicError($report->intrinsicErrors());
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::MismatchedPropertyType, $violation->code);
+        static::assertSame('text', $violation->key);
+        static::assertSame(
+            \sprintf('Property "text" is declared as "string (translatable)" but carries a value of type "%s".', $actualType),
+            $violation->message,
+        );
+    }
+
+    #[TestDox('reports a language map entry whose key names no existing language as a dangling_language warning naming the element, property and key')]
+    public function testDanglingLanguageIsReportedPerUnknownKey(): void
+    {
+        $danglingLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo', $danglingLanguageId => 'Ciao'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
+            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], null)->report;
+
+        // single() also discriminates the anchor entry, whose language the connection reports as existing.
+        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::DanglingLanguage));
+        static::assertSame('el-1', $warning->elementId);
+        static::assertSame('text', $warning->key);
+        static::assertSame(
+            \sprintf('Property "text" carries a translation for language "%s", which does not exist.', $danglingLanguageId),
+            $warning->message,
+        );
+    }
+
+    #[TestDox('keeps a layout carrying a dangling language entry well-formed')]
+    public function testDanglingLanguageDoesNotBlockPersistence(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo', Uuid::randomHex() => 'Ciao'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
+            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], null)->report;
+
+        static::assertCount(1, $report->violations);
+        static::assertSame(ViolationCode::DanglingLanguage, $report->violations[0]->code);
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -1035,6 +1187,26 @@ class LayoutDiagnosticsTest extends TestCase
     {
         yield 'non-empty stored value' => ['a-product-id'];
         yield 'empty string counts as filled (null is the sole empty sentinel)' => [''];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function acceptsAnchorTranslationProvider(): iterable
+    {
+        yield 'a non-empty anchor translation' => ['Hallo'];
+        yield 'an empty anchor translation (null is the sole empty sentinel)' => [''];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>|string|null, string}>
+     */
+    public static function rejectsTranslatableShapeProvider(): iterable
+    {
+        yield 'a bare string' => ['Hallo', 'string'];
+        yield 'an empty map' => [[], 'array'];
+        yield 'a present null' => [null, 'null'];
+        yield 'a non-string entry' => [[Defaults::LANGUAGE_SYSTEM => 5], 'array'];
     }
 
     /**
@@ -1104,6 +1276,7 @@ class LayoutDiagnosticsTest extends TestCase
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
+        ?Connection $connection = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
@@ -1131,7 +1304,21 @@ class LayoutDiagnosticsTest extends TestCase
             $serializers,
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
             new ContextPathResolver(),
+            $connection ?? $this->languageConnection(),
         );
+    }
+
+    /**
+     * The `language` table read `analyze()` makes, answering with exactly the ids given. The default is an
+     * installation with no languages at all, which no test asserting on errors depends on: a dangling entry is
+     * a warning and reaches neither `intrinsicErrors()` nor `bindingErrors()`.
+     */
+    private function languageConnection(string ...$languageIds): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn(array_values($languageIds));
+
+        return $connection;
     }
 
     /**

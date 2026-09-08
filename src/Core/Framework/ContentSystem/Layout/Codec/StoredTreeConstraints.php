@@ -32,8 +32,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * Style is the one part this class is registry-aware for: {@see build()} derives the per-option constraints from
  * the style option registry's current set on every call, so an app install, update or activation that changed the
  * set takes effect on the next write without a process restart. An option the registry does not know is rejected,
- * never repaired. The one other registry-aware rule, {@see PropertyTypeConformance}, is only attached here and
- * reads the element-type registry in its own validator, so this class stays blind to component types.
+ * never repaired. The one other registry-aware rule, {@see PropertyTypeConformance}, carries both per-property
+ * value rules — the declared-type match and a translatable property's language-key format — and is only
+ * attached here, reading the element-type registry in its own validator, so this class stays blind to
+ * component types.
  *
  * Tree-global invariants are deliberately absent: this descriptor sees one element at a time and cannot decide
  * whether an id repeats across the forest.

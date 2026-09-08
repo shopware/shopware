@@ -648,6 +648,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
             service(ContextPathResolver::class),
+            service(Connection::class),
         ]);
 
     $services->set(LayoutGate::class)

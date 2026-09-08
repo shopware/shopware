@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -13,6 +15,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
@@ -21,8 +25,11 @@ use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -68,7 +75,8 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->preparer()->prepare(
             [$this->targetAndSiblingRoot()],
             $this->targetedSpecification('target-id'),
-            RenderingMode::SKELETON
+            RenderingMode::SKELETON,
+            $this->salesChannelContext()
         );
 
         // The target consumes context, so the prune keeps its ancestor for the data flow and drops the
@@ -114,23 +122,29 @@ class StoredTreePreparerTest extends TestCase
     {
         $root = StoredElementBuilder::create('section', 'root-id')->build();
 
-        $prepared = $this->preparer()->prepare([$root], $this->specification([]), RenderingMode::SKELETON);
+        $prepared = $this->preparer()->prepare([$root], $this->specification([]), RenderingMode::SKELETON, $this->salesChannelContext());
 
         static::assertSame([$root], $prepared->tree);
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
     }
 
-    #[TestDox('returns the tree unchanged in SKELETON mode')]
+    /**
+     * Identity is the assertion, so it holds both passes at once: neither the language map nor the token
+     * survives a run that rebuilt the element, and the skeleton response reads neither.
+     */
+    #[TestDox('returns the tree unchanged in SKELETON mode, language maps and placeholder tokens alike')]
     public function testPrepareResolvesNothingInSkeletonMode(): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
             ->withProperty('title', 'Product {{productId}}')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
             ->build();
 
         $prepared = $this->preparer()->prepare(
             [$element],
             $this->specification(['productId' => 'prod-1']),
-            RenderingMode::SKELETON
+            RenderingMode::SKELETON,
+            $this->salesChannelContext()
         );
 
         static::assertSame([$element], $prepared->tree);
@@ -141,7 +155,7 @@ class StoredTreePreparerTest extends TestCase
     {
         $root = StoredElementBuilder::create('section', 'root-id')->build();
 
-        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON);
+        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON, $this->salesChannelContext());
 
         // The wrap runs before the prune, so the wrapper is part of what validation judges.
         static::assertCount(1, $prepared->tree);
@@ -226,7 +240,7 @@ class StoredTreePreparerTest extends TestCase
         static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, [$root]));
         static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
 
-        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::SKELETON);
+        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::SKELETON, $this->salesChannelContext());
 
         static::assertSame(['target-id'], $this->collectIds($prepared->tree));
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
@@ -237,7 +251,7 @@ class StoredTreePreparerTest extends TestCase
     {
         $root = $this->targetAndSiblingRoot();
 
-        $prepared = $this->preparer()->prepare([$root], $this->targetedSpecification(''), RenderingMode::SKELETON);
+        $prepared = $this->preparer()->prepare([$root], $this->targetedSpecification(''), RenderingMode::SKELETON, $this->salesChannelContext());
 
         static::assertNull($prepared->scaffolding->extractTargetId);
         static::assertSame([$root], $prepared->tree);
@@ -263,12 +277,193 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('Product {{productId}}', $prepared[0]->property('title')?->asString());
     }
 
+    #[TestDox('replaces a translatable map with the value of the first chain language the map carries')]
+    public function testPrepareSelectsTheFirstChainLanguageTheMapCarries(): void
+    {
+        // The anchor heads the map and the selected entry trails it, so map order cannot produce the answer.
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [
+                Defaults::LANGUAGE_SYSTEM => 'anchor copy',
+                'language-parent' => 'parent copy',
+                'language-child' => 'child copy',
+            ])
+            ->build();
+
+        $prepared = $this->prepare([$element], [], ['language-child', 'language-parent', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame('child copy', $prepared[0]->property('headline')?->asString());
+    }
+
+    #[TestDox('walks the chain to the anchor entry when no earlier language is in the map')]
+    public function testPrepareWalksTheChainToTheAnchorEntry(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
+            ->build();
+
+        $prepared = $this->prepare([$element], [], ['language-child', 'language-parent', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame('anchor copy', $prepared[0]->property('headline')?->asString());
+    }
+
+    #[TestDox('never selects a map entry whose language is absent from the chain')]
+    public function testPrepareSkipsALanguageAbsentFromTheChain(): void
+    {
+        // The dangling entry heads the map, so an implementation reading the map rather than the chain takes it.
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [
+                'language-dangling' => 'ghost copy',
+                Defaults::LANGUAGE_SYSTEM => 'anchor copy',
+            ])
+            ->build();
+
+        $prepared = $this->prepare([$element], []);
+
+        static::assertSame('anchor copy', $prepared[0]->property('headline')?->asString());
+    }
+
+    #[TestDox('leaves a declared non-translatable property whole, a language-map-shaped value included')]
+    public function testPrepareLeavesADeclaredNonTranslatablePropertyWhole(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
+            ->build();
+
+        $prepared = $this->prepare([$element], [], ['language-child', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame(
+            [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'],
+            $prepared[0]->property('title')?->jsonSerialize()
+        );
+    }
+
+    /**
+     * Reduction applies no required rule of its own: the anchor requirement is the diagnostics gate's
+     * business, so both sides of it collapse the same way and the property behaves as unset.
+     */
+    #[DataProvider('unfilledTranslatablePropertyProvider')]
+    #[TestDox('reduces a $_dataName translatable property no chain language fills to the null variant')]
+    public function testPrepareReducesAnUnfilledTranslatablePropertyToTheNullVariant(string $key): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty($key, ['language-other' => 'other copy'])
+            ->build();
+
+        $prepared = $this->prepare([$element], []);
+
+        $value = $prepared[0]->property($key);
+        // Present under its key and holding the null variant, which is the state the mint skips — an absent
+        // key would be a different outcome.
+        static::assertNotNull($value);
+        static::assertTrue($value->isNull());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unfilledTranslatablePropertyProvider(): iterable
+    {
+        yield 'required' => ['requiredHeadline'];
+        yield 'optional' => ['headline'];
+    }
+
+    /**
+     * Placeholders substitute into string values and never descend into a map, so a token inside a
+     * translation can only resolve once reduction has collapsed the map ahead of them.
+     */
+    #[TestDox('substitutes a token carried inside the selected translation')]
+    public function testPrepareResolvesAPlaceholderInsideTheSelectedTranslation(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'Produkt {{productId}}'])
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame('Produkt prod-1', $prepared[0]->property('headline')?->asString());
+    }
+
+    /**
+     * @param string|list<string> $value
+     */
+    #[DataProvider('nonMapTranslatableValueProvider')]
+    #[TestDox('rejects a $_dataName on a translatable property as an internal fault')]
+    public function testPrepareRejectsANonMapValueOnATranslatableProperty(string|array $value, string $expectedType): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', $value)
+            ->build();
+
+        try {
+            $this->prepare([$element], []);
+            static::fail('Expected the non-map translatable value to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::TRANSLATION_SHAPE_INVALID, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(
+                \sprintf(
+                    'Property "headline" of element "root-id" is translatable and must hold a language map, but holds %s.',
+                    $expectedType
+                ),
+                $exception->getMessage()
+            );
+            // Every client-supplied path rejects the shape earlier, so reaching reduction with one is never
+            // the client's mistake.
+            static::assertFalse(ContentSystemException::isClientDefect($exception));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string|list<string>, string}>
+     */
+    public static function nonMapTranslatableValueProvider(): iterable
+    {
+        yield 'bare string' => ['plain copy', 'string'];
+        yield 'list' => [['anchor copy'], 'list'];
+    }
+
     private function preparer(): StoredTreePreparer
     {
         return new StoredTreePreparer(
+            $this->typeRegistry(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
         );
+    }
+
+    /**
+     * Only `text` is registered, and it declares the three keys the reduction cases read: one plain string
+     * and two translatable ones differing in the required flag. Every other key these fixtures store is
+     * undeclared, and `section` names no type at all, which is the shape the virtual root is in too.
+     */
+    private function typeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = [
+            'text' => ContentSystemElementTypeSpecificationBuilder::create('text')
+                ->primitive('title', 'string')
+                ->primitive('headline', 'string', translatable: true)
+                ->primitive('requiredHeadline', 'string', required: true, translatable: true)
+                ->build(),
+        ];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(
+            static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]
+        );
+
+        return $registry;
+    }
+
+    /**
+     * @param non-empty-list<string> $languageIdChain
+     */
+    private function salesChannelContext(array $languageIdChain = [Defaults::LANGUAGE_SYSTEM]): SalesChannelContext
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getLanguageIdChain')->willReturn($languageIdChain);
+
+        return $context;
     }
 
     private function targetAndSiblingRoot(): StoredElement
@@ -304,12 +499,18 @@ class StoredTreePreparerTest extends TestCase
     /**
      * @param list<StoredElement> $tree
      * @param array<string, string|int|bool|float> $placeholderValues
+     * @param non-empty-list<string> $languageIdChain
      *
      * @return list<StoredElement>
      */
-    private function prepare(array $tree, array $placeholderValues): array
+    private function prepare(array $tree, array $placeholderValues, array $languageIdChain = [Defaults::LANGUAGE_SYSTEM]): array
     {
-        return $this->preparer()->prepare($tree, $this->specification($placeholderValues), RenderingMode::FULL)->tree;
+        return $this->preparer()->prepare(
+            $tree,
+            $this->specification($placeholderValues),
+            RenderingMode::FULL,
+            $this->salesChannelContext($languageIdChain)
+        )->tree;
     }
 
     /**

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
@@ -94,6 +96,24 @@ class StoredElementTest extends TestCase
 
         static::assertSame(
             ['headline' => 'Hello', 'tags' => ['a', 'b']],
+            $element->jsonSerialize()['properties']
+        );
+    }
+
+    /**
+     * The storage side is language-blind: reduction to the request language belongs to serving, so the admin
+     * round-trip and every mutation response carry every entry the element holds.
+     */
+    #[TestDox('serializes a language map with every entry it holds')]
+    public function testJsonSerializeEmitsALanguageMapInFull(): void
+    {
+        $childLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('core:text', 'element-1')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', $childLanguageId => 'child copy'])
+            ->build();
+
+        static::assertSame(
+            ['headline' => [Defaults::LANGUAGE_SYSTEM => 'anchor copy', $childLanguageId => 'child copy']],
             $element->jsonSerialize()['properties']
         );
     }

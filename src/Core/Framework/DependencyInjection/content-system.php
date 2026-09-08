@@ -138,6 +138,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(VirtualRootWrapper::class);
     $services->set(StoredTreePreparer::class)
         ->args([
+            service(ContentSystemElementTypeRegistry::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
         ]);

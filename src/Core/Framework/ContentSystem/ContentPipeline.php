@@ -66,7 +66,7 @@ class ContentPipeline
         );
         $this->eventDispatcher->dispatch($preparationEvent);
 
-        $preparation = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
+        $preparation = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode, $salesChannelContext);
         $scaffolding = $preparation->scaffolding;
 
         $this->rejectRepeatedStoredId($preparation->prePruneForest);

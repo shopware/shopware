@@ -32,11 +32,7 @@ import useLegacyConditionContext from '../shim/legacy-condition-context';
  * qualifiedBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
  * qualifiedBlockKey(undefined, 'sw_product_detail_base'); // 'sw_product_detail_base'
  */
-function qualifiedBlockKey(componentName: string | undefined, blockName: string | undefined): string | undefined {
-    if (blockName === undefined) {
-        return undefined;
-    }
-
+function qualifiedBlockKey(componentName: string | undefined, blockName: string): string {
     return componentName ? `${componentName} ${blockName}` : blockName;
 }
 
@@ -182,7 +178,7 @@ export default Shopware.Component.wrapComponentConfig({
             // at boot time) are positioned below native <sw-block extends> overrides
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(qualifiedBlockKey(props.swInternalComponentName, props.name)!);
+            const nativeBlocks = getBlocks(qualifiedBlockKey(props.swInternalComponentName, props.name));
             const blocksAndParent = [
                 slots.default ?? (() => []),
                 ...shimSlots,

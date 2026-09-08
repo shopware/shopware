@@ -45,9 +45,8 @@ final class AttachElements extends AbstractLayoutMutation
 
             $tree = $attach->apply($tree);
             $this->affected = array_merge($this->affected, $attach->affected());
+            $this->created = array_merge($this->created, $attach->created());
         }
-
-        $this->created = $this->affected;
 
         return $tree;
     }

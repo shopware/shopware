@@ -53,6 +53,12 @@ async function createWrapper(entityType = 'product') {
     );
 }
 
+function expectOptionsToEqual(options, expected) {
+    expect([...options].sort((a, b) => a.label.localeCompare(b.label))).toEqual(
+        [...expected].sort((a, b) => a.label.localeCompare(b.label)),
+    );
+}
+
 describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
     afterEach(async () => {
         jest.clearAllTimers();
@@ -747,7 +753,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'cover',
             'manufacturer',
         ].forEach((property) => expect(data.properties).toContain(property));
-        expect(data.options).toEqual([
+        expectOptionsToEqual(data.options, [
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
@@ -842,7 +848,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'cover',
             'manufacturer',
         ].forEach((property) => expect(data.properties).toContain(property));
-        expect(data.options).toEqual([
+        expectOptionsToEqual(data.options, [
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',

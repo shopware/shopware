@@ -16,6 +16,7 @@ use Shopware\Core\System\NumberRange\Command\MigrateIncrementStorageCommand;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\NumberRange\Telemetry\IncrementStorageMetricsDecorator;
 use Shopware\Core\System\NumberRange\Telemetry\NumberRangeTypeResolver;
+use Shopware\Core\System\NumberRange\Validation\NumberRangePatternCollisionValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -135,4 +136,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('setContainer', [
             service('service_container'),
         ]);
+
+    $services->set(NumberRangePatternCollisionValidator::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 };

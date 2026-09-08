@@ -18,7 +18,8 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-tabs', () => {
-    it('should render the deprecated tabs by default', async () => {
+    // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs by default', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');

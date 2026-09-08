@@ -402,11 +402,6 @@ directiveRegistry.forEach((value, key) => {
         return;
     }
 
-    if (key === 'popover') {
-        config.global.directives[key] = {};
-        return;
-    }
-
     config.global.directives[key] = value;
 });
 

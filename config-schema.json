@@ -323,6 +323,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "enable_url_validation": {
+                    "type": "boolean",
+                    "default": true
+                },
                 "allow_unencrypted_traffic": {
                     "type": "boolean",
                     "default": false

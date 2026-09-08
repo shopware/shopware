@@ -75,11 +75,28 @@ export default Shopware.Component.wrapComponentConfig({
                                 ?.filter((child) => child.type?.name === 'sw-tabs-item')
                                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
                                 .map((child: any) => {
+                                    /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call */
+                                    let label = child.props?.title;
+                                    let name = child.props?.name ?? child.props?.title;
+
+                                    if (label === undefined) {
+                                        // Label given as slot text is stored as the default slot text vnode.
+                                        const defaultSlot = child.children?.default?.()?.[0];
+                                        if (defaultSlot?.type?.toString() === 'Symbol(v-txt)') {
+                                            label = defaultSlot.children;
+                                        }
+                                    }
+
+                                    if (name === undefined) {
+                                        name = label;
+                                    }
+                                    /* eslint-enable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call */
+
                                     return {
-                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                                        label: child.props?.title ?? child.props?.name,
-                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                                        name: child.props?.name ?? child.props?.title,
+                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                                        label,
+                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                                        name,
                                         onClick: () => {
                                             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                                             if (child.props?.route) {

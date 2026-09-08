@@ -75,7 +75,7 @@ class LayoutDefaultSeeder
     }
 
     /**
-     * @return array<string, string|int|float|bool>
+     * @return array<string, string|int|float|bool|array<string, string|int|float|bool>>
      */
     private function defaultsFor(string $component): array
     {

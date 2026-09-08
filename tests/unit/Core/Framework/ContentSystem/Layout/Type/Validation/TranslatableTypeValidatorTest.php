@@ -73,6 +73,13 @@ class TranslatableTypeValidatorTest extends TestCase
             new PropertySpecificationDto('label', ['string', 'integer'], false, true, 'Label', 'A label.', null, null, null),
             'translatable',
         ];
+
+        // The lone scalar declaration only: a single-member list still declares a union, which the stored
+        // language map is not a shape of.
+        yield 'translatable on a single-member list of string' => [
+            new PropertySpecificationDto('text', ['string'], false, true, 'Text', 'Text content.', null, null, null),
+            'translatable',
+        ];
     }
 
     #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]

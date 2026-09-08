@@ -16,6 +16,10 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -39,6 +43,30 @@ class StoredSchemaResolverTest extends TestCase
         static::assertSame([
             'alt' => ['kind' => 'property', 'type' => 'string', 'required' => true],
             'maxImageWidth' => ['kind' => 'property', 'type' => 'integer', 'required' => false, 'default' => 1360],
+        ], $this->resolver([])->resolve($type));
+    }
+
+    #[TestDox('marks a translatable property entry with the flag and leaves the key off a non-translatable one')]
+    public function testResolveMarksOnlyTranslatablePropertyEntriesWithTheFlag(): void
+    {
+        // Built by hand rather than through the builder, which declares every property non-translatable.
+        $type = new ContentSystemElementTypeSpecification(
+            'Sw:Content:Text',
+            'Sw:Content:Text',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            [
+                'text' => new PropertySpecification('prop', new PropertyType('string', true, null, '<p>Willkommen</p>'), false, '', '', null),
+                'mode' => new PropertySpecification('prop', new PropertyType('string', false, null, 'auto-fit'), false, '', '', null),
+            ],
+            [],
+        );
+
+        static::assertSame([
+            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Willkommen</p>', 'translatable' => true],
+            'mode' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto-fit'],
         ], $this->resolver([])->resolve($type));
     }
 

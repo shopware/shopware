@@ -153,6 +153,10 @@ export function parseMajorPaths(mapYaml: string): string[] {
     return globs;
 }
 
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function globToRegExp(glob: string): RegExp {
     let pattern = '';
 
@@ -166,7 +170,7 @@ export function globToRegExp(glob: string): RegExp {
         } else if (glob[index] === '*') {
             pattern += '[^/]*';
         } else {
-            pattern += glob[index].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            pattern += escapeRegExp(glob[index]);
         }
     }
 
@@ -208,8 +212,8 @@ export function evaluateMajorLabels(options: {
         return { behaviour: false, cleanup: false };
     }
 
-    const version = targetMajor.replace(/\./g, '\\.');
-    const flagNames = pendingMajorFlags(flags).map((flag) => flag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const version = escapeRegExp(targetMajor);
+    const flagNames = pendingMajorFlags(flags).map(escapeRegExp);
     const pathMatchers = majorPaths.map(globToRegExp);
 
     // `(?!\d)` keeps v6.8.0 from matching a v6.8.01 that a future scheme might introduce

@@ -280,6 +280,41 @@ test('unrelated changes match nothing', () => {
     });
 });
 
+test('regex metacharacters in a version or flag name are matched literally', () => {
+    const flags = parseFeatureRegistry(`shopware:
+      feature:
+        flags:
+          - name: FLAG(A|B)
+            default: false
+            major: true
+`);
+    // A partial escape would compile `6.8` into a dot wildcard and `FLAG(A|B)` into a group.
+    const evaluated = evaluateMajorLabels({
+        diff: diffFor('src/Core/Cart.php', "+        Feature::isActive('FLAGA');"),
+        flags,
+        targetMajor: '6.8',
+        majorPaths: [],
+    });
+    assert.deepEqual(evaluated, { behaviour: false, cleanup: false });
+
+    assert.deepEqual(
+        evaluateMajorLabels({
+            diff: diffFor('src/Core/Cart.php', "+        Feature::isActive('FLAG(A|B)');"),
+            flags,
+            targetMajor: '6.8',
+            majorPaths: [],
+        }),
+        { behaviour: true, cleanup: false },
+    );
+});
+
+test('a version dot is not a wildcard', () => {
+    assert.deepEqual(evaluate('src/Core/Framework/Feature.php', '+     * @deprecated tag:v6x8.0 - nope'), {
+        behaviour: false,
+        cleanup: false,
+    });
+});
+
 test('an empty diff matches nothing', () => {
     assert.deepEqual(evaluateMajorLabels({ diff: '', flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS }), {
         behaviour: false,

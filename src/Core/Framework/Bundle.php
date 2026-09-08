@@ -185,10 +185,6 @@ abstract class Bundle extends SymfonyBundle
         \assert(\is_string($env));
 
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
-
-        if ($env === 'e2e') {
-            $configLoader->load($confDir . '/{packages}/prod/*' . Kernel::CONFIG_EXTS, 'glob');
-        }
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void

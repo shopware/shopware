@@ -19,6 +19,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentSource;
 use Twig\Extension\CoreExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\ArrayLoader;
@@ -112,6 +113,67 @@ class DocumentTemplateRendererTest extends TestCase
 
         static::assertIsString($result);
         static::assertSame($template, $result);
+    }
+
+    public function testRenderAcceptsANonOrderDocumentSource(): void
+    {
+        $locale = new LocaleEntity();
+        $locale->setId(Uuid::randomHex());
+        $locale->setCode('de-DE');
+
+        $lang = new LanguageEntity();
+        $lang->setId(Uuid::randomHex());
+        $lang->setLocale($locale);
+
+        $source = new StaticDocumentSource(
+            salesChannelId: Uuid::randomHex(),
+            languageId: Uuid::randomHex(),
+            language: $lang,
+        );
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())
+            ->method('injectSettings')
+            ->with(
+                $source->getSalesChannelId(),
+                $source->getLanguageId(),
+                $locale->getCode(),
+            );
+
+        $finder = static::createStub(TemplateFinder::class);
+        $finder->method('find')->willReturn('path');
+
+        $env = $this->createMock(TwigEnvironment::class);
+        $env->expects($this->once())
+            ->method('renderWithTimezoneOverride')
+            ->with(
+                'path',
+                static::callback(static fn (array $parameters): bool => $parameters['order'] === $source),
+                null,
+            )
+            ->willReturn('rendered');
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
+
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
+        $contextFactory->method('create')->willReturn($salesChannelContext);
+
+        $renderer = new DocumentTemplateRenderer(
+            $finder,
+            $env,
+            $translator,
+            $contextFactory,
+            'rootDir',
+        );
+
+        $result = $renderer->render(
+            'path',
+            new RenderInput('quotes', '12345', $source),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('rendered', $result);
     }
 
     public function testRenderUsesSalesChannelBusinessTimeZone(): void

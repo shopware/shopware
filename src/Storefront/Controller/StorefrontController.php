@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressErrorInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
@@ -279,6 +280,18 @@ abstract class StorefrontController extends AbstractController
                 }
 
                 $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+
+                if ($error instanceof PromotionNotEligibleError && $error->getRuleIds() !== []) {
+                    foreach ($error->getRuleIds() as $ruleId) {
+                        $ruleSpecificKey = 'checkout.promotion-not-eligible-' . $ruleId;
+                        $candidate = $this->trans($ruleSpecificKey, $parameters);
+                        if ($candidate !== $ruleSpecificKey) {
+                            $translatedMessage = $candidate;
+                            break;
+                        }
+                    }
+                }
+
                 $error->setTranslatedMessage($translatedMessage);
 
                 if (\in_array($translatedMessage, $flat, true)) {

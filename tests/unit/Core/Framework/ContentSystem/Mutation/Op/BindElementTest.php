@@ -88,9 +88,10 @@ class BindElementTest extends TestCase
 
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')]));
 
-        // Bind never detaches anything: orphaned()/droppedWiring()/droppedProperties() are always empty for
-        // this operation, so asserting them here would be trivially true regardless of the scenario above.
+        // Bind only rewires the existing node: it creates nothing, and never detaches anything, so
+        // orphaned()/droppedWiring()/droppedProperties() are always empty for this operation.
         static::assertSame(['el'], $bind->affected());
+        static::assertSame([], $bind->created());
     }
 
     #[TestDox('does not overwrite an authored explicit null on the input key with the default')]

@@ -29,14 +29,32 @@ class CartCalculator
                 ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))
                 ->getCart();
 
-            $cart->setHash($this->cartContextHasher->generate($cart, $context));
-
-            $cart->markUnmodified();
-            foreach ($cart->getLineItems()->getFlat() as $lineItem) {
-                $lineItem->markUnmodified();
-            }
-
-            return $cart;
+            return $this->markCalculated($cart, $context);
         });
+    }
+
+    /**
+     * Calculates the cart stored under the token, or a new one when the token is unknown.
+     */
+    public function calculateByToken(string $token, SalesChannelContext $context): Cart
+    {
+        return $this->cartMetrics->measure($context, function () use ($token, $context): Cart {
+            // validate cart against the context rules
+            $cart = $this->cartRuleLoader->loadByToken($context, $token)->getCart();
+
+            return $this->markCalculated($cart, $context);
+        });
+    }
+
+    private function markCalculated(Cart $cart, SalesChannelContext $context): Cart
+    {
+        $cart->setHash($this->cartContextHasher->generate($cart, $context));
+
+        $cart->markUnmodified();
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            $lineItem->markUnmodified();
+        }
+
+        return $cart;
     }
 }

@@ -41,7 +41,7 @@
                     class="sw-product-listing__grid"
                     :columns="listingLayout == 'horizontal' ? '1' : { xs: '1', sm: '2', md: '3', lg: '4', xl: '4' }"
                     gap="16">
-                    {% for product in listing.elements %}
+                    {% for product in listing.entities.elements %}
                         <twig:Sw:Product:Card
                             :product="product"
                             :layout="listingLayout ? listingLayout : 'default'"

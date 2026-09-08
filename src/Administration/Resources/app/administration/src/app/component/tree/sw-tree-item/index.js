@@ -30,6 +30,10 @@ export default {
             from: 'moveDrag',
             default: null,
         },
+        treeOpenById: {
+            from: 'openTreeById',
+            default: null,
+        },
         treeAddSubElement: {
             from: 'addSubElement',
             default: null,
@@ -136,6 +140,12 @@ export default {
             },
         },
 
+        allowDropIntoFolder: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         markInactive: {
             type: Boolean,
             required: false,
@@ -234,6 +244,7 @@ export default {
             rootParent: null,
             checkedGhost: false,
             currentEditElement: null,
+            dragHoverTimeout: null,
         };
     },
 
@@ -249,6 +260,10 @@ export default {
 
         activeElementId() {
             return this.$route.params[this.item.activeElementId] || null;
+        },
+
+        dragHoverDelay() {
+            return 1200;
         },
 
         isOpened() {
@@ -289,6 +304,7 @@ export default {
                 data: this.item,
                 onDragStart: this.dragStart,
                 onDragEnter: this.onMouseEnter,
+                onDragLeave: this.onMouseLeave,
                 onDrop: this.dragEnd,
                 preventEvent: true,
                 disabled: !this.sortable,
@@ -487,6 +503,7 @@ export default {
         },
 
         dragEnd() {
+            this.clearDragHoverTimeout();
             this.treeEndDrag();
         },
 
@@ -496,6 +513,26 @@ export default {
             }
 
             this.treeMoveDrag(dragData, dropData);
+            if (!this.allowDropIntoFolder) {
+                return;
+            }
+
+            this.clearDragHoverTimeout();
+            this.dragHoverTimeout = window.setTimeout(() => {
+                this.treeOpenById(dropData.id);
+                this.treeMoveDrag(dragData, dropData, true);
+            }, this.dragHoverDelay);
+        },
+
+        onMouseLeave() {
+            this.clearDragHoverTimeout();
+        },
+
+        clearDragHoverTimeout() {
+            if (this.dragHoverTimeout !== null) {
+                window.clearTimeout(this.dragHoverTimeout);
+                this.dragHoverTimeout = null;
+            }
         },
 
         startDrag(draggedComponent) {
@@ -506,8 +543,8 @@ export default {
             this.treeEndDrag();
         },
 
-        moveDrag(draggedComponent, droppedComponent) {
-            return this.treeMoveDrag(draggedComponent, droppedComponent);
+        moveDrag(draggedComponent, droppedComponent, dropInto = false) {
+            return this.treeMoveDrag(draggedComponent, droppedComponent, dropInto);
         },
 
         // Bubbles this method to the root tree from any item depth

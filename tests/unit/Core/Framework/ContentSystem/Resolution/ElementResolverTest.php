@@ -87,6 +87,79 @@ class ElementResolverTest extends TestCase
         static::assertCount(2, $resolutions[0]->candidates);
     }
 
+    #[TestDox('mints a Root candidate for an available entry flagged root-ambient and resolves the reference to it')]
+    public function testRootFlaggedContextMintsRootOriginCandidate(): void
+    {
+        $resolutions = $this->resolve(
+            ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class, required: true)->build(),
+            new ResolutionContext('el-1', [$this->provided(root: true)]),
+            new ContentSystemDataLoaderMap([], []),
+        );
+
+        static::assertCount(1, $resolutions[0]->candidates);
+        static::assertSame(CandidateOrigin::Root, $resolutions[0]->candidates[0]->origin);
+        static::assertNotNull($resolutions[0]->resolved);
+        static::assertSame(CandidateOrigin::Root, $resolutions[0]->resolved->origin);
+    }
+
+    #[TestDox('prefers the single Root candidate over a coexisting Parent candidate')]
+    public function testRootCandidateOutranksParentCandidate(): void
+    {
+        $resolutions = $this->resolve(
+            ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class, required: true)->build(),
+            new ResolutionContext('el-1', [
+                $this->provided(root: false, providerElementId: 'root-1'),
+                $this->provided(root: true),
+            ]),
+            new ContentSystemDataLoaderMap([], []),
+        );
+
+        static::assertCount(2, $resolutions[0]->candidates);
+        static::assertNotNull($resolutions[0]->resolved);
+        static::assertSame(CandidateOrigin::Root, $resolutions[0]->resolved->origin);
+        static::assertNull($resolutions[0]->resolved->providerElementId);
+    }
+
+    #[TestDox('leaves a reference unresolved when two Root candidates compete, never falling back to a lone Parent candidate')]
+    public function testTwoRootCandidatesStayAmbiguousDespiteALoneParent(): void
+    {
+        // Ambiguity inside the preferred pool is still ambiguity. A fallback to the single Parent candidate
+        // would resolve here, which is exactly the silent pick the three-tier order forbids.
+        $resolutions = $this->resolve(
+            ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class, required: true)->build(),
+            new ResolutionContext('el-1', [
+                $this->provided(root: true, contextKey: 'product'),
+                $this->provided(root: true, contextKey: 'featuredProduct'),
+                $this->provided(root: false, providerElementId: 'root-1'),
+            ]),
+            new ContentSystemDataLoaderMap([], []),
+        );
+
+        static::assertNull($resolutions[0]->resolved);
+        // Pins that the fixture is actually two Roots and one Parent. Without it the test also passes when the
+        // flag mapping misclassifies every offer as Parent, which is a different bug with the same outcome.
+        static::assertSame(
+            [CandidateOrigin::Root, CandidateOrigin::Root, CandidateOrigin::Parent],
+            array_map(static fn (ResolutionCandidate $candidate): CandidateOrigin => $candidate->origin, $resolutions[0]->candidates),
+        );
+    }
+
+    #[TestDox('leaves a reference unresolved when two Parent candidates compete and no Root candidate exists')]
+    public function testTwoParentCandidatesStayAmbiguous(): void
+    {
+        $resolutions = $this->resolve(
+            ContentSystemElementTypeSpecificationBuilder::create()->reference('product', ProductEntity::class, required: true)->build(),
+            new ResolutionContext('el-1', [
+                $this->provided(root: false, providerElementId: 'root-1', contextKey: 'product'),
+                $this->provided(root: false, providerElementId: 'level-2', contextKey: 'item'),
+            ]),
+            new ContentSystemDataLoaderMap([], []),
+        );
+
+        static::assertNull($resolutions[0]->resolved);
+        static::assertCount(2, $resolutions[0]->candidates);
+    }
+
     #[TestDox('resolves a reference via the single complete loader when no provider is available')]
     public function testReferenceResolvesViaCompleteLoader(): void
     {
@@ -288,6 +361,18 @@ class ElementResolverTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $resolver->resolve($element, new ResolutionContext('el-1', []));
+    }
+
+    private function provided(bool $root, ?string $providerElementId = null, string $contextKey = 'product'): ProvidedContext
+    {
+        return new ProvidedContext(
+            contextKey: $contextKey,
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: $providerElementId,
+            distribution: DistributionStrategy::Broadcast,
+            root: $root,
+        );
     }
 
     /**

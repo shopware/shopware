@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelMaintenanceEnableCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

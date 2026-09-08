@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -25,7 +25,7 @@ type ContentSystemPreviewRequestPayload = {
  * Gateway for content system preview endpoint.
  */
 class ContentSystemPreviewApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'content-system') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemPreviewService';
     }

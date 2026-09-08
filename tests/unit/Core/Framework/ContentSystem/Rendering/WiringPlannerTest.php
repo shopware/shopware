@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
@@ -126,6 +127,62 @@ class WiringPlannerTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::redistributeConflict('product'));
 
         $this->planner()->plan($layout->elements, $layout->elements);
+    }
+
+    /**
+     * The codec rejects this combination on every DAL path, so the planner is what stands between a tree that
+     * bypassed the write boundary (a migration, raw SQL) and a derivation that would mint a provider for a
+     * consumer whose value never travels down a chain.
+     */
+    #[TestDox('rejects a root-scoped consumer that also redistributes')]
+    public function testRedistributeExpansionRejectsARootScopedRedistributingConsumer(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product', ContextType::Single, redistribute: true, scope: ConsumerScope::Root)
+                ->build()
+        );
+
+        $this->expectExceptionObject(ContentSystemException::rootScopeWithRedistribute('product'));
+
+        $this->planner()->plan($layout->elements, $layout->elements);
+    }
+
+    /**
+     * The scope rule runs ahead of the two derived-key rules inside the redistribute loop, matching decode,
+     * where the per-consumer combination tier finishes before the element-local tier starts. This consumer
+     * breaks both rules at once, so the exception says which one the planner reached first.
+     */
+    #[TestDox('reports the root scope before the dotted key for a consumer breaking both rules')]
+    public function testRedistributeExpansionReportsTheRootScopeBeforeTheDottedKey(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true, scope: ConsumerScope::Root)
+                ->build()
+        );
+
+        $this->expectExceptionObject(ContentSystemException::rootScopeWithRedistribute('product.manufacturer'));
+
+        $this->planner()->plan($layout->elements, $layout->elements);
+    }
+
+    /**
+     * The sibling one edit away on the tested axis: without `redistribute` the scope is none of the rule's
+     * business, and the derivation mints nothing for a consumer that hands nothing on.
+     */
+    #[TestDox('plans a root-scoped consumer that does not redistribute and derives no provider for it')]
+    public function testRedistributeExpansionAcceptsARootScopedConsumerThatDoesNotRedistribute(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+                ->build()
+        );
+
+        $derived = $this->planner()->plan($layout->elements, $layout->elements);
+
+        static::assertSame([], $derived[0]->contextDefinitions->getAllProviders());
     }
 
     #[TestDox('rejects two consumers on one element that write the same property key')]

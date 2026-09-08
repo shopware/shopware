@@ -88,8 +88,11 @@ class CartPersister extends AbstractCartPersister
         $this->eventDispatcher->dispatch($event);
 
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
-            $cart->setPersisted(false);
+            // skipping the persistence means the stored cart stays untouched, it must not be deleted
+            if (!$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE)) {
+                $this->delete($cart->getToken(), $context);
+                $cart->setPersisted(false);
+            }
 
             return;
         }

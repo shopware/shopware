@@ -28,6 +28,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
@@ -476,6 +477,7 @@ class StoreApiSeoResolverTest extends TestCase
     private function createProductEntity(string $identifier = 'random'): SalesChannelProductEntity
     {
         $productEntity = new SalesChannelProductEntity();
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productEntity->setUniqueIdentifier($identifier);
 
         return $productEntity;
@@ -499,7 +501,7 @@ class StoreApiSeoResolverTest extends TestCase
         }
 
         $entitySearchResult = new EntitySearchResult(
-            'seoUrl',
+            'seo_url',
             1,
             $seoUrlCollection,
             null,

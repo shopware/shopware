@@ -258,6 +258,17 @@ shopware:
                       interval: '30 seconds'
                     - limit: 20
                       interval: '60 seconds'
+            import_export_file_download:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
             oauth:
                 enabled: true
                 policy: 'time_backoff'
@@ -402,6 +413,11 @@ shopware:
         batchsize: 100
         custom_urls:
         excluded_urls:
+        scheduled_task:
+            enabled: true
+
+    translation:
+        use_local_filesystem: false
         scheduled_task:
             enabled: true
 
@@ -589,6 +605,8 @@ shopware:
             CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__PRODUCT_EXPORT_EMPTY: notice
+            CONTENT__LANDING_PAGE_NOT_FOUND: notice
+            CONTENT__IMPORT_FILE_HAS_UNEXPECTED_TYPE: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
             FRAMEWORK__APP_INTEGRATION_NOT_FOUND: notice
@@ -603,6 +621,8 @@ shopware:
             FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
+            FRAMEWORK__INVALID_CAPTCHA_VALUE: notice
+            FRAMEWORK__CUSTOM_ENTITY_NOT_FOUND: notice
             FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
             FRAMEWORK__SALES_CHANNEL_NOT_FOUND: notice
             PRODUCT__CATEGORY_NOT_FOUND: notice
@@ -699,3 +719,7 @@ shopware:
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
         failure_strategy: disable_on_threshold
+
+    app_system:
+        allow_unencrypted_traffic: false
+        allowed_private_ip_addresses: []

@@ -23,6 +23,7 @@ describe('extensions.store', () => {
             permissions: {},
             version: '1.0.0',
             type: 'app',
+            sourceType: undefined,
             integrationId: '123',
             active: true,
         });
@@ -33,6 +34,7 @@ describe('extensions.store', () => {
             permissions: {},
             version: '1.0.0',
             type: 'app',
+            sourceType: undefined,
             integrationId: '123',
             active: true,
         });
@@ -76,6 +78,7 @@ describe('extensions.store', () => {
                 permissions: {},
                 version: '1.0.0',
                 type: 'app',
+                sourceType: undefined,
                 integrationId: '123',
                 active: true,
             },

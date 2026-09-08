@@ -112,6 +112,7 @@ async function createWrapper() {
         props: {
             promotionCodes: [],
             disabledAutoPromotion: false,
+            sendOrderConfirmationMail: true,
             context: {
                 languageId: 'english',
                 billingAddressId: '1',
@@ -326,6 +327,18 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         expect(wrapper.emitted('auto-promotion-toggle')).toBeTruthy();
         expect(wrapper.emitted('auto-promotion-toggle')[0][0]).toBeTruthy();
+    });
+
+    it('should emit send-order-confirmation-mail-toggle when toggling order confirmation mail', async () => {
+        const wrapper = await createWrapper();
+
+        const sendOrderConfirmationMailSwitch = wrapper.find('.sw-order-create-options__send-order-confirmation-mail input');
+        expect(sendOrderConfirmationMailSwitch.element.checked).toBeTruthy();
+
+        await sendOrderConfirmationMailSwitch.setChecked(false);
+
+        expect(wrapper.emitted('send-order-confirmation-mail-toggle')).toBeTruthy();
+        expect(wrapper.emitted('send-order-confirmation-mail-toggle')[0][0]).toBeFalsy();
     });
 
     it('should able to select currency', async () => {

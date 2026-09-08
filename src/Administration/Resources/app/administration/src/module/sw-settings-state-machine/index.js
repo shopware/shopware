@@ -26,7 +26,7 @@ Module.register('sw-settings-state-machine', {
     description: 'State machine section in the settings module',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'state_machine',
 
     routes: {

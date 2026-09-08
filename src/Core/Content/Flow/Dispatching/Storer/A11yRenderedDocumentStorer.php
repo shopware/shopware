@@ -4,9 +4,11 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @phpstan-type A11yDocument array{documentId: string, deepLinkCode: string, fileExtension: string|null}
+ * @phpstan-type A11yDocument array{documentId: string, deepLinkCode: string, fileExtension: string}
  */
 #[Package('after-sales')]
 class A11yRenderedDocumentStorer extends FlowStorer
@@ -32,7 +34,8 @@ class A11yRenderedDocumentStorer extends FlowStorer
     public function __construct(
         private readonly EntityRepository $documentRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly MailAttachmentsBuilder $mailAttachmentsBuilder
+        private readonly DocumentResolver $documentResolver,
+        private readonly DocumentFileResolver $documentFileResolver
     ) {
     }
 
@@ -66,20 +69,29 @@ class A11yRenderedDocumentStorer extends FlowStorer
      */
     private function lazyLoad(StorableFlow $storableFlow): array
     {
-        $config = $storableFlow->getConfig();
-        $orderId = $storableFlow->getData(OrderAware::ORDER_ID);
+        $ids = $this->resolveDocumentIds($storableFlow);
 
-        if (!empty($config['documentTypeIds']) && \is_array($config['documentTypeIds']) && $orderId) {
-            $ids = $this->mailAttachmentsBuilder->getLatestDocumentsOfTypes($orderId, $config['documentTypeIds']);
-        } else {
-            $ids = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
-        }
-
-        if (!\is_array($ids) || $ids === []) {
+        if ($ids === []) {
             return [];
         }
 
         return $this->loadA11yDocuments(new Criteria($ids), $storableFlow->getContext());
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function resolveDocumentIds(StorableFlow $storableFlow): array
+    {
+        $a11yDocumentIds = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
+        $orderId = $storableFlow->getData(OrderAware::ORDER_ID);
+
+        return array_keys($this->documentResolver->resolve(
+            $storableFlow->getConfig(),
+            \is_array($a11yDocumentIds) ? array_values($a11yDocumentIds) : [],
+            \is_string($orderId) && $orderId !== '' ? $orderId : null,
+            $storableFlow->getContext(),
+        ));
     }
 
     /**
@@ -88,6 +100,7 @@ class A11yRenderedDocumentStorer extends FlowStorer
     private function loadA11yDocuments(Criteria $criteria, Context $context): array
     {
         $criteria->addAssociation('documentA11yMediaFile');
+        $criteria->addAssociation('documentFiles.media');
 
         if (!Feature::isActive('v6.8.0.0')) {
             $event = new BeforeLoadStorableFlowDataEvent(
@@ -111,14 +124,16 @@ class A11yRenderedDocumentStorer extends FlowStorer
 
         $a11yDocuments = [];
         foreach ($documents as $document) {
-            if ($document->getDocumentA11yMediaFile() === null) {
+            $resolved = $this->documentFileResolver->resolve($document, DocumentFormat::HTML->value);
+
+            if ($resolved === null) {
                 continue;
             }
 
             $a11yDocuments[] = [
                 'documentId' => $document->getId(),
                 'deepLinkCode' => $document->getDeepLinkCode(),
-                'fileExtension' => $document->getDocumentA11yMediaFile()->getFileExtension(),
+                'fileExtension' => $resolved->fileExtension,
             ];
         }
 

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PriceRuleEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class PriceRuleCollection extends EntityCollection

@@ -15,7 +15,7 @@ modulesToCreate.set('sw-mail-template', {
     icon: 'regular-cog',
     entity: 'mail_template',
 });
-modulesToCreate.set('sw-cms', { icon: 'regular-content', entity: 'cms_page' });
+modulesToCreate.set('sw-cms', { icon: 'regular-image-text', entity: 'cms_page' });
 
 Array.from(modulesToCreate.keys()).forEach((moduleName) => {
     const currentModuleValues = modulesToCreate.get(moduleName);
@@ -132,6 +132,7 @@ async function createWrapper(defaultFolderId, privileges = []) {
                     template: `
                     <div class="sw-media-base-item">
                         AllowMultiSelect: "{{ allowMultiSelect }}"
+                        <slot name="preview" v-bind="{ item: $attrs.item }"></slot>
                         <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
                         <slot></slot>
                     </div>`,
@@ -157,32 +158,37 @@ async function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
-    it('should provide correct folder color for product module', async () => {
+    it.each([
+        [
+            'product module',
+            ID_PRODUCTS_FOLDER,
+        ],
+        [
+            'mail template module',
+            ID_MAILTEMPLATE_FOLDER,
+        ],
+        [
+            'cms module',
+            ID_CONTENT_FOLDER,
+        ],
+        [
+            'fallback',
+            undefined,
+        ],
+    ])('should use the blue folder thumbnail for %s', async (_, defaultFolderId) => {
+        const wrapper = await createWrapper(defaultFolderId);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.iconName).toBe('folder-thumbnail');
+    });
+
+    it('should color the module icon with the brand icon token', async () => {
         const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--green');
-    });
-
-    it('should provide correct folder color for mail template module', async () => {
-        const wrapper = await createWrapper(ID_MAILTEMPLATE_FOLDER);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--grey');
-    });
-
-    it('should provide correct folder color for cms module', async () => {
-        const wrapper = await createWrapper(ID_CONTENT_FOLDER);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--pink');
-    });
-
-    it('should provide fallback folder color', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail');
+        const innerIcon = wrapper.findComponent('.sw-media-folder-item__folder-thumbnails.is--inner');
+        expect(innerIcon.props('name')).toBe('regular-products');
+        expect(innerIcon.props('color')).toBe('var(--color-icon-secondary-default)');
     });
 
     it('should not be able to delete', async () => {

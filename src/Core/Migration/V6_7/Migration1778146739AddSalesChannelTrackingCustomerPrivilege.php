@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1778146739AddSalesChannelTrackingCustomerPrivilege extends MigrationStep
 {
     final public const NEW_PRIVILEGES = [

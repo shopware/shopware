@@ -79,6 +79,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElem
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
@@ -310,6 +311,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContextDeliveryResolver::class)
         ->args([
             service(ContextDistributor::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -620,6 +622,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemElementTypeRegistry::class),
             service(ElementResolver::class),
             service(ProviderDeliveryKeyResolver::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(ElementResolver::class)
@@ -644,6 +647,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemDataLoaderMapResolver::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(LayoutGate::class)
@@ -726,9 +730,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Mutation Pipeline
+    $services->set(ContextConsumerMirror::class);
+
     $services->set(MutationPipeline::class)
         ->args([
             service(LayoutDiagnostics::class),
+            service(ContextConsumerMirror::class),
         ]);
 
     // Layout Mutation Actions (Admin API)

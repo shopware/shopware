@@ -35,6 +35,15 @@ Shopware.Component.register(
     'sw-extension-my-extensions-listing-controls',
     () => import('./component/sw-extension-my-extensions-listing-controls'),
 );
+Shopware.Component.register('sw-extension-bulk-actions-bar', () => import('./component/sw-extension-bulk-actions-bar'));
+Shopware.Component.register(
+    'sw-extension-bulk-uninstall-modal',
+    () => import('./component/sw-extension-bulk-uninstall-modal'),
+);
+Shopware.Component.register(
+    'sw-extension-bulk-deactivation-modal',
+    () => import('./component/sw-extension-bulk-deactivation-modal'),
+);
 Shopware.Component.register('sw-extension-permissions-modal', () => import('./component/sw-extension-permissions-modal'));
 Shopware.Component.register('sw-extension-domains-modal', () => import('./component/sw-extension-domains-modal'));
 Shopware.Component.register(
@@ -197,6 +206,9 @@ Shopware.Module.register('sw-extension', {
         'store.landing-page': {
             path: 'store/landing-page',
             component: 'sw-extension-store-landing-page',
+            meta: {
+                parentPath: 'sw.extension.store',
+            },
         },
 
         module: {
@@ -220,7 +232,7 @@ Shopware.Module.register('sw-extension', {
             label: 'sw-extension.mainMenu.mainMenuItemExtensionStore',
             color: '#189EFF',
             icon: 'regular-plug',
-            position: 70,
+            position: 80,
         },
         {
             id: 'sw-extension-store',

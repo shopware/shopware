@@ -52,7 +52,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * @param array<array-key, mixed> $forest
      */
     #[DataProvider('acceptedPayloadProvider')]
-    #[TestDox('both sides accept $_dataName')]
+    #[TestDox('accepts $_dataName on both sides')]
     public function testBothSidesAcceptAConformingPayload(array $forest): void
     {
         static::assertSame(
@@ -72,7 +72,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * @param array<array-key, mixed> $forest
      */
     #[DataProvider('rejectedPayloadProvider')]
-    #[TestDox('both sides reject $_dataName')]
+    #[TestDox('rejects $_dataName on both sides')]
     public function testBothSidesRejectANonConformingPayload(array $forest): void
     {
         $codecRejection = $this->codecRejection($forest);
@@ -93,7 +93,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * @param array<array-key, mixed> $forest
      */
     #[DataProvider('descriptorOnlyPayloadProvider')]
-    #[TestDox('the descriptor alone rejects $_dataName')]
+    #[TestDox('rejects $_dataName when the descriptor alone diverges')]
     public function testOnlyTheDescriptorRejectsADeliberateDivergence(array $forest, string $reason): void
     {
         static::assertNotSame(
@@ -115,7 +115,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * `ContentSystemException`, and the table's own data providers type their `$forest` parameter as `array`,
      * so a `null` row cannot be carried through them either. This asserts the descriptor half directly instead.
      */
-    #[TestDox('the descriptor alone rejects a null forest')]
+    #[TestDox('rejects a null forest when the descriptor alone diverges')]
     public function testDescriptorRejectsANullForest(): void
     {
         $validator = $this->validator();
@@ -358,6 +358,143 @@ class StoredTreeShapeConformanceTest extends TestCase
                 'items' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product.name'],
             ]]),
             self::REJECTED,
+            '',
+        ];
+
+        // The consumer scope, whose accepted and rejected rows sit one edit apart on the scope axis alone.
+        // A null row is carried beside the out-of-enum row because Symfony's Choice skips null the way Type
+        // and Collection do, so only an explicit NotNull keeps the descriptor from admitting what decode
+        // rejects.
+        yield 'a root-scoped consumer' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 'root'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a consumer declaring the parent scope explicitly' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 'parent'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a root-scoped consumer keyed by a dotted path' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => ['type' => 'single', 'required' => true, 'scope' => 'root'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a root-scoped consumer that also redistributes' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'scope' => 'root'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a consumer scope outside the enum' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 'ancestor'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a non-string consumer scope' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 42],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a null consumer scope' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => null],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        // The element-local wiring tier: each rule judges one element's consumer map against itself or against
+        // that element's own provider map, so both sides can and must state it. Each rejected row is paired
+        // with the accepted sibling one edit away on the tested axis alone.
+        yield 'two consumers sharing one base key' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'two consumers writing distinct base keys' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            self::forest(['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer keyed by a base key' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer whose derived key an authored provider holds' => [
+            self::forest([
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer beside a provider on another key' => [
+            self::forest([
+                'providesContext' => ['other' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer whose propertyAlias names a key an authored provider holds' => [
+            self::forest([
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'category' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'product'],
+                ],
+            ]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer whose propertyAlias avoids the provider key' => [
+            self::forest([
+                'providesContext' => ['other' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'category' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'product'],
+                ],
+            ]),
+            self::ACCEPTED,
             '',
         ];
 

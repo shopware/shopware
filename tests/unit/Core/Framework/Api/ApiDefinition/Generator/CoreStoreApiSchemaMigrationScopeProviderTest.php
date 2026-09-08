@@ -16,7 +16,7 @@ class CoreStoreApiSchemaMigrationScopeProviderTest extends TestCase
 {
     public function testProvidesCoreScopeConfiguration(): void
     {
-        $provider = new CoreStoreApiSchemaMigrationScopeProvider('/schema', '/allowlist.json');
+        $provider = new CoreStoreApiSchemaMigrationScopeProvider('/schema');
 
         static::assertSame('core', $provider->getScope());
         static::assertSame([
@@ -26,7 +26,6 @@ class CoreStoreApiSchemaMigrationScopeProviderTest extends TestCase
             'Shopware\\Storefront\\',
         ], $provider->getDefinitionClassPrefixes());
         static::assertSame(['/schema'], $provider->getSchemaPaths());
-        static::assertSame('/allowlist.json', $provider->getAllowlistPath());
         static::assertFalse($provider->includesAllDefinitions());
     }
 
@@ -39,9 +38,5 @@ class CoreStoreApiSchemaMigrationScopeProviderTest extends TestCase
         static::assertSame([
             $projectDirectory . '/src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi',
         ], $provider->getSchemaPaths());
-        static::assertSame(
-            $projectDirectory . '/src/Core/Framework/Api/ApiDefinition/Generator/StoreApiPhpGeneratedSchemaAllowlist.json',
-            $provider->getAllowlistPath(),
-        );
     }
 }

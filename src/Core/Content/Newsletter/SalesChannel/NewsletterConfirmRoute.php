@@ -69,13 +69,9 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
             )
         );
 
-        $response = $this->confirmWithResponse($dataBag, $context);
+        $this->confirmWithResponse($dataBag, $context);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
     #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]

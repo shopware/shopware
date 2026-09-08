@@ -127,7 +127,15 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           sparse-checkout: .github/bin/js
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No milestone label rule on ${{ github.event.pull_request.base.ref }}, nothing to fix."
+          fi
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const { reconcileMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
@@ -142,7 +150,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/bin/js
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No milestone label rule on the default branch of this repository, nothing to reconcile."
+          fi
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           # Set the repository variable to "false" to let it actually relabel.
           DRY_RUN: ${{ vars.MILESTONE_RECONCILE_DRY_RUN || 'true' }}
@@ -160,9 +176,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-      - shell: bash
+      - id: automation
+        run: |
+          if [ -f .github/bin/js/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No .github/bin/js/package.json on ${{ github.event.pull_request.base.ref }}, nothing to set."
+          fi
+      - if: steps.automation.outputs.present == 'true'
+        shell: bash
         run: npm ci --prefix .github/bin/js/
       - name: Set milestone
+        if: steps.automation.outputs.present == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # 9
         with:
           script: |

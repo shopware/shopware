@@ -7,6 +7,12 @@
         height: 48px;
     }
 
+    &.sw-select {
+        .sw-block-field__block {
+            overflow: hidden;
+        }
+    }
+
     .sw-field--select__options .mt-icon {
         margin-bottom: 5px;
     }

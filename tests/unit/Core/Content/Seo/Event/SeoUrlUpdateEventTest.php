@@ -26,6 +26,14 @@ class SeoUrlUpdateEventTest extends TestCase
         static::assertSame($context, $event->getContext());
     }
 
+    public function testExposesTheSeoUrls(): void
+    {
+        $seoUrls = [['routeName' => 'frontend.detail.page', 'seoPathInfo' => 'awesome-product']];
+        $event = new SeoUrlUpdateEvent($seoUrls, Context::createDefaultContext());
+
+        static::assertSame($seoUrls, $event->getSeoUrls());
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetNullableContextReturnsContextWhenFeatureInactiveAndContextProvided(): void
     {

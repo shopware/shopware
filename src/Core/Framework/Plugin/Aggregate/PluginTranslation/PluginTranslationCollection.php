@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PluginTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class PluginTranslationCollection extends EntityCollection

@@ -23,6 +23,10 @@ class DeleteThemeFilesMessage implements AsyncMessageInterface
         private readonly string $salesChannelId,
         private readonly string $themeId
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
     }
 
     public function getThemePath(): string

@@ -24,8 +24,10 @@ export default function viteOverridePlugin(options: Options): Plugin {
         name: 'shopware-vite-plugin-override-component',
 
         configResolved() {
-            // Find all override files
-            overrideFiles = findFilesRecursively(root, pattern);
+            // Find all override files. Sorted because the directory walk follows filesystem order, which
+            // differs between machines - and the generated entry numbers its imports in this order, so
+            // sorting is what keeps the emitted source byte-stable across builds.
+            overrideFiles = findFilesRecursively(root, pattern).sort();
         },
 
         transform(code, id) {
@@ -38,16 +40,16 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
             // Generate import statements for each override file
             const imports = overrideFiles
-                .map((file) => {
+                .map((file, index) => {
                     // Convert absolute path to relative path from entry file
                     const relativePath = path.relative(path.dirname(id), file);
 
                     // Ensure proper path separators
                     const importPath = relativePath.split(path.sep).join('/');
 
-                    // Get component name from file name and prefix with _ to avoid name conflicts
-                    const componentName = `_${path.basename(file, '.override.vue').replace(/[-_/\\:*?"<>|]/g, '')}`;
-                    componentNames.push(`${componentName}`);
+                    // Numbered, not path-derived: `foo-bar/sw-x` and `foo_bar/sw-x` sanitize to one name.
+                    const componentName = `_swOverride${index}`;
+                    componentNames.push(componentName);
 
                     return `import ${componentName} from './${importPath}';`;
                 })

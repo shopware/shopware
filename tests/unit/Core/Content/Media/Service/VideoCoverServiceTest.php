@@ -283,7 +283,7 @@ class VideoCoverServiceTest extends TestCase
         }
 
         return new EntitySearchResult(
-            MediaDefinition::class,
+            MediaDefinition::ENTITY_NAME,
             1,
             $collection,
             null,

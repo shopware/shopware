@@ -4,40 +4,6 @@
     "paths": [],
     "components": {
         "schemas": {
-            "success": {
-                "type": "object",
-                "required": [
-                    "data"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/meta"
-                    },
-                    "links": {
-                        "description": "Link members related to the primary data.",
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/links"
-                            },
-                            {
-                                "$ref": "#/components/schemas/pagination"
-                            }
-                        ]
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/data"
-                    },
-                    "included": {
-                        "description": "To reduce the number of HTTP requests, servers **MAY** allow responses that include related resources along with the requested primary resources. Such responses are called \"compound documents\".",
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/resource"
-                        },
-                        "uniqueItems": true
-                    }
-                }
-            },
             "failure": {
                 "type": "object",
                 "required": [
@@ -60,43 +26,10 @@
                     }
                 }
             },
-            "info": {
-                "type": "object",
-                "required": [
-                    "meta"
-                ],
-                "properties": {
-                    "meta": {
-                        "$ref": "#/components/schemas/meta"
-                    },
-                    "links": {
-                        "$ref": "#/components/schemas/links"
-                    },
-                    "jsonapi": {
-                        "$ref": "#/components/schemas/jsonapi"
-                    }
-                }
-            },
             "meta": {
                 "description": "Non-standard meta-information that can not be represented as an attribute or relationship.",
                 "type": "object",
                 "additionalProperties": true
-            },
-            "data": {
-                "description": "The document's \"primary data\" is a representation of the resource or collection of resources targeted by a request.",
-                "oneOf": [
-                    {
-                        "$ref": "#/components/schemas/resource"
-                    },
-                    {
-                        "description": "An array of resource objects, an array of resource identifier objects, or an empty array ([]), for requests that target resource collections.",
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/resource"
-                        },
-                        "uniqueItems": true
-                    }
-                ]
             },
             "resource": {
                 "description": "\"Resource objects\" appear in a JSON API document to represent resources.",
@@ -251,44 +184,6 @@
                     "id": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
-                    },
-                    "meta": {
-                        "$ref": "#/components/schemas/meta"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "pagination": {
-                "type": "object",
-                "properties": {
-                    "first": {
-                        "description": "The first page of data",
-                        "type": "string",
-                        "format": "uri-reference"
-                    },
-                    "last": {
-                        "description": "The last page of data",
-                        "type": "string",
-                        "format": "uri-reference"
-                    },
-                    "prev": {
-                        "description": "The previous page of data",
-                        "type": "string",
-                        "format": "uri-reference"
-                    },
-                    "next": {
-                        "description": "The next page of data",
-                        "type": "string",
-                        "format": "uri-reference"
-                    }
-                }
-            },
-            "jsonapi": {
-                "description": "An object describing the server's implementation",
-                "type": "object",
-                "properties": {
-                    "version": {
-                        "type": "string"
                     },
                     "meta": {
                         "$ref": "#/components/schemas/meta"

@@ -41,6 +41,9 @@ final class PrimitiveDefaultProvider
         return $defaults;
     }
 
+    /**
+     * @return string|int|float|bool|array<string, mixed>|null
+     */
     private function defaultFor(PropertyType $type): string|int|float|bool|array|null
     {
         if ($type->isPrimitive()) {

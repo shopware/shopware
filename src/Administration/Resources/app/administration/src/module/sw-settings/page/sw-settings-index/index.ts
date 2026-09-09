@@ -4,8 +4,7 @@
 import { type SettingsItem } from 'src/app/store/settings-item.store';
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
-
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
 
 type SettingsItemHere = Omit<SettingsItem, 'label'> & {
     label?: string | { label: string; translated: boolean };

@@ -5,11 +5,10 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
+import { cloneDeep } from 'shopware:utils/object';
 
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

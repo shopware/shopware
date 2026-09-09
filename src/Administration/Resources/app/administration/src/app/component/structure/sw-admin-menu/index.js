@@ -3,10 +3,9 @@ import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
+import { createId, debug, dom, EventBus } from 'shopware:utils';
 
 const { Mixin } = Shopware;
-const { dom } = Shopware.Utils;
-
 const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
 
 const VIEWPORT_RESIZE_SETTLE_DURATION = 200;
@@ -115,7 +114,7 @@ export default {
                 );
 
                 if (levelThreeParent) {
-                    Shopware.Utils.debug.error(
+                    debug.error(
                         new Error(
                             `The navigation entry "${entry.id}" is nested on level 4 or higher.\
 The admin menu only supports up to three levels of nesting.`,
@@ -228,7 +227,7 @@ The admin menu only supports up to three levels of nesting.`,
         extensionModuleNavigation() {
             return this.extensionMenuItems.map((extensionMenuItem) => {
                 return {
-                    id: Shopware.Utils.createId(),
+                    id: createId(),
                     label: extensionMenuItem.label,
                     position: extensionMenuItem.position ?? 110,
                     parent: extensionMenuItem.parent ?? 'sw-extension',
@@ -311,7 +310,7 @@ The admin menu only supports up to three levels of nesting.`,
             this.getUser();
             this.loadShopName();
 
-            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+            EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
             window.addEventListener('resize', this.onViewportResize);
 
@@ -332,7 +331,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         beforeUnmountedComponent() {
             this.deactivateOffCanvasFocusTrap();
-            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+            EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
             window.removeEventListener('resize', this.onViewportResize);
 
             if (this.toggleSidebarTimeout) {
@@ -363,7 +362,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         closeOffCanvas() {
             this.isOffCanvasShown = false;
-            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+            EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
         },
 
         closeNavigationOverlays() {
@@ -413,7 +412,7 @@ The admin menu only supports up to three levels of nesting.`,
                     onDeactivate: () => {
                         this.stopMenuDropdownObserver();
                         this.offCanvasFocusTrap = null;
-                        Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+                        EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
                     },
                 });
 

@@ -6,6 +6,7 @@
 
 import template from './sw-sales-channel-detail-agentic-files.html.twig';
 import './sw-sales-channel-detail-agentic-files.scss';
+import { string } from 'shopware:utils';
 
 const { Mixin, Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -239,7 +240,7 @@ export default {
 
         formatSnippetPathSegment(segment) {
             // Slugify so dots and slashes in file names cannot break snippet path resolution.
-            const slug = Shopware.Utils.string.kebabCase(segment);
+            const slug = string.kebabCase(segment);
 
             return `[${JSON.stringify(slug)}]`;
         },

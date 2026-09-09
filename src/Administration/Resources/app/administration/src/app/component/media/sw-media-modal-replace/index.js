@@ -1,5 +1,6 @@
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
+import { createId } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 
@@ -60,7 +61,7 @@ export default {
 
             // overwrite file name randomly to avoid conflicts on upload before renaming
             // e.g. you want to replace image.png with shopware.png but shopware.png already exists
-            data[0].fileName = Shopware.Utils.createId();
+            data[0].fileName = createId();
 
             const newFileExtension = data[0].extension;
             const oldFileExtension = this.itemToReplace.fileExtension;

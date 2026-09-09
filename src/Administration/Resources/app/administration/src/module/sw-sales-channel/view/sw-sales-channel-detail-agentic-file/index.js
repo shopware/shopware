@@ -6,6 +6,7 @@
 
 import template from './sw-sales-channel-detail-agentic-file.html.twig';
 import './sw-sales-channel-detail-agentic-file.scss';
+import { string, types } from 'shopware:utils';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -280,7 +281,7 @@ export default {
                 return false;
             }
 
-            return !Shopware.Utils.types.isEqual(configuration.getOrigin().templateOverrides ?? {}, this.templateOverrides);
+            return !types.isEqual(configuration.getOrigin().templateOverrides ?? {}, this.templateOverrides);
         },
 
         openTemplateOverrideModal(template) {
@@ -478,7 +479,7 @@ export default {
 
         formatSnippetPathSegment(segment) {
             // Slugify so dots and slashes in file names cannot break snippet path resolution.
-            const slug = Shopware.Utils.string.kebabCase(segment);
+            const slug = string.kebabCase(segment);
 
             return `[${JSON.stringify(slug)}]`;
         },

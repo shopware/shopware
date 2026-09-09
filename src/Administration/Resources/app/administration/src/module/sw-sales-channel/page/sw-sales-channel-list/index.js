@@ -4,6 +4,7 @@
 
 import template from './sw-sales-channel-list.html.twig';
 import './sw-sales-channel-list.scss';
+import { EventBus } from 'shopware:utils';
 
 const { Mixin, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -112,7 +113,7 @@ export default {
 
     methods: {
         onAddSalesChannel() {
-            Shopware.Utils.EventBus.emit('sw-sales-channel-list-add-new-channel');
+            EventBus.emit('sw-sales-channel-list-add-new-channel');
         },
 
         async getList() {

@@ -4,6 +4,7 @@
 
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
+import { string } from 'shopware:utils';
 
 /**
  * @private
@@ -81,7 +82,7 @@ export default {
 
         handleAction(action, notification) {
             // Allow external links for example to the shopware account or store
-            if (Shopware.Utils.string.isUrl(action.route)) {
+            if (string.isUrl(action.route)) {
                 window.open(action.route);
                 return;
             }

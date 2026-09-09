@@ -4,6 +4,7 @@
 
 import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
+import { string } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -119,7 +120,7 @@ export default {
         },
 
         propertyNameKebabCase() {
-            return Shopware.Utils.string.kebabCase(this.propertyName);
+            return string.kebabCase(this.propertyName);
         },
 
         multiSelectClass() {

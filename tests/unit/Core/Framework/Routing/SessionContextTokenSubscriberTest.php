@@ -178,10 +178,9 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame('logged-in', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testLogoutContinuesWithTheFreshTokenOnANewSessionId(): void
+    public function testLogoutContinuesOnAFreshTokenAndANewSessionId(): void
     {
-        // LogoutRoute dispatches the event with a context built around a fresh token
-        $context = Generator::generateSalesChannelContext(token: 'after-logout');
+        $context = Generator::generateSalesChannelContext(token: 'the-routes-own-token');
         $request = $this->ownerRequest($context->getSalesChannelId());
         $session = $this->sessionWithId('logged-in-session');
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'logged-in');
@@ -189,8 +188,11 @@ class SessionContextTokenSubscriberTest extends TestCase
 
         $this->subscriber([$request])->onCustomerLogout(new CustomerLogoutEvent($context, new CustomerEntity()));
 
-        static::assertSame('after-logout', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame('after-logout', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $token = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($token);
+        static::assertSame(32, \strlen($token));
+        static::assertNotSame('logged-in', $token);
+        static::assertSame($token, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotSame('logged-in-session', $session->getId());
     }
 

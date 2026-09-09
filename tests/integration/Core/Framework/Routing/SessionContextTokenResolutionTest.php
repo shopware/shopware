@@ -244,17 +244,20 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertSame($migratedId, $session->get(SessionContextTokenAccessor::SESSION_ID_KEY));
     }
 
-    public function testALogoutDestroysTheSessionAndContinuesWithTheFreshToken(): void
+    public function testALogoutDestroysTheSessionAndContinuesOnAFreshToken(): void
     {
-        $freshToken = Random::getAlphanumericString(32);
+        $sessionToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest();
-        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
+        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
         $this->resolve($request);
-        $this->logout($request, $freshToken);
+        $this->logout($request);
 
-        static::assertSame($freshToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $token = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($token);
+        static::assertSame(32, \strlen($token));
+        static::assertNotSame($sessionToken, $token);
         static::assertNotSame(self::SESSION_ID, $session->getId());
     }
 
@@ -426,16 +429,10 @@ class SessionContextTokenResolutionTest extends TestCase
         ));
     }
 
-    /**
-     * LogoutRoute dispatches the event with a context built around a fresh token.
-     */
-    private function logout(Request $request, string $freshToken): void
+    private function logout(Request $request): void
     {
-        $context = $this->resolvedContext($request);
-        $context->assign(['token' => $freshToken]);
-
         $this->onStack($request, fn () => $this->subscriber->onCustomerLogout(
-            new CustomerLogoutEvent($context, new CustomerEntity())
+            new CustomerLogoutEvent($this->resolvedContext($request), new CustomerEntity())
         ));
     }
 

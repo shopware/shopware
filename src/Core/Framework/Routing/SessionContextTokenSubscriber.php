@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,7 +79,7 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
 
     public function onCustomerLogout(CustomerLogoutEvent $event): void
     {
-        $this->rotate($event->getSalesChannelId(), $event->getSalesChannelContext()->getToken(), true);
+        $this->rotate($event->getSalesChannelId(), Random::getAlphanumericString(32), true);
     }
 
     public function onContextResolved(SalesChannelContextResolvedEvent $event): void

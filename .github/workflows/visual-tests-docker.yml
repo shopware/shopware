@@ -72,7 +72,10 @@ jobs:
         working-directory: tests/acceptance
         continue-on-error: true
         env:
-          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots=all' || '--update-snapshots=none' }}
+          # `changed` only rewrites snapshots that fail the comparison, so scheduled
+          # runs stop rebaselining every screen with sub-perceptual antialiasing drift.
+          # Real UI changes still fail and update; missing snapshots are still created.
+          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots=changed' || '--update-snapshots=none' }}
           FILTER: ${{ inputs.filter && format('--grep={0}', inputs.filter) || '' }}
           CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}

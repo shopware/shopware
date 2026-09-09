@@ -115,7 +115,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                             return undefined;
                         }
 
-                        if (Object.prototype.hasOwnProperty.call(installed, key)) {
+                        if (Object.hasOwn(installed, key)) {
                             return toRefLike(key, () => installed[key]);
                         }
 

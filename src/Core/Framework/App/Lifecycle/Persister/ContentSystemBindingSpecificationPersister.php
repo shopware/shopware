@@ -68,7 +68,7 @@ class ContentSystemBindingSpecificationPersister
         // Serialize concurrent same-app persists: read the existing set, compute the delta, and write it
         // as one lock-held unit, so a racing install cannot diff against a stale snapshot and leave a
         // superset of the intended final state.
-        $lock = $this->lockFactory->createLock('content_system_binding_persist_' . $appId, 5.0);
+        $lock = $this->lockFactory->createLock('content_system_binding_persist_' . $appId, 15.0);
         $lock->acquire(true);
 
         try {

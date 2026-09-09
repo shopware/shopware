@@ -198,62 +198,15 @@ class CustomerEntityTest extends TestCase
         static::assertTrue($customer->hasLegacyPassword());
     }
 
-    #[DataProvider('displayNameProvider')]
-    public function testGetDisplayName(string $accountType, string $firstName, string $lastName, ?string $company, string $expected): void
+    public function testDisplayNameIsEmptyUntilTheSubscriberFillsIt(): void
     {
         $customer = new CustomerEntity();
-        $customer->setAccountType($accountType);
-        $customer->setFirstName($firstName);
-        $customer->setLastName($lastName);
 
-        if ($company !== null) {
-            $customer->setCompany($company);
-        }
+        static::assertSame('', $customer->getDisplayName());
 
-        static::assertSame($expected, $customer->getDisplayName());
-    }
+        $customer->setDisplayName('Analytical Engines');
 
-    public function testGetDisplayNameDoesNotRequireAnAccountType(): void
-    {
-        $customer = new CustomerEntity();
-        $customer->setFirstName('Ada');
-        $customer->setLastName('Lovelace');
-
-        static::assertSame('Ada Lovelace', $customer->getDisplayName());
-    }
-
-    /**
-     * @return \Generator<string, array{string, string, string, string|null, string}>
-     */
-    public static function displayNameProvider(): \Generator
-    {
-        yield 'private account uses the person name' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'Ada', 'Lovelace', null, 'Ada Lovelace',
-        ];
-
-        yield 'private account ignores the company' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'Ada', 'Lovelace', 'Analytical Engines', 'Ada Lovelace',
-        ];
-
-        yield 'company account keeps an existing contact person' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', 'Analytical Engines', 'Ada Lovelace',
-        ];
-
-        yield 'company account without a contact person uses the company' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Analytical Engines', 'Analytical Engines',
-        ];
-
-        yield 'company account without a company falls back to the person name' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', null, 'Ada Lovelace',
-        ];
-
-        yield 'company account with a blank company falls back to the person name' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', '   ', 'Ada Lovelace',
-        ];
-
-        yield 'an empty person name is not padded with a space' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, '', '', null, '',
-        ];
+        static::assertSame('Analytical Engines', $customer->getDisplayName());
     }
 
     /**

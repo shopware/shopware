@@ -39,10 +39,39 @@ class CompanyAccountNameFieldsTest extends TestCase
 
     public function testAbsentKeysDefaultToRequired(): void
     {
-        $config = new StaticSystemConfigService([TestDefaults::SALES_CHANNEL => []]);
+        $config = new StaticSystemConfigService([TestDefaults::SALES_CHANNEL => [
+            CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => true,
+        ]]);
 
         static::assertTrue(CompanyAccountNameFields::areRequired($config, TestDefaults::SALES_CHANNEL));
         static::assertTrue(CompanyAccountNameFields::areVisible($config, TestDefaults::SALES_CHANNEL));
+    }
+
+    /**
+     * Without the account type selection a shop cannot tell a commercial registration from a private
+     * one, so the contact person stays mandatory whatever the other two settings say.
+     */
+    public function testTheSettingsDoNothingWithoutTheAccountTypeSelection(): void
+    {
+        $config = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => false,
+                CompanyAccountNameFields::CONFIG_SHOW => false,
+                CompanyAccountNameFields::CONFIG_REQUIRED => false,
+            ],
+        ]);
+
+        static::assertTrue(CompanyAccountNameFields::areRequired($config, TestDefaults::SALES_CHANNEL));
+        static::assertTrue(CompanyAccountNameFields::areVisible($config, TestDefaults::SALES_CHANNEL));
+        static::assertFalse(CompanyAccountNameFields::accountTypeIsSelectable($config, TestDefaults::SALES_CHANNEL));
+    }
+
+    public function testAnUnsavedAccountTypeSelectionCountsAsOff(): void
+    {
+        // unlike the other two keys this one has no default value in loginRegistration.xml
+        $config = new StaticSystemConfigService([TestDefaults::SALES_CHANNEL => []]);
+
+        static::assertFalse(CompanyAccountNameFields::accountTypeIsSelectable($config, TestDefaults::SALES_CHANNEL));
     }
 
     public function testNormalizeFillsMissingNames(): void
@@ -116,6 +145,7 @@ class CompanyAccountNameFieldsTest extends TestCase
     {
         return new StaticSystemConfigService([
             TestDefaults::SALES_CHANNEL => [
+                CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => true,
                 CompanyAccountNameFields::CONFIG_SHOW => $show,
                 CompanyAccountNameFields::CONFIG_REQUIRED => $required,
             ],

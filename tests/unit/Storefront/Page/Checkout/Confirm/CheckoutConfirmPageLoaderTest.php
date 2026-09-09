@@ -373,6 +373,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $loader = $this->createLoader(
             addressValidationFactory: $addressValidation,
             systemConfigService: new StaticSystemConfigService([
+                CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => true,
                 CompanyAccountNameFields::CONFIG_SHOW => true,
                 CompanyAccountNameFields::CONFIG_REQUIRED => false,
             ]),

@@ -173,6 +173,12 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?UserEntity $updatedBy = null;
 
+    /**
+     * Resolved by CustomerDisplayNameSubscriber on customer.loaded, so an entity built by hand carries
+     * nothing and reads as an empty string.
+     */
+    protected ?string $displayName = null;
+
     public function __toString(): string
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
@@ -185,19 +191,12 @@ class CustomerEntity extends Entity implements \Stringable
 
     public function getDisplayName(): string
     {
-        $personName = trim($this->getFirstName() . ' ' . $this->getLastName());
+        return $this->displayName ?? '';
+    }
 
-        if ($personName !== '') {
-            return $personName;
-        }
-
-        $company = trim($this->company ?? '');
-
-        if ($company !== '' && $this->isBusinessAccount()) {
-            return $company;
-        }
-
-        return $personName;
+    public function setDisplayName(?string $displayName): void
+    {
+        $this->displayName = $displayName;
     }
 
     public function getGroupId(): string

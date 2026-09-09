@@ -17,6 +17,7 @@ final class CompanyAccountNameFields
 {
     public const CONFIG_SHOW = 'core.loginRegistration.showNameFieldsForCompanyAccounts';
     public const CONFIG_REQUIRED = 'core.loginRegistration.nameFieldsRequiredForCompanyAccounts';
+    public const CONFIG_ACCOUNT_TYPE_SELECTION = 'core.loginRegistration.showAccountTypeSelection';
 
     private function __construct()
     {
@@ -24,13 +25,31 @@ final class CompanyAccountNameFields
 
     public static function areRequired(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
+        if (!self::accountTypeIsSelectable($systemConfigService, $salesChannelId)) {
+            return true;
+        }
+
         return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId)
             && self::isEnabled($systemConfigService, self::CONFIG_REQUIRED, $salesChannelId);
     }
 
     public static function areVisible(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
+        if (!self::accountTypeIsSelectable($systemConfigService, $salesChannelId)) {
+            return true;
+        }
+
         return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId);
+    }
+
+    /**
+     * A shop without the account type selection cannot tell a commercial registration from a private
+     * one, so the contact person stays mandatory there and both settings above do nothing. Unlike those
+     * two, this key has no default value in loginRegistration.xml, so an unsaved value means off.
+     */
+    public static function accountTypeIsSelectable(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
+    {
+        return (bool) $systemConfigService->get(self::CONFIG_ACCOUNT_TYPE_SELECTION, $salesChannelId);
     }
 
     public static function normalize(DataBag $data): void

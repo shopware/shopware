@@ -5,6 +5,7 @@ import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -199,7 +200,7 @@ export default {
                 return Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.isLoading = true;
             this.currency = this.currencyRepository.create();
             // defaults for rounding

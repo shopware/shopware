@@ -1,6 +1,8 @@
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component, Mixin, Context, Store } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
@@ -149,7 +151,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria(1, 500);
 
@@ -254,7 +256,7 @@ export default {
 
                 this.saveRule()
                     .then(() => {
-                        Shopware.Store.get('error').resetApiErrors();
+                        useErrorStore().resetApiErrors();
                         this.getRuleDetail();
 
                         this.isSaveSuccessful = true;
@@ -272,7 +274,7 @@ export default {
             this.saveRule()
                 .then(this.syncConditions)
                 .then(() => {
-                    Shopware.Store.get('error').resetApiErrors();
+                    useErrorStore().resetApiErrors();
                     this.getRuleDetail();
 
                     this.isSaveSuccessful = true;

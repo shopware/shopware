@@ -5,6 +5,9 @@ import { warn } from 'shopware:utils/debug';
 import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
 import { isEmpty } from 'shopware:utils/types';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
 const { Component, Mixin, Utils } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -309,7 +312,7 @@ export default {
     },
 
     beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
     },
 
     beforeUnmount() {
@@ -325,13 +328,15 @@ export default {
             });
             this.resetRelatedStores();
 
-            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            const isSystemDefaultLanguage = useContextStore().isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
 
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
-                Shopware.Store.get('shopwareApps').selectedIds = [this.pageId];
+                useShopwareAppsStore().selectedIds = [
+                    this.pageId,
+                ];
 
                 this.loadPage(this.pageId);
             }
@@ -489,9 +494,9 @@ export default {
         onChangeLanguage(languageId) {
             this.isLoading = true;
 
-            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            const isSystemDefaultLanguage = useContextStore().isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             return this.loadPage(this.pageId);
         },
 
@@ -745,11 +750,11 @@ export default {
                 meta: { parameters: payload },
             });
 
-            Shopware.Store.get('error').addApiError({ expression, error });
+            useErrorStore().addApiError({ expression, error });
         },
 
         getError(property) {
-            return Shopware.Store.get('error').getApiError(this.page, property);
+            return useErrorStore().getApiError(this.page, property);
         },
 
         getSlotValidations() {
@@ -796,7 +801,7 @@ export default {
             }
 
             this.validationWarnings = [];
-            Shopware.Store.get('error').resetApiErrors();
+            useErrorStore().resetApiErrors();
 
             const valid = [
                 this.missingFieldsValidation(),

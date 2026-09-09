@@ -6,6 +6,7 @@ import type { CategorizedPermissions, ServiceDescription, ServiceState } from '.
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
+import useNotificationStore from 'shopware:stores/notification';
 
 const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = {
     active: {
@@ -115,7 +116,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this._reloadPage();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });
@@ -139,7 +140,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.showPermissionsModal = true;
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });

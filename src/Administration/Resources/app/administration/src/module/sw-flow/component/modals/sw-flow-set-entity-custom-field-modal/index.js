@@ -1,6 +1,8 @@
 import template from './sw-flow-set-entity-custom-field-modal.html.twig';
 import './sw-flow-set-entity-custom-field-modal.scss';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component, Mixin, Store } = Shopware;
 const { mapState } = Component.getComponentHelper();
@@ -112,7 +114,7 @@ export default {
         },
 
         labelProperty() {
-            return `config.label.${Shopware.Store.get('session').currentLocale}`;
+            return `config.label.${useSessionStore().currentLocale}`;
         },
 
         ...mapState(
@@ -202,7 +204,10 @@ export default {
             if (!customFieldSet) {
                 return;
             }
-            Shopware.Store.get('swFlow').customFieldSets = [...this.customFieldSets, customFieldSet];
+            useSwFlowStore().customFieldSets = [
+                ...this.customFieldSets,
+                customFieldSet,
+            ];
             this.customFieldId = null;
             this.customFieldValue = null;
             this.renderedFieldConfig = {};
@@ -214,7 +219,10 @@ export default {
             }
             this.customField = customField;
 
-            Shopware.Store.get('swFlow').customFields = [...this.customFields, customField];
+            useSwFlowStore().customFields = [
+                ...this.customFields,
+                customField,
+            ];
             this.customFieldValue = null;
             this.renderedFieldConfig = this.validateOptionSelectFieldLabel(customField.config);
             if (this.renderedFieldConfig.componentName === 'sw-entity-multi-id-select') {

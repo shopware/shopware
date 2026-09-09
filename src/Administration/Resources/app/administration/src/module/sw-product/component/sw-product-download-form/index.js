@@ -5,6 +5,8 @@
 import template from './sw-product-download-form.html.twig';
 import './sw-product-download-form.scss';
 import { format } from 'shopware:utils';
+import useErrorStore from 'shopware:stores/error';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin } = Shopware;
 /**
@@ -48,7 +50,7 @@ export default {
 
     computed: {
         product() {
-            const state = Shopware.Store.get('swProductDetail');
+            const state = useSwProductDetailStore();
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -58,7 +60,7 @@ export default {
         },
 
         isStoreLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         isLoading() {
@@ -81,7 +83,7 @@ export default {
         },
 
         error() {
-            return Shopware.Store.get('error').getApiError(this.product, 'downloads');
+            return useErrorStore().getApiError(this.product, 'downloads');
         },
 
         hasError() {
@@ -149,7 +151,7 @@ export default {
 
             this.product.downloads.add(productDownload);
             if (this.error) {
-                Shopware.Store.get('error').removeApiError(this.error.selfLink);
+                useErrorStore().removeApiError(this.error.selfLink);
             }
         },
 

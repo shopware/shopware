@@ -1,4 +1,6 @@
 import template from './sw-category-detail-cms.html.twig';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 /**
  * @sw-package discovery
@@ -18,11 +20,11 @@ export default {
 
     computed: {
         category() {
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
     },
 };

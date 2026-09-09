@@ -1,6 +1,7 @@
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Component, Mixin, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -127,7 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         sectionMobileAndHidden() {
-            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
+            const view = useCmsPageStore().currentCmsDeviceView;
             return view === 'mobile' && this.section.mobileBehavior === 'hidden';
         },
 
@@ -170,7 +171,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVisible() {
-            const view = Shopware.Store.get('cmsPage').currentCmsDeviceView;
+            const view = useCmsPageStore().currentCmsDeviceView;
 
             const visibility = this.section.visibility as CmsVisibility;
 
@@ -228,7 +229,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onBlockSelection(block: Entity<'cms_block'>) {
-            Shopware.Store.get('cmsPage').setBlock(block);
+            useCmsPageStore().setBlock(block);
             this.$emit('page-config-open', 'itemConfig');
         },
 
@@ -240,7 +241,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.blocks!.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
-                Shopware.Store.get('cmsPage').removeSelectedBlock();
+                useCmsPageStore().removeSelectedBlock();
             }
 
             this.updateBlockPositions();

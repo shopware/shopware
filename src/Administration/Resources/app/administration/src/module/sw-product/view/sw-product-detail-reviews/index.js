@@ -4,6 +4,7 @@
 
 import template from './sw-product-detail-reviews.html.twig';
 import './sw-product-detail-reviews.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Data, Context } = Shopware;
 const { Criteria } = Data;
@@ -27,11 +28,11 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         cardTitle() {

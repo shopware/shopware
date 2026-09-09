@@ -4,6 +4,9 @@
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useSwPromotionDetailStore from 'shopware:stores/swPromotionDetail';
 
 const { Mixin } = Shopware;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
@@ -157,7 +160,7 @@ export default {
     },
 
     beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
     },
 
     methods: {
@@ -169,12 +172,12 @@ export default {
             });
             this.isLoading = true;
 
-            Shopware.Store.get('shopwareApps').selectedIds = this.promotionId ? [this.promotionId] : [];
+            useShopwareAppsStore().selectedIds = this.promotionId ? [this.promotionId] : [];
 
             if (!this.promotionId) {
                 // set language to system language
-                if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                    Shopware.Store.get('context').resetLanguageToDefault();
+                if (!useContextStore().isSystemDefaultLanguage) {
+                    useContextStore().resetLanguageToDefault();
                 }
 
                 this.promotion = this.promotionRepository.create();
@@ -207,7 +210,7 @@ export default {
                     // Needed to enrich the VueX state below
                     this.promotion.hasOrders = promotion.orderCount !== null ? promotion.orderCount > 0 : false;
 
-                    Shopware.Store.get('swPromotionDetail').promotion = this.promotion;
+                    useSwPromotionDetailStore().promotion = this.promotion;
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -270,7 +273,7 @@ export default {
                 await this.promotionRepository.save(this.promotion);
                 await this.savePromotionSetGroups();
 
-                Shopware.Store.get('swPromotionDetail').setGroupIdsDelete = [];
+                useSwPromotionDetailStore().setGroupIdsDelete = [];
                 this.isSaveSuccessful = true;
                 await this.loadEntityData();
 
@@ -297,7 +300,7 @@ export default {
         },
 
         savePromotionSetGroups() {
-            const setGroupIdsDelete = Shopware.Store.get('swPromotionDetail').setGroupIdsDelete;
+            const setGroupIdsDelete = useSwPromotionDetailStore().setGroupIdsDelete;
 
             if (setGroupIdsDelete !== null) {
                 const deletePromises = setGroupIdsDelete.map((groupId) => {

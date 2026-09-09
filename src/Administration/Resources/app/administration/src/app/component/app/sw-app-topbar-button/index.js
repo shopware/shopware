@@ -4,6 +4,7 @@
 
 import template from './sw-app-topbar-button.html.twig';
 import './sw-app-topbar-button.scss';
+import useTopBarButtonStore from 'shopware:stores/topBarButton';
 
 /**
  * @private
@@ -14,7 +15,7 @@ export default {
 
     computed: {
         topBarButtons() {
-            return Shopware.Store.get('topBarButton').buttons;
+            return useTopBarButtonStore().buttons;
         },
     },
 

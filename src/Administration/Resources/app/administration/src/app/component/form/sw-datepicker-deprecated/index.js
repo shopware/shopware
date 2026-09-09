@@ -4,6 +4,7 @@ import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 import template from './sw-datepicker-deprecated.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Mixin } = Shopware;
 
@@ -111,7 +112,7 @@ export default {
 
     computed: {
         locale() {
-            return Shopware.Store.get('session').adminLocaleLanguage || 'en';
+            return useSessionStore().adminLocaleLanguage || 'en';
         },
 
         currentFlatpickrConfig() {
@@ -188,7 +189,7 @@ export default {
         },
 
         userTimeZone() {
-            return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
+            return useSessionStore()?.currentUser?.timeZone ?? 'UTC';
         },
 
         timezoneFormattedValue: {
@@ -240,7 +241,7 @@ export default {
         },
 
         is24HourFormat() {
-            const locale = Shopware.Store.get('session').currentLocale;
+            const locale = useSessionStore().currentLocale;
             const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
             const intlOptions = formatter.resolvedOptions();
             return !intlOptions.hour12;
@@ -538,7 +539,7 @@ export default {
         },
 
         getDateStringFormat(options) {
-            const locale = Shopware.Store.get('session').currentLocale;
+            const locale = useSessionStore().currentLocale;
             const formatter = new Intl.DateTimeFormat(locale, options);
             const parts = formatter.formatToParts(new Date(2000, 0, 1, 0, 0, 0));
             const mergedConfig = this.getMergedConfig(this.config);

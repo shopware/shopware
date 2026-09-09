@@ -1,5 +1,6 @@
 import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @sw-package discovery
@@ -40,7 +41,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
         cmsPageStateStore() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
     },
 

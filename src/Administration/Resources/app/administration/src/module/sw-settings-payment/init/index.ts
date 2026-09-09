@@ -1,4 +1,5 @@
 import '../store/overview-cards.store';
+import usePaymentOverviewCardStore from 'shopware:stores/paymentOverviewCard';
 
 /**
  * @sw-package checkout
@@ -9,5 +10,5 @@ Shopware.ExtensionAPI.handle('uiModulePaymentOverviewCard', (componentConfig) =>
         componentConfig.component = 'mt-card';
     }
 
-    Shopware.Store.get('paymentOverviewCard').add(componentConfig);
+    usePaymentOverviewCardStore().add(componentConfig);
 });

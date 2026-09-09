@@ -1,6 +1,7 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 import { EntityCollection } from 'shopware:data';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Filter } = Shopware;
 
@@ -112,7 +113,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsPageStore() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
     },
 

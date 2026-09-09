@@ -1,5 +1,6 @@
 import template from './sw-extension-teaser-popover.html.twig';
 import './sw-extension-teaser-popover.scss';
+import useTeaserPopoverStore from 'shopware:stores/teaserPopover';
 
 interface TeaserPopoverConfig {
     positionId: string;
@@ -58,7 +59,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return this.component;
             }
 
-            return Shopware.Store.get('teaserPopover')?.identifier[this.positionIdentifier] || {};
+            return useTeaserPopoverStore()?.identifier[this.positionIdentifier] || {};
         },
 
         isInsideComponent(): boolean {

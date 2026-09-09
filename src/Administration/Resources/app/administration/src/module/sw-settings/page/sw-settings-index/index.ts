@@ -5,6 +5,7 @@ import { type SettingsItem } from 'src/app/store/settings-item.store';
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
 import { hasOwnProperty } from 'shopware:utils/object';
+import useSettingsItemsStore from 'shopware:stores/settingsItems';
 
 type SettingsItemHere = Omit<SettingsItem, 'label'> & {
     label?: string | { label: string; translated: boolean };
@@ -107,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
             const removeEmptyGroups = filterGroup((settings) => settings.length > 0);
 
             // Doing: Transform the settings
-            const settingsGroups = Shopware.Store.get('settingsItems').settingsGroups;
+            const settingsGroups = useSettingsItemsStore().settingsGroups;
 
             return Object.fromEntries(
                 Object.entries(settingsGroups)

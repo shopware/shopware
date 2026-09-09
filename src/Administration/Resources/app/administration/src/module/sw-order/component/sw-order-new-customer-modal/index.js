@@ -2,6 +2,7 @@ import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
@@ -188,7 +189,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(`customer_address.${this.billingAddress?.id}.company`);
+            useErrorStore().removeApiError(`customer_address.${this.billingAddress?.id}.company`);
         },
     },
 
@@ -294,7 +295,7 @@ export default {
         },
 
         clearOwnApiErrors() {
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
 
             [this.billingAddress?.id, this.shippingAddress?.id].forEach((addressId) => {
                 if (!addressId) {
@@ -310,7 +311,7 @@ export default {
         },
 
         createErrorMessageForCompanyField() {
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: `customer_address.${this.billingAddress.id}.company`,
                 error: new Shopware.Classes.ShopwareError({
                     code: EntityValidationService.ERROR_CODE_REQUIRED,
@@ -339,7 +340,7 @@ export default {
                         return;
                     }
 
-                    Shopware.Store.get('error').addApiError({
+                    useErrorStore().addApiError({
                         expression: `customer.${this.customer.id}.email`,
                         error: exception?.response?.data?.errors[0],
                     });

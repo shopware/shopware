@@ -1,6 +1,7 @@
 import template from './sw-settings-services-deactivate-modal.html.twig';
 import './sw-settings-services-deactivate-modal.scss';
 import extractError from '../../composables/extract-error';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @sw-package framework
@@ -42,7 +43,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this._reloadPage();
             } catch (exceptionResponse) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     title: this.$t('global.default.error'),
                     variant: 'critical',
                     message: extractError(exceptionResponse),

@@ -3,6 +3,7 @@
  */
 import template from './sw-bulk-edit-product-media.html.twig';
 import { Criteria } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Utils, Mixin } = Shopware;
 const { isEmpty } = Utils.types;
@@ -32,7 +33,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         productMediaRepository() {

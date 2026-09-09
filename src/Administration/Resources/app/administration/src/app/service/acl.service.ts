@@ -1,10 +1,13 @@
+import useSessionStore from 'shopware:stores/session';
+import useSettingsItemsStore from 'shopware:stores/settingsItems';
+
 /**
  * @sw-package framework
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AclService {
     isAdmin(): boolean {
-        return !!Shopware.Store.get('session').currentUser?.admin;
+        return !!useSessionStore().currentUser?.admin;
     }
 
     can(privilegeKey: string): boolean {
@@ -12,7 +15,7 @@ export default class AclService {
             return true;
         }
 
-        return (Shopware.Store.get('session').userPrivileges as string[]).includes(privilegeKey);
+        return (useSessionStore().userPrivileges as string[]).includes(privilegeKey);
     }
 
     hasAccessToRoute(path: string): boolean {
@@ -38,7 +41,7 @@ export default class AclService {
 
     hasActiveSettingModules(): boolean {
         // @ts-expect-error
-        const groups = Object.values(Shopware.Store.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
+        const groups = Object.values(useSettingsItemsStore().settingsGroups) as [[{ privilege?: string }]];
 
         let hasActive = false;
 
@@ -56,6 +59,6 @@ export default class AclService {
     }
 
     get privileges(): string[] {
-        return Shopware.Store.get('session').userPrivileges as string[];
+        return useSessionStore().userPrivileges as string[];
     }
 }

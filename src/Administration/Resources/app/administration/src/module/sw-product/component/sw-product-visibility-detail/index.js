@@ -4,6 +4,7 @@
 
 import template from './sw-product-visibility-detail.html.twig';
 import './sw-product-visibility-detail.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Filter } = Shopware;
 
@@ -30,7 +31,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         truncateFilter() {

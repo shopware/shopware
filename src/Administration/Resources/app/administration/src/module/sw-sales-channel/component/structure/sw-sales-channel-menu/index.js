@@ -6,6 +6,7 @@ import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 import { EventBus } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import useAdminMenuStore from 'shopware:stores/adminMenu';
 
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
@@ -30,7 +31,7 @@ export default {
 
     computed: {
         adminMenuStore() {
-            return Shopware.Store.get('adminMenu');
+            return useAdminMenuStore();
         },
 
         isSidebarExpanded() {

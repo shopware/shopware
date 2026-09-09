@@ -7,6 +7,7 @@ import template from './sw-sales-channel-detail.html.twig';
 import './sw-sales-channel-detail.scss';
 import { EventBus, object } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 const { Mixin, Context, Defaults } = Shopware;
 const objectHelper = object;
@@ -732,7 +733,7 @@ export default {
         },
 
         addRequiredSalesChannelFieldError(fieldName) {
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: this.getRequiredSalesChannelFieldErrorExpression(fieldName),
                 error: new ShopwareError(EntityValidationService.createRequiredError(`/0/${fieldName}`)),
             });
@@ -765,11 +766,11 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
+            useErrorStore().removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
         },
 
         getRequiredSalesChannelFieldError(fieldName) {
-            return Shopware.Store.get('error').getApiErrorFromPath(this.getSalesChannelEntityName(), this.salesChannel.id, [
+            return useErrorStore().getApiErrorFromPath(this.getSalesChannelEntityName(), this.salesChannel.id, [
                 fieldName,
             ]);
         },

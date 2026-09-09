@@ -1,5 +1,6 @@
 import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.scss';
+import useNotificationStore from 'shopware:stores/notification';
 
 const { Context, Mixin, Filter } = Shopware;
 
@@ -217,7 +218,7 @@ export default {
             };
 
             if (this.notificationId !== null) {
-                await Shopware.Store.get('notification').updateNotification({
+                await useNotificationStore().updateNotification({
                     uuid: this.notificationId,
                     ...notification,
                 });
@@ -229,7 +230,7 @@ export default {
                 return;
             }
 
-            const newNotificationId = await Shopware.Store.get('notification').createNotification({
+            const newNotificationId = await useNotificationStore().createNotification({
                 variant: 'success',
                 ...notification,
             });

@@ -4,6 +4,7 @@
 
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin } = Shopware;
 
@@ -49,7 +50,7 @@ export default {
 
     computed: {
         product() {
-            const state = Shopware.Store.get('swProductDetail');
+            const state = useSwProductDetailStore();
 
             if (this.isInherited) {
                 return state.parentProduct;
@@ -81,7 +82,7 @@ export default {
         },
 
         isStoreLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         isLoading() {

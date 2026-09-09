@@ -5,6 +5,8 @@
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
 import notificationMixin from 'shopware:mixins/notification';
+import useContextStore from 'shopware:stores/context';
+import useNotificationStore from 'shopware:stores/notification';
 
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 
@@ -37,11 +39,11 @@ export default {
 
     computed: {
         isAppUrlReachable() {
-            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+            return useContextStore().app.config.settings?.appUrlReachable;
         },
 
         hasAppsThatRequireAppUrl() {
-            return Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl;
+            return useContextStore().app.config.settings?.appsRequireAppUrl;
         },
 
         display() {
@@ -78,7 +80,7 @@ export default {
         },
 
         removeAlertNotification() {
-            Shopware.Store.get('notification').removeNotification(this.notification);
+            useNotificationStore().removeNotification(this.notification);
         },
     },
 };

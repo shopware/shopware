@@ -3,6 +3,7 @@ import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
@@ -251,7 +252,7 @@ export default {
         isValidAddress(address) {
             const ignoreFields = ['createdAt'];
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
@@ -298,7 +299,7 @@ export default {
                 return;
             }
 
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const addressErrors = errorStore.getErrorsForEntity('customer_address', address.id);
 
             if (!addressErrors) {
@@ -313,7 +314,7 @@ export default {
         },
 
         removeRequiredFieldError(addressId, field) {
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const error = errorStore.getApiErrorFromPath('customer_address', addressId, [field]);
 
             if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {

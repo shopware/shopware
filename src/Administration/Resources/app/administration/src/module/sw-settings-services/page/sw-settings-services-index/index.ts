@@ -15,6 +15,7 @@ import SwSettingsServicesGrantPermissionsCard from '../../component/sw-settings-
 import SwSettingsServicesRevokePermissionsModal from '../../component/sw-settings-services-revoke-permissions-modal';
 import SwSettingsServicesDeactivateModal from '../../component/sw-settings-services-deactivate-modal';
 import SwSettingsServicesServiceCard from '../../component/sw-settings-services-service-card';
+import useNotificationStore from 'shopware:stores/notification';
 
 type SwSettingsPageData = {
     grantPermissionsCardBackground: string;
@@ -85,7 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
             .catch((exception) => {
                 const errorMessage = extractError(exception);
 
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: errorMessage,
@@ -101,13 +102,13 @@ export default Shopware.Component.wrapComponentConfig({
 
                 shopwareServicesStore.config = await shopwareServicesService.enableAllServices();
 
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     title: this.$t('sw-settings-services.index.services-enabled'),
                     variant: 'positive',
                     message: this.$t('sw-settings-services.index.services-scheduled'),
                 });
             } catch (exceptionResponse) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     title: this.$t('global.default.error'),
                     variant: 'critical',
                     message: extractError(exceptionResponse),
@@ -124,7 +125,7 @@ export default Shopware.Component.wrapComponentConfig({
             } catch (exception) {
                 this.loadingError = extractError(exception);
 
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: this.$t('sw-settings-services.exception.service-list'),

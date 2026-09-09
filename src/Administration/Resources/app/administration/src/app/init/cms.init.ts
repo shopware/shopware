@@ -1,10 +1,12 @@
+import useExtensionsStore from 'shopware:stores/extensions';
+
 /**
  * @private
  * @sw-package discovery
  */
 export default function initializeCms(): void {
     Shopware.ExtensionAPI.handle('cmsRegisterElement', (element, additionalInformation) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -25,7 +27,7 @@ export default function initializeCms(): void {
     });
 
     Shopware.ExtensionAPI.handle('cmsRegisterBlock', (block, additionalInformation) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 

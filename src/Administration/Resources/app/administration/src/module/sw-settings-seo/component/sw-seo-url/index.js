@@ -6,6 +6,7 @@ import './store';
 import template from './sw-seo-url.html.twig';
 import './sw-seo-url.scss';
 import { EventBus } from 'shopware:utils';
+import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
@@ -80,19 +81,19 @@ export default {
 
     computed: {
         seoUrlCollection() {
-            return Shopware.Store.get('swSeoUrl').seoUrlCollection;
+            return useSwSeoUrlStore().seoUrlCollection;
         },
 
         currentSeoUrl() {
-            if (!Shopware.Store.get('swSeoUrl')) {
+            if (!useSwSeoUrlStore()) {
                 return {};
             }
 
-            return Shopware.Store.get('swSeoUrl').currentSeoUrl;
+            return useSwSeoUrlStore().currentSeoUrl;
         },
 
         defaultSeoUrl() {
-            return Shopware.Store.get('swSeoUrl').defaultSeoUrl;
+            return useSwSeoUrlStore().defaultSeoUrl;
         },
 
         seoUrlRepository() {
@@ -104,15 +105,15 @@ export default {
         },
 
         isUnsupportedSalesChannel() {
-            if (!Shopware.Store.get('swSeoUrl')) {
+            if (!useSwSeoUrlStore()) {
                 return true;
             }
 
-            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
+            if (useSwSeoUrlStore().salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
+            const salesChannel = useSwSeoUrlStore().salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 
@@ -123,7 +124,7 @@ export default {
         },
 
         currentSalesChannel() {
-            const salesChannelCollection = Shopware.Store.get('swSeoUrl')?.salesChannelCollection;
+            const salesChannelCollection = useSwSeoUrlStore()?.salesChannelCollection;
 
             return salesChannelCollection?.find((entry) => entry.id === this.currentSalesChannelId) ?? null;
         },
@@ -217,7 +218,7 @@ export default {
             salesChannelCriteria.addAssociation('domains');
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
-                Shopware.Store.get('swSeoUrl').salesChannelCollection = salesChannelCollection;
+                useSwSeoUrlStore().salesChannelCollection = salesChannelCollection;
             });
         },
 
@@ -241,7 +242,7 @@ export default {
             const defaultSeoUrlEntity = this.seoUrlRepository.create();
             Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
             seoUrlCollection.add(defaultSeoUrlEntity);
-            Shopware.Store.get('swSeoUrl').defaultSeoUrl = defaultSeoUrlEntity;
+            useSwSeoUrlStore().defaultSeoUrl = defaultSeoUrlEntity;
 
             this.urls.forEach((entityData) => {
                 const entity = this.seoUrlRepository.create();
@@ -250,12 +251,12 @@ export default {
                 seoUrlCollection.add(entity);
             });
 
-            if (!Shopware.Store.get('swSeoUrl').defaultSeoUrl) {
+            if (!useSwSeoUrlStore().defaultSeoUrl) {
                 this.showEmptySeoUrlError = true;
             }
 
-            Shopware.Store.get('swSeoUrl').seoUrlCollection = seoUrlCollection;
-            Shopware.Store.get('swSeoUrl').originalSeoUrls = this.urls;
+            useSwSeoUrlStore().seoUrlCollection = seoUrlCollection;
+            useSwSeoUrlStore().originalSeoUrls = this.urls;
             this.clearDefaultSeoUrls();
         },
 
@@ -296,12 +297,12 @@ export default {
 
                 this.seoUrlCollection.add(entity);
 
-                Shopware.Store.get('swSeoUrl').currentSeoUrl = entity;
+                useSwSeoUrlStore().currentSeoUrl = entity;
 
                 return;
             }
 
-            Shopware.Store.get('swSeoUrl').currentSeoUrl = currentSeoUrl;
+            useSwSeoUrlStore().currentSeoUrl = currentSeoUrl;
         },
 
         onSalesChannelChanged(salesChannelId) {

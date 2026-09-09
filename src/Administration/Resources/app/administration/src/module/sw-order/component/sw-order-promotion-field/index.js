@@ -2,6 +2,7 @@ import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 import { getCartErrorMessage } from '../../cart-error.helper';
 import { ChangesetGenerator } from 'shopware:data';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
@@ -232,7 +233,10 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         emitLoadingChange(state) {
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', state]);
+            useSwOrderDetailStore().setLoading([
+                'recalculation',
+                state,
+            ]);
         },
 
         /**
@@ -265,7 +269,10 @@ export default {
         },
 
         handleError(error) {
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
+            useSwOrderDetailStore().setLoading([
+                'recalculation',
+                false,
+            ]);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
@@ -311,7 +318,10 @@ export default {
                 return Promise.resolve();
             }
 
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
+            useSwOrderDetailStore().setLoading([
+                'recalculation',
+                true,
+            ]);
 
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
@@ -344,7 +354,10 @@ export default {
 
         handlePromotionResponse(response) {
             this.emitEntityData();
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', false]);
+            useSwOrderDetailStore().setLoading([
+                'recalculation',
+                false,
+            ]);
 
             if (typeof response?.data?.errors !== 'object') {
                 return;
@@ -398,7 +411,10 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            Shopware.Store.get('swOrderDetail').setLoading(['recalculation', true]);
+            useSwOrderDetailStore().setLoading([
+                'recalculation',
+                true,
+            ]);
 
             this.order.lineItems = this.order.lineItems.filter(
                 (item) => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,

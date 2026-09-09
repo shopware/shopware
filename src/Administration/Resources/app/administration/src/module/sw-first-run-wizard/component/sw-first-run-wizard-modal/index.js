@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -93,7 +94,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            return useContextStore().app.config.settings?.disableExtensionManagement;
         },
 
         isClosable() {
@@ -101,7 +102,7 @@ export default {
         },
 
         stepper() {
-            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
+            if (useContextStore().app.config.settings?.disableExtensionManagement) {
                 return {
                     welcome: {
                         name: 'sw.first.run.wizard.index.welcome',

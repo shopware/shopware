@@ -1,6 +1,9 @@
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 import { Criteria, EntityCollection } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -246,7 +249,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria();
 
@@ -491,7 +494,7 @@ export default {
             const reversedRanges = this.invalidDateRangeConditions();
 
             if (reversedRanges.length > 0) {
-                const errorStore = Shopware.Store.get('error');
+                const errorStore = useErrorStore();
 
                 reversedRanges.forEach((condition) => {
                     errorStore.addApiError({
@@ -573,7 +576,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
 
             this.isLoading = true;
             this.loadEntityData(this.ruleId).then(() => {

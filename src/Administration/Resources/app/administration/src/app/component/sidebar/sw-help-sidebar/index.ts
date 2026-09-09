@@ -1,6 +1,7 @@
 import { classifyPlatform, formatShortcutKey, type ShortcutKeyLabel } from 'src/core/helper/shortcut-key.helper';
 import template from './sw-help-sidebar.html.twig';
 import './sw-help-sidebar.scss';
+import useAdminHelpCenterStore from 'shopware:stores/adminHelpCenter';
 
 const MOBILE_VIEWPORT_WIDTH = 500;
 
@@ -50,7 +51,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         showHelpSidebar(): boolean {
-            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
+            return useAdminHelpCenterStore().showHelpSidebar;
         },
 
         showShortcutButton(): boolean {
@@ -220,11 +221,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         closeHelpSidebar(): void {
-            Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
+            useAdminHelpCenterStore().showHelpSidebar = false;
         },
 
         openShortcutModal(): void {
-            Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
+            useAdminHelpCenterStore().showShortcutModal = true;
         },
     },
 });

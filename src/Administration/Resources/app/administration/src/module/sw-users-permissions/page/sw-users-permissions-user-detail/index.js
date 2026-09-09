@@ -6,6 +6,9 @@ import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -175,7 +178,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.Store.get('session').languageId;
+            return useSessionStore().languageId;
         },
 
         tooltipSave() {
@@ -257,7 +260,7 @@ export default {
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
-                Shopware.Store.get('context').api.languageId = this.languageId;
+                useContextStore().api.languageId = this.languageId;
                 resolve(this.languageId);
             });
 
@@ -343,7 +346,7 @@ export default {
                     detail: this.$t('sw-users-permissions.users.user-detail.errorEmailUsed'),
                 });
 
-                Shopware.Store.get('error').addApiError({
+                useErrorStore().addApiError({
                     expression,
                     error,
                 });
@@ -463,7 +466,7 @@ export default {
             await this.userService.getUser().then((response) => {
                 const data = response.data;
                 delete data.password;
-                Shopware.Store.get('session').setCurrentUser(data);
+                useSessionStore().setCurrentUser(data);
             });
         },
 
@@ -543,7 +546,7 @@ export default {
 
         async updateAuthToken() {
             const verifiedToken = await this.loginService.verifyUserToken(this.user.password);
-            Shopware.Store.get('context').api.authToken.access = verifiedToken;
+            useContextStore().api.authToken.access = verifiedToken;
             const authObject = {
                 ...this.loginService.getBearerAuthentication(),
                 access: verifiedToken,

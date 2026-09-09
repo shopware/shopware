@@ -7,6 +7,7 @@ import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
 import { DOCUMENT_TYPES } from '../../../sw-order/service/documentV2.service';
 import { Criteria } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 const documentTypeOrder = [
     DOCUMENT_TYPES.INVOICE,
@@ -66,11 +67,11 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         downloadOrderDocuments() {
-            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download;
+            return useSwBulkEditStore()?.orderDocuments?.download;
         },
 
         latestDocumentsCriteria() {
@@ -111,7 +112,7 @@ export default {
         },
 
         documentGenerationResult() {
-            return Shopware.Store.get('swBulkEdit').documentGenerationResult;
+            return useSwBulkEditStore().documentGenerationResult;
         },
 
         documentGenerationFailedItems() {

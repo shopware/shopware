@@ -5,6 +5,8 @@ import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import usePaymentOverviewCardStore from 'shopware:stores/paymentOverviewCard';
 
 /**
  * @sw-package checkout
@@ -49,7 +51,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customCards(): PaymentOverviewCard[] {
-            return Shopware.Store.get('paymentOverviewCard').cards ?? [];
+            return usePaymentOverviewCardStore().cards ?? [];
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -144,7 +146,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.loadPaymentMethods();
         },
 

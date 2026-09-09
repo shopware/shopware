@@ -3,6 +3,7 @@
  */
 
 import { UploadEvents } from 'src/core/service/api/media.api.service';
+import useNotificationStore from 'shopware:stores/notification';
 
 const { Mixin, Context } = Shopware;
 const utils = Shopware.Utils;
@@ -166,7 +167,7 @@ export default {
             }
 
             if (this.notificationId !== null) {
-                Shopware.Store.get('notification').updateNotification({
+                useNotificationStore().updateNotification({
                     uuid: this.notificationId,
                     ...notification,
                 });
@@ -176,7 +177,7 @@ export default {
                 return;
             }
 
-            const newNotificationId = Shopware.Store.get('notification').createNotification({
+            const newNotificationId = useNotificationStore().createNotification({
                 variant: 'success',
                 ...notification,
             });

@@ -2,6 +2,8 @@ import type { Extension } from '../../../store/extensions.store';
 import useTheme from '../../../composables/use-theme';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
+import useExtensionsStore from 'shopware:stores/extensions';
+import useSdkLocationStore from 'shopware:stores/sdkLocation';
 
 /**
  * @sw-package framework
@@ -119,11 +121,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         componentName(): string | undefined {
-            return Shopware.Store.get('sdkLocation').locations[this.locationId];
+            return useSdkLocationStore().locations[this.locationId];
         },
 
         extension(): Extension | undefined {
-            const extensions = Shopware.Store.get('extensions').extensionsState;
+            const extensions = useExtensionsStore().extensionsState;
             const srcWithoutSearchParameters = new URL(this.src).origin + new URL(this.src).pathname;
 
             return Object.values(extensions).find((ext) => {

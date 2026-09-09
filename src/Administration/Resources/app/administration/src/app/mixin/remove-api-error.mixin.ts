@@ -3,6 +3,7 @@
  */
 
 import { defineComponent } from 'vue';
+import useErrorStore from 'shopware:stores/error';
 
 /* @private */
 export {};
@@ -32,7 +33,7 @@ export default Shopware.Mixin.register(
                 // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (this.$attrs.error && this.$attrs.error.selfLink) {
-                    void Shopware.Store.get('error').removeApiError(
+                    void useErrorStore().removeApiError(
                         // @ts-expect-error
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
                         this.$attrs.error.selfLink,

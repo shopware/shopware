@@ -11,6 +11,7 @@ import type { ContextStore } from '../store/context.store';
 import type { NotificationService, NotificationWorkerOptions } from '../../core/factory/worker-notification.factory';
 import type WorkerNotificationFactory from '../../core/factory/worker-notification.factory';
 import type { NotificationType } from '../store/notification.store';
+import useContextStore from 'shopware:stores/context';
 
 type ContextAppConfig = ContextStore['app']['config'];
 
@@ -39,8 +40,13 @@ export default function initializeWorker() {
                 Shopware.Store.get('context').addAppConfigValue({
                     key: key as keyof ContextAppConfig,
                     value,
-                });
-            });
+                ]) => {
+                    useContextStore().addAppConfigValue({
+                        key: key as keyof ContextAppConfig,
+                        value,
+                    });
+                },
+            );
 
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 enableWorkerNotificationListener(loginService, Shopware.Context.api);

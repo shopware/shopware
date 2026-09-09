@@ -5,6 +5,8 @@
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -40,15 +42,15 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         ...mapPropertyErrors('product', [
@@ -61,7 +63,7 @@ export default {
         ]),
 
         isTitleRequired() {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return useContextStore().isSystemDefaultLanguage;
         },
 
         productNumberRangeLink() {

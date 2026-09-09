@@ -132,6 +132,10 @@ Deleting, editing or moving a condition now updates `product_stream_mapping` and
 
 A group left without conditions, or invalid for another reason, now loses its assignments. A product export bound to such a group fails instead of exporting what it matched before.
 
+### Longer advanced postal code patterns for countries
+
+`country.advancedPostalCodePattern` now accepts up to 1024 characters instead of 255, matching `defaultPostalCodePattern`.
+
 ### `JsonField::addPropertyMapping()` for entity extensions
 
 `Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.

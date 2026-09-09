@@ -778,6 +778,34 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
+    it.each([
+        'success',
+        'empty',
+    ])('should announce a save that finished with "%s"', async (response) => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        wrapper.vm.onSaveFinished(response);
+        await flushPromises();
+
+        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+    });
+
+    it('should not announce a save that failed', async () => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
+        await flushPromises();
+
+        expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+    });
+
     it('should handle success response correctly', async () => {
         wrapper.vm.updateSeoPromises = [Promise.resolve()];
         Shopware.Store.get('swProductDetail').setLoading = jest.fn();
@@ -816,7 +844,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expression: 'product.1234.guaranteeMonths',
             error: {
                 code: 'INVALID_GARAN_GUARANTEE_MONTHS',
-                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
             },
         });
 
@@ -836,7 +864,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expression: 'product.1234.guaranteeMonths',
             error: {
                 code: 'INVALID_GARAN_GUARANTEE_MONTHS',
-                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
             },
         });
 

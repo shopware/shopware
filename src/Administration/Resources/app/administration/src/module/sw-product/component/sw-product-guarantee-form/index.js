@@ -9,6 +9,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 const GUARANTEE_MONTHS_MINIMUM = 30;
+const GUARANTEE_MONTHS_MAXIMUM = 600;
 const GUARANTEE_MONTHS_STEP = 6;
 const GUARANTEE_MONTHS_ERROR_CODE = 'INVALID_GARAN_GUARANTEE_MONTHS';
 
@@ -16,6 +17,7 @@ function isValidGuaranteeDuration(guaranteeMonths) {
     return (
         Number.isInteger(guaranteeMonths) &&
         guaranteeMonths >= GUARANTEE_MONTHS_MINIMUM &&
+        guaranteeMonths <= GUARANTEE_MONTHS_MAXIMUM &&
         guaranteeMonths % GUARANTEE_MONTHS_STEP === 0
     );
 }
@@ -43,6 +45,10 @@ export default {
 
         guaranteeMonthsMinimum() {
             return GUARANTEE_MONTHS_MINIMUM;
+        },
+
+        guaranteeMonthsMaximum() {
+            return GUARANTEE_MONTHS_MAXIMUM;
         },
 
         guaranteeMonthsStep() {
@@ -103,6 +109,7 @@ export default {
                     this.$t('sw-product.settingsForm.noticeGuaranteeRequirementMonths', {
                         label: this.$t('sw-product.settingsForm.labelGuaranteeMonths'),
                         minimum: GUARANTEE_MONTHS_MINIMUM,
+                        maximum: GUARANTEE_MONTHS_MAXIMUM,
                         step: GUARANTEE_MONTHS_STEP,
                     }),
                 );
@@ -133,5 +140,30 @@ export default {
             'guaranteeMonths',
             'guaranteeConfirmed',
         ]),
+    },
+
+    mounted() {
+        Shopware.Utils.EventBus.on('sw-product-detail-save-success', this.revealUnmetLabelRequirements);
+    },
+
+    beforeUnmount() {
+        Shopware.Utils.EventBus.off('sw-product-detail-save-success', this.revealUnmetLabelRequirements);
+    },
+
+    methods: {
+        /**
+         * A product saves fine while the label is switched on but incomplete, so nothing pulls the
+         * merchant away from wherever they were. Bring them to the notice that tells them the label
+         * stays hidden.
+         */
+        revealUnmetLabelRequirements() {
+            if (this.unmetGuaranteeLabelRequirements.length === 0) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                this.$refs.requirementsNotice?.$el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        },
     },
 };

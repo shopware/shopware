@@ -21,6 +21,7 @@
                     :is-inherited="props.isInherited"
                     number-type="int"
                     :min="guaranteeMonthsMinimum"
+                    :max="guaranteeMonthsMaximum"
                     :step="guaranteeMonthsStep"
                     :allow-empty="true"
                     :error="guaranteeMonthsError"
@@ -69,6 +70,7 @@
     {% block sw_product_guarantee_form_requirements_notice %}
     <mt-banner
         v-if="unmetGuaranteeLabelRequirements.length > 0"
+        ref="requirementsNotice"
         class="sw-product-guarantee-form__requirements-notice"
         variant="attention"
     >

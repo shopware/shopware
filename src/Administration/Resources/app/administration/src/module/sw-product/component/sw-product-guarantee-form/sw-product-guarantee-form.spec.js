@@ -142,14 +142,16 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         const monthsField = wrapper.findComponent('.mt-number-field');
 
         expect(monthsField.props('min')).toBe(30);
+        expect(monthsField.props('max')).toBe(600);
         expect(monthsField.props('step')).toBe(6);
-        expect(monthsField.props('max')).toBeUndefined();
     });
 
     it.each([
         25,
         31,
         6,
+        606,
+        6000,
     ])('should validate a typed guarantee duration of %s before saving', async (guaranteeMonths) => {
         await wrapper.find('.mt-number-field input').setValue(guaranteeMonths);
 
@@ -161,6 +163,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         30,
         36,
         42,
+        600,
     ])('should accept a guarantee duration of %s without an error', async (guaranteeMonths) => {
         store.product.guaranteeMonths = guaranteeMonths;
         await flushPromises();
@@ -193,7 +196,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             expression: 'product.productId.guaranteeMonths',
             error: {
                 code: 'INVALID_GARAN_GUARANTEE_MONTHS',
-                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
             },
         });
         await flushPromises();
@@ -208,7 +211,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             expression: 'product.productId.guaranteeMonths',
             error: {
                 code: 'INVALID_GARAN_GUARANTEE_MONTHS',
-                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
             },
         });
         await flushPromises();
@@ -325,6 +328,54 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             await flushPromises();
 
             expect(wrapper.find('.mt-banner').exists()).toBe(false);
+        });
+
+        describe('after a successful save', () => {
+            let scrollIntoView;
+
+            beforeEach(() => {
+                // jsdom does not implement scrollIntoView at all.
+                scrollIntoView = jest.fn();
+                Element.prototype.scrollIntoView = scrollIntoView;
+            });
+
+            afterEach(() => {
+                delete Element.prototype.scrollIntoView;
+            });
+
+            it('should be scrolled into view', async () => {
+                store.product.guaranteeConfirmed = true;
+                store.product.manufacturerNumber = null;
+                await flushPromises();
+
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+                await flushPromises();
+
+                expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
+            });
+
+            it('should not scroll anywhere while every requirement is met', async () => {
+                store.product.guaranteeConfirmed = true;
+                await flushPromises();
+
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+                await flushPromises();
+
+                expect(scrollIntoView).not.toHaveBeenCalled();
+            });
+
+            it('should stop listening once the form is gone', async () => {
+                store.product.guaranteeConfirmed = true;
+                store.product.manufacturerNumber = null;
+                await flushPromises();
+
+                wrapper.unmount();
+
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+                await flushPromises();
+
+                expect(scrollIntoView).not.toHaveBeenCalled();
+            });
         });
 
         it('should name the requirement a variant does not inherit either', async () => {

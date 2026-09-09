@@ -1263,6 +1263,8 @@ export default {
 
             Shopware.Store.get('error').resetApiErrors();
 
+            Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+
             if (this.updateSeoPromises.length === 0) {
                 this.isSaveSuccessful = true;
 

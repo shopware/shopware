@@ -86,6 +86,54 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame('/product/some-product/abc123', $resolver->generateUrl('product', 'abc123'));
     }
 
+    public function testGenerateSeoUrlPlaceholderUsesTheTargetRouteAndMergedParameters(): void
+    {
+        $capturedArguments = null;
+        $this->placeholderHandler
+            ->method('generate')
+            ->willReturnCallback(static function (string $name, array $parameters) use (&$capturedArguments): string {
+                $capturedArguments = [$name, $parameters];
+
+                return 'SEO_PLACEHOLDER';
+            });
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createAppSeoUrlRoute()]),
+            $this->placeholderHandler,
+            $this->router,
+        );
+
+        static::assertSame('SEO_PLACEHOLDER', $resolver->generateSeoUrlPlaceholder('ce_blog', 'abc123'));
+        static::assertSame(
+            ['frontend.script_endpoint', ['hook' => 'blog-detail', 'id' => 'abc123']],
+            $capturedArguments
+        );
+    }
+
+    public function testGenerateUrlUsesTheTargetRouteAndMergedParameters(): void
+    {
+        $capturedArguments = null;
+        $this->router
+            ->method('generate')
+            ->willReturnCallback(static function (string $name, array $parameters) use (&$capturedArguments): string {
+                $capturedArguments = [$name, $parameters];
+
+                return '/storefront/script/blog-detail?id=abc123';
+            });
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createAppSeoUrlRoute()]),
+            $this->placeholderHandler,
+            $this->router,
+        );
+
+        static::assertSame('/storefront/script/blog-detail?id=abc123', $resolver->generateUrl('ce_blog', 'abc123'));
+        static::assertSame(
+            ['frontend.script_endpoint', ['hook' => 'blog-detail', 'id' => 'abc123']],
+            $capturedArguments
+        );
+    }
+
     public function testGetSeoUrlRouteNameAndPathInfoSwapsRouteAndStripsBasePath(): void
     {
         $context = new RequestContext();
@@ -177,6 +225,26 @@ class EntityRouteResolverTest extends TestCase
         );
 
         static::assertNull($resolver->findEntitySeoUrlRoute('store-api.category.detail'));
+    }
+
+    private function createAppSeoUrlRoute(): SeoUrlRouteInterface
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('ce_blog');
+
+        $config = new SeoUrlRouteConfig(
+            definition: $definition,
+            routeName: 'storefront.app.MyApp.blog-detail',
+            template: '{{ ceBlog.translated.title }}',
+            primaryKeyParameterKey: 'id',
+            targetRouteName: 'frontend.script_endpoint',
+            routeParameters: ['hook' => 'blog-detail'],
+        );
+
+        $seoUrlRoute = static::createStub(SeoUrlRouteInterface::class);
+        $seoUrlRoute->method('getConfig')->willReturn($config);
+
+        return $seoUrlRoute;
     }
 
     private function createEntitySeoUrlRoute(string $entityName, string $routeName, ?string $primaryKeyParameterKey = null): EntitySeoUrlRouteInterface

@@ -20,6 +20,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AbstractListingProcessor;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteLoaderInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
@@ -176,6 +177,10 @@ class AutoconfigureCompilerPass implements CompilerPassInterface
         $container
             ->registerForAutoconfiguration(SeoUrlRouteInterface::class)
             ->addTag('shopware.seo_url.route');
+
+        $container
+            ->registerForAutoconfiguration(SeoUrlRouteLoaderInterface::class)
+            ->addTag('shopware.seo_url.route_loader');
 
         $container
             ->registerForAutoconfiguration(TemplateNamespaceHierarchyBuilderInterface::class)

@@ -101,6 +101,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->lazy()
         ->args([
             tagged_iterator('shopware.seo_url.route'),
+            tagged_iterator('shopware.seo_url.route_loader'),
         ]);
 
     $services->set(ProductStoreApiUrlRoute::class)

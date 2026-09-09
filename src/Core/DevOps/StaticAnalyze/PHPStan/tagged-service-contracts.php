@@ -36,6 +36,7 @@ use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductE
 use Shopware\Core\Content\ProductExport\Validator\ValidatorInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteLoaderInterface;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
 use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
@@ -125,6 +126,7 @@ return [
             'shopware.rule.definition' => Rule::class,
             'shopware.scheduled.task' => ScheduledTask::class,
             'shopware.seo_url.route' => SeoUrlRouteInterface::class,
+            'shopware.seo_url.route_loader' => SeoUrlRouteLoaderInterface::class,
             'shopware.sitemap.config_handler' => ConfigHandlerInterface::class,
             'shopware.sitemap_url_provider' => AbstractUrlProvider::class,
             'shopware.snippet.filter' => SnippetFilterInterface::class,

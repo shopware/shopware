@@ -502,6 +502,12 @@ The button is looked up with the plugin's existing `buyButtonSelector` option, w
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
 
+### The "Top results" sorting label comes from the administration again
+
+`@Storefront/storefront/component/sorting.html.twig` renders the database label of the `score` sorting again, as it did before 6.7.14.0. The `filter.sortByScore` snippet is no longer used, so a snippet or theme snippet override of that key has no effect on the sorting dropdown.
+
+Translate the label in Settings > Products > Sorting instead, which supports locked sortings such as `score` since 6.7.14.0.
+
 ## App System
 
 ### Target validation can be disabled for local development

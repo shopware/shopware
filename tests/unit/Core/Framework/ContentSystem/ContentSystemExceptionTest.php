@@ -359,6 +359,17 @@ class ContentSystemExceptionTest extends TestCase
             '[Sw:Bad:A].label: must not be blank; [Sw:Bad:B].description: too short',
         ];
 
+        yield 'element type load validation failed' => [
+            ContentSystemException::elementTypeLoadValidationFailed(
+                new ConstraintViolationList([
+                    new ConstraintViolation('must not be blank', null, [], null, 'types[Sw:Bad].label', null),
+                ])
+            ),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED',
+            'types[Sw:Bad].label: must not be blank',
+        ];
+
         yield 'element type invalid filename' => [
             ContentSystemException::elementTypeInvalidFilename('bad segment', 'path/to/file.yaml'),
             Response::HTTP_BAD_REQUEST,
@@ -422,6 +433,39 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID',
             'resolves[media]',
+        ];
+
+        yield 'binding specification load validation failed' => [
+            ContentSystemException::bindingSpecificationLoadValidationFailed(
+                new ConstraintViolationList([
+                    new ConstraintViolation('must not be blank', null, [], null, 'bindings[broken].type', null),
+                ])
+            ),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED',
+            'bindings[broken].type: must not be blank',
+        ];
+
+        yield 'style option load validation failed' => [
+            ContentSystemException::styleOptionLoadValidationFailed(
+                new ConstraintViolationList([
+                    new ConstraintViolation('invalid type', null, [], null, 'options[broken].type', null),
+                ])
+            ),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__STYLE_OPTION_LOAD_FAILED',
+            'options[broken].type: invalid type',
+        ];
+
+        yield 'style options invalid' => [
+            ContentSystemException::styleOptionsInvalid(
+                new ConstraintViolationList([
+                    new ConstraintViolation('invalid value', null, [], null, 'style[display]', null),
+                ])
+            ),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__STYLE_OPTIONS_INVALID',
+            'style[display]: invalid value',
         ];
 
         yield 'binding specification not found' => [

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -297,9 +298,14 @@ class YamlTypeLoaderTest extends TestCase
             new ElementTypeSourceDirectory('source', $this->tempDir, 'Sw'),
         ]);
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/types\[Sw:Invalid\]\.label/');
-        $loader->load();
+        try {
+            $loader->load();
+            static::fail('Expected the invalid type definition to abort the load.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::ELEMENT_TYPE_LOAD_FAILED, $exception->getErrorCode());
+            static::assertMatchesRegularExpression('/types\[Sw:Invalid\]\.label/', $exception->getMessage());
+        }
     }
 
     #[TestDox('batch validation reports violations from multiple invalid files')]

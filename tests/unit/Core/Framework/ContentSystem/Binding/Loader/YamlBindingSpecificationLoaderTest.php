@@ -252,7 +252,7 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('throws bindingSpecificationsInvalid, surfacing the violation path, when the validator reports a problem')]
+    #[TestDox('throws a binding load failure, surfacing the violation path, when the validator reports a problem')]
     public function testFailsValidationForMalformedSpecification(): void
     {
         // The implicit type is registered (stub) and the entry carries no sugared resolves, so canonicalization
@@ -261,17 +261,16 @@ class YamlBindingSpecificationLoaderTest extends TestCase
         file_put_contents($this->tempDir . '/media/image.yaml', "bindings:\n  broken:\n    label: x\n");
 
         // Stub the validator to report one violation: this tests the loader's throw-on-violations wiring
-        // (it surfaces the violation path via bindingSpecificationsInvalid). The real constraint that would
+        // (it surfaces the violation path via the load failure). The real constraint that would
         // produce such a violation is covered by the validator's own tests.
-        $failing = static::createStub(ValidatorInterface::class);
-        $failing->method('validate')->willReturn(new ConstraintViolationList([
+        $violations = new ConstraintViolationList([
             new ConstraintViolation('resolves entry "image" must declare a non-blank "loader"', null, [], null, 'bindings[broken].resolves[image].loader', null),
-        ]));
-
+        ]);
+        $failing = static::createStub(ValidatorInterface::class);
+        $failing->method('validate')->willReturn($violations);
         $loader = $this->createLoader([new ElementTypeSourceDirectory('core', $this->tempDir, 'Sw')], $failing);
 
-        $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/bindings\[broken\]\.resolves\[image\]\.loader/');
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadValidationFailed($violations));
 
         $loader->load();
     }

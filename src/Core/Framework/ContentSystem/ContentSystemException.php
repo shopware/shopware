@@ -102,8 +102,9 @@ class ContentSystemException extends HttpException
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
-     * diagnostics layer and the draft decode path map only these per element to a client-facing 400 and let
-     * every other code propagate, so an internal fault is never relabelled as the client's mistake.
+     * diagnostics layer, draft decode path, and DAL layout write map only these per element to a client-facing
+     * rejection and let every other code propagate, so an internal fault is never relabelled as the client's
+     * mistake.
      *
      * {@see INVALID_MAP_KEY} is one of them because a JSON object member named "5" arrives as an integer PHP
      * array key: a numeric property, data-requirement, slot or context key is a malformed payload the client
@@ -180,9 +181,9 @@ class ContentSystemException extends HttpException
      * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only
      * the last of them:
      *
-     * - the DAL write wraps every {@see ContentSystemException} into a `WriteConstraintViolationException`
-     *   ({@see StoredElementListFieldSerializer::normalize()}), and that is a 400 whatever the code says —
-     *   catalogue membership decides nothing here;
+     * - the DAL write wraps a catalogued exception into a `WriteConstraintViolationException`
+     *   ({@see StoredElementListFieldSerializer::normalize()}), and that is a 400; uncatalogued internal faults
+     *   propagate unchanged;
      * - the strict draft decode ({@see DraftLayoutDecoder::decode()}) re-raises a catalogued code as
      *   `invalidLayoutStructure`, a 400, and lets an uncatalogued one propagate;
      * - the lintable decode the diagnose route runs ({@see DraftLayoutDecoder::decodeLintable()}) collects a
@@ -635,16 +636,21 @@ class ContentSystemException extends HttpException
 
     public static function elementTypesInvalid(ConstraintViolationListInterface $violations): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ELEMENT_TYPES_INVALID,
             'Element type validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
+            ['reason' => self::violationMessages($violations)]
+        );
+    }
+
+    public static function elementTypeLoadValidationFailed(ConstraintViolationListInterface $violations): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::ELEMENT_TYPE_LOAD_FAILED,
+            'Failed to load element types: {{ reason }}',
+            ['reason' => self::violationMessages($violations)]
         );
     }
 
@@ -901,16 +907,21 @@ class ContentSystemException extends HttpException
 
     public static function styleOptionsInvalid(ConstraintViolationListInterface $violations): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STYLE_OPTIONS_INVALID,
             'Style option validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
+            ['reason' => self::violationMessages($violations)]
+        );
+    }
+
+    public static function styleOptionLoadValidationFailed(ConstraintViolationListInterface $violations): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::STYLE_OPTION_LOAD_FAILED,
+            'Failed to load style options: {{ reason }}',
+            ['reason' => self::violationMessages($violations)]
         );
     }
 
@@ -971,16 +982,21 @@ class ContentSystemException extends HttpException
 
     public static function bindingSpecificationsInvalid(ConstraintViolationListInterface $violations): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::BINDING_SPECIFICATIONS_INVALID,
             'Binding specification validation failed: {{ reason }}',
-            ['reason' => implode('; ', $messages)]
+            ['reason' => self::violationMessages($violations)]
+        );
+    }
+
+    public static function bindingSpecificationLoadValidationFailed(ConstraintViolationListInterface $violations): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::BINDING_SPECIFICATION_LOAD_FAILED,
+            'Failed to load binding specifications: {{ reason }}',
+            ['reason' => self::violationMessages($violations)]
         );
     }
 
@@ -1152,5 +1168,15 @@ class ContentSystemException extends HttpException
         );
 
         return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
+    }
+
+    private static function violationMessages(ConstraintViolationListInterface $violations): string
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return implode('; ', $messages);
     }
 }

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameReso
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -164,7 +165,7 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
         ];
     }
 
-    #[TestDox('surfaces the produced-type mismatch through the YAML load path as a bindingSpecificationsInvalid exception')]
+    #[TestDox('surfaces the produced-type mismatch through the YAML load path as a server-side load failure')]
     public function testLoadPathThrowsForProducedTypeMismatch(): void
     {
         $directory = sys_get_temp_dir() . '/' . uniqid('content-system-binding-spec-test-', true);
@@ -199,7 +200,8 @@ class TypeConsistentBindingSpecificationValidationTest extends TestCase
                 $loader->loadDtosFromTypeDirectory($directory, 'test', 'Sw');
                 static::fail('Expected the loader to reject the produced-type mismatch.');
             } catch (ContentSystemException $exception) {
-                static::assertSame(ContentSystemException::BINDING_SPECIFICATIONS_INVALID, $exception->getErrorCode());
+                static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+                static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $exception->getErrorCode());
                 static::assertStringContainsString('resolves[media]', $exception->getMessage());
             }
         } finally {

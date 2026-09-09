@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Store API requests resolve their context token from the storefront session when the caller opts
@@ -324,19 +325,37 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->resolve($request);
     }
 
-    public function testSharedCacheableRoutesRejectTheDeclaredSessionSource(): void
+    public function testSharedCacheableRoutesResolveFromTheSessionButAreNeverStored(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        $request->attributes->set('_route', 'store-api.product.search');
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
-        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
-            'the route is shared-cacheable and must stay independent of the session cookie'
-        ));
-
         $this->resolve($request);
+
+        static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($sessionToken, $this->resolvedContext($request)->getToken());
+        static::assertTrue($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+
+        // the full kernel.response chain, so CacheResponseSubscriber runs before the no-store enforcement
+        $response = new Response();
+        static::getContainer()->get('event_dispatcher')->dispatch(
+            new ResponseEvent(
+                static::getContainer()->get('kernel'),
+                $request,
+                HttpKernelInterface::MAIN_REQUEST,
+                $response
+            ),
+            KernelEvents::RESPONSE
+        );
+
+        static::assertTrue($response->headers->hasCacheControlDirective('no-store'), (string) $response->headers->get('cache-control'));
+        static::assertTrue($response->headers->hasCacheControlDirective('private'), (string) $response->headers->get('cache-control'));
+        static::assertFalse($response->headers->hasCacheControlDirective('public'), (string) $response->headers->get('cache-control'));
+        static::assertFalse($response->headers->hasCacheControlDirective('s-maxage'), (string) $response->headers->get('cache-control'));
     }
 
     public function testATokenHeaderWithoutTheSessionSourceLeavesTheSessionAlone(): void

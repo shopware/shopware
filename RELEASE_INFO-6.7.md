@@ -265,7 +265,9 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session. A same-origin client rendered on a storefront page therefore shares the shopper's cart and login without handling a token; login, registration, logout and password changes made through such requests are written back into the session.
 
-The header is a contract: the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) when the session cannot be used, for example without a session cookie, on a cross-site fetch, on a cacheable (`_httpCache`) route, when `sw-context-token` is sent alongside, or when the session holds no token. Requests without the header behave as before. The container parameter `shopware.routing.session_context_token.enabled` disables the behaviour.
+The header is a contract: the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) when the session cannot be used, for example without a session cookie, on a cross-site fetch, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header behave as before. The container parameter `shopware.routing.session_context_token.enabled` disables the behaviour.
+
+Session-resolved responses are always `private, no-store`, so they are never stored by a shared cache, including on routes that are otherwise cacheable.
 
 ## Administration
 

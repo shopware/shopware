@@ -72,16 +72,13 @@ class SessionContextTokenAccessor
 
     /**
      * Why a borrower may not use the session, null when it may. A session is only ever resumed, never
-     * created, and shared-cacheable routes stay out because the store-api cache ignores cookies.
+     * created. Shared-cacheable routes are allowed: the response is forced no-store, and the cache
+     * key already carries the context through `sw-cache-hash`.
      */
     public function ineligibilityReason(Request $request): ?string
     {
         if (!$this->enabled) {
             return 'session context resolution is disabled (see shopware.routing.session_context_token.enabled)';
-        }
-
-        if ($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_HTTP_CACHE)) {
-            return 'the route is shared-cacheable and must stay independent of the session cookie';
         }
 
         if ($request->cookies->get($this->sessionName) === null) {

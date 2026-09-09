@@ -3,13 +3,22 @@
 namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService;
+use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicyProviderFactory;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
@@ -18,6 +27,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -337,6 +347,73 @@ class SessionContextTokenSubscriberTest extends TestCase
         $this->subscriber([$request])->enforceCacheControl($this->responseEvent($request, $response));
 
         static::assertTrue($response->headers->hasCacheControlDirective('public'));
+    }
+
+    /**
+     * The test environment ships `shopware.http.cache.enabled = 0`, so an integration test can never
+     * show what happens on a route the cache would really store. This wires a cache-enabled
+     * CacheResponseSubscriber next to ours, in the priority order the kernel uses, and drives a
+     * genuinely cacheable Store API route both ways.
+     */
+    #[DataProvider('sessionInvolvementProvider')]
+    public function testSessionResolvedResponsesOverrideAnEnabledStoreApiCachePolicy(bool $fromSession, string $expected): void
+    {
+        $eventDispatcher = new EventDispatcher();
+
+        $cacheHashEvent = static::createStub(HttpCacheCookieEvent::class);
+        $cacheHashEvent->method('getHash')->willReturn('a-context-hash');
+        $cacheHashEvent->method('shouldResponseBeCached')->willReturn(true);
+
+        $cacheHeadersService = static::createStub(CacheHeadersService::class);
+        $cacheHeadersService->method('applyCacheHash')->willReturn($cacheHashEvent);
+
+        $cacheSubscriber = new CacheResponseSubscriber(
+            static::createStub(CartService::class),
+            100,
+            true,
+            new MaintenanceModeResolver($eventDispatcher),
+            null,
+            null,
+            $cacheHeadersService,
+            CachePolicyProviderFactory::create(
+                [
+                    'cacheable' => ['headers' => ['cache_control' => ['public' => true, 's_maxage' => 100]]],
+                    'uncacheable' => ['headers' => ['cache_control' => ['private' => true, 'no_store' => true]]],
+                ],
+                [],
+                ['store_api' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
+            ),
+        );
+
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext(),
+            SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION => $fromSession,
+        ]);
+        // matching the expected hash is what makes the route cacheable at all: on a mismatch
+        // CacheResponseSubscriber bypasses the cache by itself
+        $request->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a-context-hash');
+        $event = $this->responseEvent($request, new Response());
+
+        // Store API caching only exists behind CACHE_REWORK, so without it every route is uncacheable
+        Feature::fake(['CACHE_REWORK'], function () use ($cacheSubscriber, $event, $request): void {
+            // kernel.response order: CacheResponseSubscriber at -1500, ours at -1600
+            $cacheSubscriber->setResponseCache($event);
+            $this->subscriber([$request])->enforceCacheControl($event);
+        });
+
+        static::assertSame($expected, $event->getResponse()->headers->get('cache-control'));
+    }
+
+    /**
+     * @return iterable<string, array{0: bool, 1: string}>
+     */
+    public static function sessionInvolvementProvider(): iterable
+    {
+        // the control: the route really is stored by a shared cache when no session is involved
+        yield 'token based request keeps the cacheable policy' => [false, 'public, s-maxage=100'];
+        yield 'session resolved request is never stored' => [true, 'max-age=0, must-revalidate, no-cache, no-store, private'];
     }
 
     /**

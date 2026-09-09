@@ -67,8 +67,11 @@ the Administration boot process. Early module initialization must continue to us
 
 The global object must also exist before a `shopware:*` module evaluates. `src/index.ts` creates it
 before it imports `src/app/main`, so application and extension code can use these modules. Bootstrap code
-must keep its existing access paths and defer global access until the object exists. This includes
-`src/core/**` and eager `import.meta.glob` targets reached by static imports from `src/index.ts`.
+must keep its existing access paths and defer global access until the object exists. This includes eager
+`import.meta.glob` targets reached by static imports from `src/index.ts`.
+
+All of `src/core` stays on the global regardless of boot order. It is the Vue-independent framework code,
+and part of it is bundled into the admin worker, where no `window.Shopware` exists.
 
 The checked-in registry only contains Administration registrations. An extension cannot import a store
 or mixin that the extension registers at runtime. Use the extension's own composable,

@@ -2,6 +2,7 @@ import template from './sw-cms-reset-inheritance.html.twig';
 import './sw-cms-reset-inheritance.scss';
 import { types } from 'shopware:utils';
 import { merge, set } from 'shopware:utils/object';
+import cmsStateMixin from 'shopware:mixins/cms-state';
 
 /**
  * @private
@@ -9,7 +10,9 @@ import { merge, set } from 'shopware:utils/object';
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-    mixins: [Shopware.Mixin.getByName('cms-state')],
+    mixins: [
+        cmsStateMixin,
+    ],
     data() {
         return {
             showModal: false,

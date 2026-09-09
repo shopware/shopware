@@ -5,6 +5,7 @@
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -19,7 +20,9 @@ export default {
         'loginService',
     ],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data() {
         return {

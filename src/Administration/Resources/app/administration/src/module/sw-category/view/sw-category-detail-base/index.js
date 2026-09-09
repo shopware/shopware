@@ -1,5 +1,6 @@
 import template from './sw-category-detail-base.html.twig';
 import './sw-category-detail-base.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -12,7 +13,9 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Shopware.Mixin.getByName('placeholder')],
+    mixins: [
+        placeholderMixin,
+    ],
 
     props: {
         isLoading: {

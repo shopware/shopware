@@ -6,6 +6,7 @@ import type { Theme } from '@shopware-ag/meteor-component-library';
 import useTheme from 'src/app/composables/use-theme';
 import template from './sw-ui-shell-update-2026-modal.html.twig';
 import './sw-ui-shell-update-2026-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 type UiShellUpdate2026Page = {
     id: string;
@@ -64,7 +65,9 @@ export default Shopware.Component.wrapComponentConfig({
         MtModalRoot,
     },
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data(): {
         isOpen: boolean;

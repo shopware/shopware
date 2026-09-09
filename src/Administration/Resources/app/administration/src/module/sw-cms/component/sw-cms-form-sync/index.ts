@@ -2,6 +2,8 @@ import type { PropType } from 'vue';
 import type { RuntimeSlot } from '../../service/cms.service';
 import { get, getObjectDiff, set } from 'shopware:utils/object';
 import { isEmpty } from 'shopware:utils/types';
+import cmsElementMixin from 'shopware:mixins/cms-element';
+import cmsStateMixin from 'shopware:mixins/cms-state';
 
 type FieldConfig = {
     value: unknown;
@@ -20,7 +22,10 @@ type FieldConfig = {
 export default Shopware.Component.wrapComponentConfig({
     template: '<slot />',
     inject: ['cmsService'],
-    mixins: [Shopware.Mixin.getByName('cms-state'), Shopware.Mixin.getByName('cms-element')],
+    mixins: [
+        cmsStateMixin,
+        cmsElementMixin,
+    ],
     props: {
         element: {
             type: Object as PropType<RuntimeSlot>,

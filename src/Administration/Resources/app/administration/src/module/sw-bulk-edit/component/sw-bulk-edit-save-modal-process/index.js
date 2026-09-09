@@ -5,6 +5,7 @@ import Criteria from 'src/core/data/criteria.data';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
 import { chunk as chunkArray } from 'shopware:utils/array';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -21,7 +22,9 @@ export default {
         },
     },
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     emits: [
         'changes-apply',

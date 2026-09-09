@@ -146,25 +146,6 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.find('.sw-cms-el-config-text__tab-settings').exists()).toBe(true);
     });
 
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy CMS text editor.
-    it.deprecated('v6.8.0.0')('should emits element-update when trigger @input event', async () => {
-        const wrapper = await createWrapper();
-
-        const updatedContent = 'Updated content';
-
-        const input = wrapper.find('input[type="text"]');
-        await input.setValue(updatedContent);
-
-        expect(input.element.value).toBe(updatedContent);
-
-        await input.trigger('input');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
-        expect(wrapper.emitted('element-update')).toBeTruthy();
-        expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
-    });
-
     it.activeFeatureFlags([
         'v6.8.0.0',
         'METEOR_TEXT_EDITOR',
@@ -210,25 +191,6 @@ describe('src/module/sw-cms/elements/text/config', () => {
             expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
         },
     );
-
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-text-editor blur integration.
-    it.deprecated('v6.8.0.0')('should emits element-update when trigger @blur event', async () => {
-        const wrapper = await createWrapper();
-
-        const updatedContent = 'Updated content';
-
-        const input = wrapper.find('input[type="text"]');
-        await input.setValue(updatedContent);
-
-        expect(input.element.value).toBe(updatedContent);
-
-        await input.trigger('blur');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
-        expect(wrapper.emitted('element-update')).toBeTruthy();
-        expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
-    });
 
     // Covers the default major-suite combination (v6.8 tabs + legacy editor, METEOR_TEXT_EDITOR off).
     // Remove with sw-text-editor.

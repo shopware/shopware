@@ -88,23 +88,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')('should not render tabs in card section', async () => {
-        Shopware.Store.get('extensionComponentSections').addSection({
-            component: 'card',
-            positionId: 'test-position',
-            props: {
-                title: 'test-card',
-                subtitle: 'test-card-description',
-            },
-        });
-
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
-    });
-
     it.activeFeatureFlags(['v6.8.0.0'])('should not render tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',

@@ -394,6 +394,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         await flushPromises();
 
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
         expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
     });
 
@@ -424,7 +425,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
-                    value: true,
+                    value: false,
                 },
             },
         });
@@ -432,7 +433,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
+        expect(wrapper.vm.hideSettingRenameBanner).toBe(false);
 
         await wrapper.vm.onCloseSettingRenameBanner();
 
@@ -445,7 +446,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the settings rename notice.
-    it.deprecated('v6.8.0.0')('provides the change notices with the version they can be removed with', async () => {
+    it('provides the change notices with the version they can be removed with', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.changeNotices).toEqual([

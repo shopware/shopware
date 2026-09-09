@@ -134,6 +134,26 @@ class CacheHeadersService
             return true;
         }
 
+        // Visitor can patch context with values that change the response for the cacheable routes
+        // (tax state, country, payment method, shipping method conditioned rules)
+        if ($salesChannelContext->getShippingLocation()->getCountry()->getId()
+            !== $salesChannelContext->getSalesChannel()->getCountryId()
+        ) {
+            return true;
+        }
+
+        if ($salesChannelContext->getPaymentMethod()->getId()
+            !== $salesChannelContext->getSalesChannel()->getPaymentMethodId()
+        ) {
+            return true;
+        }
+
+        if ($salesChannelContext->getShippingMethod()->getId()
+            !== $salesChannelContext->getSalesChannel()->getShippingMethodId()
+        ) {
+            return true;
+        }
+
         // Storefront language is already encoded in the resolved domain URL, while Store API can serve different
         // languages for the same URL through a language persisted via the context switch route or
         // dynamically defined in the sw-language-id header. The header language override is part of the cache key/vary header,

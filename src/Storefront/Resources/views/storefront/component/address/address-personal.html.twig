@@ -149,20 +149,41 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
-        {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+        {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
 
-        {% set companyOnlyForm = onlyCompanyRegistration or hasSelectedBusiness %}
+        {# Mirrors CompanyAccountNameFields::areVisible() and areRequired(), including what an unsaved
+           value means: the two settings default to on, while showAccountTypeSelection has no default
+           value of its own and therefore counts as off. Both sides have to agree, or the form hides a
+           field the backend still demands. #}
+        {% set accountTypeSelectable = config('core.loginRegistration.showAccountTypeSelection') %}
+        {% set companyNameFieldsShown = not accountTypeSelectable
+            or (config('core.loginRegistration.showNameFieldsForCompanyAccounts') ?? true) %}
+        {% set companyNameFieldsRequired = not accountTypeSelectable
+            or (companyNameFieldsShown and (config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') ?? true)) %}
+
+        {# Without the selector the form cannot switch type, so it is fixed to whatever the customer
+           already is. Treating that as private would keep the names required while the backend has
+           already accepted them empty. #}
+        {% set customerIsCompany = accountType|default('') == businessType
+            or (context.customer is defined and context.customer and context.customer.accountType == businessType) %}
+
+        {% set companyOnlyForm = onlyCompanyRegistration|default(false)
+            or hasSelectedBusiness|default(false)
+            or (not accountTypeSelectable and customerIsCompany) %}
+
         {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
         {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
 
         {# Only the top level account type decides whether the backend relaxes the names, on every route that can
            do so, so only the fields next to that selection may follow it. An address block carries its own
            account type but is judged by the customer or by the top level one, so it keeps the names required. #}
-        {% set accountTypeSwitchable = not prefix
-            and config('core.loginRegistration.showAccountTypeSelection')
-            and not hideCustomerTypeSelect
-            and not hasSelectedBusiness
+        {# The standalone address form uses the 'address' prefix but its controller unwraps that bag, so
+           its selector is the value the route reads. The nested registration addresses are the ones
+           that must keep their names required. #}
+        {% set accountTypeSwitchable = prefix|default('') in ['', 'address']
+            and accountTypeSelectable
+            and not hideCustomerTypeSelect|default(false)
+            and not hasSelectedBusiness|default(false)
             and not onlyCompanyRegistration %}
 
         <div class="row g-2"{% if accountTypeSwitchable %} data-company-name-fields="true" data-company-name-fields-options="{{ {

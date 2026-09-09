@@ -14,7 +14,10 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [
+        'feature',
+        'systemConfigApiService',
+    ],
 
     emits: ['sales-channel-change'],
 
@@ -23,6 +26,18 @@ export default {
             type: Object,
             required: true,
         },
+    },
+
+    data() {
+        return {
+            // Required until the settings resolve, so a slow request leaves the form strict rather
+            // than claiming a field is optional that the routes still reject.
+            companyNamesRequired: true,
+        };
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     computed: {
@@ -57,6 +72,10 @@ export default {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
 
+        contactPersonRequired() {
+            return !this.isBusinessAccountType || this.companyNamesRequired;
+        },
+
         languageCriteria() {
             const criteria = new Criteria(1, 25);
 
@@ -77,6 +96,18 @@ export default {
     },
 
     methods: {
+        async createdComponent() {
+            // An Administration write carries no sales channel, so the routes read the global values
+            // too. A hidden name field is never required, hence both flags have to be on.
+            const values = await this.systemConfigApiService.getValues('core.loginRegistration', null);
+
+            const selectable = Boolean(values?.['core.loginRegistration.showAccountTypeSelection']);
+            const shown = values?.['core.loginRegistration.showNameFieldsForCompanyAccounts'] ?? true;
+            const required = values?.['core.loginRegistration.nameFieldsRequiredForCompanyAccounts'] ?? true;
+
+            this.companyNamesRequired = !selectable || (Boolean(shown) && Boolean(required));
+        },
+
         onSalesChannelChange(salesChannelId) {
             this.$emit('sales-channel-change', salesChannelId);
         },

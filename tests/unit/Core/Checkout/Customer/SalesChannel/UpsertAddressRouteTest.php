@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Framework\Context;
@@ -29,6 +30,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -40,6 +42,85 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(UpsertAddressRoute::class)]
 class UpsertAddressRouteTest extends TestCase
 {
+    public function testItKeepsAStoredNameTheFormDidNotSubmit(): void
+    {
+        $stored = new CustomerAddressEntity();
+        $stored->setId('address-1');
+        $stored->setFirstName('Ada');
+        $stored->setLastName('Lovelace');
+
+        $written = null;
+        $addressRepository = $this->createMock(EntityRepository::class);
+        // the route checks ownership through searchIds before it touches the payload
+        $addressRepository->method('searchIds')->willReturn(
+            new IdSearchResult(1, [['primaryKey' => 'address-1', 'data' => []]], new Criteria(), Context::createDefaultContext())
+        );
+        $addressRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                CustomerAddressDefinition::ENTITY_NAME,
+                1,
+                new CustomerAddressCollection([$stored]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+        $addressRepository
+            ->expects($this->once())
+            ->method('upsert')
+            ->willReturnCallback(static function (array $data) use (&$written) {
+                $written = $data[0];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $this->upsertWithOptionalNames($addressRepository, 'address-1', ['street' => 'New Street 1']);
+
+        static::assertIsArray($written);
+        static::assertSame('Ada', $written['firstName'], 'an unrelated edit must not erase the contact person');
+        static::assertSame('Lovelace', $written['lastName']);
+    }
+
+    public function testItFillsAnEmptyNameOnCreate(): void
+    {
+        $written = null;
+        $addressRepository = $this->createMock(EntityRepository::class);
+        $addressRepository
+            ->expects($this->once())
+            ->method('upsert')
+            ->willReturnCallback(static function (array $data) use (&$written) {
+                $written = $data[0];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $this->upsertWithOptionalNames($addressRepository, null, ['street' => 'New Street 1']);
+
+        static::assertIsArray($written);
+        static::assertSame('', $written['firstName']);
+        static::assertSame('', $written['lastName']);
+    }
+
+    public function testAnUnknownAccountTypeKeepsTheNamesRequired(): void
+    {
+        $written = null;
+        $addressRepository = $this->createMock(EntityRepository::class);
+        $addressRepository
+            ->expects($this->once())
+            ->method('upsert')
+            ->willReturnCallback(static function (array $data) use (&$written) {
+                $written = $data[0];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        // Core reads anything but business as the private branch, so an unknown value must not relax
+        $this->upsertWithOptionalNames($addressRepository, null, ['accountType' => 'something-else']);
+
+        static::assertIsArray($written);
+        static::assertNull($written['firstName'], 'nothing may be normalized for a private request');
+    }
+
     public function testCustomFields(): void
     {
         $systemConfigService = static::createStub(SystemConfigService::class);
@@ -260,5 +341,48 @@ class UpsertAddressRouteTest extends TestCase
         ]);
 
         $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
+    }
+
+    /**
+     * @param EntityRepository<CustomerAddressCollection> $addressRepository
+     * @param array<string, mixed> $payload
+     */
+    private function upsertWithOptionalNames(EntityRepository $addressRepository, ?string $addressId, array $payload): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => true,
+                CompanyAccountNameFields::CONFIG_SHOW => true,
+                CompanyAccountNameFields::CONFIG_REQUIRED => false,
+            ],
+        ]);
+
+        $result = static::createStub(EntitySearchResult::class);
+        $address = new CustomerAddressEntity();
+        $address->setId($addressId ?? Uuid::randomHex());
+        $result->method('getEntities')->willReturn(new CustomerAddressCollection([$address]));
+
+        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
+        $salesChannelAddressRepository->method('search')->willReturn($result);
+
+        $upsert = new UpsertAddressRoute(
+            $addressRepository,
+            $salesChannelAddressRepository,
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            new StoreApiCustomFieldMapper(static::createStub(Connection::class), []),
+            static::createStub(EntityRepository::class),
+        );
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer1');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        $upsert->upsert($addressId, new RequestDataBag($payload), $salesChannelContext, $customer);
     }
 }

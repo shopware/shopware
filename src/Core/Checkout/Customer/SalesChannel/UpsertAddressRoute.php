@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -107,11 +108,14 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $accountType = null;
         }
 
+        // Anything the request names other than business counts as private, because that is how the
+        // branch below reads it and there is no Choice constraint to keep an unknown value out.
         $namesAreOptional = $customer->isBusinessAccount()
-            && $accountType !== CustomerEntity::ACCOUNT_TYPE_PRIVATE
+            && ($accountType === null || $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS)
             && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
 
         if ($namesAreOptional) {
+            $this->keepStoredNames($addressId, $data, $context);
             CompanyAccountNameFields::normalize($data);
         }
 
@@ -160,6 +164,35 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         \assert($address !== null);
 
         return new UpsertAddressRouteResponse($address);
+    }
+
+    /**
+     * The address data below takes both names from the request every time. A form that hides them
+     * submits neither, so an edit of the street alone would replace a stored contact person with an
+     * empty string. Reading the stored values back first keeps that edit harmless.
+     */
+    private function keepStoredNames(?string $addressId, DataBag $data, SalesChannelContext $context): void
+    {
+        if ($addressId === null || ($data->has('firstName') && $data->has('lastName'))) {
+            return;
+        }
+
+        $address = $this->addressRepository
+            ->search(new Criteria([$addressId]), $context->getContext())
+            ->getEntities()
+            ->first();
+
+        if (!$address instanceof CustomerAddressEntity) {
+            return;
+        }
+
+        if (!$data->has('firstName')) {
+            $data->set('firstName', $address->getFirstName());
+        }
+
+        if (!$data->has('lastName')) {
+            $data->set('lastName', $address->getLastName());
+        }
     }
 
     private function getValidationDefinition(

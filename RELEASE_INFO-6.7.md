@@ -2,6 +2,21 @@
 
 ## Features
 
+### Authorization code grant with PKCE for the Admin API
+
+Public OAuth clients, for example `shopware-cli`, can now obtain user-bound Admin API tokens through the browser. The client opens `GET /api/oauth/authorize` with `response_type=code`, a registered `redirect_uri`, an `S256` PKCE challenge and the client id. The user logs in to the Administration, approves the request on a consent page and is redirected back with an authorization code, which the client exchanges at `POST /api/oauth/token` with `grant_type=authorization_code` and the `code_verifier`. The tokens carry the permissions of the approving user and can be refreshed with `grant_type=refresh_token`.
+
+Shopware ships the `shopware-cli` client with loopback redirect URIs. Operators register further public clients under `shopware.api.oauth_clients`:
+
+```yaml
+shopware:
+    api:
+        oauth_clients:
+            my-tool:
+                name: 'My Tool'
+                redirect_uris: ['http://127.0.0.1/callback']
+```
+
 ### Document generation v2 (experimental)
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.

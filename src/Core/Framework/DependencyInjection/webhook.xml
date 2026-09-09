@@ -37,6 +37,17 @@
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry">
+            <argument type="tagged_iterator" tag="shopware.webhook.policy"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
+            <tag name="shopware.webhook.policy"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">

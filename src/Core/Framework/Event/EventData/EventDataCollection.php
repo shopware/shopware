@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class EventDataCollection
 {
+    public const HIDDEN_FROM_WEBHOOK = 'hiddenFromWebhook';
+
     /**
      * @var array<string, array<string, mixed>>
      */
@@ -14,7 +16,10 @@ class EventDataCollection
 
     public function add(string $name, EventDataType $type): self
     {
-        $this->data[$name] = $type->toArray();
+        /** @var array<string, mixed> $options */
+        $options = \func_get_args()[2] ?? [];
+
+        $this->data[$name] = [...$type->toArray(), ...$options];
 
         return $this;
     }

@@ -35,4 +35,24 @@ class EventDataCollectionTest extends TestCase
 
         static::assertEquals($expected, $collection->toArray());
     }
+
+    public function testOptionsAreMergedIntoTheDeclaredType(): void
+    {
+        $collection = (new EventDataCollection())
+            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true])
+            ->add('customer', new EntityType(CustomerDefinition::class), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
+
+        static::assertSame([
+            'contextToken' => [
+                'type' => 'string',
+                'hiddenFromWebhook' => true,
+            ],
+            'customer' => [
+                'type' => 'entity',
+                'entityClass' => CustomerDefinition::class,
+                'entityName' => 'customer',
+                'hiddenFromWebhook' => true,
+            ],
+        ], $collection->toArray());
+    }
 }

@@ -140,9 +140,9 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         let originalResult = '';
 
         _overridesMap['sw-shim-methods'] = [
-            (previousState: PreviousState) => {
-                // Methods arrive raw, not as a ref - the same shape createExtendableSetup() hands out.
-                const original = previousState.greet as unknown as () => string;
+            // Methods arrive raw, not as a ref - the same shape createExtendableSetup() hands out.
+            (previousState: { greet: () => string }) => {
+                const original = previousState.greet;
                 originalResult = original();
 
                 return { greet: () => `${original()} + override` };
@@ -274,13 +274,13 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
     it('chains a method replaced by an earlier override into a later one', async () => {
         _overridesMap['sw-shim-method-chain'] = [
-            (previousState: PreviousState) => {
-                const original = previousState.greet as unknown as () => string;
+            (previousState: { greet: () => string }) => {
+                const original = previousState.greet;
 
                 return { greet: () => `${original()} + first` };
             },
-            (previousState: PreviousState) => {
-                const previous = previousState.greet as unknown as () => string;
+            (previousState: { greet: () => string }) => {
+                const previous = previousState.greet;
 
                 return { greet: () => `${previous()} + second` };
             },

@@ -25,6 +25,8 @@ type Ctx = {
     renamedBindings: Map<string, string>;
     /** Identifiers the converted template reads, so members only it uses still get a binding. */
     templateIdentifiers: ReadonlySet<string>;
+    /** Camelized component tags the converted template renders; a binding of that name shadows one. */
+    templateComponentTags: ReadonlySet<string>;
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
     inferredEmits: string[];

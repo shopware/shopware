@@ -392,14 +392,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ContextTokenResponse"
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
@@ -1082,7 +1075,16 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests."
+                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains the new sw-context-token value.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/401",
@@ -1254,6 +1256,14 @@
                 "responses": {
                     "200": {
                         "description": "Success",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains the new sw-context-token value.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {

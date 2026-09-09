@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template TEntityCollection of EntityCollection
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent

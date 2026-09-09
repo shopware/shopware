@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
+use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -43,6 +46,24 @@ class ElasticsearchIndexerTest extends TestCase
 
         $afterResult = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
         static::assertSame([], $afterResult);
+    }
+
+    public function testCreateIndicesCreatesAliasWithoutIndexTask(): void
+    {
+        $c = static::getContainer()->get(Connection::class);
+        $client = static::getContainer()->get(Client::class);
+        $helper = static::getContainer()->get(ElasticsearchHelper::class);
+        $definition = static::getContainer()->get(ProductDefinition::class);
+
+        $alias = $helper->getIndexName($definition);
+        static::assertFalse($client->indices()->existsAlias(['name' => $alias]));
+
+        $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
+        static::assertNotNull($indexer);
+        $indexer->createIndices();
+
+        static::assertTrue($client->indices()->existsAlias(['name' => $alias]));
+        static::assertSame([], $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
     }
 
     public function testSecondIndexingCreatesTask(): void

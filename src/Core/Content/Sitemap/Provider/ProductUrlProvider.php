@@ -188,11 +188,7 @@ class ProductUrlProvider extends AbstractUrlProvider
                 return false;
             }
 
-            if ($excludedUrl['salesChannelId'] !== $salesChannelId) {
-                return false;
-            }
-
-            return true;
+            return $excludedUrl['salesChannelId'] === $salesChannelId;
         });
 
         return array_column($excludedUrls, 'identifier');

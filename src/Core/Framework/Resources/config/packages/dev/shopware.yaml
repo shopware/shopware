@@ -12,6 +12,9 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: false
 
+    app_system:
+        enable_url_validation: false
+
     profiler:
         integrations: ['Symfony']
 

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ScheduledTaskEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ScheduledTaskCollection extends EntityCollection

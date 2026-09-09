@@ -36,7 +36,7 @@ Module.register('sw-theme-manager', {
     targetVersion: '1.0.0',
     color: '#ff68b4',
     icon: 'regular-content',
-    favicon: 'icon-module-content.png',
+    favicon: 'icon-module-content.svg',
     entity: 'theme',
 
     routes: {

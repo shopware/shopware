@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { MULTI_ROOT } from './assert-single-root';
 import { convertComponent } from './convert-component';
 import { OPTION_HANDLERS } from './option-handlers';
 import { convertFixture, fixtureNames, templateImportRange } from './spec-helpers';
@@ -114,13 +115,84 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual(["name 'sw-totally-different' does not match the directory name"]);
         });
 
+        // Two top-level blocks around the two halves of one chain: the chain is reconnected, but the
+        // component now renders two blocks where it rendered one branch, hence the partial.
         it('reconnects a v-if/v-else chain that the block conversion split into siblings', async () => {
             const result = await convertFixture('sw-cross-velse');
 
-            expect(result.outcome).toBe('full');
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toEqual([MULTI_ROOT]);
             expect(result.sfc).toContain(
                 '<template v-if="active"><!-- Keeps the conditional chain connected across sw-block. --></template>',
             );
+        });
+
+        it('leaves a template that was multi-root before the conversion alone', async () => {
+            const result = await convertFixture('sw-already-multi-root');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+        });
+
+        it('refuses a binding named after a component tag the template renders', async () => {
+            const result = await convertFixture('sw-tag-collision');
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toEqual(["binding 'routerLink' shadows a component tag the template renders"]);
+        });
+
+        it('refuses a module binding that shadows the sw-block emitted by the template transform', async () => {
+            const jsSource = `
+                import template from './sw-module-collision.html.twig';
+                const swBlock = false;
+                export default { name: 'sw-module-collision', template };
+            `;
+            const result = await convertComponent({
+                jsSource,
+                twigSource: '{% block sw_module_collision %}<div />{% endblock %}',
+                componentName: 'sw-module-collision',
+                vuePath: '/tmp/sw-module-collision.vue',
+                lang: 'js',
+                templateImportRange: templateImportRange(jsSource),
+            });
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toEqual([
+                "validation: binding 'swBlock' shadows a component tag the template renders",
+            ]);
+        });
+
+        // A ref is nearly always named after the component it points at, and the `ref` attribute in
+        // the template names it too, so it cannot be renamed around the collision either.
+        it('refuses a template ref named after a component tag the template renders', async () => {
+            const result = await convertFixture('sw-ref-tag-collision');
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toEqual([
+                "template ref 'swSelectResultList' shadows a component tag the template renders",
+            ]);
+        });
+
+        // A Twig comment renders nothing; keeping it outside <template> preserves the note without
+        // turning it into a second root node in development.
+        it('moves a root Twig comment outside the generated template', async () => {
+            const rootComment = '<!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->';
+            const result = await convertFixture('sw-root-comment');
+
+            expect(result.outcome).toBe('full');
+            expect(result.sfc?.startsWith(`${rootComment}\n<template>`)).toBe(true);
+            expect(result.sfc).not.toContain(`<template>\n    ${rootComment}`);
+        });
+
+        it.each([
+            '<div>content</div>',
+            '<some-component />',
+        ])('keeps a non-block root single-rooted when preceded by a Twig comment: %s', (root) => {
+            const result = transformTemplate(`{# note #}\n${root}`);
+
+            expect(result.template?.trim()).toBe(root);
+            expect(result.sfcComments).toEqual(['<!-- note -->']);
+            expect(result.warnings).toEqual([]);
         });
 
         // Every authoring form has to be refused: the leftover-twig check only looks for `{%`/`{#`,

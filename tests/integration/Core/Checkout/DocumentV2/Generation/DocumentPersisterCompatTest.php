@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,8 +33,6 @@ class DocumentPersisterCompatTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('DOCUMENT_GENERATION_REWORK', $this);
-
         $this->context = Context::createDefaultContext();
 
         $shippingAddressId = Uuid::randomHex();
@@ -89,6 +86,34 @@ class DocumentPersisterCompatTest extends TestCase
         static::assertArrayHasKey(DocumentFormat::PDF->value, $mediaByFormat);
         static::assertArrayHasKey(DocumentFormat::HTML->value, $mediaByFormat);
 
+        static::assertSame($mediaByFormat[DocumentFormat::PDF->value], $document->getDocumentMediaFileId());
+        static::assertSame($mediaByFormat[DocumentFormat::HTML->value], $document->getDocumentA11yMediaFileId());
+    }
+
+    public function testPdfOnlyGenerationPersistsAccessibleHtmlFileAndFillsA11ySlot(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19]));
+        $this->enrichOrderForRendering($orderId);
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+        $document = $this->documentGenerator->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                '1002',
+                documentDate: self::DOCUMENT_DATE,
+            ),
+            $this->context,
+        );
+
+        $mediaByFormat = [];
+
+        foreach ($document->getDocumentFiles() ?? [] as $file) {
+            $mediaByFormat[$file->getDocumentFormat()] = $file->getMediaId();
+        }
+
+        static::assertArrayHasKey(DocumentFormat::HTML->value, $mediaByFormat);
         static::assertSame($mediaByFormat[DocumentFormat::PDF->value], $document->getDocumentMediaFileId());
         static::assertSame($mediaByFormat[DocumentFormat::HTML->value], $document->getDocumentA11yMediaFileId());
     }

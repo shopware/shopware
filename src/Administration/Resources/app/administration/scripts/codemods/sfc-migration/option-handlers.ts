@@ -880,6 +880,8 @@ function resolveMixins(
     const claimed = new Set<string>([
         ...preludeBindings,
         ...GENERATED_HELPER_NAMES,
+        // A binding named after a component tag would be resolved instead of the component.
+        ...ctx.templateComponentTags,
     ]);
     const resolved: ResolvedComposable[] = [];
 

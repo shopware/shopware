@@ -22,7 +22,7 @@ class WebhookApiTest extends TestCase
             [
                 'name' => 'My super webhook',
                 'eventName' => 'product.written',
-                'url' => 'http://localhost',
+                'url' => 'http://127.0.0.1',
             ]
         );
 

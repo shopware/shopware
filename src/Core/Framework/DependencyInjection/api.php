@@ -467,6 +467,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('user_access_key.repository'),
             service(UserDefinition::class),
             service(SsoService::class),
+            service(Connection::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -474,6 +475,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('integration.repository'),
+            service(Connection::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

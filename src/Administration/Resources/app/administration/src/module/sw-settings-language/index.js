@@ -19,7 +19,7 @@ Module.register('sw-settings-language', {
     description: 'Language section in the settings module',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'language',
 
     routes: {

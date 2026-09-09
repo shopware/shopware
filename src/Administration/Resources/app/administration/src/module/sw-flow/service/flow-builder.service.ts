@@ -58,12 +58,12 @@ type ActionSequence = Entity<'flow_sequence'> & {
         entity?: string;
         active?: boolean;
         order?: string;
-        mailTemplateId?: string;
+        mailTemplateId?: EntityKey<'mail_template'>;
         order_delivery?: string;
         optionLabel?: string;
-        customFieldId?: string;
-        customFieldSetId?: string;
-        customerGroupId?: string;
+        customFieldId?: EntityKey<'custom_field'>;
+        customFieldSetId?: EntityKey<'custom_field_set'>;
+        customerGroupId?: EntityKey<'customer_group'>;
         order_transaction?: string;
         force_transition?: boolean;
         documentType?: string;
@@ -646,7 +646,7 @@ export default class FlowBuilderService {
 
         if (config.fileFormats?.length) {
             const documentTypeName = config.documentType
-                ? translator.$t(Shopware.Service('documentV2Service').getDocumentTypeSnippet(config.documentType))
+                ? Shopware.Service('documentV2Service').getDocumentTypeLabel(config.documentType)
                 : '';
 
             const fileFormatLabels = config.fileFormats.map((format) =>

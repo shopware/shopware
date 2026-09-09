@@ -575,27 +575,42 @@
         }
       }
     },
-    "/_action/order/document-v2/{documentId}/download-archive": {
-      "get": {
+    "/_action/order/document-v2/download-archive": {
+      "post": {
         "tags": ["Document Management", "Experimental"],
-        "summary": "Download all Document V2 files as ZIP",
-        "description": "Downloads all persisted formats for a Document V2 document as one ZIP archive. The archive contains one file per persisted format. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "summary": "Download one or more Document V2 documents as ZIP",
+        "description": "Downloads all persisted formats for the requested Document V2 documents as one ZIP archive. The archive contains one file per persisted format per document, and additionally includes the media of documents that were created by document generation v1. Entries are named `{orderNumber}_{fileName}.{extension}` to avoid collisions across documents. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "downloadDocumentV2Archive",
-        "parameters": [
-          {
-            "name": "documentId",
-            "in": "path",
-            "description": "Identifier of the document.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9a-f]{32}$"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["documentIds"],
+                "properties": {
+                  "documentIds": {
+                    "description": "Identifiers of the documents to include in the archive. At most 100 per request.",
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "example": ["018f5972f9ea72a0be49f7c39f72a2a0"]
+                  }
+                },
+                "example": {
+                  "documentIds": ["018f5972f9ea72a0be49f7c39f72a2a0"]
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "A ZIP archive containing all persisted files for the document.",
+            "description": "A ZIP archive containing all persisted files for the requested documents.",
             "headers": {
               "Content-Disposition": {
                 "description": "Contains the attachment filename.",

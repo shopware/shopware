@@ -43,6 +43,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-exception',
         // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
         'reason:remove-getter-setter',
+        // The replacement is still experimental, so the deprecation is announced but stays silent for now.
+        'reason:experimental-replacement',
         // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
         'reason:blue-green-deployment',
         // The class is a decorating class and will be removed. Third party code should never rely on explicit decorators

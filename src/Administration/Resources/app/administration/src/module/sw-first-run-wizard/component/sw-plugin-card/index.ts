@@ -1,6 +1,7 @@
 import type { ExtensionType } from 'src/module/sw-extension/service/extension-store-action.service';
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
+import swExtensionErrorMixin from 'shopware:mixins/sw-extension-error';
 
 type ComponentData = {
     pluginIsLoading: boolean;
@@ -30,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
         'shopwareExtensionService',
     ],
 
-    mixins: [Shopware.Mixin.getByName('sw-extension-error')],
+    mixins: [swExtensionErrorMixin],
 
     props: {
         plugin: {

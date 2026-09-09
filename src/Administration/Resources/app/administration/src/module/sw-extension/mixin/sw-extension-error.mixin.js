@@ -1,4 +1,5 @@
 import { defineComponent } from 'vue';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package checkout
@@ -7,7 +8,7 @@ import { defineComponent } from 'vue';
 export default Shopware.Mixin.register(
     'sw-extension-error',
     defineComponent({
-        mixins: [Shopware.Mixin.getByName('notification')],
+        mixins: [notificationMixin],
 
         methods: {
             showExtensionErrors(errorResponse) {

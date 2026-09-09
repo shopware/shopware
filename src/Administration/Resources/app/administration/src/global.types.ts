@@ -437,7 +437,7 @@ declare global {
         shopwareExtensions: ShopwareExtensionsStore;
         swOrderDetail: SwOrderDetailStore;
         swOrder: SwOrderStore;
-        swShippingDetailStore: SwShippingDetailStore;
+        swShippingDetail: SwShippingDetailStore;
         paymentOverviewCard: PaymentOverviewCardStore;
         swProductDetail: SwProductDetailStore;
         swProfile: SwProfileStore;

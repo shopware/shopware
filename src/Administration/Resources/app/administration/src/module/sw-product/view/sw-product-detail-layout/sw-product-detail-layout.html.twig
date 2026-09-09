@@ -54,7 +54,12 @@
             position-identifier="sw-product-detail-layout-no-config"
             :is-loading="isConfigLoading"
         >
-            <p>{{ $t('sw-product.layout.textNoConfig') }}</p>
+            <mt-empty-state
+                centered
+                icon="regular-image-text"
+                :headline="$t('sw-product.layout.title')"
+                :description="$t('sw-product.layout.textNoConfig')"
+            />
         </mt-card>
         {% endblock %}
 

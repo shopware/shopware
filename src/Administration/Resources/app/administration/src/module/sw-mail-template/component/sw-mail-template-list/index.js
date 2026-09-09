@@ -1,5 +1,4 @@
 import template from './sw-mail-template-list.html.twig';
-import './sw-mail-template-list.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

@@ -77,6 +77,12 @@ async function createWrapper(privileges = []) {
             mocks: {
                 $route: {
                     query: 'foo',
+                    meta: {
+                        $module: {
+                            icon: 'regular-rule',
+                            description: 'sw-settings-rule.general.descriptionTextModule',
+                        },
+                    },
                 },
             },
         },
@@ -284,6 +290,31 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         expect(wrapper.vm.ruleRepository.search).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should offer the create action in the empty state when no rule exists', async () => {
+        const { wrapper } = await createWrapper(['rule.creator']);
+        await flushPromises();
+
+        await wrapper.setData({ isLoading: false, total: 0, rules: null });
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.text()).toBe('sw-settings-rule.list.buttonAddRule');
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should disable the empty state create action without the creator privilege', async () => {
+        const { wrapper } = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({ isLoading: false, total: 0, rules: null });
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeDefined();
     });
 
     it('should set languageId on language switch change', async () => {

@@ -15,6 +15,18 @@
         height: 500px;
     }
 
+    // the listing keeps rendering its header while the search has no hits,
+    // so the empty state overlays the grid body instead of stacking below it
+    &__container {
+        position: relative;
+    }
+
+    &__empty-state {
+        position: absolute;
+        inset: 0;
+        justify-content: center;
+    }
+
     &__content {
         .sw-data-grid__header .sw-data-grid__row th:first-child {
             pointer-events: none;

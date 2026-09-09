@@ -1726,7 +1726,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')('should load custom fields for the initial deprecated tab', async () => {
+    it('should load custom fields for the initial deprecated tab', async () => {
         const sportsId = uuid.get('custom_sports');
 
         wrapper = await createWrapper({

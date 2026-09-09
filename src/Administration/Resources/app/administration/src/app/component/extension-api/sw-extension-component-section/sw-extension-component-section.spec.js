@@ -89,7 +89,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')('should not render tabs in card section', async () => {
+    it('should not render the deprecated tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',

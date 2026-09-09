@@ -313,7 +313,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
     );
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
-    it.deprecated('v6.8.0.0')('should not render the tabs when slot is empty', async () => {
+    it('should not render the deprecated tabs when slot is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

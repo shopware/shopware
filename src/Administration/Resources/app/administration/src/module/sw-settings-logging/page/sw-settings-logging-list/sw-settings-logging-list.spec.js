@@ -13,6 +13,10 @@ const logEntryMock = {
     context: {
         additionalData: {
             recipients: [],
+            contents: {
+                'text/html': '<p>Mail content</p>',
+                'text/plain': 'Mail content',
+            },
         },
     },
 };
@@ -104,15 +108,6 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
             displayedLog: {
                 ...logEntryMock,
                 message: 'mail.sent',
-                context: {
-                    additionalData: {
-                        recipients: [],
-                        contents: {
-                            'text/html': '<p>Mail content</p>',
-                            'text/plain': 'Mail content',
-                        },
-                    },
-                },
             },
         });
         await flushPromises();

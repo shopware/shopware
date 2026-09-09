@@ -256,7 +256,7 @@ describe('core/factory/http.factory.js', () => {
     });
 
     // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
-    it.deprecated('v6.8.0.0')('should opt in to axios v1 per request before v6.8', async () => {
+    it('should opt in to axios v1 per request', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -277,7 +277,7 @@ describe('core/factory/http.factory.js', () => {
     });
 
     // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
-    it.deprecated('v6.8.0.0')('should support the axios URL and config call form', async () => {
+    it('should support the axios URL and config call form', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request').mockResolvedValue({ data: { success: true } });

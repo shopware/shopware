@@ -394,6 +394,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
         await flushPromises();
 
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
         expect(wrapper.vm.hideSettingRenameBanner).toBe(true);
     });
 
@@ -420,7 +421,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
      * @deprecated tag:v6.8.0 - Will be removed
      */
     // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
-    it.deprecated('v6.8.0.0')('should toggle banner visibility and save config', async () => {
+    it('should toggle banner visibility and save config', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
@@ -445,7 +446,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the settings rename notice.
-    it.deprecated('v6.8.0.0')('provides the change notices with the version they can be removed with', async () => {
+    it('provides the change notices with the version they can be removed with', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.changeNotices).toEqual([

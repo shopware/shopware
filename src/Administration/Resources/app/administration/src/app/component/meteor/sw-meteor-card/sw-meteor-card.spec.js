@@ -240,9 +240,6 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                         'sw-extension-component-section': true,
                         'router-link': true,
                     },
-                    provide: {
-                        feature: createFeatureMock(),
-                    },
                 },
             },
         );

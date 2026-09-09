@@ -147,7 +147,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy CMS text editor.
-    it.deprecated('v6.8.0.0')('should emits element-update when trigger @input event', async () => {
+    it('should emit element-update on @input from the legacy editor', async () => {
         const wrapper = await createWrapper();
 
         const updatedContent = 'Updated content';
@@ -212,7 +212,7 @@ describe('src/module/sw-cms/elements/text/config', () => {
     );
 
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-text-editor blur integration.
-    it.deprecated('v6.8.0.0')('should emits element-update when trigger @blur event', async () => {
+    it('should emit element-update on @blur from the legacy editor', async () => {
         const wrapper = await createWrapper();
 
         const updatedContent = 'Updated content';

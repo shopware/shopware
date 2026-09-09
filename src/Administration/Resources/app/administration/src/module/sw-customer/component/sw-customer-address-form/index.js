@@ -1,13 +1,13 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Defaults, EntityDefinition } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 const COUNTRY_DEPENDENT_FIELDS = {

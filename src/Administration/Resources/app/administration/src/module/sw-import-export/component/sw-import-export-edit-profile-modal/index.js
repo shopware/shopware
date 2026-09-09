@@ -3,9 +3,9 @@
  */
 import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**

@@ -4,7 +4,7 @@ import template from './sw-order-create-details-header.html.twig';
  * @sw-package checkout
  */
 
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore

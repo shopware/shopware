@@ -1,6 +1,5 @@
 import template from './sw-category-sales-channel-multi-select.html.twig';
-
-const { EntityCollection } = Shopware.Data;
+import { EntityCollection } from 'shopware:data';
 
 /**
  * @sw-package discovery

@@ -5,10 +5,9 @@ import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/met
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 import { object } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package framework
  *

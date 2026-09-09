@@ -1,5 +1,6 @@
+import { Criteria } from 'shopware:data';
+
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
 
 /**
  * @module app/service/rule-assignment-configuration

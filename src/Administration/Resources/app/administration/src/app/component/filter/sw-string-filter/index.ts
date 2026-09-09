@@ -3,8 +3,7 @@
  */
 
 import template from './sw-string-filter.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

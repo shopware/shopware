@@ -4,9 +4,9 @@
 
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
 const { get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

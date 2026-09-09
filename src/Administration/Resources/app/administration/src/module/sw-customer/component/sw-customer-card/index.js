@@ -2,6 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
@@ -9,7 +10,6 @@ import ApiService from '../../../../core/service/api.service';
 
 const { Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

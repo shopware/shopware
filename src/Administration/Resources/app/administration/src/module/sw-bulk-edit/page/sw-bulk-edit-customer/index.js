@@ -3,9 +3,9 @@ import './sw-bulk-edit-customer.scss';
 import { types } from 'shopware:utils';
 import { chunk } from 'shopware:utils/array';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 /**
  * @sw-package checkout
  */

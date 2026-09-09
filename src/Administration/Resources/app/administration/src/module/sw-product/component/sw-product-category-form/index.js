@@ -4,9 +4,9 @@
 
 import template from './sw-product-category-form.html.twig';
 import './sw-product-category-form.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context, Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -1,8 +1,7 @@
 import template from './sw-mail-header-footer-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package after-sales
  */

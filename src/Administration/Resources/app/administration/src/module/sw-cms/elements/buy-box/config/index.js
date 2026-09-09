@@ -1,9 +1,8 @@
 import template from './sw-cms-el-config-buy-box.html.twig';
 import './sw-cms-el-config-buy-box.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @sw-package discovery

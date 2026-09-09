@@ -4,10 +4,9 @@
 
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
 import './sw-sales-channel-product-assignment-categories.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context, Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

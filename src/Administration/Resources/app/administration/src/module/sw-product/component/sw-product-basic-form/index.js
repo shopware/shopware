@@ -4,6 +4,7 @@
 
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -164,10 +165,10 @@ export default {
         },
 
         loadProductNumberRangeId() {
-            const criteria = new Shopware.Data.Criteria(1, 25);
+            const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Shopware.Data.Criteria.equals('type.technicalName', 'product'));
-            criteria.addFilter(Shopware.Data.Criteria.equals('global', true));
+            criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
+            criteria.addFilter(Criteria.equals('global', true));
 
             return Shopware.Service('repositoryFactory')
                 .create('number_range')

@@ -1,7 +1,6 @@
 import template from './sw-select-rule-create.html.twig';
 import './sw-select-rule-create.scss';
-
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @private

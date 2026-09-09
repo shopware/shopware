@@ -1,8 +1,8 @@
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component, Mixin, Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**

@@ -1,9 +1,8 @@
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @status ready
  * @description The <u>sw-media-field</u> component is used to bind your

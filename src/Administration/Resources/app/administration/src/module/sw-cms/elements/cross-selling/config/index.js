@@ -1,9 +1,8 @@
 import template from './sw-cms-el-config-cross-selling.html.twig';
 import './sw-cms-el-config-cross-selling.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @sw-package discovery

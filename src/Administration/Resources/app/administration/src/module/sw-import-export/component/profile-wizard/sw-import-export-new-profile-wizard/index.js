@@ -3,8 +3,7 @@
  */
 import template from './sw-import-export-new-profile-wizard.html.twig';
 import './sw-import-export-new-profile-wizard.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

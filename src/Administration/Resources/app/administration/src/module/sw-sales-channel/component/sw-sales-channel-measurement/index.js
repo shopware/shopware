@@ -4,8 +4,7 @@
 
 import template from './sw-sales-channel-measurement.html.twig';
 import './sw-sales-channel-measurement.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({

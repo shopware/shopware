@@ -2,9 +2,9 @@ import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 import { isArray, isEmpty, isEqual } from 'shopware:utils/types';
+import { ChangesetGenerator, Criteria, EntityCollection } from 'shopware:data';
 
 const { Context, Mixin } = Shopware;
-const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 /**
  * @sw-package discovery
  */

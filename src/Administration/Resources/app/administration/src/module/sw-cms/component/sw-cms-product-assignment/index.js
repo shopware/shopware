@@ -1,7 +1,6 @@
 import template from './sw-cms-product-assignment.html.twig';
 import './sw-cms-product-assignment.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

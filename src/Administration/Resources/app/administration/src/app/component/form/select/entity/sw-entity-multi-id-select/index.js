@@ -4,9 +4,9 @@
 
 import template from './sw-entity-multi-id-select.html.twig';
 import { get, types } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context, Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
 /**
  * @private
  */

@@ -1,10 +1,10 @@
 import { object, types } from 'shopware:utils';
+import { EntityCollection } from 'shopware:data';
 
 /**
  * @sw-package after-sales
  */
 const { Service } = Shopware;
-const { EntityCollection } = Shopware.Data;
 type Flow = Entity<'flow'>;
 type Sequence = Entity<'flow_sequence'>;
 type Sequences = EntityCollection<'flow_sequence'>;

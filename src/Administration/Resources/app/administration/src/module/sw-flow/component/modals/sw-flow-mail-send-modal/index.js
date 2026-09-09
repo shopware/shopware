@@ -1,6 +1,7 @@
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
 import { debounce } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const {
     Component,
@@ -9,7 +10,6 @@ const {
     Classes: { ShopwareError },
     Store,
 } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 /**

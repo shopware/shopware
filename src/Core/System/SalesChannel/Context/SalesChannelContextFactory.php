@@ -74,7 +74,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         if ($customer !== null) {
             $activeShippingAddress = $customer->getActiveShippingAddress();
-            // the default address can be dangling, as the customer FKs have no DB constraint
             $shippingLocation = $activeShippingAddress !== null
                 ? ShippingLocation::createFromAddress($activeShippingAddress)
                 : $base->getShippingLocation();
@@ -260,7 +259,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context)->getEntities();
 
-        // the addresses stay null when a default address id points to a deleted row, the setters are not nullable yet
+        // a default address id can point to a deleted row, and the setters are not nullable yet
         $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
         if ($activeBillingAddress !== null) {
             $customer->setActiveBillingAddress($activeBillingAddress);

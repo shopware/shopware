@@ -227,16 +227,6 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
 
-### Customers with a missing default address can log in again
-
-A customer whose `default_billing_address_id` or `default_shipping_address_id` points at a deleted `customer_address` row can log in again. `/store-api/account/login` and `/store-api/account/imitate-customer` previously answered with a `TypeError`, because those columns carry no database foreign key and the sales channel context refused to build without the address.
-
-`CustomerEntity::getActiveBillingAddress()`, `getActiveShippingAddress()`, `getDefaultBillingAddress()` and `getDefaultShippingAddress()` now return `null` for such a customer instead of aborting the request, and the context falls back to the sales channel shipping location. All four getters were already typed as nullable; code that reads them without a null check should add one.
-
-The cart of such a customer instead carries the new blocking errors `billing-address-missing` and `shipping-address-missing` (`Shopware\Core\Checkout\Cart\Address\Error\BillingAddressMissingError` and `ShippingAddressMissingError`), so the customer reaches their account and can set a valid default address, but cannot check out. The shipping error is not restricted to carts that require shipping: a digital-only cart would otherwise be ordered against the sales channel country as its tax basis.
-
-For these customers `POST /store-api/checkout/order` therefore answers `500 CHECKOUT__CART_INVALID` instead of the previous `400 CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND` or `400 CHECKOUT__DELIVERY_WITHOUT_ADDRESS`. The storefront shows the cart errors on the confirm page rather than an error page.
-
 ## API
 
 ### Store API currency headers validate sales channel availability

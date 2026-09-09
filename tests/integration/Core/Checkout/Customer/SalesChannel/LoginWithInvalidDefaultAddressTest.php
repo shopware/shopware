@@ -22,9 +22,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  *
- * A customer's default_billing_address_id / default_shipping_address_id carry no DB constraint, so they can
- * point at a deleted customer_address row.
- *
  * @see https://github.com/shopware/shopware/issues/20225
  */
 #[Package('checkout')]
@@ -108,7 +105,7 @@ class LoginWithInvalidDefaultAddressTest extends TestCase
         static::assertArrayHasKey('shipping-address-missing', $errors);
         static::assertTrue($errors['shipping-address-missing']['block']);
 
-        // a digital-only cart creates no delivery, so nothing downstream would stop the order
+        // a digital-only cart creates no delivery, so only the validator can stop the order
         $this->assertOrderIsRefused();
     }
 
@@ -133,7 +130,7 @@ class LoginWithInvalidDefaultAddressTest extends TestCase
         ]);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        // the route mints its own id and ignores one sent in the body
+        // the route mints its own id
         $addressId = $this->decodeResponse()['id'] ?? null;
         static::assertIsString($addressId);
 

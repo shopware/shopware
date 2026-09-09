@@ -23,9 +23,6 @@ abstract class AddressMissingError extends Error
         return true;
     }
 
-    /**
-     * The cart is not modified, so the error has to be re-added on every calculation until the customer adds an address.
-     */
     public function isPersistent(): bool
     {
         return false;

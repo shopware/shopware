@@ -20,6 +20,8 @@ import { createRequire } from 'node:module';
 import { Script, createContext } from 'node:vm';
 import { attachOverrides, _overridesMap } from '../../../src/app/adapter/composition-extension-system';
 import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform/index.ts';
+import usePublishedData from '../../../src/app/composables/use-published-data';
+import { publishData } from '../../../src/core/service/extension-api-data.service';
 import { convertComponent, type ConvertResult } from './convert-component';
 import type { RuntimeFixture } from './runtime-equivalence-fixtures';
 
@@ -38,10 +40,22 @@ type RuntimeShopware = {
     Component: {
         attachOverrides: typeof attachOverrides;
     };
+    ExtensionAPI: {
+        publishData: typeof publishData;
+    };
 };
 
 const runtimeShopware: RuntimeShopware = {
     Component: { attachOverrides },
+    ExtensionAPI: { publishData },
+};
+
+/**
+ * Modules a generated draft may import by their `src/…` alias. The evaluation boundary has no module
+ * resolver, so anything the emitted code can import has to be handed to it here.
+ */
+const RUNTIME_MODULES: Record<string, unknown> = {
+    'src/app/composables/use-published-data': { __esModule: true, default: usePublishedData },
 };
 
 const nodeRequire = createRequire(__filename);
@@ -133,6 +147,10 @@ function evaluateModule(source: string): Record<string, unknown> {
     const requireModule = (id: string): unknown => {
         if (id === 'vue') {
             return Vue;
+        }
+
+        if (id in RUNTIME_MODULES) {
+            return RUNTIME_MODULES[id];
         }
 
         return nodeRequire(id);

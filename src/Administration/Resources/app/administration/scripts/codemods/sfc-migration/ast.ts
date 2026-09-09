@@ -29,6 +29,8 @@ type Ctx = {
     templateComponentTags: ReadonlySet<string>;
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
+    /** Source ranges another pass has already replaced wholesale; the `this` rewrite skips them. */
+    rewrittenRanges: { start: number; end: number }[];
     inferredEmits: string[];
     /** Written through `report()`; a single `skip` entry refuses the component outright. */
     reports: (TodoEntry & { kind: ReportKind })[];

@@ -234,6 +234,12 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
 function visit(pass: Pass, path: NodePath): boolean {
     const { ctx } = pass;
     const { node, parent } = path;
+
+    // Another pass replaced this whole range, so nothing inside it is the component's code any more.
+    if (ctx.rewrittenRanges.some((range) => (node.start as number) >= range.start && (node.end as number) <= range.end)) {
+        return false;
+    }
+
     const isReceiver = parent.type === 'MemberExpression' && parent.object === node;
 
     if (isReceiver && (node.type === 'ThisExpression' || (isThisMember(node) && memberName(node) === '$refs'))) {

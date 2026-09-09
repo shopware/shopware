@@ -5,6 +5,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { ref } from 'vue';
 import type { VueWrapper } from '@vue/test-utils';
+import { getPublishedDataSets } from 'src/core/service/extension-api-data.service';
 import {
     CLASS_THIS_FIXTURE,
     CREATED_ASYNC_FIXTURE,
@@ -22,6 +23,7 @@ import {
     MODULE_IDENTITY_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
+    PUBLISH_DATA_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,
@@ -178,6 +180,45 @@ describe('SFC migration runtime equivalence', () => {
 
         expect(result.outcome).toBeDefined();
         expectConservative(result.outcome);
+    });
+
+    it('publishes the same data set through usePublishedData()', async () => {
+        const result = await convertFixture(PUBLISH_DATA_FIXTURE);
+
+        expect(result.outcome).toBe('full');
+
+        const published = (): unknown =>
+            getPublishedDataSets().find((set) => set.id === 'sw-runtime-publish-data__entry')?.data;
+
+        const trace = async (wrapper: VueWrapper): Promise<unknown[]> => {
+            await flushPromises();
+            const initial = published();
+
+            (wrapper.vm as unknown as { entry: string }).entry = 'after';
+            await flushPromises();
+            const updated = published();
+
+            wrapper.unmount();
+            await flushPromises();
+
+            return [
+                initial,
+                updated,
+                published(),
+            ];
+        };
+
+        // The plugin owning `dataSetUnwatchers`, which the Options API side needs, is already installed
+        // globally by the test setup.
+        const original = await trace(mountOriginal(PUBLISH_DATA_FIXTURE));
+        const generated = await trace(mountGenerated(PUBLISH_DATA_FIXTURE, result));
+
+        expect(original).toEqual([
+            'before',
+            'after',
+            undefined,
+        ]);
+        expect(generated).toEqual(original);
     });
 
     it('does not confuse class-local this with component this', async () => {

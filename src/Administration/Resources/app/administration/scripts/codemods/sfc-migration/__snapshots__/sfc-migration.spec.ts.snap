@@ -1458,6 +1458,46 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-publish-data-page 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_publish_data_page">
+        <div class="sw-publish-data-page">{{ product }}</div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import usePublishedData from 'src/app/composables/use-published-data';
+
+const createdComponent = function () {
+    usePublishedData('sw-publish-data-page__product', product);
+
+    usePublishedData('sw-publish-data-page__cmsPage', currentPage, {
+        deprecated: true,
+        deprecationMessage: 'Use the product data set instead.',
+    });
+};
+
+const product = ref(null);
+const currentPage = ref(null);
+
+void (function () {
+    createdComponent();
+})();
+
+swDefinePublic({
+    product,
+    currentPage,
+    createdComponent,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-ref-tag-collision 1`] = `
 {
   "outcome": "skipped",

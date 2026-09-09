@@ -178,6 +178,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
@@ -505,6 +506,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('app_content_system_layout_preset.repository'),
             service(YamlLayoutPresetLoader::class),
+            service(LayoutPresetSpecificationSerializer::class),
             service(ContentSystemLayoutPresetRegistry::class),
         ]);
 

@@ -7,11 +7,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -26,34 +27,22 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        $loader = new DatabaseLayoutPresetLoader(
-            static::createStub(LayoutPresetSerializer::class),
-            $connection,
-            'dev',
-            static::createStub(LoggerInterface::class),
-        );
-
-        static::assertSame([], $loader->load());
+        static::assertSame([], $this->loader($connection, 'dev', static::createStub(LoggerInterface::class))->load());
     }
 
-    #[TestDox('denormalizes each active-app row in prod')]
-    public function testProdDenormalizesRows(): void
+    #[TestDox('builds a compiled specification from each active-app row in prod')]
+    public function testProdBuildsSpecsFromRows(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","layout":[]}', 'app_name' => 'MyApp'],
+            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
         ]);
 
-        $serializer = static::createStub(LayoutPresetSerializer::class);
-        $serializer->method('denormalize')->willReturnCallback(
-            static fn (array $data, string $id): ContentSystemLayoutPresetSpecification => new ContentSystemLayoutPresetSpecification($id, 'Hero', null, null, [])
-        );
+        $presets = $this->loader($connection, 'prod', static::createStub(LoggerInterface::class))->load();
 
-        $loader = new DatabaseLayoutPresetLoader($serializer, $connection, 'prod', static::createStub(LoggerInterface::class));
-
-        $presets = $loader->load();
         static::assertCount(1, $presets);
         static::assertSame('MyApp:Hero', $presets[0]->id);
+        static::assertSame('Hero', $presets[0]->name);
     }
 
     #[TestDox('skips and logs a row whose stored data is not valid JSON')]
@@ -67,36 +56,41 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('warning');
 
-        $loader = new DatabaseLayoutPresetLoader(static::createStub(LayoutPresetSerializer::class), $connection, 'prod', $logger);
-
-        static::assertSame([], $loader->load());
+        static::assertSame([], $this->loader($connection, 'prod', $logger)->load());
     }
 
-    #[TestDox('skips and logs a row the serializer rejects, keeping the rest')]
-    public function testSkipsUndeserializableRow(): void
+    #[TestDox('skips and logs a row that fails validation, keeping the rest')]
+    public function testSkipsInvalidRow(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'MyApp:Bad', 'schema' => '{}', 'app_name' => 'MyApp'],
-            ['name' => 'MyApp:Good', 'schema' => '{"name":"Good","layout":[]}', 'app_name' => 'MyApp'],
+            ['name' => 'MyApp:Bad', 'schema' => '{"layout":[]}', 'app_name' => 'MyApp'],
+            ['name' => 'MyApp:Good', 'schema' => '{"name":"Good","description":"Good preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
         ]);
-
-        $serializer = static::createStub(LayoutPresetSerializer::class);
-        $serializer->method('denormalize')->willReturnCallback(static function (array $data, string $id): ContentSystemLayoutPresetSpecification {
-            if ($id === 'MyApp:Bad') {
-                throw ContentSystemException::layoutPresetInvalid('missing name');
-            }
-
-            return new ContentSystemLayoutPresetSpecification($id, 'Good', null, null, []);
-        });
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('warning');
 
-        $loader = new DatabaseLayoutPresetLoader($serializer, $connection, 'prod', $logger);
+        $presets = $this->loader($connection, 'prod', $logger)->load();
 
-        $presets = $loader->load();
         static::assertCount(1, $presets);
         static::assertSame('MyApp:Good', $presets[0]->id);
+    }
+
+    private function loader(Connection $connection, string $environment, LoggerInterface $logger): DatabaseLayoutPresetLoader
+    {
+        return new DatabaseLayoutPresetLoader(
+            new LayoutPresetSpecificationSerializer(),
+            static::createStub(LayoutPresetPayloadCompiler::class),
+            $this->validator(),
+            $connection,
+            $environment,
+            $logger,
+        );
+    }
+
+    private function validator(): ValidatorInterface
+    {
+        return Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
     }
 }

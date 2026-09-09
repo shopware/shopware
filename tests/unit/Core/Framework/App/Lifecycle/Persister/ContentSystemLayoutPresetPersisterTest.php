@@ -16,6 +16,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -41,10 +43,10 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
-    #[TestDox('inserts a new preset with the raw authoring data as schema')]
+    #[TestDox('inserts a new preset with the normalized authoring data as schema')]
     public function testInsertsNewPresetWhenNoneExist(): void
     {
-        $raw = ['DemoApp:Hero' => ['name' => 'Hero', 'layout' => []]];
+        $dto = $this->dto('Hero');
 
         /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
@@ -58,14 +60,14 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
             },
         ]);
 
-        $persister = $this->buildPersister($repo, $this->rawLoader($raw));
+        $persister = $this->buildPersister($repo, $this->dtoLoader(['DemoApp:Hero' => $dto]));
         $persister->persist($this->buildContext());
 
         static::assertCount(1, $repo->upserts);
         $payload = $repo->upserts[0][0];
 
         static::assertSame('DemoApp:Hero', $payload['name']);
-        static::assertSame(['name' => 'Hero', 'layout' => []], $payload['schema']);
+        static::assertSame($this->normalize($dto), $payload['schema']);
         static::assertSame($this->ids->get('app'), $payload['appId']);
         static::assertIsString($payload['id']);
         static::assertIsString($payload['hash']);
@@ -82,7 +84,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
             new AppContentSystemLayoutPresetCollection([$existing]),
         ]);
 
-        $persister = $this->buildPersister($repo, $this->rawLoader(['DemoApp:Hero' => ['name' => 'Hero', 'layout' => []]]));
+        $persister = $this->buildPersister($repo, $this->dtoLoader(['DemoApp:Hero' => $this->dto('Hero')]));
         $persister->persist($this->buildContext());
 
         static::assertCount(1, $repo->upserts);
@@ -96,17 +98,16 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     #[TestDox('skips the upsert when the stored hash matches the current data')]
     public function testSkipsUpsertWhenHashMatches(): void
     {
-        $data = ['name' => 'Hero', 'layout' => []];
-        $hash = Hasher::hash(json_encode($data, \JSON_THROW_ON_ERROR));
+        $dto = $this->dto('Hero');
 
-        $existing = $this->existingEntity('preset-hero', 'DemoApp:Hero', $hash);
+        $existing = $this->existingEntity('preset-hero', 'DemoApp:Hero', $this->hashOf($dto));
 
         /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemLayoutPresetCollection([$existing]),
         ]);
 
-        $persister = $this->buildPersister($repo, $this->rawLoader(['DemoApp:Hero' => $data]));
+        $persister = $this->buildPersister($repo, $this->dtoLoader(['DemoApp:Hero' => $dto]));
         $persister->persist($this->buildContext());
 
         static::assertSame([], $repo->upserts);
@@ -126,7 +127,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $registry = static::createMock(AbstractContentSystemLayoutPresetRegistry::class);
         $registry->expects($this->once())->method('invalidate');
 
-        $persister = $this->buildPersister($repo, $this->rawLoader([]), $registry);
+        $persister = $this->buildPersister($repo, $this->dtoLoader([]), $registry);
         $persister->persist($this->buildContext());
 
         static::assertSame([], $repo->upserts);
@@ -137,10 +138,9 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     #[TestDox('upserts only the changed preset when multiple exist and one hash matches')]
     public function testUpsertsOnlyChangedPresetWhenMultipleExist(): void
     {
-        $unchanged = ['name' => 'Hero', 'layout' => []];
-        $matchingHash = Hasher::hash(json_encode($unchanged, \JSON_THROW_ON_ERROR));
+        $unchanged = $this->dto('Hero');
 
-        $existingHero = $this->existingEntity('preset-hero', 'DemoApp:Hero', $matchingHash);
+        $existingHero = $this->existingEntity('preset-hero', 'DemoApp:Hero', $this->hashOf($unchanged));
         $existingBanner = $this->existingEntity('preset-banner', 'DemoApp:Banner', 'outdated-hash');
 
         /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
@@ -151,9 +151,9 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $registry = static::createMock(AbstractContentSystemLayoutPresetRegistry::class);
         $registry->expects($this->once())->method('invalidate');
 
-        $loader = $this->rawLoader([
+        $loader = $this->dtoLoader([
             'DemoApp:Hero' => $unchanged,
-            'DemoApp:Banner' => ['name' => 'Banner', 'layout' => []],
+            'DemoApp:Banner' => $this->dto('Banner'),
         ]);
 
         $persister = $this->buildPersister($repo, $loader, $registry);
@@ -178,7 +178,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $registry = static::createMock(AbstractContentSystemLayoutPresetRegistry::class);
         $registry->expects($this->never())->method('invalidate');
 
-        $persister = $this->buildPersister($repo, $this->rawLoader([]), $registry);
+        $persister = $this->buildPersister($repo, $this->dtoLoader([]), $registry);
         $persister->persist($this->buildContext());
 
         static::assertSame([], $repo->upserts);
@@ -191,7 +191,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $loaderException = ContentSystemException::layoutPresetLoadFailed('hero.yaml', 'Invalid YAML syntax');
 
         $loader = static::createStub(YamlLayoutPresetLoader::class);
-        $loader->method('readRawFromDirectory')->willThrowException($loaderException);
+        $loader->method('loadDtosFromDirectory')->willThrowException($loaderException);
 
         /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
         $repo = new StaticEntityRepository([]);
@@ -207,7 +207,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     #[TestDox('wraps a UniqueConstraintViolationException as an AppException on concurrent id collision')]
     public function testWrapsUniqueConstraintViolationAsAppException(): void
     {
-        $loader = $this->rawLoader(['DemoApp:Hero' => ['name' => 'Hero', 'layout' => []]]);
+        $loader = $this->dtoLoader(['DemoApp:Hero' => $this->dto('Hero')]);
 
         $dbalException = static::createStub(UniqueConstraintViolationException::class);
 
@@ -227,6 +227,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         $persister = new ContentSystemLayoutPresetPersister(
             $repo,
             $loader,
+            new LayoutPresetSpecificationSerializer(),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
         );
 
@@ -239,6 +240,24 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
             static::assertStringContainsString('app:DemoApp', $e->getMessage());
             static::assertSame($dbalException, $e->getPrevious());
         }
+    }
+
+    private function dto(string $name): LayoutPresetSpecificationDto
+    {
+        return new LayoutPresetSpecificationDto($name, 'A preset.', 'regular-star', []);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function normalize(LayoutPresetSpecificationDto $dto): array
+    {
+        return (new LayoutPresetSpecificationSerializer())->normalize($dto);
+    }
+
+    private function hashOf(LayoutPresetSpecificationDto $dto): string
+    {
+        return Hasher::hash(json_encode($this->normalize($dto), \JSON_THROW_ON_ERROR));
     }
 
     private function existingEntity(string $idKey, string $name, string $hash): AppContentSystemLayoutPresetEntity
@@ -254,12 +273,12 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string, mixed>> $raw
+     * @param array<string, LayoutPresetSpecificationDto> $dtos
      */
-    private function rawLoader(array $raw): YamlLayoutPresetLoader
+    private function dtoLoader(array $dtos): YamlLayoutPresetLoader
     {
         $loader = static::createStub(YamlLayoutPresetLoader::class);
-        $loader->method('readRawFromDirectory')->willReturn($raw);
+        $loader->method('loadDtosFromDirectory')->willReturn($dtos);
 
         return $loader;
     }
@@ -275,6 +294,7 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         return new ContentSystemLayoutPresetPersister(
             $repo,
             $loader,
+            new LayoutPresetSpecificationSerializer(),
             $registry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
         );
     }

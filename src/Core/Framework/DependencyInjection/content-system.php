@@ -503,7 +503,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(DatabaseLayoutPresetLoader::class)
         ->args([
-            service(LayoutPresetSerializer::class),
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
             service(Connection::class),
             param('kernel.environment'),
             service('logger'),

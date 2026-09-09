@@ -29,7 +29,7 @@ class ContentSystemLayoutPresetAppValidator extends AbstractManifestValidator
         $appName = $manifest->getMetadata()->getName();
 
         try {
-            $this->loader->readRawFromDirectory($presetsDir, 'app:' . $appName, $appName);
+            $this->loader->loadDtosFromDirectory($presetsDir, 'app:' . $appName, $appName);
         } catch (ContentSystemException $e) {
             $errors->add(new ContentSystemLayoutPresetSchemaError(
                 $presetsDir,

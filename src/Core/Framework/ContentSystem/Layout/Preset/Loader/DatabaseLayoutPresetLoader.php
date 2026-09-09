@@ -4,9 +4,12 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -17,7 +20,9 @@ use Shopware\Core\Framework\Log\Package;
 class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
 {
     public function __construct(
-        private readonly LayoutPresetSerializer $serializer,
+        private readonly LayoutPresetSpecificationSerializer $serializer,
+        private readonly LayoutPresetPayloadCompiler $compiler,
+        private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
         private readonly LoggerInterface $logger,
@@ -60,8 +65,23 @@ class DatabaseLayoutPresetLoader extends AbstractContentSystemLayoutPresetLoader
                 continue;
             }
 
+            $dto = $this->serializer->denormalize($data);
+
+            $violations = $this->validator->validate(new LayoutPresetSpecificationDtoCollection([$row['name'] => $dto]));
+            if ($violations->count() > 0) {
+                $this->logger->warning(\sprintf('Skipping layout preset "%s": %s', $identifier, (string) $violations));
+
+                continue;
+            }
+
             try {
-                $presets[] = $this->serializer->denormalize($data, $row['name']);
+                $presets[] = new ContentSystemLayoutPresetSpecification(
+                    $row['name'],
+                    $dto->name,
+                    $dto->description,
+                    $dto->icon,
+                    $this->compiler->compile($dto->layout),
+                );
             } catch (\Throwable $e) {
                 $this->logger->warning(\sprintf('Skipping layout preset "%s": %s', $identifier, $e->getMessage()));
             }

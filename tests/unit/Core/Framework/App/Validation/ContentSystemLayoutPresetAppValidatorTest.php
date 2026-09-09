@@ -38,7 +38,7 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
     public function testReturnsSchemaErrorWhenPresetsDirectoryIsInvalid(): void
     {
         $loader = static::createStub(YamlLayoutPresetLoader::class);
-        $loader->method('readRawFromDirectory')
+        $loader->method('loadDtosFromDirectory')
             ->willThrowException(ContentSystemException::layoutPresetLoadFailed('broken.yaml', 'Invalid YAML syntax'));
 
         $manifest = $this->buildManifest('/app/path', 'TestApp');
@@ -61,7 +61,7 @@ class ContentSystemLayoutPresetAppValidatorTest extends TestCase
     public function testPropagatesNonContentSystemExceptions(): void
     {
         $loader = static::createStub(YamlLayoutPresetLoader::class);
-        $loader->method('readRawFromDirectory')
+        $loader->method('loadDtosFromDirectory')
             ->willThrowException(new \RuntimeException('Unexpected filesystem error'));
 
         $manifest = $this->buildManifest('/app/path', 'TestApp');

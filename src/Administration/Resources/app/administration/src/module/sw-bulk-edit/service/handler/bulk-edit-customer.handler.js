@@ -1,5 +1,6 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 import RetryHelper from '../../../../core/helper/retry.helper';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 const types = Shopware.Utils.types;
 
@@ -41,7 +42,7 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
 
     async bulkEditRequestedGroup(entityIds, payload) {
         const promises = [];
-        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = useSwBulkEditStore().isFlowTriggered;
 
         payload.forEach((change) => {
             if (!change.value) {

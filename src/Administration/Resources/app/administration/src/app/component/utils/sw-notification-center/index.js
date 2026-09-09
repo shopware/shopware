@@ -2,6 +2,7 @@ import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/wor
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
 import { EventBus } from 'shopware:utils';
+import useNotificationStore from 'shopware:stores/notification';
 
 const { Mixin } = Shopware;
 
@@ -30,7 +31,7 @@ export default {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.Store.get('notification').notifications).reverse();
+            return Object.values(useNotificationStore().notifications).reverse();
         },
 
         hasNotifications() {
@@ -51,7 +52,7 @@ export default {
     },
 
     created() {
-        this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
+        this.unsubscribeFromStore = useNotificationStore().$onAction(this.createNotificationFromSystemError);
         EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
@@ -63,7 +64,7 @@ export default {
 
     methods: {
         onVisibilityChange(isOpened) {
-            const store = Shopware.Store.get('notification');
+            const store = useNotificationStore();
 
             if (isOpened) {
                 store.workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
@@ -81,7 +82,7 @@ export default {
         },
 
         onConfirmDelete() {
-            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
+            useNotificationStore().clearNotificationsForCurrentUser();
             this.showDeleteModal = false;
         },
 

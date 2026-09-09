@@ -12,6 +12,7 @@ import { LineItemType } from '../../order.types';
 import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -192,7 +193,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
         },
     },
 

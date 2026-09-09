@@ -6,20 +6,21 @@
 import type Repository from '../../core/data/repository.data';
 import type { ContextState } from '../composables/use-context';
 import { Criteria } from 'shopware:data';
+import useExtensionsStore from 'shopware:stores/extensions';
 
 function getRepository<EntityName extends keyof EntitySchema.EntityKeys>(
     entityName: EntityName,
     additionalInformation: { _event_: MessageEvent<string> },
 ): Repository<EntityName> | null {
-    const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
-        Shopware.Store.get('extensions').extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
+    const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
+        useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
     );
 
     if (!extensionName) {
         throw new Error(`Could not find a extension with the given event origin "${additionalInformation._event_.origin}"`);
     }
 
-    const extension = Shopware.Store.get('extensions').extensionsState?.[extensionName];
+    const extension = useExtensionsStore().extensionsState?.[extensionName];
     if (!extension) {
         throw new Error(
             `Could not find an extension with the given name "${extensionName}" in the extension store (Shopware.Store.get('extensions').extensionsState)`,

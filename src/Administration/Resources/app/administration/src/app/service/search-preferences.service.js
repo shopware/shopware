@@ -4,6 +4,7 @@
 
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import { object } from 'shopware:utils';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @description Exposes an user search preferences
@@ -196,7 +197,7 @@ export default function SearchPreferencesService() {
      * @private
      */
     function _getCurrentUser() {
-        return Shopware.Store.get('session').currentUser;
+        return useSessionStore().currentUser;
     }
 
     /**

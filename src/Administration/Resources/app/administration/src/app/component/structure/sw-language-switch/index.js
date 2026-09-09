@@ -3,6 +3,7 @@ import './sw-language-switch.scss';
 import { EventBus } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package framework
@@ -132,7 +133,7 @@ export default {
             this.lastLanguageId = this.languageId;
 
             if (this.changeGlobalLanguage) {
-                Shopware.Store.get('context').api.languageId = this.languageId;
+                useContextStore().api.languageId = this.languageId;
                 EventBus.emit('sw-language-switch-change-application-language', {
                     languageId: this.languageId,
                 });

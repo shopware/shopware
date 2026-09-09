@@ -1,6 +1,7 @@
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Application } = Shopware;
 /**
@@ -191,7 +192,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         mediaNameFilter() {

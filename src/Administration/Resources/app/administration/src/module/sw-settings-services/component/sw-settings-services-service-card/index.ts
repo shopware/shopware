@@ -6,6 +6,7 @@ import type { CategorizedPermissions, ServiceDescription } from '../../service/s
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -116,7 +117,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this._reloadPage();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });
@@ -140,7 +141,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.showPermissionsModal = true;
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     message: extractErrorMessage(exception),
                 });

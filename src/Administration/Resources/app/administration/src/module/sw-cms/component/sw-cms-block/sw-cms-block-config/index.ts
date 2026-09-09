@@ -2,6 +2,7 @@ import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';
 import cmsStateMixin from 'shopware:mixins/cms-state';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private
@@ -41,7 +42,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
 
         cmsBlocks() {

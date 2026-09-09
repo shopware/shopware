@@ -3,6 +3,7 @@ import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 import { EventBus } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 const { Application, Context, Defaults } = Shopware;
 const utils = Shopware.Utils;
@@ -193,7 +194,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         showSearchTipForEsSearch() {

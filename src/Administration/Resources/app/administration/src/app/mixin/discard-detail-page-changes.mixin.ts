@@ -1,5 +1,6 @@
 import type { NavigationGuardNext } from 'vue-router';
 import { debug, types } from 'shopware:utils';
+import useErrorStore from 'shopware:stores/error';
 
 const { Mixin } = Shopware;
 /**
@@ -73,7 +74,7 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
                 });
 
                 // reset all api errors
-                const errorStore = Shopware.Store.get('error');
+                const errorStore = useErrorStore();
                 errorStore.resetApiErrors();
             },
         },

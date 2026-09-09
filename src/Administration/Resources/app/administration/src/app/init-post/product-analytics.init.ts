@@ -7,12 +7,14 @@ import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-clie
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
 import { EventBus } from 'shopware:utils';
+import useContextStore from 'shopware:stores/context';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @private
  */
 export default async function (): Promise<WatchHandle | undefined> {
-    const analyticsGatewayUrl = Shopware.Store.get('context').app.analyticsGatewayUrl;
+    const analyticsGatewayUrl = useContextStore().app.analyticsGatewayUrl;
 
     if (!analyticsGatewayUrl) {
         return;
@@ -75,8 +77,8 @@ export default async function (): Promise<WatchHandle | undefined> {
 }
 
 function deleteUser(client: GatewayClient) {
-    const shopId = Shopware.Store.get('context').app.config.shopId;
-    const userId = Shopware.Store.get('session').currentUser?.id ?? null;
+    const shopId = useContextStore().app.config.shopId;
+    const userId = useSessionStore().currentUser?.id ?? null;
 
     if (typeof shopId === 'string' && typeof userId === 'string') {
         client.deleteUser(shopId, userId);

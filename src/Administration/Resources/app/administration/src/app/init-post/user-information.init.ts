@@ -5,6 +5,7 @@
 import { initializeUserNotifications } from 'src/app/store/notification.store';
 import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
@@ -36,7 +37,7 @@ export default function initializeUserContext() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 delete data.password;
 
-                Shopware.Store.get('session').setCurrentUser(data as Entity<'user'>);
+                useSessionStore().setCurrentUser(data as Entity<'user'>);
                 initializeUserNotifications();
                 resolve();
             })

@@ -9,6 +9,7 @@ import './sw-settings-usage-data-consent-modal.scss';
 import SwSettingsUsageDataStoreDataConsentCard from './subcomponents/sw-settings-usage-data-store-data-consent-card';
 import SwSettingsUsageDataUserDataConsentCard from './subcomponents/sw-settings-usage-data-user-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from './subcomponents/sw-settings-usage-data-consent-check-list';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -245,7 +246,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await consentStore.revoke(consent);
             } catch {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: this.$t('sw-settings-usage-data.errors.consent-update-error', {

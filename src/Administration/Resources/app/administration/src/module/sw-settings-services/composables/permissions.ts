@@ -4,6 +4,7 @@
 import type { HandleMethod } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../store/shopware-services.store';
+import useExtensionsStore from 'shopware:stores/extensions';
 
 let reloadFn: () => void = () => window.location.reload();
 
@@ -59,7 +60,7 @@ export async function revokePermissions() {
 }
 
 function assertServiceOrigin(origin: string): void {
-    const matchingExtensions = Object.values(Shopware.Store.get('extensions').extensionsState).filter((extension) => {
+    const matchingExtensions = Object.values(useExtensionsStore().extensionsState).filter((extension) => {
         try {
             return new URL(extension.baseUrl).origin === origin;
         } catch {

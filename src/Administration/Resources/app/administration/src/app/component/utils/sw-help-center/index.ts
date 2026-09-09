@@ -1,5 +1,6 @@
 import template from './sw-help-center.html.twig';
 import './sw-help-center.scss';
+import useAdminHelpCenterStore from 'shopware:stores/adminHelpCenter';
 
 type ShortcutModal = {
     onOpenShortcutOverviewModal: () => void;
@@ -17,11 +18,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         showHelpSidebar(): boolean {
-            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
+            return useAdminHelpCenterStore().showHelpSidebar;
         },
 
         showShortcutModal(): boolean {
-            return Shopware.Store.get('adminHelpCenter').showShortcutModal;
+            return useAdminHelpCenterStore().showShortcutModal;
         },
     },
 
@@ -39,15 +40,15 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onVisibilityChange(isOpened: boolean): void {
-            Shopware.Store.get('adminHelpCenter').showHelpSidebar = isOpened;
+            useAdminHelpCenterStore().showHelpSidebar = isOpened;
         },
 
         openShortcutModal(): void {
-            Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
+            useAdminHelpCenterStore().showShortcutModal = true;
         },
 
         closeShortcutModal(): void {
-            Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
+            useAdminHelpCenterStore().showShortcutModal = false;
         },
     },
 });

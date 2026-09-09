@@ -3,6 +3,7 @@
  */
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Data, Mixin } = Shopware;
 const { Criteria } = Data;
@@ -65,7 +66,7 @@ export default {
 
         currentUser: {
             get() {
-                return Shopware.Store.get('session').currentUser;
+                return useSessionStore().currentUser;
             },
         },
 

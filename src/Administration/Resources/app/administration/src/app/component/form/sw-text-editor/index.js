@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @sw-package framework
@@ -320,7 +321,7 @@ export default {
                 nextColWidth: null,
             },
             isTableEdit: false,
-            cmsPageState: Shopware.Store.get('cmsPage'),
+            cmsPageState: useCmsPageStore(),
             minorElementTags: [
                 '#text',
                 'br',

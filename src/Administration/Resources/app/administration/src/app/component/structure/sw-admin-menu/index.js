@@ -3,6 +3,11 @@ import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
 import { createId, debug, dom, EventBus } from 'shopware:utils';
+import useAdminMenuStore from 'shopware:stores/adminMenu';
+import useMenuItemStore from 'shopware:stores/menuItem';
+import useNotificationStore from 'shopware:stores/notification';
+import useSessionStore from 'shopware:stores/session';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
 const { Mixin } = Shopware;
 const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
@@ -66,7 +71,7 @@ export default {
 
     computed: {
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         isExpanded() {
@@ -94,7 +99,7 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.Store.get('session').currentLocale;
+            return useSessionStore().currentLocale;
         },
 
         adminModuleNavigation() {
@@ -200,7 +205,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         extensionMenuItems() {
-            return Shopware.Store.get('menuItem').menuItems;
+            return useMenuItemStore().menuItems;
         },
 
         extensionModuleNavigation() {
@@ -220,7 +225,7 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         adminMenuStore() {
-            return Shopware.Store.get('adminMenu');
+            return useAdminMenuStore();
         },
     },
 
@@ -463,8 +468,8 @@ The admin menu only supports up to three levels of nesting.`,
 
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
-                Shopware.Store.get('shopwareApps').apps = modules;
-                Shopware.Store.get('shopwareApps').appsLoaded = true;
+                useShopwareAppsStore().apps = modules;
+                useShopwareAppsStore().appsLoaded = true;
 
                 this.$nextTick(() => this.expandAncestorBranchesForCurrentRoute());
             });
@@ -489,7 +494,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const userData = response.data;
                 delete userData.password;
 
-                Shopware.Store.get('session').setCurrentUser(userData);
+                useSessionStore().setCurrentUser(userData);
 
                 this.isUserLoading = false;
             });
@@ -534,9 +539,9 @@ The admin menu only supports up to three levels of nesting.`,
             await this.loginService.logoutSso();
 
             this.adminMenuStore.clearExpandedMenuEntries();
-            Shopware.Store.get('session').removeCurrentUser();
-            Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
-            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
+            useSessionStore().removeCurrentUser();
+            useNotificationStore().clearGrowlNotificationsForCurrentUser();
+            useNotificationStore().clearNotificationsForCurrentUser();
         },
 
         addScrollbarOffset() {

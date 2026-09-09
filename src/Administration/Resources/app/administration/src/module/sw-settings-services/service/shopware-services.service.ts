@@ -7,6 +7,7 @@ import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 import type SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 import type { PermissionsConsent, ServiceConfiguration } from '../store/shopware-services.store';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @private
@@ -54,7 +55,7 @@ export default class ShopwareServicesService extends ApiService {
     }
 
     getInstalledServices(): Promise<ServiceDescription[]> {
-        let languageId = Shopware.Store.get('session').languageId;
+        let languageId = useSessionStore().languageId;
         if (!languageId) {
             languageId = Shopware.Context.api.languageId!;
         }

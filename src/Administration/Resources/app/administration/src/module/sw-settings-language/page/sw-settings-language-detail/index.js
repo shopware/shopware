@@ -4,6 +4,7 @@
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -277,7 +278,7 @@ export default {
             }
 
             if (!this.languageId) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+                useContextStore().resetLanguageToDefault();
                 this.language = this.languageRepository.create();
                 this.language.active = true;
 

@@ -3,6 +3,8 @@
  */
 import template from './sw-settings-measurement.html.twig';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
 
 const { Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
@@ -133,7 +135,7 @@ export default {
                             selfLink: expression,
                         });
 
-                        Shopware.Store.get('error').addApiError({ expression, error });
+                        useErrorStore().addApiError({ expression, error });
                     });
                     this.isLoading = false;
 
@@ -151,7 +153,7 @@ export default {
                     message: this.$t('sw-settings-measurement.notification.saveMeasurementSuccess'),
                 });
 
-                Shopware.Store.get('error').resetApiErrors();
+                useErrorStore().resetApiErrors();
             } catch (error) {
                 this.createNotificationError({
                     title: this.$t('global.default.error'),
@@ -170,7 +172,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.createdComponent();
         },
 
@@ -179,7 +181,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').resetApiErrors();
+            useErrorStore().resetApiErrors();
 
             this.measurementSystem = this.measurementSystems.find((system) => system.technicalName === technicalName);
 

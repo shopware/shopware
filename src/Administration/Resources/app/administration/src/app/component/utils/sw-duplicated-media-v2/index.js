@@ -1,6 +1,7 @@
 import template from './sw-duplicated-media-v2.html.twig';
 import './sw-duplicated-media-v2.scss';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Context, Filter } = Shopware;
 /**
@@ -37,7 +38,7 @@ export default {
 
     computed: {
         presignedSupported() {
-            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+            return useContextStore().app.config?.settings?.presignedUploadSupported ?? false;
         },
         mediaRepository() {
             return this.repositoryFactory.create('media');

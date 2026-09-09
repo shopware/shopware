@@ -4,6 +4,7 @@
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -476,7 +477,7 @@ export default {
         },
 
         readCustomFieldLabel(field) {
-            const language = Shopware.Store.get('session').currentLocale;
+            const language = useSessionStore().currentLocale;
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return field.config.label[language] || field.config.label[fallback];

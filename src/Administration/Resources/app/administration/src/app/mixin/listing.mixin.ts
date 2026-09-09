@@ -7,6 +7,8 @@ import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
 import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 import { debug, types } from 'shopware:utils';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /* @private */
 export {};
@@ -126,8 +128,8 @@ export default Shopware.Mixin.register(
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [];
-            Shopware.Store.get('swBulkEdit').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
+            useSwBulkEditStore().selectedIds = [];
         },
 
         watch: {
@@ -160,8 +162,8 @@ export default Shopware.Mixin.register(
             },
 
             selection() {
-                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.selection);
-                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.selection);
+                useShopwareAppsStore().selectedIds = Object.keys(this.selection);
+                useSwBulkEditStore().selectedIds = Object.keys(this.selection);
             },
 
             term(newValue) {

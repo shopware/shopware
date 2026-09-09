@@ -6,6 +6,7 @@ import './sw-notification-center-item.scss';
 import template from './sw-notification-center-item.html.twig';
 import { string } from 'shopware:utils';
 import notificationTranslationMixin from 'shopware:mixins/notification-translation';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -50,7 +51,7 @@ export default {
         },
 
         onDelete() {
-            Shopware.Store.get('notification').removeNotification(this.notification);
+            useNotificationStore().removeNotification(this.notification);
         },
 
         handleAction(action) {

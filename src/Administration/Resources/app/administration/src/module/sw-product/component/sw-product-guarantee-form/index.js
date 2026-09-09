@@ -4,6 +4,7 @@
 
 import template from './sw-product-guarantee-form.html.twig';
 import './sw-product-guarantee-form.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -21,11 +22,11 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         ...mapPropertyErrors('product', [

@@ -7,6 +7,7 @@ import './sw-settings-services-grant-permissions-modal.scss';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import extractErrorMessage from '../../composables/extract-error';
 import { grantPermissions } from '../../composables/permissions';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -61,7 +62,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await grantPermissions();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: extractErrorMessage(exception),

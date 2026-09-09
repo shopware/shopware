@@ -3,6 +3,7 @@
  */
 import template from './sw-users-permissions-role-detail.html.twig';
 import './sw-users-permissions-role-detail.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Mixin } = Shopware;
 
@@ -64,7 +65,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.Store.get('session').languageId;
+            return useSessionStore().languageId;
         },
 
         roleRepository() {
@@ -229,7 +230,7 @@ export default {
 
             delete data.password;
 
-            Shopware.Store.get('session').setCurrentUser(data);
+            useSessionStore().setCurrentUser(data);
         },
 
         onCloseConfirmPasswordModal() {

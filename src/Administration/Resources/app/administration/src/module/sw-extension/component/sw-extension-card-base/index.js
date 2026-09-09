@@ -1,5 +1,7 @@
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
+import useContextStore from 'shopware:stores/context';
+import useExtensionMainModulesStore from 'shopware:stores/extensionMainModules';
 
 const { Utils, Filter } = Shopware;
 
@@ -176,7 +178,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.Store.get('extensionMainModules').mainModules.find(
+            return useExtensionMainModulesStore().mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },
@@ -240,7 +242,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            return useContextStore().app.config.settings?.disableExtensionManagement;
         },
 
         showContextMenu() {

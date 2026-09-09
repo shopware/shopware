@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-measurement-default-units.html.twig';
 import './sw-settings-measurement-default-units.scss';
+import useErrorStore from 'shopware:stores/error';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -53,7 +54,7 @@ export default {
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(this.measurementSystem, 'system');
+            return useErrorStore().getApiError(this.measurementSystem, 'system');
         },
 
         measurementLengthUnitError() {
@@ -61,7 +62,7 @@ export default {
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(this.measurementSystem, 'length');
+            return useErrorStore().getApiError(this.measurementSystem, 'length');
         },
 
         measurementWeightUnitError() {
@@ -69,7 +70,7 @@ export default {
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(this.measurementSystem, 'weight');
+            return useErrorStore().getApiError(this.measurementSystem, 'weight');
         },
     },
 

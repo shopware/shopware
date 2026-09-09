@@ -1,6 +1,7 @@
 import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
 import { format } from 'shopware:utils';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const { Mixin } = Shopware;
 
@@ -70,7 +71,7 @@ export default {
                 return [];
             }
 
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'list') {
                     return false;
                 }

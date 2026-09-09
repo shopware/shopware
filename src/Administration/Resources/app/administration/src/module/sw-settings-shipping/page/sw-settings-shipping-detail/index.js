@@ -3,6 +3,8 @@ import template from './sw-settings-shipping-detail.html.twig';
 import './store';
 import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
 const { Mixin, Context } = Shopware;
 /**
@@ -57,15 +59,15 @@ export default {
 
     computed: {
         shippingMethod() {
-            return Shopware.Store.get('swShippingDetail').shippingMethod;
+            return useSwShippingDetailStore().shippingMethod;
         },
 
         currencies() {
-            return Shopware.Store.get('swShippingDetail').currencies;
+            return useSwShippingDetailStore().currencies;
         },
 
         restrictedRuleIds() {
-            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+            return useSwShippingDetailStore().restrictedRuleIds;
         },
 
         ...mapPropertyErrors('shippingMethod', [
@@ -174,7 +176,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+                useContextStore().resetLanguageToDefault();
 
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();
@@ -183,7 +185,7 @@ export default {
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);
-                Shopware.Store.get('swShippingDetail').shippingMethod = shippingMethod;
+                useSwShippingDetailStore().shippingMethod = shippingMethod;
             } else {
                 this.loadEntityData();
             }
@@ -199,7 +201,7 @@ export default {
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('salesChannels');
             this.currencyRepository.search(criteria, Context.api).then((currencyResponse) => {
-                Shopware.Store.get('swShippingDetail').currencies = this.sortCurrencies(currencyResponse);
+                useSwShippingDetailStore().currencies = this.sortCurrencies(currencyResponse);
                 this.currenciesLoading = false;
             });
         },
@@ -214,10 +216,10 @@ export default {
             this.shippingMethodRepository
                 .get(this.shippingMethodId, Shopware.Context.api, this.shippingMethodCriteria)
                 .then((res) => {
-                    Shopware.Store.get('swShippingDetail').shippingMethod = res;
+                    useSwShippingDetailStore().shippingMethod = res;
 
                     this.ruleConditionDataProviderService.getRestrictedRules('shippingMethodPrices').then((result) => {
-                        Shopware.Store.get('swShippingDetail').restrictedRuleIds = this.restrictedRuleIds.concat(result);
+                        useSwShippingDetailStore().restrictedRuleIds = this.restrictedRuleIds.concat(result);
                     });
 
                     this.loadCustomFieldSets().then(() => {

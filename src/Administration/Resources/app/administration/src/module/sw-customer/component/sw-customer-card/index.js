@@ -3,6 +3,8 @@ import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @sw-package checkout
@@ -181,7 +183,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         emailIdnFilter() {
@@ -195,7 +197,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
+            useErrorStore().removeApiError(`customer.${this.customer.id}.company`);
         },
     },
 

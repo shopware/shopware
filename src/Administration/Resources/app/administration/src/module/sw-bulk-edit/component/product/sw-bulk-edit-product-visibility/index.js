@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import template from './sw-bulk-edit-product-visibility.html.twig';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
 
@@ -31,7 +32,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         productVisibilityRepository() {

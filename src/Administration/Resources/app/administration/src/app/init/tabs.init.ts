@@ -3,13 +3,14 @@
  */
 
 import type { Router, RouteRecordRaw } from 'vue-router';
+import useTabsStore from 'shopware:stores/tabs';
 
 /**
  * @private
  */
 export default function initializeTabs(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', async (componentConfig) => {
-        Shopware.Store.get('tabs').addTabItem(componentConfig);
+        useTabsStore().addTabItem(componentConfig);
 
         // Reload current route if it does not exist
         const router = Shopware.Application.view?.router as Router;
@@ -21,7 +22,7 @@ export default function initializeTabs(): void {
     });
 
     Shopware.ExtensionAPI.handle('uiTabsSetVisibility', (setVisibilityConfig) => {
-        Shopware.Store.get('tabs').setVisibility(setVisibilityConfig);
+        useTabsStore().setVisibility(setVisibilityConfig);
     });
 
     // Wait until the view is initialized
@@ -36,7 +37,7 @@ export default function initializeTabs(): void {
             }
 
             // Get all tab routes
-            const tabRoutes = Object.values(Shopware.Store.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
+            const tabRoutes = Object.values(useTabsStore().tabItems).reduce<string[]>((acc, tabItems) => {
                 acc = [
                     ...acc,
                     ...tabItems.map((tabItem) => tabItem.componentSectionId),

@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-mailer-selection.html.twig';
 import './sw-first-run-wizard-mailer-selection.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -30,8 +31,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement =
-                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            const disabledExtensionManagement = useContextStore().app.config.settings?.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'shopware.account' : 'paypal.info';
 
             return [

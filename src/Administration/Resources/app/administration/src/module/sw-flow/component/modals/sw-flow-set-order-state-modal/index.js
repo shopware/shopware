@@ -1,5 +1,6 @@
 import template from './sw-flow-set-order-state-modal.html.twig';
 import { Criteria } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component, Mixin, Store } = Shopware;
 const { mapState } = Component.getComponentHelper();
@@ -86,7 +87,7 @@ export default {
         getAllStates() {
             return this.stateMachineStateRepository.search(this.stateMachineStateCriteria).then((data) => {
                 this.generateOptions(data);
-                Shopware.Store.get('swFlow').stateMachineState = data;
+                useSwFlowStore().stateMachineState = data;
             });
         },
 

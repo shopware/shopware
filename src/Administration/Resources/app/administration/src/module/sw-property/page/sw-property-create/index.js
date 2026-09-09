@@ -3,6 +3,7 @@
  */
 
 import template from './sw-property-create.html.twig';
+import useContextStore from 'shopware:stores/context';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,7 +23,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+            if (!useContextStore().isSystemDefaultLanguage) {
                 Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
             }
 

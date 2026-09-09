@@ -6,6 +6,7 @@
 /* @private */
 import { defineComponent } from 'vue';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 interface UserSettingsEntity {
     id?: string;
@@ -50,7 +51,7 @@ export default Shopware.Mixin.register(
             },
 
             currentUser(): CurrentUser | null {
-                return Shopware.Store.get('session').currentUser as CurrentUser | null;
+                return useSessionStore().currentUser as CurrentUser | null;
             },
         },
 

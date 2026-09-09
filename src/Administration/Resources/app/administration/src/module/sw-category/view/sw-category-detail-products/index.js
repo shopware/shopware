@@ -1,6 +1,7 @@
 import template from './sw-category-detail-products.html.twig';
 import './sw-category-detail-products.scss';
 import { Criteria } from 'shopware:data';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const ShopwareError = Shopware.Classes.ShopwareError;
@@ -39,7 +40,7 @@ export default {
 
     computed: {
         category() {
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
 
         productStreamRepository() {

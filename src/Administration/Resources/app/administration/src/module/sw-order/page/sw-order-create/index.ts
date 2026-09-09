@@ -5,6 +5,7 @@ import '../../store/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -137,7 +138,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
-            Shopware.Store.get('context').api.languageId =
+            useContextStore().api.languageId =
                 (localStorage.getItem('sw-admin-current-language') as EntityKey<'language'>) ||
                 Shopware.Defaults.systemLanguageId;
             void this.$router.push({

@@ -1,4 +1,5 @@
 import { string } from 'shopware:utils';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package framework
@@ -27,7 +28,7 @@ export function mapPropertyErrors<T extends string, K extends string>(
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(entity, property);
+            return useErrorStore().getApiError(entity, property);
         };
     });
 
@@ -40,7 +41,7 @@ export function mapSystemConfigErrors(
     saleChannelId: EntityKey<'sales_channel'> | null,
     key: string = '',
 ): $TSFixMe {
-    return Shopware.Store.get('error').getSystemConfigApiError(entityName, saleChannelId!, key);
+    return useErrorStore().getSystemConfigApiError(entityName, saleChannelId!, key);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -61,7 +62,7 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return entityCollection.map((entity) => Shopware.Store.get('error').getApiError(entity, property));
+            return entityCollection.map((entity) => useErrorStore().getApiError(entity, property));
         };
     });
 
@@ -77,7 +78,7 @@ export function mapPageErrors<T extends string>(
         const subjects = errorConfig[routeName as T];
         map[`${string.camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
-                return Shopware.Store.get('error').existsErrorInProperty(entityName, subjects[entityName]);
+                return useErrorStore().existsErrorInProperty(entityName, subjects[entityName]);
             });
         };
     });

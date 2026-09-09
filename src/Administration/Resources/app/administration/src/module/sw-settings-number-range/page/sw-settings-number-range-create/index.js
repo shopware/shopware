@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import template from './sw-settings-number-range-create.html.twig';
+import useContextStore from 'shopware:stores/context';
 
 const utils = Shopware.Utils;
 
@@ -67,8 +68,8 @@ export default {
     methods: {
         async createdComponent() {
             await this.getProductNumberRanges();
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             if (this.$route.params.id) {

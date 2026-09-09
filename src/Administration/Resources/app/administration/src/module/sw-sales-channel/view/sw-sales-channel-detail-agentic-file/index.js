@@ -8,6 +8,7 @@ import template from './sw-sales-channel-detail-agentic-file.html.twig';
 import './sw-sales-channel-detail-agentic-file.scss';
 import { string, types } from 'shopware:utils';
 import { EntityCollection } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 const { Mixin, Context, Defaults } = Shopware;
 const FILE_FAMILY_AGENTIC = 'agentic';
@@ -510,7 +511,7 @@ export default {
                 return null;
             }
 
-            const adminLanguageId = Shopware.Store.get('session')?.languageId;
+            const adminLanguageId = useSessionStore()?.languageId;
             const adminLanguageDomain = adminLanguageId
                 ? domains.find((domain) => {
                       return domain.languageId === adminLanguageId;

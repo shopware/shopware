@@ -332,7 +332,8 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         expect(looksLikeRef).toBe(false);
     });
 
-    it('leaves a setup() that returns a render function untouched', async () => {
+    it('leaves a setup() that returns a render function untouched and reports the skipped overrides', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         _overridesMap['sw-shim-render'] = [() => ({ unused: computed(() => 'x') })] as never;
 
         const config = {
@@ -348,8 +349,12 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         await flushPromises();
 
         // The bag cannot ride along with a render function, so the component renders without overrides
-        // instead of breaking.
+        // instead of breaking - and says so, since the override author sees no other hint.
         expect(wrapper.html()).toContain('from-render');
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-shim-render] Setup overrides not applied'));
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('1 registered override(s)'));
+
+        warnSpy.mockRestore();
     });
 
     it('disposes watchers an override creates when the component unmounts', async () => {

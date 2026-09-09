@@ -243,6 +243,57 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
     }
 
+    #[TestDox('skips a binding token that is absent from the config and has no key default, which names no stored key')]
+    public function testResolveSkipsAbsentBindingTokenWithoutKeyDefault(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
+            ->reference('media', MediaEntity::class, required: true)
+            ->primitive('height', 'string', default: 'auto')
+            ->build();
+
+        // 'property' is declared hasDefault: false, so an omitted config value leaves the token null.
+        // Deleting the `!\is_string($token)` operand from StoredSchemaResolver::namesStoredKey() would let
+        // this null token pass and publish an entry under the coerced key '', which the assertion below
+        // would then fail to match.
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media Picker',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media'])],
+            [],
+            'core',
+        );
+
+        static::assertSame([
+            'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
+        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('skips an empty binding token, which names no stored key')]
+    public function testResolveSkipsEmptyToken(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
+            ->reference('media', MediaEntity::class, required: true)
+            ->primitive('height', 'string', default: 'auto')
+            ->build();
+
+        // Deleting the `$token === ''` operand from StoredSchemaResolver::namesStoredKey() would let this
+        // empty token pass and publish an entry under the coerced key '', which the assertion below would
+        // then fail to match.
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media Picker',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => ''])],
+            [],
+            'core',
+        );
+
+        static::assertSame([
+            'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
+        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
     #[TestDox('resolves a type with neither primitives nor binding specifications to an empty map')]
     public function testResolveTypeWithoutPrimitivesAndSpecificationsToEmptyMap(): void
     {

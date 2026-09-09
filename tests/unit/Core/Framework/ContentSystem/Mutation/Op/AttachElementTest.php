@@ -122,7 +122,7 @@ class AttachElementTest extends TestCase
 
         $carried = $result->roots[0]->property('text');
         static::assertNotNull($carried);
-        static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
+        static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried);
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]

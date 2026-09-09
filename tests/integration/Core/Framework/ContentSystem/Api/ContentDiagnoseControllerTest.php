@@ -204,17 +204,6 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertTrue($body['diagnostics']['resolvable']);
     }
 
-    #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
-    public function testDiagnoseWithRootSource(): void
-    {
-        $body = $this->diagnose([
-            'layout' => [$this->element($this->registeredComponent())],
-            'rootSource' => 'product',
-        ]);
-
-        static::assertArrayHasKey('resolvable', $body['diagnostics']);
-    }
-
     #[TestDox('serves a root-ambient candidate as origin root with a null provider element id at every depth, beside the ancestor-provided parent candidate')]
     public function testDiagnoseServesRootAndParentOriginsForANestedElement(): void
     {

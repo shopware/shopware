@@ -127,32 +127,6 @@ class ContentPreviewControllerTest extends TestCase
         static::assertArrayHasKey('errors', $body);
     }
 
-    #[TestDox('previewUrl rejects a draft carrying an unregistered style option with 400')]
-    public function testPreviewUrlReturns400ForUnknownStyleOption(): void
-    {
-        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
-        $component = array_key_first($registered);
-        static::assertIsString($component);
-
-        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
-            'layout' => [[
-                'id' => 'el-1',
-                'component' => $component,
-                'properties' => [],
-                'style' => ['definitely-not-a-style-option' => ['xs' => 'x']],
-            ]],
-            'entityType' => 'product',
-            'entityId' => 'some-product-id',
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-        ]);
-
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('CONTENT_SYSTEM__ELEMENT_TYPES_INVALID', (string) $response->getContent());
-        static::assertStringContainsString('definitely-not-a-style-option', (string) $response->getContent());
-    }
-
     /**
      * `Sw:Content:Text.text` is declared translatable, so its stored shape is a language map and a bare string
      * is a mismatched property type. The codec decodes any value shape, so the draft reaches the check intact
@@ -233,5 +207,31 @@ class ContentPreviewControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         static::assertStringContainsString('CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE', (string) $response->getContent());
+    }
+
+    #[TestDox('previewUrl rejects a draft carrying an unregistered style option with 400')]
+    public function testPreviewUrlReturns400ForUnknownStyleOption(): void
+    {
+        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
+        $component = array_key_first($registered);
+        static::assertIsString($component);
+
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => $component,
+                'properties' => [],
+                'style' => ['definitely-not-a-style-option' => ['xs' => 'x']],
+            ]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('CONTENT_SYSTEM__ELEMENT_TYPES_INVALID', (string) $response->getContent());
+        static::assertStringContainsString('definitely-not-a-style-option', (string) $response->getContent());
     }
 }

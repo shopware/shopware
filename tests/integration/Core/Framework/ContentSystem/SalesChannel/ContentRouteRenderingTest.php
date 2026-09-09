@@ -246,12 +246,12 @@ class ContentRouteRenderingTest extends TestCase
     {
         $this->createNestedLayout();
 
+        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
         // The page-level requirement the ambient run resolves really is declared by the root source, and the
         // stored root really consumes it, root-scoped.
         static::assertContains('category', $this->pageDataRequirementKeys());
         $this->assertStoredPageContextConsumer();
-
-        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
 
         static::assertArrayHasKey('properties', $root);
         static::assertIsArray($root['properties']);
@@ -439,9 +439,10 @@ class ContentRouteRenderingTest extends TestCase
     public function testFullFormatCarriesElementStyle(): void
     {
         $this->createNestedLayout();
-        $this->assertStoredStyleIsPresent();
 
         $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        $this->assertStoredStyleIsPresent();
 
         static::assertArrayHasKey('style', $root);
         static::assertIsArray($root['style']);
@@ -507,12 +508,15 @@ class ContentRouteRenderingTest extends TestCase
     public function testFullFormatOmitsAuthoringOnlyKeys(): void
     {
         $this->createNestedLayout();
+
+        $elements = $this->flatten($this->rootElements($this->requestJson($this->uri('content'))));
+
         // The fixture authors both of the keys asserted away below: `acceptsContext` on the root and a
         // `dataRequirements` entry on the image, so their absence is a change and not an empty case.
         $this->assertStoredPageContextConsumer();
         static::assertNotSame([], $this->storedImageDataRequirements());
 
-        foreach ($this->flatten($this->rootElements($this->requestJson($this->uri('content')))) as $element) {
+        foreach ($elements as $element) {
             static::assertArrayNotHasKey('dataRequirements', $element);
             static::assertArrayNotHasKey('acceptsContext', $element);
             static::assertArrayNotHasKey('providesContext', $element);

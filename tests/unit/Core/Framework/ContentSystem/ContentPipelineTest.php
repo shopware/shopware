@@ -196,9 +196,6 @@ class ContentPipelineTest extends TestCase
             new Request()
         );
 
-        // Fixture guard: without page-level data requirements the pipeline never wraps at all.
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
-
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             function (object $event) use (&$observed) {
@@ -218,6 +215,9 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: without page-level data requirements the pipeline never wraps at all.
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
 
         static::assertSame(['root-id'], $observed);
     }
@@ -716,10 +716,6 @@ class ContentPipelineTest extends TestCase
             ->build();
         $layout = $this->createSingleRootLayout($root);
 
-        // Fixture guard: the authored value differs from the replacement, so the served title can only
-        // read 'replaced-title' if the result carries the forest the subscriber handed back.
-        static::assertSame('authored-title', $root->property('title')?->asString());
-
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static function (object $event) {
                 if ($event instanceof RenderedTreeFinalizationEvent) {
@@ -739,6 +735,10 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
+        // Fixture guard: the authored value differs from the replacement, so the served title can only
+        // read 'replaced-title' if the result carries the forest the subscriber handed back.
+        static::assertSame('authored-title', $root->property('title')?->asString());
+
         $elements = $result->tree;
         static::assertCount(1, $elements);
         static::assertSame('replaced-title', $elements[0]->properties['title']);
@@ -748,10 +748,6 @@ class ContentPipelineTest extends TestCase
     public function testLoadServesAnElementAddedDuringFinalization(): void
     {
         $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
-
-        // Fixture guard: the added element exists nowhere in the stored tree, so it can only reach the result
-        // by being minted inside the subscriber.
-        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
 
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static function (object $event) {
@@ -774,6 +770,10 @@ class ContentPipelineTest extends TestCase
             false,
             Generator::generateSalesChannelContext()
         );
+
+        // Fixture guard: the added element exists nowhere in the stored tree, so it can only reach the result
+        // by being minted inside the subscriber.
+        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
 
         static::assertSame(['root-id', 'added-id'], $this->collectRenderedIds($result->tree));
         static::assertSame('added-title', $this->renderedElement($result->tree, 'added-id')->properties['title']);

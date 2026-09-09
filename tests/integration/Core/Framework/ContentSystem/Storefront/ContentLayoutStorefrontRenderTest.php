@@ -70,18 +70,18 @@ class ContentLayoutStorefrontRenderTest extends TestCase
     public function testEncodedMediaUrlReachesTheRenderedImageTag(): void
     {
         $media = $this->loadMedia();
+        $url = $media->getUrl();
+        $renderedSrc = $this->renderedImageTag()->getAttribute('src');
 
         // The fixture really is the media-backed one this test claims, and the expectation is read off the
         // entity rather than off the filter the template calls, so a wrong-but-non-empty URL cannot agree
         // with itself on both sides.
         static::assertSame(self::MEDIA_PATH, $media->getPath());
-
-        $url = $media->getUrl();
         static::assertNotSame('', $url);
         // The generated URL carries a cache-busting query, so the persisted path is a substring, not a suffix.
         static::assertStringContainsString('/' . self::MEDIA_PATH, $url);
 
-        static::assertSame($url, $this->renderedImageTag()->getAttribute('src'));
+        static::assertSame($url, $renderedSrc);
     }
 
     #[TestDox('renders the declared image attributes onto the img tag of the image element')]
@@ -91,6 +91,40 @@ class ContentLayoutStorefrontRenderTest extends TestCase
 
         static::assertSame(self::IMAGE_HEIGHT, $image->getAttribute('height'));
         static::assertSame(self::IMAGE_LOADING, $image->getAttribute('loading'));
+    }
+
+    /**
+     * `Sw:Media:Image.html.twig:47` branches on `media is not null`; the write gate only requires `mediaId` to
+     * be filled, not that the media row exists (see {@see \Shopware\Tests\Integration\Core\Framework\ContentSystem\Validation\MediaImageWriteGateTest::testPersistsMediaImageWriteWithFilledMediaId()}),
+     * so a layout wired to a dangling media id persists and this is the leg that renders it.
+     */
+    #[TestDox('renders the placeholder markup instead of an img tag when the element\'s media id names no media row')]
+    public function testDanglingMediaIdRendersThePlaceholderMarkup(): void
+    {
+        $categoryId = $this->ids->create('dangling-category');
+        $this->createTestCategory($categoryId, 'Storefront render dangling media category');
+        $this->persistDanglingMediaLayout($categoryId);
+
+        $response = $this->request('GET', 'content/category/' . $categoryId, []);
+        $html = (string) $response->getContent();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $html);
+
+        $document = new \DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $loaded = $document->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        static::assertTrue($loaded);
+
+        $xpath = new \DOMXPath($document);
+
+        $images = $xpath->query('//img[contains(concat(" ", normalize-space(@class), " "), " sw-media-image ")]');
+        static::assertInstanceOf(\DOMNodeList::class, $images);
+        static::assertCount(0, $images, 'A dangling media id must not render an img tag.');
+
+        $placeholders = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " sw-media-image__placeholder ")]');
+        static::assertInstanceOf(\DOMNodeList::class, $placeholders);
+        static::assertCount(1, $placeholders, 'A dangling media id must render the placeholder markup.');
     }
 
     /**
@@ -157,6 +191,30 @@ class ContentLayoutStorefrontRenderTest extends TestCase
             $this->ids->get('assignment'),
             $this->ids->get('category'),
             $this->ids->get('layout'),
+        );
+    }
+
+    private function persistDanglingMediaLayout(string $categoryId): void
+    {
+        $layoutId = $this->ids->create('dangling-layout');
+
+        $this->persistContentLayout($layoutId, 'storefront-render-dangling-media', '1.0.0', 'category', [[
+            'id' => $this->ids->create('dangling-image'),
+            'component' => 'Sw:Media:Image',
+            'properties' => [
+                // Never persisted as a media entity, so the render leg this test pins is the one for a
+                // resolvable-but-absent media reference.
+                'mediaId' => $this->ids->create('dangling-media-id'),
+            ],
+            'dataRequirements' => [
+                'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            ],
+        ]]);
+
+        $this->assignLayoutToCategory(
+            $this->ids->create('dangling-assignment'),
+            $categoryId,
+            $layoutId,
         );
     }
 

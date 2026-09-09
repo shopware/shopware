@@ -159,6 +159,42 @@ class BindingApplicatorTest extends TestCase
         static::assertSame($newConfig, $result->dataRequirements['gallery']->config);
     }
 
+    #[TestDox('seeds the raw input default when the input key is not among the registered type\'s declared properties')]
+    public function testSeedsRawInputDefaultForKeyAbsentFromRegisteredTypeProperties(): void
+    {
+        // Sw:Content:Text IS registered (textRegistry), but its only declared property is 'text'; 'caption' is not
+        // among registry->get($element->component)->properties(), so $properties['caption'] ?? null at
+        // BindingApplicator.php:110 evaluates to null just as it does for an unregistered component. Every other
+        // seed test either targets a declared translatable key or an unregistered component wholesale, so this
+        // key-not-declared branch of the coalescing fallback is otherwise never reached.
+        $element = new StoredElement('text-1', 'Sw:Content:Text');
+        $specification = new BindingSpecification('caption-seed', 'Sw:Content:Text', 'Caption seed', [], ['caption' => new BindingInput(true, 'Autumn sale', false)], 'core');
+
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:caption-seed');
+
+        static::assertSame('Autumn sale', $result->property('caption')?->jsonSerialize());
+    }
+
+    #[TestDox('fill-only: leaves an already wired key unattributed when it carries no prior attribution entry')]
+    public function testFillOnlyLeavesAnAlreadyWiredButUnattributedKeyUnattributed(): void
+    {
+        // 'media' already has a data requirement but no attribution entry. wiredKeys at BindingApplicator.php:56
+        // is array_diff'd against the existing data requirement keys, so it excludes 'media' and attributionFor()
+        // mints no entry for it. Every fill-only test that exercises an already-bound key builds it via
+        // boundImageElement(), which sets an attribution alongside the data requirement, so the `+` union at :60
+        // masks whether wiredKeys correctly excluded the key: replacing it with array_keys($specification->resolves())
+        // would mint an attribution entry here that the key never had, and the old entry's absence would then show.
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')
+            ->withDataRequirement('media', 'entity', $oldConfig)
+            ->build();
+
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+
+        static::assertSame([], $result->attributedSpecifications);
+    }
+
     #[TestDox('does not seed an input whose specification declares no default')]
     public function testDoesNotSeedInputWithoutDefault(): void
     {

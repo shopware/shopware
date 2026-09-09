@@ -828,6 +828,15 @@ class InfoControllerTest extends TestCase
 
         // The declared FQCN property is filled by the pipeline, never stored, so it contributes no entry.
         static::assertArrayNotHasKey('media', $typesByName['Sw:Media:Image']['storageSchema']);
+
+        // quantity-selector.yaml declares only `product`, an FQCN filled by the pipeline, so it contributes no
+        // property entry; no binding specification for this type names a propertyReference key either, so
+        // storageSchema resolves to []. InfoController::elementTypeSchema() casts it to (object) before
+        // encoding, so an empty schema must reach the wire as {} rather than [] — this pins that encoding the
+        // way the bindingSpecifications case above pins its own empty-map encoding.
+        static::assertArrayHasKey('Sw:Product:QuantitySelector', $typesByName);
+        static::assertSame([], $typesByName['Sw:Product:QuantitySelector']['storageSchema']);
+        static::assertStringContainsString('"storageSchema":{}', $content);
     }
 
     public function testFetchMessageStats(): void

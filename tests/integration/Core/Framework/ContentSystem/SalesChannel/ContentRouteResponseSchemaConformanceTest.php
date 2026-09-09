@@ -160,6 +160,25 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
         );
     }
 
+    /**
+     * The instrument control. Without it a schema that resolved to something permissive — or a validator wired
+     * to the wrong document — would report every body as conformant and this file would pass vacuously.
+     */
+    #[TestDox('names the JSON pointer and the schema keyword when a member the declared schema requires is missing')]
+    public function testValidationNamesThePointerAndKeywordOfAMissingRequiredMember(): void
+    {
+        $this->createPopulatedLayout(self::SECTION_MAIN);
+
+        $members = get_object_vars($this->servedBody('/content/{path}'));
+
+        $violations = $this->schemaViolations('/content/{path}', (object) array_diff_key($members, ['apiAlias' => null]));
+
+        static::assertArrayHasKey('apiAlias', $members, 'The control removes a member the served body really carries.');
+        static::assertNotSame([], $violations);
+        static::assertStringContainsString('[required]', implode("\n", $violations));
+        static::assertStringContainsString('apiAlias', implode("\n", $violations));
+    }
+
     #[DataProvider('routeProvider')]
     #[TestDox('validates an empty-case body against the schema its own route entry declares')]
     public function testEmptyCaseBodyValidatesAgainstTheSchemaItsRouteDeclares(string $section, string $schemaPath): void
@@ -206,25 +225,6 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
         static::assertSame([], $body['data'] ?? null, 'The empty data map must reach the wire as [].');
         static::assertSame([], $body['assignments'] ?? null, 'The empty assignments map must reach the wire as [].');
-    }
-
-    /**
-     * The instrument control. Without it a schema that resolved to something permissive — or a validator wired
-     * to the wrong document — would report every body as conformant and this file would pass vacuously.
-     */
-    #[TestDox('names the JSON pointer and the schema keyword when a member the declared schema requires is missing')]
-    public function testValidationNamesThePointerAndKeywordOfAMissingRequiredMember(): void
-    {
-        $this->createPopulatedLayout(self::SECTION_MAIN);
-
-        $members = get_object_vars($this->servedBody('/content/{path}'));
-        static::assertArrayHasKey('apiAlias', $members, 'The control removes a member the served body really carries.');
-
-        $violations = $this->schemaViolations('/content/{path}', (object) array_diff_key($members, ['apiAlias' => null]));
-
-        static::assertNotSame([], $violations);
-        static::assertStringContainsString('[required]', implode("\n", $violations));
-        static::assertStringContainsString('apiAlias', implode("\n", $violations));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -75,7 +76,11 @@ class ContentRouteTranslationTest extends TestCase
         ]);
     }
 
-    #[TestDox('serves the anchor entry of a translatable property for a system-language request')]
+    /**
+     * Stays its own method rather than a provider row: this case sends no language header at all, which is not
+     * a language the provider could name.
+     */
+    #[TestDox('serves the anchor entry for a request carrying no language header')]
     public function testSystemLanguageRequestServesTheAnchorEntry(): void
     {
         $this->persistTextLayout([
@@ -86,26 +91,28 @@ class ContentRouteTranslationTest extends TestCase
         static::assertSame(self::ANCHOR_TEXT, $this->servedProperties(null)['text'] ?? null);
     }
 
-    #[TestDox('serves the requested language own entry of a translatable property')]
-    public function testRequestedLanguageServesItsOwnEntry(): void
+    /**
+     * The requested language is named rather than passed as an id: the ids collection is instance state and a
+     * data provider is static, so the row carries the name and the test resolves it.
+     *
+     * @return iterable<string, array{string, string}>
+     */
+    public static function reductionChainProvider(): iterable
     {
-        $this->persistTextLayout([
-            Defaults::LANGUAGE_SYSTEM => self::ANCHOR_TEXT,
-            $this->ids->get('language-regional') => self::REGIONAL_TEXT,
-        ]);
-
-        static::assertSame(self::REGIONAL_TEXT, $this->servedProperties($this->ids->get('language-regional'))['text'] ?? null);
+        yield 'requested language serves its own entry' => ['language-regional', self::REGIONAL_TEXT];
+        yield 'dialect without its own entry serves the parent entry' => ['language-dialect', self::REGIONAL_TEXT];
     }
 
-    #[TestDox('serves the parent entry for a requested language the map carries no entry for')]
-    public function testRequestedLanguageWithoutItsOwnEntryServesTheParentEntry(): void
+    #[DataProvider('reductionChainProvider')]
+    #[TestDox('serves the entry the reduction chain selects: $_dataName')]
+    public function testReductionChainServesExpectedEntry(string $requestedLanguage, string $expectedText): void
     {
         $this->persistTextLayout([
             Defaults::LANGUAGE_SYSTEM => self::ANCHOR_TEXT,
             $this->ids->get('language-regional') => self::REGIONAL_TEXT,
         ]);
 
-        static::assertSame(self::REGIONAL_TEXT, $this->servedProperties($this->ids->get('language-dialect'))['text'] ?? null);
+        static::assertSame($expectedText, $this->servedProperties($this->ids->get($requestedLanguage))['text'] ?? null);
     }
 
     /**
@@ -141,6 +148,22 @@ class ContentRouteTranslationTest extends TestCase
         $this->persistTextLayout([$this->ids->get('dangling-language') => self::DANGLING_TEXT]);
 
         static::assertArrayNotHasKey('text', $this->servedProperties(null));
+    }
+
+    /**
+     * The dialect's chain has three positions: [dialect, regional, system]. The map carries only the system
+     * entry, so the reduction loop must walk past both the dialect and the regional position before it finds
+     * a match. `StoredTreePreparer::selectTranslation()` walks the whole `$languageIdChain` in one `foreach`
+     * with no cap on how many entries it inspects; a regression that bounded the walk to the chain's first
+     * two positions would still pass every other test in this file (each of them resolves at position 0 or
+     * 1) and only this assertion would catch it.
+     */
+    #[TestDox('serves the anchor entry from the boundary of a three-position chain when nothing before it matches')]
+    public function testRequestedLanguageWithNeitherItsOwnNorItsParentEntryWalksToTheChainBoundary(): void
+    {
+        $this->persistTextLayout([Defaults::LANGUAGE_SYSTEM => self::ANCHOR_TEXT]);
+
+        static::assertSame(self::ANCHOR_TEXT, $this->servedProperties($this->ids->get('language-dialect'))['text'] ?? null);
     }
 
     /**

@@ -105,16 +105,14 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{scalar|null}>
+     * @return iterable<string, array{scalar|null}>
      */
-    public static function nonStringPropertyProvider(): array
+    public static function nonStringPropertyProvider(): iterable
     {
-        return [
-            'int' => [42],
-            'float' => [4.2],
-            'bool' => [true],
-            'null' => [null],
-        ];
+        yield 'int' => [42];
+        yield 'float' => [4.2];
+        yield 'bool' => [true];
+        yield 'null' => [null];
     }
 
     #[TestDox('leaves the roots unwrapped when the specification carries no page-level data requirement')]
@@ -235,12 +233,12 @@ class StoredTreePreparerTest extends TestCase
             'target-id'
         );
 
+        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::SKELETON, $this->salesChannelContext());
+
         // Fixture guard: the target needs no parent data, so the prune really does cut above it rather
         // than there never having been a virtual root to lose.
         static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, [$root]));
         static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
-
-        $prepared = $this->preparer()->prepare([$root], $specification, RenderingMode::SKELETON, $this->salesChannelContext());
 
         static::assertSame(['target-id'], $this->collectIds($prepared->tree));
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);

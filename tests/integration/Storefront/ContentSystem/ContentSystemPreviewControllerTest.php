@@ -25,6 +25,28 @@ class ContentSystemPreviewControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
+    private const PREVIEW_CACHE_KEY_PREFIX = 'content-system.preview.';
+
+    /**
+     * Tokens minted through {@see storePreviewRequest()}. The payload store writes through the cache pool,
+     * which sits outside the transaction `IntegrationTestBehaviour` rolls back, so an envelope outlives its
+     * test unless it is dropped here.
+     *
+     * @var list<string>
+     */
+    private array $storedPreviewTokens = [];
+
+    protected function tearDown(): void
+    {
+        $cache = static::getContainer()->get('cache.system');
+
+        foreach ($this->storedPreviewTokens as $token) {
+            $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
+        }
+
+        parent::tearDown();
+    }
+
     #[TestDox('answers 404 for a token that addresses no stored envelope')]
     public function testUnknownTokenIsNotFound(): void
     {
@@ -38,7 +60,7 @@ class ContentSystemPreviewControllerTest extends TestCase
     {
         $token = Uuid::randomHex();
         $cache = static::getContainer()->get('cache.system');
-        $item = $cache->getItem('content-system.preview.' . $token);
+        $item = $cache->getItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
         // An envelope with no entityType: only a validated envelope is ever written, so a malformed hit is
         // server-side state, not a defect in this caller's request.
         $item->set(['layout' => [], 'salesChannelId' => $this->getSalesChannelId()]);
@@ -49,7 +71,7 @@ class ContentSystemPreviewControllerTest extends TestCase
 
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
         } finally {
-            $cache->deleteItem('content-system.preview.' . $token);
+            $cache->deleteItem(self::PREVIEW_CACHE_KEY_PREFIX . $token);
         }
     }
 
@@ -68,8 +90,7 @@ class ContentSystemPreviewControllerTest extends TestCase
         $textId = Uuid::randomHex();
         $manufacturerId = Uuid::randomHex();
 
-        $store = static::getContainer()->get(ContentPreviewPayloadStore::class);
-        $token = $store->store(new ContentPreviewRequest(
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
             layout: [[
                 'id' => $containerId,
                 'component' => 'Sw:Grid:Container',
@@ -136,8 +157,7 @@ class ContentSystemPreviewControllerTest extends TestCase
         $languageId = $this->createSalesChannelLanguage();
         $textId = Uuid::randomHex();
 
-        $store = static::getContainer()->get(ContentPreviewPayloadStore::class);
-        $token = $store->store(new ContentPreviewRequest(
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
             layout: [[
                 'id' => $textId,
                 'component' => 'Sw:Content:Text',
@@ -164,6 +184,17 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertStringContainsString('Requested language copy', $content);
         static::assertStringNotContainsString('Anchor copy', $content);
         static::assertStringNotContainsString('Unreachable copy', $content);
+    }
+
+    /**
+     * Mints a token and records it for {@see tearDown()} to drop.
+     */
+    private function storePreviewRequest(ContentPreviewRequest $request): string
+    {
+        $token = static::getContainer()->get(ContentPreviewPayloadStore::class)->store($request);
+        $this->storedPreviewTokens[] = $token;
+
+        return $token;
     }
 
     /**

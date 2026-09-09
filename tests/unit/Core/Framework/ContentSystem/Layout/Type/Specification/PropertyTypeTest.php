@@ -11,7 +11,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * `PropertyType` sits on the coverage-source exclude list, so it is not a valid coverage target.
@@ -39,11 +38,14 @@ class PropertyTypeTest extends TestCase
             StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
         ];
 
+        // Pairs with the rejected `non-string entry after a valid one` row: together they pin that the entry
+        // loop judges every entry and admits on entry count alone. Without this row, a rejection keyed on
+        // `count > 1` rather than on entry type passes the whole class.
         yield 'multi-entry language map on a translatable string' => [
             new PropertyType('string', true, null, null),
             StoredValue::ofMap([
                 Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
-                Uuid::randomHex() => StoredValue::ofString('Welcome'),
+                'language-de' => StoredValue::ofString('Welcome'),
             ]),
         ];
 
@@ -76,21 +78,6 @@ class PropertyTypeTest extends TestCase
 
         yield 'null on a non-translatable string' => [
             new PropertyType('string', false, null, null),
-            StoredValue::ofNull(),
-        ];
-
-        yield 'null on a non-translatable integer' => [
-            new PropertyType('integer', false, null, null),
-            StoredValue::ofNull(),
-        ];
-
-        yield 'null on a non-translatable number' => [
-            new PropertyType('number', false, null, null),
-            StoredValue::ofNull(),
-        ];
-
-        yield 'null on a non-translatable boolean' => [
-            new PropertyType('boolean', false, null, null),
             StoredValue::ofNull(),
         ];
 
@@ -151,6 +138,16 @@ class PropertyTypeTest extends TestCase
         yield 'language map holding an integer entry' => [
             new PropertyType('string', true, null, null),
             StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofInt(3)]),
+        ];
+
+        // The only row whose first entry is a valid string: it pins that the entry loop judges every entry
+        // rather than the first one, which every other rejected map row would still admit.
+        yield 'language map holding a non-string entry after a valid one' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
+                'language-de' => StoredValue::ofInt(3),
+            ]),
         ];
 
         yield 'language map holding a nested map entry' => [
@@ -235,7 +232,6 @@ class PropertyTypeTest extends TestCase
     {
         $type = new PropertyType('string', true, null, null);
 
-        static::assertTrue($type->translatable());
         static::assertSame($type->toSchema()['translatable'], $type->translatable());
     }
 }

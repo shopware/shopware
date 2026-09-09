@@ -110,7 +110,7 @@ class DuplicateElementTest extends TestCase
 
         $carried = $result->roots[1]->property('text');
         static::assertNotNull($carried);
-        static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
+        static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried);
     }
 
     #[TestDox('carries key-based wiring, context definitions, and style over to the clone unchanged')]

@@ -77,6 +77,15 @@ class ContentSystemExceptionTest extends TestCase
         static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
     }
 
+    #[TestDox('propagates previous throwable when loading element type fails')]
+    public function testPreservesPreviousThrowableOnLoadFailed(): void
+    {
+        $previous = new \RuntimeException('parse error');
+        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
+
+        static::assertSame($previous, $e->getPrevious());
+    }
+
     #[DataProvider('configSerializerMessageFormProvider')]
     #[TestDox('formats the message for $_dataName')]
     public function testConfigSerializerNotRegisteredMessageForm(string $source, ?string $elementId, string $expectedMessage): void
@@ -86,15 +95,6 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($expectedMessage, $exception->getMessage());
         static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $exception->getErrorCode());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-    }
-
-    #[TestDox('propagates previous throwable when loading element type fails')]
-    public function testPreservesPreviousThrowableOnLoadFailed(): void
-    {
-        $previous = new \RuntimeException('parse error');
-        $e = ContentSystemException::elementTypeLoadFailed('test.yaml', 'invalid syntax', $previous);
-
-        static::assertSame($previous, $e->getPrevious());
     }
 
     #[TestDox('propagates previous throwable when a data loader config is invalid')]
@@ -166,13 +166,6 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID',
             'layout',
-        ];
-
-        yield 'config serializer not registered' => [
-            ContentSystemException::configSerializerNotRegistered('yaml'),
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            'CONTENT_SYSTEM__CONFIG_SERIALIZER_NOT_REGISTERED',
-            'yaml',
         ];
 
         yield 'invalid field type' => [

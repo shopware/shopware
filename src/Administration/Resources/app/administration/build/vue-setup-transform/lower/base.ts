@@ -10,7 +10,8 @@
  * hoisted, nothing is wrapped. Every top-level runtime binding is renamed to a reserved
  * `__swSetupAuthor_<name>` alias, and the footer re-declares the original names by destructuring the
  * override wrapper, so templates read overrideable state exactly like before while the body text
- * itself never moves.
+ * itself never moves. The footer closes with the generated `defineExpose()` that gives the props and
+ * the public bindings to a parent holding a template ref.
  */
 
 import { generated } from '../source-edits/chunks';
@@ -113,6 +114,19 @@ function buildBaseScript(
         `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
         `    private: ${formatStateMap(privateNames, 8)},`,
         '});',
+        '',
+        // swDefinePublic() is the parent-facing surface too, so the call is generated here and authoring
+        // one is rejected. Props join it because exposing anything closes a component to everything
+        // else, and reading a prop off a ref must keep working. After the destructure, which hands out
+        // the override-aware customRefs - that is what makes a parent's `treeItem.opened = false` reach
+        // the component's own state.
+        `defineExpose(${formatObjectProperties(
+            [
+                '...Shopware.Component.getExposedProps()',
+                ...analysis.publicEntries,
+            ],
+            4,
+        )});`,
     ].join('\n');
 
     return [

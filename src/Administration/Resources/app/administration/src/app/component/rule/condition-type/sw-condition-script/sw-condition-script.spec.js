@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -79,9 +79,7 @@ async function createWrapper(condition = {}) {
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                 },
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-product-variant-info': {
                     template: '<div class="sw-product-variant-info"><slot></slot></div>',
                 },
@@ -170,10 +168,10 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        let entryOne = wrapper.get('.sw-select-option--0');
+        let entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Is equal to');
 
-        let entryTwo = wrapper.get('.sw-select-option--1');
+        let entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Is not equal to');
 
         await entryTwo.trigger('click');
@@ -190,13 +188,15 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        entryOne = wrapper.get('.sw-select-option--0');
+        entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Product A');
 
-        entryTwo = wrapper.get('.sw-select-option--1');
+        entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Product B');
 
         await entryOne.trigger('click');
+        await flushPromises();
+        entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         await entryTwo.trigger('click');
 
         expect(wrapper.vm.condition.value.productIds).toEqual(

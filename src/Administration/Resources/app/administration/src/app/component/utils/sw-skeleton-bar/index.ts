@@ -1,4 +1,5 @@
 import template from './sw-skeleton-bar.html.twig';
+import { debug } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -18,7 +19,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
+            debug.warn(
                 'sw-skeleton-bar',
                 'The old usage of "sw-skeleton-bar" is deprecated and will be removed in v6.8.0.0. Please use "mt-skeleton-bar" instead.',
             );

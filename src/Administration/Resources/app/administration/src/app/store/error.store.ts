@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import type ShopwareError from 'src/core/data/ShopwareError';
+import { types } from 'shopware:utils';
 
 const utils = Shopware.Utils;
 
@@ -70,7 +71,7 @@ function removeApiError(expression: string, store: ErrorStore) {
         return;
     }
 
-    if (Shopware.Utils.types.isEmpty(store)) {
+    if (types.isEmpty(store)) {
         removeApiError(path.join('.'), store);
     }
 }

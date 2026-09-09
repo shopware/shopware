@@ -1,6 +1,5 @@
 import template from './sw-multi-tag-ip-select.html.twig';
-
-const { string } = Shopware.Utils;
+import { string } from 'shopware:utils';
 
 /**
  * @sw-package framework

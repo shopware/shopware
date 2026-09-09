@@ -1,8 +1,7 @@
 import { h } from 'vue';
+import { debug } from 'shopware:utils';
 
 const { Locale } = Shopware;
-const { debug } = Shopware.Utils;
-
 /**
  * Contains a list of allowed block categories
  * @type {string[]}

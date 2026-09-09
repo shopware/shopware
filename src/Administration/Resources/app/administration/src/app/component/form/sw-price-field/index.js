@@ -1,14 +1,8 @@
 import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
+import { debounce } from 'shopware:utils';
 
 const { Application } = Shopware;
-const { debounce } = Shopware.Utils;
-
-// A value ending with a decimal separator is still being typed by the user
-function isConvertibleValue(value) {
-    return value !== null && value !== undefined && value !== '' && !value.toString().endsWith('.');
-}
-
 /**
  * @sw-package framework
  *

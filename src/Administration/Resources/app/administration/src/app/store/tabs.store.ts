@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import type { uiTabsAddTabItem, uiTabsSetVisibility } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
+import { debug } from 'shopware:utils';
 
 /**
  * @private
@@ -49,7 +50,7 @@ const tabsStore = Shopware.Store.register({
             const existing = this.tabItems[positionId]?.find((item) => item.componentSectionId === componentSectionId);
 
             if (!existing) {
-                Shopware.Utils.debug.warn(
+                debug.warn(
                     'TabsStore',
                     `Cannot set visibility for unknown tab item "${componentSectionId}" at position "${positionId}"`,
                 );

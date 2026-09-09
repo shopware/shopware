@@ -1,7 +1,6 @@
 import template from './sw-condition-not-found.html.twig';
 import './sw-condition-not-found.scss';
-
-const { debounce } = Shopware.Utils;
+import { debounce } from 'shopware:utils';
 
 /**
  * @public

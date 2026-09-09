@@ -1,7 +1,6 @@
 import template from './sw-extension-review.html.twig';
 import './sw-extension-review.scss';
-
-const { date } = Shopware.Utils.format;
+import { date } from 'shopware:utils/format';
 
 /**
  * @sw-package checkout

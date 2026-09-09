@@ -3,6 +3,7 @@
  * @private
  */
 import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
+import { format } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ExtensionSdkModule = {
@@ -57,7 +58,7 @@ const extensionSdkModules = Shopware.Store.register({
                 baseUrl,
             };
 
-            const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
+            const id = format.md5(JSON.stringify(staticElements));
 
             // Only push the module if it does not exist yet
             if (!this.modules.some((module) => module.id === id)) {

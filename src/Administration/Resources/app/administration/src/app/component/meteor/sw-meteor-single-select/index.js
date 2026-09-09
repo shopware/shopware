@@ -4,10 +4,9 @@
 
 import './sw-meteor-single-select.scss';
 import template from './sw-meteor-single-select.html.twig';
+import { debounce, get } from 'shopware:utils';
 
 const { Mixin } = Shopware;
-const { debounce, get } = Shopware.Utils;
-
 /**
  * @private
  */

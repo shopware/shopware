@@ -4,10 +4,9 @@
 
 import template from './sw-product-download-form.html.twig';
 import './sw-product-download-form.scss';
+import { format } from 'shopware:utils';
 
 const { Mixin } = Shopware;
-const { format } = Shopware.Utils;
-
 /**
  * @private
  */

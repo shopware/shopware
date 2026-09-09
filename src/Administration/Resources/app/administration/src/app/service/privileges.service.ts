@@ -3,9 +3,8 @@
  */
 
 import { reactive } from 'vue';
-
-const { warn, error } = Shopware.Utils.debug;
-const { object } = Shopware.Utils;
+import { object } from 'shopware:utils';
+import { error, warn } from 'shopware:utils/debug';
 
 type GetPrivilegesWithDependenciesSignature = () => string[];
 

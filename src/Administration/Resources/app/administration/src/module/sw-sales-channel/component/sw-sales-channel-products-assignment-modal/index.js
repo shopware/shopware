@@ -4,8 +4,7 @@
 
 import template from './sw-sales-channel-products-assignment-modal.html.twig';
 import './sw-sales-channel-products-assignment-modal.scss';
-
-const { uniqBy } = Shopware.Utils.array;
+import { uniqBy } from 'shopware:utils/array';
 
 const updateElementVisibility = (element, binding) => {
     element.style.visibility = binding.value ? 'visible' : 'hidden';

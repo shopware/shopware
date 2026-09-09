@@ -1,7 +1,6 @@
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
-
-const { debounce, sort } = Shopware.Utils;
+import { debounce, sort } from 'shopware:utils';
 
 /**
  * @sw-package framework

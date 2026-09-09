@@ -1,10 +1,10 @@
 import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
+import { camelCase, capitalizeString } from 'shopware:utils/string';
 
 const { Component, Store } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
-const { camelCase, capitalizeString } = Shopware.Utils.string;
 const { isEmpty } = utils.types;
 
 /**

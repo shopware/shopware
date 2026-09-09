@@ -1,11 +1,10 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
+import { types } from 'shopware:utils';
+import { chunk, intersectionBy, uniqBy } from 'shopware:utils/array';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
-
 /**
  * @sw-package checkout
  */

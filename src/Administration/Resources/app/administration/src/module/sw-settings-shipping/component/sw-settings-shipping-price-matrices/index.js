@@ -1,13 +1,12 @@
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
+import { cloneDeep } from 'shopware:utils/object';
 
 const {
     Mixin,
     Data: { Criteria },
     Context,
 } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
-
 /**
  * @sw-package checkout
  */

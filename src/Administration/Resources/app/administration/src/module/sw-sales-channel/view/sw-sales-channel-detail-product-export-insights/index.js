@@ -4,6 +4,7 @@
 
 import template from './sw-sales-channel-detail-product-export-insights.html.twig';
 import './sw-sales-channel-detail-product-export-insights.scss';
+import { format } from 'shopware:utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -183,7 +184,7 @@ export default {
         },
 
         today() {
-            const today = Shopware.Utils.format.dateWithUserTimezone();
+            const today = format.dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
 
             return today;
@@ -297,7 +298,7 @@ export default {
         },
 
         dateAgoValue(range) {
-            const date = Shopware.Utils.format.dateWithUserTimezone();
+            const date = format.dateWithUserTimezone();
             const selectedDateRange = range.value;
             const dateRange = range.options[selectedDateRange] ?? 0;
 
@@ -328,7 +329,7 @@ export default {
         },
 
         formatDate(date) {
-            return Shopware.Utils.format.toISODate(date, false);
+            return format.toISODate(date, false);
         },
 
         formatChartHeadlineDate(date) {
@@ -356,7 +357,7 @@ export default {
                 ? dateString.replace(dateTimeComponentsRegex, '$<date>T$<hour>:00:00.000$<trail>')
                 : dateString.replace(dateTimeComponentsRegex, '$<date>T00:00:00.000$<trail>');
 
-            return Shopware.Utils.format.dateWithUserTimezone(new Date(aggregationDateTime)).getTime();
+            return format.dateWithUserTimezone(new Date(aggregationDateTime)).getTime();
         },
 
         aggregateByDateTime(dateTimeString, aggregateByHour, data, aggregationArray = []) {

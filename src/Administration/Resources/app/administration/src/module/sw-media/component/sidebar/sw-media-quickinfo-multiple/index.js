@@ -1,5 +1,6 @@
 import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
+import { format } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 
@@ -37,7 +38,7 @@ export default {
                 return value + (items.fileSize || 0);
             }, 0);
 
-            return Shopware.Utils.format.fileSize(sizeInByte);
+            return format.fileSize(sizeInByte);
         },
 
         getFileSizeLabel() {

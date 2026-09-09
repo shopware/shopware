@@ -11,7 +11,7 @@
  *      variant="regular"
  * ></sw-media-replace>
  */
-const { fileReader } = Shopware.Utils;
+import { fileReader } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

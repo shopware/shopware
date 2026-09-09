@@ -1,9 +1,8 @@
 import template from './sw-cms-inherit-wrapper.html.twig';
 import './sw-cms-inherit-wrapper.scss';
 import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
-
-const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
-const { isEmpty, isUndefined } = Shopware.Utils.types;
+import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
+import { isEmpty, isUndefined } from 'shopware:utils/types';
 
 const EVENTS = {
     RESTORE: 'inheritance:restore',

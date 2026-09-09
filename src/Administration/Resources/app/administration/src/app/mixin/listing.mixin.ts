@@ -6,6 +6,7 @@
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
 import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
+import { debug, types } from 'shopware:utils';
 
 /* @private */
 export {};
@@ -103,7 +104,7 @@ export default Shopware.Mixin.register(
             const actualQueryParameters: LocationQuery = this.$route.query;
 
             // When no route information are provided
-            if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
+            if (types.isEmpty(actualQueryParameters)) {
                 this.resetListing();
             } else {
                 this.parseBooleanQueryParams(actualQueryParameters);
@@ -135,7 +136,7 @@ export default Shopware.Mixin.register(
 
                 const query = this.$route.query;
 
-                if (Shopware.Utils.types.isEmpty(query)) {
+                if (types.isEmpty(query)) {
                     this.resetListing();
                 }
 
@@ -221,7 +222,7 @@ export default Shopware.Mixin.register(
                 };
 
                 // If query is empty then replace route, otherwise push
-                if (Shopware.Utils.types.isEmpty(routeQuery)) {
+                if (types.isEmpty(routeQuery)) {
                     void this.$router.replace(route as unknown as RouteLocationNamedRaw);
                 } else {
                     void this.$router.push(route as unknown as RouteLocationNamedRaw);
@@ -351,7 +352,7 @@ export default Shopware.Mixin.register(
             },
 
             getList() {
-                Shopware.Utils.debug.warn(
+                debug.warn(
                     'Listing Mixin',
                     'When using the listing mixin you have to implement your custom "getList()" method.',
                 );

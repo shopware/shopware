@@ -1,9 +1,9 @@
 import template from './sw-flow-detail-flow.html.twig';
 import './sw-flow-detail-flow.scss';
+import { cloneDeep } from 'shopware:utils/object';
 
 const { Component, Store } = Shopware;
 const utils = Shopware.Utils;
-const { cloneDeep } = Shopware.Utils.object;
 const { mapState } = Component.getComponentHelper();
 
 /**

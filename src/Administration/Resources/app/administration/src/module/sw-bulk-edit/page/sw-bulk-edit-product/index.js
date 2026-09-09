@@ -1,14 +1,13 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
+import { types } from 'shopware:utils';
+import { chunk } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
+import { convert } from 'shopware:utils/unitConversion';
 
 const { Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { chunk } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
-const { convert } = Shopware.Utils.unitConversion;
-
 /**
  * @sw-package inventory
  */

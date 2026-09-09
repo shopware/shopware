@@ -1,4 +1,5 @@
 import template from './sw-order-detail-general.html.twig';
+import { cloneDeep } from 'shopware:utils/object';
 
 /**
  * @sw-package checkout
@@ -6,8 +7,6 @@ import template from './sw-order-detail-general.html.twig';
 
 const { Utils, Mixin, Store } = Shopware;
 const { format, array } = Utils;
-const { cloneDeep } = Shopware.Utils.object;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

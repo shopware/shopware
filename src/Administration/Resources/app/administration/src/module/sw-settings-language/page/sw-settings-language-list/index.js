@@ -4,6 +4,7 @@
 import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
+import { format } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -291,7 +292,7 @@ export default {
                 return metadata.name;
             }
 
-            return Shopware.Utils.format.localeName(localeCode);
+            return format.localeName(localeCode);
         },
 
         getSnippetStatus(item) {

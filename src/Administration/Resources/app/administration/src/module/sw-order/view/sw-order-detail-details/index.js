@@ -1,12 +1,12 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Component, Store, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

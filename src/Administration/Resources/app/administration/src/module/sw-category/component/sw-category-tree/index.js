@@ -1,8 +1,7 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 import { debounce } from 'shopware:utils';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package discovery

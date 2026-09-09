@@ -2,10 +2,9 @@ import type Repository from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-settings-tax-provider-detail.html.twig';
 import './sw-settings-tax-provider-detail.scss';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package checkout
  *

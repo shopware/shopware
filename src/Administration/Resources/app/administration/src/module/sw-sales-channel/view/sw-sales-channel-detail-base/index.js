@@ -5,9 +5,9 @@
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 import { dom, EventBus, object } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
 const domUtils = dom;
 const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;

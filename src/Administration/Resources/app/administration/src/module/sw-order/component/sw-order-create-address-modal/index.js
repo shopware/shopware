@@ -1,13 +1,12 @@
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Mixin, Store, Service } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */

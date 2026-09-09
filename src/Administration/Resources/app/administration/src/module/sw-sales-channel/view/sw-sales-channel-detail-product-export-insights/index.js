@@ -5,8 +5,7 @@
 import template from './sw-sales-channel-detail-product-export-insights.html.twig';
 import './sw-sales-channel-detail-product-export-insights.scss';
 import { format } from 'shopware:utils';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 const DEFAULT_DATE_RANGE_OPTIONS = {
     '180Days': 180,

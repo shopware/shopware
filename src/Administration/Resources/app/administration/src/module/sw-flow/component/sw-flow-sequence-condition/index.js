@@ -1,8 +1,8 @@
 import template from './sw-flow-sequence-condition.html.twig';
 import './sw-flow-sequence-condition.scss';
+import { Criteria } from 'shopware:data';
 
 const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();

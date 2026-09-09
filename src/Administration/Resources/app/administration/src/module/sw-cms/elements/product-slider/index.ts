@@ -1,3 +1,5 @@
+import { Criteria } from 'shopware:data';
+
 /**
  * @private
  * @sw-package discovery
@@ -31,7 +33,7 @@ Shopware.Service('cmsService').registerCmsElement({
             required: true,
             entity: {
                 name: 'product',
-                criteria: new Shopware.Data.Criteria(1, 25).addAssociation('cover'),
+                criteria: new Criteria(1, 25).addAssociation('cover'),
             },
         },
         title: {

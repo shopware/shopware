@@ -4,6 +4,7 @@ import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
@@ -20,7 +21,6 @@ interface PaymentMethodCard {
 }
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,

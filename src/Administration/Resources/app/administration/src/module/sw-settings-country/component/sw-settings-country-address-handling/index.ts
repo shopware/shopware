@@ -4,9 +4,9 @@ import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
 
 interface TreeItem {
     id: string;

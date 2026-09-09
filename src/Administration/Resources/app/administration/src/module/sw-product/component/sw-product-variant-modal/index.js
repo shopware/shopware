@@ -4,10 +4,9 @@
 
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

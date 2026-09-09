@@ -1,9 +1,8 @@
 import template from './sw-duplicated-media-v2.html.twig';
 import './sw-duplicated-media-v2.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context, Filter } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package framework
  *

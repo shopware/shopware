@@ -3,10 +3,10 @@ import './sw-cms-sidebar.scss';
 import { type PageType } from '../../service/cms-page-type.service';
 import type MediaUploadResult from '../../shared/MediaUploadResult';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
 const types = Shopware.Utils.types;
 const { CMS } = Shopware.Constants;
 

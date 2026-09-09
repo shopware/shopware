@@ -5,10 +5,9 @@
 import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 import { string } from 'shopware:utils';
+import { EntityCollection } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { EntityCollection } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

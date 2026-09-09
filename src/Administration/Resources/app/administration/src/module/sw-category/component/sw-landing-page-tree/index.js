@@ -1,7 +1,6 @@
 import template from './sw-landing-page-tree.html.twig';
 import './sw-landing-page-tree.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // shopware.api.max_limit caps every Admin API request, rejecting anything higher instead of clamping.
 // It is configurable but defaults to 500, which the Administration hardcodes everywhere; stay consistent

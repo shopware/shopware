@@ -1,8 +1,8 @@
 import template from './sw-flow-tag-modal.html.twig';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component, Mixin, Context, Store } = Shopware;
 const { ShopwareError } = Shopware.Classes;
-const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 /**

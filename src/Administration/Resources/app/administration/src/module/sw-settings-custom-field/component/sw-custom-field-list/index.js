@@ -3,8 +3,8 @@
  */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;

@@ -5,9 +5,9 @@ import { types } from 'shopware:utils';
 import { chunk } from 'shopware:utils/array';
 import { cloneDeep } from 'shopware:utils/object';
 import { convert } from 'shopware:utils/unitConversion';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @sw-package inventory
  */

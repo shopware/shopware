@@ -4,14 +4,13 @@ import template from './sw-order-create-options.html.twig';
 import './sw-order-create-options.scss';
 
 import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,

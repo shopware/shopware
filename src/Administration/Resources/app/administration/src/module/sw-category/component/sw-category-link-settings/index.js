@@ -1,7 +1,6 @@
 import template from './sw-category-link-settings.html.twig';
 import './sw-category-link-settings.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package discovery

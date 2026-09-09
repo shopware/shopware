@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 import template from './sw-settings-custom-field-set-create.html.twig';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

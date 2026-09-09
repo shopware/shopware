@@ -1,11 +1,11 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package discovery
  */
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;

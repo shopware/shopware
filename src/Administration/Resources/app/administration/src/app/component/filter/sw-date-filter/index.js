@@ -5,8 +5,7 @@
 import { zonedTimeToUtc } from 'date-fns-tz';
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

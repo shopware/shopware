@@ -4,10 +4,9 @@
 import template from './sw-settings-language-add-modal.html.twig';
 import './sw-settings-language-add-modal.scss';
 import { format } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

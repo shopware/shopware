@@ -1,9 +1,8 @@
 import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 /**
  * @private
  * @sw-package discovery

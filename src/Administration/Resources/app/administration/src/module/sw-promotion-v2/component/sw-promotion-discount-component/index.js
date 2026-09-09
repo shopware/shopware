@@ -2,9 +2,9 @@ import { DiscountTypes, DiscountScopes, PromotionPermissions } from 'src/module/
 import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 /**

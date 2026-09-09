@@ -1,10 +1,9 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
+import { Criteria } from 'shopware:data';
 
 const { Application } = Shopware;
 const types = Shopware.Utils.types;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package discovery
  */

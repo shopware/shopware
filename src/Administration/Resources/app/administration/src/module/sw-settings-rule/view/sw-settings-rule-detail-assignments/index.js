@@ -1,10 +1,9 @@
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Context, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales

@@ -2,10 +2,9 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-settings-currency-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

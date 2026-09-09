@@ -1,9 +1,8 @@
 import template from './sw-category-entry-point-card.html.twig';
 import './sw-category-entry-point-card.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 /**
  * @sw-package discovery
  */

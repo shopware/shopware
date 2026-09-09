@@ -2,9 +2,9 @@ import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 import { EventBus } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Application, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 

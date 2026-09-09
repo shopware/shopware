@@ -1,10 +1,9 @@
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria, EntityCollection } = Shopware.Data;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales

@@ -1,9 +1,8 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 const DEFAULT_FILTERS = Object.freeze([
     'sales-channel-filter',
     'status-filter',

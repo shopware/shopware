@@ -3,8 +3,7 @@
  */
 
 import template from './sw-sales-channel-detail-hreflang.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

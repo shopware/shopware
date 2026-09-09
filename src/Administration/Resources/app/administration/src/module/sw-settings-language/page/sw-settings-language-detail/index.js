@@ -3,9 +3,9 @@
  */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

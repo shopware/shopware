@@ -1,12 +1,11 @@
 import template from './sw-settings-tax-rule-type-individual-states.html.twig';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

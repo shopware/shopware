@@ -1,5 +1,6 @@
 import template from './sw-customer-base-form.html.twig';
 import errorConfig from '../../error-config.json';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
@@ -7,7 +8,6 @@ import errorConfig from '../../error-config.json';
 
 const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -1,9 +1,9 @@
 import template from './sw-settings-rule-add-assignment-listing.html.twig';
 import './sw-settings-rule-add-assignment-listing.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
 /**
  * @private
  * @sw-package fundamentals@after-sales

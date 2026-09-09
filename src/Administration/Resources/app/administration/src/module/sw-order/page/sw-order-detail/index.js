@@ -2,13 +2,13 @@ import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
 import { getCartErrorMessage } from '../../cart-error.helper';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Store, Mixin, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
 const { array } = Utils;
 const ApiService = Shopware.Classes.ApiService;
 

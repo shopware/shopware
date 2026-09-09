@@ -5,9 +5,9 @@
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
 import { debounce, debug, get } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component, Mixin, Utils } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @private
  */

@@ -1,9 +1,9 @@
 import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component, Mixin, Context, Store, Utils, Service } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 /**

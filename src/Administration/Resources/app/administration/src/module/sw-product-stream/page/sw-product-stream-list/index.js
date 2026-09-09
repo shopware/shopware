@@ -1,9 +1,8 @@
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package inventory
  * @private

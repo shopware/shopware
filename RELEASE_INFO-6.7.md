@@ -286,7 +286,7 @@ The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.
 
 ### Native-setup components expose their `swDefinePublic()` bindings to parents
 
-`swDefinePublic({ ... })` now declares one surface used in two directions. Besides marking what an override may replace, the Shopware setup transform generates the component's `defineExpose()` call from the same entries, so a parent holding a template ref reads and writes exactly those bindings:
+`swDefinePublic({ ... })` now also calls `defineExpose()` internally with the same arguments to make its exposure symmetrical to the override surface call:
 
 ```js
 const opened = ref(false);
@@ -297,7 +297,7 @@ swDefinePublic({ opened });
 
 The component's props are exposed alongside them and need no declaration, so `ref.value.label` keeps working; they are read-only, as they are for the component itself.
 
-Calling `defineExpose()` yourself is rejected in base and override components: the transform owns the call, and only the base component declares what it contains. Add the binding to `swDefinePublic()` there — an override cannot call that marker and replaces an already public binding through `swDefineOverride()` instead. A binding you leave out of `swDefinePublic()` reads as `undefined` through a template ref, not only through an override.
+Calling `defineExpose()` yourself is rejected in base and override components: in base mode `swDefinePublic()` already calls it for you, in override mode you're unnable to use it.
 
 ### Extension empty states use `mt-empty-state`
 

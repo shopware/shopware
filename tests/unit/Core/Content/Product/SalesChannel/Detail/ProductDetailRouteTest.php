@@ -27,6 +27,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -681,7 +682,6 @@ class ProductDetailRouteTest extends TestCase
     #[DataProvider('breadcrumbCategoryDataProvider')]
     public function testLoadBreadcrumbCategory(
         SalesChannelProductEntity $product,
-        bool $buildBreadcrumbByReferrerCategory,
         ?string $referrerCategoryId,
         InvokedCount $getProductCategoryByReferrerCount,
         InvokedCount $getProductSeoCategoryCount,
@@ -700,7 +700,7 @@ class ProductDetailRouteTest extends TestCase
                     $this->context->getContext()
                 )
             );
-        $this->systemConfig->method('getBool')->willReturn($buildBreadcrumbByReferrerCategory);
+        // `core.listing.buildBreadcrumbByReferrerCategory` stays false here: it must not gate the route any more
         $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
         $breadcrumbBuilder->expects($getProductCategoryByReferrerCount)
             ->method('getProductCategoryByReferrer')
@@ -711,11 +711,16 @@ class ProductDetailRouteTest extends TestCase
 
         $request = new Request();
 
-        if ($referrerCategoryId) {
-            $request->query->set('referrerCategoryId', $referrerCategoryId);
+        if ($referrerCategoryId !== null) {
+            $request->query->set(ProductDetailRoute::REFERRER_CATEGORY_ID, $referrerCategoryId);
         }
 
-        $result = $this->buildRoute($productRepository, breadcrumbBuilder: $breadcrumbBuilder)->load('1', $request, $this->context, new Criteria());
+        $route = $this->buildRoute($productRepository, breadcrumbBuilder: $breadcrumbBuilder);
+
+        $result = Feature::fake(
+            ['BREADCRUMB_REWORK'],
+            fn (): ProductDetailRouteResponse => $route->load('1', $request, $this->context, new Criteria())
+        );
 
         static::assertSame($breadcrumbCategory, $result->getProduct()->getSeoCategory());
     }
@@ -839,9 +844,8 @@ class ProductDetailRouteTest extends TestCase
         $productWithoutCategories->setId(Uuid::randomHex());
         $productWithoutCategories->internalSetEntityData('product', new FieldVisibility([]));
 
-        yield 'Load default breadcrumb category with disabled referrer feature' => [
+        yield 'Load the seo category when no referrerCategoryId is given' => [
             $product,
-            false,
             null,
             new InvokedCount(0),
             new InvokedCount(1),
@@ -850,48 +854,91 @@ class ProductDetailRouteTest extends TestCase
 
         yield 'Load no breadcrumb category when product has no categories assigned' => [
             $productWithoutCategories,
-            false,
             null,
             new InvokedCount(0),
             new InvokedCount(1),
             null,
         ];
 
-        yield 'Load default breadcrumb category with enabled referrer feature and no referrerCategoryId' => [
+        yield 'Load the seo category when referrerCategoryId is an empty string' => [
             $product,
-            true,
-            null,
+            '',
             new InvokedCount(0),
             new InvokedCount(1),
             $defaultBreadcrumbCategory,
         ];
 
-        yield 'Load breadcrumb category by referrerCategoryId with enabled referrer feature' => [
+        yield 'Load breadcrumb category by referrerCategoryId although the storefront setting is disabled' => [
             $product,
-            true,
             $secondCategory->getId(),
             new InvokedCount(1),
             new InvokedCount(0),
             $secondCategory,
         ];
 
-        yield 'Load breadcrumb category by referrerCategoryId with enabled referrer feature and referrerCategoryId being a parent of a category assigned to the product' => [
+        yield 'Load breadcrumb category by referrerCategoryId being a parent of a category assigned to the product' => [
             $product,
-            true,
             $parentCategory->getId(),
             new InvokedCount(1),
             new InvokedCount(0),
             $parentCategory,
         ];
 
-        yield 'Load default breadcrumb category with enabled referrer feature and unassigned referrerCategoryId' => [
+        yield 'Load default breadcrumb category with unassigned referrerCategoryId' => [
             $product,
-            true,
             $thirdCategory->getId(),
             new InvokedCount(1),
             new InvokedCount(0),
             $defaultBreadcrumbCategory,
         ];
+    }
+
+    public function testLoadBreadcrumbCategoryIgnoresTheClientReferrerWhenAnAttributeIsSet(): void
+    {
+        $seoCategory = new CategoryEntity();
+        $seoCategory->setId(Uuid::randomHex());
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->never())->method('getProductCategoryByReferrer');
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getProductSeoCategory')
+            ->willReturn($seoCategory);
+
+        // the storefront disables referrer breadcrumbs through the attribute, a stale link must not override it
+        $request = new Request([ProductDetailRoute::REFERRER_CATEGORY_ID => Uuid::randomHex()]);
+        $request->attributes->set(ProductDetailRoute::REFERRER_CATEGORY_ID, null);
+
+        $route = $this->buildBreadcrumbRoute($breadcrumbBuilder);
+
+        $result = Feature::fake(
+            ['BREADCRUMB_REWORK'],
+            fn (): ProductDetailRouteResponse => $route->load('1', $request, $this->context, new Criteria())
+        );
+
+        static::assertSame($seoCategory, $result->getProduct()->getSeoCategory());
+    }
+
+    public function testLoadBreadcrumbCategoryByReferrerFromTheRequestBody(): void
+    {
+        $referrerCategory = new CategoryEntity();
+        $referrerCategory->setId(Uuid::randomHex());
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getProductCategoryByReferrer')
+            ->willReturn($referrerCategory);
+        $breadcrumbBuilder->expects($this->never())->method('getProductSeoCategory');
+
+        $request = new Request([], [ProductDetailRoute::REFERRER_CATEGORY_ID => $referrerCategory->getId()]);
+
+        $route = $this->buildBreadcrumbRoute($breadcrumbBuilder);
+
+        $result = Feature::fake(
+            ['BREADCRUMB_REWORK'],
+            fn (): ProductDetailRouteResponse => $route->load('1', $request, $this->context, new Criteria())
+        );
+
+        static::assertSame($referrerCategory, $result->getProduct()->getSeoCategory());
     }
 
     private function buildBreadcrumbRoute(CategoryBreadcrumbBuilder $breadcrumbBuilder): ProductDetailRoute

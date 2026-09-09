@@ -92,6 +92,10 @@ class ProductPageLoader
             !Feature::isActive('BREADCRUMB_REWORK') && !Feature::isActive('v6.8.0.0')
         );
 
+        if (!$this->systemConfigService->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
+            $request->attributes->set(ProductDetailRoute::REFERRER_CATEGORY_ID, null);
+        }
+
         $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();
 

@@ -118,6 +118,10 @@ class CategoryBreadcrumbBuilder
         // categories hidden in the navigation must still yield a breadcrumb, but visible ones are preferred
         $criteria->addSorting(new FieldSorting('visible', FieldSorting::DESCENDING));
         $criteria->addSorting(new FieldSorting('level', FieldSorting::DESCENDING));
+        // tiebreaker for equally deep categories in different branches. Without it the winner is whatever the database
+        // returns first, so the same product can produce different breadcrumbs on two requests and whichever path won
+        // gets frozen into the http cache.
+        $criteria->addSorting(new FieldSorting('autoIncrement'));
 
         return $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first();
     }

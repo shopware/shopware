@@ -55,6 +55,13 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     final public const SKIP_BREADCRUMB = 'skipBreadcrumb';
 
+    /**
+     * Build the breadcrumb along the category the product was linked from, instead of its SEO category. Clients pass
+     * it as the `referrerCategoryId` query or body parameter; internal callers set it as a request attribute, which
+     * takes precedence and cannot be provided by a client.
+     */
+    final public const REFERRER_CATEGORY_ID = 'referrerCategoryId';
+
     private const SKIP_CONFIGURATOR = 'skipConfigurator';
     private const SKIP_CMS_PAGE = 'skipCmsPage';
 
@@ -408,16 +415,27 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
         if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
-            if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
-                $referrerCategoryId = $request->query->get('referrerCategoryId');
+            $referrerCategoryId = $this->getReferrerCategoryId($request);
 
-                if ($referrerCategoryId !== null) {
-                    return $this->breadcrumbBuilder->getProductCategoryByReferrer($referrerCategoryId, $product, $context);
-                }
+            if ($referrerCategoryId !== null) {
+                return $this->breadcrumbBuilder->getProductCategoryByReferrer($referrerCategoryId, $product, $context);
             }
         }
 
         return $this->breadcrumbBuilder->getProductSeoCategory($product, $context);
+    }
+
+    private function getReferrerCategoryId(Request $request): ?string
+    {
+        $referrerCategoryId = $request->attributes->has(self::REFERRER_CATEGORY_ID)
+            ? $request->attributes->get(self::REFERRER_CATEGORY_ID)
+            : RequestParamHelper::get($request, self::REFERRER_CATEGORY_ID);
+
+        if (!\is_string($referrerCategoryId) || $referrerCategoryId === '') {
+            return null;
+        }
+
+        return $referrerCategoryId;
     }
 
     private function loadBreadcrumb(CategoryEntity $seoCategory, SalesChannelContext $context): BreadcrumbCollection

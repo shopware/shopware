@@ -186,6 +186,16 @@
                         }
                     },
                     {
+                        "description": "Builds the breadcrumb along the given category instead of the SEO category of the product. Ignored when the category is not part of the product's category tree or is not reachable in this sales channel.",
+                        "in": "query",
+                        "name": "referrerCategoryId",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
                         "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
@@ -285,6 +295,16 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Builds the breadcrumb along the given category instead of the SEO category of the product. Ignored when the category is not part of the product's category tree or is not reachable in this sales channel.",
+                        "in": "query",
+                        "name": "referrerCategoryId",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {

@@ -177,11 +177,14 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ->willReturnCallback(static function (Criteria $criteria) use ($categoryEntity, $context): EntitySearchResult {
                 $sortings = $criteria->getSorting();
 
-                static::assertCount(2, $sortings);
+                static::assertCount(3, $sortings);
                 static::assertSame('visible', $sortings[0]->getField());
                 static::assertSame(FieldSorting::DESCENDING, $sortings[0]->getDirection());
                 static::assertSame('level', $sortings[1]->getField());
                 static::assertSame(FieldSorting::DESCENDING, $sortings[1]->getDirection());
+                // without this tiebreaker the winner among equally deep categories is whatever the database returns
+                static::assertSame('autoIncrement', $sortings[2]->getField());
+                static::assertSame(FieldSorting::ASCENDING, $sortings[2]->getDirection());
 
                 static::assertContains('active', $criteria->getFilterFields());
                 static::assertNotContains('visible', $criteria->getFilterFields());

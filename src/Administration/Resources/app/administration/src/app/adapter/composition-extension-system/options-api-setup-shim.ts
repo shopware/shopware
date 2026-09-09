@@ -84,28 +84,12 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 return (instance as unknown as { ctx: AnyRecord }).ctx[key];
             };
 
-            // Mirrors readBaseState for writes, so a write lands on the base state instead of the
-            // override's own result. Props stay read-only, as they are on Vue's own proxy.
-            const writeBaseState = (key: string, next: unknown): void => {
-                const data = instance.data as AnyRecord;
-
-                if (data && key in data) {
-                    data[key] = next;
-
-                    return;
-                }
-
-                if (instance.props && key in instance.props) {
-                    return;
-                }
-
-                (instance as unknown as { ctx: AnyRecord }).ctx[key] = next;
-            };
-
             // Override callbacks read `previousState.x.value`, so plain values are served as a ref-like
             // accessor. Refs pass through as they are; functions stay callable as `previousState.x()`,
             // matching what createExtendableSetup() hands to overrides of migrated components.
-            const toRefLike = (read: () => unknown, write: (next: unknown) => void): unknown => {
+            // previousState is read-only: state changes go through the override's return value, so a
+            // write attempt is reported and dropped instead of reaching data or ctx behind Vue's back.
+            const toRefLike = (key: string, read: () => unknown): unknown => {
                 const current = read();
 
                 if (isRef(current) || typeof current === 'function') {
@@ -117,8 +101,10 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                     get value() {
                         return read();
                     },
-                    set value(next: unknown) {
-                        write(next);
+                    set value(_next: unknown) {
+                        console.error(
+                            `[${componentName}] previousState is read-only. Return "${key}" from the override instead of assigning to previousState.${key}.value.`,
+                        );
                     },
                 };
             };
@@ -136,18 +122,10 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                         }
 
                         if (Object.prototype.hasOwnProperty.call(installed, key)) {
-                            return toRefLike(
-                                () => installed[key],
-                                (next) => {
-                                    bag[key] = next;
-                                },
-                            );
+                            return toRefLike(key, () => installed[key]);
                         }
 
-                        return toRefLike(
-                            () => readBaseState(key),
-                            (next) => writeBaseState(key, next),
-                        );
+                        return toRefLike(key, () => readBaseState(key));
                     },
                 });
 

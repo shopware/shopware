@@ -116,9 +116,10 @@ final readonly class StoredTree
      * An element placed under two parents shows up here as well: it contributes its id twice, so shared
      * ownership is already a duplicate id and needs no separate rule.
      *
-     * Plain ids rather than {@see Violation} objects: this class carries no `@internal` and is BC-promised,
-     * so a `Violation` in its signature would bind the internal diagnostics cluster behind it to that same
-     * promise. A caller that needs the violation mints it with {@see Violation::duplicateElementId()}.
+     * Plain ids rather than {@see Violation} objects: `InternalClassRule::CONTENT_SYSTEM_PUBLIC_SURFACE`
+     * lists this class as module extension surface, so it carries no `@internal` — and an `@internal` type in
+     * its signature would hand a caller something it may not use, while leaving the marker on that type
+     * meaningless. A caller that needs the violation mints it with {@see Violation::duplicateElementId()}.
      *
      * @return list<string>
      */

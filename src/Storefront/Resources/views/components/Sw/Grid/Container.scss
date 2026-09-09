@@ -14,14 +14,20 @@
     }
 }
 
-.grid-container {
-    width: 100%;
-    display: grid;
+@property --sw-grid-container-max-width {
+    syntax: '*';
+    inherits: true;
+    initial-value: 1400px;
+}
 
-    &.centered {
-        max-width: 1400px;
-        margin-left: auto !important;
-        margin-right: auto !important;
+.sw-grid-container {
+    display: grid;
+    width: 100%;
+    max-width: var(--sw-grid-container-max-width, 1400px);
+
+    &.full-width {
+        max-width: none;
+        width: calc(100vw - <'padding-left'> - <'padding-right'>);
     }
 
     &.max-content {

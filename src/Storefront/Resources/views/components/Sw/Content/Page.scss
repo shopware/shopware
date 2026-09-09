@@ -2,7 +2,19 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
 
+@property --sw-content-page-padding {
+    syntax: '*';
+    inherits: true;
+    initial-value: 0 20px;
+}
+
 .sw-content-page {
+    display: grid;
+    width: 100%;
+    padding: var(--sw-content-page-padding, 0 20px);
+    justify-content: center;
+    justify-items: center;
+
     @each $breakpoint, $value in $grid-breakpoints {
         .display-#{$breakpoint} {
             display: none;

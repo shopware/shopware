@@ -9,26 +9,26 @@
     rows = null,
     gap = 24,
     padding = {
-        xs: '0 20px 0 20px',
-        sm: '0 20px 0 20px',
-        md: '0 20px 0 20px',
-        lg: '0 20px 0 20px',
-        xl: '0 20px 0 20px',
-        xxl: '0 20px 0 20px',
+        xs: null,
+        sm: null,
+        md: null,
+        lg: null,
+        xl: null,
+        xxl: null,
     },
     margin = {
-        xs: '0 0 24px 0',
-        sm: '0 0 24px 0',
-        md: '0 0 24px 0',
-        lg: '0 0 24px 0',
-        xl: '0 0 24px 0',
-        xxl: '0 0 24px 0',
+        xs: null,
+        sm: null,
+        md: null,
+        lg: null,
+        xl: null,
+        xxl: null,
     },
     align = 'start',
     alignContent = 'start',
     justify = 'start',
     justifyContent = 'start',
-    centered = true,
+    fullWidth = false,
     border = null,
     borderVariant = null,
     backgroundOpacity = 100,
@@ -81,7 +81,7 @@
 {% endif %}
 
 {% set gridCVA = cva({
-    base: 'grid-container',
+    base: 'sw-grid-container',
     variants: {
         mode: {
             'max-content': 'max-content',
@@ -259,8 +259,8 @@
             spaceBetween: 'justify-content-space-between',
             spaceEvenly: 'justify-content-space-evenly',
         },
-        centered: {
-            true: 'centered',
+        fullWidth: {
+            true: 'full-width',
         },
         border: {
             all: 'border',
@@ -294,7 +294,7 @@
         alignContent,
         justify,
         justifyContent,
-        centered,
+        fullWidth,
         border,
         borderVariant,
         backgroundColor,

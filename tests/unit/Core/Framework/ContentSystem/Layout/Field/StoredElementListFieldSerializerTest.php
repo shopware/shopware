@@ -365,6 +365,31 @@ class StoredElementListFieldSerializerTest extends TestCase
         static::fail('Encoding a numeric wiring key did not raise a WriteConstraintViolationException.');
     }
 
+    #[TestDox('propagates an internal codec failure without wrapping it as a layout write rejection')]
+    public function testEncodePropagatesInternalCodecFailure(): void
+    {
+        $failure = ContentSystemException::invalidFieldType('expected', 'actual');
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willThrowException($failure);
+        $codec = new StoredTreeCodec(new StoredElementCodec($configProvider));
+        $kvPair = new KeyValuePair('elements', [[
+            'id' => 'elem-1',
+            'component' => 'text',
+            'dataRequirements' => ['data' => ['source' => 'broken', 'config' => []]],
+        ]], false);
+
+        $this->expectExceptionObject($failure);
+
+        iterator_to_array(
+            $this->serializerWithPassthroughValidator($codec)->encode(
+                $this->createField(),
+                $this->existence(),
+                $kvPair,
+                $this->parameters(),
+            )
+        );
+    }
+
     /**
      * The cached-constraint seam, reached the only way production reaches it: `encode()` validates through
      * `AbstractFieldSerializer::validateIfNeeded()`, which asks `getCachedConstraints()` for the descriptor.
@@ -655,7 +680,7 @@ class StoredElementListFieldSerializerTest extends TestCase
      * A passthrough validator raises no violations — used when encoding element objects and payloads whose
      * rejection is the codec's to make, so the constraint pass cannot pre-empt what the test is asserting.
      */
-    private function serializerWithPassthroughValidator(): StoredElementListFieldSerializer
+    private function serializerWithPassthroughValidator(?StoredTreeCodec $codec = null): StoredElementListFieldSerializer
     {
         $passthroughValidator = static::createStub(ValidatorInterface::class);
         $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
@@ -663,7 +688,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         return new StoredElementListFieldSerializer(
             $passthroughValidator,
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->codec(),
+            $codec ?? $this->codec(),
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),

@@ -4,11 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
-use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
+use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ShopwareAuthCodeGrantType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
@@ -51,7 +51,7 @@ class GrantTypeFactoryTest extends TestCase
 
         $factory = new GrantTypeFactory(
             static::createStub(UserRepositoryInterface::class),
-            static::createStub(RefreshTokenRepositoryInterface::class),
+            static::createStub(RefreshTokenRepository::class),
             static::createStub(AuthCodeRepositoryInterface::class),
             $userService,
             $externalTokenService,

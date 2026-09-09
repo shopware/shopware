@@ -335,6 +335,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.api.authorization_server'),
             service(PsrHttpFactory::class),
             service('shopware.rate_limiter'),
+            service(Connection::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -479,6 +480,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UserCredentialsChangedSubscriber::class)
         ->args([
             service(RefreshTokenRepository::class),
+            service(AuthCodeRepository::class),
             service(Connection::class),
             service(ClockInterface::class),
         ])

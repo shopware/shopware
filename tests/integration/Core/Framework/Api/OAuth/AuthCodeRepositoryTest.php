@@ -86,14 +86,31 @@ class AuthCodeRepositoryTest extends TestCase
         static::assertTrue($this->repository->isAuthCodeRevoked($authCode->getIdentifier()));
     }
 
+    public function testRevokeAuthCodesForUserOnlyRevokesThatUsersCodes(): void
+    {
+        $userId = Uuid::randomHex();
+        $revoked = $this->createAuthCode('code-' . Uuid::randomHex(), '+5 minutes', $userId);
+        $retained = $this->createAuthCode('code-' . Uuid::randomHex(), '+5 minutes');
+        $this->repository->persistNewAuthCode($revoked);
+        $this->repository->persistNewAuthCode($retained);
+
+        $this->repository->revokeAuthCodesForUser($userId);
+
+        static::assertTrue($this->repository->isAuthCodeRevoked($revoked->getIdentifier()));
+        static::assertFalse($this->repository->isAuthCodeRevoked($retained->getIdentifier()));
+    }
+
     /**
      * @param non-empty-string $identifier
+     * @param non-empty-string|null $userId
      */
-    private function createAuthCode(string $identifier, string $expiresIn): AuthCode
+    private function createAuthCode(string $identifier, string $expiresIn, ?string $userId = null): AuthCode
     {
+        $userId ??= Uuid::randomHex();
+
         $authCode = new AuthCode();
         $authCode->setIdentifier($identifier);
-        $authCode->setUserIdentifier(Uuid::randomHex());
+        $authCode->setUserIdentifier($userId);
         $authCode->setClient(new ApiClient('shopware-cli', true, confidential: false));
         $authCode->setExpiryDateTime($this->clock->now()->modify($expiresIn));
 

@@ -65,11 +65,16 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
         $this->cleanUpExpiredAuthCodes();
 
         $found = $this->connection->fetchOne(
-            'SELECT 1 FROM oauth_auth_code WHERE code_id = :codeId',
+            'SELECT 1 FROM oauth_auth_code WHERE code_id = :codeId FOR UPDATE',
             ['codeId' => $codeId]
         );
 
         return $found === false;
+    }
+
+    public function revokeAuthCodesForUser(string $userId): void
+    {
+        $this->connection->delete('oauth_auth_code', ['user_id' => Uuid::fromHexToBytes($userId)]);
     }
 
     private function cleanUpExpiredAuthCodes(): void

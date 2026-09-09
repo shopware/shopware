@@ -118,6 +118,32 @@ class OAuthAuthorizeControllerTest extends TestCase
             'refresh_token' => $tokens['refresh_token'],
         ]);
         static::assertArrayNotHasKey('access_token', $reusedRefresh);
+
+        $revokedSuccessor = $this->requestToken([
+            'grant_type' => 'refresh_token',
+            'client_id' => self::CLIENT_ID,
+            'refresh_token' => $refreshed['refresh_token'],
+        ]);
+        static::assertArrayNotHasKey('access_token', $revokedSuccessor);
+    }
+
+    public function testLogoutRevokesPendingAuthorizationCode(): void
+    {
+        $browser = $this->getBrowser();
+        $redirectUri = $this->approve(approved: true, browser: $browser);
+        parse_str((string) parse_url($redirectUri, \PHP_URL_QUERY), $callback);
+        static::assertIsString($callback['code']);
+
+        $browser->request('POST', '/api/_action/user/logout');
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode());
+
+        $tokens = $this->exchangeCode($callback['code'], $this->codeVerifier);
+        static::assertArrayNotHasKey('access_token', $tokens);
+        static::assertSame(
+            (string) OAuthServerException::invalidGrant()->getCode(),
+            $tokens['errors'][0]['code'] ?? null,
+            json_encode($tokens, \JSON_THROW_ON_ERROR)
+        );
     }
 
     public function testTokensCarryPermissionsOfTheApprovingUser(): void

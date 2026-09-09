@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\OAuth;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\GrantTypeInterface;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
-use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -25,7 +24,7 @@ final class GrantTypeFactory
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
-        private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
+        private readonly RefreshTokenRepository $refreshTokenRepository,
         private readonly AuthCodeRepositoryInterface $authCodeRepository,
         private readonly UserService $userService,
         private readonly ExternalTokenService $tokenService,
@@ -45,7 +44,12 @@ final class GrantTypeFactory
         $passwordGrant = new ShopwarePasswordGrantType($this->userRepository, $this->refreshTokenRepository, $this->userService);
         $passwordGrant->setRefreshTokenTTL($refreshTokenInterval);
 
-        $refreshTokenGrant = new ShopwareRefreshTokenGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
+        $refreshTokenGrant = new ShopwareRefreshTokenGrantType(
+            $this->refreshTokenRepository,
+            $this->userService,
+            $this->tokenService,
+            $this->clock
+        );
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService, $this->clock);

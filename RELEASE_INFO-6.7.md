@@ -2,6 +2,10 @@
 
 ## Security Fixes
 
+### Newsletter subscriptions respect double opt-in
+
+Newsletter subscription activation now consistently enforces the configured double-opt-in requirement.
+
 ### Aggregation identifiers reject unsafe characters
 
 Aggregation names and range aggregation keys containing a backtick, question mark, colon, or control character are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400).

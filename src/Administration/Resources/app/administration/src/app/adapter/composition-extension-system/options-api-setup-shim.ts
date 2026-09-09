@@ -17,7 +17,7 @@ import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
 
 type AnyRecord = Record<string, unknown>;
-type SetupResult = AnyRecord | ((...args: unknown[]) => unknown) | undefined;
+type SetupResult = AnyRecord | undefined;
 
 // Hands the object created in setup() over to created(). Keyed per instance because the config is
 // shared by every instance of the component.
@@ -41,17 +41,6 @@ export function attachSetupOverrideShim(componentName: string, config: Component
     // content instead of being replaced.
     config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
         const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
-
-        // A setup() returning a render function cannot carry the bag. Leave it untouched; the created
-        // hook then finds no bag and bails out, so the component keeps working without the overrides.
-        // Reported, because from the override author's side nothing else hints at why it has no effect.
-        if (typeof originalResult === 'function') {
-            console.warn(
-                `[${componentName}] Setup overrides not applied: setup() returns a render function, which leaves no place for override results. Return an object from setup() to make the ${_overridesMap[componentName].length} registered override(s) take effect.`,
-            );
-
-            return originalResult;
-        }
 
         const bag: AnyRecord = originalResult ?? {};
         const instance = getCurrentInstance();

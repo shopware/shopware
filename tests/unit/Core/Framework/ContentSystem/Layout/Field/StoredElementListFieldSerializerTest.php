@@ -50,6 +50,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -157,6 +158,38 @@ class StoredElementListFieldSerializerTest extends TestCase
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getViolations()->get(0)->getCode());
             static::assertSame([], $calls);
         }
+    }
+
+    #[TestDox('propagates a registry load failure instead of reporting an invalid layout request')]
+    public function testNormalizePropagatesRegistryLoadFailure(): void
+    {
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation('Invalid label', null, [], null, 'types[App:Broken].label', null),
+        ]);
+        $failure = ContentSystemException::elementTypeLoadValidationFailed($violations);
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willThrowException($failure);
+        $boundary = new LayoutWriteBoundary(
+            new LayoutDefaultSeeder($typeRegistry, new PrimitiveDefaultProvider()),
+            new StoredTreeStyleNormalizer($this->styleNormalizer()),
+            $this->passthroughReconciler(),
+        );
+        $serializer = new StoredElementListFieldSerializer(
+            $this->validator(),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->codec(),
+            new ViolationConstraintMapper(),
+            $boundary,
+            $this->treeConstraints(),
+        );
+
+        $this->expectExceptionObject($failure);
+
+        $serializer->normalize(
+            $this->createField(),
+            ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'App:Broken', 'properties' => []]]],
+            $this->parameters(),
+        );
     }
 
     #[TestDox('expands a partially specified breakpoint map on a raw-array write that never passed the Administration')]

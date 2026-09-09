@@ -15,10 +15,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * An invalid persisted row belonging to an active app must abort registry construction.
@@ -74,7 +74,8 @@ class AppBindingPoisonRowTest extends TestCase
             $this->registry()->all();
             static::fail('Expected the invalid active-app binding row to abort registry construction.');
         } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::BINDING_SPECIFICATIONS_INVALID, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $exception->getErrorCode());
             static::assertStringContainsString('poison-binding', $exception->getMessage());
         }
     }
@@ -103,12 +104,10 @@ class AppBindingPoisonRowTest extends TestCase
                 ]],
             ]], $context);
             static::fail('Expected the invalid active-app binding row to reject the content layout write.');
-        } catch (WriteException $exception) {
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $exception->getErrorCode());
             static::assertStringContainsString('poison-binding', $exception->getMessage());
-            static::assertContains(
-                ContentSystemException::BINDING_SPECIFICATIONS_INVALID,
-                array_column(iterator_to_array($exception->getErrors(), false), 'code')
-            );
         }
 
         static::assertNull(

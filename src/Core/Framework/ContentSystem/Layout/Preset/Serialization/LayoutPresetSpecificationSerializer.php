@@ -21,6 +21,7 @@ class LayoutPresetSpecificationSerializer
         $name = $data['name'] ?? null;
         $description = $data['description'] ?? null;
         $icon = $data['icon'] ?? null;
+        /** @var list<array<string, mixed>> $layout */
         $layout = $data['layout'] ?? null;
 
         return new LayoutPresetSpecificationDto(

@@ -1,3 +1,4 @@
+import { mount } from '@vue/test-utils';
 import sidebarTreeNodeComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node', () => {
@@ -6,14 +7,63 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
     const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
         .methods;
 
-    it('prevents drag event propagation from action buttons', () => {
-        const event = {
-            stopPropagation: jest.fn(),
-        };
+    it('prevents drag events from reaching the draggable ancestor through control buttons', async () => {
+        const dragListener = jest.fn();
+        const getStore = jest.spyOn(Shopware.Store, 'get').mockReturnValue({
+            getByName: () => ({
+                slots: [
+                    { name: 'content' },
+                ],
+            }),
+        } as never);
+        const wrapper = mount(sidebarTreeNodeComponent, {
+            attachTo: document.body,
+            props: {
+                element: {
+                    id: 'element-id',
+                    component: 'Sw:Grid:Container',
+                    slots: {
+                        content: [],
+                    },
+                } as never,
+                allowDragAndDrop: true,
+            },
+            global: {
+                provide: {
+                    acl: {
+                        can: () => true,
+                    },
+                },
+                directives: {
+                    draggable: {
+                        mounted(el: HTMLElement) {
+                            el.addEventListener('mousedown', dragListener);
+                        },
+                    },
+                    droppable: {},
+                },
+                stubs: {
+                    'mt-icon': true,
+                },
+            },
+        });
 
-        methods.preventDrag.call({}, event);
+        try {
+            const duplicateButton = wrapper.get('.sw-experience-studio-sidebar-tree-node__actions button');
 
-        expect(event.stopPropagation).toHaveBeenCalled();
+            await duplicateButton.trigger('mousedown');
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            for (const button of wrapper.findAll('button')) {
+                await button.trigger('mousedown');
+            }
+
+            expect(dragListener).not.toHaveBeenCalled();
+        } finally {
+            wrapper.unmount();
+            getStore.mockRestore();
+        }
     });
 
     it('uses configured type icon when available', () => {

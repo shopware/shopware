@@ -2049,12 +2049,11 @@ The existing `getWriteResults()` methods remain unchanged.
 
 A new line item rule condition `LineItemPerItemQuantityRule` (`cartLineItemPerItemQuantity`) was added. It matches the cart against the quantity of each individual line item, without selecting a specific product.
 
-### Storefront snippets of self-managed apps are loaded
+### Storefront snippets of apps are persisted on install and update
 
-Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
-Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
-The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
-Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+Storefront snippets shipped by apps are persisted on installation and update and removed on uninstall. Each container caches them locally on first use, avoiding shared-storage reads and app-source downloads on subsequent catalogue builds.
+Existing apps are backfilled the first time their snippets are requested; this may download a self-managed app's source once.
+To publish changed snippets from a local app, increase its manifest version and run `app:refresh` (or `app:update`).
 
 ### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
 

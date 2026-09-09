@@ -1,3 +1,13 @@
+# 6.6.10.24
+## EU harmonised guarantee labelling
+### The legal guarantee notice is enabled by default
+The new system config `core.cart.showLegalGuaranteeNotice` defaults to `true`. After updating, the checkout confirm page uses the new snippets `checkout.confirmTermsTextWithGuarantee` / `checkout.confirmTermsTextModalWithGuarantee` instead of `checkout.confirmTermsText` / `checkout.confirmTermsTextModal`, which additionally reference `%legalGuaranteeNoticeModalTagOpen%` and `%legalGuaranteeNoticeModalTagClose%`. If you have overridden the terms and conditions text or the block `page_checkout_confirm_tos_control_label`, adapt your override or disable the config under Settings > Shop > Cart > Checkout.
+
+The migration also appends the notice to the `order_confirmation_mail` template. As with every mail template migration, only system default templates that have never been edited are updated (`updated_at IS NULL`), so customised templates keep their content and need the notice added manually.
+
+### New product fields
+`product.guaranteeMonths` and `product.guaranteeConfirmed` are writable via the Admin API and readable via the Store API. `guaranteeMonths` is validated on write: it must either be empty or an integer greater than 24 that is divisible by 6. The GARAN label is only rendered when `guaranteeConfirmed` is set and a guarantee duration, a manufacturer and a manufacturer number are maintained.
+
 # 6.6.10.21
 ## Manual ZUGFeRD document builders should set document information before deliveries
 If you build `Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument` instances manually, call `withDocumentInformation()` before `withDelivery()` when you expect correction-specific delivery output. Delivery serialization now derives from the document type set in the document metadata.

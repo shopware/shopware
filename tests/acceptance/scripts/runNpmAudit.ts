@@ -20,12 +20,13 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  * dependency tree:
  * - GHSA-8988-4f7v-96qf by pinning lighthouse to 12.6.1
  * - GHSA-hmw2-7cc7-3qxx by pinning form-data to 4.0.6
- * - GHSA-h67p-54hq-rp68 and GHSA-5p4m-2wfm-xmqj by pinning js-yaml to 4.3.1
+ * - GHSA-h67p-54hq-rp68, GHSA-5p4m-2wfm-xmqj and GHSA-2883-xcg3-v3hh by pinning js-yaml to 4.3.2
  * - GHSA-28wg-ghj8-5hjv and GHSA-2v37-7h3g-55p8 by pinning nanoid to 3.3.18
  * - GHSA-7c78-jf6q-g5cm by pinning tmp to 0.2.7
  */
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Lighthouse/Puppeteer browser downloads, test-only; fixed Lighthouse requires Node 22.19+ while this package still supports Node 20
+        'https://github.com/advisories/GHSA-7pqw-9j4j-h8q3', // extract-zip arbitrary file write via symlink archive entries, same Lighthouse/Puppeteer download path and the same Node 22.19+ blocker as the advisory above
     ],
 });

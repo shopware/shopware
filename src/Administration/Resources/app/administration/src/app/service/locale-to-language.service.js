@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLocaleToLanguageService() {

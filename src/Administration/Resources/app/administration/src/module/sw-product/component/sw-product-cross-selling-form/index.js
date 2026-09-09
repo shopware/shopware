@@ -4,8 +4,8 @@
 
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 

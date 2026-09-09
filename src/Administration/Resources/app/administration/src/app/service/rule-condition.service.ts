@@ -1,4 +1,4 @@
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 type AppScriptCondition = {
     scriptId: EntityKey<'script'>;

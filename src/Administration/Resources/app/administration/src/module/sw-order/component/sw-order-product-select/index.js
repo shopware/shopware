@@ -1,14 +1,13 @@
 import template from './sw-order-product-select.html.twig';
 import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Service } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -3,10 +3,9 @@
  */
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

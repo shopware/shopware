@@ -1,13 +1,13 @@
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Mixin, Store } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -1,7 +1,7 @@
 import template from './sw-category-detail-products.html.twig';
 import './sw-category-detail-products.scss';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const ShopwareError = Shopware.Classes.ShopwareError;
 

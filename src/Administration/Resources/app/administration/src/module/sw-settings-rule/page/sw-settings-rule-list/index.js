@@ -1,9 +1,8 @@
 import './sw-settings-rule-list.scss';
 import template from './sw-settings-rule-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales

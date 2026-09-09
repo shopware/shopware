@@ -1,8 +1,7 @@
 import template from './sw-condition-all-line-items-container.html.twig';
+import { EntityCollection } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
-const { EntityCollection } = Shopware.Data;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales

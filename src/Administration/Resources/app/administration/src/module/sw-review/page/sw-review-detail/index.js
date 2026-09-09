@@ -1,7 +1,6 @@
 import template from './sw-review-detail.html.twig';
 import './sw-review-detail.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package after-sales

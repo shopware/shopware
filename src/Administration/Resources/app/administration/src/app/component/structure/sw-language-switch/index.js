@@ -2,8 +2,7 @@ import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 import { EventBus } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package framework

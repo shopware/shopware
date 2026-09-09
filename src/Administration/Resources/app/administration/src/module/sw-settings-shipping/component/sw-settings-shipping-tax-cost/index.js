@@ -1,6 +1,6 @@
 import template from './sw-settings-shipping-tax-cost.html.twig';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 

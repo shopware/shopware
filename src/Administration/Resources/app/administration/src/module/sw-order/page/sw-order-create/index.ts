@@ -4,14 +4,13 @@ import type { Cart, PromotionCodeTag } from '../../order.types';
 import '../../store/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Context, Store, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,

@@ -1,8 +1,7 @@
 import template from './sw-settings-state-machine-state-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package checkout
  */

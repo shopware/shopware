@@ -1,13 +1,12 @@
 import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 import { getCartErrorMessage } from '../../cart-error.helper';
+import { ChangesetGenerator } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 const { Store } = Shopware;
-const { ChangesetGenerator } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

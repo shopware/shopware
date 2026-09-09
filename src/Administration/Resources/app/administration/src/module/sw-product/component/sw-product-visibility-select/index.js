@@ -3,8 +3,7 @@
  */
 
 import template from './sw-product-visibility-select.html.twig';
-
-const { EntityCollection, Criteria } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

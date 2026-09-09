@@ -1,7 +1,6 @@
 import template from './sw-condition-base-line-item.html.twig';
 import './sw-condition-base-line-item.scss';
-
-const { EntityCollection } = Shopware.Data;
+import { EntityCollection } from 'shopware:data';
 
 const NON_GENERIC_MATCH_ANY_CONDITIONS = [
     'cartLineItem',

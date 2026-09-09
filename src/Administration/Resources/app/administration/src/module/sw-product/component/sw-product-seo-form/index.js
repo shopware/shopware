@@ -3,9 +3,9 @@
  */
 
 import template from './sw-product-seo-form.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const createId = Shopware.Utils.createId;
 

@@ -4,7 +4,7 @@ import template from './sw-customer-detail-base.html.twig';
  * @sw-package checkout
  */
 
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -7,10 +7,9 @@
 import template from './sw-sales-channel-detail-agentic-file.html.twig';
 import './sw-sales-channel-detail-agentic-file.scss';
 import { string, types } from 'shopware:utils';
+import { EntityCollection } from 'shopware:data';
 
 const { Mixin, Context, Defaults } = Shopware;
-const { EntityCollection } = Shopware.Data;
-
 const FILE_FAMILY_AGENTIC = 'agentic';
 const USER_PROVIDED_CONTENT_OVERRIDE_KEY = 'user_provided_content';
 

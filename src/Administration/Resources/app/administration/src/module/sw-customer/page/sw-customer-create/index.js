@@ -1,4 +1,5 @@
 import template from './sw-customer-create.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
@@ -7,7 +8,6 @@ import template from './sw-customer-create.html.twig';
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

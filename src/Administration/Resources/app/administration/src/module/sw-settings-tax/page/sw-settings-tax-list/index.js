@@ -1,9 +1,8 @@
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package checkout
  */

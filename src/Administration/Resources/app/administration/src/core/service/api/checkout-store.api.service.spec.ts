@@ -29,7 +29,7 @@ describe('checkoutStoreService', () => {
 
     it('sends checkout payload to the proxy order endpoint', async () => {
         const { checkoutStoreService, clientMock } = createCheckoutStoreService();
-        const salesChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
+        const salesChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265' as EntityKey<'sales_channel'>;
         const contextToken = 'is-exactly-32-chars-as-required-';
 
         await checkoutStoreService.checkout(salesChannelId, contextToken, {}, {}, { sendOrderConfirmationMail: false });

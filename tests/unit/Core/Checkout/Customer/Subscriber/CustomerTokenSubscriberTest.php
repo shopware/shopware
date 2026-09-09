@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -26,7 +28,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $contextPersister->expects($this->once())
             ->method('revokeAllCustomerTokens')
             ->with('updated-password');
-        $subscriber = new CustomerTokenSubscriber($contextPersister, new RequestStack());
+        $subscriber = new CustomerTokenSubscriber($contextPersister, new RequestStack(), $this->sessionContextToken());
         $context = Context::createDefaultContext();
         $event = new EntityWrittenEvent('customer', [
             new EntityWriteResult('inserted', ['id' => 'inserted', 'password' => 'hash'], 'customer', EntityWriteResult::OPERATION_INSERT),
@@ -43,11 +45,16 @@ class CustomerTokenSubscriberTest extends TestCase
         $contextPersister->expects($this->once())
             ->method('revokeAllCustomerTokens')
             ->with('deleted-customer');
-        $subscriber = new CustomerTokenSubscriber($contextPersister, new RequestStack());
+        $subscriber = new CustomerTokenSubscriber($contextPersister, new RequestStack(), $this->sessionContextToken());
         $event = new EntityDeletedEvent('customer', [
             new EntityWriteResult('deleted-customer', [], 'customer', EntityWriteResult::OPERATION_DELETE),
         ], Context::createDefaultContext());
 
         $subscriber->onCustomerDeleted($event);
+    }
+
+    private function sessionContextToken(): SessionContextTokenAccessor
+    {
+        return new SessionContextTokenAccessor([], true, new StaticSystemConfigService());
     }
 }

@@ -120,8 +120,7 @@ class AuthControllerTest extends TestCase
         $browser = $this->login();
         $session = $this->getSession();
 
-        // Get the sales channel ID that was used for login
-        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $loginSalesChannelId = $this->getStorefrontSalesChannelId();
 
         // Get the token for the login channel - should be stored in channel-specific key
         $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
@@ -151,7 +150,7 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
-        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $salesChannelId = $this->getStorefrontSalesChannelId();
 
         // Make another request on the same channel
         $browser->request('GET', '/');
@@ -789,6 +788,20 @@ class AuthControllerTest extends TestCase
             ],
         ];
         static::getContainer()->get('product.repository')->create([$product], $context);
+    }
+
+    /**
+     * The sales channel the storefront browser lands on, i.e. the one owning the APP_URL domain.
+     */
+    private function getStorefrontSalesChannelId(): string
+    {
+        $salesChannelId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url = :url',
+            ['url' => EnvironmentHelper::getVariable('APP_URL')]
+        );
+        static::assertIsString($salesChannelId);
+
+        return $salesChannelId;
     }
 
     private function login(): KernelBrowser

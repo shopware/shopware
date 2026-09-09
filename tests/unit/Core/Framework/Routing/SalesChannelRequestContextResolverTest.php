@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,7 +66,8 @@ class SalesChannelRequestContextResolverTest extends TestCase
             static::createStub(RequestContextResolverInterface::class),
             $contextService,
             new EventDispatcher(),
-            new RouteScopeRegistry([new StoreApiRouteScope()])
+            new RouteScopeRegistry([new StoreApiRouteScope()]),
+            new SessionContextTokenAccessor([], true, new StaticSystemConfigService())
         );
 
         $resolver->resolve($request);
@@ -111,7 +114,8 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $decorated,
             $contextService,
             new EventDispatcher(),
-            new RouteScopeRegistry([new StoreApiRouteScope()])
+            new RouteScopeRegistry([new StoreApiRouteScope()]),
+            new SessionContextTokenAccessor([], true, new StaticSystemConfigService())
         );
 
         $resolver->resolve($request);

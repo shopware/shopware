@@ -54,7 +54,6 @@ use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
 use Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener;
 use Shopware\Core\Framework\Api\EventListener\ResponseHeaderListener;
-use Shopware\Core\Framework\Api\EventListener\SessionContextTokenSyncListener;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
@@ -89,7 +88,6 @@ use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\RequestTransformer;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
-use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
@@ -132,13 +130,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(ResponseHeaderListener::class)
-        ->tag('kernel.event_subscriber');
-
-    $services->set(SessionContextTokenSyncListener::class)
-        ->args([
-            service(SessionContextTokenAccessor::class),
-            service(RouteScopeRegistry::class),
-        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ContextValueResolver::class)

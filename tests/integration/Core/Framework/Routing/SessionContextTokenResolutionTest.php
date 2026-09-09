@@ -4,16 +4,20 @@ namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\EventListener\SessionContextTokenSyncListener;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
+use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,16 +43,18 @@ class SessionContextTokenResolutionTest extends TestCase
 
     private const SESSION_ID = 'a-resumable-storefront-session-id';
 
+    private const SUFFIXED_KEY = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL;
+
     private SalesChannelRequestContextResolver $resolver;
 
-    private SessionContextTokenSyncListener $syncListener;
+    private SessionContextTokenSubscriber $subscriber;
 
     private string $sessionName;
 
     protected function setUp(): void
     {
         $this->resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
-        $this->syncListener = static::getContainer()->get(SessionContextTokenSyncListener::class);
+        $this->subscriber = static::getContainer()->get(SessionContextTokenSubscriber::class);
 
         /** @var array<string, mixed> $sessionOptions */
         $sessionOptions = static::getContainer()->getParameter('session.storage.options');
@@ -70,15 +76,15 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
     }
 
-    public function testPrefersTheSalesChannelSuffixedSessionKey(): void
+    public function testUnderCustomerBindingTheSalesChannelKeyIsAuthoritative(): void
     {
+        $this->enableCustomerBinding();
         $suffixedToken = Random::getAlphanumericString(32);
-        $plainToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest();
         $this->attachSession($request, [
-            PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL => $suffixedToken,
-            PlatformRequest::HEADER_CONTEXT_TOKEN => $plainToken,
+            self::SUFFIXED_KEY => $suffixedToken,
+            PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32),
         ]);
 
         $this->resolve($request);
@@ -86,16 +92,35 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertSame($suffixedToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testFallsBackToThePlainSessionKey(): void
+    public function testWithoutCustomerBindingAStaleSalesChannelKeyIsIgnored(): void
     {
         $plainToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest();
-        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $plainToken]);
+        $this->attachSession($request, [
+            self::SUFFIXED_KEY => Random::getAlphanumericString(32),
+            PlatformRequest::HEADER_CONTEXT_TOKEN => $plainToken,
+        ]);
 
         $this->resolve($request);
 
         static::assertSame($plainToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testUnderCustomerBindingAPlainOnlySessionHoldsNoTokenForTheSalesChannel(): void
+    {
+        $this->enableCustomerBinding();
+
+        $request = $this->createStoreApiRequest();
+        // A session started before the binding flag was switched on: the storefront will mint the
+        // channel token on the next page view, a borrower must not run ahead of it.
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
+
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the session cookie does not resume a storefront session holding a context token for this sales channel'
+        ));
+
+        $this->resolve($request);
     }
 
     public function testWithoutSessionCookieTheDeclaredSessionSourceFails(): void
@@ -176,50 +201,42 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testRotationIsWrittenBackToTheSession(): void
+    public function testALoginIsWrittenBackToTheSession(): void
     {
+        $this->enableCustomerBinding();
         $sessionToken = Random::getAlphanumericString(32);
-        $rotatedToken = Random::getAlphanumericString(32);
+        $loggedInToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest();
         $session = $this->attachSession($request, [
-            PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL => $sessionToken,
+            self::SUFFIXED_KEY => $sessionToken,
             PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken,
         ]);
 
         $this->resolve($request);
+        $this->login($request, $loggedInToken);
 
-        $response = $this->respondWith($request, $rotatedToken);
+        static::assertSame($loggedInToken, $session->get(self::SUFFIXED_KEY), 'the sales channel key must follow the rotation');
+        static::assertSame($loggedInToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN), 'the plain key is always kept in sync');
+        static::assertSame($loggedInToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        static::assertSame(
-            $rotatedToken,
-            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL),
-            'the sales channel suffixed key must follow the rotation'
-        );
-        static::assertSame(
-            $rotatedToken,
-            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
-            'the plain key is always kept in sync, like the storefront does'
-        );
+        $response = $this->respond($request);
 
         static::assertTrue($response->headers->hasCacheControlDirective('private'));
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
     }
 
-    public function testRotationMigratesTheSessionId(): void
+    public function testARotationMigratesTheSessionId(): void
     {
-        $sessionToken = Random::getAlphanumericString(32);
-        $rotatedToken = Random::getAlphanumericString(32);
-
         $request = $this->createStoreApiRequest();
-        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
 
         $this->resolve($request);
 
         $initialId = $session->getId();
         static::assertSame(self::SESSION_ID, $initialId);
 
-        $this->respondWith($request, $rotatedToken);
+        $this->login($request, Random::getAlphanumericString(32));
 
         $migratedId = $session->getId();
         static::assertNotSame(
@@ -227,12 +244,21 @@ class SessionContextTokenResolutionTest extends TestCase
             $migratedId,
             'a token rotation is a privilege boundary: a pre-planted session ID must not survive it'
         );
-        static::assertSame(
-            $migratedId,
-            $session->get('sessionId'),
-            'the sessionId key mirrors the current ID, like the storefront keeps it after login'
-        );
-        static::assertSame($rotatedToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($migratedId, $session->get(SessionContextTokenAccessor::SESSION_ID_KEY));
+    }
+
+    public function testALogoutDestroysTheSessionAndContinuesWithTheFreshToken(): void
+    {
+        $freshToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
+
+        $this->resolve($request);
+        $this->logout($request, $freshToken);
+
+        static::assertSame($freshToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame(self::SESSION_ID, $session->getId());
     }
 
     /**
@@ -280,7 +306,7 @@ class SessionContextTokenResolutionTest extends TestCase
         );
 
         $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
-            'the session cookie does not resume a storefront session holding a context token'
+            'the session cookie does not resume a storefront session holding a context token for this sales channel'
         ));
 
         $this->resolve($request);
@@ -293,7 +319,7 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->attachSession($request, []);
 
         $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
-            'the session cookie does not resume a storefront session holding a context token'
+            'the session cookie does not resume a storefront session holding a context token for this sales channel'
         ));
 
         $this->resolve($request);
@@ -320,13 +346,12 @@ class SessionContextTokenResolutionTest extends TestCase
     {
         $sessionToken = Random::getAlphanumericString(32);
         $foreignToken = Random::getAlphanumericString(32);
-        $rotatedForeignToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest($foreignToken, sessionOptIn: false);
         $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
         $this->resolve($request);
-        $this->respondWith($request, $rotatedForeignToken);
+        $this->login($request, Random::getAlphanumericString(32));
 
         static::assertSame($foreignToken, $this->resolvedContext($request)->getToken());
         static::assertSame(
@@ -334,18 +359,17 @@ class SessionContextTokenResolutionTest extends TestCase
             $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
             'a caller that brought its own token must not repoint the shoppers session'
         );
+        static::assertSame(self::SESSION_ID, $session->getId());
     }
 
-    public function testAResponseWithoutRotationKeepsItsCacheHeaders(): void
+    public function testAResponseWithoutSessionInvolvementKeepsItsCacheHeaders(): void
     {
-        $headerToken = Random::getAlphanumericString(32);
-
-        $request = $this->createStoreApiRequest($headerToken, sessionOptIn: false);
+        $request = $this->createStoreApiRequest(Random::getAlphanumericString(32), sessionOptIn: false);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
 
         $this->resolve($request);
 
-        $response = $this->respondWith($request, $headerToken);
+        $response = $this->respond($request);
 
         static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
     }
@@ -392,40 +416,65 @@ class SessionContextTokenResolutionTest extends TestCase
         return $session;
     }
 
+    private function enableCustomerBinding(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+    }
+
     private function resolve(Request $request): void
+    {
+        $this->onStack($request, fn () => $this->resolver->resolve($request));
+    }
+
+    /**
+     * What `POST /store-api/account/login` (and register) does after a successful login.
+     */
+    private function login(Request $request, string $token): void
+    {
+        $this->onStack($request, fn () => $this->subscriber->onCustomerLogin(
+            new CustomerLoginEvent($this->resolvedContext($request), new CustomerEntity(), $token)
+        ));
+    }
+
+    /**
+     * What `POST /store-api/account/logout` does: the route has already built a context around a
+     * fresh token when it dispatches the event.
+     */
+    private function logout(Request $request, string $freshToken): void
+    {
+        $context = $this->resolvedContext($request);
+        $context->assign(['token' => $freshToken]);
+
+        $this->onStack($request, fn () => $this->subscriber->onCustomerLogout(
+            new CustomerLogoutEvent($context, new CustomerEntity())
+        ));
+    }
+
+    private function respond(Request $request): Response
+    {
+        $response = new Response();
+
+        $this->subscriber->enforceCacheControl(new ResponseEvent(
+            static::getContainer()->get('kernel'),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        return $response;
+    }
+
+    private function onStack(Request $request, callable $action): void
     {
         $requestStack = static::getContainer()->get('request_stack');
         $requestStack->push($request);
 
         try {
-            $this->resolver->resolve($request);
+            $action();
         } finally {
             $requestStack->pop();
         }
-    }
-
-    /**
-     * Runs the response listener for a response that reports $responseToken, i.e. what a rotating
-     * route such as `POST /store-api/account/register` produces.
-     */
-    private function respondWith(Request $request, string $responseToken): Response
-    {
-        $response = new Response();
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $responseToken);
-
-        $event = new ResponseEvent(
-            static::getContainer()->get('kernel'),
-            $request,
-            HttpKernelInterface::MAIN_REQUEST,
-            $response
-        );
-
-        // The two handlers run at different kernel.response priorities in production; invoking
-        // them in that order mirrors the event dispatch.
-        $this->syncListener->syncSession($event);
-        $this->syncListener->enforceCacheControl($event);
-
-        return $response;
     }
 
     private function resolvedContext(Request $request): SalesChannelContext

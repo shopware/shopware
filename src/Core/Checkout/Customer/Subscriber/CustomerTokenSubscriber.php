@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,7 +25,8 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly SalesChannelContextPersister $contextPersister,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly SessionContextTokenAccessor $sessionContextToken
     ) {
     }
 
@@ -101,17 +103,11 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
             'token' => $newToken,
         ]);
 
-        // Only migrate an initialized storefront session. Store API requests use their context token directly.
-        if (!$mainRequest->hasSession(true)) {
+        // Only a session sourced request can keep the shopper logged in through its session; any other
+        // Store API request uses its context token directly and gets every token revoked.
+        if (!$this->sessionContextToken->rotate($mainRequest, $context->getSalesChannelId(), $newToken)) {
             return null;
         }
-
-        $session = $mainRequest->getSession();
-        $session->migrate();
-        $session->set('sessionId', $session->getId());
-
-        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
-        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
 
         return $newToken;
     }

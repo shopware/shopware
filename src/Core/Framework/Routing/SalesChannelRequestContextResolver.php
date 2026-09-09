@@ -62,9 +62,6 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        // Remember what this request came in with, so a later rotation stays recognizable as one.
-        $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_RESOLVED_TOKEN, $usedContextToken);
-
         $languageId = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '');
         $currencyId = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID, '');
 
@@ -134,7 +131,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         if ($token === null) {
             throw RoutingException::sessionContextNotResolvable(
-                'the session cookie does not resume a storefront session holding a context token'
+                'the session cookie does not resume a storefront session holding a context token for this sales channel'
             );
         }
 

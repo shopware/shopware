@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -89,8 +90,16 @@ class DatabaseTypeLoaderTest extends TestCase
     public function testValidatesAllRowsTogetherAndFailsTheWholeLoad(): void
     {
         $violations = new ConstraintViolationList([new ConstraintViolation('Invalid label', null, [], null, 'types[App:Bad:Type].label', '')]);
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn($violations);
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(static::callback(static function (mixed $value): bool {
+                static::assertInstanceOf(ElementTypeSpecificationDtoCollection::class, $value);
+                static::assertSame(['App:Good:Hero', 'App:Bad:Type'], array_keys($value->types));
+
+                return true;
+            }))
+            ->willReturn($violations);
         $loader = $this->loader([
             ['name' => 'App:Good:Hero', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'GoodApp'],
             ['name' => 'App:Bad:Type', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'BadApp'],

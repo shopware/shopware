@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Dto\StyleOptionSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -103,8 +104,16 @@ class DatabaseStyleOptionLoaderTest extends TestCase
     public function testValidatesAllRowsTogether(): void
     {
         $violations = new ConstraintViolationList([new ConstraintViolation('Invalid type', null, [], null, 'styleOptions[broken].type', '')]);
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn($violations);
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(static::callback(static function (mixed $value): bool {
+                static::assertInstanceOf(StyleOptionSpecificationDtoCollection::class, $value);
+                static::assertSame(['good', 'broken'], array_keys($value->options));
+
+                return true;
+            }))
+            ->willReturn($violations);
         $loader = $this->loader([
             ['name' => 'good', 'schema' => '{"type":"integer"}', 'app_name' => 'Acme'],
             ['name' => 'broken', 'schema' => '{"type":"object"}', 'app_name' => 'Acme'],

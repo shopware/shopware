@@ -103,8 +103,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
             'token' => $newToken,
         ]);
 
-        // Only a session sourced request can keep the shopper logged in through its session; any other
-        // Store API request uses its context token directly and gets every token revoked.
+        // a request without a session of its own gets every token revoked
         if (!$this->sessionContextToken->rotate($mainRequest, $context->getSalesChannelId(), $newToken)) {
             return null;
         }

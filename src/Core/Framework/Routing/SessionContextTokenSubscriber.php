@@ -14,13 +14,9 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Drives the session held context token through the request lifecycle, for the storefront (owner)
- * and for Store API borrowers alike - see SessionContextTokenAccessor for the two roles.
- *
- * Rotations are followed through the domain events that cause them instead of by diffing tokens at
- * response time: login and registration (CustomerLoginEvent), logout (CustomerLogoutEvent, whose
- * context already carries the fresh token the logout route built) and an expired token swapped by
- * the context service (SalesChannelContextResolvedEvent). One mechanism for both surfaces.
+ * Runs the session held context token through the request lifecycle for the storefront (owner) and
+ * Store API borrowers alike, see SessionContextTokenAccessor. Rotations are followed through the
+ * events that cause them.
  *
  * @internal
  */
@@ -30,15 +26,12 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
     use RouteScopeCheckTrait;
 
     /**
-     * Before routing (RouterListener runs at 32): the owner is recognized by a request attribute the
-     * storefront request transformer sets, and the rest of the request pipeline expects the token
-     * header to be in place from here on.
+     * Before routing (RouterListener runs at 32); the owner is recognized by a request attribute.
      */
     private const PRIORITY_START = 40;
 
     /**
-     * Runs after CacheResponseSubscriber::setResponseCache (-1500), which removes and rewrites
-     * Cache-Control wholesale. Only a lower priority can have the final say on the header.
+     * After CacheResponseSubscriber::setResponseCache (-1500), which rewrites Cache-Control wholesale.
      */
     private const PRIORITY_CACHE_CONTROL = -1600;
 
@@ -85,8 +78,6 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
 
     public function onCustomerLogout(CustomerLogoutEvent $event): void
     {
-        // Logging out ends the session in every sense: the old session is destroyed, not just left
-        // behind under a stale ID.
         $this->rotate($event->getSalesChannelId(), $event->getSalesChannelContext()->getToken(), true);
     }
 
@@ -131,9 +122,7 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * The request attribute already makes CacheResponseSubscriber resolve the no-store policy, but
-     * that policy carries no `private` directive. Spelling both out here is what guarantees a
-     * session backed response can never be stored by a reverse proxy or CDN.
+     * The no-store policy of CacheResponseSubscriber carries no `private` directive.
      */
     private function denySharedCache(Response $response): void
     {

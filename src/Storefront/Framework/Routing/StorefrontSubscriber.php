@@ -22,9 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * The storefront's session and its context token are handled by
- * \Shopware\Core\Framework\Routing\SessionContextTokenSubscriber, for which every storefront
- * request is the session owner.
+ * Session and context token handling lives in \Shopware\Core\Framework\Routing\SessionContextTokenSubscriber.
  *
  * @internal
  */

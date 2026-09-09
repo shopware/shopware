@@ -81,7 +81,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $customerId = $this->createCustomer();
 
         $request = Request::create('/');
-        // A storefront request: it owns the session the customer is logged in with.
+        // a storefront request owns the session
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
         $request->setSession(new Session(new MockArraySessionStorage()));
 

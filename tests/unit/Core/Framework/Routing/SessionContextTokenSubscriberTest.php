@@ -180,7 +180,7 @@ class SessionContextTokenSubscriberTest extends TestCase
 
     public function testLogoutContinuesWithTheFreshTokenOnANewSessionId(): void
     {
-        // LogoutRoute has already built a context around a fresh token before it dispatches the event
+        // LogoutRoute dispatches the event with a context built around a fresh token
         $context = Generator::generateSalesChannelContext(token: 'after-logout');
         $request = $this->ownerRequest($context->getSalesChannelId());
         $session = $this->sessionWithId('logged-in-session');
@@ -264,6 +264,37 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame(0, $factoryCalls);
     }
 
+    public function testTheKillSwitchDoesNotAffectTheOwner(): void
+    {
+        $context = Generator::generateSalesChannelContext(token: 'logged-in');
+        $request = $this->ownerRequest($context->getSalesChannelId());
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $subscriber = $this->subscriber([$request], enabled: false);
+
+        $subscriber->startSession($this->requestEvent($request));
+        static::assertNotNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $subscriber->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
+        static::assertSame('logged-in', $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testTheKillSwitchStopsBorrowers(): void
+    {
+        $context = Generator::generateSalesChannelContext(token: 'logged-in');
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+        $request->cookies->set('session-', 'resumable');
+        $session = $this->sessionWithId('resumable');
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'anonymous');
+        $request->setSession($session);
+
+        $this->subscriber([$request], enabled: false)
+            ->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
+
+        static::assertSame('anonymous', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame('resumable', $session->getId());
+    }
+
     public function testSessionResolvedStoreApiResponsesAreNeverSharedCacheable(): void
     {
         $request = new Request(attributes: [
@@ -310,10 +341,10 @@ class SessionContextTokenSubscriberTest extends TestCase
      * @param list<Request> $requests
      * @param array<string, mixed> $config
      */
-    private function subscriber(array $requests, array $config = []): SessionContextTokenSubscriber
+    private function subscriber(array $requests, array $config = [], bool $enabled = true): SessionContextTokenSubscriber
     {
         return new SessionContextTokenSubscriber(
-            new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService($config)),
+            new SessionContextTokenAccessor(['name' => 'session-'], $enabled, new StaticSystemConfigService($config)),
             new RequestStack($requests),
             new RouteScopeRegistry([new StoreApiRouteScope(), new ApiRouteScope()])
         );

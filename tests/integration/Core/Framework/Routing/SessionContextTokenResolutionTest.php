@@ -112,8 +112,7 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->enableCustomerBinding();
 
         $request = $this->createStoreApiRequest();
-        // A session started before the binding flag was switched on: the storefront will mint the
-        // channel token on the next page view, a borrower must not run ahead of it.
+        // a session created before the binding flag was switched on
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
 
         $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
@@ -129,8 +128,7 @@ class SessionContextTokenResolutionTest extends TestCase
 
         $request = $this->createStoreApiRequest();
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
-        // A Store API caller that does not send the storefront session cookie must not be able to
-        // borrow a session, even when one happens to be attached to the request object.
+        // a session attached to the request object but not backed by the cookie must not be borrowed
         $request->cookies->remove($this->sessionName);
 
         $this->expectExceptionObject(
@@ -156,8 +154,7 @@ class SessionContextTokenResolutionTest extends TestCase
     {
         $headerToken = Random::getAlphanumericString(32);
 
-        // The storefront's own requests carry both: the token header Core put there before routing,
-        // and whatever a browser extension or proxy may add. Only Store API requests are governed.
+        // storefront requests always carry a token header, only Store API requests are governed
         $request = $this->createStoreApiRequest($headerToken);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
@@ -297,8 +294,7 @@ class SessionContextTokenResolutionTest extends TestCase
         $sessionToken = Random::getAlphanumericString(32);
 
         $request = $this->createStoreApiRequest();
-        // What strict mode does for native sessions: an unknown cookie value ends up on a session
-        // with a freshly minted ID instead of resuming one.
+        // strict mode: an unknown cookie ends up on a session with a fresh ID
         $this->attachSession(
             $request,
             [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken],
@@ -315,7 +311,7 @@ class SessionContextTokenResolutionTest extends TestCase
     public function testASessionWithoutAContextTokenFails(): void
     {
         $request = $this->createStoreApiRequest();
-        // A resumable session that was not started by the storefront holds no context token.
+        // resumable, but not started by the storefront
         $this->attachSession($request, []);
 
         $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
@@ -333,8 +329,6 @@ class SessionContextTokenResolutionTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
-        // The store-api cache is keyed on headers and ignores cookies, so a cacheable route must
-        // stay cookie independent - and the declared session source fails loudly instead.
         $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
             'the route is shared-cacheable and must stay independent of the session cookie'
         ));
@@ -400,8 +394,7 @@ class SessionContextTokenResolutionTest extends TestCase
     private function attachSession(Request $request, array $data, string $cookieValue = self::SESSION_ID): SessionInterface
     {
         $storage = new MockArraySessionStorage();
-        // The accessor only trusts a session whose ID matches the cookie that resumed it, exactly
-        // like a strict-mode native session.
+        // the accessor only trusts a session whose ID matches the cookie
         $storage->setId(self::SESSION_ID);
         $session = new Session($storage);
 
@@ -410,7 +403,6 @@ class SessionContextTokenResolutionTest extends TestCase
         }
 
         $request->setSession($session);
-        // The cookie is what tells the resolver an existing session may be resumed.
         $request->cookies->set($this->sessionName, $cookieValue);
 
         return $session;
@@ -427,9 +419,6 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->onStack($request, fn () => $this->resolver->resolve($request));
     }
 
-    /**
-     * What `POST /store-api/account/login` (and register) does after a successful login.
-     */
     private function login(Request $request, string $token): void
     {
         $this->onStack($request, fn () => $this->subscriber->onCustomerLogin(
@@ -438,8 +427,7 @@ class SessionContextTokenResolutionTest extends TestCase
     }
 
     /**
-     * What `POST /store-api/account/logout` does: the route has already built a context around a
-     * fresh token when it dispatches the event.
+     * LogoutRoute dispatches the event with a context built around a fresh token.
      */
     private function logout(Request $request, string $freshToken): void
     {

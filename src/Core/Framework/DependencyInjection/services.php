@@ -175,8 +175,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
     $parameters->set('shopware.routing.registered_api_prefixes', []);
 
-    // Single kill switch for the Store API storefront-session context token fallback.
-    // Set to false and the Store API never looks at the storefront session again.
+    // Kill switch for the Store API side of the session context token handling, the storefront is unaffected
     $parameters->set('shopware.routing.session_context_token.enabled', true);
 
     // Migration config

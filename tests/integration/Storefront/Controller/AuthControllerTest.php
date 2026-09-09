@@ -790,9 +790,6 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('product.repository')->create([$product], $context);
     }
 
-    /**
-     * The sales channel the storefront browser lands on, i.e. the one owning the APP_URL domain.
-     */
     private function getStorefrontSalesChannelId(): string
     {
         $salesChannelId = static::getContainer()->get(Connection::class)->fetchOne(

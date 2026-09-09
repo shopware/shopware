@@ -7,10 +7,10 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -203,10 +203,10 @@ final readonly class RenderedElementFactory
     /**
      * The declared tier's half of the invariant above: it carries every authored key the type declares and
      * leaves each resolvable reference to whichever member fills it — a loader through the requirement tier,
-     * or an ancestor through the delivered-context tier. The served set is wider than the set
-     * {@see PrimitiveDefaultProvider} seeds: that provider keys off `isPrimitive()` alone, so a union-typed or
-     * `object`-typed property seeds no default while this tier still serves an authored value under it.
-     * Serving a value the seeder never wrote is the intended direction.
+     * or an ancestor through the delivered-context tier. The declared tier serves every property that is not a
+     * resolvable reference. {@see StoredDefaultProvider} seeds only properties with a non-null primitive
+     * default of their own, or nested members with such defaults. Consequently, the declared tier can serve an
+     * authored value for a property the provider did not seed; that is the intended direction.
      *
      * @param array<string, PropertySpecification> $declaredProperties
      *

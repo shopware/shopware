@@ -6,12 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
@@ -19,10 +18,10 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(PrimitiveDefaultProvider::class)]
-class PrimitiveDefaultProviderTest extends TestCase
+#[CoversClass(StoredDefaultProvider::class)]
+class StoredDefaultProviderTest extends TestCase
 {
-    #[TestDox('returns top-level primitives with a non-null default, skipping defaultless primitives and references')]
+    #[TestDox('returns top-level defaults, skipping properties without defaults and references')]
     public function testForTypeSkipsNullDefaultsAndReferences(): void
     {
         $specs = [
@@ -36,7 +35,7 @@ class PrimitiveDefaultProviderTest extends TestCase
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
 
-        static::assertSame(['withDefault' => 'seeded'], (new PrimitiveDefaultProvider())->forType($registry, 'Sw:Mixed'));
+        static::assertSame(['withDefault' => 'seeded'], (new StoredDefaultProvider())->forType($registry, 'Sw:Mixed'));
     }
 
     #[TestDox('returns nested object member defaults')]
@@ -47,18 +46,9 @@ class PrimitiveDefaultProviderTest extends TestCase
             'sm' => new PropertySpecification('sm', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
         ];
         $specs = [
-            'Sw:Grid:Container' => new ContentSystemElementTypeSpecification(
-                'Sw:Grid:Container',
-                'Grid Container',
-                '',
-                null,
-                null,
-                new CopilotSpecification('', []),
-                [
-                    'padding' => new PropertySpecification('padding', new PropertyType(['string', 'object'], false, null, null, $nestedProperties), false, '', '', null),
-                ],
-                [],
-            ),
+            'Sw:Grid:Container' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Grid:Container', 'Grid Container')
+                ->declared('padding', ['string', 'object'], properties: $nestedProperties)
+                ->build(),
         ];
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
@@ -66,7 +56,7 @@ class PrimitiveDefaultProviderTest extends TestCase
 
         static::assertSame(
             ['padding' => ['xs' => '0 20px 0 20px', 'sm' => '0 20px 0 20px']],
-            (new PrimitiveDefaultProvider())->forType($registry, 'Sw:Grid:Container'),
+            (new StoredDefaultProvider())->forType($registry, 'Sw:Grid:Container'),
         );
     }
 }

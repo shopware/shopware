@@ -75,10 +75,10 @@ final class ReplaceElement extends AbstractLayoutMutation
         $replacement = $node
             ->withComponent($this->newType)
             ->withDataRequirements($keptDataRequirements)
-            // Carried/authored values win; the new type's primitive defaults fill only the keys it does not carry
+            // Carried/authored values win; the new type's stored defaults fill only the keys it does not carry
             // (absent, or dropped as type-incompatible) — mirroring scaffoldElement so a default is honored on
             // replace just as it is on insert.
-            ->withProperties($this->carryProperties($node->properties(), $properties, $default) + $this->primitiveDefaults($this->registry, $this->newType))
+            ->withProperties($this->carryProperties($node->properties(), $properties, $default) + $this->storedDefaults($this->registry, $this->newType))
             ->withSlots($this->carrySlots($node))
             ->withContextDefinitions(new ContextDefinitions($keptProviders, $keptConsumers))
             // attribution follows the carried data requirements, not the provider/consumer sets: an entry survives

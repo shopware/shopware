@@ -10,7 +10,7 @@ live in `Binding/`. `ReplaceElement` carries enough carry-over rules to need its
 
 `__construct(AbstractContentSystemElementTypeRegistry $registry, string $type, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $bindingSpecificationId = null, ?string $parentElementId = null, ?int $index = null, ?string $slot = null)`.
 
-Inserts a fresh element of `$type` (primitive defaults seeded from the type, no wiring) into a parent slot at an
+Inserts a fresh element of `$type` (stored defaults seeded from the type, no wiring) into a parent slot at an
 index, or appended to the root. `requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the
 type's default binding specification regardless of `$bindingSpecificationId` (`resolveDefaultSpecification()`,
 `byType(type)` filtered by `isDefault()`: zero is a no-op, one is fill-applied and attributed to its own qualified

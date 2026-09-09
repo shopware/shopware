@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\ContentSystem\Layout;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,9 +18,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * A {@see StoredElement} is immutable, so seeding it rebuilds the subtree through its `with*()` methods and hands
  * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations
- * via {@see PrimitiveDefaultProvider}.
+ * via {@see StoredDefaultProvider}.
  *
- * @phpstan-import-type PropertyDefault from PrimitiveDefaultProvider
+ * @phpstan-import-type PropertyDefault from StoredDefaultProvider
  *
  * @internal
  *
@@ -31,7 +31,7 @@ class LayoutDefaultSeeder
 {
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly PrimitiveDefaultProvider $primitiveDefaultProvider,
+        private readonly StoredDefaultProvider $storedDefaultProvider,
     ) {
     }
 
@@ -85,6 +85,6 @@ class LayoutDefaultSeeder
             return [];
         }
 
-        return $this->primitiveDefaultProvider->forType($this->registry, $component);
+        return $this->storedDefaultProvider->forType($this->registry, $component);
     }
 }

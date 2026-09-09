@@ -8,10 +8,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The single definition of a content element type's stored property defaults: the non-null default of every
- * primitive property and every nested object member of a registered type, keyed by property key. Both the layout
+ * The single definition of a content element type's stored property defaults: every non-null primitive default,
+ * recursively collected into nested members of a registered type and keyed by property key. Both the layout
  * mutations (seeding a scaffolded or replaced element) and the write-boundary {@see LayoutDefaultSeeder} read the
- * rule here, so "a type's defaults" is defined once.
+ * rule here, so "a type's stored defaults" is defined once.
  *
  * The caller guarantees the type is registered; a property whose type declares neither a default of its own nor a
  * nested member with one is skipped.
@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class PrimitiveDefaultProvider
+final class StoredDefaultProvider
 {
     /**
      * @return array<string, PropertyDefault>

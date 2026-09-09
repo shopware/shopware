@@ -11,9 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
- * hand-edited): a row whose schema fails to decode or validate aborts the whole load, like
- * YamlTypeLoader, which fails hard on an authored file.
+ * Persisted active-app rows follow the same fail-fast contract as definitions loaded by
+ * {@see YamlTypeLoader}.
+ * Every row must have a name, and its schema must decode to a map, deserialize, and validate
+ * successfully; otherwise, the whole load aborts.
  *
  * @internal
  *
@@ -79,6 +80,8 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
 
         $dtos = [];
         foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
+            // Element type names are globally unique across persisted app rows, so the bare name keeps every
+            // row distinct in the collection and ensures that all rows are validated.
             $dtos[$resolvedSpecificationDto->name] = $resolvedSpecificationDto->dto;
         }
 

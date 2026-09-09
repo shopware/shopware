@@ -50,7 +50,10 @@ class MinimalQuickViewPageLoader
         $this->eventDispatcher->dispatch(new MinimalQuickViewPageCriteriaEvent($productId, $criteria, $salesChannelContext));
 
         $productRequest = $request->duplicate();
+        // the quick view renders neither a breadcrumb nor a category path, so a referrer in the url must not change
+        // which category the product resolves to
         $productRequest->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
+        $productRequest->attributes->set(ProductDetailRoute::REFERRER_CATEGORY_ID, null);
 
         $result = $this->productRoute->load($productId, $productRequest, $salesChannelContext, $criteria);
         $product = $result->getProduct();

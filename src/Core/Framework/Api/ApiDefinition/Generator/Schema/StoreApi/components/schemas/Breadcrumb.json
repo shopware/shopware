@@ -24,9 +24,6 @@
                             "customFields": {
                                 "type": "object"
                             },
-                            "slotConfig": {
-                                "type": "object"
-                            },
                             "linkType": {
                                 "$ref": "#/components/schemas/Category/properties/linkType"
                             },

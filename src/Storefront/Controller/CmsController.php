@@ -212,7 +212,9 @@ class CmsController extends StorefrontController
 
         $newProductId = $variantResponse->getFoundCombination()->getVariantId();
 
+        // this widget only swaps the buy box, so a referrer in the url must not change the resolved category
         $request->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
+        $request->attributes->set(ProductDetailRoute::REFERRER_CATEGORY_ID, null);
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();

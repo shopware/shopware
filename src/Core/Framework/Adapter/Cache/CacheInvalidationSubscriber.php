@@ -194,12 +194,13 @@ class CacheInvalidationSubscriber
             return;
         }
 
+        // the join keeps product and landing page seo urls out, they do not carry a category breadcrumb
         $categoryIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(seo_url.foreign_key)) as category_id
              FROM seo_url
-             INNER JOIN category ON category.id = seo_url.foreign_key
+             INNER JOIN category ON category.id = seo_url.foreign_key AND category.version_id = :version
              WHERE seo_url.id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($seoUrlIds)],
+            ['ids' => Uuid::fromHexToBytesList($seoUrlIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
 

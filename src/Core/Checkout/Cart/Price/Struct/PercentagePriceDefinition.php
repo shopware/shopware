@@ -13,8 +13,6 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * A PercentagePriceDefinition calculate a percentual sum of all previously calculated prices and returns it as its own
  * price. This can be used for percentual discounts.
- *
- * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface, FilterableInterface

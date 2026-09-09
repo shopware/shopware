@@ -3,7 +3,7 @@
 /**
  * @sw-package inventory
  */
-import { config, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 let bulkEditResponse = {
@@ -651,8 +651,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await minPurchaseField.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const changeTypeList = wrapper.find('.sw-select-result-list__item-list');
-        const clearOption = changeTypeList.find('.sw-select-option--1');
+        const clearOption = new DOMWrapper(document.body).get('.sw-select-result-list__item-list .sw-select-option--1');
 
         await clearOption.trigger('click');
         await flushPromises();

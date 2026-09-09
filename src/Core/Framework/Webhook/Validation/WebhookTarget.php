@@ -15,7 +15,7 @@ final readonly class WebhookTarget
     public function __construct(
         public string $host,
         public int $port,
-        public string $ip,
+        public ?string $ip,
     ) {
     }
 }

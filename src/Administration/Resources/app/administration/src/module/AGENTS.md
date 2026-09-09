@@ -158,6 +158,8 @@ export default {
 
 ## Snippets (i18n)
 
+German (`de-DE`) Administration snippets use the informal "Du" (unlike the Storefront, which uses "Sie").
+
 ```json
 {
   "sw-product": {

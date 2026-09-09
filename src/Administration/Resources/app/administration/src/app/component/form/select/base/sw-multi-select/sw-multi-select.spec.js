@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 const createMultiSelect = async (customOptions) => {
     const options = {
@@ -66,7 +66,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const resultList = swMultiSelect.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
     });
 
@@ -75,13 +75,13 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryOne = swMultiSelect.find('.sw-select-option--0');
+        const entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Entry 1');
 
-        const entryTwo = swMultiSelect.find('.sw-select-option--1');
+        const entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
-        const entryThree = swMultiSelect.find('.sw-select-option--2');
+        const entryThree = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(entryThree.text()).toBe('Entry 3');
     });
 
@@ -90,7 +90,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryOne = swMultiSelect.find('.sw-select-option--0');
+        const entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Entry 1');
 
         await entryOne.trigger('click');
@@ -105,7 +105,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryTwo = swMultiSelect.find('.sw-select-option--1');
+        const entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
         await entryTwo.trigger('click');
@@ -127,7 +127,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryTwo = swMultiSelect.find('.sw-select-option--1');
+        const entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
         await entryTwo.trigger('click');
@@ -149,7 +149,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await swMultiSelect.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         await swMultiSelect.setProps({
@@ -157,7 +157,7 @@ describe('components/sw-multi-select', () => {
         });
         await flushPromises();
 
-        const resultList = swMultiSelect.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeTruthy();
     });
 

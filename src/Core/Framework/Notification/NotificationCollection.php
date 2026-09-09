@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 
 if (class_exists(AdminNotificationCollection::class)) {
     /**
+     * @codeCoverageIgnore
+     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
@@ -25,6 +27,8 @@ if (class_exists(AdminNotificationCollection::class)) {
 } else {
     /**
      * @extends EntityCollection<NotificationEntity>
+     *
+     * @codeCoverageIgnore
      */
     #[Package('framework')]
     class NotificationCollection extends EntityCollection

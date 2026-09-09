@@ -17,8 +17,8 @@ final class StaticWebhookTargetValidatorFactory
     /**
      * @param list<string> $allowedPrivateIpAddresses
      */
-    public static function create(bool $allowUnencryptedTraffic, array $allowedPrivateIpAddresses): WebhookTargetValidator
+    public static function create(bool $allowUnencryptedTraffic, array $allowedPrivateIpAddresses, bool $enableUrlValidation = true): WebhookTargetValidator
     {
-        return new WebhookTargetValidator($allowUnencryptedTraffic, $allowedPrivateIpAddresses, new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34'], allowedPrivateIps: $allowedPrivateIpAddresses));
+        return new WebhookTargetValidator($allowUnencryptedTraffic, $allowedPrivateIpAddresses, new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34'], allowedPrivateIps: $allowedPrivateIpAddresses), $enableUrlValidation);
     }
 }

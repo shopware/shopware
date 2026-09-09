@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { MtButton, MtSwitch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-extension-teaser-popover', { sync: true }), {
@@ -13,11 +12,6 @@ async function createWrapper(props = {}) {
         },
         global: {
             stubs: {
-                'mt-button': MtButton,
-                'mt-switch': MtSwitch,
-                'mt-popover': {
-                    template: `<div class="mt-popover"><slot name="trigger" /><slot name="popover-items__base" /></div>`,
-                },
                 'sw-iframe-renderer': true,
             },
         },
@@ -118,8 +112,8 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         const triggerComponent = wrapper.find('.sw-extension-teaser-popover__trigger');
         await triggerComponent.trigger('mouseenter');
 
-        const contentComponent = wrapper.find('.sw-extension-teaser-popover__content');
-        expect(contentComponent.exists()).toBeTruthy();
+        const contentComponent = document.body.querySelector('.sw-extension-teaser-popover__content');
+        expect(contentComponent).toBeTruthy();
 
         expect(wrapper.vm.isInsideComponent).toBeTruthy();
     });
@@ -164,10 +158,10 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         const triggerComponent = wrapper.find('.sw-extension-teaser-popover__trigger');
         await triggerComponent.trigger('mouseenter');
 
-        const contentComponent = wrapper.find('.sw-extension-teaser-popover__content');
+        const contentComponent = document.body.querySelector('.sw-extension-teaser-popover__content');
 
         await triggerComponent.trigger('mouseleave');
-        await contentComponent.trigger('mouseenter');
+        contentComponent.dispatchEvent(new Event('mouseenter'));
 
         jest.runAllTimers();
 
@@ -190,15 +184,15 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         const triggerComponent = wrapper.find('.sw-extension-teaser-popover__trigger');
         await triggerComponent.trigger('mouseenter');
 
-        const contentComponent = wrapper.find('.sw-extension-teaser-popover__content');
+        const contentComponent = document.body.querySelector('.sw-extension-teaser-popover__content');
 
         await triggerComponent.trigger('mouseleave');
-        await contentComponent.trigger('mouseenter');
+        contentComponent.dispatchEvent(new Event('mouseenter'));
         jest.runAllTimers();
 
         expect(wrapper.vm.isInsideComponent).toBeTruthy();
 
-        await contentComponent.trigger('mouseleave');
+        contentComponent.dispatchEvent(new Event('mouseleave'));
         jest.runAllTimers();
 
         expect(wrapper.vm.isInsideComponent).toBeFalsy();

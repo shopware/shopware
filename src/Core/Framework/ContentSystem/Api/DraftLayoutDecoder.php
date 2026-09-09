@@ -189,9 +189,7 @@ class DraftLayoutDecoder
         }
 
         throw ContentSystemException::invalidLayoutStructure(
-            $this->violationMapper->toConstraintViolationList(
-                array_map(Violation::duplicateElementId(...), $duplicates)
-            )
+            $this->violationMapper->fromDuplicateElementIds($duplicates)
         );
     }
 

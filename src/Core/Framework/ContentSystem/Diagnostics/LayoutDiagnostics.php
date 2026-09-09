@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
@@ -66,8 +67,8 @@ class LayoutDiagnostics
         // constraint descriptor reads, so the two cannot disagree about which options exist.
         $styleOptions = $this->styleOptionRegistry->all();
 
-        foreach ($this->duplicateIdViolations($elements) as $violation) {
-            $violations[] = $violation;
+        foreach ((new StoredTree($tree))->duplicateElementIds() as $id) {
+            $violations[] = Violation::duplicateElementId($id);
         }
 
         foreach ($elements as $element) {
@@ -139,30 +140,6 @@ class LayoutDiagnostics
         }
 
         return new LayoutAnalysis(new DiagnosticsReport($violations), $resolutions);
-    }
-
-    /**
-     * @param list<StoredElement> $elements
-     *
-     * @return list<Violation>
-     */
-    private function duplicateIdViolations(array $elements): array
-    {
-        $counts = [];
-        foreach ($elements as $element) {
-            $counts[$element->id] = ($counts[$element->id] ?? 0) + 1;
-        }
-
-        $violations = [];
-        foreach ($counts as $id => $count) {
-            if ($count < 2) {
-                continue;
-            }
-
-            $violations[] = Violation::duplicateElementId((string) $id);
-        }
-
-        return $violations;
     }
 
     /**

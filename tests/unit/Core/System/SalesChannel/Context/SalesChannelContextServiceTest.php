@@ -161,8 +161,12 @@ class SalesChannelContextServiceTest extends TestCase
     {
         $token = Uuid::randomHex();
         $staleId = Uuid::randomHex();
+        $customerId = Uuid::randomHex();
         $context = Generator::generateSalesChannelContext();
-        $session = [$option => $staleId];
+        $session = [
+            $option => $staleId,
+            SalesChannelContextService::CUSTOMER_ID => $customerId,
+        ];
         $call = 0;
 
         $persister = $this->createMock(SalesChannelContextPersister::class);
@@ -172,7 +176,7 @@ class SalesChannelContextServiceTest extends TestCase
             ->willReturn($session);
         $persister->expects($this->once())
             ->method('save')
-            ->with($token, [$option => null], TestDefaults::SALES_CHANNEL);
+            ->with($token, [$option => null], TestDefaults::SALES_CHANNEL, $customerId);
 
         $factory = $this->createMock(SalesChannelContextFactory::class);
         $factory->expects($this->exactly(2))
@@ -542,12 +546,12 @@ class SalesChannelContextServiceTest extends TestCase
 
     private function createContextService(SalesChannelContextFactory $factory, SalesChannelContextPersister $persister, string $token): SalesChannelContextService
     {
-        $ruleLoader = static::createStub(CartRuleLoader::class);
-        $ruleLoader->method('loadByToken')->willReturn(new RuleLoaderResult(new Cart($token), new RuleCollection()));
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculateByToken')->willReturn(new Cart($token));
 
         return new SalesChannelContextService(
             $factory,
-            $ruleLoader,
+            $cartCalculator,
             $persister,
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),

@@ -180,7 +180,13 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                     $session[self::CURRENCY_ID] = $parameters->getCurrencyId();
                 }
 
-                $this->contextPersister->save($token, [$staleOption => null], $parameters->getSalesChannelId());
+                $customerId = $session[self::CUSTOMER_ID] ?? null;
+                $this->contextPersister->save(
+                    $token,
+                    [$staleOption => null],
+                    $parameters->getSalesChannelId(),
+                    \is_string($customerId) ? $customerId : null,
+                );
                 $recoveredOptions[$staleOption] = true;
             }
         }

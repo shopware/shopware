@@ -13,8 +13,10 @@ use Shopware\Core\Framework\Log\Package;
  * mutations (seeding a scaffolded or replaced element) and the write-boundary {@see LayoutDefaultSeeder} read the
  * rule here, so "a type's defaults" is defined once.
  *
- * The caller guarantees the type is registered; reference (FQCN) properties and primitives without a default are
- * skipped.
+ * The caller guarantees the type is registered; a property whose type declares neither a default of its own nor a
+ * nested member with one is skipped.
+ *
+ * @phpstan-type PropertyDefault = string|int|float|bool|array<string, mixed>
  *
  * @internal
  */
@@ -22,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 final class PrimitiveDefaultProvider
 {
     /**
-     * @return array<string, string|int|float|bool|array<string, mixed>>
+     * @return array<string, PropertyDefault>
      */
     public function forType(AbstractContentSystemElementTypeRegistry $registry, string $type): array
     {
@@ -42,7 +44,7 @@ final class PrimitiveDefaultProvider
     }
 
     /**
-     * @return string|int|float|bool|array<string, mixed>|null
+     * @return PropertyDefault|null
      */
     private function defaultFor(PropertyType $type): string|int|float|bool|array|null
     {

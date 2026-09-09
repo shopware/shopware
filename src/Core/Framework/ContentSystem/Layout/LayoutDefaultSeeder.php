@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Log\Package;
  * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations
  * via {@see PrimitiveDefaultProvider}.
  *
+ * @phpstan-import-type PropertyDefault from PrimitiveDefaultProvider
+ *
  * @internal
  *
  * @final
@@ -75,7 +77,7 @@ class LayoutDefaultSeeder
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, PropertyDefault>
      */
     private function defaultsFor(string $component): array
     {

@@ -42,7 +42,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     init() {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.client = new HttpClient();
-        this._lastRequestId = 0;
+        this._requestQueue = Promise.resolve();
         this._registerOpenTriggerEvents();
     }
 
@@ -212,26 +212,31 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _fireRequest(form, selector, callback) {
-        ElementLoadingIndicatorUtil.create(form.closest(selector));
+        const container = form.closest(selector);
+        ElementLoadingIndicatorUtil.create(container);
 
         const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
         const requestUrl = form.getAttribute('action');
         const data = FormSerializeUtil.serialize(form);
 
-        this.$emitter.publish('beforeFireRequest');
+        // Snapshot the form before a preceding response replaces it, then apply mutations
+        // in order. Dropping responses cannot prevent older requests from changing the cart.
+        this._requestQueue = this._requestQueue
+            .then(() => {
+                this.$emitter.publish('beforeFireRequest');
 
-        const requestId = ++this._lastRequestId;
-
-        fetch(requestUrl, {
-            method: 'POST',
-            body: data,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        })
+                return fetch(requestUrl, {
+                    method: 'POST',
+                    body: data,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+            })
             .then(response => response.text())
-            .then((response) => {
-                if (requestId === this._lastRequestId) {
-                    cb(response);
-                }
+            .then(response => cb(response))
+            .catch((error) => {
+                // A failed mutation must not block later edits in the queue.
+                ElementLoadingIndicatorUtil.remove(container);
+                console.warn('Unable to update the off-canvas cart.', error);
             });
     }
 
@@ -330,7 +335,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            fetch(url, {
+            return fetch(url, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             })
                 .then(response => response.text())

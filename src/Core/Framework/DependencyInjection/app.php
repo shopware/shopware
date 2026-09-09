@@ -166,6 +166,7 @@ use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
@@ -246,6 +247,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(HookableValidator::class)
         ->args([
             service(HookableEventCollector::class),
+            service(PolicyRegistry::class),
         ])
         ->tag('shopware.app_manifest.validator');
 

@@ -4,6 +4,18 @@
 
 <details>
 
+## Password recovery and mail events can no longer be received by webhooks
+
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` were removed from the events an app may subscribe to with a webhook. They have not been delivered since 6.7; a manifest with a `<webhook>` for any of them is now rejected on install and update with a `WebhookNotPermittedError`.
+
+Remove the webhook from your manifest. The events remain available in Flow Builder.
+
+Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
+
+## `EventDataCollection` is final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` is now `final` and `add()` takes `array $options = []` as third parameter.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.

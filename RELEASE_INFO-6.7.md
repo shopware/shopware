@@ -9,6 +9,36 @@ Newsletter subscription activation now consistently enforces the configured doub
 ### Aggregation identifiers reject unsafe characters
 
 Aggregation names and range aggregation keys containing a backtick, question mark, colon, or control character are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400).
+### Password recovery and mail events are no longer delivered to webhooks
+
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` are no longer sent to webhooks and are removed from the generated webhook events reference. All of them stay available in Flow Builder.
+
+App manifests subscribing to them keep validating until 6.8, so such apps can still be installed and updated. Doing so triggers a deprecation; from 6.8 the manifest is rejected.
+
+An event opts out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
+
+### Session tokens and opt-in links are no longer sent to webhooks
+
+The following values are no longer part of the webhook payload of their event:
+
+- `contextToken` of `checkout.customer.login`
+- `confirmUrl` of `checkout.customer.double_opt_in_registration` and `checkout.customer.double_opt_in_guest_order`
+- `url` of `newsletter.register`
+
+They stay available in Flow Builder, so `{{ contextToken }}`, `{{ confirmUrl }}` and `{{ url }}` keep working in mail templates.
+
+A flow event value is kept out of webhook payloads by passing `[EventDataCollection::HIDDEN_FROM_WEBHOOK => true]` as the options argument of `EventDataCollection::add()`.
+
+### Customer confirmation hashes are no longer included in API responses
+
+Customer registration confirmation hashes are no longer included in API responses or webhook customer payloads. The internal registration confirmation flow is unchanged.
+
+## Core
+
+### `EventDataCollection` will become final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` will be declared `final` in Shopware 6.8.
+
 ## API
 
 ### User and integration cloning is no longer available

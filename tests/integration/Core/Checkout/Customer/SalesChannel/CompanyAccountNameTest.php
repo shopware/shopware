@@ -127,7 +127,28 @@ class CompanyAccountNameTest extends TestCase
         );
     }
 
-    public function testProfileStaysSavableWithoutTheAccountTypeBlock(): void
+    public function testProfileKeepsTheCompanyWhenTheFormDoesNotPostIt(): void
+    {
+        $this->setNameFields(show: true, required: false);
+        $this->register($this->companyRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->changeProfile();
+
+        static::assertSame(
+            Response::HTTP_OK,
+            $this->browser->getResponse()->getStatusCode(),
+            'a company account without a contact person has to stay savable: ' . (string) $this->browser->getResponse()->getContent()
+        );
+
+        static::assertSame('Acme GmbH', $this->loadCustomer('company-no-contact@example.com')->getCompany());
+    }
+
+    /**
+     * Without the account type selection a shop cannot tell a commercial registration from a private
+     * one, so an account that once had the choice goes back to a mandatory contact person.
+     */
+    public function testProfileNeedsAContactPersonAgainWithoutTheAccountTypeSelection(): void
     {
         $this->setNameFields(show: true, required: false);
         $this->register($this->companyRegistrationData());
@@ -135,26 +156,13 @@ class CompanyAccountNameTest extends TestCase
 
         $this->systemConfigService->set('core.loginRegistration.showAccountTypeSelection', false);
 
-        $this->browser->request(
-            'POST',
-            '/store-api/account/change-profile',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'salutationId' => $this->getValidSalutationId(),
-                'firstName' => '',
-                'lastName' => '',
-            ], \JSON_THROW_ON_ERROR)
-        );
+        $this->changeProfile();
 
         static::assertSame(
-            Response::HTTP_OK,
+            Response::HTTP_BAD_REQUEST,
             $this->browser->getResponse()->getStatusCode(),
-            'a form without the account type block never posts a company: ' . (string) $this->browser->getResponse()->getContent()
+            'the two settings must do nothing while the account type selection is off'
         );
-
-        static::assertSame('Acme GmbH', $this->loadCustomer('company-no-contact@example.com')->getCompany());
     }
 
     public function testCompanyAccountStillNeedsACompanyName(): void
@@ -217,6 +225,22 @@ class CompanyAccountNameTest extends TestCase
         if ($token !== null) {
             $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $token);
         }
+    }
+
+    private function changeProfile(): void
+    {
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => '',
+                'lastName' => '',
+            ], \JSON_THROW_ON_ERROR)
+        );
     }
 
     /**

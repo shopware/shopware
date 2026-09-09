@@ -132,10 +132,6 @@ class Uuid
 
     public static function isValid(string $id): bool
     {
-        if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
-            return false;
-        }
-
-        return true;
+        return (bool) preg_match('/' . self::VALID_PATTERN . '/', $id);
     }
 }

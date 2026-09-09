@@ -11,8 +11,11 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingS
 use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -26,6 +29,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class AppBindingPoisonRowTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+
+    private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
 
     protected function setUp(): void
     {
@@ -74,12 +79,60 @@ class AppBindingPoisonRowTest extends TestCase
         }
     }
 
+    #[TestDox('rejects an otherwise valid content layout write when an active app has an invalid persisted binding')]
+    public function testValidBindingWriteFailsWithPoisonAppBindingRowPresent(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $layoutId = $ids->get('layout');
+
+        try {
+            $this->contentLayoutRepository()->create([[
+                'id' => $layoutId,
+                'name' => 'poison-row-write-' . $layoutId,
+                'version' => '1.0.0',
+                'rootSource' => 'none',
+                'layout' => [[
+                    'id' => $ids->get('element'),
+                    'component' => 'Sw:Media:Image',
+                    'properties' => ['mediaId' => 'a-media-id'],
+                    'dataRequirements' => [
+                        'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                    ],
+                    'attributedSpecifications' => ['media' => self::CORE_MEDIA_BINDING_ID],
+                ]],
+            ]], $context);
+            static::fail('Expected the invalid active-app binding row to reject the content layout write.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('poison-binding', $exception->getMessage());
+            static::assertContains(
+                ContentSystemException::BINDING_SPECIFICATIONS_INVALID,
+                array_column(iterator_to_array($exception->getErrors(), false), 'code')
+            );
+        }
+
+        static::assertNull(
+            $this->contentLayoutRepository()->search(new Criteria([$layoutId]), $context)->getEntities()->first()
+        );
+    }
+
     private function registry(): AbstractContentSystemBindingSpecificationRegistry
     {
         $registry = $this->getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
 
         return $registry;
+    }
+
+    /**
+     * @return EntityRepository<ContentLayoutCollection>
+     */
+    private function contentLayoutRepository(): EntityRepository
+    {
+        $repository = $this->getContainer()->get('content_layout.repository');
+        static::assertInstanceOf(EntityRepository::class, $repository);
+
+        return $repository;
     }
 
     /**

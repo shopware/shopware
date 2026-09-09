@@ -260,6 +260,7 @@
         "admin:setup-extension-tooling": "[EXPERIMENTAL] Generates TypeScript/ESLint configs for installed Administration extensions",
         "admin:setup-extension-tooling:check": "[EXPERIMENTAL] Read-only dry-run of admin:setup-extension-tooling (exit 1 on drift)",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
+        "admin:unit:e2e": "Launches the extension-tooling e2e jest specs for the Admin",
         "admin:unit:major": "Launches the jest unit test-suite for the Admin with all major feature flags enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
@@ -370,6 +371,12 @@
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"
+        ],
+        "admin:unit:e2e": [
+            "Composer\\Config::disableProcessTimeout",
+            "@framework:schema:dump",
+            "@npm:admin run unit-setup",
+            "@npm:admin run unit:e2e"
         ],
         "admin:unit:major": [
             "Composer\\Config::disableProcessTimeout",

@@ -103,6 +103,8 @@ describe('build/vite-plugins/shopware-setup', () => {
         expect(plugin).toHaveProperty('transform');
     });
 
+    // First test to run the real SFC transform: it pays the vue-setup-transform require/compile
+    // warmup for the whole worker, which can exceed the default CI timeout under CPU contention.
     it('delegates Shopware setup Vue files to the shared transform', async () => {
         const plugin = createPlugin();
         const source = `<script setup>
@@ -124,7 +126,7 @@ swDefinePublic({ count });
         // The real `.vue` is not a Rollup module of its own, so load() must register it as a watched
         // dependency for HMR/watch invalidation.
         expect(loadContext.addWatchFile).toHaveBeenCalledWith(vueFile);
-    });
+    }, 30000);
 
     it('reuses the resolveId transform in load instead of transforming twice', async () => {
         const plugin = createPlugin();

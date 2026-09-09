@@ -456,6 +456,16 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
+### Admin list and card empty states use `mt-empty-state`
+
+The remaining prominent empty states of the Administration render `mt-empty-state` with the icon of the module they belong to, replacing `sw-empty-state`, plain text and illustration markup. Affected are the flow, mail template and mail header/footer lists, the promotion individual codes card, the order customer grid and address modal, the sales channel dynamic product group assignment, the product sorting settings and criteria grid, the tax rule card, the product feature set values card, the CMS layout assignment modal and page form, and the SEO URL card. List pages whose empty state means "nothing exists yet" offer the create action of the smart bar inside the `button` slot, disabled without the `creator` privilege.
+
+The Twig blocks that wrapped the former icon, image or label markup still exist as empty anchors outside the empty state and are deprecated for removal in v6.8.0: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. Pass a custom icon through the `icon` prop of `mt-empty-state` by overriding the surrounding `*_empty_state` block instead.
+
+`sw_promotion_v2_individual_codes_behavior_empty_state_actions` now fills the `button` slot of `mt-empty-state`; overrides that reproduced the `<template #actions>` wrapper must switch to `<template #button>`.
+
+The classes `.sw-promotion-v2-individual-codes-behavior__empty-state-icon`, `.sw-settings-tax-rule-card__empty-state--label` and `.sw-settings-product-feature-set-card__empty-state--label` no longer exist, and `sw-mail-template-list.scss` was removed.
+
 ## Storefront
 
 ### `robots.txt` allows crawling thumbnails

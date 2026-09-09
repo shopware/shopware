@@ -1571,6 +1571,22 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
+## Removed empty state Twig block anchors
+
+The Twig blocks that wrapped the icon, image or label of Administration empty states before they rendered `mt-empty-state` were kept as empty anchors and have now been removed. Overrides of these blocks have no effect any more; override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
+
+- `sw-flow-list.html.twig`: `sw_flow_list_empty_state_icon`
+- `sw-mail-header-footer-list.html.twig`: `sw_mail_header_footer_list_grid_empty_state_icon`
+- `sw-mail-template-list.html.twig`: `sw_mail_template_list_grid_empty_state_icon`
+- `sw-order-create-address-modal.html.twig`: `sw_order_create_address_modal_empty_state_content`
+- `sw-order-customer-grid.html.twig`: `sw_order_customer_grid_empty_state_icon`
+- `sw-promotion-v2-individual-codes-behavior.html.twig`: `sw_promotion_v2_individual_codes_behavior_empty_state_icon`
+- `sw-sales-channel-products-assignment-dynamic-product-groups.html.twig`: `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`
+- `sw-settings-listing-option-criteria-grid.html.twig`: `sw_settings_listing_option_criteria_card_empty_state_icon`
+- `sw-settings-listing.html.twig`: `sw_settings_listing_content_card_view_options_card_empty_state_icon`
+- `sw-settings-product-feature-sets-values-card.html.twig`: `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`
+- `sw-tax-rule-card.html.twig`: `sw_tax_rule_card_empty_state_image`, `sw_tax_rule_card_empty_state_label`
+
 ## `sw-tabs` automatic wrapper switch deferred
 
 The previously announced automatic switch from the deprecated Administration `sw-tabs` wrapper to `mt-tabs` when the `v6.8.0.0` feature flag is active will not happen. `sw-tabs` keeps rendering its legacy implementation regardless of the feature flag and remains deprecated for removal in 6.9.

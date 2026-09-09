@@ -8,6 +8,7 @@ use OpenSearch\Exception\RuntimeException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -489,6 +490,89 @@ class AdminSearchRegistryTest extends TestCase
         ]), []));
     }
 
+    #[TestDox('An indexer is asked for updated ids even when the event writes none of the indexed entities')]
+    public function testRefreshAsksIndexersForWritesOfUnindexedEntities(): void
+    {
+        $orderId = 'c1a28776116d4431a2208eb2960ec340';
+
+        $indexer = $this->createMock(AbstractAdminIndexer::class);
+        $indexer->method('getName')->willReturn('order-listing');
+        $indexer->method('getEntity')->willReturn('order');
+        $indexer->expects($this->once())->method('getUpdatedIds')->willReturn([$orderId]);
+        $indexer->method('fetch')->willReturn([
+            $orderId => ['id' => $orderId, 'text' => 'invoice 1000'],
+        ]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-order-listing' => 'sw-admin-order-listing_12345']);
+
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())->method('bulk')->with(static::callback(
+            static fn (array $params): bool => $params['index'] === 'sw-admin-order-listing_12345'
+                && $params['body'][0] === ['index' => ['_id' => $orderId]]
+        ));
+
+        $registry = new AdminSearchRegistry(
+            ['order' => $indexer],
+            $connection,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            $client,
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger()),
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        $registry->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
+            new EntityWrittenEvent('document', [
+                new EntityWriteResult(
+                    'a1a28776116d4431a2208eb2960ec341',
+                    ['orderId' => $orderId, 'config' => ['documentNumber' => '1000']],
+                    'document',
+                    EntityWriteResult::OPERATION_INSERT
+                ),
+            ], Context::createDefaultContext()),
+        ]), []));
+    }
+
+    #[TestDox('No index task is read when no indexer has updated or deleted ids')]
+    public function testRefreshDoesNotReadIndexTasksWithoutWork(): void
+    {
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('getUpdatedIds')->willReturn([]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllKeyValue');
+
+        $registry = new AdminSearchRegistry(
+            ['promotion' => $this->indexer],
+            $connection,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(Client::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger()),
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        $registry->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
+            new EntityWrittenEvent('document', [
+                new EntityWriteResult(
+                    'a1a28776116d4431a2208eb2960ec341',
+                    ['sent' => true],
+                    'document',
+                    EntityWriteResult::OPERATION_UPDATE
+                ),
+            ], Context::createDefaultContext()),
+        ]), []));
+    }
+
     public function testRefreshQueuesEveryAffectedIndexerForSalesChannelSources(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
@@ -595,6 +679,7 @@ class AdminSearchRegistryTest extends TestCase
         $indexer = $this->createMock(AbstractAdminIndexer::class);
         $indexer->method('getName')->willReturn('promotion-listing');
         $indexer->method('getEntity')->willReturn('promotion');
+        $indexer->method('getUpdatedIds')->willReturn(['c1a28776116d4431a2208eb2960ec340']);
         $indexer->expects($this->never())->method('fetch');
 
         $client = $this->createMock(Client::class);

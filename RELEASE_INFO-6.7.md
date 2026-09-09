@@ -81,6 +81,8 @@ Customers download v2 documents through the existing storefront and Store API ro
 
 The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order. Use the `order` association only when it is available.
 
+`document` is no longer a sub entity of `order`, with or without the `DOCUMENT_GENERATION_REWORK` flag. A write that only touches `document` leaves `getPrimaryKeys('order')` empty on the `EntityWrittenContainerEvent`. Subscribers that reacted to document writes through the order keys should read `orderId` from the `document` write results instead, or resolve it from the database when the write does not set it.
+
 #### Deprecation of the legacy implementation
 
 Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legacy document domain in `Shopware\Core\Checkout\Document`, the legacy Administration services and modals, and the `document_type` and `document_type_translation` entities. Document types and formats become code-registered strings. Surviving shared classes move into the `DocumentV2` namespace with 6.9.

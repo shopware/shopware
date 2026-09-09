@@ -82,10 +82,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'orderId',
         ]);
 
-        $orderDocuments = $event->getPrimaryKeysWithPropertyChange(DocumentDefinition::ENTITY_NAME, [
-            'config',
-            'orderId',
-        ]);
+        $documents = $event->getResults(DocumentDefinition::ENTITY_NAME)->withPayloadProperties('config', 'orderId');
 
         $transactions = $event->getPrimaryKeysWithPropertyChange(OrderTransactionDefinition::ENTITY_NAME, [
             'stateId',
@@ -95,8 +92,12 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'stateId',
         ]);
 
-        if ($addresses !== [] || $orderDocuments !== [] || $transactions !== [] || $deliveries !== []) {
+        if ($addresses !== [] || $documents->count() > 0 || $transactions !== [] || $deliveries !== []) {
             $orderIds = array_merge($orderIds, $event->getPrimaryKeys($this->getEntity()));
+        }
+
+        foreach ($documents as $document) {
+            $orderIds[] = $document->getProperty('orderId');
         }
 
         $tags = $event->getPrimaryKeysWithPropertyChange(OrderTagDefinition::ENTITY_NAME, [

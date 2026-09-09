@@ -496,7 +496,7 @@ lineItem.payload.features[].value = { id, type, content, display }
 
 ### Accessibility improvements for cart quantity changes
 
-Changing a quantity in the cart, off-canvas cart and checkout confirm no longer submits the form on every arrow key press; the value is applied once the edit is finished or confirmed with `Enter`. Custom `change` listeners on the quantity form therefore only see the finished value.
+Changing a quantity in the cart, off-canvas cart and checkout confirm no longer submits the form on every arrow key press; the value is applied once the edit is finished or confirmed with `Enter`. Custom `change` listeners on the quantity form therefore only see the finished value. These committed events carry `detail.submitImmediately: true`, allowing form handlers to bypass their delay and cancel pending updates while retaining their configured submission behavior.
 
 ### The buy button shows a loading indicator while the product is added
 

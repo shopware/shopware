@@ -137,44 +137,42 @@ export default class QuantitySelectorPlugin extends Plugin {
      * @private
      */
     _applyEdit() {
-        if (!this.options.submitOnFinish) {
-            this._commit();
-            return;
-        }
-
-        if (this._input.value === this._committedValue) {
-            return;
-        }
-
-        this._committedValue = this._input.value;
-        this._announceChange();
-        this._input.form?.requestSubmit();
+        this._commit(undefined, this.options.submitOnFinish);
     }
 
     /**
      * pass on a value as a change event
      *
      * @param {'up'|'down'|undefined} btn
+     * @param {boolean} submitImmediately
      *
      * @private
      */
-    _commit(btn) {
+    _commit(btn, submitImmediately = false) {
         if (this._input.value === this._committedValue) {
             return;
         }
 
         this._isCommitting = true;
-        this._triggerChange(btn);
+        this._triggerChange(btn, submitImmediately);
         this._isCommitting = false;
     }
 
     /**
      * trigger change event on input element
      *
+     * @param {'up'|'down'|undefined} btn
+     * @param {boolean} submitImmediately
+     *
      * @private
      */
-    _triggerChange(btn) {
-        const event = new Event('change', { bubbles: true, cancelable: false });
+    _triggerChange(btn, submitImmediately = false) {
+        // Keep form submission with its owner, including AJAX, redirects and extension hooks.
+        const event = new CustomEvent('change', {
+            bubbles: true,
+            cancelable: false,
+            detail: { submitImmediately },
+        });
         this._input.dispatchEvent(event);
 
         this._announceChange();

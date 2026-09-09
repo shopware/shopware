@@ -109,12 +109,25 @@ export default class OffCanvasCartPlugin extends Plugin {
         if (numberInputs) {
             numberInputs.forEach((input) => {
                 // On the form: the `QuantitySelectorPlugin` withholds events on the input.
-                input.form?.addEventListener('change', Debouncer.debounce(
-                    this._onChangeProductQuantity.bind(this),
+                const onChange = this._onChangeProductQuantity.bind(this);
+                const delayedChange = Debouncer.debounce(
+                    onChange,
                     this.options.changeQuantityInputDelay,
-                ));
+                );
+                input.form?.addEventListener('change', (event) => {
+                    if (event.detail?.submitImmediately) {
+                        delayedChange.cancel();
+                        onChange(event);
+                        return;
+                    }
 
-                input.form?.addEventListener('submit', this._onSubmitProductQuantity.bind(this));
+                    delayedChange(event);
+                });
+
+                input.form?.addEventListener('submit', (event) => {
+                    delayedChange.cancel();
+                    this._onSubmitProductQuantity(event);
+                });
             });
         }
     }

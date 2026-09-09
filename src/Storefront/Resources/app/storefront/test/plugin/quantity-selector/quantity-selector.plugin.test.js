@@ -1,4 +1,5 @@
 import QuantitySelectorPlugin from 'src/plugin/quantity-selector/quantity-selector.plugin.js';
+import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 
 /**
  * @package checkout
@@ -322,6 +323,7 @@ describe('QuantitySelectorPlugin tests', () => {
         form.requestSubmit = jest.fn();
         form.addEventListener('change', formChangeSpy);
         plugin.options.submitOnFinish = true;
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
 
         input.focus();
         input.value = 21;
@@ -329,9 +331,10 @@ describe('QuantitySelectorPlugin tests', () => {
 
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
 
-        // Submitted directly instead of through the delay a `change` would run into.
+        // The committed change bypasses the delay while retaining the form handler.
         expect(form.requestSubmit).toHaveBeenCalledTimes(1);
-        expect(formChangeSpy).not.toHaveBeenCalled();
+        expect(formChangeSpy).toHaveBeenCalledTimes(1);
+        expect(formChangeSpy.mock.calls[0][0].detail.submitImmediately).toBe(true);
     });
 
     test('does not submit on enter when the value is unchanged', () => {
@@ -340,6 +343,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         form.requestSubmit = jest.fn();
         plugin.options.submitOnFinish = true;
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
 
         input.focus();
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -355,6 +359,7 @@ describe('QuantitySelectorPlugin tests', () => {
         form.requestSubmit = jest.fn();
         form.addEventListener('change', formChangeSpy);
         plugin.options.submitOnFinish = true;
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
 
         input.focus();
         input.value = 21;
@@ -363,7 +368,8 @@ describe('QuantitySelectorPlugin tests', () => {
         input.blur();
 
         expect(form.requestSubmit).toHaveBeenCalledTimes(1);
-        expect(formChangeSpy).not.toHaveBeenCalled();
+        expect(formChangeSpy).toHaveBeenCalledTimes(1);
+        expect(formChangeSpy.mock.calls[0][0].detail.submitImmediately).toBe(true);
     });
 
     test('submits the form as soon as the input loses focus', () => {
@@ -372,6 +378,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         form.requestSubmit = jest.fn();
         plugin.options.submitOnFinish = true;
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
 
         input.focus();
         input.value = 21;
@@ -392,6 +399,7 @@ describe('QuantitySelectorPlugin tests', () => {
         form.requestSubmit = jest.fn();
         form.addEventListener('change', formChangeSpy);
         plugin.options.submitOnFinish = true;
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
 
         input.focus();
         input.value = 21;

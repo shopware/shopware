@@ -8,6 +8,25 @@ describe('debouncer helper', () => {
         jest.useFakeTimers();
     });
 
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    test('cancels a pending invocation and allows subsequent calls', () => {
+        const callback = jest.fn();
+        const debounced = Debouncer.debounce(callback, 800);
+
+        debounced('stale');
+        debounced.cancel();
+        jest.advanceTimersByTime(800);
+        expect(callback).not.toHaveBeenCalled();
+
+        debounced('current');
+        jest.advanceTimersByTime(800);
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith('current');
+    });
+
     test('it calls a function only once when called before timeout fired', () => {
         const spy = jest.fn();
 
@@ -68,5 +87,5 @@ describe('debouncer helper', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenNthCalledWith(1, 1);
         expect(spy).toHaveBeenNthCalledWith(2, 2);
-    })
+    });
 });

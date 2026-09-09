@@ -202,6 +202,21 @@ describe('OffCanvasCartPlugin tests', () => {
         expect(fireRequestSpy).not.toHaveBeenCalled();
     });
 
+    test('cancels a pending quantity update when the form is submitted', async () => {
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        const input = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        await new Promise(process.nextTick);
+
+        expect(fireRequestSpy).toHaveBeenCalledTimes(1);
+        jest.advanceTimersByTime(800);
+        await new Promise(process.nextTick);
+        expect(fireRequestSpy).toHaveBeenCalledTimes(1);
+    });
+
     test('change product quantity should not send too many requests when spamming the number input', async () => {
         const el = document.querySelector('.header-cart');
 

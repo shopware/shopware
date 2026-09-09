@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -106,7 +107,7 @@ class ApiControllerVersionTest extends TestCase
             ['version' => Uuid::fromHexToBytes($versionId)]
         );
 
-        static::assertNotContains('delete', $actions, 'a discard must not be recorded as a deletion that merge() would replay');
+        static::assertSame([], $actions, 'a discarded version must not leave a change set behind that merge() could replay');
 
         $productRepo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
         static::assertInstanceOf(EntityRepository::class, $productRepo);
@@ -153,7 +154,7 @@ class ApiControllerVersionTest extends TestCase
         static::assertSame(ApiException::deleteLiveVersion()->getErrorCode(), $content['errors'][0]['code']);
     }
 
-    public function testMergeOfADiscardedVersionKeepsTheLiveEntity(): void
+    public function testMergeCannotResurrectADiscardedVersion(): void
     {
         $id = Uuid::randomHex();
         $browser = $this->getBrowser();
@@ -185,13 +186,15 @@ class ApiControllerVersionTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        // The discard removed the version row. Recreating it puts the merge below into the window
-        // where a client discards a version while a merge of the same version still runs.
+        // The discard deleted the version row; recreating it is the only way to let merge() run at all.
         static::getContainer()->get('version.repository')->create([['id' => $versionId]], Context::createDefaultContext());
 
         $browser->jsonRequest('POST', '/api/_action/version/merge/product/' . $versionId);
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(DataAbstractionLayerException::VERSION_NO_COMMITS_FOUND, $content['errors'][0]['code']);
 
         $connection = static::getContainer()->get(Connection::class);
         $live = ['id' => Uuid::fromHexToBytes($id), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
@@ -199,6 +202,6 @@ class ApiControllerVersionTest extends TestCase
         static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product WHERE id = :id AND version_id = :version', $live));
 
         $name = $connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id AND product_version_id = :version', $live);
-        static::assertSame('draft name', $name, 'the merge still applied the draft edit');
+        static::assertSame('live name', $name, 'a discarded draft must not be merged into the live entity');
     }
 }

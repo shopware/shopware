@@ -1,6 +1,7 @@
 import type { PropType } from 'vue';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
+import cmsStateMixin from 'shopware:mixins/cms-state';
 
 /**
  * @private
@@ -12,7 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
     inject: ['cmsService'],
 
     mixins: [
-        Shopware.Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
 
     props: {

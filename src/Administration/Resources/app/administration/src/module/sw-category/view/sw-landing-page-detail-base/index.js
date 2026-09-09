@@ -1,4 +1,6 @@
 import template from './sw-landing-page-detail-base.html.twig';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -28,7 +30,7 @@ export default {
 
     computed: {
         customFieldSetsArray() {
-            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+            return useSwCategoryDetailStore().customFieldSets ?? [];
         },
 
         ...mapPropertyErrors('landingPage', [
@@ -38,11 +40,11 @@ export default {
         ]),
 
         landingPage() {
-            return Shopware.Store.get('swCategoryDetail').landingPage;
+            return useSwCategoryDetailStore().landingPage;
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         isLayoutSet() {

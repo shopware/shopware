@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-create.html.twig';
+import useContextStore from 'shopware:stores/context';
 
 const { Context } = Shopware;
 const utils = Shopware.Utils;
@@ -37,8 +38,8 @@ export default {
                 return;
             }
 
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.isLoading = true;
@@ -48,7 +49,7 @@ export default {
             this.salesChannel.measurementUnits = this.createEmptyMeasurementUnits();
 
             // Set default language from admin context
-            const defaultLanguageId = Shopware.Store.get('context').api.languageId;
+            const defaultLanguageId = useContextStore().api.languageId;
             this.salesChannel.languageId = defaultLanguageId;
             this.ensureDefaultLanguageInCollection(defaultLanguageId);
 

@@ -2,6 +2,7 @@ import template from './sw-settings-services-revoke-permissions-modal.html.twig'
 import './sw-settings-services-revoke-permissions-modal.scss';
 import { revokePermissions } from '../../composables/permissions';
 import extractErrorMessage from '../../composables/extract-error';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @sw-package framework
@@ -33,7 +34,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await revokePermissions();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: extractErrorMessage(exception),

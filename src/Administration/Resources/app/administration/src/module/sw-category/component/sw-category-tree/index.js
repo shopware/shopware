@@ -1,7 +1,8 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
-
-const { Criteria } = Shopware.Data;
+import { debounce } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 /**
  * @sw-package discovery
@@ -66,7 +67,7 @@ export default {
 
     computed: {
         categoriesToDelete() {
-            return Shopware.Store.get('swCategoryDetail').categoriesToDelete;
+            return useSwCategoryDetailStore().categoriesToDelete;
         },
 
         categoryRepository() {
@@ -74,7 +75,7 @@ export default {
         },
 
         category() {
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
 
         categories() {
@@ -131,7 +132,7 @@ export default {
 
             this.$refs.categoryTree.onDeleteElements(value);
 
-            Shopware.Store.get('swCategoryDetail').categoriesToDelete = undefined;
+            useSwCategoryDetailStore().categoriesToDelete = undefined;
         },
 
         allowEdit(value) {
@@ -239,7 +240,7 @@ export default {
             return Promise.all(parentPromises);
         },
 
-        onUpdatePositions: Shopware.Utils.debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
+        onUpdatePositions: debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
             if (draggedItem.children.length > 0) {
                 draggedItem.children.forEach((child) => {
                     this.removeFromStore(child.id);

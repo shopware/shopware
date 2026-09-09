@@ -5,10 +5,12 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
 import './sw-sales-channel-detail.scss';
+import { EventBus, object } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 const { Mixin, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
-const objectHelper = Shopware.Utils.object;
+const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 
 const REQUIRED_BASE_FIELDS = [
@@ -522,7 +524,7 @@ export default {
 
                 this.isSaveSuccessful = true;
 
-                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
+                EventBus.emit('sw-sales-channel-detail-sales-channel-change');
             } catch (_error) {
                 this.createNotificationError({
                     message: this.$t(
@@ -747,7 +749,7 @@ export default {
         },
 
         addRequiredSalesChannelFieldError(fieldName) {
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: this.getRequiredSalesChannelFieldErrorExpression(fieldName),
                 error: new ShopwareError(EntityValidationService.createRequiredError(`/0/${fieldName}`)),
             });
@@ -780,11 +782,11 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
+            useErrorStore().removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
         },
 
         getRequiredSalesChannelFieldError(fieldName) {
-            return Shopware.Store.get('error').getApiErrorFromPath(this.getSalesChannelEntityName(), this.salesChannel.id, [
+            return useErrorStore().getApiErrorFromPath(this.getSalesChannelEntityName(), this.salesChannel.id, [
                 fieldName,
             ]);
         },

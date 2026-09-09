@@ -1,4 +1,5 @@
 import template from './sw-system-config-media-upload.html.twig';
+import { createId } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -37,7 +38,7 @@ export default {
 
     data() {
         return {
-            uploadTag: `sw-system-config-media-upload-${Shopware.Utils.createId()}`,
+            uploadTag: `sw-system-config-media-upload-${createId()}`,
         };
     },
 

@@ -1,3 +1,5 @@
+import useSessionStore from 'shopware:stores/session';
+
 function runCmsBlockRegistryTest(config) {
     beforeAll(async () => {
         await setupCmsEnvironment();
@@ -52,7 +54,7 @@ async function setupCmsEnvironment() {
     await import('src/module/sw-cms/mixin/sw-cms-state.mixin');
     await import('src/module/sw-cms/mixin/sw-cms-element.mixin');
 
-    Shopware.Store.get('session').setCurrentUser({
+    useSessionStore().setCurrentUser({
         id: 'admin',
     });
 }

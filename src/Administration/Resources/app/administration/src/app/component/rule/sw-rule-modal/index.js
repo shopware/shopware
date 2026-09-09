@@ -1,8 +1,9 @@
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component, Mixin, Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -110,7 +111,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria(1, 500);
 

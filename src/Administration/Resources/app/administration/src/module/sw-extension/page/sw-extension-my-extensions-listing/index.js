@@ -1,5 +1,8 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
+import { types } from 'shopware:utils';
+import useContextStore from 'shopware:stores/context';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
 /**
  * @sw-package checkout
@@ -34,7 +37,7 @@ export default {
 
     computed: {
         isAppUrlReachable() {
-            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
+            return useContextStore().app.config.settings?.appUrlReachable;
         },
 
         isLoading() {
@@ -43,13 +46,13 @@ export default {
                 return false;
             }
 
-            const state = Shopware.Store.get('shopwareExtensions');
+            const state = useShopwareExtensionsStore();
 
             return state.myExtensions.loading;
         },
 
         myExtensions() {
-            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
+            return useShopwareExtensionsStore().myExtensions.data;
         },
 
         extensionList() {
@@ -176,7 +179,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            return useContextStore().app.config.settings?.disableExtensionManagement;
         },
 
         selectedExtensions() {
@@ -321,7 +324,7 @@ export default {
             };
 
             // If query is empty then replace route, otherwise push
-            if (Shopware.Utils.types.isEmpty(routeQuery)) {
+            if (types.isEmpty(routeQuery)) {
                 this.$router.replace(route);
             } else {
                 this.$router.push(route);

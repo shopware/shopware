@@ -4,10 +4,9 @@
 
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  */

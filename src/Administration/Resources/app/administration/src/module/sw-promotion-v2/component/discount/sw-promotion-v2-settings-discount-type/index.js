@@ -3,8 +3,7 @@
  */
 import template from './sw-promotion-v2-settings-discount-type.html.twig';
 import './sw-promotion-v2-settings-discount-type.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

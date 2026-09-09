@@ -1,10 +1,9 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Filter } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 const DOCUMENT_MAIL_TEMPLATES = {
     INVOICE: 'invoice_mail',
     DELIVERY_NOTE: 'delivery_mail',

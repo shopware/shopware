@@ -1,13 +1,13 @@
 import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
 import { getCartErrorMessage } from '../../cart-error.helper';
+import { ChangesetGenerator } from 'shopware:data';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
  */
 const { Store } = Shopware;
-const { ChangesetGenerator } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -235,7 +235,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         emitLoadingChange(state) {
-            Shopware.Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'recalculation',
                 state,
             ]);
@@ -271,7 +271,7 @@ export default {
         },
 
         handleError(error) {
-            Shopware.Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'recalculation',
                 false,
             ]);
@@ -320,7 +320,7 @@ export default {
                 return Promise.resolve();
             }
 
-            Shopware.Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'recalculation',
                 true,
             ]);
@@ -356,7 +356,7 @@ export default {
 
         handlePromotionResponse(response) {
             this.emitEntityData();
-            Shopware.Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'recalculation',
                 false,
             ]);
@@ -438,7 +438,7 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            Shopware.Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'recalculation',
                 true,
             ]);

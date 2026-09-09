@@ -4,10 +4,9 @@
 
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
+import { Criteria } from 'shopware:data';
 
 const utils = Shopware.Utils;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  */

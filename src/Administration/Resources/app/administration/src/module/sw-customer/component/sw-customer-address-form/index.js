@@ -1,13 +1,14 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
  */
 
 const { Defaults, EntityDefinition } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 const COUNTRY_DEPENDENT_FIELDS = {
@@ -215,7 +216,7 @@ export default {
 
         removeRequiredFieldError(field) {
             const entityName = this.address.getEntityName();
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const error = errorStore.getApiErrorFromPath(entityName, this.address.id, [field]);
 
             if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {

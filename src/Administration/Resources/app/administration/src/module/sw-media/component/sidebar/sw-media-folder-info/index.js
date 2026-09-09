@@ -1,5 +1,6 @@
 import template from './sw-media-folder-info.html.twig';
 import './sw-media-folder-info.scss';
+import { format } from 'shopware:utils';
 
 const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -44,7 +45,7 @@ export default {
         },
 
         createdAt() {
-            return Shopware.Utils.format.date(this.mediaFolder.createdAt);
+            return format.date(this.mediaFolder.createdAt);
         },
 
         ...mapPropertyErrors('mediaFolder', ['name']),

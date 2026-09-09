@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-store.html.twig';
 import './sw-first-run-wizard-store.scss';
+import { debug } from 'shopware:utils';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -118,7 +119,7 @@ export default {
             try {
                 this.extensionStatus = await this.extensionHelperService.getStatusOfExtension('SwagExtensionStore');
             } catch (error) {
-                Shopware.Utils.debug.error(error);
+                debug.error(error);
             } finally {
                 this.loadStatus = false;
             }
@@ -143,7 +144,7 @@ export default {
                         this.error = error.response.data.errors[0];
                     }
 
-                    Shopware.Utils.debug.error(error);
+                    debug.error(error);
                 })
                 .finally(() => {
                     this.isActivating = false;

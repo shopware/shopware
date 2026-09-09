@@ -2,6 +2,7 @@ import orderBy from 'lodash-es/orderBy';
 import sortBy from 'lodash-es/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component, Store, Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -147,7 +148,7 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.Store.get('session').currentLocale;
+            return useSessionStore().currentLocale;
         },
 
         ...mapState(

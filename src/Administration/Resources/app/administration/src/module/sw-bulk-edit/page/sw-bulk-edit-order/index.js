@@ -1,11 +1,11 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
+import { types } from 'shopware:utils';
+import { chunk, intersectionBy, uniqBy } from 'shopware:utils/array';
+import { Criteria } from 'shopware:data';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
-
 /**
  * @sw-package checkout
  */
@@ -50,7 +50,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         stateMachineStateRepository() {
@@ -86,7 +86,7 @@ export default {
                 return false;
             }
 
-            const orderDocuments = Shopware.Store.get('swBulkEdit').orderDocuments;
+            const orderDocuments = useSwBulkEditStore().orderDocuments;
 
             return Object.values(orderDocuments).some((document) => {
                 if (!document?.isChanged || Array.isArray(document.value)) {
@@ -287,7 +287,7 @@ export default {
     methods: {
         async createdComponent() {
             this.setRouteMetaModule();
-            Shopware.Store.get('swBulkEdit').resetOrderDocumentsIsChanged();
+            useSwBulkEditStore().resetOrderDocumentsIsChanged();
 
             this.isLoading = true;
 
@@ -597,7 +597,7 @@ export default {
         },
 
         onChangeDocument(type, isChanged) {
-            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            useSwBulkEditStore().setOrderDocumentsIsChanged({
                 type,
                 isChanged,
             });

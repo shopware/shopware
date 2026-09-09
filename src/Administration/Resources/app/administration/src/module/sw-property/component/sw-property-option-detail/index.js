@@ -3,6 +3,7 @@
  */
 
 import template from './sw-property-option-detail.html.twig';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -88,7 +89,7 @@ export default {
         },
         onCancel() {
             // Remove all property group options
-            Shopware.Store.get('error').removeApiError('property_group_option');
+            useErrorStore().removeApiError('property_group_option');
 
             this.$emit('cancel-option-edit', this.currentOption);
         },

@@ -5,13 +5,13 @@ import template from './sw-order-customer-grid.html.twig';
 import './sw-order-customer-grid.scss';
 
 import type { Cart } from '../../order.types';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Component, Store, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
 
 interface GridColumn {
     property: string;

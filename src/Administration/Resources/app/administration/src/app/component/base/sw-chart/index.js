@@ -2,9 +2,9 @@ import VueApexCharts from 'vue3-apexcharts';
 import apexLocales from './locales';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
-
-const { object } = Shopware.Utils;
-const { warn } = Shopware.Utils.debug;
+import { format, object } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @sw-package framework
@@ -237,7 +237,7 @@ export default {
         },
 
         defaultLocale() {
-            const adminLocaleLanguage = Shopware.Store.get('session').adminLocaleLanguage;
+            const adminLocaleLanguage = useSessionStore().adminLocaleLanguage;
 
             if (Object.keys(apexLocales).includes(adminLocaleLanguage)) {
                 return adminLocaleLanguage;
@@ -417,7 +417,7 @@ export default {
             }
 
             // get timestamps for start date
-            const fromDate = Shopware.Utils.format.dateWithUserTimezone();
+            const fromDate = format.dateWithUserTimezone();
             fromDate.setTime(this.options.xaxis.min);
             this.setDateTime(fromDate);
             const fromDateTimestamp = fromDate.getTime();
@@ -429,7 +429,7 @@ export default {
                 toDateTimestamp = this.options.xaxis.max;
             } else {
                 // get actual day
-                const toDate = Shopware.Utils.format.dateWithUserTimezone();
+                const toDate = format.dateWithUserTimezone();
                 this.setDateTime(toDate);
                 toDate.getTime();
                 toDateTimestamp = toDate.getTime();

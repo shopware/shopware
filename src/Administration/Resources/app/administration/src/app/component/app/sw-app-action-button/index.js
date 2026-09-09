@@ -4,6 +4,7 @@
 
 import template from './sw-app-action-button.html.twig';
 import './sw-app-action-button.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Context } = Shopware;
 
@@ -26,7 +27,7 @@ export default {
 
     computed: {
         buttonLabel() {
-            const currentLocale = Shopware.Store.get('session').currentLocale;
+            const currentLocale = useSessionStore().currentLocale;
             const fallbackLocale = Context.app.fallbackLocale;
 
             if (typeof this.action.label === 'string') {

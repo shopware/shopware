@@ -1,13 +1,13 @@
-const { object } = Shopware.Utils;
-const { Criteria } = Shopware.Data;
+import { debug, object, types } from 'shopware:utils';
+import { getObjectDiff } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+
 const bulkSyncTypes = Object.freeze({
     OVERWRITE: 'overwrite',
     CLEAR: 'clear',
     ADD: 'add',
     REMOVE: 'remove',
 });
-const { types } = Shopware.Utils;
-const { getObjectDiff } = Shopware.Utils.object;
 
 /**
  * @class
@@ -85,7 +85,7 @@ class BulkEditBaseHandler {
                 const field = definition.getField(change.field);
 
                 if (!field) {
-                    Shopware.Utils.debug.warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
+                    debug.warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
 
                     return;
                 }
@@ -97,7 +97,7 @@ class BulkEditBaseHandler {
 
                         return;
                     } catch (e) {
-                        Shopware.Utils.debug.warn(e);
+                        debug.warn(e);
 
                         // Ignore the failed change
                         return;

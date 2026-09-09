@@ -2,9 +2,10 @@
  * @sw-package checkout
  */
 import template from './sw-settings-salutation-detail.html.twig';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
@@ -152,7 +153,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.salutation = this.salutationRepository.create();
             this.isLoading = false;
         },

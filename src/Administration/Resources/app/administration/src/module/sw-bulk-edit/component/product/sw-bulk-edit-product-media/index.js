@@ -2,9 +2,10 @@
  * @sw-package inventory
  */
 import template from './sw-bulk-edit-product-media.html.twig';
+import { Criteria } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Utils, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -34,7 +35,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         productMediaRepository() {

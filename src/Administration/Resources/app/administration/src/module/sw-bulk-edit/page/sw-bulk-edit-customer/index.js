@@ -1,12 +1,13 @@
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
+import { types } from 'shopware:utils';
+import { chunk } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { chunk } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
-
 /**
  * @sw-package checkout
  */
@@ -43,7 +44,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         customFieldSetRepository() {
@@ -151,8 +152,8 @@ export default {
     methods: {
         createdComponent() {
             this.setRouteMetaModule();
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.isLoading = true;
@@ -305,7 +306,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
         },
     },
 };

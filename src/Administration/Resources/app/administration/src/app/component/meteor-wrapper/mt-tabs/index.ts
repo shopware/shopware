@@ -3,6 +3,7 @@ import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtT
 import template from './mt-tabs.html.twig';
 import type { TabItemEntry } from '../../../store/tabs.store';
 import './mt-tabs.scss';
+import useTabsStore from 'shopware:stores/tabs';
 
 /**
  * @sw-package framework
@@ -85,7 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         tabExtensions(): TabItemEntry[] {
-            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return useTabsStore().tabItems[this.positionIdentifier] ?? [];
         },
 
         activeItemName(): string {

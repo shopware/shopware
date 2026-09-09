@@ -86,9 +86,13 @@ has to keep using `Shopware.Mixin.getByName()`, or import the mixin's own file f
 
 **Not usable before the global exists.** `src/index.ts` assigns `window.Shopware` before it imports
 `src/app/main`, so application and extension code is always past that point. Code that runs earlier has
-to read the global directly: `src/core/**`, anything `src/index.ts` imports statically, and the targets of
-an eager `import.meta.glob` reached from there, such as `src/app/plugin/**`. Importing a `shopware:*`
-module too early throws with that explanation instead of handing out `undefined`.
+to read the global directly: anything `src/index.ts` imports statically, and the targets of an eager
+`import.meta.glob` reached from there, such as `src/app/plugin/**`. Importing a `shopware:*` module too
+early throws with that explanation instead of handing out `undefined`.
+
+All of `src/core` stays on the global as a matter of layering, whether or not boot reaches a given file.
+It is the Vue-independent framework code, and some of it is bundled into the admin worker, where there is
+no `window.Shopware` at all.
 
 **Extensions do not get their own registrations.** A store or mixin an extension registers itself is not
 in the registry, so `shopware:stores/<its own id>` does not resolve. Use `Shopware.Store.get()` and

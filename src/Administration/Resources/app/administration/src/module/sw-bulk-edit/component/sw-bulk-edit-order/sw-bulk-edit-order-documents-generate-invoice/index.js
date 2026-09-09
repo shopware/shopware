@@ -3,6 +3,7 @@
  */
 import template from './sw-bulk-edit-order-documents-generate-invoice.html.twig';
 import './sw-bulk-edit-order-documents-generate-invoice.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Store } = Shopware;
 
@@ -18,7 +19,7 @@ export default {
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

@@ -2,6 +2,8 @@ import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/a
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
+import { EventBus } from 'shopware:utils';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
@@ -100,7 +102,7 @@ export default {
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
                     return false;
                 }
@@ -240,7 +242,7 @@ export default {
                 });
             } finally {
                 this.isLoading = false;
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                EventBus.emit('sw-media-library-item-updated', this.item.id);
             }
         },
 

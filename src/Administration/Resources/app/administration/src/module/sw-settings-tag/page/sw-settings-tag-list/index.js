@@ -3,10 +3,9 @@
  */
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -1,6 +1,9 @@
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
 import template from './sw-extension-component-section.html.twig';
+import { debug } from 'shopware:utils';
+import useExtensionComponentSectionsStore from 'shopware:stores/extensionComponentSections';
+import useExtensionsStore from 'shopware:stores/extensions';
 
 /**
  * @sw-package framework
@@ -55,7 +58,7 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         componentSections(): ComponentSectionEntry[] {
             const sections = this.sortSections(
-                Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [],
+                useExtensionComponentSectionsStore().identifier[this.positionIdentifier] ?? [],
             );
             if (sections.length && this.deprecated) {
                 sections.forEach((section) => {
@@ -65,9 +68,9 @@ export default Shopware.Component.wrapComponentConfig({
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
-                        Shopware.Utils.debug.error(...debugArgs);
+                        debug.error(...debugArgs);
                     } else {
-                        Shopware.Utils.debug.warn(...debugArgs);
+                        debug.warn(...debugArgs);
                     }
                 });
             }
@@ -109,7 +112,7 @@ export default Shopware.Component.wrapComponentConfig({
          *    stable, so returning `0` preserves the array index — no extension is favoured by name.
          */
         sortSections(sections: ComponentSectionEntry[]): ComponentSectionEntry[] {
-            const extensionsState = Shopware.Store.get('extensions').extensionsState;
+            const extensionsState = useExtensionsStore().extensionsState;
 
             const isService = (entry: ComponentSectionEntry): boolean =>
                 extensionsState[entry.extensionName]?.sourceType === 'service';

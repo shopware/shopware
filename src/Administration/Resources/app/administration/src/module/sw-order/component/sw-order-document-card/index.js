@@ -9,10 +9,9 @@ import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 import { DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  *

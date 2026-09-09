@@ -1,3 +1,5 @@
+import { debug } from 'shopware:utils';
+
 /**
  * @sw-package framework
  */
@@ -5,8 +7,6 @@ const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
-const { debug } = Shopware.Utils;
-
 Mixin.register('sw-settings-list', {
     mixins: [
         Mixin.getByName('listing'),

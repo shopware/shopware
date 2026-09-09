@@ -1,7 +1,7 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
-
-const { dom } = Shopware.Utils;
+import { dom } from 'shopware:utils';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package framework
@@ -176,7 +176,7 @@ export default {
     },
 
     beforeUnmount() {
-        Shopware.Store.get('error').resetApiErrors();
+        useErrorStore().resetApiErrors();
         this.beforeDestroyComponent();
     },
 

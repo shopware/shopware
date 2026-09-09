@@ -1,6 +1,7 @@
 import template from './sw-bulk-edit-order-documents-delete-documents.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**
  * @sw-package after-sales
@@ -16,7 +17,7 @@ export default {
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {
@@ -42,10 +43,10 @@ export default {
 
         documentTypes: {
             get() {
-                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value;
+                return useSwBulkEditStore()?.orderDocuments?.delete?.value;
             },
             set(documentTypes) {
-                Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+                useSwBulkEditStore().setOrderDocumentsValue({
                     type: 'delete',
                     value: documentTypes,
                 });

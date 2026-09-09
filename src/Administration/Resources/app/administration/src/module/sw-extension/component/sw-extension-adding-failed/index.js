@@ -1,5 +1,6 @@
 import template from './sw-extension-adding-failed.html.twig';
 import './sw-extension-adding-failed.scss';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
 /**
  * @sw-package checkout
@@ -41,7 +42,7 @@ export default {
 
     computed: {
         myExtensions() {
-            return Shopware.Store.get('shopwareExtensions').myExtensions;
+            return useShopwareExtensionsStore().myExtensions;
         },
 
         extension() {

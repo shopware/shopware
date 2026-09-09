@@ -1,9 +1,10 @@
 import template from './sw-cms-inherit-wrapper.html.twig';
 import './sw-cms-inherit-wrapper.scss';
 import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
-
-const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
-const { isEmpty, isUndefined } = Shopware.Utils.types;
+import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
+import { isEmpty, isUndefined } from 'shopware:utils/types';
+import cmsStateMixin from 'shopware:mixins/cms-state';
+import useContextStore from 'shopware:stores/context';
 
 const EVENTS = {
     RESTORE: 'inheritance:restore',
@@ -46,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
     inject: ['cmsService'],
     mixins: [
-        Shopware.Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
     emits: [
         EVENTS.RESTORE,
@@ -104,7 +105,7 @@ export default Shopware.Component.wrapComponentConfig({
             return !!this.contentEntity;
         },
         isSystemDefaultLanguage() {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return useContextStore().isSystemDefaultLanguage;
         },
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)

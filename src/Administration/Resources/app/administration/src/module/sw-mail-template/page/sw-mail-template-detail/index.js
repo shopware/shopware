@@ -2,10 +2,12 @@ import camelCase from 'lodash-es/camelCase';
 import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
+import { get } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin, Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -343,7 +345,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.loadEntityData();
         },
 
@@ -768,7 +770,7 @@ export default {
 
             const variables = variable.split('.');
             variables.splice(1, 0, 'properties');
-            const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
+            const field = get(this.entitySchema, `${variables.join('.')}`);
 
             return (
                 field &&

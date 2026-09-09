@@ -1,10 +1,10 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 import RetryHelper from '../../../../core/helper/retry.helper';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 const types = Shopware.Utils.types;
 const { Service, Application } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @class

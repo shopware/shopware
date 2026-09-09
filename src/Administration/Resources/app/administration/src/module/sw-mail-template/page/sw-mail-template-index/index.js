@@ -3,6 +3,7 @@
  */
 
 import template from './sw-mail-template-index.html.twig';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin, Feature } = Shopware;
 
@@ -69,7 +70,7 @@ export default {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
 
             if (Feature.isActive('V6_8_0_0')) {
                 this.$refs.tabContent?.getList();

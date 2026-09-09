@@ -1,3 +1,7 @@
+import useExtensionMainModulesStore from 'shopware:stores/extensionMainModules';
+import useExtensionsStore from 'shopware:stores/extensions';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
+
 /**
  * @sw-package framework
  *
@@ -5,17 +9,17 @@
  */
 export default function initMainModules(): void {
     Shopware.ExtensionAPI.handle('mainModuleAdd', async (mainModuleConfig, additionalInformation) => {
-        const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
-            Shopware.Store.get('extensions').extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
+        const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
+            useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
         if (!extensionName) {
             throw new Error(`Extension with the origin "${additionalInformation._event_.origin}" not found.`);
         }
 
-        const extension = Shopware.Store.get('extensions').extensionsState?.[extensionName];
+        const extension = useExtensionsStore().extensionsState?.[extensionName];
 
-        await Shopware.Store.get('extensionSdkModules')
+        await useExtensionSdkModulesStore()
             .addModule({
                 heading: mainModuleConfig.heading,
                 locationId: mainModuleConfig.locationId,
@@ -27,7 +31,7 @@ export default function initMainModules(): void {
                     return;
                 }
 
-                Shopware.Store.get('extensionMainModules').addMainModule({
+                useExtensionMainModulesStore().addMainModule({
                     extensionName,
                     moduleId,
                 });
@@ -35,10 +39,10 @@ export default function initMainModules(): void {
     });
 
     Shopware.ExtensionAPI.handle('smartBarButtonAdd', (configuration) => {
-        Shopware.Store.get('extensionSdkModules').addSmartBarButton(configuration);
+        useExtensionSdkModulesStore().addSmartBarButton(configuration);
     });
 
     Shopware.ExtensionAPI.handle('smartBarHide', (configuration) => {
-        Shopware.Store.get('extensionSdkModules').addHiddenSmartBar(configuration.locationId);
+        useExtensionSdkModulesStore().addHiddenSmartBar(configuration.locationId);
     });
 }

@@ -2,10 +2,9 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-users-permissions-role-view-general.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

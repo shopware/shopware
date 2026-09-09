@@ -3,9 +3,9 @@ import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/E
 import difference from 'lodash-es/difference';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
-
-const { cloneDeep } = Shopware.Utils.object;
-const { Criteria } = Shopware.Data;
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -24,7 +24,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['modal-close'],
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

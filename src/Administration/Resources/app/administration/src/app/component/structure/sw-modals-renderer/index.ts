@@ -3,6 +3,7 @@ import type { ModalItemEntry } from 'src/app/store/modals.store';
 import DOMPurify from 'dompurify';
 import template from './sw-modals-renderer.html.twig';
 import './sw-modals-renderer.scss';
+import useModalsStore from 'shopware:stores/modals';
 
 /**
  * @sw-package framework
@@ -15,13 +16,13 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         modals(): ModalItemEntry[] {
-            return Shopware.Store.get('modals').modals;
+            return useModalsStore().modals;
         },
     },
 
     methods: {
         closeModal(locationId: string) {
-            Shopware.Store.get('modals').closeModal(locationId);
+            useModalsStore().closeModal(locationId);
         },
 
         buttonProps(button: buttonProps) {

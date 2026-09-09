@@ -5,7 +5,7 @@ import './sw-order-details-state-card.scss';
  * @sw-package checkout
  */
 
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

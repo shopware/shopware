@@ -1,3 +1,5 @@
+import { types } from 'shopware:utils';
+
 /**
  * @sw-package framework
  *
@@ -32,7 +34,7 @@ export default function usePlaceholder(): {
             return fallbackSnippet;
         }
 
-        if (Shopware.Utils.types.isString(entity[field]) && entity[field].length > 0) {
+        if (types.isString(entity[field]) && entity[field].length > 0) {
             return entity[field];
         }
 

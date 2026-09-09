@@ -1,7 +1,8 @@
 import template from './sw-flow-generate-document-modal.html.twig';
+import { Criteria } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -113,7 +114,7 @@ export default {
             if (!this.isDocumentGenerationReworkActive) {
                 if (!this.documentTypes.length) {
                     this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').documentTypes = data;
+                        useSwFlowStore().documentTypes = data;
                     });
                 }
 

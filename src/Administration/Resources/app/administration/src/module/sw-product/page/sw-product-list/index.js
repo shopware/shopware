@@ -5,11 +5,11 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -433,7 +433,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.getList();
         },
 

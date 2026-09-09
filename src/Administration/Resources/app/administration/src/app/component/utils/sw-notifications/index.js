@@ -4,6 +4,9 @@
 
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
+import { string } from 'shopware:utils';
+import notificationTranslationMixin from 'shopware:mixins/notification-translation';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -15,7 +18,7 @@ import './sw-notifications.scss';
 export default {
     template,
 
-    mixins: [Shopware.Mixin.getByName('notification-translation')],
+    mixins: [notificationTranslationMixin],
 
     inject: ['feature'],
 
@@ -46,7 +49,7 @@ export default {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.Store.get('notification').growlNotifications);
+            return Object.values(useNotificationStore().growlNotifications);
         },
 
         notificationsStyle() {
@@ -76,12 +79,12 @@ export default {
 
     methods: {
         onClose(notification) {
-            Shopware.Store.get('notification').removeGrowlNotification(notification);
+            useNotificationStore().removeGrowlNotification(notification);
         },
 
         handleAction(action, notification) {
             // Allow external links for example to the shopware account or store
-            if (Shopware.Utils.string.isUrl(action.route)) {
+            if (string.isUrl(action.route)) {
                 window.open(action.route);
                 return;
             }

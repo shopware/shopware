@@ -1,6 +1,7 @@
-const { remove } = Shopware.Utils.array;
+import { remove } from 'shopware:utils/array';
+import { Criteria } from 'shopware:data';
+
 const { Service } = Shopware;
-const { Criteria } = Shopware.Data;
 const DEFAULT_TTL = 5 * 60 * 1000;
 
 /**

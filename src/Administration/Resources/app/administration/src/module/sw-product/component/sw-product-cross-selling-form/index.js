@@ -4,8 +4,9 @@
 
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
+import { Criteria } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Criteria } = Shopware.Data;
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -64,11 +65,11 @@ export default {
         ]),
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         /**

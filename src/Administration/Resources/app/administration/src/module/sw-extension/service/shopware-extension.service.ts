@@ -9,6 +9,10 @@ import type {
     ExtensionVariantType,
     ExtensionType,
 } from './extension-store-action.service';
+import useContextStore from 'shopware:stores/context';
+import useExtensionEntryRoutesStore from 'shopware:stores/extensionEntryRoutes';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
 type EXTENSION_VARIANT_TYPES = {
     [Property in Uppercase<ExtensionVariantType>]: Lowercase<Property>;
@@ -96,29 +100,29 @@ export default class ShopwareExtensionService {
     }
 
     public async updateExtensionData(refreshExtensions: boolean = true): Promise<void> {
-        Shopware.Store.get('shopwareExtensions').loadMyExtensions();
+        useShopwareExtensionsStore().loadMyExtensions();
 
         try {
-            if (!Shopware.Store.get('context').app.config?.settings?.disableExtensionManagement && refreshExtensions) {
+            if (!useContextStore().app.config?.settings?.disableExtensionManagement && refreshExtensions) {
                 await this.extensionStoreActionService.refresh();
             }
 
             const myExtensions = await this.extensionStoreActionService.getMyExtensions();
 
-            Shopware.Store.get('shopwareExtensions').setMyExtensions(myExtensions);
+            useShopwareExtensionsStore().setMyExtensions(myExtensions);
 
             await this.updateModules();
         } finally {
-            Shopware.Store.get('shopwareExtensions').setLoading(false);
+            useShopwareExtensionsStore().setLoading(false);
         }
     }
 
     public async checkLogin(): Promise<void> {
         try {
             const { userInfo } = await this.storeApiService.checkLogin();
-            Shopware.Store.get('shopwareExtensions').userInfo = userInfo;
+            useShopwareExtensionsStore().userInfo = userInfo;
         } catch {
-            Shopware.Store.get('shopwareExtensions').userInfo = null;
+            useShopwareExtensionsStore().userInfo = null;
         }
     }
 
@@ -181,7 +185,7 @@ export default class ShopwareExtensionService {
             return null;
         }
 
-        const entryRoutes = Shopware.Store.get('extensionEntryRoutes').routes;
+        const entryRoutes = useExtensionEntryRoutesStore().routes;
 
         if (entryRoutes[extension.name] !== undefined) {
             return {
@@ -196,8 +200,8 @@ export default class ShopwareExtensionService {
     private async updateModules() {
         const modules = await this.appModulesService.fetchAppModules();
 
-        Shopware.Store.get('shopwareApps').apps = modules;
-        Shopware.Store.get('shopwareApps').appsLoaded = true;
+        useShopwareAppsStore().apps = modules;
+        useShopwareAppsStore().appsLoaded = true;
     }
 
     private async getLinkToTheme(extension: Extension) {
@@ -236,7 +240,7 @@ export default class ShopwareExtensionService {
     }
 
     private getAppFromStore(extensionName: string) {
-        return Shopware.Store.get('shopwareApps').apps.find((innerApp) => {
+        return useShopwareAppsStore().apps.find((innerApp) => {
             return innerApp.name === extensionName;
         });
     }

@@ -1,9 +1,8 @@
 import template from './sw-cms-el-cross-selling.html.twig';
 import './sw-cms-el-cross-selling.scss';
+import { isEmpty } from 'shopware:utils/types';
 
 const { Mixin } = Shopware;
-const { isEmpty } = Shopware.Utils.types;
-
 /**
  * @private
  * @sw-package discovery

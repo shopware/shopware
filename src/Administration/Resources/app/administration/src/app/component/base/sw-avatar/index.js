@@ -1,7 +1,6 @@
 import template from './sw-avatar.html.twig';
 import './sw-avatar.scss';
-
-const { cloneDeep } = Shopware.Utils.object;
+import { cloneDeep } from 'shopware:utils/object';
 
 const colors = [
     '#FFD700',

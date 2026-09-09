@@ -6,6 +6,7 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useNotification from './use-notification';
+import { EventBus } from 'shopware:utils';
 
 /** @private */
 export type VideoCoverMedia = {
@@ -112,7 +113,7 @@ export default function useVideoCover(options: UseVideoCoverOptions): {
 
             createNotificationSuccess({ message: i18n.t(snippetKey) });
 
-            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', item.id);
+            EventBus.emit('sw-media-library-item-updated', item.id);
         } catch {
             createNotificationError({
                 message: i18n.t('global.sw-media-media-item.notification.coverSaveError.message'),

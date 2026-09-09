@@ -4,8 +4,8 @@
 
 import template from './sw-sales-channel-measurement.html.twig';
 import './sw-sales-channel-measurement.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -118,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(this.salesChannel, 'measurementUnits.system');
+            return useErrorStore().getApiError(this.salesChannel, 'measurementUnits.system');
         },
 
         measurementLengthUnitError() {
@@ -126,7 +126,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(this.salesChannel, 'measurementUnits.units.length');
+            return useErrorStore().getApiError(this.salesChannel, 'measurementUnits.units.length');
         },
 
         measurementWeightUnitError() {
@@ -134,7 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            return Shopware.Store.get('error').getApiError(this.salesChannel, 'measurementUnits.units.weight');
+            return useErrorStore().getApiError(this.salesChannel, 'measurementUnits.units.weight');
         },
     },
 

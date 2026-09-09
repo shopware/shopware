@@ -1,6 +1,7 @@
 import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import template from './sw-promotion-detail-discounts.html.twig';
 import './sw-promotion-detail-discounts.scss';
+import useSwPromotionDetailStore from 'shopware:stores/swPromotionDetail';
 
 /**
  * @sw-package checkout
@@ -30,23 +31,20 @@ export default {
 
     computed: {
         promotion() {
-            return Shopware.Store.get('swPromotionDetail').promotion;
+            return useSwPromotionDetailStore().promotion;
         },
 
         isLoading: {
             get() {
-                return Shopware.Store.get('swPromotionDetail').isLoading;
+                return useSwPromotionDetailStore().isLoading;
             },
             set(isLoading) {
-                Shopware.Store.get('swPromotionDetail').isLoading = isLoading;
+                useSwPromotionDetailStore().isLoading = isLoading;
             },
         },
 
         discounts() {
-            return (
-                Shopware.Store.get('swPromotionDetail').promotion &&
-                Shopware.Store.get('swPromotionDetail').promotion.discounts
-            );
+            return useSwPromotionDetailStore().promotion && useSwPromotionDetailStore().promotion.discounts;
         },
     },
 

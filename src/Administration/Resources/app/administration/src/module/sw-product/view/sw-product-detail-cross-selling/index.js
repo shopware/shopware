@@ -4,8 +4,9 @@
 
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
-
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -39,19 +40,19 @@ export default {
         },
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         isChild() {
-            return Shopware.Store.get('swProductDetail').isChild;
+            return useSwProductDetailStore().isChild;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         isSystemDefaultLanguage() {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return useContextStore().isSystemDefaultLanguage;
         },
 
         showCrossSellingCard() {

@@ -2,11 +2,12 @@ import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
 import { type PageType } from '../../service/cms-page-type.service';
 import type MediaUploadResult from '../../shared/MediaUploadResult';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 const { CMS } = Shopware.Constants;
 
@@ -142,7 +143,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsBlocks() {
-            const currentPageType = Shopware.Store.get('cmsPage').currentPageType;
+            const currentPageType = useCmsPageStore().currentPageType;
 
             if (!currentPageType) {
                 return {};
@@ -356,7 +357,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onCloseBlockConfig() {
-            const store = Shopware.Store.get('cmsPage');
+            const store = useCmsPageStore();
             store.removeSelectedBlock();
             store.removeSelectedSection();
         },
@@ -374,7 +375,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openSectionSettings(sectionIndex: number) {
-            Shopware.Store.get('cmsPage').setSection(this.page.sections![sectionIndex]);
+            useCmsPageStore().setSection(this.page.sections![sectionIndex]);
 
             const itemConfigSidebar = this.$refs.itemConfigSidebar as {
                 openContent: () => void;
@@ -633,7 +634,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSectionDelete(sectionId: EntityKey<'cms_section'>) {
-            Shopware.Store.get('cmsPage').removeSelectedSection();
+            useCmsPageStore().removeSelectedSection();
             this.page.sections!.remove(sectionId);
         },
 
@@ -650,7 +651,7 @@ export default Shopware.Component.wrapComponentConfig({
             section?.blocks?.remove(block.id);
 
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
-                Shopware.Store.get('cmsPage').removeSelectedBlock();
+                useCmsPageStore().removeSelectedBlock();
             }
         },
 

@@ -1,9 +1,9 @@
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package checkout
  */
@@ -110,7 +110,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 

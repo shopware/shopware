@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-snippet-detail.html.twig';
 import './sw-settings-snippet-detail.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const {
     Mixin,
@@ -99,7 +100,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${useSessionStore().currentUser.username}`;
             },
         },
 

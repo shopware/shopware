@@ -1,13 +1,12 @@
 import template from './sw-order-nested-line-items-modal.html.twig';
 import './sw-order-nested-line-items-modal.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Filter } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

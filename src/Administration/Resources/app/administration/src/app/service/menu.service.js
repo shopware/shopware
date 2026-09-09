@@ -1,3 +1,5 @@
+import useSessionStore from 'shopware:stores/session';
+
 /**
  * @sw-package framework
  *
@@ -73,7 +75,7 @@ export default function createMenuService(moduleFactory) {
     }
 
     function getTranslatedLabel(label) {
-        const locale = Shopware.Store.get('session').currentLocale;
+        const locale = useSessionStore().currentLocale;
         const fallbackLocale = Shopware.Context.app.fallbackLocale;
 
         return label[locale] || label[fallbackLocale];

@@ -1,4 +1,6 @@
 import template from './sw-landing-page-view.html.twig';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 const { Mixin } = Shopware;
 
@@ -28,11 +30,11 @@ export default {
 
     computed: {
         landingPage() {
-            return Shopware.Store.get('swCategoryDetail').landingPage;
+            return useSwCategoryDetailStore().landingPage;
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         landingPageViewTabs() {

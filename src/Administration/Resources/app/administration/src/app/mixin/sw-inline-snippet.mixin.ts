@@ -3,6 +3,8 @@
  */
 
 import { defineComponent } from 'vue';
+import { types } from 'shopware:utils';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @private
@@ -14,7 +16,7 @@ export default Shopware.Mixin.register(
     defineComponent({
         computed: {
             swInlineSnippetLocale(): string {
-                return Shopware.Store.get('session').currentLocale as unknown as string;
+                return useSessionStore().currentLocale as unknown as string;
             },
 
             swInlineSnippetFallbackLocale(): string {
@@ -24,7 +26,7 @@ export default Shopware.Mixin.register(
 
         methods: {
             getInlineSnippet(value: { [key: string]: string }) {
-                if (Shopware.Utils.types.isEmpty(value)) {
+                if (types.isEmpty(value)) {
                     return '';
                 }
                 if (value[this.swInlineSnippetLocale]) {
@@ -33,7 +35,7 @@ export default Shopware.Mixin.register(
                 if (value[this.swInlineSnippetFallbackLocale]) {
                     return value[this.swInlineSnippetFallbackLocale];
                 }
-                if (Shopware.Utils.types.isObject(value)) {
+                if (types.isObject(value)) {
                     const locale = Object.keys(value).find((key) => {
                         return value[key] !== '';
                     });

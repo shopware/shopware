@@ -1,14 +1,16 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
+import { types } from 'shopware:utils';
+import { chunk } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
+import { convert } from 'shopware:utils/unitConversion';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { chunk } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
-const { convert } = Shopware.Utils.unitConversion;
-
 /**
  * @sw-package inventory
  */
@@ -59,27 +61,27 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         taxes() {
-            return Shopware.Store.get('swProductDetail').taxes;
+            return useSwProductDetailStore().taxes;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swProductDetail').defaultCurrency;
+            return useSwProductDetailStore().defaultCurrency;
         },
 
         defaultPrice() {
-            return Shopware.Store.get('swProductDetail').defaultPrice;
+            return useSwProductDetailStore().defaultPrice;
         },
 
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         customFieldSetRepository() {
@@ -949,7 +951,7 @@ export default {
 
             Promise.all(promises).then(() => {
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
-                Shopware.Store.get('swProductDetail').product = product;
+                useSwProductDetailStore().product = product;
 
                 this.loadBulkEditData();
                 this.setDefaultBooleanProductValues();
@@ -984,11 +986,11 @@ export default {
                 .get(this.$route.params.parentId, Shopware.Context.api, this.productCriteria)
                 .then((parentProduct) => {
                     parentProduct.stock = null;
-                    Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
+                    useSwProductDetailStore().parentProduct = parentProduct;
                     this.parentProductFrozen = JSON.stringify(parentProduct);
                 })
                 .catch(() => {
-                    Shopware.Store.get('swProductDetail').parentProduct = {};
+                    useSwProductDetailStore().parentProduct = {};
                 });
         },
 
@@ -1072,7 +1074,7 @@ export default {
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
                 this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
-                Shopware.Store.get('swProductDetail').setTaxes(taxes);
+                useSwProductDetailStore().setTaxes(taxes);
             });
         },
 
@@ -1088,7 +1090,7 @@ export default {
 
         loadCurrencies() {
             return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
-                Shopware.Store.get('swProductDetail').currencies = res;
+                useSwProductDetailStore().currencies = res;
             });
         },
 
@@ -1460,7 +1462,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
         },
 
         loadRules() {

@@ -4,8 +4,8 @@
 
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**

@@ -4,6 +4,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import type { NotificationType, NotificationVariant } from '../store/notification.store';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * Composable alternative to the `notification` mixin.
@@ -30,7 +31,7 @@ export default function useNotification(): {
     createSystemNotification: (config: NotificationType) => void;
 } {
     function createNotification(notification: NotificationType): string | null {
-        return Shopware.Store.get('notification').createNotification(notification);
+        return useNotificationStore().createNotification(notification);
     }
 
     function createNotificationSuccess(config: NotificationType): void {

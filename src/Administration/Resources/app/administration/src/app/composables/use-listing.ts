@@ -8,6 +8,9 @@ import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import type { ComputedRef, Ref } from 'vue';
 import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
+import { types } from 'shopware:utils';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /* The listing contract predates typing; several values cross untyped service boundaries */
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-explicit-any */
@@ -182,7 +185,7 @@ export default function useListing(options: UseListingOptions): UseListingReturn
         };
 
         // Writing the initial state into an empty query must not add a history entry.
-        if (Shopware.Utils.types.isEmpty(routeQuery)) {
+        if (types.isEmpty(routeQuery)) {
             void router.replace(targetRoute as unknown as RouteLocationNamedRaw);
         } else {
             void router.push(targetRoute as unknown as RouteLocationNamedRaw);
@@ -372,7 +375,7 @@ export default function useListing(options: UseListingOptions): UseListingReturn
 
         const query = route.query;
 
-        if (Shopware.Utils.types.isEmpty(query)) {
+        if (types.isEmpty(query)) {
             resetListing();
         }
 
@@ -392,8 +395,8 @@ export default function useListing(options: UseListingOptions): UseListingReturn
     });
 
     watch(selection, () => {
-        Shopware.Store.get('shopwareApps').selectedIds = Object.keys(selection.value);
-        Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(selection.value);
+        useShopwareAppsStore().selectedIds = Object.keys(selection.value);
+        useSwBulkEditStore().selectedIds = Object.keys(selection.value);
     });
 
     watch(term, (newValue) => {
@@ -420,7 +423,7 @@ export default function useListing(options: UseListingOptions): UseListingReturn
 
         const actualQueryParameters: LocationQuery = route.query;
 
-        if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
+        if (types.isEmpty(actualQueryParameters)) {
             resetListing();
         } else {
             parseBooleanQueryParams(actualQueryParameters);
@@ -437,8 +440,8 @@ export default function useListing(options: UseListingOptions): UseListingReturn
             return;
         }
 
-        Shopware.Store.get('shopwareApps').selectedIds = [];
-        Shopware.Store.get('swBulkEdit').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
+        useSwBulkEditStore().selectedIds = [];
     });
 
     return {

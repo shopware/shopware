@@ -5,6 +5,7 @@ import type { ModuleManifest } from 'src/core/factory/module.factory';
 import { getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../tab-slot-parser';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
+import useErrorStore from 'shopware:stores/error';
 
 type ComponentData = {
     module: ModuleManifest | null;
@@ -110,7 +111,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     beforeUnmount(): void {
-        void Shopware.Store.get('error').resetApiErrors();
+        void useErrorStore().resetApiErrors();
     },
 
     mounted(): void {

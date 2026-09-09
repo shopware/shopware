@@ -1,5 +1,6 @@
 import type { MediaModalConfig, SaveMediaModalConfig } from 'src/app/store/media-modal.store';
 import template from './sw-media-modal-renderer.html.twig';
+import useMediaModalStore from 'shopware:stores/mediaModal';
 
 /**
  * @sw-package framework
@@ -12,21 +13,21 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         mediaModal(): MediaModalConfig | null {
-            return Shopware.Store.get('mediaModal').mediaModal;
+            return useMediaModalStore().mediaModal;
         },
 
         saveMediaModal(): SaveMediaModalConfig | null {
-            return Shopware.Store.get('mediaModal').saveMediaModal;
+            return useMediaModalStore().saveMediaModal;
         },
     },
 
     methods: {
         closeModal(): void {
-            Shopware.Store.get('mediaModal').closeModal();
+            useMediaModalStore().closeModal();
         },
 
         closeSaveModal(): void {
-            Shopware.Store.get('mediaModal').closeSaveModal();
+            useMediaModalStore().closeSaveModal();
         },
 
         onSelectionChange(selection: EntityCollection<'media'>): void {

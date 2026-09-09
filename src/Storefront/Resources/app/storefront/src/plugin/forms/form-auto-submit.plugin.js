@@ -102,8 +102,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
             const delayedChange = Debouncer.debounce(onChange, this.options.delayChangeEvent);
             this._form.addEventListener('change', (event) => {
                 if (event.detail?.submitImmediately) {
-                    delayedChange.cancel();
-                    onChange(event);
+                    delayedChange.flush(event);
                     return;
                 }
 

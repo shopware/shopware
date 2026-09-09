@@ -26,7 +26,8 @@ describe('OffCanvasCartPlugin tests', () => {
                 <a class="cart-item-label" href="#">Weird product with huge quantity</a>
 
                 <form action="/checkout/line-item/change-quantity/uuid555">
-                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1">
+                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1" data-focus-id="quantity-uuid555">
+                    <button type="button" class="js-btn-plus" data-focus-id="quantity-up-uuid555">+</button>
                 </form>
             </div>
         </div>
@@ -158,25 +159,50 @@ describe('OffCanvasCartPlugin tests', () => {
         expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
     });
 
-    test('fires a request without delay when a quantity form is submitted', async () => {
-        const el = document.querySelector('.header-cart');
+    test('restores the focus to the element focused when the delayed request fires', async () => {
+        plugin.options.autoFocus = true;
 
-        // Open offcanvas cart with click
-        el.dispatchEvent(new Event('click', {
-            bubbles: true,
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+        // Let the opened offcanvas take the initial focus before the user interacts.
+        jest.runOnlyPendingTimers();
+
+        const quantityInput = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+        quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // The user moves on to the `[+]` button while the request is still delayed.
+        document.querySelector('.js-btn-plus').focus();
+        await jest.advanceTimersByTime(800);
+        await new Promise(process.nextTick);
+
+        expect(window.focusHandler.saveFocusState).toHaveBeenCalledWith('offcanvas-cart', '[data-focus-id="quantity-up-uuid555"]');
+    });
+
+    test('ignores the response of an older request once a newer one was sent', async () => {
+        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
+        await new Promise(process.nextTick);
+
+        const responses = [];
+        global.fetch = jest.fn(() => new Promise((resolve) => {
+            responses.push(content => resolve({ text: () => Promise.resolve(content) }));
         }));
 
+        const quantityInput = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+        const changeImmediately = () => quantityInput.dispatchEvent(new CustomEvent('change', {
+            bubbles: true,
+            detail: { submitImmediately: true },
+        }));
+
+        changeImmediately();
+        changeImmediately();
+        expect(responses).toHaveLength(2);
+
+        responses[1]('<div class="offcanvas-body">Newer</div>');
+        await new Promise(process.nextTick);
+        responses[0]('<div class="offcanvas-body">Older</div>');
         await new Promise(process.nextTick);
 
-        const form = document.querySelector('.js-offcanvas-cart-change-quantity-number').closest('form');
-
-        // Confirming the value with `Enter` submits the form, which must not leave the Offcanvas.
-        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-
-        await new Promise(process.nextTick);
-
-        expect(fireRequestSpy).toHaveBeenCalledTimes(1);
-        expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Newer');
     });
 
     test('does not fire a request for a change the quantity selector withholds', async () => {
@@ -200,21 +226,6 @@ describe('OffCanvasCartPlugin tests', () => {
         await new Promise(process.nextTick);
 
         expect(fireRequestSpy).not.toHaveBeenCalled();
-    });
-
-    test('cancels a pending quantity update when the form is submitted', async () => {
-        document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
-        await new Promise(process.nextTick);
-
-        const input = document.querySelector('.js-offcanvas-cart-change-quantity-number');
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-        input.form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-        await new Promise(process.nextTick);
-
-        expect(fireRequestSpy).toHaveBeenCalledTimes(1);
-        jest.advanceTimersByTime(800);
-        await new Promise(process.nextTick);
-        expect(fireRequestSpy).toHaveBeenCalledTimes(1);
     });
 
     test('change product quantity should not send too many requests when spamming the number input', async () => {

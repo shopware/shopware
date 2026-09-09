@@ -21,8 +21,9 @@ export default class QuantitySelectorPlugin extends Plugin {
         purchaseLimitUrl: null,
 
         /**
-         * Submit the surrounding form when the user finishes an edit, by leaving the input
-         * or confirming with `Enter`. Used where the form applies the quantity itself.
+         * Mark a change the user finished, by leaving the input or confirming with `Enter`,
+         * with `detail.submitImmediately` so the form handler applies it without its delay.
+         * Used where the form applies the quantity itself.
          */
         submitOnFinish: false,
     };
@@ -34,7 +35,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._unitLabel = this.el.querySelector('.js-quantity-selector-unit');
         this._purchaseLimitFetched = false;
         this._committedValue = this._input.value;
-        this._isCommitting = false;
+        this._pointerTarget = null;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
@@ -82,6 +83,9 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._input.addEventListener('keydown', this._onKeyDown.bind(this));
         this._input.addEventListener('change', this._onChange.bind(this));
         this._input.addEventListener('blur', this._onBlur.bind(this));
+        this._input.form?.addEventListener('submit', this._onSubmit.bind(this));
+
+        this.el.addEventListener('pointerdown', this._onPointerDown.bind(this));
     }
 
     /**
@@ -92,13 +96,38 @@ export default class QuantitySelectorPlugin extends Plugin {
      * @private
      */
     _onChange(event) {
-        if (this._isCommitting) {
+        if (event.detail) {
             this._committedValue = this._input.value;
         } else {
             event.stopPropagation();
+
+            if (this._pointerTarget === this._input) {
+                this._commit();
+            }
         }
 
         this._updateUnitLabel();
+    }
+
+    /**
+     * remember the control under the pointer, a clicked button is not focused in every browser
+     * and the blur it causes then has no `relatedTarget`
+     *
+     * @param {PointerEvent} event
+     *
+     * @private
+     */
+    _onPointerDown(event) {
+        this._pointerTarget = event.target.closest('input, button');
+    }
+
+    /**
+     * the form sent the current value, it is the one to compare against from now on
+     *
+     * @private
+     */
+    _onSubmit() {
+        this._committedValue = this._input.value;
     }
 
     /**
@@ -109,34 +138,30 @@ export default class QuantitySelectorPlugin extends Plugin {
      * @private
      */
     _onKeyDown(event) {
+        this._pointerTarget = null;
+
         if (event.key !== 'Enter') {
             return;
         }
 
         event.preventDefault();
-        this._applyEdit();
+        this._commit(undefined, this.options.submitOnFinish);
     }
 
     /**
      * @private
      */
     _onBlur(event) {
-        // Tabbing on to the `[+]` and `[-]` buttons still applies the value, but lets a step
-        // the user makes next bundle into the same request.
-        if (this.el.contains(event.relatedTarget)) {
+        const pointerTarget = this._pointerTarget;
+        this._pointerTarget = null;
+
+        // Tabbing or clicking on to the `[+]` and `[-]` buttons still applies the value, but lets
+        // a step the user makes next bundle into the same request.
+        if (this.el.contains(event.relatedTarget) || (pointerTarget && pointerTarget !== this._input)) {
             this._commit();
             return;
         }
 
-        this._applyEdit();
-    }
-
-    /**
-     * apply a value the user is done editing
-     *
-     * @private
-     */
-    _applyEdit() {
         this._commit(undefined, this.options.submitOnFinish);
     }
 
@@ -153,9 +178,7 @@ export default class QuantitySelectorPlugin extends Plugin {
             return;
         }
 
-        this._isCommitting = true;
         this._triggerChange(btn, submitImmediately);
-        this._isCommitting = false;
     }
 
     /**

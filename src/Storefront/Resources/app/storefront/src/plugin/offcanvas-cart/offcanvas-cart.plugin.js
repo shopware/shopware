@@ -42,6 +42,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     init() {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this.client = new HttpClient();
+        this._lastRequestId = 0;
         this._registerOpenTriggerEvents();
     }
 
@@ -109,24 +110,17 @@ export default class OffCanvasCartPlugin extends Plugin {
         if (numberInputs) {
             numberInputs.forEach((input) => {
                 // On the form: the `QuantitySelectorPlugin` withholds events on the input.
-                const onChange = this._onChangeProductQuantity.bind(this);
                 const delayedChange = Debouncer.debounce(
-                    onChange,
+                    this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
                 );
                 input.form?.addEventListener('change', (event) => {
                     if (event.detail?.submitImmediately) {
-                        delayedChange.cancel();
-                        onChange(event);
+                        delayedChange.flush(event);
                         return;
                     }
 
                     delayedChange(event);
-                });
-
-                input.form?.addEventListener('submit', (event) => {
-                    delayedChange.cancel();
-                    this._onSubmitProductQuantity(event);
                 });
             });
         }
@@ -226,13 +220,19 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('beforeFireRequest');
 
+        const requestId = ++this._lastRequestId;
+
         fetch(requestUrl, {
             method: 'POST',
             body: data,
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
             .then(response => response.text())
-            .then(response => cb(response));
+            .then((response) => {
+                if (requestId === this._lastRequestId) {
+                    cb(response);
+                }
+            });
     }
 
     /**
@@ -267,29 +267,10 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('onChangeProductQuantity');
 
-        this._saveFocusState(select);
+        this._saveFocusState(form.contains(document.activeElement) ? document.activeElement : select);
         this._fireRequest(form, selector);
     }
 
-
-    /**
-     * Submit the change quantity form inside the Offcanvas
-     *
-     * @param {Event} event
-     *
-     * @private
-     */
-    _onSubmitProductQuantity(event) {
-        event.preventDefault();
-
-        const form = event.target;
-        const selector = this.options.cartItemSelector;
-
-        this.$emitter.publish('onChangeProductQuantity');
-
-        this._saveFocusState(form.querySelector(this.options.changeProductQuantityTriggerNumberSelector));
-        this._fireRequest(form, selector);
-    }
 
     /**
      * Submit the add form inside the Offcanvas

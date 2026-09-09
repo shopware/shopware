@@ -416,6 +416,63 @@ describe('QuantitySelectorPlugin tests', () => {
         expect(formChangeSpy).toHaveBeenCalledTimes(1);
     });
 
+    test('treats a click on the step buttons like tabbing to them', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const form = document.querySelector('form');
+        const plusBtn = document.querySelector('.js-btn-plus');
+
+        form.requestSubmit = jest.fn();
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
+        plugin.options.submitOnFinish = true;
+
+        input.focus();
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // Safari does not focus a clicked button, so the blur comes without `relatedTarget`.
+        plusBtn.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+        input.dispatchEvent(new FocusEvent('blur', { relatedTarget: null }));
+        expect(form.requestSubmit).not.toHaveBeenCalled();
+
+        plusBtn.dispatchEvent(new Event('click', { bubbles: true }));
+        jest.advanceTimersByTime(800);
+
+        expect(form.requestSubmit).toHaveBeenCalledTimes(1);
+        expect(input.value).toBe('22');
+    });
+
+    test('passes on a step made with the native spinner without waiting for blur', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const formChangeSpy = jest.fn();
+        document.querySelector('form').addEventListener('change', formChangeSpy);
+
+        // The spinner keeps the focus in the input, only the pointer tells it from an arrow key.
+        input.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+        input.focus();
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        expect(formChangeSpy).toHaveBeenCalledTimes(1);
+        expect(formChangeSpy.mock.calls[0][0].detail.submitImmediately).toBe(false);
+
+        input.blur();
+        expect(formChangeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('withholds arrow key steps again once a key follows the pointer', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const formChangeSpy = jest.fn();
+        document.querySelector('form').addEventListener('change', formChangeSpy);
+
+        input.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+        input.focus();
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        expect(formChangeSpy).not.toHaveBeenCalled();
+    });
+
     test('does not fetch on init without user interaction', () => {
         global.fetch = jest.fn();
         expect(global.fetch).not.toHaveBeenCalled();

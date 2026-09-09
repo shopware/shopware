@@ -27,6 +27,30 @@ describe('debouncer helper', () => {
         expect(callback).toHaveBeenCalledWith('current');
     });
 
+    test('cancels the leading invocation of immediate mode as well', () => {
+        const callback = jest.fn();
+        const debounced = Debouncer.debounce(callback, 800, true);
+
+        debounced('stale');
+        debounced.cancel();
+        jest.advanceTimersByTime(800);
+
+        expect(callback).not.toHaveBeenCalled();
+    });
+
+    test('flushes a pending invocation with the given arguments right away', () => {
+        const callback = jest.fn();
+        const debounced = Debouncer.debounce(callback, 800);
+
+        debounced('stale');
+        debounced.flush('current');
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith('current');
+
+        jest.advanceTimersByTime(800);
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
     test('it calls a function only once when called before timeout fired', () => {
         const spy = jest.fn();
 

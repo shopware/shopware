@@ -110,4 +110,26 @@ describe('Quantity selector form submission', () => {
         jest.advanceTimersByTime(800);
         expect(quantities).toEqual(['3', '4']);
     });
+
+    test.each(['enter', 'blur'])('does not send a value again that the delayed submission already sent, on %s', (finish) => {
+        const input = renderQuantity();
+        const form = input.form;
+        new FormAutoSubmitPlugin(form, { autoFocus: false, delayChangeEvent: 800 });
+        const submissions = [];
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            submissions.push(new FormData(form).get('quantity'));
+        });
+
+        document.querySelector('.js-btn-plus').click();
+        // An arrow key press while the step is still delayed rides along with it.
+        input.focus();
+        input.value = '3';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        jest.advanceTimersByTime(800);
+        expect(submissions).toEqual(['3']);
+
+        finishEdit(input, '3', finish);
+        expect(submissions).toEqual(['3']);
+    });
 });

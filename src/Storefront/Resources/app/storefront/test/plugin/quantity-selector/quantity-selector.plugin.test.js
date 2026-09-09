@@ -384,21 +384,28 @@ describe('QuantitySelectorPlugin tests', () => {
         expect(form.requestSubmit).toHaveBeenCalledTimes(1);
     });
 
-    test('does not submit when the focus moves on to the step buttons', () => {
+    test('passes the value on when the focus moves to the step buttons', () => {
         const input = document.querySelector('.js-quantity-selector');
         const form = document.querySelector('form');
+        const formChangeSpy = jest.fn();
 
         form.requestSubmit = jest.fn();
+        form.addEventListener('change', formChangeSpy);
         plugin.options.submitOnFinish = true;
 
         input.focus();
         input.value = 21;
         input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // Tab moves the focus from the input on to the `[+]` button next to it.
         input.dispatchEvent(new FocusEvent('blur', {
             relatedTarget: document.querySelector('.js-btn-plus'),
         }));
 
+        // Not submitted directly, so a step made next lands in the same request, but the
+        // edit must not be dropped either.
         expect(form.requestSubmit).not.toHaveBeenCalled();
+        expect(formChangeSpy).toHaveBeenCalledTimes(1);
     });
 
     test('does not fetch on init without user interaction', () => {

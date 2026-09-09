@@ -121,8 +121,10 @@ export default class QuantitySelectorPlugin extends Plugin {
      * @private
      */
     _onBlur(event) {
-        // Not leaving the control, the `[+]` and `[-]` buttons apply the value themselves.
+        // Tabbing on to the `[+]` and `[-]` buttons still applies the value, but lets a step
+        // the user makes next bundle into the same request.
         if (this.el.contains(event.relatedTarget)) {
+            this._commit();
             return;
         }
 

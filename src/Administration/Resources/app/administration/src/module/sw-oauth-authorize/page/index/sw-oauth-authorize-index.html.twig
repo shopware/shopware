@@ -1,0 +1,101 @@
+{% block sw_oauth_authorize %}
+<div class="sw-oauth-authorize">
+    <div class="sw-oauth-authorize__container">
+        <img
+            class="sw-oauth-authorize__logo"
+            :src="assetFilter('administration/administration/static/img/shopware_logo_blue.svg')"
+            :alt="$t('sw-oauth-authorize.logoAltText')"
+        >
+
+        <div class="sw-oauth-authorize__card">
+            <div
+                v-if="isLoading"
+                class="sw-oauth-authorize__loading-indicator"
+                role="status"
+                :aria-label="$t('sw-oauth-authorize.loadingLabel')"
+            >
+                <mt-loader size="24px" />
+            </div>
+
+            <div
+                v-else
+                class="sw-oauth-authorize__status"
+            >
+                <span class="sw-oauth-authorize__status-icon">
+                    <mt-icon
+                        name="solid-lock"
+                        size="24px"
+                        decorative
+                    />
+                </span>
+
+                <mt-banner
+                    v-if="errorMessage"
+                    class="sw-oauth-authorize__error"
+                    variant="critical"
+                    :show-icon="true"
+                    :closable="false"
+                >
+                    {{ errorMessage }}
+                </mt-banner>
+
+                <template v-else-if="info">
+                    <i18n-t
+                        keypath="sw-oauth-authorize.consent.title"
+                        tag="h1"
+                        class="sw-oauth-authorize__title"
+                    >
+                        <template #clientName>
+                            <strong class="sw-oauth-authorize__client-name">{{ clientName }}</strong>
+                        </template>
+                        <template #shopName>
+                            <strong class="sw-oauth-authorize__shop-name">{{ shopName }}</strong>
+                        </template>
+                    </i18n-t>
+
+                    <i18n-t
+                        keypath="sw-oauth-authorize.consent.loggedInAs"
+                        tag="p"
+                        class="sw-oauth-authorize__logged-in-as"
+                    >
+                        <template #username>
+                            <strong class="sw-oauth-authorize__username">{{ username }}</strong>
+                        </template>
+                    </i18n-t>
+
+                    <p class="sw-oauth-authorize__description">
+                        {{ $t('sw-oauth-authorize.consent.permissionHint') }}
+                    </p>
+
+                    <p class="sw-oauth-authorize__redirect-hint">
+                        {{ $t('sw-oauth-authorize.consent.redirectHint', { host: redirectHost }) }}
+                    </p>
+
+                    <div class="sw-oauth-authorize__button-container">
+                        <mt-button
+                            class="sw-oauth-authorize__deny"
+                            variant="secondary"
+                            size="default"
+                            :disabled="isSubmitting"
+                            @click="onDeny"
+                        >
+                            {{ $t('sw-oauth-authorize.consent.deny') }}
+                        </mt-button>
+
+                        <mt-button
+                            class="sw-oauth-authorize__approve"
+                            variant="primary"
+                            size="default"
+                            :disabled="isSubmitting"
+                            :is-loading="isSubmitting"
+                            @click="onApprove"
+                        >
+                            {{ $t('sw-oauth-authorize.consent.approve') }}
+                        </mt-button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

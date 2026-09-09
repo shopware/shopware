@@ -1,0 +1,22 @@
+{
+  "sw-oauth-authorize": {
+    "general": {
+      "title": "Authorize application",
+      "description": "Grant an application access to this Shopware store"
+    },
+    "consent": {
+      "title": "{clientName} wants access to {shopName}",
+      "loggedInAs": "Logged in as {username}",
+      "permissionHint": "The application will receive the same permissions as this user.",
+      "redirectHint": "You will be redirected to {host}",
+      "approve": "Approve",
+      "deny": "Deny"
+    },
+    "error": {
+      "missingParameters": "The authorization request is incomplete. Please start the authorization again from the application.",
+      "generic": "The authorization request could not be processed."
+    },
+    "logoAltText": "Shopware logo",
+    "loadingLabel": "Loading..."
+  }
+}

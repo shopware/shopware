@@ -1,0 +1,22 @@
+{
+  "sw-oauth-authorize": {
+    "general": {
+      "title": "Anwendung autorisieren",
+      "description": "Einer Anwendung Zugriff auf diesen Shopware Shop gewähren"
+    },
+    "consent": {
+      "title": "{clientName} möchte auf {shopName} zugreifen",
+      "loggedInAs": "Angemeldet als {username}",
+      "permissionHint": "Die Anwendung erhält dieselben Berechtigungen wie Du.",
+      "redirectHint": "Du wirst weitergeleitet zu {host}",
+      "approve": "Zugriff erlauben",
+      "deny": "Ablehnen"
+    },
+    "error": {
+      "missingParameters": "Die Autorisierungsanfrage ist unvollständig. Bitte starte die Autorisierung erneut aus der Anwendung.",
+      "generic": "Die Autorisierungsanfrage konnte nicht verarbeitet werden."
+    },
+    "logoAltText": "Shopware-Logo",
+    "loadingLabel": "Wird geladen ..."
+  }
+}

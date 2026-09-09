@@ -119,7 +119,14 @@ describe('src/module/sw-oauth-authorize/page/index', () => {
         expect(wrapper.get('.sw-oauth-authorize__shop-name').text()).toBe('My Shop');
         expect(wrapper.get('.sw-oauth-authorize__username').text()).toBe('admin');
         expect(wrapper.get('.sw-oauth-authorize__description').text()).toBe('sw-oauth-authorize.consent.permissionHint');
-        expect(wrapper.get('.sw-oauth-authorize__redirect-hint').text()).toBe('sw-oauth-authorize.consent.redirectHint');
+        expect(wrapper.get('.sw-oauth-authorize__permissions-title').text()).toBe(
+            'sw-oauth-authorize.consent.permissionTitle',
+        );
+        expect(wrapper.get('.sw-oauth-authorize__trust-hint').text()).toBe('sw-oauth-authorize.consent.trustHint');
+        expect(wrapper.get('.sw-oauth-authorize__redirect-hint').attributes('data-keypath')).toBe(
+            'sw-oauth-authorize.consent.redirectHint',
+        );
+        expect(wrapper.get('.sw-oauth-authorize__redirect-host').text()).toBe('127.0.0.1:53421');
         expect(wrapper.vm.redirectHost).toBe('127.0.0.1:53421');
 
         expect(wrapper.get('.sw-oauth-authorize__approve').text()).toBe('sw-oauth-authorize.consent.approve');

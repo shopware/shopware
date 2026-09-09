@@ -1,5 +1,5 @@
 {% block sw_oauth_authorize %}
-<div class="sw-oauth-authorize">
+<main class="sw-oauth-authorize">
     <div class="sw-oauth-authorize__container">
         <img
             class="sw-oauth-authorize__logo"
@@ -63,12 +63,23 @@
                         </template>
                     </i18n-t>
 
-                    <p class="sw-oauth-authorize__description">
-                        {{ $t('sw-oauth-authorize.consent.permissionHint') }}
-                    </p>
+                    <section
+                        class="sw-oauth-authorize__permissions"
+                        aria-labelledby="sw-oauth-authorize-permissions-title"
+                    >
+                        <h2
+                            id="sw-oauth-authorize-permissions-title"
+                            class="sw-oauth-authorize__permissions-title"
+                        >
+                            {{ $t('sw-oauth-authorize.consent.permissionTitle') }}
+                        </h2>
+                        <p class="sw-oauth-authorize__description">
+                            {{ $t('sw-oauth-authorize.consent.permissionHint') }}
+                        </p>
+                    </section>
 
-                    <p class="sw-oauth-authorize__redirect-hint">
-                        {{ $t('sw-oauth-authorize.consent.redirectHint', { host: redirectHost }) }}
+                    <p class="sw-oauth-authorize__trust-hint">
+                        {{ $t('sw-oauth-authorize.consent.trustHint') }}
                     </p>
 
                     <div class="sw-oauth-authorize__button-container">
@@ -93,9 +104,19 @@
                             {{ $t('sw-oauth-authorize.consent.approve') }}
                         </mt-button>
                     </div>
+
+                    <i18n-t
+                        keypath="sw-oauth-authorize.consent.redirectHint"
+                        tag="p"
+                        class="sw-oauth-authorize__redirect-hint"
+                    >
+                        <template #host>
+                            <strong class="sw-oauth-authorize__redirect-host">{{ redirectHost }}</strong>
+                        </template>
+                    </i18n-t>
                 </template>
             </div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}

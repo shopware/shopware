@@ -10,7 +10,7 @@
         flex-direction: column;
         align-items: center;
         gap: var(--scale-size-32);
-        width: 32.5rem;
+        width: 36rem;
         max-width: 100%;
 
         // Centers while keeping the top reachable when the content exceeds the viewport.
@@ -49,9 +49,9 @@
         justify-content: center;
         width: var(--scale-size-48);
         height: var(--scale-size-48);
-        border-radius: var(--border-radius-xs);
-        background: var(--color-background-tertiary-default);
-        color: var(--color-icon-primary-default);
+        border-radius: var(--border-radius-l);
+        background: var(--color-background-brand-default);
+        color: var(--color-icon-brand-default);
     }
 
     .sw-oauth-authorize__error {
@@ -62,11 +62,12 @@
 
     .sw-oauth-authorize__title {
         color: var(--color-text-primary-default);
-        font-size: var(--font-size-m);
-        line-height: var(--font-line-height-m);
+        font-size: var(--font-size-xl);
+        line-height: var(--font-line-height-xl);
         font-weight: var(--font-weight-regular);
         margin-top: var(--scale-size-24);
         margin-bottom: var(--scale-size-8);
+        overflow-wrap: anywhere;
 
         strong {
             font-weight: var(--font-weight-bold);
@@ -74,10 +75,11 @@
     }
 
     .sw-oauth-authorize__logged-in-as {
-        font-size: var(--font-size-2xs);
-        line-height: var(--font-line-height-2xs);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         color: var(--color-text-secondary-default);
         margin-bottom: var(--scale-size-24);
+        overflow-wrap: anywhere;
 
         strong {
             font-weight: var(--font-weight-medium);
@@ -85,22 +87,75 @@
         }
     }
 
-    .sw-oauth-authorize__description,
-    .sw-oauth-authorize__redirect-hint {
-        color: var(--color-text-secondary-default);
+    .sw-oauth-authorize__permissions {
+        width: 100%;
+        padding: var(--scale-size-20);
+        border: 1px solid var(--color-border-attention-default);
+        border-radius: var(--border-radius-m);
+        background: var(--color-background-attention-default);
+        color: var(--color-text-attention-default);
+        text-align: left;
+    }
+
+    .sw-oauth-authorize__permissions-title {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-semibold);
+        color: inherit;
+        margin-bottom: var(--scale-size-8);
+    }
+
+    .sw-oauth-authorize__description {
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         margin-bottom: 0;
     }
 
+    .sw-oauth-authorize__trust-hint {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        text-align: left;
+        margin-top: var(--scale-size-16);
+        margin-bottom: 0;
+    }
+
     .sw-oauth-authorize__redirect-hint {
-        margin-top: var(--scale-size-8);
+        width: 100%;
+        border-top: 1px solid var(--color-border-secondary-default);
+        padding-top: var(--scale-size-20);
+        margin-top: var(--scale-size-24);
+        margin-bottom: 0;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs);
+        overflow-wrap: anywhere;
+    }
+
+    .sw-oauth-authorize__redirect-host {
+        font-weight: var(--font-weight-medium);
     }
 
     .sw-oauth-authorize__button-container {
         display: flex;
-        justify-content: center;
+        width: 100%;
         gap: var(--scale-size-12);
         margin-top: var(--scale-size-24);
+
+        .mt-button {
+            flex: 1;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        padding: var(--scale-size-16);
+
+        .sw-oauth-authorize__card {
+            padding: var(--scale-size-24);
+        }
+
+        .sw-oauth-authorize__button-container {
+            flex-direction: column;
+        }
     }
 }

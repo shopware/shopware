@@ -7,9 +7,11 @@
     "consent": {
       "title": "{clientName} wants access to {shopName}",
       "loggedInAs": "Logged in as {username}",
-      "permissionHint": "The application will receive the same permissions as this user.",
+      "permissionTitle": "This application gets your permissions",
+      "permissionHint": "The application can access data and perform actions on your behalf with the same permissions as your user account. If you are an administrator, this includes full access to your store.",
+      "trustHint": "Only allow access if you trust this application and started this request yourself.",
       "redirectHint": "You will be redirected to {host}",
-      "approve": "Approve",
+      "approve": "Allow access",
       "deny": "Deny"
     },
     "error": {

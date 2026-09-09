@@ -7,7 +7,9 @@
     "consent": {
       "title": "{clientName} möchte auf {shopName} zugreifen",
       "loggedInAs": "Angemeldet als {username}",
-      "permissionHint": "Die Anwendung erhält dieselben Berechtigungen wie Du.",
+      "permissionTitle": "Diese Anwendung erhält Deine Berechtigungen",
+      "permissionHint": "Die Anwendung kann in Deinem Namen auf Daten zugreifen und Aktionen ausführen. Dabei hat sie dieselben Berechtigungen wie Dein Benutzerkonto. Als Administrator gewährst Du ihr damit vollständigen Zugriff auf Deinen Shop.",
+      "trustHint": "Erlaube den Zugriff nur, wenn Du dieser Anwendung vertraust und die Anfrage selbst gestartet hast.",
       "redirectHint": "Du wirst weitergeleitet zu {host}",
       "approve": "Zugriff erlauben",
       "deny": "Ablehnen"

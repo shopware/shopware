@@ -6,13 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -41,9 +44,7 @@ class YamlLayoutPresetLoaderTest extends TestCase
         $this->writePreset('text-block.yaml', ['name' => 'Text block', 'layout' => []]);
         $this->writePreset('media.yaml', ['name' => 'Media', 'layout' => []]);
 
-        $loader = new YamlLayoutPresetLoader($this->serializer(), new LayoutPresetNameResolver(), [
-            new LayoutPresetSourceDirectory('core', $this->tempDir, 'Sw'),
-        ]);
+        $loader = $this->loader([new LayoutPresetSourceDirectory('core', $this->tempDir, 'Sw')]);
 
         $ids = array_map(static fn (ContentSystemLayoutPresetSpecification $preset): string => $preset->id, $loader->load());
         sort($ids);
@@ -54,21 +55,18 @@ class YamlLayoutPresetLoaderTest extends TestCase
     #[TestDox('returns an empty array for a directory that does not exist')]
     public function testMissingDirectoryReturnsEmpty(): void
     {
-        $loader = new YamlLayoutPresetLoader($this->serializer(), new LayoutPresetNameResolver());
-
-        static::assertSame([], $loader->loadFromDirectory($this->tempDir . '/nope', 'core', 'Sw'));
+        static::assertSame([], $this->loader()->loadFromDirectory($this->tempDir . '/nope', 'core', 'Sw'));
     }
 
-    #[TestDox('reads the raw, metadata-validated presets keyed by derived id without compiling')]
-    public function testReadRawFromDirectory(): void
+    #[TestDox('loads the validated dtos keyed by derived id without compiling')]
+    public function testLoadDtosFromDirectory(): void
     {
         $this->writePreset('text-block.yaml', ['name' => 'Text block', 'layout' => []]);
 
-        $raw = (new YamlLayoutPresetLoader($this->serializer(), new LayoutPresetNameResolver()))
-            ->readRawFromDirectory($this->tempDir, 'core', 'Sw');
+        $dtos = $this->loader()->loadDtosFromDirectory($this->tempDir, 'core', 'Sw');
 
-        static::assertArrayHasKey('Sw:TextBlock', $raw);
-        static::assertSame('Text block', $raw['Sw:TextBlock']['name']);
+        static::assertArrayHasKey('Sw:TextBlock', $dtos);
+        static::assertSame('Text block', $dtos['Sw:TextBlock']->name);
     }
 
     #[TestDox('throws when a yaml and yml file in the same directory resolve to the same id')]
@@ -78,8 +76,7 @@ class YamlLayoutPresetLoaderTest extends TestCase
         $this->writePreset('text-block.yml', ['name' => 'B', 'layout' => []]);
 
         $this->expectExceptionObject(ContentSystemException::layoutPresetDuplicate('Sw:TextBlock'));
-        (new YamlLayoutPresetLoader($this->serializer(), new LayoutPresetNameResolver()))
-            ->loadFromDirectory($this->tempDir, 'core', 'Sw');
+        $this->loader()->loadFromDirectory($this->tempDir, 'core', 'Sw');
     }
 
     #[TestDox('rejects a filename that is not kebab-case')]
@@ -87,13 +84,15 @@ class YamlLayoutPresetLoaderTest extends TestCase
     {
         $this->writePreset('Not_Kebab.yaml', ['name' => 'X', 'layout' => []]);
 
-        try {
-            (new YamlLayoutPresetLoader($this->serializer(), new LayoutPresetNameResolver()))
-                ->loadFromDirectory($this->tempDir, 'core', 'Sw');
-            static::fail('Expected a ContentSystemException.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::LAYOUT_PRESET_INVALID_FILENAME, $e->getErrorCode());
-        }
+        $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESET_INVALID_FILENAME);
+    }
+
+    #[TestDox('reports a validation failure across the directory collection')]
+    public function testInvalidPresetThrows(): void
+    {
+        $this->writePreset('text-block.yaml', ['layout' => []]);
+
+        $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESETS_INVALID);
     }
 
     #[TestDox('fails hard on malformed YAML, naming the file')]
@@ -101,23 +100,36 @@ class YamlLayoutPresetLoaderTest extends TestCase
     {
         file_put_contents($this->tempDir . '/broken.yaml', "name: [unclosed\n");
 
+        $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED);
+    }
+
+    private function assertLoadFailsWith(string $errorCode): void
+    {
         try {
-            (new YamlLayoutPresetLoader($this->serializer(), new LayoutPresetNameResolver()))
-                ->loadFromDirectory($this->tempDir, 'core', 'Sw');
+            $this->loader()->loadFromDirectory($this->tempDir, 'core', 'Sw');
             static::fail('Expected a ContentSystemException.');
         } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
+            static::assertSame($errorCode, $e->getErrorCode());
         }
     }
 
-    private function serializer(): LayoutPresetSerializer
+    /**
+     * @param list<LayoutPresetSourceDirectory> $directories
+     */
+    private function loader(array $directories = []): YamlLayoutPresetLoader
     {
-        $serializer = static::createStub(LayoutPresetSerializer::class);
-        $serializer->method('denormalize')->willReturnCallback(
-            static fn (array $data, string $id): ContentSystemLayoutPresetSpecification => new ContentSystemLayoutPresetSpecification($id, (string) $data['name'], null, null, [])
+        return new YamlLayoutPresetLoader(
+            new LayoutPresetSpecificationSerializer(),
+            static::createStub(LayoutPresetPayloadCompiler::class),
+            $this->validator(),
+            new LayoutPresetNameResolver(),
+            $directories,
         );
+    }
 
-        return $serializer;
+    private function validator(): ValidatorInterface
+    {
+        return Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
     }
 
     /**
@@ -125,6 +137,6 @@ class YamlLayoutPresetLoaderTest extends TestCase
      */
     private function writePreset(string $file, array $data): void
     {
-        file_put_contents($this->tempDir . '/' . $file, Yaml::dump($data));
+        file_put_contents($this->tempDir . '/' . $file, Yaml::dump($data + ['description' => 'A preset.', 'icon' => 'regular-circle']));
     }
 }

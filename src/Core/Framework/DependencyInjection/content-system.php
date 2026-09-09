@@ -72,7 +72,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameR
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\LayoutPresetSpecificationValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -486,16 +487,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
         ]);
 
-    $services->set(LayoutPresetSerializer::class)
-        ->args([
-            service(LayoutPresetPayloadCompiler::class),
-        ]);
+    $services->set(LayoutPresetSpecificationSerializer::class);
+
+    $services->set(LayoutPresetSpecificationValidator::class)
+        ->tag('validator.constraint_validator');
 
     $services->set(LayoutPresetNameResolver::class);
 
     $services->set(YamlLayoutPresetLoader::class)
         ->args([
-            service(LayoutPresetSerializer::class),
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
             service(LayoutPresetNameResolver::class),
         ])
         ->arg('$directories', [])

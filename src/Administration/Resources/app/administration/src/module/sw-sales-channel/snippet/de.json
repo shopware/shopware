@@ -151,7 +151,7 @@
             "columnDomainCurrency": "Währung",
             "columnDomainUnitSystem": "Einheitensystem",
             "products": {
-                "titleEmptyState": "Keine weiteren Produkte gefunden",
+                "titleEmptyState": "Noch keine Produkte",
                 "titleEmptyStateTable": "Keine passenden Produkte gefunden",
                 "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
                 "columnProductName": "Produktname",

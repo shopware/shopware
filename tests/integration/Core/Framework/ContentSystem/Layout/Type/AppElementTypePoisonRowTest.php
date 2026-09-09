@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -64,7 +65,8 @@ class AppElementTypePoisonRowTest extends TestCase
             $this->registry()->all();
             static::fail('Expected the invalid active-app element type row to abort registry construction.');
         } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::ELEMENT_TYPES_INVALID, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(ContentSystemException::ELEMENT_TYPE_LOAD_FAILED, $exception->getErrorCode());
             static::assertStringContainsString('Poison', $exception->getMessage());
         }
     }

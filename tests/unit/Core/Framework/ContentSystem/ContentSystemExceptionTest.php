@@ -32,6 +32,31 @@ class ContentSystemExceptionTest extends TestCase
         static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
     }
 
+    /**
+     * @param \Closure(ConstraintViolationList): ContentSystemException $factory
+     */
+    #[DataProvider('definitionValidationFailureProvider')]
+    #[TestDox('classifies $_dataName')]
+    public function testDefinitionValidationFailureClassification(
+        \Closure $factory,
+        int $expectedStatus,
+        string $expectedErrorCode,
+    ): void {
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation('must not be blank', null, [], null, 'definitions[first].label', null),
+            new ConstraintViolation('is invalid', null, [], null, 'definitions[second].type', null),
+        ]);
+
+        $exception = $factory($violations);
+
+        static::assertSame($expectedStatus, $exception->getStatusCode());
+        static::assertSame($expectedErrorCode, $exception->getErrorCode());
+        static::assertStringContainsString(
+            'definitions[first].label: must not be blank; definitions[second].type: is invalid',
+            $exception->getMessage(),
+        );
+    }
+
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
@@ -125,6 +150,48 @@ class ContentSystemExceptionTest extends TestCase
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
         yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'), true];
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(ConstraintViolationList): ContentSystemException, int, string}>
+     */
+    public static function definitionValidationFailureProvider(): iterable
+    {
+        yield 'an element-type request validation failure as a client error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypesInvalid($violations),
+            Response::HTTP_BAD_REQUEST,
+            ContentSystemException::ELEMENT_TYPES_INVALID,
+        ];
+
+        yield 'a style-option request validation failure as a client error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionsInvalid($violations),
+            Response::HTTP_BAD_REQUEST,
+            ContentSystemException::STYLE_OPTIONS_INVALID,
+        ];
+
+        yield 'a binding request validation failure as a client error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationsInvalid($violations),
+            Response::HTTP_BAD_REQUEST,
+            ContentSystemException::BINDING_SPECIFICATIONS_INVALID,
+        ];
+
+        yield 'an element-type load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypeLoadValidationFailed($violations),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::ELEMENT_TYPE_LOAD_FAILED,
+        ];
+
+        yield 'a style-option load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionLoadValidationFailed($violations),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::STYLE_OPTION_LOAD_FAILED,
+        ];
+
+        yield 'a binding load validation failure as a server error' => [
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationLoadValidationFailed($violations),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED,
+        ];
     }
 
     /**
@@ -347,18 +414,6 @@ class ContentSystemExceptionTest extends TestCase
             'Sw:Product:Card',
         ];
 
-        yield 'element types invalid with batch violations' => [
-            ContentSystemException::elementTypesInvalid(
-                new ConstraintViolationList([
-                    new ConstraintViolation('must not be blank', null, [], null, '[Sw:Bad:A].label', null),
-                    new ConstraintViolation('too short', null, [], null, '[Sw:Bad:B].description', null),
-                ])
-            ),
-            Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__ELEMENT_TYPES_INVALID',
-            '[Sw:Bad:A].label: must not be blank; [Sw:Bad:B].description: too short',
-        ];
-
         yield 'element type invalid filename' => [
             ContentSystemException::elementTypeInvalidFilename('bad segment', 'path/to/file.yaml'),
             Response::HTTP_BAD_REQUEST,
@@ -411,17 +466,6 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__BINDING_SPECIFICATION_LOAD_FAILED',
             '/path/x.yaml',
-        ];
-
-        yield 'binding specifications invalid' => [
-            ContentSystemException::bindingSpecificationsInvalid(
-                new ConstraintViolationList([
-                    new ConstraintViolation('must not be blank', null, [], null, 'resolves[media]', null),
-                ])
-            ),
-            Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__BINDING_SPECIFICATIONS_INVALID',
-            'resolves[media]',
         ];
 
         yield 'binding specification not found' => [

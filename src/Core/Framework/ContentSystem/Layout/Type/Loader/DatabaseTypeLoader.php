@@ -87,7 +87,7 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
 
         $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection($dtos));
         if ($violations->count() > 0) {
-            throw ContentSystemException::elementTypesInvalid($violations);
+            throw ContentSystemException::elementTypeLoadValidationFailed($violations);
         }
 
         return array_map(

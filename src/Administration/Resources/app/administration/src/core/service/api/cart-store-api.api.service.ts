@@ -31,11 +31,16 @@ class CartStoreService extends ApiService {
         return mapTypes[itemType];
     }
 
-    createCart(salesChannelId: string, additionalParams = {}, additionalHeaders = {}) {
+    createCart(salesChannelId: EntityKey<'sales_channel'>, additionalParams = {}, additionalHeaders = {}) {
         return this.getCart(salesChannelId, null, additionalParams, additionalHeaders);
     }
 
-    getCart(salesChannelId: string, contextToken: string | null, additionalParams = {}, additionalHeaders = {}) {
+    getCart(
+        salesChannelId: EntityKey<'sales_channel'>,
+        contextToken: string | null,
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
         const route = `_proxy/store-api/${salesChannelId}/checkout/cart`;
         const headers = this.getBasicHeaders({ ...additionalHeaders });
         if (contextToken) {
@@ -45,7 +50,12 @@ class CartStoreService extends ApiService {
         return this.httpClient.get(route, { ...additionalParams, headers });
     }
 
-    cancelCart(salesChannelId: string, contextToken: string, additionalParams = {}, additionalHeaders = {}) {
+    cancelCart(
+        salesChannelId: EntityKey<'sales_channel'>,
+        contextToken: string,
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
         const route = `_proxy/store-api/${salesChannelId}/checkout/cart`;
         const headers = this.getBasicHeaders({
             ...additionalHeaders,
@@ -56,7 +66,7 @@ class CartStoreService extends ApiService {
     }
 
     removeLineItems(
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string,
         lineItemKeys: string[],
         additionalParams = {},
@@ -75,7 +85,7 @@ class CartStoreService extends ApiService {
         });
     }
 
-    getRouteForItem(id: string, salesChannelId: string) {
+    getRouteForItem(id: string, salesChannelId: EntityKey<'sales_channel'>) {
         return `_proxy/store-api/${salesChannelId}/checkout/cart/line-item`;
     }
 
@@ -93,7 +103,7 @@ class CartStoreService extends ApiService {
         return false;
     }
 
-    getPayloadForItem(item: LineItem, salesChannelId: string, isNewProductItem: boolean, id: string) {
+    getPayloadForItem(item: LineItem, salesChannelId: EntityKey<'sales_channel'>, isNewProductItem: boolean, id: string) {
         let dummyPrice = null;
         if (this.shouldPriceUpdated(item, isNewProductItem)) {
             dummyPrice = deepCopyObject(item.priceDefinition);
@@ -121,7 +131,7 @@ class CartStoreService extends ApiService {
     }
 
     saveLineItem(
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string,
         item: LineItem,
         additionalParams = {},
@@ -151,7 +161,7 @@ class CartStoreService extends ApiService {
     }
 
     addPromotionCode(
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string,
         code: string,
         additionalParams = {},
@@ -179,7 +189,7 @@ class CartStoreService extends ApiService {
     }
 
     modifyShippingCosts(
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string,
         shippingCosts: CalculatedPrice,
         additionalHeaders = {},
@@ -196,7 +206,7 @@ class CartStoreService extends ApiService {
 
     disableAutomaticPromotions(
         contextToken: string,
-        additionalParams: { salesChannelId: string | null } = {
+        additionalParams: { salesChannelId: EntityKey<'sales_channel'> | null } = {
             salesChannelId: null,
         },
         additionalHeaders = {},
@@ -219,7 +229,7 @@ class CartStoreService extends ApiService {
 
     enableAutomaticPromotions(
         contextToken: string,
-        additionalParams: { salesChannelId: string | null } = {
+        additionalParams: { salesChannelId: EntityKey<'sales_channel'> | null } = {
             salesChannelId: null,
         },
         additionalHeaders = {},
@@ -241,7 +251,7 @@ class CartStoreService extends ApiService {
     }
 
     addMultipleLineItems(
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string,
         items: LineItem[],
         additionalParams = {},

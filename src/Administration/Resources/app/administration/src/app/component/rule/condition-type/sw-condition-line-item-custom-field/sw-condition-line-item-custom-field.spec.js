@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -144,7 +144,6 @@ async function createWrapper(props = defaultProps, customFieldMock = defaultCust
                     'sw-context-button': true,
                     'sw-context-menu': true,
                     'sw-context-menu-item': true,
-                    'mt-floating-ui': true,
                 },
                 provide: {
                     conditionDataProviderService: new ConditionDataProviderService(),
@@ -192,7 +191,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result').attributes('tooltip-mock-message')).toBe(expected);
+        expect(new DOMWrapper(document.body).get('.sw-select-result').attributes('tooltip-mock-message')).toBe(expected);
     });
 
     it.each([
@@ -228,7 +227,9 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe('This is a very lo...');
+        expect(new DOMWrapper(document.body).get('.sw-select-result__result-item-description').text()).toBe(
+            'This is a very lo...',
+        );
     });
 
     it('should update field & reset field on change if unselected', async () => {
@@ -238,7 +239,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-result').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-result').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('checkbox');
@@ -262,7 +263,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-result').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-result').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(label);
@@ -271,12 +272,14 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-condition-operator-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const operators = wrapper.findAll('.sw-condition-operator-select .sw-select-result');
+        const operators = new DOMWrapper(document.body).findAll('.sw-select-result');
         expect(operators).toHaveLength(1);
 
-        expect(operators[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.sw-condition.operator.equals');
+        expect(operators.at(0).find('sw-highlight-text-stub').attributes('text')).toBe(
+            'global.sw-condition.operator.equals',
+        );
 
-        await operators[0].trigger('click');
+        await operators.at(0).trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-condition-operator-select .sw-single-select__selection-text').text()).toBe(
@@ -286,11 +289,11 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-form-field-renderer .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const options = wrapper.findAll('.sw-form-field-renderer .sw-select-result');
+        const options = new DOMWrapper(document.body).findAll('.sw-select-result');
         expect(options).toHaveLength(2);
 
-        expect(options[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.default.yes');
-        expect(options[1].find('sw-highlight-text-stub').attributes('text')).toBe('global.default.no');
+        expect(options.at(0).find('sw-highlight-text-stub').attributes('text')).toBe('global.default.yes');
+        expect(options.at(1).find('sw-highlight-text-stub').attributes('text')).toBe('global.default.no');
     });
 
     it('should transform custom field config & operators for text editors', async () => {
@@ -302,7 +305,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-result').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-result').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('editor');
@@ -311,15 +314,17 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-condition-operator-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const operators = wrapper.findAll('.sw-condition-operator-select .sw-select-result');
+        const operators = new DOMWrapper(document.body).findAll('.sw-select-result');
         expect(operators).toHaveLength(2);
 
-        expect(operators[0].find('sw-highlight-text-stub').attributes('text')).toBe('global.sw-condition.operator.equals');
-        expect(operators[1].find('sw-highlight-text-stub').attributes('text')).toBe(
+        expect(operators.at(0).find('sw-highlight-text-stub').attributes('text')).toBe(
+            'global.sw-condition.operator.equals',
+        );
+        expect(operators.at(1).find('sw-highlight-text-stub').attributes('text')).toBe(
             'global.sw-condition.operator.notEquals',
         );
 
-        await operators[0].trigger('click');
+        await operators.at(0).trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-condition-operator-select .sw-single-select__selection-text').text()).toBe(

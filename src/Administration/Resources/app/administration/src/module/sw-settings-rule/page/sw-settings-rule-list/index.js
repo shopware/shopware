@@ -1,6 +1,7 @@
 import './sw-settings-rule-list.scss';
 import template from './sw-settings-rule-list.html.twig';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 /**
@@ -203,7 +204,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 

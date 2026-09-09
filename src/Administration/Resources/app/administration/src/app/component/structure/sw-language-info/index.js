@@ -2,6 +2,7 @@ import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
 import { EventBus } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package framework
@@ -48,15 +49,15 @@ export default {
 
     computed: {
         languageId() {
-            return Shopware.Store.get('context').api.languageId;
+            return useContextStore().api.languageId;
         },
 
         systemLanguageId() {
-            return Shopware.Store.get('context').api.systemLanguageId;
+            return useContextStore().api.systemLanguageId;
         },
 
         language() {
-            return Shopware.Store.get('context').api.language;
+            return useContextStore().api.language;
         },
 
         languageRepository() {

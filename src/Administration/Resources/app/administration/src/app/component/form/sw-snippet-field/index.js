@@ -1,5 +1,6 @@
 import template from './sw-snippet-field.html.twig';
 import './sw-snippet-field.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const {
     Data: { Criteria },
@@ -113,7 +114,7 @@ export default {
                 return;
             }
 
-            const currentLocale = Shopware.Store.get('session').currentLocale;
+            const currentLocale = useSessionStore().currentLocale;
             let translation = this.getTranslationByLocale(currentLocale);
             if (translation) {
                 this.textValue = translation.value;

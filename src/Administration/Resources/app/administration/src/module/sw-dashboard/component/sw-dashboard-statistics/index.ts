@@ -2,6 +2,7 @@ import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 type OrderEntity = Entity<'order'>;
 
@@ -268,7 +269,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isSessionLoaded() {
-            return !Shopware.Store.get('session')?.userPending;
+            return !useSessionStore()?.userPending;
         },
 
         currencyFilter() {
@@ -361,7 +362,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const initContainer = Shopware.Application.getContainer('init');
             const httpClient = initContainer.httpClient;
-            const timezone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+            const timezone = useSessionStore().currentUser?.timeZone ?? 'UTC';
 
             return httpClient
                 .get<

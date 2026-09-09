@@ -4,6 +4,7 @@ import template from './sw-chart.html.twig';
 import './sw-chart.scss';
 import { format, object } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @sw-package framework
@@ -236,7 +237,7 @@ export default {
         },
 
         defaultLocale() {
-            const adminLocaleLanguage = Shopware.Store.get('session').adminLocaleLanguage;
+            const adminLocaleLanguage = useSessionStore().adminLocaleLanguage;
 
             if (Object.keys(apexLocales).includes(adminLocaleLanguage)) {
                 return adminLocaleLanguage;

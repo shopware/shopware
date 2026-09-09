@@ -3,6 +3,7 @@
  */
 
 import template from './sw-mail-header-footer-create.html.twig';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package after-sales
@@ -13,8 +14,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.mailHeaderFooter = this.mailHeaderFooterRepository.create(

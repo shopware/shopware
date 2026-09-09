@@ -6,6 +6,7 @@ import { zonedTimeToUtc } from 'date-fns-tz';
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @private
@@ -134,7 +135,7 @@ export default {
         },
 
         userTimeZone() {
-            return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+            return useSessionStore().currentUser?.timeZone ?? 'UTC';
         },
     },
 

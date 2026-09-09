@@ -6,6 +6,7 @@ import template from './sw-product-modal-variant-generation.html.twig';
 import VariantsGenerator from '../../../helper/sw-products-variants-generator';
 import './sw-product-modal-variant-generation.scss';
 import { Criteria } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin, Context } = Shopware;
 
@@ -102,7 +103,7 @@ export default {
         },
 
         currencies() {
-            return Shopware.Store.get('swProductDetail').currencies;
+            return useSwProductDetailStore().currencies;
         },
 
         productRepository() {

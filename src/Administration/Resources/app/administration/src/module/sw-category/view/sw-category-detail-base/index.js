@@ -1,6 +1,7 @@
 import template from './sw-category-detail-base.html.twig';
 import './sw-category-detail-base.scss';
 import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -29,7 +30,7 @@ export default {
 
     computed: {
         customFieldSetsArray() {
-            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+            return useSwCategoryDetailStore().customFieldSets ?? [];
         },
 
         ...mapPropertyErrors('category', [
@@ -92,11 +93,11 @@ export default {
         },
 
         category() {
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
 
         isCategoryColumn() {
-            return Shopware.Store.get('swCategoryDetail').isCategoryColumn;
+            return useSwCategoryDetailStore().isCategoryColumn;
         },
     },
 };

@@ -3,6 +3,7 @@
  */
 
 import template from './sw-seo-main-category.html.twig';
+import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -58,11 +59,11 @@ export default {
         },
 
         isHeadlessSalesChannel() {
-            if (Shopware.Store.get('swSeoUrl').salesChannelCollection === null) {
+            if (useSwSeoUrlStore().salesChannelCollection === null) {
                 return true;
             }
 
-            const salesChannel = Shopware.Store.get('swSeoUrl').salesChannelCollection.find((entry) => {
+            const salesChannel = useSwSeoUrlStore().salesChannelCollection.find((entry) => {
                 return entry.id === this.currentSalesChannelId;
             });
 

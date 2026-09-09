@@ -1,6 +1,7 @@
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-category-detail-custom-entity.html.twig';
 import './sw-category-detail-custom-entity.scss';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 const { Utils } = Shopware;
 const EXTENSION_POSTFIX = 'SwCategories';
@@ -53,7 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         category(): Entity<'category'> | null {
-            return Shopware.Store.get('swCategoryDetail').category as Entity<'category'> | null;
+            return useSwCategoryDetailStore().category as Entity<'category'> | null;
         },
 
         customEntityCriteria(): Criteria {

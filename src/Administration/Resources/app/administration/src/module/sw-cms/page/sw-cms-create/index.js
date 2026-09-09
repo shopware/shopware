@@ -1,5 +1,7 @@
 import template from './sw-cms-create.html.twig';
 import { EntityCollection } from 'shopware:data';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -43,10 +45,10 @@ export default {
         createdComponent() {
             this.resetRelatedStores();
 
-            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            const isSystemDefaultLanguage = useContextStore().isSystemDefaultLanguage;
             if (!isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
-                Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(isSystemDefaultLanguage);
+                useContextStore().resetLanguageToDefault();
+                useCmsPageStore().setIsSystemDefaultLanguage(isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();

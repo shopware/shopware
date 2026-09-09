@@ -1,3 +1,5 @@
+import useSessionStore from 'shopware:stores/session';
+
 /**
  * @sw-package discovery
  */
@@ -20,7 +22,7 @@ function getDomainLink(salesChannel) {
     }
 
     const adminLanguageDomain = salesChannel.domains.find((domain) => {
-        return domain.languageId === Shopware.Store.get('session').languageId;
+        return domain.languageId === useSessionStore().languageId;
     });
 
     if (adminLanguageDomain) {

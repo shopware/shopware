@@ -4,6 +4,8 @@
 
 import template from './sw-bulk-edit-modal.html.twig';
 import './sw-bulk-edit-modal.scss';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**
  * @private
@@ -94,8 +96,8 @@ export default {
             this.$emit('modal-close');
 
             if (this.itemCount > 0) {
-                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.bulkEditSelection);
-                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.bulkEditSelection);
+                useShopwareAppsStore().selectedIds = Object.keys(this.bulkEditSelection);
+                useSwBulkEditStore().selectedIds = Object.keys(this.bulkEditSelection);
                 this.$emit('edit-items');
             }
         },

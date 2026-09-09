@@ -1,6 +1,8 @@
 import template from './sw-category-view.html.twig';
 import './sw-category-view.scss';
 import errorConfig from '../../error-config.json';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
@@ -35,11 +37,11 @@ export default {
 
     computed: {
         category() {
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
 
         isCategoryColumn() {
-            return Shopware.Store.get('swCategoryDetail').isCategoryColumn;
+            return useSwCategoryDetailStore().isCategoryColumn;
         },
 
         cmsPage() {
@@ -47,7 +49,7 @@ export default {
                 return false;
             }
 
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         isPage() {

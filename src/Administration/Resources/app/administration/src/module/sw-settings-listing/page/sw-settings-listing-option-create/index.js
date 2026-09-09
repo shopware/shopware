@@ -4,6 +4,7 @@
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -35,7 +36,7 @@ export default {
         createdComponent() {
             this.fetchCustomFields().then(() => {
                 this.productSortingEntity = this.createProductSortingEntity();
-                Shopware.Store.get('context').resetLanguageToDefault();
+                useContextStore().resetLanguageToDefault();
             });
         },
 

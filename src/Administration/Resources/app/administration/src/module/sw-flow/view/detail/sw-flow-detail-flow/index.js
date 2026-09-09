@@ -1,6 +1,7 @@
 import template from './sw-flow-detail-flow.html.twig';
 import './sw-flow-detail-flow.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component, Store } = Shopware;
 const utils = Shopware.Utils;
@@ -229,7 +230,7 @@ export default {
 
         onEventChange(eventName) {
             Store.get('swFlow').setEventName(eventName);
-            Shopware.Store.get('error').removeApiError(`flow.${this.flow.id}.eventName`);
+            useErrorStore().removeApiError(`flow.${this.flow.id}.eventName`);
 
             if (!this.rootSequences.length) {
                 const sequence = this.createSequence();

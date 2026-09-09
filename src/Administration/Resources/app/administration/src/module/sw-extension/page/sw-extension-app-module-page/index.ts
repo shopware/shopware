@@ -1,6 +1,9 @@
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import template from './sw-extension-app-module-page.html.twig';
 import './sw-extension-app-module-page.scss';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
+import useSessionStore from 'shopware:stores/session';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
 const { Context } = Shopware;
 
@@ -45,7 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         currentLocale(): string | null {
-            return Shopware.Store.get('session').currentLocale;
+            return useSessionStore().currentLocale;
         },
 
         fallbackLocale(): string | null {
@@ -54,7 +57,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         appDefinition(): AppModuleDefinition | null {
             return (
-                Shopware.Store.get('shopwareApps').apps.find((app) => {
+                useShopwareAppsStore().apps.find((app) => {
                     return app.name === this.appName;
                 }) ?? null
             );
@@ -80,7 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showSmartBar(): boolean {
-            const { hiddenSmartBars } = Shopware.Store.get('extensionSdkModules');
+            const { hiddenSmartBars } = useExtensionSdkModulesStore();
 
             // The moduleName is null if the module is navigated from the extension listing page!
             if (!this.moduleName) {
@@ -96,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         appsLoaded(): boolean {
-            return Shopware.Store.get('shopwareApps').appsLoaded;
+            return useShopwareAppsStore().appsLoaded;
         },
 
         heading(): string | null {

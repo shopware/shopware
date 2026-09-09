@@ -1,6 +1,7 @@
 import template from './sw-flow-create-mail-template-modal.html.twig';
 import './sw-flow-create-mail-template-modal.scss';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -87,8 +88,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.mailTemplate = this.mailTemplateRepository.create(Shopware.Context.api, utils.createId());

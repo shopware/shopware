@@ -1,5 +1,6 @@
 import template from './sw-settings-shipping-list.html.twig';
 import './sw-settings-shipping-list.scss';
+import useContextStore from 'shopware:stores/context';
 
 const {
     Mixin,
@@ -196,7 +197,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.getList();
         },
 

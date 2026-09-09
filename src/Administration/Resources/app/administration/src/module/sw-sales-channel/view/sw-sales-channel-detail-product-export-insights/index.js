@@ -6,6 +6,7 @@ import template from './sw-sales-channel-detail-product-export-insights.html.twi
 import './sw-sales-channel-detail-product-export-insights.scss';
 import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 const DEFAULT_DATE_RANGE_OPTIONS = {
     '180Days': 180,
@@ -441,7 +442,7 @@ export default {
             }
 
             const lastKnownLocale = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
-            const userTimeZone = Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+            const userTimeZone = useSessionStore().currentUser?.timeZone ?? 'UTC';
 
             return new Intl.DateTimeFormat(lastKnownLocale, {
                 timeZone: userTimeZone,

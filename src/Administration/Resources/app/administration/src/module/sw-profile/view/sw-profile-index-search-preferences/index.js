@@ -4,6 +4,7 @@
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 import { EventBus } from 'shopware:utils';
+import useSwProfileStore from 'shopware:stores/swProfile';
 
 const { Module, Store, Mixin } = Shopware;
 
@@ -128,7 +129,7 @@ export default {
 
             try {
                 const minSearchTermLength = await this.searchRankingService.getMinSearchTermLength();
-                Shopware.Store.get('swProfile').setMinSearchTermLength(minSearchTermLength);
+                useSwProfileStore().setMinSearchTermLength(minSearchTermLength);
             } catch (error) {
                 this.createNotificationError({ message: error.message });
             } finally {

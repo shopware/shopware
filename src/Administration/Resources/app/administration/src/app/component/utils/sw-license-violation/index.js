@@ -6,6 +6,7 @@ import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 import { Criteria } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
+import useLicenseViolationStore from 'shopware:stores/licenseViolation';
 
 /**
  * @private
@@ -37,11 +38,11 @@ export default {
 
     computed: {
         violations() {
-            return Shopware.Store.get('licenseViolation').violations;
+            return useLicenseViolationStore().violations;
         },
 
         warnings() {
-            return Shopware.Store.get('licenseViolation').warnings;
+            return useLicenseViolationStore().warnings;
         },
 
         visible() {
@@ -97,7 +98,7 @@ export default {
             return this.licenseViolationService
                 .checkForLicenseViolations()
                 .then(({ violations, warnings, other }) => {
-                    const licenseViolationStore = Shopware.Store.get('licenseViolation');
+                    const licenseViolationStore = useLicenseViolationStore();
                     const updateViolationStore = (currentViolations) => {
                         licenseViolationStore.violations = currentViolations;
                         licenseViolationStore.warnings = warnings;
@@ -190,7 +191,7 @@ export default {
             if (!matchingPlugin) {
                 this.licenseViolationService.resetLicenseViolations();
 
-                const licenseViolationStore = Shopware.Store.get('licenseViolation');
+                const licenseViolationStore = useLicenseViolationStore();
                 licenseViolationStore.violations = licenseViolationStore.violations.filter(
                     (item) => item.name !== violation.name,
                 );

@@ -4,6 +4,7 @@
 import './sw-promotion-v2-cart-condition-form.scss';
 import template from './sw-promotion-v2-cart-condition-form.html.twig';
 import { Criteria } from 'shopware:data';
+import useSwPromotionDetailStore from 'shopware:stores/swPromotionDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -149,9 +150,9 @@ export default {
 
         deleteSetGroup(group) {
             // add to delete list for the save process
-            const deleteIds = Shopware.Store.get('swPromotionDetail').setGroupIdsDelete;
+            const deleteIds = useSwPromotionDetailStore().setGroupIdsDelete;
             deleteIds.push(group.id);
-            Shopware.Store.get('swPromotionDetail').setGroupIdsDelete = deleteIds;
+            useSwPromotionDetailStore().setGroupIdsDelete = deleteIds;
 
             // remove also from entity for the view rendering
             this.promotion.setgroups = this.promotion.setgroups.filter((setGroup) => {

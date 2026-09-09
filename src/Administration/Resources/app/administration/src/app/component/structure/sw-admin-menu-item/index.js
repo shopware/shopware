@@ -3,6 +3,7 @@ import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu-item.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from './menu-item-active.helper';
 import './sw-admin-menu-item.scss';
+import useAdminMenuStore from 'shopware:stores/adminMenu';
 
 /**
  *
@@ -216,7 +217,7 @@ export default {
                     return false;
                 }
 
-                const hasExpandedBranches = Shopware.Store.get('adminMenu').expandedEntries.length > 0;
+                const hasExpandedBranches = useAdminMenuStore().expandedEntries.length > 0;
 
                 return hasExpandedBranches ? this.isExpanded : this.isExpanded || this.routeKeepsFolderOpen;
             }

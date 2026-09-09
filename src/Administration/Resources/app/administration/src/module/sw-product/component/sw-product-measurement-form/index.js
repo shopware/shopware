@@ -3,6 +3,7 @@
  */
 import template from './sw-product-measurement-form.html.twig';
 import './sw-product-measurement-form.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin, Utils } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -24,19 +25,19 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         lengthUnit() {
-            return Shopware.Store.get('swProductDetail').lengthUnit;
+            return useSwProductDetailStore().lengthUnit;
         },
 
         weightUnit() {
-            return Shopware.Store.get('swProductDetail').weightUnit;
+            return useSwProductDetailStore().weightUnit;
         },
 
         ...mapPropertyErrors('product', [
@@ -64,7 +65,7 @@ export default {
                 this.convertHeight(unit);
             }
 
-            Shopware.Store.get('swProductDetail').setLengthUnit(unit);
+            useSwProductDetailStore().setLengthUnit(unit);
         },
 
         convertWidth(unit) {
@@ -92,7 +93,7 @@ export default {
         },
 
         onUpdateWeightUnit(unit) {
-            Shopware.Store.get('swProductDetail').setWeightUnit(unit);
+            useSwProductDetailStore().setWeightUnit(unit);
         },
     },
 };

@@ -2,6 +2,7 @@ import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria, EntityCollection } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component, Mixin, Context, Store, Utils, Service } = Shopware;
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
@@ -594,7 +595,7 @@ export default {
                 // get support information for generate document action.
                 promises.push(
                     this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').documentTypes = data;
+                        useSwFlowStore().documentTypes = data;
                     }),
                 );
             }
@@ -607,7 +608,7 @@ export default {
                 // get support information for mail send action.
                 promises.push(
                     this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').mailTemplates = data;
+                        useSwFlowStore().mailTemplates = data;
                     }),
                 );
             }
@@ -620,7 +621,7 @@ export default {
                 // get support information for change customer group action.
                 promises.push(
                     this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').customerGroups = data;
+                        useSwFlowStore().customerGroups = data;
                     }),
                 );
             }
@@ -637,13 +638,13 @@ export default {
             if (hasSetCustomFieldAction) {
                 promises.push(
                     this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').customFieldSets = data;
+                        useSwFlowStore().customFieldSets = data;
                     }),
                 );
 
                 promises.push(
                     this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').customFields = data;
+                        useSwFlowStore().customFields = data;
                     }),
                 );
             }

@@ -4,6 +4,7 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin, Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -387,7 +388,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.resetList();
         },
 

@@ -6,6 +6,7 @@ import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 import { string } from 'shopware:utils';
 import { EntityCollection } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -131,7 +132,7 @@ export default {
         },
 
         defaultsValueError() {
-            return Shopware.Store.get('error').getApiError(this.salesChannel, this.defaultPropertyName);
+            return useErrorStore().getApiError(this.salesChannel, this.defaultPropertyName);
         },
 
         labelProperty() {

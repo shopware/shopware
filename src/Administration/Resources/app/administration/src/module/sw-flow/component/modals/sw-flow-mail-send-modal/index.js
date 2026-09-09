@@ -2,6 +2,7 @@ import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
 import { debounce } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Component,
@@ -486,7 +487,7 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.Store.get('swFlow').mailTemplates = [
+                useSwFlowStore().mailTemplates = [
                     ...this.mailTemplates,
                     mailTemplate,
                 ];

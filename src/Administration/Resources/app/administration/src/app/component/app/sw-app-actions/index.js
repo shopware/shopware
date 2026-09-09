@@ -5,6 +5,8 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 import { hasOwnProperty } from 'shopware:utils/object';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
 const { Mixin } = Shopware;
 const actionTypeConstants = Object.freeze({
@@ -83,11 +85,11 @@ export default {
         },
 
         params() {
-            return Shopware.Store.get('shopwareApps').selectedIds;
+            return useShopwareAppsStore().selectedIds;
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },

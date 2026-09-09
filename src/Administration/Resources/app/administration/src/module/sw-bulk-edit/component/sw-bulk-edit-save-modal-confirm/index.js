@@ -3,6 +3,7 @@
  */
 import template from './sw-bulk-edit-save-modal-confirm.html.twig';
 import './sw-bulk-edit-save-modal-confirm.scss';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -51,10 +52,10 @@ export default {
     computed: {
         isFlowTriggered: {
             get() {
-                return Shopware.Store.get('swBulkEdit').isFlowTriggered;
+                return useSwBulkEditStore().isFlowTriggered;
             },
             set(isFlowTriggered) {
-                Shopware.Store.get('swBulkEdit').setIsFlowTriggered(isFlowTriggered);
+                useSwBulkEditStore().setIsFlowTriggered(isFlowTriggered);
             },
         },
 

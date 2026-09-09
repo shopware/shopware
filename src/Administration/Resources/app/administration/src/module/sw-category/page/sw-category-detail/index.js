@@ -3,6 +3,11 @@ import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 import { isArray, isEmpty, isEqual } from 'shopware:utils/types';
 import { ChangesetGenerator, Criteria, EntityCollection } from 'shopware:data';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useErrorStore from 'shopware:stores/error';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
 const { Context, Mixin } = Shopware;
 /**
@@ -99,19 +104,19 @@ export default {
         },
 
         landingPage() {
-            if (!Shopware.Store.get('swCategoryDetail')) {
+            if (!useSwCategoryDetailStore()) {
                 return {};
             }
 
-            return Shopware.Store.get('swCategoryDetail').landingPage;
+            return useSwCategoryDetailStore().landingPage;
         },
 
         category() {
-            if (!Shopware.Store.get('swCategoryDetail')) {
+            if (!useSwCategoryDetailStore()) {
                 return {};
             }
 
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
 
         showEntryPointOverwriteModal() {
@@ -119,11 +124,11 @@ export default {
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
 
         cmsPageId() {
@@ -263,7 +268,7 @@ export default {
     },
 
     beforeCreate() {
-        Shopware.Store.get('cmsPage').resetCmsPageState();
+        useCmsPageStore().resetCmsPageState();
     },
 
     created() {
@@ -273,14 +278,14 @@ export default {
     beforeRouteLeave(to, from, next) {
         if (this.forceDiscardChanges) {
             this.forceDiscardChanges = false;
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
         }
 
         if (!this.category) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
@@ -292,7 +297,7 @@ export default {
          */
         const { changes, deletionQueue } = this.changesetGenerator.generate(this.category);
         if (changes === null) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
@@ -316,14 +321,14 @@ export default {
             changes.cmsPageId === null &&
             !hasDeletions
         ) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
         }
 
         if (changedKeys.length === 0 && !hasDeletions) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
+            useShopwareAppsStore().selectedIds = [];
             next();
 
             return;
@@ -463,18 +468,18 @@ export default {
 
             try {
                 if (this.landingPageId === null) {
-                    Shopware.Store.get('shopwareApps').selectedIds = [];
+                    useShopwareAppsStore().selectedIds = [];
 
-                    Shopware.Store.get('swCategoryDetail').landingPage = null;
+                    useSwCategoryDetailStore().landingPage = null;
                     this.cmsPageState.resetCmsPageState();
 
                     return;
                 }
 
-                Shopware.Store.get('shopwareApps').selectedIds = [
+                useShopwareAppsStore().selectedIds = [
                     this.landingPageId,
                 ];
-                await Shopware.Store.get('swCategoryDetail').loadActiveLandingPage({
+                await useSwCategoryDetailStore().loadActiveLandingPage({
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
                     id: this.landingPageId,
@@ -498,18 +503,18 @@ export default {
             this.isLoading = true;
 
             if (this.categoryId === null) {
-                Shopware.Store.get('shopwareApps').selectedIds = [];
+                useShopwareAppsStore().selectedIds = [];
 
-                Shopware.Store.get('swCategoryDetail').category = null;
+                useSwCategoryDetailStore().category = null;
                 this.cmsPageState.resetCmsPageState();
                 this.isLoading = false;
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [
+            useShopwareAppsStore().selectedIds = [
                 this.categoryId,
             ];
-            Shopware.Store.get('swCategoryDetail')
+            useSwCategoryDetailStore()
                 .loadActiveCategory({
                     repository: this.categoryRepository,
                     apiContext: Shopware.Context.api,
@@ -533,7 +538,7 @@ export default {
             return this.customFieldSetRepository
                 .search(this.customFieldSetCriteria)
                 .then((customFieldSet) => {
-                    Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
+                    useSwCategoryDetailStore().customFieldSets = customFieldSet;
                 })
                 .finally(() => {
                     this.isCustomFieldLoading = true;
@@ -546,7 +551,7 @@ export default {
             return this.customFieldSetRepository
                 .search(this.customFieldSetLandingPageCriteria)
                 .then((customFieldSet) => {
-                    Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
+                    useSwCategoryDetailStore().customFieldSets = customFieldSet;
                 })
                 .finally(() => {
                     this.isCustomFieldLoading = true;
@@ -569,7 +574,7 @@ export default {
 
         onLeaveModalConfirm(destination) {
             // Discard all category related errors that may have occurred
-            Shopware.Store.get('error').removeApiError('category');
+            useErrorStore().removeApiError('category');
 
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
@@ -753,7 +758,7 @@ export default {
                 status: '400',
             });
 
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: `landing_page.${this.landingPage.id}.salesChannels`,
                 error: shopwareError,
             });
@@ -867,7 +872,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+            const seoUrls = useSwSeoUrlStore().newOrModifiedUrls;
 
             return Promise.all(
                 seoUrls.map((seoUrl) => {
@@ -907,11 +912,11 @@ export default {
         },
 
         onLandingPageDelete() {
-            Shopware.Store.get('swCategoryDetail').landingPagesToDelete = null;
+            useSwCategoryDetailStore().landingPagesToDelete = null;
         },
 
         onCategoryDelete() {
-            Shopware.Store.get('swCategoryDetail').categoriesToDelete = null;
+            useSwCategoryDetailStore().categoriesToDelete = null;
         },
     },
 };

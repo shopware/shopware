@@ -3,6 +3,7 @@ import './sw-cms-reset-inheritance.scss';
 import { types } from 'shopware:utils';
 import { merge, set } from 'shopware:utils/object';
 import cmsStateMixin from 'shopware:mixins/cms-state';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private
@@ -20,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
     computed: {
         cmsPageStore() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
         hasOverrides() {
             return !types.isEmpty(this.contentEntity?.slotConfig);

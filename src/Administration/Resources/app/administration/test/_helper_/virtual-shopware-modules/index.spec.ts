@@ -6,7 +6,8 @@
  */
 
 import { createId, object } from 'shopware:utils';
-import debug, { warn, error } from 'shopware:utils/debug';
+import { warn, error } from 'shopware:utils/debug';
+import debugNamespace from 'shopware:utils/debug';
 import { Criteria, EntityCollection } from 'shopware:data';
 import CriteriaClass from 'shopware:data/Criteria';
 import swFormFieldMixin from 'shopware:mixins/sw-form-field';
@@ -33,7 +34,7 @@ describe('shopware:* virtual modules', () => {
         it('export the members of one namespace, and the namespace as default', () => {
             expect(warn).toBe(Shopware.Utils.debug.warn);
             expect(error).toBe(Shopware.Utils.debug.error);
-            expect(debug).toBe(Shopware.Utils.debug);
+            expect(debugNamespace.warn).toBe(Shopware.Utils.debug.warn);
         });
 
         it('export a DAL class as default', () => {

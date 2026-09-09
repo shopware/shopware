@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -414,12 +413,12 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
-            $referrerCategoryId = $this->getReferrerCategoryId($request);
+        // not gated behind BREADCRUMB_REWORK: `seoBreadcrumb` is generally available, so the parameter that steers it
+        // has to be as well, otherwise the documented contract silently does nothing on a default installation
+        $referrerCategoryId = $this->getReferrerCategoryId($request);
 
-            if ($referrerCategoryId !== null) {
-                return $this->breadcrumbBuilder->getProductCategoryByReferrer($referrerCategoryId, $product, $context);
-            }
+        if ($referrerCategoryId !== null) {
+            return $this->breadcrumbBuilder->getProductCategoryByReferrer($referrerCategoryId, $product, $context);
         }
 
         return $this->breadcrumbBuilder->getProductSeoCategory($product, $context);

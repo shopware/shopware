@@ -715,11 +715,11 @@ class ProductDetailRouteTest extends TestCase
             $request->query->set(ProductDetailRoute::REFERRER_CATEGORY_ID, $referrerCategoryId);
         }
 
-        $route = $this->buildRoute($productRepository, breadcrumbBuilder: $breadcrumbBuilder);
-
+        // deliberately without BREADCRUMB_REWORK: the parameter is part of the generally available contract
         $result = Feature::fake(
-            ['BREADCRUMB_REWORK'],
-            fn (): ProductDetailRouteResponse => $route->load('1', $request, $this->context, new Criteria())
+            [],
+            fn (): ProductDetailRouteResponse => $this->buildRoute($productRepository, breadcrumbBuilder: $breadcrumbBuilder)
+                ->load('1', $request, $this->context, new Criteria())
         );
 
         static::assertSame($breadcrumbCategory, $result->getProduct()->getSeoCategory());
@@ -934,7 +934,7 @@ class ProductDetailRouteTest extends TestCase
         $route = $this->buildBreadcrumbRoute($breadcrumbBuilder);
 
         $result = Feature::fake(
-            ['BREADCRUMB_REWORK'],
+            [],
             fn (): ProductDetailRouteResponse => $route->load('1', $request, $this->context, new Criteria())
         );
 

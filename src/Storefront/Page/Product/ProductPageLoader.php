@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -57,6 +58,7 @@ class ProductPageLoader
         private readonly AbstractProductDetailRoute $productDetailRoute,
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
 
@@ -87,12 +89,12 @@ class ProductPageLoader
 
         $this->eventDispatcher->dispatch(new ProductPageCriteriaEvent($productId, $criteria, $context));
 
-        $request->attributes->set(
-            ProductDetailRoute::SKIP_BREADCRUMB,
-            !Feature::isActive('BREADCRUMB_REWORK') && !Feature::isActive('v6.8.0.0')
-        );
+        // the storefront builds the breadcrumb itself below, so the route must not resolve it a second time
+        $request->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
 
         if (!$this->systemConfigService->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
+            // the route honours the parameter whenever a client sends it, so a link that still carries it must not
+            // bring referrer breadcrumbs back into a shop where the merchant disabled them
             $request->attributes->set(ProductDetailRoute::REFERRER_CATEGORY_ID, null);
         }
 
@@ -117,7 +119,7 @@ class ProductPageLoader
             $request->request->set('navigationId', $category->getId());
 
             if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
-                $page->setBreadcrumb($product->getSeoBreadcrumb());
+                $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
             }
         }
 

@@ -269,13 +269,13 @@ Pass `skipBreadcrumb=1` to skip loading it; the breadcrumb costs two additional 
 GET /store-api/product/{productId}?skipBreadcrumb=1
 ```
 
-The `translated` object of a breadcrumb entry is now limited to `linkType`, `internalLink`, `externalLink`, `linkNewTab`, `description`, `metaTitle`, `metaDescription` and `keywords`. `slotConfig` and `customFields` are no longer part of it, on this field and on `GET /store-api/breadcrumb/{id}`: a breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` and `store_api_aware` filters that a `category` payload gets, and both keys could otherwise expose data withheld from the Store API. Read them from the `category` payload instead.
+`slotConfig` is no longer part of the `translated` object of a breadcrumb entry, on this field and on `GET /store-api/breadcrumb/{id}`. A breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` filter that a `category` payload gets, and `slotConfig` is not `ApiAware` on the category definition — it was never part of the Store API contract. Read it from the `category` payload instead. Every other translated field, `customFields` included, is unchanged.
 
 `GET /store-api/breadcrumb/{id}` stays available, for example to load a breadcrumb from a listing without loading the full product.
 
 ### Product breadcrumb accepts `referrerCategoryId` and resolves one deterministic path
 
-`GET|POST /store-api/product/{productId}` now honours the `referrerCategoryId` parameter whenever it is sent, and builds the breadcrumb along that category instead of the product's SEO category. Previously the parameter was silently ignored unless the shop setting `core.listing.buildBreadcrumbByReferrerCategory` was enabled, which made the route disagree with `GET /store-api/breadcrumb/{id}`; both now behave the same. The parameter is read from the query string and from the request body, and is ignored when the category is not part of the product's category tree or is not reachable in the sales channel.
+`GET|POST /store-api/product/{productId}` now honours the `referrerCategoryId` parameter whenever it is sent, and builds the breadcrumb along that category instead of the product's SEO category. Previously the parameter was silently ignored unless both the `BREADCRUMB_REWORK` feature flag and the shop setting `core.listing.buildBreadcrumbByReferrerCategory` were enabled, which made the route disagree with `GET /store-api/breadcrumb/{id}`; both now behave the same, and neither requires the feature flag. The parameter is read from the query string and from the request body, and is ignored when the category is not part of the product's category tree or is not reachable in the sales channel.
 
 The Storefront is unaffected: it keeps honouring the setting, and when the setting is off it now tells the route to ignore the parameter, so a link that still carries `referrerCategoryId` — an old bookmark, or a URL indexed while the setting was enabled — cannot bring referrer breadcrumbs back into a shop that disabled them.
 

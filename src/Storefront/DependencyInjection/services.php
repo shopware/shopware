@@ -538,6 +538,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDetailRoute::class),
             service('product_review.repository'),
             service(SystemConfigService::class),
+            service(CategoryBreadcrumbBuilder::class),
         ]);
 
     $services->set(MinimalQuickViewPageLoader::class)

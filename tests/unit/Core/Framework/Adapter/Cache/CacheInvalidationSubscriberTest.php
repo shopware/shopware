@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -338,6 +339,74 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->with([CategoryRoute::buildName($categoryId)]);
 
         $this->createSubscriber()->invalidateCategoryRouteByCategoryTranslationChanges($event);
+    }
+
+    public function testInvalidateCategoryRouteBySeoUrlChanges(): void
+    {
+        $seoUrlId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$categoryId]);
+
+        $this->cacheInvalidator
+            ->expects($this->once())
+            ->method('invalidate')
+            ->with([CategoryRoute::buildName($categoryId)]);
+
+        $this->createSubscriber()->invalidateCategoryRouteBySeoUrlChanges(
+            $this->createSeoUrlWrittenEvent([$seoUrlId], $context)
+        );
+    }
+
+    public function testDoesNotInvalidateCategoryRouteWhenNoSeoUrlWasWritten(): void
+    {
+        $context = Context::createDefaultContext();
+
+        // bailing out before the query matters: this listener runs on every entity write
+        $this->connection->expects($this->never())->method('fetchFirstColumn');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryTranslationDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            ['categoryId' => Uuid::randomHex(), 'languageId' => Uuid::randomHex()],
+                            ['name' => 'new name'],
+                            CategoryTranslationDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    $context,
+                ),
+            ]),
+            [],
+        );
+
+        $this->createSubscriber()->invalidateCategoryRouteBySeoUrlChanges($event);
+    }
+
+    public function testDoesNotInvalidateCategoryRouteForSeoUrlsOfOtherEntities(): void
+    {
+        $context = Context::createDefaultContext();
+
+        // the join against `category` yields nothing for a product seo url
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $this->createSubscriber()->invalidateCategoryRouteBySeoUrlChanges(
+            $this->createSeoUrlWrittenEvent([Uuid::randomHex()], $context)
+        );
     }
 
     public function testDoesNotInvalidateCategoryRouteForOtherCategoryTranslationChanges(): void
@@ -799,6 +868,30 @@ class CacheInvalidationSubscriberTest extends TestCase
                     ],
                     Context::createDefaultContext(),
                 ),
+            ]),
+            [],
+        );
+    }
+
+    /**
+     * @param list<string> $seoUrlIds
+     */
+    private function createSeoUrlWrittenEvent(array $seoUrlIds, Context $context): EntityWrittenContainerEvent
+    {
+        $writeResults = array_map(
+            static fn (string $id) => new EntityWriteResult(
+                $id,
+                ['seoPathInfo' => 'new-path/'],
+                SeoUrlDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_UPDATE,
+            ),
+            $seoUrlIds
+        );
+
+        return new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(SeoUrlDefinition::ENTITY_NAME, $writeResults, $context),
             ]),
             [],
         );

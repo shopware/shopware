@@ -330,6 +330,8 @@ class CategoryBreadcrumbBuilder
             $translated[$field] = $category->getTranslation($field);
         }
 
+        $translated['customFields'] = $category->getTranslation('customFields');
+
         return $translated;
     }
 

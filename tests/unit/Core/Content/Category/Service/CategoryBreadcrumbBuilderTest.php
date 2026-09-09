@@ -283,7 +283,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertCount(1, $firstBreadcrumb->seoUrls);
     }
 
-    public function testConvertCategoriesToBreadcrumbUrlsOnlyExposesSafeTranslatedFields(): void
+    public function testConvertCategoriesToBreadcrumbUrlsKeepsSlotConfigOutOfThePayload(): void
     {
         $categoryEntity = $this->createNewCategoryEntity(
             '019192b9cd82711482744d7b456b6c01',
@@ -293,8 +293,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 'breadcrumb' => ['019192b9cd82711482744d7b456b6c01' => 'Home 2'],
                 // not `ApiAware` on the category definition
                 'slotConfig' => ['content' => ['field' => ['value' => 'secret']]],
-                // filtered per field in a category payload, which a plain struct cannot do
-                'customFields' => ['internal_note' => 'secret'],
+                'customFields' => ['note' => 'value'],
                 'metaTitle' => 'Meta title',
                 'linkNewTab' => true,
             ]
@@ -318,11 +317,13 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         static::assertNotNull($breadcrumb);
         static::assertArrayNotHasKey('slotConfig', $breadcrumb->translated);
-        static::assertArrayNotHasKey('customFields', $breadcrumb->translated);
         static::assertArrayNotHasKey('name', $breadcrumb->translated);
         static::assertArrayNotHasKey('breadcrumb', $breadcrumb->translated);
         static::assertSame('Meta title', $breadcrumb->translated['metaTitle']);
         static::assertTrue($breadcrumb->translated['linkNewTab']);
+
+        // `customFields` is `ApiAware`, so it stays part of the payload
+        static::assertSame(['note' => 'value'], $breadcrumb->translated['customFields']);
     }
 
     public function testConvertCategoriesToBreadcrumbUrlsWithSeoUrlsOnlyPathInfo(): void

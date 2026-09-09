@@ -7,6 +7,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { globSync } from 'glob';
 import {
     VIRTUAL_MODULES,
     VIRTUAL_MODULE_SPECIFIERS,
@@ -148,6 +149,39 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             const declared = readSourceKeys('shopware:mixins', administrationRoot);
 
             expect(declared.filter((mixinName) => !registrations.includes(`'${mixinName}'`))).toEqual([]);
+        });
+    });
+
+    describe('shopware:stores', () => {
+        /**
+         * `PiniaRootState` is the export list, so a key that no store registers under becomes an export
+         * whose `Shopware.Store.get()` throws when called. The interface was type-only before, where a
+         * wrong key only meant a wrong type.
+         */
+        it('publishes only stores that a store file registers', () => {
+            const registrations = globSync(
+                [
+                    'src/**/*.store.{ts,js}',
+                    'src/**/store.{ts,js}',
+                ],
+                {
+                    cwd: administrationRoot,
+                    absolute: true,
+                    ignore: [
+                        '**/*.spec.{ts,js}',
+                        '**/*.spec/**',
+                    ],
+                },
+            )
+                .map((file) => fs.readFileSync(file, 'utf8'))
+                .join('\n');
+
+            // A broken walk must fail loudly rather than vacuously pass.
+            expect(registrations).toContain('Store.register(');
+
+            const declared = readSourceKeys('shopware:stores', administrationRoot);
+
+            expect(declared.filter((storeId) => !registrations.includes(`'${storeId}'`))).toEqual([]);
         });
     });
 

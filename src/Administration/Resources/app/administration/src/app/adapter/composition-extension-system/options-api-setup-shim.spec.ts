@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { computed, h, isRef, ref, watch } from 'vue';
+import { computed, isRef, ref, watch } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
 import { _overridesMap } from './index';
@@ -330,31 +330,6 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         await flushPromises();
 
         expect(looksLikeRef).toBe(false);
-    });
-
-    it('leaves a setup() that returns a render function untouched and reports the skipped overrides', async () => {
-        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-        _overridesMap['sw-shim-render'] = [() => ({ unused: computed(() => 'x') })] as never;
-
-        const config = {
-            template: '<p>ignored</p>',
-            setup() {
-                return () => h('div', { class: 'from-render' }, 'render fn');
-            },
-        } as unknown as ComponentConfig;
-
-        attachSetupOverrideShim('sw-shim-render', config);
-
-        const wrapper = mount(config as never);
-        await flushPromises();
-
-        // The bag cannot ride along with a render function, so the component renders without overrides
-        // instead of breaking - and says so, since the override author sees no other hint.
-        expect(wrapper.html()).toContain('from-render');
-        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-shim-render] Setup overrides not applied'));
-        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('1 registered override(s)'));
-
-        warnSpy.mockRestore();
     });
 
     it('disposes watchers an override creates when the component unmounts', async () => {

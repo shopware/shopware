@@ -64,12 +64,23 @@ need an update either.
 
 ## Constraints
 
-**Stores resolve per call, mixins resolve on import.** `useSwOrderDetailStore()` looks its store up when
+**`shopware:mixins` is not usable during boot.** `useSwOrderDetailStore()` looks its store up when
 called, so a store only has to be registered by the time it is used. A mixin is a value, so importing
-`shopware:mixins` resolves the mixins in that module. In a production build only the mixins that are
-actually imported survive tree shaking; the development server serves the module unbundled and resolves
-all of them. A mixin declared in `MixinContainer` therefore has to be registered during boot, which is
-guarded by a test.
+`shopware:mixins` resolves every mixin the module publishes. A production build tree-shakes the ones
+nobody imported; the development server serves the module unbundled and resolves all of them.
+
+Module-level mixins are registered by the `src/module/*/index.ts` files as they load, so any importer
+that runs while that is still in progress sees a mixin that is not there yet. That is reachable today,
+from a mixin file that imports the module:
+
+```
+Error: The mixin "cart-notification" is not registered.
+    at Object.getByName (src/core/factory/mixin.factory.ts:35:11)
+    at @id/__x00__shopware:mixins:19:67
+```
+
+Import a mixin from a component, which loads after boot. `Shopware.Mixin.getByName()` stays the way to
+reach one from anything that runs earlier.
 
 **Not usable before the global exists.** `src/index.ts` assigns `window.Shopware` before it imports
 `src/app/main`, so application and extension code is always past that point. Code that runs earlier -

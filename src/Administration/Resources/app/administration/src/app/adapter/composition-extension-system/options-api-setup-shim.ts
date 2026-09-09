@@ -44,7 +44,12 @@ export function attachSetupOverrideShim(componentName: string, config: Component
 
         // A setup() returning a render function cannot carry the bag. Leave it untouched; the created
         // hook then finds no bag and bails out, so the component keeps working without the overrides.
+        // Reported, because from the override author's side nothing else hints at why it has no effect.
         if (typeof originalResult === 'function') {
+            console.warn(
+                `[${componentName}] Setup overrides not applied: setup() returns a render function, which leaves no place for override results. Return an object from setup() to make the ${_overridesMap[componentName].length} registered override(s) take effect.`,
+            );
+
             return originalResult;
         }
 

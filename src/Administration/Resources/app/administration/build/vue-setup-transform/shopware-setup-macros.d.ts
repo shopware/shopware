@@ -12,6 +12,11 @@ declare global {
      * bindings are public and may be replaced by component overrides. The macro
      * is removed by the Shopware setup transform and is never called at runtime.
      *
+     * The same entries become the component's parent-facing surface: the
+     * transform generates the `defineExpose()` call from them, so a parent
+     * holding a template ref reads and writes exactly these bindings, next to
+     * the component's own props. Writing `defineExpose()` by hand is rejected.
+     *
      * This macro is rejected in override components. Overrides must use
      * `swDefineOverride()` to declare replacement bindings instead.
      */

@@ -2,18 +2,15 @@
 
 namespace Shopware\Core\Content\Sitemap\Exception;
 
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.8.0 - Will be removed, it is no longer thrown. Catch SitemapAlreadyLockedException instead.
- *
  * @codeCoverageIgnore
  */
 #[Package('discovery')]
-class AlreadyLockedException extends ShopwareHttpException
 class AlreadyLockedException extends SitemapException
 {
     public function __construct(SalesChannelContext $salesChannelContext)

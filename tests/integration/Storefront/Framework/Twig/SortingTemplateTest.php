@@ -29,6 +29,7 @@ class SortingTemplateTest extends TestCase
         ]));
 
         static::assertStringContainsString('<option value="score">Label configured in the administration</option>', $output);
+        static::assertStringNotContainsString('Top results', $output);
     }
 
     public function testConfigurableSortingKeepsItsTranslatedLabel(): void

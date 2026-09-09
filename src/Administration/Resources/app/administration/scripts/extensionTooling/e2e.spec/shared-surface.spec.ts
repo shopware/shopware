@@ -108,14 +108,16 @@ describe('extension tooling shared type surface (e2e)', () => {
                 writeMinimalPlugin(projectRoot);
                 writeFile(path.join(projectRoot, 'custom/plugins/Plug/src/Resources/app/administration/src/main.ts'), [
                     "import { createId } from 'shopware:utils';",
+                    "import { warn } from 'shopware:utils/debug';",
                     "import { Criteria } from 'shopware:data';",
-                    "import { swFormFieldMixin } from 'shopware:mixins';",
-                    "import { useNotificationStore } from 'shopware:stores';",
+                    "import swFormFieldMixin from 'shopware:mixins/sw-form-field';",
+                    "import useNotificationStore from 'shopware:stores/notification';",
                     '',
                     'export const id: string = createId();',
                     'export const criteria = new Criteria(1, 25);',
                     'export const mixins = [swFormFieldMixin];',
                     'export const notifications = useNotificationStore();',
+                    "export const log = () => warn('Plug', id);",
                 ]);
 
                 const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Plug' });

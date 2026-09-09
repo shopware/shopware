@@ -1,191 +1,136 @@
 /**
  * @sw-package framework
  *
- * Guards the two places the `shopware:*` contract is written down twice: the code strings the Vite plugin
- * emits versus the functions the Jest shims call, and the export names versus the source keys behind them.
+ * Guards the place the `shopware:*` contract is written down twice: the code strings the Vite plugin
+ * emits, and the functions the Jest shims call.
  */
 
-import fs from 'node:fs';
 import path from 'node:path';
-import { globSync } from 'glob';
 import {
-    VIRTUAL_MODULES,
-    VIRTUAL_MODULE_SPECIFIERS,
-    isVirtualModule,
-    mixinExportName,
+    MODULE_FAMILIES,
+    defaultExpression,
+    memberExpression,
+    parseSpecifier,
     resolveVirtualExport,
-    storeExportName,
     type VirtualModuleGlobal,
 } from './definitions';
-import { SOURCE_KEY_SPECIFIERS, readSourceKeys, sourceKeyFile } from './source-keys';
+import { exportNames, readRegistry } from './index';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
+const registry = readRegistry(administrationRoot);
 
 /**
- * A global object whose branches report which key was read, so a generated expression and its runtime
- * counterpart can be compared without the real Administration.
+ * A global object shaped like the registry says the real one is, with a marker string at every leaf.
  *
- * It knows only `knownKeys` and rejects everything else, the way the real registries do - which is what
- * makes the candidate order in `sourceKeyCandidates` observable here.
+ * Built from the registry rather than a blanket proxy, because a namespace subpath reads two levels deep
+ * and both levels have to behave like the real objects for the comparison to mean anything.
  */
-function createProbeGlobal(knownKeys: string[] = []): VirtualModuleGlobal {
-    const known = new Set(knownKeys);
-
-    const branch = (name: string) =>
-        new Proxy({} as Record<string, unknown>, {
-            get: (_target, property) => `${name}:${String(property)}`,
-            has: (_target, property) => known.has(String(property)),
-        });
-
-    const registry = (name: string) => (key: string) => {
-        if (!known.has(key)) {
-            throw new Error(`The ${name} "${key}" is not registered.`);
-        }
-
-        return `${name}:${key}`;
-    };
+function createProbeGlobal(): VirtualModuleGlobal {
+    const branchOf = (family: string, property: string): Record<string, unknown> =>
+        Object.fromEntries(
+            Object.entries(registry[family].subpaths).map(
+                ([
+                    key,
+                    members,
+                ]) => [
+                    key,
+                    members.length > 0
+                        ? Object.fromEntries(
+                              members.map((member) => [
+                                  member,
+                                  `${property}:${key}:${member}`,
+                              ]),
+                          )
+                        : `${property}:${key}`,
+                ],
+            ),
+        );
 
     return {
-        Utils: branch('Utils'),
-        Data: branch('Data'),
-        Mixin: { getByName: registry('Mixin') },
-        Store: { get: registry('Store') },
+        Utils: branchOf('shopware:utils', 'Utils'),
+        Data: branchOf('shopware:data', 'Data'),
+        Mixin: { getByName: (key) => `Mixin:${key}` },
+        Store: { get: (id) => `Store:${id}` },
     };
 }
 
 /** Evaluates a generated initialiser the way the generated module would. */
-function evaluateExpression(expression: string, shopware: VirtualModuleGlobal): unknown {
+function evaluate(expression: string, shopware: VirtualModuleGlobal): unknown {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     const initialiser = new Function('shopware', `return (${expression});`) as (global: VirtualModuleGlobal) => unknown;
 
     return initialiser(shopware);
 }
 
-/**
- * Calls a resolved export when it is a lazy one, so eager and lazy modules compare the same way.
- *
- * Against the probe global every value is a marker string, so the only functions here are the store
- * lookups the generated module defers.
- */
+/** Calls a lazily resolved export, so eager and lazy modules compare the same way. */
 function unwrap(value: unknown): unknown {
     return typeof value === 'function' ? (value as () => unknown)() : value;
 }
 
+/** Every specifier the registry publishes, barrels and subpaths alike. */
+function allSpecifiers(): string[] {
+    return Object.entries(registry).flatMap(
+        ([
+            family,
+            entry,
+        ]) => [
+            ...(entry.exports.length > 0 ? [family] : []),
+            ...Object.keys(entry.subpaths).map((key) => `${family}/${key}`),
+        ],
+    );
+}
+
 describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
-    it('declares a source of export names for every module', () => {
-        expect(SOURCE_KEY_SPECIFIERS.sort()).toEqual([...VIRTUAL_MODULE_SPECIFIERS].sort());
+    it('has a registry entry for every module family', () => {
+        expect(Object.keys(registry).sort()).toEqual([...MODULE_FAMILIES].sort());
     });
 
-    it('recognises only its own specifiers', () => {
-        expect(isVirtualModule('shopware:utils')).toBe(true);
-        expect(isVirtualModule('shopware:nope')).toBe(false);
-        expect(isVirtualModule('src/core/service/util.service')).toBe(false);
+    describe('parseSpecifier', () => {
+        it('splits a subpath into its family and key', () => {
+            expect(parseSpecifier('shopware:utils/debug')).toEqual({ family: 'shopware:utils', key: 'debug' });
+            expect(parseSpecifier('shopware:mixins/sw-form-field')).toEqual({
+                family: 'shopware:mixins',
+                key: 'sw-form-field',
+            });
+        });
+
+        it('claims a bare import only for the families that have a barrel', () => {
+            expect(parseSpecifier('shopware:utils')).toEqual({ family: 'shopware:utils' });
+            expect(parseSpecifier('shopware:data')).toEqual({ family: 'shopware:data' });
+            expect(parseSpecifier('shopware:mixins')).toBeUndefined();
+            expect(parseSpecifier('shopware:stores')).toBeUndefined();
+        });
+
+        it('leaves every other import alone', () => {
+            expect(parseSpecifier('shopware:nope')).toBeUndefined();
+            expect(parseSpecifier('shopware:utils/')).toBeUndefined();
+            expect(parseSpecifier('src/core/service/util.service')).toBeUndefined();
+            expect(parseSpecifier('vue')).toBeUndefined();
+        });
     });
 
-    describe.each(VIRTUAL_MODULE_SPECIFIERS)('%s', (specifier) => {
-        const definition = VIRTUAL_MODULES[specifier];
-        const sourceKeys = readSourceKeys(specifier, administrationRoot);
+    describe('the emitted code and the runtime resolver agree', () => {
+        it.each(allSpecifiers())('%s', (specifier) => {
+            const parsed = parseSpecifier(specifier);
+            const probe = createProbeGlobal();
 
-        it('reads its export names from an existing Administration source', () => {
-            expect(sourceKeyFile(specifier, administrationRoot)).toContain(administrationRoot);
-            expect(sourceKeys.length).toBeGreaterThan(0);
-        });
+            expect(parsed).toBeDefined();
 
-        it('publishes every key under a unique, valid identifier', () => {
-            const exportNames = sourceKeys.map((key) => definition.exportName(key));
-
-            expect(exportNames.filter((name) => !/^[A-Za-z_$][\w$]*$/.test(name))).toEqual([]);
-            expect(new Set(exportNames).size).toBe(exportNames.length);
-        });
-
-        it('emits the same value it resolves at runtime', () => {
-            const probe = createProbeGlobal(sourceKeys);
-            const emitted = sourceKeys.map((key) => unwrap(evaluateExpression(definition.expression(key), probe)));
-            const resolved = sourceKeys.map((key) => unwrap(definition.read(probe, key)));
+            const members = exportNames(registry, parsed!) ?? [];
+            const emitted = [
+                ...members.map((member) => unwrap(evaluate(memberExpression(parsed!, member), probe))),
+                unwrap(evaluate(defaultExpression(parsed!) as string, probe)),
+            ];
+            const resolved = [
+                ...members.map((member) => unwrap(resolveVirtualExport(specifier, member, probe))),
+                unwrap(resolveVirtualExport(specifier, 'default', probe)),
+            ];
 
             expect(emitted).toEqual(resolved);
         });
-
-        it('resolves every export name back to the key it was made from', () => {
-            const probe = createProbeGlobal(sourceKeys);
-            const viaName = sourceKeys.map((key) =>
-                unwrap(resolveVirtualExport(specifier, definition.exportName(key), probe)),
-            );
-            const viaKey = sourceKeys.map((key) => unwrap(definition.read(probe, key)));
-
-            expect(viaName).toEqual(viaKey);
-        });
     });
 
-    describe('shopware:mixins', () => {
-        /**
-         * Vite serves the generated module unbundled in dev, so importing it resolves every declared
-         * mixin at once and a single unregistered one takes the whole module down. `MixinContainer` was
-         * type-only before, so this couples it to the registry: what is declared has to be registered.
-         */
-        it('publishes only mixins that a mixin file registers', () => {
-            const srcDir = path.join(administrationRoot, 'src');
-            const moduleDir = path.join(srcDir, 'module');
-            const mixinDirs = [
-                path.join(srcDir, 'app', 'mixin'),
-                ...fs
-                    .readdirSync(moduleDir)
-                    .map((module) => path.join(moduleDir, module, 'mixin'))
-                    .filter((dir) => fs.existsSync(dir)),
-            ];
-
-            const registrations = mixinDirs
-                .flatMap((dir) =>
-                    fs
-                        .readdirSync(dir)
-                        .filter((file) => /\.[jt]s$/.test(file) && !file.includes('.spec.'))
-                        .map((file) => fs.readFileSync(path.join(dir, file), 'utf8')),
-                )
-                .join('\n');
-
-            // A broken walk must fail loudly rather than vacuously pass.
-            expect(registrations).toContain('Shopware.Mixin.register(');
-
-            const declared = readSourceKeys('shopware:mixins', administrationRoot);
-
-            expect(declared.filter((mixinName) => !registrations.includes(`'${mixinName}'`))).toEqual([]);
-        });
-    });
-
-    describe('shopware:stores', () => {
-        /**
-         * `PiniaRootState` is the export list, so a key that no store registers under becomes an export
-         * whose `Shopware.Store.get()` throws when called. The interface was type-only before, where a
-         * wrong key only meant a wrong type.
-         */
-        it('publishes only stores that a store file registers', () => {
-            const registrations = globSync(
-                [
-                    'src/**/*.store.{ts,js}',
-                    'src/**/store.{ts,js}',
-                ],
-                {
-                    cwd: administrationRoot,
-                    absolute: true,
-                    ignore: [
-                        '**/*.spec.{ts,js}',
-                        '**/*.spec/**',
-                    ],
-                },
-            )
-                .map((file) => fs.readFileSync(file, 'utf8'))
-                .join('\n');
-
-            // A broken walk must fail loudly rather than vacuously pass.
-            expect(registrations).toContain('Store.register(');
-
-            const declared = readSourceKeys('shopware:stores', administrationRoot);
-
-            expect(declared.filter((storeId) => !registrations.includes(`'${storeId}'`))).toEqual([]);
-        });
-    });
-
-    describe('shopware:utils and shopware:data mirror the global object', () => {
+    describe('the registry matches the global object', () => {
         it.each([
             [
                 'shopware:utils',
@@ -195,57 +140,53 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
                 'shopware:data',
                 () => Shopware.Data,
             ],
-        ])('%s exports exactly the keys of its branch', (specifier, branch) => {
-            expect(readSourceKeys(specifier, administrationRoot).sort()).toEqual(Object.keys(branch()).sort());
-        });
-    });
-
-    describe('export names', () => {
-        it.each([
-            [
-                'sw-form-field',
-                'swFormFieldMixin',
-            ],
-            [
-                'remove-api-error',
-                'removeApiErrorMixin',
-            ],
-            [
-                'notification',
-                'notificationMixin',
-            ],
-            [
-                'ruleContainer',
-                'ruleContainerMixin',
-            ],
-        ])('turns the mixin "%s" into "%s"', (mixinName, expected) => {
-            expect(mixinExportName(mixinName)).toBe(expected);
+        ])('%s publishes exactly the keys of its branch', (family, branch) => {
+            expect(registry[family].exports.sort()).toEqual(Object.keys(branch()).sort());
+            expect(Object.keys(registry[family].subpaths).sort()).toEqual(Object.keys(branch()).sort());
         });
 
-        it.each([
-            [
-                'cart',
-                'useCartStore',
-            ],
-            [
-                'swOrderDetail',
-                'useSwOrderDetailStore',
-            ],
-        ])('turns the store "%s" into "%s"', (storeId, expected) => {
-            expect(storeExportName(storeId)).toBe(expected);
+        it('promises no named export a utility namespace does not have', () => {
+            const utils = Shopware.Utils as unknown as Record<string, unknown>;
+
+            Object.entries(registry['shopware:utils'].subpaths).forEach(
+                ([
+                    key,
+                    members,
+                ]) => {
+                    const value = utils[key] as Record<string, unknown>;
+                    const missing = members.filter((member) => !(member in value));
+
+                    expect(missing, `shopware:utils/${key} promises members it does not have`).toEqual([]);
+                },
+            );
+        });
+
+        it('publishes no named exports for a mixin or a store, which must not be destructured', () => {
+            const registryEntries = [
+                ...Object.values(registry['shopware:mixins'].subpaths),
+                ...Object.values(registry['shopware:stores'].subpaths),
+            ];
+
+            expect(registryEntries.every((members) => members.length === 0)).toBe(true);
         });
     });
 
     describe('resolveVirtualExport', () => {
-        it('rejects an unknown module', () => {
-            expect(() => resolveVirtualExport('shopware:nope', 'anything', createProbeGlobal())).toThrow(
-                '"shopware:nope" is not a Shopware virtual module.',
+        it('rejects a specifier it does not serve', () => {
+            expect(() => resolveVirtualExport('shopware:mixins', 'anything', createProbeGlobal())).toThrow(
+                '"shopware:mixins" is not a Shopware virtual module.',
             );
         });
 
-        it('names the module and the candidates it tried when an export does not exist', () => {
+        it('names the module when a barrel has no such export', () => {
             expect(() => resolveVirtualExport('shopware:utils', 'notAUtil', Shopware as never)).toThrow(
-                /"shopware:utils" has no export "notAUtil".*Shopware\.Utils.*"notAUtil"/s,
+                '"notAUtil" does not exist on Shopware.Utils.',
+            );
+        });
+
+        it('names the module when a subpath has no such export', () => {
+            expect(() => resolveVirtualExport('shopware:utils/debug', 'notAMember', Shopware as never)).toThrow(
+                '"shopware:utils/debug" has no export "notAMember".',
             );
         });
     });

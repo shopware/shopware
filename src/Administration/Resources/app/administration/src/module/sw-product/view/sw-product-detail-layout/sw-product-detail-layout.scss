@@ -3,6 +3,11 @@
         gap: 0;
     }
 
+    &__no-config.mt-card {
+        text-align: center;
+        font-size: var(--font-size-xs);
+    }
+
     &__content-info {
         color: var(--color-text-secondary-default);
         font-size: var(--font-size-xs);

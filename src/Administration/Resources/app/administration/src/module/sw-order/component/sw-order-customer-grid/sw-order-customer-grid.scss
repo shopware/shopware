@@ -19,6 +19,7 @@
     // so the empty state overlays the grid body instead of stacking below it
     &__container {
         position: relative;
+        height: 100%;
     }
 
     &__empty-state {

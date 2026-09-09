@@ -117,22 +117,7 @@
                 description=""
                 :link-text="$t('sw-empty-state.messageNoResultLink')"
                 :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
-            >
-                <template #button>
-                    <mt-button
-                        v-tooltip="{
-                            message: $t('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('payment.creator'),
-                            showOnDisabledElements: true
-                        }"
-                        variant="primary"
-                        :disabled="!acl.can('payment.creator')"
-                        @click="$router.push({ name: 'sw.settings.payment.create' })"
-                    >
-                        {{ $t('sw-settings-payment.list.buttonAddPaymentMethod') }}
-                    </mt-button>
-                </template>
-            </mt-empty-state>
+            />
             {% endblock %}
 
         </sw-card-view>

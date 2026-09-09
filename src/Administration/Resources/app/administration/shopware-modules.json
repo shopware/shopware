@@ -1,0 +1,221 @@
+{
+    "shopware:utils": {
+        "exports": [
+            "createId",
+            "throttle",
+            "debounce",
+            "flow",
+            "get",
+            "object",
+            "debug",
+            "format",
+            "dom",
+            "string",
+            "types",
+            "fileReader",
+            "sort",
+            "array",
+            "moveItem",
+            "VueHelper",
+            "EventBus",
+            "genericRuleCondition",
+            "unitConversion",
+            "extension",
+            "mapInheritanceSlotPropsToMeteorProps"
+        ],
+        "subpaths": {
+            "createId": [],
+            "throttle": [],
+            "debounce": [],
+            "flow": [],
+            "get": [],
+            "object": [
+                "deepCopyObject",
+                "hasOwnProperty",
+                "getObjectDiff",
+                "getArrayChanges",
+                "cloneDeep",
+                "merge",
+                "mergeWith",
+                "deepMergeObject",
+                "get",
+                "set",
+                "pick",
+                "unset",
+                "has"
+            ],
+            "debug": [
+                "warn",
+                "error"
+            ],
+            "format": [
+                "currency",
+                "date",
+                "dateWithUserTimezone",
+                "fileSize",
+                "localeName",
+                "md5",
+                "toISODate"
+            ],
+            "dom": [
+                "getScrollbarHeight",
+                "getScrollbarWidth",
+                "copyStringToClipboard"
+            ],
+            "string": [
+                "capitalizeString",
+                "camelCase",
+                "upperFirst",
+                "kebabCase",
+                "snakeCase",
+                "md5",
+                "isEmptyOrSpaces",
+                "isUrl",
+                "isValidIp",
+                "isValidCidr"
+            ],
+            "types": [
+                "isObject",
+                "isPlainObject",
+                "isEmpty",
+                "isRegExp",
+                "isArray",
+                "isFunction",
+                "isDate",
+                "isString",
+                "isBoolean",
+                "isEqual",
+                "isNumber",
+                "isUndefined"
+            ],
+            "fileReader": [
+                "readAsArrayBuffer",
+                "readAsDataURL",
+                "readAsText",
+                "getNameAndExtensionFromFile",
+                "getNameAndExtensionFromUrl"
+            ],
+            "sort": [
+                "afterSort"
+            ],
+            "array": [
+                "flattenDeep",
+                "remove",
+                "slice",
+                "uniqBy",
+                "chunk",
+                "intersectionBy"
+            ],
+            "moveItem": [],
+            "VueHelper": [],
+            "EventBus": [],
+            "genericRuleCondition": [
+                "getPlaceholderSnippet"
+            ],
+            "unitConversion": [
+                "convert"
+            ],
+            "extension": [
+                "getExtensionNameByOrigin"
+            ],
+            "mapInheritanceSlotPropsToMeteorProps": []
+        }
+    },
+    "shopware:data": {
+        "exports": [
+            "ChangesetGenerator",
+            "Criteria",
+            "Entity",
+            "EntityCollection",
+            "EntityDefinition",
+            "EntityFactory",
+            "EntityHydrator",
+            "Repository",
+            "ErrorResolver",
+            "FilterFactory"
+        ],
+        "subpaths": {
+            "ChangesetGenerator": [],
+            "Criteria": [],
+            "Entity": [],
+            "EntityCollection": [],
+            "EntityDefinition": [],
+            "EntityFactory": [],
+            "EntityHydrator": [],
+            "Repository": [],
+            "ErrorResolver": [],
+            "FilterFactory": []
+        }
+    },
+    "shopware:mixins": {
+        "exports": [],
+        "subpaths": {
+            "notification": [],
+            "validation": [],
+            "user-settings": [],
+            "sw-inline-snippet": [],
+            "translate-with-fallback": [],
+            "notification-translation": [],
+            "salutation": [],
+            "ruleContainer": [],
+            "remove-api-error": [],
+            "position": [],
+            "placeholder": [],
+            "listing": [],
+            "cart-notification": [],
+            "sw-extension-error": [],
+            "cms-element": [],
+            "cms-state": [],
+            "generic-condition": [],
+            "sw-form-field": [],
+            "discard-detail-page-changes": [],
+            "rule-between-operator": []
+        }
+    },
+    "shopware:stores": {
+        "exports": [],
+        "subpaths": {
+            "cmsPage": [],
+            "topBarButton": [],
+            "teaserPopover": [],
+            "adminMenu": [],
+            "inAppPurchaseCheckout": [],
+            "extensionComponentSections": [],
+            "blockOverride": [],
+            "extensionEntryRoutes": [],
+            "extensionSdkModules": [],
+            "extensions": [],
+            "error": [],
+            "context": [],
+            "adminHelpCenter": [],
+            "actionButtons": [],
+            "licenseViolation": [],
+            "extensionMainModules": [],
+            "marketing": [],
+            "sdkLocation": [],
+            "ruleConditionsConfig": [],
+            "settingsItems": [],
+            "shopwareApps": [],
+            "system": [],
+            "modals": [],
+            "sidebar": [],
+            "menuItem": [],
+            "notification": [],
+            "tabs": [],
+            "session": [],
+            "swCategoryDetail": [],
+            "swSeoUrl": [],
+            "shopwareExtensions": [],
+            "swOrderDetail": [],
+            "swOrder": [],
+            "swShippingDetail": [],
+            "paymentOverviewCard": [],
+            "swProductDetail": [],
+            "swProfile": [],
+            "swPromotionDetail": [],
+            "swFlow": [],
+            "swBulkEdit": [],
+            "mediaModal": []
+        }
+    }
+}

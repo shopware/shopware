@@ -2,17 +2,55 @@
  * @sw-package framework
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Plugin } from 'vite';
-import { VIRTUAL_MODULES, isVirtualModule } from './definitions';
-import { readSourceKeys, sourceKeyFile } from './source-keys';
+import { defaultExpression, memberExpression, parseSpecifier, type ParsedSpecifier } from './definitions';
 
 type Options = {
     /** Root of the Administration package, i.e. the directory holding `src/` and `package.json`. */
     administrationRoot: string;
 };
 
+type ModuleRegistry = Record<string, { exports: string[]; subpaths: Record<string, string[]> }>;
+
 /** Rollup convention: a leading NUL marks an id no other plugin should touch or read from disk. */
 const RESOLVED_PREFIX = '\0';
+
+const REGISTRY_FILE = 'shopware-modules.json';
+
+/**
+ * @private
+ *
+ * The checked-in registry of every `shopware:*` specifier.
+ *
+ * The build reads this rather than parsing the Administration sources, so adding a utility, mixin or
+ * store shows up as a diff in a pull request instead of silently changing what resolves.
+ * `composer admin:generate-shopware-modules` rewrites it.
+ */
+export function readRegistry(administrationRoot: string): ModuleRegistry {
+    const file = path.join(administrationRoot, REGISTRY_FILE);
+
+    return JSON.parse(fs.readFileSync(file, 'utf8')) as ModuleRegistry;
+}
+
+/**
+ * @private
+ *
+ * The export names a specifier publishes: its barrel's members, or one subpath's own names.
+ *
+ * `undefined` means the registry does not know the specifier, which is how an unknown key is refused
+ * instead of resolving to a module full of `undefined`.
+ */
+export function exportNames(registry: ModuleRegistry, parsed: ParsedSpecifier): string[] | undefined {
+    const entry = registry[parsed.family];
+
+    if (!entry) {
+        return undefined;
+    }
+
+    return parsed.key === undefined ? entry.exports : entry.subpaths[parsed.key];
+}
 
 /**
  * @private
@@ -21,13 +59,15 @@ const RESOLVED_PREFIX = '\0';
  *
  * A flat list of `export const` bindings rather than one namespace object: Rollup only tree-shakes and
  * validates what it sees statically, so a mistyped import fails the build instead of becoming
- * `undefined` at runtime.
+ * `undefined` at runtime. The default export mirrors the `export =` in the generated declarations, which
+ * is what lets `import debug, { warn } from 'shopware:utils/debug'` work.
  */
-export function generateModuleSource(specifier: string, administrationRoot: string): string {
-    const definition = VIRTUAL_MODULES[specifier];
+export function generateModuleSource(specifier: string, registry: ModuleRegistry): string | undefined {
+    const parsed = parseSpecifier(specifier);
+    const members = parsed && exportNames(registry, parsed);
 
-    if (!definition) {
-        throw new Error(`"${specifier}" is not a Shopware virtual module.`);
+    if (!parsed || !members) {
+        return undefined;
     }
 
     const missingGlobal =
@@ -41,9 +81,9 @@ export function generateModuleSource(specifier: string, administrationRoot: stri
         `    throw new Error(${JSON.stringify(missingGlobal)});`,
         '}',
         '',
-        ...readSourceKeys(specifier, administrationRoot).map(
-            (sourceKey) => `export const ${definition.exportName(sourceKey)} = ${definition.expression(sourceKey)};`,
-        ),
+        ...members.map((member) => `export const ${member} = ${memberExpression(parsed, member)};`),
+        '',
+        `export default ${defaultExpression(parsed)};`,
         '',
     ].join('\n');
 }
@@ -51,19 +91,34 @@ export function generateModuleSource(specifier: string, administrationRoot: stri
 /**
  * @private
  *
- * Serves the `shopware:*` modules, which expose branches of the global `Shopware` object as ordinary
- * named imports - `import { createId } from 'shopware:utils'` instead of `Shopware.Utils.createId`.
+ * Serves the `shopware:*` modules, which expose the global `Shopware` object as ordinary imports:
+ * `import { createId } from 'shopware:utils'` instead of `Shopware.Utils.createId`.
  *
  * Purely additive: the generated bindings read the same global that the plugin and override systems
  * already use, so both styles work side by side and no existing code has to change. Extension builds run
- * this plugin too, pointed at the host Administration, so extensions get the same specifiers.
+ * this plugin too, pointed at the host Administration, so extensions resolve the same specifiers.
  */
 export default function virtualShopwareModulesPlugin(options: Options): Plugin {
+    let registry: ModuleRegistry | undefined;
+
+    const registryFile = path.join(options.administrationRoot, REGISTRY_FILE);
+    const load = (): ModuleRegistry => {
+        registry ??= readRegistry(options.administrationRoot);
+
+        return registry;
+    };
+
     return {
         name: 'shopware-virtual-modules',
 
         resolveId(id) {
-            return isVirtualModule(id) ? `${RESOLVED_PREFIX}${id}` : null;
+            const parsed = parseSpecifier(id);
+
+            if (!parsed || !exportNames(load(), parsed)) {
+                return null;
+            }
+
+            return `${RESOLVED_PREFIX}${id}`;
         },
 
         load(id) {
@@ -71,17 +126,23 @@ export default function virtualShopwareModulesPlugin(options: Options): Plugin {
                 return null;
             }
 
-            const specifier = id.slice(RESOLVED_PREFIX.length);
+            const source = generateModuleSource(id.slice(RESOLVED_PREFIX.length), load());
 
-            if (!isVirtualModule(specifier)) {
+            if (source === undefined) {
                 return null;
             }
 
-            // The export names come out of an Administration source file, so a new store or mixin has to
-            // regenerate this module rather than be served from the dev server's cache.
-            this.addWatchFile(sourceKeyFile(specifier, options.administrationRoot));
+            // A new specifier only exists once the registry is regenerated, so the dev server has to
+            // notice that file changing.
+            this.addWatchFile(registryFile);
 
-            return generateModuleSource(specifier, options.administrationRoot);
+            return source;
+        },
+
+        handleHotUpdate({ file }) {
+            if (file === registryFile) {
+                registry = undefined;
+            }
         },
     };
 }

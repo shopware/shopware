@@ -5,54 +5,53 @@
  * the global `Shopware` holds rather than a copy of it.
  */
 
-import { createId, object, format } from 'shopware:utils';
+import { createId, object } from 'shopware:utils';
+import debug, { warn, error } from 'shopware:utils/debug';
 import { Criteria, EntityCollection } from 'shopware:data';
-import { swFormFieldMixin, removeApiErrorMixin, ruleContainerMixin } from 'shopware:mixins';
-import { useNotificationStore, useSystemStore } from 'shopware:stores';
+import CriteriaClass from 'shopware:data/Criteria';
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import ruleContainerMixin from 'shopware:mixins/ruleContainer';
+import useNotificationStore from 'shopware:stores/notification';
+import useSystemStore from 'shopware:stores/system';
 
 describe('shopware:* virtual modules', () => {
-    describe('shopware:utils', () => {
-        it('exports the functions of Shopware.Utils', () => {
+    describe('barrels', () => {
+        it('export the members of their branch', () => {
             expect(createId).toBe(Shopware.Utils.createId);
             expect(object).toBe(Shopware.Utils.object);
-            expect(format).toBe(Shopware.Utils.format);
-        });
-
-        it('exports working functions', () => {
-            expect(createId()).toHaveLength(32);
-        });
-    });
-
-    describe('shopware:data', () => {
-        it('exports the classes of Shopware.Data', () => {
             expect(Criteria).toBe(Shopware.Data.Criteria);
             expect(EntityCollection).toBe(Shopware.Data.EntityCollection);
         });
 
-        it('exports constructible classes', () => {
+        it('export working members', () => {
+            expect(createId()).toHaveLength(32);
             expect(new Criteria(1, 25).limit).toBe(25);
         });
     });
 
-    describe('shopware:mixins', () => {
-        it('exports the registered mixins', () => {
-            expect(swFormFieldMixin).toBe(Shopware.Mixin.getByName('sw-form-field'));
-            expect(removeApiErrorMixin).toBe(Shopware.Mixin.getByName('remove-api-error'));
+    describe('subpaths', () => {
+        it('export the members of one namespace, and the namespace as default', () => {
+            expect(warn).toBe(Shopware.Utils.debug.warn);
+            expect(error).toBe(Shopware.Utils.debug.error);
+            expect(debug).toBe(Shopware.Utils.debug);
         });
 
-        it('resolves a camelCase registry name that no kebab-case name matches', () => {
+        it('export a DAL class as default', () => {
+            expect(CriteriaClass).toBe(Shopware.Data.Criteria);
+        });
+
+        it('export a registered mixin as default', () => {
+            expect(swFormFieldMixin).toBe(Shopware.Mixin.getByName('sw-form-field'));
+        });
+
+        it('take the registry key verbatim, camelCase included', () => {
             expect(ruleContainerMixin).toBe(Shopware.Mixin.getByName('ruleContainer'));
         });
-    });
 
-    describe('shopware:stores', () => {
-        it('exports a composable per registered store', () => {
+        it('export a store as a composable, resolved per call', () => {
+            expect(typeof useNotificationStore).toBe('function');
             expect(useNotificationStore()).toBe(Shopware.Store.get('notification'));
             expect(useSystemStore()).toBe(Shopware.Store.get('system'));
-        });
-
-        it('resolves the store on call, not on import', () => {
-            expect(typeof useNotificationStore).toBe('function');
         });
     });
 });

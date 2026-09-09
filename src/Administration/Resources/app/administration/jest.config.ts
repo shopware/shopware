@@ -22,6 +22,11 @@ process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
 
+// Tests run in Node/jsdom, so browser data freshness is irrelevant here. Without this, browserslist's
+// stale caniuse-lite warning (triggered via vue-jest -> babel preset-env target resolution) is escalated
+// to a test failure by the console.warn guard in prepare_environment.js once the lockfile data ages 6 months.
+process.env.BROWSERSLIST_IGNORE_OLD_DATA = process.env.BROWSERSLIST_IGNORE_OLD_DATA || 'true';
+
 // Check if ADMIN_PATH/test/_helper_/component-imports.js exists
 if (!existsSync(join(process.env.ADMIN_PATH, '/test/_helper_/componentWrapper/component-imports.js'))) {
     throw new Error(
@@ -65,7 +70,7 @@ const config: Config = {
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
-    testEnvironment: 'jsdom',
+    testEnvironment: '<rootDir>/test/_setup/feature-flag-test-environment.js',
 
     // Worker configuration - prevent OOM kills while maximizing parallelism
     // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
@@ -136,6 +141,7 @@ const config: Config = {
         resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
         'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
+        resolve(join(__dirname, '/test/_setup/jest-extensions.ts')),
     ],
 
     transform: {
@@ -229,6 +235,7 @@ const config: Config = {
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
+        '<rootDir>/test/_setup/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

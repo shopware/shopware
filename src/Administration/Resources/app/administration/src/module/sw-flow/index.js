@@ -75,7 +75,7 @@ Module.register('sw-flow', {
     targetVersion: '1.0.0',
     color: 'var(--color-red-300)',
     icon: 'regular-rule',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'flow',
     defaultSearchConfiguration,
 

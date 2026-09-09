@@ -1,5 +1,14 @@
 import type { ComputedRef, Ref } from 'vue';
-import { computed, getCurrentInstance as vueGetCurrentInstance, isReactive, isReadonly, isRef, reactive, watch } from 'vue';
+import {
+    computed,
+    getCurrentInstance as vueGetCurrentInstance,
+    getCurrentScope,
+    isReactive,
+    isReadonly,
+    isRef,
+    reactive,
+    watch,
+} from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
@@ -452,8 +461,15 @@ export function createExtendableSetup<
         });
     };
 
-    // Watch for changes in the overrides array and reapply overrides when changed
-    watch(registeredOverrides, applyOverrides, { deep: true, immediate: true });
+    // Overrides registered after mount are applied from inside this watcher, where no effect scope
+    // is active — watchers and computeds they create would outlive the component. Re-enter the
+    // owning scope so Vue disposes them on unmount.
+    const ownerScope = getCurrentScope();
+
+    watch(registeredOverrides, ownerScope ? () => ownerScope.run(applyOverrides) : applyOverrides, {
+        deep: true,
+        immediate: true,
+    });
 
     const state = createDataScope<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>(
         reactiveSetupState,
@@ -505,6 +521,27 @@ export function overrideComponentSetup<TOriginalComponent>() {
         // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
         _overridesMap[componentName].push(override as unknown as OverrideFn);
     };
+}
+
+/**
+ * @private
+ *
+ * Returns the current component's props as read-only refs, keyed by prop name.
+ *
+ * The generated `defineExpose()` of a base component spreads these in front of its swDefinePublic()
+ * bindings, so a parent holding a template ref reads props off the child exactly as it did before the
+ * component was lowered. Computeds rather than plain values, because `defineExpose()` receives its
+ * object once while props keep changing; readonly because a prop belongs to the parent that passes it.
+ */
+export function getExposedProps(): Record<string, ComputedRef<unknown>> {
+    const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
+    const exposedProps: Record<string, ComputedRef<unknown>> = {};
+
+    Object.keys(props).forEach((key) => {
+        exposedProps[key] = computed(() => props[key]);
+    });
+
+    return exposedProps;
 }
 
 /**

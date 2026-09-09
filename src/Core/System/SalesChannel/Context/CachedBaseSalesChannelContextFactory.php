@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * @internal
@@ -17,7 +15,7 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
 {
     public function __construct(
         private readonly AbstractBaseSalesChannelContextFactory $decorated,
-        private readonly CacheInterface $cache,
+        private readonly InvalidationRaceAwareCache $cache,
     ) {
     }
 
@@ -46,19 +44,16 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
         ]);
 
         $key = implode('-', [$name, Hasher::hash($keys)]);
-
+        $tags = [$name, CachedSalesChannelContextFactory::ALL_TAG];
         $fresh = null;
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $salesChannelId, $options, &$fresh) {
-            $item->tag([$name, CachedSalesChannelContextFactory::ALL_TAG]);
-
+        $value = $this->cache->get($key, $tags, function () use ($salesChannelId, $options, &$fresh): string {
             $fresh = $this->decorated->create($salesChannelId, $options);
 
             return CacheValueCompressor::compress($fresh);
         });
 
-        // the context was built in this call, return it directly instead of
-        // uncompressing the cache payload that was just compressed from it
+        // The context was built in this call, return it directly instead of uncompressing the cache payload that was just compressed from it.
         if ($fresh instanceof BaseSalesChannelContext) {
             return $fresh;
         }

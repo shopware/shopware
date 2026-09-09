@@ -365,6 +365,9 @@ export default {
                     return this.variantsGenerator.saveVariantRestrictions();
                 })
                 .then(() => {
+                    return this.variantsGenerator.saveVariantListingConfig();
+                })
+                .then(() => {
                     this.addOriginalConfiguratorSettings();
                     return this.variantsGenerator.saveConfiguratorSettings(
                         this.product.configuratorSettings,

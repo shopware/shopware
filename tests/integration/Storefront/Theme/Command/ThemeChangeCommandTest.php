@@ -106,9 +106,13 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
+        // without --sync the command defers the switch until the (background) compilation finished
+        $expectedContext = Context::createDefaultContext();
+        $expectedContext->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
+
         $this->themeService->expects($this->exactly(1))
             ->method('assignTheme')
-            ->with($themes[0]['id'], $salesChannel['id'], $context);
+            ->with($themes[0]['id'], $salesChannel['id'], $expectedContext);
 
         $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],

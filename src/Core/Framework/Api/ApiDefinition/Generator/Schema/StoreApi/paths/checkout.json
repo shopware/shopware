@@ -257,6 +257,15 @@
                 "responses": {
                     "200": {
                         "description": "The updated cart.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {

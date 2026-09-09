@@ -34,11 +34,6 @@ const pageTabsSlotWithTitle = `
 async function createWrapper(slotsData = {}, { routeName = undefined } = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
-            provide: {
-                feature: {
-                    isActive: (flag) => (global.activeFeatureFlags ?? []).includes(flag),
-                },
-            },
             stubs: {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
@@ -127,10 +122,6 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         });
     });
 
-    beforeEach(() => {
-        global.activeFeatureFlags = [];
-    });
-
     it('should be in full width', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -154,13 +145,27 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(iconComponent.exists()).toBe(false);
     });
 
+    it('should hide the smart bar', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-meteor-page__smart-bar').exists()).toBe(true);
+
+        await wrapper.setProps({
+            hideSmartBar: true,
+        });
+
+        expect(wrapper.classes()).toContain('sw-meteor-page--hide-smart-bar');
+        expect(wrapper.find('.sw-meteor-page__smart-bar').exists()).toBe(false);
+    });
+
     it('should render the module icon when slot "smart-bar-icon" is not filled', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         const iconComponent = wrapper.findComponent('.mt-icon');
         expect(iconComponent.vm.name).toContain('regular-plug');
-        expect(iconComponent.vm.color).toBe('#189EFF');
+        expect(iconComponent.vm.color).toBe('var(--color-icon-primary-default)');
     });
 
     [
@@ -219,7 +224,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(title.text()).toBe('sw.example.title');
     });
 
-    it('should render the deprecated tabs when slot is filled and the major feature flag is inactive', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs when slot is filled', async () => {
         const wrapper = await createWrapper({
             'page-tabs': pageTabsSlot,
         });
@@ -239,9 +245,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(wrapper.find('.mt-tabs').exists()).toBe(false);
     });
 
-    it('should render meteor tabs when slot is filled and the major feature flag is active', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs when slot is filled', async () => {
         const wrapper = await createWrapper(
             {
                 'page-tabs': pageTabsSlot,
@@ -288,31 +292,39 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
     });
 
-    it('should prefer the visible tab text over the title attribute for meteor tab labels', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should prefer the visible tab text over the title attribute for meteor tab labels',
+        async () => {
+            const wrapper = await createWrapper({
+                'page-tabs': pageTabsSlotWithTitle,
+            });
 
-        const wrapper = await createWrapper({
-            'page-tabs': pageTabsSlotWithTitle,
-        });
+            await flushPromises();
 
-        await flushPromises();
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            expect(tabs.props('items').map(({ label, name }) => ({ label, name }))).toEqual([
+                {
+                    label: 'Visible tab text',
+                    name: 'tab.one',
+                },
+            ]);
+        },
+    );
 
-        expect(tabs.props('items').map(({ label, name }) => ({ label, name }))).toEqual([
-            {
-                label: 'Visible tab text',
-                name: 'tab.one',
-            },
-        ]);
-    });
-
-    it('should not render the tabs when slot is empty', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should not render the tabs when slot is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const tabsContent = wrapper.find('.sw-tabs__content');
-        expect(tabsContent.exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not render the tabs when slot is empty', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
     it('should render the content', async () => {

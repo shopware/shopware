@@ -2,14 +2,16 @@ import path from 'path';
 import fs from 'fs';
 import { globSync } from 'glob';
 import { extractBlocks } from './extract-blocks';
+import { isTemplateSourceFile } from '../public-api-source-files';
 
 const BLOCKS_LIST_FILE = path.join(__dirname, '../../blocks-list.json');
 
 function main() {
     const sourcePath = path.join(__dirname, '../../src');
-    const listOfTwigFiles = globSync(`${sourcePath}/**/*.html.twig`);
+    const blocks = globSync(`${sourcePath}/**/*.*`)
+        .filter(isTemplateSourceFile)
+        .flatMap((filePath) => extractBlocks(fs.readFileSync(filePath, 'utf8')));
 
-    const blocks = extractBlocks(listOfTwigFiles);
     updateBlocksList(blocks);
 }
 

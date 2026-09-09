@@ -9,6 +9,8 @@ use Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DbState;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class BeforeTestMethodCalledSubscriber implements BeforeTestMethodCalledSubscriberInterface

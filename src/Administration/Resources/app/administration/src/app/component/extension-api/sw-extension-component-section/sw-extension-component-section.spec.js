@@ -42,11 +42,6 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
                     ...props,
                 },
                 global: {
-                    provide: {
-                        feature: {
-                            isActive: (flag) => global.activeFeatureFlags.includes(flag),
-                        },
-                    },
                     stubs,
                 },
             },
@@ -90,11 +85,11 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
-        global.activeFeatureFlags = [];
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
-    it('should not render tabs in card section', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should not render tabs in card section', async () => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
@@ -107,11 +102,27 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         wrapper = await createWrapper();
         await flushPromises();
 
-        const tabs = wrapper.find('.sw-tabs');
-        expect(tabs.exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
     });
 
-    it('should render deprecated tabs in card section when the major feature flag is inactive', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should not render tabs in card section', async () => {
+        Shopware.Store.get('extensionComponentSections').addSection({
+            component: 'card',
+            positionId: 'test-position',
+            props: {
+                title: 'test-card',
+                subtitle: 'test-card-description',
+            },
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs in card section', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -127,8 +138,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeTab.text()).toBe('Tab 1');
     });
 
-    it('should render meteor tabs in card section when the major feature flag is active', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs in card section', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -151,7 +161,8 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(wrapper.find('.sw-tabs').exists()).toBe(false);
     });
 
-    it('should switch tab when clicking deprecated tabs', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should switch tab when clicking deprecated tabs', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();
@@ -170,8 +181,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });
 
-    it('should switch tab when meteor tabs emit a new active item', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch tab when meteor tabs emit a new active item', async () => {
         addSectionWithTabs();
 
         wrapper = await createWrapper();

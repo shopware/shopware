@@ -152,6 +152,9 @@ export default {
                 const integrationLabel = this.lastStateChange.integration.label;
                 return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
             }
+            if (this.lastStateChange?.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateCard.labelCustomer');
+            }
 
             return this.$t('sw-order.stateCard.labelSystemUser');
         },

@@ -29,16 +29,9 @@ const prices = [
     },
 ];
 
-async function createWrapper() {
+async function createWrapper(propOverrides = {}) {
     return mount(await wrapTestComponent('sw-maintain-currencies-modal', { sync: true }), {
         global: {
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                    }),
-                },
-            },
             stubs: {
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                     sync: true,
@@ -66,11 +59,25 @@ async function createWrapper() {
                 currencyId: '124',
             },
             taxRate: {},
+            ...propOverrides,
         },
     });
 }
 
 describe('src/app/component/form/sw-maintain-currencies-modal', () => {
+    it('should load all currencies when none are passed in', async () => {
+        const search = jest.fn(() => Promise.resolve([]));
+        const createSpy = jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation(() => ({ search }));
+
+        await createWrapper({ currencies: [] });
+        await flushPromises();
+
+        expect(search).toHaveBeenCalledTimes(1);
+        expect(search.mock.calls[0][0].getLimit()).toBe(500);
+
+        createSpy.mockRestore();
+    });
+
     it('should be able to remove inheritance', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

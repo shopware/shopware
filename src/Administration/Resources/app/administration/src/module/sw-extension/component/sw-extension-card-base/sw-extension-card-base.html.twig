@@ -2,7 +2,15 @@
     class="sw-extension-card-base"
     :class="extensionCardClasses"
 >
-    <sw-loader v-if="isLoading" />
+    <sw-loader v-if="showLoader" />
+
+    <div class="sw-extension-card-base__select">
+        <mt-checkbox
+            :checked="selected"
+            :aria-label="$t('sw-extension.my-extensions.bulk.selectExtensionAria', { name: extension.label })"
+            @update:checked="$emit('select-change', $event)"
+        />
+    </div>
 
     <div class="sw-extension-card-base__switch">
         {% block sw_extension_card_base_activation_switch_switch %}

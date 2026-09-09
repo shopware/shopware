@@ -81,6 +81,8 @@ class MailTemplateTypes
 
     final public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_UNCONFIRMED = 'order_transaction.state.unconfirmed';
 
+    final public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_FAILED = 'order_transaction.state.failed';
+
     final public const MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN = 'order.state.open';
 
     final public const MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS = 'order.state.in_progress';

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('inventory')]
 #[CoversClass(ProductSortingEntity::class)]
 class ProductSortingEntityTest extends TestCase
 {

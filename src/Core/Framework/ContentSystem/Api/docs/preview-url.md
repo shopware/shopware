@@ -43,7 +43,7 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |
 | Layout has any intrinsic-scope error `LayoutDiagnostics` reports | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
-| The element-type or style-option registry cannot validate its loaded server-side definitions | 500 | `ELEMENT_TYPE_LOAD_FAILED` or `STYLE_OPTION_LOAD_FAILED` propagates from the registry read |
+| The server-side definitions for the element-type or style-option registry fail validation or otherwise cannot be loaded | 500 | `ELEMENT_TYPE_LOAD_FAILED` or `STYLE_OPTION_LOAD_FAILED` propagates from the registry read |
 | Data-loader source not registered | 500 | `ContentSystemException::dataLoaderNotRegistered` — thrown while resolving the loader for a source (`DataLoaderProvider`), outside any loader's `load()` |
 | Non-degradable hydration fault (`\TypeError`, a database failure, any exception outside `ShopwareHttpException`) | 500 | propagates through `load()` by design |
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |

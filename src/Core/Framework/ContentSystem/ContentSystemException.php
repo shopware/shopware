@@ -182,8 +182,8 @@ class ContentSystemException extends HttpException
      * the last of them:
      *
      * - the DAL write wraps a catalogued exception into a `WriteConstraintViolationException`
-     *   ({@see StoredElementListFieldSerializer::normalize()}), and that is a 400; uncatalogued internal faults
-     *   propagate unchanged;
+     *   ({@see StoredElementListFieldSerializer::normalize()}), resulting in a 400 response; uncatalogued internal
+     *   faults are not wrapped as layout write rejections and retain their original error classification;
      * - the strict draft decode ({@see DraftLayoutDecoder::decode()}) re-raises a catalogued code as
      *   `invalidLayoutStructure`, a 400, and lets an uncatalogued one propagate;
      * - the lintable decode the diagnose route runs ({@see DraftLayoutDecoder::decodeLintable()}) collects a

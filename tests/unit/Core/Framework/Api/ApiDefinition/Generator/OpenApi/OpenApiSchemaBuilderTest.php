@@ -63,7 +63,7 @@ class OpenApiSchemaBuilderTest extends TestCase
 
         (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::STORE_API);
 
-        static::assertSame([['ApiKey' => []]], $openApi->security);
+        static::assertSame([['ApiKey' => []], ['ApiKey' => [], 'ContextSource' => []]], $openApi->security);
         static::assertSame('Shopware Store API', $openApi->info->title);
     }
 
@@ -79,6 +79,8 @@ class OpenApiSchemaBuilderTest extends TestCase
         static::assertSame('sw-context-token', $schemes['ContextToken']['name']);
         static::assertSame('sw-context-source', $schemes['ContextSource']['name']);
         static::assertSame('header', $schemes['ContextSource']['in']);
+        // referenced from the top-level security, otherwise the scheme is an unused component
+        static::assertContains(['ApiKey' => [], 'ContextSource' => []], $schema['security']);
     }
 
     public function testEnrichUsesOAuthSecurityForAdminApi(): void

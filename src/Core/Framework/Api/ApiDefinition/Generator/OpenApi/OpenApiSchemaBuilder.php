@@ -46,7 +46,14 @@ class OpenApiSchemaBuilder
         $openApi->info = $this->createInfo($api, $this->version);
 
         $security = $openApi->security;
-        $openApi->security = [array_merge(\is_array($security) ? $security : [], $this->createSecurity($api))];
+        $requirements = [array_merge(\is_array($security) ? $security : [], $this->createSecurity($api))];
+
+        if (self::API[$api]['apiKey']) {
+            // the storefront session may stand in for the context token on any Store API operation
+            $requirements[] = ['ApiKey' => [], 'ContextSource' => []];
+        }
+
+        $openApi->security = $requirements;
 
         if (!$openApi->components instanceof Components) {
             $openApi->components = new Components([]);

@@ -2,20 +2,11 @@
 
 ## Features
 
-### Authorization code grant with PKCE for the Admin API
+### Browser login for CLI tools and other public OAuth clients
 
-Public OAuth clients, for example `shopware-cli`, can now obtain user-bound Admin API tokens through the browser. The client opens `GET /api/oauth/authorize` with `response_type=code`, a registered `redirect_uri`, an `S256` PKCE challenge and the client id. The user logs in to the Administration, approves the request on a consent page and is redirected back with an authorization code, which the client exchanges at `POST /api/oauth/token` with `grant_type=authorization_code` and the `code_verifier`. The tokens carry the permissions of the approving user and can be refreshed with `grant_type=refresh_token`.
+Tools that act on behalf of an admin user, first of all `shopware-cli`, no longer need an integration secret or the user's password in a config file. The Admin API now supports the OAuth 2.0 authorization code grant with PKCE for registered public clients: the tool opens the shop in the browser, the user logs in to the Administration, approves the request on a consent page and is redirected back to the tool, which receives user-bound access and refresh tokens. The tokens carry the permissions of the approving user, so actions are audited under that user and revoked together with their other sessions.
 
-Shopware ships the `shopware-cli` client with loopback redirect URIs. Operators register further public clients under `shopware.api.oauth_clients`:
-
-```yaml
-shopware:
-    api:
-        oauth_clients:
-            my-tool:
-                name: 'My Tool'
-                redirect_uris: ['http://127.0.0.1/callback']
-```
+Shopware ships the `shopware-cli` client. Operators can register their own public clients, see the Hosting & Configuration section.
 
 ### Document generation v2 (experimental)
 
@@ -103,6 +94,12 @@ Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legac
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
+
+### Authorization code grant on the Admin API authorization server
+
+The OAuth authorization server gained the `authorization_code` grant (`Shopware\Core\Framework\Api\OAuth\ShopwareAuthCodeGrantType`), which only accepts the `S256` PKCE method. Issued codes are single use and stored in the new `oauth_auth_code` table for the duration of `shopware.api.auth_code_ttl`.
+
+Public clients are resolved through `Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry` and may only use the `authorization_code` and `refresh_token` grants. `Shopware\Core\Framework\Api\OAuth\Client\ApiClient` therefore accepts optional `$redirectUris` and `$grantTypes` constructor arguments and exposes `supportsGrantType()`; existing calls keep working and `getRedirectUri()` now returns an empty array instead of failing on an uninitialised property. Decorators of `ClientRepository` or `ScopeRepository` should expect the new grant type identifier `authorization_code`, for which the `write` scope is granted like for the password grant.
 
 ### State machine transitions resolve deterministically
 
@@ -244,6 +241,12 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 ## API
 
+### OAuth authorization endpoint
+
+- `GET /api/oauth/authorize` starts the authorization code flow. It validates `response_type=code`, `client_id`, `redirect_uri`, `code_challenge` and `code_challenge_method=S256` and redirects the browser to the consent page of the Administration. Errors are only redirected to a redirect URI registered for the client; otherwise a JSON error is returned.
+- `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize` are used by the consent page and require a user-bound access token. The `POST` route returns `{ "redirectUri": … }` containing the authorization code, or `error=access_denied` when the user declined.
+- `POST /api/oauth/token` accepts `grant_type=authorization_code` with `client_id`, `code`, `redirect_uri` and `code_verifier`. Refreshing works with `grant_type=refresh_token` and the same `client_id`. The OpenAPI schema lists the new routes and the `authorizationCode` security flow.
+
 ### Store API currency headers validate sales channel availability
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
@@ -274,6 +277,10 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
 
 ## Administration
+
+### Consent page for OAuth clients
+
+The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.
 
 ### Order drafts are cleaned up when leaving the detail page
 
@@ -497,6 +504,23 @@ lineItem.payload.features[].value = { id, type, content, display }
 The button is looked up with the plugin's existing `buyButtonSelector` option, which defaults to `button[type="submit"].btn-buy`. The new `loadingIndicatorPosition` option (`before`, `after` or `inner`, default `inner`) controls where the indicator is rendered. A buy button that does not match `buyButtonSelector` is left untouched.
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
+
+## Hosting & Configuration
+
+### Registering public OAuth clients
+
+Public OAuth clients that may use the authorization code grant are configured under `shopware.api.oauth_clients`. Shopware ships `shopware-cli` with the loopback redirect URIs `http://127.0.0.1/callback` and `http://[::1]/callback`. Loopback URIs accept any port (RFC 8252), all other redirect URIs must match exactly. Additional clients are added per project:
+
+```yaml
+shopware:
+    api:
+        oauth_clients:
+            my-tool:
+                name: 'My Tool'
+                redirect_uris: ['http://127.0.0.1/callback']
+```
+
+The lifetime of authorization codes is configurable with `shopware.api.auth_code_ttl` (default `PT5M`).
 
 ## App System
 

@@ -115,18 +115,31 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->resolve($request);
     }
 
-    public function testExplicitHeaderTokenWinsOverTheSession(): void
+    public function testDeclaringTheSessionSourceAlongsideATokenHeaderFails(): void
     {
-        $sessionToken = Random::getAlphanumericString(32);
+        $request = $this->createStoreApiRequest(Random::getAlphanumericString(32));
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
+
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the request also carries a sw-context-token header; declare either the session or an explicit token as context source, not both'
+        ));
+
+        $this->resolve($request);
+    }
+
+    public function testStorefrontScopedRequestsAreNotSubjectToTheSessionSourceRules(): void
+    {
         $headerToken = Random::getAlphanumericString(32);
 
+        // The storefront's own requests carry both: the token header Core put there before routing,
+        // and whatever a browser extension or proxy may add. Only Store API requests are governed.
         $request = $this->createStoreApiRequest($headerToken);
-        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
 
         $this->resolve($request);
 
         static::assertSame($headerToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame($headerToken, $this->resolvedContext($request)->getToken());
         static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
     }
 
@@ -303,18 +316,19 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->resolve($request);
     }
 
-    public function testAForeignHeaderTokenCannotRepointTheSession(): void
+    public function testATokenHeaderWithoutTheSessionSourceLeavesTheSessionAlone(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
         $foreignToken = Random::getAlphanumericString(32);
         $rotatedForeignToken = Random::getAlphanumericString(32);
 
-        $request = $this->createStoreApiRequest($foreignToken);
+        $request = $this->createStoreApiRequest($foreignToken, sessionOptIn: false);
         $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
         $this->resolve($request);
         $this->respondWith($request, $rotatedForeignToken);
 
+        static::assertSame($foreignToken, $this->resolvedContext($request)->getToken());
         static::assertSame(
             $sessionToken,
             $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
@@ -326,7 +340,7 @@ class SessionContextTokenResolutionTest extends TestCase
     {
         $headerToken = Random::getAlphanumericString(32);
 
-        $request = $this->createStoreApiRequest($headerToken);
+        $request = $this->createStoreApiRequest($headerToken, sessionOptIn: false);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
 
         $this->resolve($request);

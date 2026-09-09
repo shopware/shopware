@@ -42,7 +42,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return;
         }
 
-        if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+        if ($this->isRequestScoped($request, StoreApiRouteScope::class) && $this->sessionContextToken->isRequested($request)) {
             $this->resolveContextTokenFromSession($request);
         }
 
@@ -96,13 +96,19 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     }
 
     /**
-     * A caller that declared `sw-context-source: session` and sent no `sw-context-token` header
-     * continues the shopper's storefront context.
+     * A Store API caller that declared `sw-context-source: session` continues the shopper's
+     * storefront context.
      *
      * The declaration is a contract: when the session cannot be used, the request fails instead of
      * silently falling through to a fresh throwaway token - to a session-based client a fresh token
      * per request would surface as an inexplicably empty cart, while the error names the condition
-     * that was not met.
+     * that was not met. That includes sending an explicit `sw-context-token` alongside: the two are
+     * mutually exclusive ways of naming a context, so a request carrying both is ambiguous rather
+     * than "token wins".
+     *
+     * Only Store API requests get here. Storefront requests always carry the token header the Core
+     * session handling put there before routing, so the exclusivity rule would fire for a header the
+     * client never sent.
      *
      * On success the token is put on the request headers, so every downstream consumer - context
      * service, cart, rotation - sees exactly what it would have seen for a client sent token, and
@@ -110,8 +116,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private function resolveContextTokenFromSession(Request $request): void
     {
-        if (!$this->sessionContextToken->isRequested($request)) {
-            return;
+        if ($request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            throw RoutingException::sessionContextNotResolvable(
+                'the request also carries a sw-context-token header; declare either the session or an explicit token as context source, not both'
+            );
         }
 
         $reason = $this->sessionContextToken->ineligibilityReason($request);

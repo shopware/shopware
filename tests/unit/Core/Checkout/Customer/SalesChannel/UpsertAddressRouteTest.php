@@ -53,7 +53,7 @@ class UpsertAddressRouteTest extends TestCase
         $addressRepository = $this->createMock(EntityRepository::class);
         // the route checks ownership through searchIds before it touches the payload
         $addressRepository->method('searchIds')->willReturn(
-            new IdSearchResult(1, [['primaryKey' => 'address-1', 'data' => []]], new Criteria(), Context::createDefaultContext())
+            new IdSearchResult(1, ['address-1' => ['primaryKey' => 'address-1', 'data' => []]], new Criteria(), Context::createDefaultContext())
         );
         $addressRepository->method('search')->willReturn(
             new EntitySearchResult(

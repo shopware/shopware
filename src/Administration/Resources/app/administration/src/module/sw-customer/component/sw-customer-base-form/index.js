@@ -99,7 +99,7 @@ export default {
         async createdComponent() {
             // An Administration write carries no sales channel, so the routes read the global values
             // too. A hidden name field is never required, hence both flags have to be on.
-            const values = await this.systemConfigApiService.getValues('core.loginRegistration', null);
+            const values = await this.systemConfigApiService.getValues('core.loginRegistration', null).catch(() => null);
 
             const selectable = Boolean(values?.['core.loginRegistration.showAccountTypeSelection']);
             const shown = values?.['core.loginRegistration.showNameFieldsForCompanyAccounts'] ?? true;

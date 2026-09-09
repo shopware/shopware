@@ -17,21 +17,16 @@ class CustomerDisplayNameSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'customer.loaded' => 'onCustomerLoaded',
+            CustomerDefinition::ENTITY_NAME . '.loaded' => 'onCustomerLoaded',
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<CustomerEntity> $event
+     */
     public function onCustomerLoaded(EntityLoadedEvent $event): void
     {
-        if ($event->getName() !== CustomerDefinition::ENTITY_NAME . '.loaded') {
-            return;
-        }
-
         foreach ($event->getEntities() as $customer) {
-            if (!$customer instanceof CustomerEntity) {
-                continue;
-            }
-
             $customer->setDisplayName($this->resolve($customer));
         }
     }

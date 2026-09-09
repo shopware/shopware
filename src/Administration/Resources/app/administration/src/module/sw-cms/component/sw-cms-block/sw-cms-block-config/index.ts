@@ -1,6 +1,7 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';
+import cmsStateMixin from 'shopware:mixins/cms-state';
 
 /**
  * @private
@@ -20,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Shopware.Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
 
     props: {

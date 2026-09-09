@@ -4,6 +4,7 @@
 
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 
@@ -15,7 +16,7 @@ export default {
 
     emits: ['modal-close'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

@@ -6,6 +6,7 @@ import './sw-bulk-edit-save-modal-success.scss';
 import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
 import { DOCUMENT_TYPES } from '../../../sw-order/service/documentV2.service';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 const documentTypeOrder = [
     DOCUMENT_TYPES.INVOICE,
@@ -34,7 +35,7 @@ export default {
     ],
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

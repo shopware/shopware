@@ -1,5 +1,6 @@
 import template from './sw-bulk-edit-order-documents-delete-documents.html.twig';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package after-sales
@@ -15,7 +16,7 @@ export default {
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

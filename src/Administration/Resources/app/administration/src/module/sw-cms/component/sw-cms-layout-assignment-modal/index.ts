@@ -5,6 +5,7 @@ import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -23,7 +24,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['modal-close'],
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

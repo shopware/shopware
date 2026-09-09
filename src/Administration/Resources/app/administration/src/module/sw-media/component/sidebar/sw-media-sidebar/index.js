@@ -1,5 +1,6 @@
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Filter, Context } = Shopware;
 
@@ -14,7 +15,7 @@ export default {
 
     emits: ['media-sidebar-folder-renamed'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         items: {

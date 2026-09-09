@@ -3,6 +3,7 @@ import './sw-cms-inherit-wrapper.scss';
 import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
 import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
 import { isEmpty, isUndefined } from 'shopware:utils/types';
+import cmsStateMixin from 'shopware:mixins/cms-state';
 
 const EVENTS = {
     RESTORE: 'inheritance:restore',
@@ -45,7 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
     inject: ['cmsService'],
     mixins: [
-        Shopware.Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
     emits: [
         EVENTS.RESTORE,

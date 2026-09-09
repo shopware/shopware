@@ -1,7 +1,6 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
-
-const { dom } = Shopware.Utils;
+import { dom } from 'shopware:utils';
 
 /**
  * @sw-package framework

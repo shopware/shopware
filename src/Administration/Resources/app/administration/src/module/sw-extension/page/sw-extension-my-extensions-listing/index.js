@@ -1,5 +1,6 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
+import { types } from 'shopware:utils';
 
 /**
  * @sw-package checkout
@@ -321,7 +322,7 @@ export default {
             };
 
             // If query is empty then replace route, otherwise push
-            if (Shopware.Utils.types.isEmpty(routeQuery)) {
+            if (types.isEmpty(routeQuery)) {
                 this.$router.replace(route);
             } else {
                 this.$router.push(route);

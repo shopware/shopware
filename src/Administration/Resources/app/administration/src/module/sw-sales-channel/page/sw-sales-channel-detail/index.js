@@ -5,10 +5,11 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
 import './sw-sales-channel-detail.scss';
+import { EventBus, object } from 'shopware:utils';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
-const objectHelper = Shopware.Utils.object;
+const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 
 const REQUIRED_BASE_FIELDS = [
@@ -522,7 +523,7 @@ export default {
 
                 this.isSaveSuccessful = true;
 
-                Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
+                EventBus.emit('sw-sales-channel-detail-sales-channel-change');
             } catch (_error) {
                 this.createNotificationError({
                     message: this.$t(

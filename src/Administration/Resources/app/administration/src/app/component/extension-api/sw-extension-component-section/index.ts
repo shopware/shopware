@@ -1,6 +1,7 @@
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
 import template from './sw-extension-component-section.html.twig';
+import { debug } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -65,9 +66,9 @@ export default Shopware.Component.wrapComponentConfig({
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
-                        Shopware.Utils.debug.error(...debugArgs);
+                        debug.error(...debugArgs);
                     } else {
-                        Shopware.Utils.debug.warn(...debugArgs);
+                        debug.warn(...debugArgs);
                     }
                 });
             }

@@ -3,8 +3,8 @@
  */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
+import { cloneDeep } from 'shopware:utils/object';
 
-const { cloneDeep } = Shopware.Utils.object;
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

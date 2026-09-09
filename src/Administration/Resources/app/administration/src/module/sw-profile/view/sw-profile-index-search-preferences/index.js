@@ -3,6 +3,7 @@
  */
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
+import { EventBus } from 'shopware:utils';
 
 const { Module, Store, Mixin } = Shopware;
 
@@ -153,11 +154,11 @@ export default {
         },
 
         addEventListeners() {
-            Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
+            EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         removeEventListeners() {
-            Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
+            EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         updateDataSource() {

@@ -1,7 +1,7 @@
 import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
-
-const { warn } = Shopware.Utils.debug;
+import { EventBus } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 
 /**
  * @sw-package framework
@@ -145,7 +145,7 @@ export default {
                 return;
             }
 
-            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
+            EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
         },
     },
 };

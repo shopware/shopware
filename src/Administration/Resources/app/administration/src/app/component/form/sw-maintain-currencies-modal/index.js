@@ -4,6 +4,7 @@
 
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
+import { object } from 'shopware:utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -109,7 +110,7 @@ export default {
                 this.loadCurrencies();
             }
 
-            this.clonePrices = Shopware.Utils.object.cloneDeep(this.prices);
+            this.clonePrices = object.cloneDeep(this.prices);
         },
 
         loadCurrencies() {

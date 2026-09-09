@@ -3,11 +3,10 @@
  */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
+import { format } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { format } = Shopware.Utils;
-
 /**
  * @private
  */

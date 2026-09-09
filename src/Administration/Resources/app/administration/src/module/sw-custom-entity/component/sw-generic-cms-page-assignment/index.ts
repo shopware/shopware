@@ -4,8 +4,9 @@ import type Repository from 'src/core/data/repository.data';
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-generic-cms-page-assignment.html.twig';
 import './sw-generic-cms-page-assignment.scss';
+import { object } from 'shopware:utils';
 
-const objectUtils = Shopware.Utils.object;
+const objectUtils = object;
 
 interface CmsSlotOverrides {
     [key: string]: unknown;

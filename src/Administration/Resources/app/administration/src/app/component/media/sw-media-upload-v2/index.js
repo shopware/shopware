@@ -1,9 +1,9 @@
 import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
+import { debug, fileReader } from 'shopware:utils';
+import { fileSize } from 'shopware:utils/format';
 
 const { Mixin, Context } = Shopware;
-const { fileReader } = Shopware.Utils;
-const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
@@ -567,7 +567,7 @@ export default {
                         return null;
                     })
                     .catch((error) => {
-                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                        debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
                     });
             });
         },

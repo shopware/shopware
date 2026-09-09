@@ -1,12 +1,11 @@
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
+import { types } from 'shopware:utils';
+import { chunk } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { chunk } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
-
 /**
  * @sw-package checkout
  */

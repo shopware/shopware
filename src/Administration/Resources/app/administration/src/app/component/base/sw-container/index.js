@@ -1,7 +1,6 @@
 import template from './sw-container.html.twig';
 import './sw-container.scss';
-
-const { warn } = Shopware.Utils.debug;
+import { warn } from 'shopware:utils/debug';
 
 /**
  * @sw-package framework

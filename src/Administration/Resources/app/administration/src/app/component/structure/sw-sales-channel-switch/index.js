@@ -2,10 +2,9 @@
  * @sw-package discovery
  */
 import template from './sw-sales-channel-switch.html.twig';
+import { debug } from 'shopware:utils';
 
 const { Criteria } = Shopware.Data;
-const { debug } = Shopware.Utils;
-
 /**
  * @private
  * @description

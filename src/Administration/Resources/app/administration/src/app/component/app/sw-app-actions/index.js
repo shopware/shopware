@@ -4,10 +4,9 @@
 
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
+import { hasOwnProperty } from 'shopware:utils/object';
 
 const { Mixin } = Shopware;
-const { hasOwnProperty } = Shopware.Utils.object;
-
 const actionTypeConstants = Object.freeze({
     ACTION_SHOW_NOTIFICATION: 'notification',
     ACTION_RELOAD_DATA: 'reload',

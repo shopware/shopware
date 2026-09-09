@@ -1,6 +1,7 @@
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
+import { EventBus } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 
@@ -51,13 +52,13 @@ export default {
 
     created() {
         this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
-        Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
+        EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     beforeUnmount() {
         this.unsubscribeFromStore?.();
 
-        Shopware.Utils.EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
+        EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {

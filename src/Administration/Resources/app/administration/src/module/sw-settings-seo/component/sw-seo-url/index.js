@@ -5,6 +5,7 @@
 import './store';
 import template from './sw-seo-url.html.twig';
 import './sw-seo-url.scss';
+import { EventBus } from 'shopware:utils';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
@@ -195,13 +196,13 @@ export default {
     },
 
     created() {
-        Shopware.Utils.EventBus.on('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
+        EventBus.on('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
 
         this.createdComponent();
     },
 
     beforeUnmount() {
-        Shopware.Utils.EventBus.off('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
+        EventBus.off('sw-product-detail-save-finish', this.clearDefaultSeoUrls);
     },
 
     methods: {

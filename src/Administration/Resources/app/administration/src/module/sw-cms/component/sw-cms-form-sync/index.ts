@@ -1,8 +1,7 @@
 import type { PropType } from 'vue';
 import type { RuntimeSlot } from '../../service/cms.service';
-
-const { get, set, getObjectDiff } = Shopware.Utils.object;
-const { isEmpty } = Shopware.Utils.types;
+import { get, getObjectDiff, set } from 'shopware:utils/object';
+import { isEmpty } from 'shopware:utils/types';
 
 type FieldConfig = {
     value: unknown;

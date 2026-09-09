@@ -7,12 +7,13 @@ import template from './sw-product-detail.html.twig';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 import '../../page/sw-product-detail/store';
+import { EventBus, types } from 'shopware:utils';
+import { cloneDeep } from 'shopware:utils/object';
 
 const { Context, Mixin, EntityDefinition } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
-const type = Shopware.Utils.types;
+const type = types;
 
 const ADVANCED_MODE_SETTINGS_KEY = 'mode.setting.advancedModeSettings';
 
@@ -1278,7 +1279,7 @@ export default {
 
             Promise.all(this.updateSeoPromises)
                 .then(() => {
-                    Shopware.Utils.EventBus.emit('sw-product-detail-save-finish');
+                    EventBus.emit('sw-product-detail-save-finish');
                 })
                 .then(() => {
                     switch (response) {

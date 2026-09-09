@@ -1,8 +1,7 @@
 import { inject } from 'vue';
 import template from './sw-number-field.html.twig';
 import './sw-number-field.scss';
-
-const { warn } = Shopware.Utils.debug;
+import { warn } from 'shopware:utils/debug';
 
 /**
  * @sw-package framework

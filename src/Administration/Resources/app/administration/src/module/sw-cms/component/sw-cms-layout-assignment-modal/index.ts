@@ -3,8 +3,8 @@ import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/E
 import difference from 'lodash-es/difference';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
+import { cloneDeep } from 'shopware:utils/object';
 
-const { cloneDeep } = Shopware.Utils.object;
 const { Criteria } = Shopware.Data;
 
 /**

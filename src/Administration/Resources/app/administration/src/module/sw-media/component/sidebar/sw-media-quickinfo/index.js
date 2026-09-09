@@ -2,6 +2,7 @@ import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/a
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
+import { EventBus } from 'shopware:utils';
 
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
@@ -240,7 +241,7 @@ export default {
                 });
             } finally {
                 this.isLoading = false;
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                EventBus.emit('sw-media-library-item-updated', this.item.id);
             }
         },
 

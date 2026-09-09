@@ -1,5 +1,6 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
+import { debounce } from 'shopware:utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -239,7 +240,7 @@ export default {
             return Promise.all(parentPromises);
         },
 
-        onUpdatePositions: Shopware.Utils.debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
+        onUpdatePositions: debounce(function onUpdatePositions({ draggedItem, oldParentId, newParentId }) {
             if (draggedItem.children.length > 0) {
                 draggedItem.children.forEach((child) => {
                     this.removeFromStore(child.id);

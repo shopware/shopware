@@ -1,6 +1,7 @@
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
+import { EventBus } from 'shopware:utils';
 
 const { Application, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -280,12 +281,12 @@ export default {
         destroyedComponent() {
             this.collapseQuery?.removeEventListener('change', this.syncSearchBarCollapse);
             document.removeEventListener('click', this.closeOnClickOutside);
-            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
+            EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
+            EventBus.on('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         onMouseOver(index, column) {
@@ -395,7 +396,7 @@ export default {
             this.isActive = true;
             this.isOffCanvasShown = false;
 
-            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+            EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         hideSearchBar() {
@@ -484,7 +485,7 @@ export default {
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
-            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+            EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
         },
 
         onOffCanvasToggle(state) {

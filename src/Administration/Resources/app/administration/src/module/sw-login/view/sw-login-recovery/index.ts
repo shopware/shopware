@@ -3,10 +3,9 @@
  */
 
 import template from './sw-login-recovery.html.twig';
+import { debounce } from 'shopware:utils';
 
 const { Component } = Shopware;
-const { debounce } = Shopware.Utils;
-
 /**
  * @private
  */

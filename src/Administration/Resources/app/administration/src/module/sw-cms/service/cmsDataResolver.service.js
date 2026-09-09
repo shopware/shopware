@@ -1,8 +1,8 @@
-const { Application } = Shopware;
-const { cloneDeep, merge } = Shopware.Utils.object;
-const Criteria = Shopware.Data.Criteria;
-const { warn } = Shopware.Utils.debug;
+import { warn } from 'shopware:utils/debug';
+import { cloneDeep, merge } from 'shopware:utils/object';
 
+const { Application } = Shopware;
+const Criteria = Shopware.Data.Criteria;
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {
         resolve,

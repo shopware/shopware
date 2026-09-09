@@ -1,9 +1,8 @@
 import template from './sw-condition-generic.html.twig';
 import './sw-condition-generic.scss';
+import { getPlaceholderSnippet } from 'shopware:utils/genericRuleCondition';
 
 const { Mixin } = Shopware;
-const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
-
 /**
  * @public
  * @sw-package fundamentals@after-sales

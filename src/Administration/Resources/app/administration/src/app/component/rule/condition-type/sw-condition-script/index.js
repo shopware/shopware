@@ -1,5 +1,6 @@
 import template from './sw-condition-script.html.twig';
 import './sw-condition-script.scss';
+import { object } from 'shopware:utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -77,7 +78,7 @@ export default {
 
     methods: {
         getBind(field) {
-            const fieldClone = Shopware.Utils.object.cloneDeep(field);
+            const fieldClone = object.cloneDeep(field);
 
             if (fieldClone.type === 'html') {
                 fieldClone.type = 'text';

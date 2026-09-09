@@ -4,11 +4,12 @@
 
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
+import { dom, EventBus, object } from 'shopware:utils';
 
 const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
-const domUtils = Shopware.Utils.dom;
-const objectHelper = Shopware.Utils.object;
+const domUtils = dom;
+const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
@@ -717,7 +718,7 @@ export default {
             return this.salesChannelRepository
                 .delete(salesChannelId, Context.api)
                 .then(() => {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+                    EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
                     this.salesChannelFavoritesService.refresh();
 
                     return true;

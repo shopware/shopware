@@ -4,11 +4,10 @@
 
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
+import { debounce, debug, get } from 'shopware:utils';
 
 const { Component, Mixin, Utils } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-const { debounce, get } = Shopware.Utils;
-
 /**
  * @private
  */
@@ -659,7 +658,7 @@ export default {
                             0,
                         ),
                     });
-                    Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
+                    debug.error('Only Entities with "name" as the only required field are creatable.');
                     this.isLoading = false;
                 });
         },

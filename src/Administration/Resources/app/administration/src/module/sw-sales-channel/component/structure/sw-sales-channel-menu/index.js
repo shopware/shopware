@@ -4,6 +4,7 @@
 
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
+import { EventBus } from 'shopware:utils';
 
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
@@ -186,18 +187,18 @@ export default {
         },
 
         registerListener() {
-            Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
-            Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
-            Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
-            Shopware.Utils.EventBus.on('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
+            EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
+            EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
+            EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            EventBus.on('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         destroyedComponent() {
             this.mobileViewportQuery?.removeEventListener('change', this.syncMobileViewport);
-            Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
-            Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
-            Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
-            Shopware.Utils.EventBus.off('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
+            EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
+            EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
+            EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            EventBus.off('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         getDomainLink(salesChannel) {

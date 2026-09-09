@@ -4,10 +4,9 @@
 
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
+import { uniqBy } from 'shopware:utils/array';
 
 const { Criteria, EntityCollection } = Shopware.Data;
-const { uniqBy } = Shopware.Utils.array;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

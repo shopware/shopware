@@ -1,11 +1,10 @@
 import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
+import { types } from 'shopware:utils';
+import { cloneDeep, get, has, merge, set } from 'shopware:utils/object';
 
 const { Mixin } = Shopware;
-const { types } = Shopware.Utils;
-const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
-
 /**
  * @private
  * @sw-package discovery

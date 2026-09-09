@@ -3,6 +3,7 @@
  */
 
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
+import { object } from 'shopware:utils';
 
 /**
  * @description Exposes an user search preferences
@@ -180,14 +181,11 @@ export default function SearchPreferencesService() {
 
         tempSearchPreferencesFields.forEach((field) => {
             field.group.forEach((group) => {
-                const searchPreferencesField = Shopware.Utils.object.set({}, group.fieldName, {
+                const searchPreferencesField = object.set({}, group.fieldName, {
                     _searchable: field._searchable,
                     _score: field._score,
                 });
-                searchPreferencesFields = Shopware.Utils.object.deepMergeObject(
-                    searchPreferencesFields,
-                    searchPreferencesField,
-                );
+                searchPreferencesFields = object.deepMergeObject(searchPreferencesFields, searchPreferencesField);
             });
         });
 

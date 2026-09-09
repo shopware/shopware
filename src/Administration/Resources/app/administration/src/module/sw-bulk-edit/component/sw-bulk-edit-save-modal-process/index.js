@@ -4,8 +4,7 @@
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
-
-const { chunk: chunkArray } = Shopware.Utils.array;
+import { chunk as chunkArray } from 'shopware:utils/array';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

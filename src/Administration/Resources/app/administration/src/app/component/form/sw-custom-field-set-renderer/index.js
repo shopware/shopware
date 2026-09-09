@@ -4,6 +4,7 @@ import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/met
 
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
+import { object } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -474,7 +475,7 @@ export default {
         },
 
         getBind(customField, props) {
-            const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
+            const customFieldClone = object.cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;

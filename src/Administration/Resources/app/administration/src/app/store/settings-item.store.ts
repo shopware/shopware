@@ -1,4 +1,4 @@
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
 
 /**
  * @private

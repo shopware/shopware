@@ -365,7 +365,11 @@
       "pending": "Pending",
       "changed": "Changed",
       "update": "Update",
-      "password": "Password"
+      "password": "Password",
+      "confirm": "Confirmation",
+      "document": "Document",
+      "generation": "Generation",
+      "revocationRequest": "Revocation request"
     }
   },
   "sw-privileges": {

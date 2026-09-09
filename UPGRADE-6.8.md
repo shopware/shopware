@@ -1571,9 +1571,117 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
+## `sw-tabs` automatic wrapper switch deferred
+
+The previously announced automatic switch from the deprecated Administration `sw-tabs` wrapper to `mt-tabs` when the `v6.8.0.0` feature flag is active will not happen. `sw-tabs` keeps rendering its legacy implementation regardless of the feature flag and remains deprecated for removal in 6.9.
+
+When an extension has already prepared for the Meteor API, it can opt in to the wrapper's temporary compatibility path with `use-meteor-component`. This renders the underlying `mt-tabs` implementation regardless of the `v6.8.0.0` feature flag:
+
+```html
+<sw-tabs use-meteor-component />
+```
+
+Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
+
+The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
+
+### Replace `sw-tabs` with `mt-tabs`
+
+Before:
+
+```html
+<sw-tabs />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
+### Replace `sw-tabs-item` children with the `items` prop
+
+Before:
+
+```html
+<sw-tabs>
+    <template #default="{ active }">
+        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
+        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs :items="[
+    {
+        label: 'Tab 1',
+        name: 'tab1',
+    },
+    {
+        label: 'Tab 2',
+        name: 'tab2',
+    },
+]" />
+```
+
+### Render content outside `mt-tabs`
+
+The legacy `content` slot is not supported. Store the active item from `new-item-active` and render the corresponding content outside the component.
+
+Before:
+
+```html
+<sw-tabs>
+    <template #content="{ active }">
+        The current active item is {{ active }}
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs @new-item-active="setActiveItem" />
+
+The current active item is {{ activeItem }}
+```
+
+### Rename `is-vertical` to `vertical`
+
+Before:
+
+```html
+<sw-tabs is-vertical />
+```
+
+After:
+
+```html
+<mt-tabs vertical />
+```
+
+### Remove `align-right`
+
+`mt-tabs` has no replacement for `align-right`.
+
+Before:
+
+```html
+<sw-tabs align-right />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 
-The Administration `sw-tabs` component has been replaced by `mt-tabs`. The legacy `sw-tabs` fallback branches guarded by the `v6.8.0.0` feature flag have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+The affected core Administration components use `mt-tabs` in their `v6.8.0.0` branches. Their legacy `sw-tabs` fallback branches have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
 
 The following Twig blocks have been removed:
 

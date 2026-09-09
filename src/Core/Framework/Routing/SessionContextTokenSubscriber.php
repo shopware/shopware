@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +33,8 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
     private const PRIORITY_START = 40;
 
     /**
-     * After CacheResponseSubscriber::setResponseCache (-1500), which rewrites Cache-Control wholesale.
+     * After CacheResponseSubscriber::setResponseCache (-1500), which rewrites Cache-Control wholesale,
+     * and after ResponseHeaderListener (0) has echoed the request's context token onto the response.
      */
     private const PRIORITY_CACHE_CONTROL = -1600;
 
@@ -53,7 +55,7 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
                 ['startSession', self::PRIORITY_START],
             ],
             KernelEvents::RESPONSE => [
-                ['enforceCacheControl', self::PRIORITY_CACHE_CONTROL],
+                ['protectSessionResolvedResponse', self::PRIORITY_CACHE_CONTROL],
             ],
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
@@ -93,7 +95,11 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
         $this->rotate($context->getSalesChannelId(), $context->getToken());
     }
 
-    public function enforceCacheControl(ResponseEvent $event): void
+    /**
+     * A borrower declared that it never handles the token, so it is not handed one either: the response
+     * header echo would turn the HttpOnly session into a bearer credential any script on the page can read.
+     */
+    public function protectSessionResolvedResponse(ResponseEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -101,9 +107,13 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION)) {
-            $this->denySharedCache($event->getResponse());
+        if (!$request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION)) {
+            return;
         }
+
+        $response = $event->getResponse();
+        $response->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $this->denySharedCache($response);
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry

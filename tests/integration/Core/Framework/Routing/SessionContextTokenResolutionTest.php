@@ -222,6 +222,7 @@ class SessionContextTokenResolutionTest extends TestCase
 
         static::assertTrue($response->headers->hasCacheControlDirective('private'));
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN), 'a session sourced client is never handed the token');
     }
 
     public function testARotationMigratesTheSessionId(): void
@@ -342,6 +343,7 @@ class SessionContextTokenResolutionTest extends TestCase
 
         // the full kernel.response chain, so CacheResponseSubscriber runs before the no-store enforcement
         $response = new Response();
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $sessionToken);
         static::getContainer()->get('event_dispatcher')->dispatch(
             new ResponseEvent(
                 static::getContainer()->get('kernel'),
@@ -356,6 +358,7 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertTrue($response->headers->hasCacheControlDirective('private'), (string) $response->headers->get('cache-control'));
         static::assertFalse($response->headers->hasCacheControlDirective('public'), (string) $response->headers->get('cache-control'));
         static::assertFalse($response->headers->hasCacheControlDirective('s-maxage'), (string) $response->headers->get('cache-control'));
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testATokenHeaderWithoutTheSessionSourceLeavesTheSessionAlone(): void
@@ -388,6 +391,7 @@ class SessionContextTokenResolutionTest extends TestCase
         $response = $this->respond($request);
 
         static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN), 'a client that manages its own token keeps getting it back');
     }
 
     private function createStoreApiRequest(?string $contextToken = null, bool $sessionOptIn = true): Request
@@ -455,11 +459,15 @@ class SessionContextTokenResolutionTest extends TestCase
         ));
     }
 
+    /**
+     * A response as it reaches the last listener: with the context token echoed onto it.
+     */
     private function respond(Request $request): Response
     {
         $response = new Response();
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $this->subscriber->enforceCacheControl(new ResponseEvent(
+        $this->subscriber->protectSessionResolvedResponse(new ResponseEvent(
             static::getContainer()->get('kernel'),
             $request,
             HttpKernelInterface::MAIN_REQUEST,

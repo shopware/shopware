@@ -418,6 +418,13 @@ EOF,
                     'name' => PlatformRequest::HEADER_CONTEXT_TOKEN,
                     'description' => 'Identifies an anonymous or identified user session',
                 ]),
+                'Session Context Source' => new SecurityScheme([
+                    'securityScheme' => 'ContextSource',
+                    'type' => 'apiKey',
+                    'in' => 'header',
+                    'name' => PlatformRequest::HEADER_CONTEXT_SOURCE,
+                    'description' => 'Set to `session` to resolve the user session from the storefront session cookie of a same-origin request instead of a context token. Mutually exclusive with `sw-context-token`.',
+                ]),
             ];
         }
 

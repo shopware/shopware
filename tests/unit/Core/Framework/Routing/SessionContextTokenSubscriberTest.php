@@ -51,7 +51,7 @@ class SessionContextTokenSubscriberTest extends TestCase
     {
         static::assertSame([
             KernelEvents::REQUEST => [['startSession', 40]],
-            KernelEvents::RESPONSE => [['enforceCacheControl', -1600]],
+            KernelEvents::RESPONSE => [['protectSessionResolvedResponse', -1600]],
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
             SalesChannelContextResolvedEvent::class => 'onContextResolved',
@@ -316,23 +316,40 @@ class SessionContextTokenSubscriberTest extends TestCase
         $response = new Response();
         $response->headers->set('Cache-Control', 'public, s-maxage=1800');
 
-        $this->subscriber([$request])->enforceCacheControl($this->responseEvent($request, $response));
+        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
 
         static::assertTrue($response->headers->hasCacheControlDirective('private'));
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
         static::assertFalse($response->headers->hasCacheControlDirective('public'));
     }
 
-    public function testOtherStoreApiResponsesKeepTheirCacheHeaders(): void
+    public function testSessionResolvedStoreApiResponsesDoNotHandOutTheToken(): void
+    {
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+            SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION => true,
+        ]);
+        // what ResponseHeaderListener's echo and ContextTokenResponse put there
+        $response = new Response();
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'the-shoppers-token');
+
+        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
+
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testOtherStoreApiResponsesKeepTheirCacheHeadersAndToken(): void
     {
         $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
         $response = new Response();
         $response->headers->set('Cache-Control', 'public, s-maxage=1800');
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'a-client-managed-token');
 
-        $this->subscriber([$request])->enforceCacheControl($this->responseEvent($request, $response));
+        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
 
         static::assertTrue($response->headers->hasCacheControlDirective('public'));
         static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
+        static::assertSame('a-client-managed-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testResponsesOutsideTheStoreApiAreNotTouched(): void
@@ -344,7 +361,7 @@ class SessionContextTokenSubscriberTest extends TestCase
         $response = new Response();
         $response->headers->set('Cache-Control', 'public, s-maxage=1800');
 
-        $this->subscriber([$request])->enforceCacheControl($this->responseEvent($request, $response));
+        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
 
         static::assertTrue($response->headers->hasCacheControlDirective('public'));
     }
@@ -400,7 +417,7 @@ class SessionContextTokenSubscriberTest extends TestCase
         Feature::fake(['CACHE_REWORK'], function () use ($cacheSubscriber, $event, $request): void {
             // kernel.response order: CacheResponseSubscriber at -1500, ours at -1600
             $cacheSubscriber->setResponseCache($event);
-            $this->subscriber([$request])->enforceCacheControl($event);
+            $this->subscriber([$request])->protectSessionResolvedResponse($event);
         });
 
         static::assertSame($expected, $event->getResponse()->headers->get('cache-control'));

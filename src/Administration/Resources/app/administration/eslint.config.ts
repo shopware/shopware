@@ -25,14 +25,13 @@ import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
 
-import swCoreRules from 'eslint-plugin-sw-core-rules';
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
 // The factory is the single source of the base lint setup for admin AND
 // extensions. pluginVue/swDeprecationRules must be the factory's own objects:
 // ESLint refuses to redefine a plugin key with a different object reference,
 // and the factory blocks register these plugins for overlapping files.
-import shopwareAdminExtension, { pluginVue, swDeprecationRules } from './extension-tooling/eslint.mjs';
+import shopwareAdminExtension, { pluginVue, swCoreRules, swDeprecationRules } from './extension-tooling/eslint.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -222,7 +221,6 @@ export default [
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             'build/vue-setup-transform/**/*.d.ts',
-            'build/vue-setup-transform/templates/**/*',
             '**/*.fixtures.js',
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
@@ -271,10 +269,10 @@ export default [
             'inclusive-language': fixupPluginRules(inclusiveLanguage),
             'file-progress': fixupPluginRules(fileProgress),
             'filename-rules': fixupPluginRules(filenameRulesPatched),
-            'sw-core-rules': fixupPluginRules(swCoreRules),
             // Deliberately not fixup-wrapped: the wrapper would be a second
-            // object under the key the factory already registers, and the
+            // object under the keys the factory already registers, and the
             // rules only use context APIs that still exist in ESLint 9.
+            'sw-core-rules': swCoreRules,
             'sw-deprecation-rules': swDeprecationRules,
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,
@@ -348,6 +346,14 @@ export default [
                 },
                 extraFileExtensions: ['.vue'],
                 sourceType: 'module',
+                // The only .vue files in the admin sources are the jest-transform
+                // fixtures under app/adapter/_mocks_, and the admin tsconfig does
+                // not pull them into its program (.vue is not a TS-resolved
+                // extension). Keep them out of the project service so the factory's
+                // type-aware .vue block has nothing to resolve them against and
+                // does not error. Extensions carry their own typed .vue programs
+                // and get the full type-aware coverage through that same block.
+                projectService: false,
             },
             globals: {
                 swDefinePublic: 'readonly',
@@ -358,22 +364,15 @@ export default [
             },
         },
         rules: {
-            // typescript-eslint's projectService cannot resolve Vue script-setup macros (defineProps,
-            // swDefinePublic, useSwPreviousState, ...), so its type-aware rules report only false
-            // `no-unsafe`/error-typed positives on .vue - turn them off. This removes noise, not
-            // coverage: `lint:types` is plain tsc, which does not type-check .vue at all, and vue-tsc
-            // is not wired into CI; .vue type safety is an editor-time concern (Volar) today.
+            // No type program backs these fixtures, so the type-aware rules the
+            // factory turns on for .vue would throw "requires type information" —
+            // switch the whole type-checked set back off here.
             ...tseslint.configs.disableTypeChecked.rules,
-            // no-unused-vars (base AND typed) stays OFF for .vue. With <script setup lang="ts"> the TS
-            // sub-parser severs vue-eslint-parser's template->script reference linking, so a binding
-            // used only in <template> reads as unused (verified: plain <script setup> tracks it,
-            // lang="ts" does not). Neither rule can tell template-used from truly-unused here, so both
-            // would false-positive on ordinary components. Unused-var coverage for .vue belongs to
-            // vue-tsc, which is not yet wired into CI - so .vue has no CI unused-var gate today (Volar
-            // covers it in the editor only).
+            // Same reason: without a program, no-unused-vars cannot see the
+            // fixtures' bindings reliably, so leave unused-var coverage to the
+            // factory's typed extension path.
             'no-unused-vars': 'off',
             '@typescript-eslint/no-unused-vars': 'off',
-            'vue/script-setup-uses-vars': 'error',
             // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
             'vue/no-dupe-keys': 'error',
         },

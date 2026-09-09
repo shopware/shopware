@@ -102,7 +102,6 @@ export async function createWrapper({ aclCan = () => true, cardStub, query = {} 
                         template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
                         props: ['extension'],
                     },
-                    'sw-meteor-card': true,
                     'sw-extension-bulk-actions-bar': await wrapTestComponent('sw-extension-bulk-actions-bar', {
                         sync: true,
                     }),

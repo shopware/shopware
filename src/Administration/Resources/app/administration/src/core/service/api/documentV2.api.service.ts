@@ -6,6 +6,7 @@ import fileReaderUtils from '../utils/file-reader.utils';
 
 type DocumentTypeFormats = {
     formats: string[];
+    label?: Record<string, string>;
 };
 
 type AvailableDocumentTypesResponse = {

@@ -340,4 +340,38 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
 
         expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
     });
+
+    it('should prefer the server translated message for promotion cart errors', async () => {
+        const wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.handlePromotionResponse({
+            data: {
+                errors: [
+                    {
+                        level: 20,
+                        message: 'Promotion with code SUMMER not found!',
+                        messageKey: 'promotion-not-found',
+                        translatedMessage: 'Gutscheincode "SUMMER" existiert nicht.',
+                    },
+                    {
+                        level: 20,
+                        message: 'Something went wrong',
+                        messageKey: 'custom-plugin-error',
+                        translatedMessage: 'checkout.custom-plugin-error',
+                    },
+                ],
+            },
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenNthCalledWith(1, {
+            message: 'Gutscheincode "SUMMER" existiert nicht.',
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenNthCalledWith(2, {
+            message: 'Something went wrong',
+        });
+    });
 });

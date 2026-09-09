@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CategoryEntity>
- *
- * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class CategoryCollection extends EntityCollection

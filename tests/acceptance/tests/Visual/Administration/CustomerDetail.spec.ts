@@ -35,6 +35,12 @@ test(
         await test.step('Creates a screenshot of the customer listing page.', async () => {
             await ShopAdmin.goesTo(AdminCustomerListing.url());
 
+            const customerLineItem = await AdminCustomerListing.getCustomerByEmail(customer.email);
+            await ShopAdmin.expects(customerLineItem.customerName).toHaveAttribute(
+                'href',
+                `#/sw/customer/detail/${customer.id}?edit=false`,
+            );
+
             //hide the first dynamic customer for test stability
             const defaultCustomerRow = AdminCustomerListing.page
                 .getByRole('row')

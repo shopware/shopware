@@ -17,7 +17,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-skeleton-bar', () => {
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-skeleton-bar implementation.
     // The switch to mt-skeleton-bar is ENABLE_METEOR_COMPONENTS, which v6.8 does not set.
     it('should render the deprecated skeleton-bar', async () => {
         const wrapper = await createWrapper();

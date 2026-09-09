@@ -18,7 +18,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-loader', () => {
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-loader implementation.
     // The switch to mt-loader is ENABLE_METEOR_COMPONENTS, which v6.8 does not set.
     it('should render the deprecated sw-loader', async () => {
         const wrapper = await createWrapper();

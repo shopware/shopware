@@ -427,6 +427,22 @@ The landing page copy moved to the new snippets `sw-extension-store.landing-page
 - `sw-extension-store.landing-page.activationDescriptionTitleDescription`
 
 The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.sw-extension-store-landing-page__wrapper` no longer carries a background, border or fixed width, and `__wrapper-content` / `__wrapper-activated` no longer carry styles.
+
+### Native-setup components expose their `swDefinePublic()` bindings to parents
+
+`swDefinePublic({ ... })` now also calls `defineExpose()` internally with the same arguments to make its exposure symmetrical to the override surface call:
+
+```js
+const opened = ref(false);
+
+swDefinePublic({ opened });
+// a parent: treeItem.value.opened = false;
+```
+
+The component's props are exposed alongside them and need no declaration, so `ref.value.label` keeps working; they are read-only, as they are for the component itself.
+
+Calling `defineExpose()` yourself is rejected in base and override components: in base mode `swDefinePublic()` already calls it for you, in override mode you're unnable to use it.
+
 ### Extension empty states use `mt-empty-state`
 
 The empty states of Extensions > My extensions and the Shopware Store activation page render `mt-empty-state`. The Twig blocks and snippet keys are unchanged, but overrides that build on the previous markup need to adapt: the listing empty state is no longer a `sw-meteor-card`, and on the activation page the "Now available" badge (`.sw-extension-store-landing-page__wrapper-label`) and the `sw-label` of the success and error states no longer exist.

@@ -170,8 +170,8 @@ export default {
                 return this.customInheritationCheckFunction(this.value);
             }
 
-            // if association or array
-            if ((this.isAssociation || Array.isArray(this.value)) && this.value) {
+            // if association
+            if (this.isAssociation && this.value) {
                 return this.value.length <= 0;
             }
 

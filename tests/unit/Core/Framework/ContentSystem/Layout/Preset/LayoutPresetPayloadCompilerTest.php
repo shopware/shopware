@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -66,7 +65,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         static::assertNotSame($container['id'], $children[0]['id']);
     }
 
-    #[TestDox('carries per-viewport style through to the draft element')]
+    #[TestDox('carries the authored style through to the draft element verbatim')]
     public function testCompileCarriesStyle(): void
     {
         $captured = [];
@@ -74,7 +73,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
 
         $style = [
             'col-span' => ['xs' => 4, 'sm' => 4, 'md' => 4, 'lg' => 3, 'xl' => 3, 'xxl' => 3],
-            'display' => ['xs' => false, 'sm' => false, 'md' => false, 'lg' => true, 'xl' => true, 'xxl' => true],
+            'display' => 3,
         ];
 
         $compiler->compile([
@@ -84,49 +83,21 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         static::assertSame($style, $captured[0]['style']);
     }
 
-    #[TestDox('throws when style is not a mapping')]
-    public function testNonArrayStyleThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Content:Text', 'style' => 'nope']]);
-    }
-
-    #[TestDox('accepts every canonical breakpoint key in a style option')]
-    public function testCompileAcceptsCanonicalBreakpoints(): void
+    #[TestDox('leaves a malformed slot structure for the decoder to reject, still minting the element id')]
+    public function testPassesMalformedSlotsThroughToDecoder(): void
     {
         $captured = [];
         $compiler = $this->createCompiler($this->capturingDecoder($captured));
 
-        $style = ['col-span' => ['xs' => 4, 'sm' => 4, 'md' => 4, 'lg' => 3, 'xl' => 3, 'xxl' => 3]];
+        $compiler->compile([
+            ['component' => 'Sw:Grid:Container', 'slots' => 'nope'],
+            ['component' => 'Sw:Grid:Container', 'slots' => ['content' => 'nope']],
+        ]);
 
-        $compiler->compile([['component' => 'Sw:Product:Listing', 'style' => $style]]);
-
-        static::assertSame($style, $captured[0]['style']);
-    }
-
-    #[TestDox('throws on a style breakpoint key outside the canonical set')]
-    public function testUnknownStyleBreakpointThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Product:Listing', 'style' => ['col-span' => ['lg' => 3, 'nope' => 2]]]]);
-    }
-
-    #[TestDox('throws when a breakpoint mapping does not define every breakpoint')]
-    public function testIncompleteBreakpointMapThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Product:Listing', 'style' => ['col-span' => ['lg' => 3, 'md' => 4]]]]);
-    }
-
-    #[TestDox('broadcasts a scalar style option value across every breakpoint')]
-    public function testScalarStyleOptionBroadcastsToAllBreakpoints(): void
-    {
-        $captured = [];
-        $compiler = $this->createCompiler($this->capturingDecoder($captured));
-
-        $compiler->compile([['component' => 'Sw:Product:Listing', 'style' => ['col-span' => 3]]]);
-
-        static::assertSame(
-            ['xs' => 3, 'sm' => 3, 'md' => 3, 'lg' => 3, 'xl' => 3, 'xxl' => 3],
-            $captured[0]['style']['col-span'],
-        );
+        static::assertSame('nope', $captured[0]['slots']);
+        static::assertSame(['content' => 'nope'], $captured[1]['slots']);
+        static::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $captured[0]['id']);
+        static::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $captured[1]['id']);
     }
 
     #[TestDox('re-encodes the decoded elements into the served payload')]
@@ -151,57 +122,8 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         static::assertSame([], $this->createCompiler($decoder)->compile([]));
     }
 
-    #[TestDox('throws when a node is not a mapping')]
-    public function testNonArrayNodeThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Content:Text'], 'not-a-node']);
-    }
-
-    #[TestDox('throws when a node has no type')]
-    public function testMissingTypeThrows(): void
-    {
-        $this->assertInvalidLayout([['properties' => ['text' => 'x']]]);
-    }
-
-    #[TestDox('throws when the type is blank')]
-    public function testBlankTypeThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => '']]);
-    }
-
-    #[TestDox('throws when properties is not a mapping')]
-    public function testNonArrayPropertiesThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Content:Text', 'properties' => 'nope']]);
-    }
-
-    #[TestDox('throws when slots is not a mapping')]
-    public function testNonArraySlotsThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Grid:Container', 'slots' => 'nope']]);
-    }
-
-    #[TestDox('throws when a slot does not map to a list of children')]
-    public function testSlotChildrenNotListThrows(): void
-    {
-        $this->assertInvalidLayout([['component' => 'Sw:Grid:Container', 'slots' => ['content' => 'nope']]]);
-    }
-
     /**
-     * @param list<mixed> $layout
-     */
-    private function assertInvalidLayout(array $layout): void
-    {
-        try {
-            $this->createCompiler(static::createStub(DraftLayoutDecoder::class))->compile($layout);
-            static::fail('Expected a ContentSystemException.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::LAYOUT_PRESET_INVALID_LAYOUT, $e->getErrorCode());
-        }
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $captured
+     * @param array<int, mixed> $captured
      */
     private function capturingDecoder(array &$captured): DraftLayoutDecoder
     {

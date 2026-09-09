@@ -3,6 +3,7 @@
  */
 import template from './sw-bulk-edit-order-documents-download-documents.html.twig';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,7 +16,7 @@ export default {
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     computed: {

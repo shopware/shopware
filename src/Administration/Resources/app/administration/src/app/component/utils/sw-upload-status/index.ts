@@ -1,5 +1,6 @@
 import { UploadEvents } from 'src/core/service/api/media.api.service';
 import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-library';
+import notificationMixin from 'shopware:mixins/notification';
 
 const UploadStatus = {
     ACTIVE: 'active',
@@ -115,7 +116,7 @@ export default Shopware.Component.wrapComponentConfig({
         'mediaService',
     ],
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
     data() {
         return {

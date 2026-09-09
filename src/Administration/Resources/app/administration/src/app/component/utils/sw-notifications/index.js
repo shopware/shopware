@@ -5,6 +5,7 @@
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 import { string } from 'shopware:utils';
+import notificationTranslationMixin from 'shopware:mixins/notification-translation';
 
 /**
  * @private
@@ -16,7 +17,7 @@ import { string } from 'shopware:utils';
 export default {
     template,
 
-    mixins: [Shopware.Mixin.getByName('notification-translation')],
+    mixins: [notificationTranslationMixin],
 
     inject: ['feature'],
 

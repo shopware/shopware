@@ -45,6 +45,7 @@ async function createWrapper(propsOverride) {
                     </div>
                 `,
                     },
+                    'mt-tabs': true,
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
@@ -90,18 +91,19 @@ describe('module/sw-cms/elements/category-name/config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity('category');
         Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_list',
         });
     });
 
-    it.deprecated('v6.8.0.0')('maps to category.name when used on a category detail page', async () => {
+    it('maps to category.name when used on a category detail page', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.element.config.content.source).toBe('mapped');
         expect(wrapper.vm.element.config.content.value).toBe('category.name');
     });
 
-    it.deprecated('v6.8.0.0')('keeps an existing translated config without overwriting', async () => {
+    it('keeps an existing translated config without overwriting', async () => {
         const wrapper = await createWrapper({
             element: {
                 config: {
@@ -129,7 +131,7 @@ describe('module/sw-cms/elements/category-name/config', () => {
         expect(wrapper.vm.element.config.content.value).toBe('Sample Category');
     });
 
-    it.deprecated('v6.8.0.0')('keeps an existing non-translated config', async () => {
+    it('keeps an existing non-translated config', async () => {
         const wrapper = await createWrapper({
             element: {
                 config: {

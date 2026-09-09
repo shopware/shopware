@@ -45,6 +45,7 @@ async function createWrapper(propsOverride) {
                     </div>
                 `,
                     },
+                    'mt-tabs': true,
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
@@ -90,18 +91,19 @@ describe('module/sw-cms/elements/product-name/config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity('product');
         Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });
     });
 
-    it.deprecated('v6.8.0.0')('should map to a product name if the component is in a product page', async () => {
+    it('should map to a product name if the component is in a product page', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.element.config.content.source).toBe('mapped');
         expect(wrapper.vm.element.config.content.value).toBe('product.name');
     });
 
-    it.deprecated('v6.8.0.0')('should not initially map to a product name if element translated config exists', async () => {
+    it('should not initially map to a product name if element translated config exists', async () => {
         const wrapper = await createWrapper({
             element: {
                 config: {
@@ -129,7 +131,7 @@ describe('module/sw-cms/elements/product-name/config', () => {
         expect(wrapper.vm.element.config.content.value).toBe('Sample Product');
     });
 
-    it.deprecated('v6.8.0.0')('should not initially map to a product name if element config exists', async () => {
+    it('should not initially map to a product name if element config exists', async () => {
         const wrapper = await createWrapper({
             element: {
                 config: {

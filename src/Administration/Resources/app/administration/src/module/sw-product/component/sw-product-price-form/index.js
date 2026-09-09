@@ -4,6 +4,7 @@
 
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -32,39 +33,39 @@ export default {
 
     computed: {
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         defaultPrice() {
-            return Shopware.Store.get('swProductDetail').defaultPrice;
+            return useSwProductDetailStore().defaultPrice;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swProductDetail').defaultCurrency;
+            return useSwProductDetailStore().defaultCurrency;
         },
 
         productTaxRate() {
-            return Shopware.Store.get('swProductDetail').productTaxRate;
+            return useSwProductDetailStore().productTaxRate;
         },
 
         showModeSetting() {
-            return Shopware.Store.get('swProductDetail').showModeSetting;
+            return useSwProductDetailStore().showModeSetting;
         },
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         taxes() {
-            return Shopware.Store.get('swProductDetail').taxes;
+            return useSwProductDetailStore().taxes;
         },
 
         currencies() {
-            return Shopware.Store.get('swProductDetail').currencies;
+            return useSwProductDetailStore().currencies;
         },
 
         ...mapPropertyErrors('product', [

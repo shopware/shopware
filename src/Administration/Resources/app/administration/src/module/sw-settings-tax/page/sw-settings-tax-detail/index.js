@@ -1,5 +1,6 @@
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -225,7 +226,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.createdComponent();
         },
 

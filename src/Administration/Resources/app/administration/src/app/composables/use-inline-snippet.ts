@@ -1,4 +1,5 @@
 import { types } from 'shopware:utils';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @sw-package framework
@@ -25,7 +26,7 @@ export default function useInlineSnippet(): {
             return '';
         }
 
-        const currentLocale = Shopware.Store.get('session').currentLocale as unknown as string;
+        const currentLocale = useSessionStore().currentLocale as unknown as string;
 
         if (value[currentLocale]) {
             return value[currentLocale];

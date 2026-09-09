@@ -4,6 +4,7 @@ import type Repository from 'src/core/data/repository.data';
 
 import template from './sw-generic-custom-entity-list.html.twig';
 import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const types = Shopware.Utils.types;
 
@@ -192,7 +193,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             void this.getList();
         },
 

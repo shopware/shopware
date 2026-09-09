@@ -1,6 +1,7 @@
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
 const {
     Mixin,
@@ -70,27 +71,27 @@ export default {
 
     computed: {
         shippingMethod() {
-            return Shopware.Store.get('swShippingDetail').shippingMethod;
+            return useSwShippingDetailStore().shippingMethod;
         },
 
         currencies() {
-            return Shopware.Store.get('swShippingDetail').currencies;
+            return useSwShippingDetailStore().currencies;
         },
 
         restrictedRuleIds() {
-            return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
+            return useSwShippingDetailStore().restrictedRuleIds;
         },
 
         unrestrictedPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+            return useSwShippingDetailStore().unrestrictedPriceMatrixExists;
         },
 
         newPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+            return useSwShippingDetailStore().newPriceMatrixExists;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swShippingDetail').defaultCurrency;
+            return useSwShippingDetailStore().defaultCurrency;
         },
 
         // Only a "fixed" tax type has a known rate; "auto" and "highest" depend on the cart.

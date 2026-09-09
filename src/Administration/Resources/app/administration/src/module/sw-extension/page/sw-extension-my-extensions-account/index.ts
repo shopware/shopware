@@ -4,6 +4,7 @@ import './sw-extension-my-extensions-account.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 import type { MappedError } from '../../service/extension-error-handler.service';
 import type { UserInfo } from '../../../../core/service/api/store.api.service';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
 const { Store, Mixin, Filter } = Shopware;
 
@@ -155,7 +156,7 @@ export default Shopware.Component.wrapComponentConfig({
         commitErrors(errorResponse: AxiosError<{ errors: StoreApiException[] }>): never {
             if (errorResponse.response) {
                 const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
-                Shopware.Store.get('shopwareExtensions').pluginErrorsMapped(mappedErrors);
+                useShopwareExtensionsStore().pluginErrorsMapped(mappedErrors);
             }
 
             throw errorResponse;

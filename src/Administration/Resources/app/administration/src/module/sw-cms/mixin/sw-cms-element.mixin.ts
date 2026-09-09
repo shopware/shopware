@@ -3,6 +3,7 @@ import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
 import { types } from 'shopware:utils';
 import { cloneDeep, get, has, merge, set } from 'shopware:utils/object';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Mixin } = Shopware;
 /**
@@ -41,7 +42,7 @@ export default Mixin.register(
 
         computed: {
             cmsPageState() {
-                return Shopware.Store.get('cmsPage');
+                return useCmsPageStore();
             },
 
             cmsElements() {

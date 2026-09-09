@@ -1,5 +1,6 @@
 import template from './sw-flow-list.html.twig';
 import './sw-flow-list.scss';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Mixin,
@@ -133,7 +134,7 @@ export default {
 
         getList() {
             this.isLoading = true;
-            Shopware.Store.get('swFlow').fetchTriggerActions();
+            useSwFlowStore().fetchTriggerActions();
 
             this.flowRepository
                 .search(this.flowCriteria)

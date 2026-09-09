@@ -4,6 +4,7 @@ import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
 import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
 import { isEmpty, isUndefined } from 'shopware:utils/types';
 import cmsStateMixin from 'shopware:mixins/cms-state';
+import useContextStore from 'shopware:stores/context';
 
 const EVENTS = {
     RESTORE: 'inheritance:restore',
@@ -104,7 +105,7 @@ export default Shopware.Component.wrapComponentConfig({
             return !!this.contentEntity;
         },
         isSystemDefaultLanguage() {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return useContextStore().isSystemDefaultLanguage;
         },
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)

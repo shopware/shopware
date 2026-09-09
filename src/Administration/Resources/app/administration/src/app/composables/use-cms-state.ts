@@ -8,6 +8,10 @@ import { useRoute } from 'vue-router';
 import 'src/module/sw-cms/store/cms-page.store';
 import type { CmsSlotConfig } from 'src/module/sw-cms/service/cms.service';
 import { object } from 'shopware:utils';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useContextStore from 'shopware:stores/context';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 type SlotConfigMap = { [slotId: string]: CmsSlotConfig };
 
@@ -50,7 +54,7 @@ export default function useCmsState(): {
 } {
     const route = useRoute();
 
-    const cmsPageState = computed(() => Shopware.Store.get('cmsPage'));
+    const cmsPageState = computed(() => useCmsPageStore());
 
     const selectedBlock = computed<Entity<'cms_block'> | null>({
         get: () => cmsPageState.value.selectedBlock,
@@ -69,7 +73,7 @@ export default function useCmsState(): {
     // The detail stores only exist while their module is loaded, so reading one outside it throws.
     const category = computed(() => {
         try {
-            return (Shopware.Store.get('swCategoryDetail')?.category as ContentEntity<'category'>) ?? null;
+            return (useSwCategoryDetailStore()?.category as ContentEntity<'category'>) ?? null;
         } catch {
             return null;
         }
@@ -77,7 +81,7 @@ export default function useCmsState(): {
 
     const product = computed(() => {
         try {
-            return (Shopware.Store.get('swProductDetail')?.product as ContentEntity<'product'>) ?? null;
+            return (useSwProductDetailStore()?.product as ContentEntity<'product'>) ?? null;
         } catch {
             return null;
         }
@@ -85,7 +89,7 @@ export default function useCmsState(): {
 
     const landingPage = computed(() => {
         try {
-            return (Shopware.Store.get('swCategoryDetail')?.landingPage as ContentEntity<'landing_page'>) ?? null;
+            return (useSwCategoryDetailStore()?.landingPage as ContentEntity<'landing_page'>) ?? null;
         } catch {
             return null;
         }
@@ -114,7 +118,7 @@ export default function useCmsState(): {
             return null;
         }
 
-        if (languageId === Shopware.Store.get('context').api.languageId) {
+        if (languageId === useContextStore().api.languageId) {
             return contentEntity.value?.slotConfig ?? null;
         }
 
@@ -126,8 +130,8 @@ export default function useCmsState(): {
     }
 
     const inheritedSlotConfig = computed<SlotConfigMap | null>(() => {
-        const currentLanguageId = Shopware.Store.get('context').api.languageId;
-        const parentLanguageId = Shopware.Store.get('context').api.language?.parentId;
+        const currentLanguageId = useContextStore().api.languageId;
+        const parentLanguageId = useContextStore().api.language?.parentId;
 
         const currentSlotConfig = getSlotConfigForLanguage(currentLanguageId);
         const parentSlotConfig = parentLanguageId ? getSlotConfigForLanguage(parentLanguageId) : null;

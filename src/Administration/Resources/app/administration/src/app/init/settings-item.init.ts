@@ -1,3 +1,7 @@
+import useExtensionsStore from 'shopware:stores/extensions';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
+import useSettingsItemsStore from 'shopware:stores/settingsItems';
+
 /**
  * @private
  * @sw-package framework
@@ -16,7 +20,7 @@ export default function initializeSettingItems(): void {
             'plugins',
         ];
 
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -34,7 +38,7 @@ export default function initializeSettingItems(): void {
             group = settingsItemConfig.tab;
         }
 
-        await Shopware.Store.get('extensionSdkModules')
+        await useExtensionSdkModulesStore()
             .addModule({
                 heading: settingsItemConfig.label,
                 locationId: settingsItemConfig.locationId,
@@ -47,7 +51,7 @@ export default function initializeSettingItems(): void {
                     return;
                 }
 
-                Shopware.Store.get('settingsItems').addItem({
+                useSettingsItemsStore().addItem({
                     group: group as
                         | 'general'
                         | 'localization'

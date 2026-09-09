@@ -4,6 +4,7 @@
 
 import { defineComponent } from 'vue';
 import { types } from 'shopware:utils';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @private
@@ -15,7 +16,7 @@ export default Shopware.Mixin.register(
     defineComponent({
         computed: {
             swInlineSnippetLocale(): string {
-                return Shopware.Store.get('session').currentLocale as unknown as string;
+                return useSessionStore().currentLocale as unknown as string;
             },
 
             swInlineSnippetFallbackLocale(): string {

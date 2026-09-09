@@ -1,6 +1,7 @@
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
@@ -138,7 +139,7 @@ export default {
                 .then((customer) => {
                     this.availableAddresses = customer[0].addresses;
 
-                    return Shopware.Store.get('error').resetApiErrors();
+                    return useErrorStore().resetApiErrors();
                 })
                 .finally(() => {
                     this.isLoading = false;

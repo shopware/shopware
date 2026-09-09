@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FeatureGridTranslationService {
@@ -82,7 +83,7 @@ export default class FeatureGridTranslationService {
         }
 
         if (item.type === 'customField') {
-            const language = Shopware.Store.get('session').currentLocale;
+            const language = useSessionStore().currentLocale;
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return this.entities.customField

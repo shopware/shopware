@@ -1,4 +1,5 @@
 import { createId } from 'shopware:utils';
+import useExtensionsStore from 'shopware:stores/extensions';
 
 /**
  * @sw-package framework
@@ -7,8 +8,8 @@ import { createId } from 'shopware:utils';
  */
 export default function initializeActions(): void {
     Shopware.ExtensionAPI.handle('actionExecute', async (actionConfiguration, additionalInformation) => {
-        const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
-            Shopware.Store.get('extensions').extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
+        const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
+            useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
         if (!extensionName) {

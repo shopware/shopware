@@ -3,6 +3,7 @@
  */
 
 import template from './sw-login-recovery-recovery.html.twig';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -127,7 +128,7 @@ export default Component.wrapComponentConfig({
                     /* eslint-enable @typescript-eslint/no-unsafe-member-access */
 
                     if (apiError) {
-                        Shopware.Store.get('error').addApiError({
+                        useErrorStore().addApiError({
                             expression: `user.${this.hash}.password`,
                             error: new Shopware.Classes.ShopwareError(apiError),
                         });

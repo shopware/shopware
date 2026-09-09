@@ -3,6 +3,7 @@
  */
 
 import template from './sw-product-detail-specifications.html.twig';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,38 +23,38 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         loading() {
-            return Shopware.Store.get('swProductDetail').loading;
+            return useSwProductDetailStore().loading;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         customFieldSets() {
-            return Shopware.Store.get('swProductDetail').customFieldSets;
+            return useSwProductDetailStore().customFieldSets;
         },
 
         showModeSetting() {
-            return Shopware.Store.get('swProductDetail').showModeSetting;
+            return useSwProductDetailStore().showModeSetting;
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
          */
         productStates() {
-            return Shopware.Store.get('swProductDetail').productStates;
+            return useSwProductDetailStore().productStates;
         },
 
         productType() {
-            return Shopware.Store.get('swProductDetail').productType;
+            return useSwProductDetailStore().productType;
         },
 
         isDigitalProduct() {
@@ -71,7 +72,7 @@ export default {
 
     methods: {
         showProductCard(key) {
-            return Shopware.Store.get('swProductDetail').showProductCard(key);
+            return useSwProductDetailStore().showProductCard(key);
         },
     },
 };

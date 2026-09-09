@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-shopware-domain.html.twig';
 import './sw-first-run-wizard-shopware-domain.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -38,7 +39,7 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
+            if (useContextStore().app.config.settings?.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.finish';
             }
 

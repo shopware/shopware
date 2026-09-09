@@ -5,6 +5,7 @@
 import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 const { Defaults } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -60,7 +61,7 @@ export default {
             this.isLoading = true;
             const context = {
                 ...Shopware.Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria(1, 500);
 

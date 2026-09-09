@@ -5,6 +5,7 @@ import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-generic-cms-page-assignment.html.twig';
 import './sw-generic-cms-page-assignment.scss';
 import { object } from 'shopware:utils';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const objectUtils = object;
 
@@ -172,7 +173,7 @@ export default Shopware.Component.wrapComponentConfig({
             const response = await this.cmsPageRepository.search(criteria);
             const cmsPage = this.applySlotOverrides(response[0]);
 
-            Shopware.Store.get('cmsPage').setCurrentPage(cmsPage);
+            useCmsPageStore().setCurrentPage(cmsPage);
             this.cmsPage = cmsPage;
 
             this.isLoading = false;

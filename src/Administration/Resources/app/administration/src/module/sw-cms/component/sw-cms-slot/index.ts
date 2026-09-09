@@ -2,6 +2,7 @@ import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';
 import { deepCopyObject } from 'shopware:utils/object';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private since v6.5.0
@@ -65,7 +66,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsElements() {
-            const currentPageType = Shopware.Store.get('cmsPage').currentPageType;
+            const currentPageType = useCmsPageStore().currentPageType;
 
             if (!currentPageType) {
                 return {};
@@ -145,7 +146,7 @@ export default Shopware.Component.wrapComponentConfig({
         isElementLocked() {
             return (
                 this.element.locked ||
-                (Shopware.Store.get('cmsPage').currentPage?.type === 'product_detail' &&
+                (useCmsPageStore().currentPage?.type === 'product_detail' &&
                     [
                         'buy-box',
                         'product-description-reviews',

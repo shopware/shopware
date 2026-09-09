@@ -1,6 +1,7 @@
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
 import { createId } from 'shopware:utils';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 
@@ -51,7 +52,7 @@ export default {
 
     computed: {
         presignedSupported() {
-            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+            return useContextStore().app.config?.settings?.presignedUploadSupported ?? false;
         },
     },
 

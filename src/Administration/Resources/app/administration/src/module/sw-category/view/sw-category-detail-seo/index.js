@@ -1,4 +1,5 @@
 import template from './sw-category-detail-seo.html.twig';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 /**
  * @sw-package discovery
@@ -18,7 +19,7 @@ export default {
 
     computed: {
         category() {
-            return Shopware.Store.get('swCategoryDetail').category;
+            return useSwCategoryDetailStore().category;
         },
     },
 };

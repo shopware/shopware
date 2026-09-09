@@ -1,6 +1,7 @@
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
 import SwTextEditorToolbarButtonCmsDataMappingButton from '../../../../../app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Mixin } = Shopware;
 
@@ -43,7 +44,7 @@ export default {
         availableDataMappings() {
             let mappings = [];
 
-            Object.entries(Shopware.Store.get('cmsPage').currentMappingTypes).forEach((entry) => {
+            Object.entries(useCmsPageStore().currentMappingTypes).forEach((entry) => {
                 const [
                     type,
                     value,

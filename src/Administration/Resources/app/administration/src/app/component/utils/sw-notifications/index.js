@@ -6,6 +6,7 @@ import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 import { string } from 'shopware:utils';
 import notificationTranslationMixin from 'shopware:mixins/notification-translation';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -48,7 +49,7 @@ export default {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.Store.get('notification').growlNotifications);
+            return Object.values(useNotificationStore().growlNotifications);
         },
 
         notificationsStyle() {
@@ -78,7 +79,7 @@ export default {
 
     methods: {
         onClose(notification) {
-            Shopware.Store.get('notification').removeGrowlNotification(notification);
+            useNotificationStore().removeGrowlNotification(notification);
         },
 
         handleAction(action, notification) {

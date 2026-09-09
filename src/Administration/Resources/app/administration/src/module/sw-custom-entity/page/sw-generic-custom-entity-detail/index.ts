@@ -9,6 +9,7 @@ import type Repository from 'src/core/data/repository.data';
 
 import template from './sw-generic-custom-entity-detail.html.twig';
 import './sw-generic-custom-entity-detail.scss';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
 
@@ -213,7 +214,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             void this.loadData();
         },
 

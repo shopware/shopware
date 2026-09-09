@@ -1,6 +1,7 @@
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
@@ -113,7 +114,7 @@ export default {
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];
 
-                await Shopware.Store.get('error').resetApiErrors();
+                await useErrorStore().resetApiErrors();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.create.messageFetchCustomerAddressesError'),
@@ -191,7 +192,7 @@ export default {
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
 
-                await Shopware.Store.get('error').addApiError({
+                await useErrorStore().addApiError({
                     expression: `customer_address.${this.currentAddress.id}.company`,
                     error: companyError,
                 });

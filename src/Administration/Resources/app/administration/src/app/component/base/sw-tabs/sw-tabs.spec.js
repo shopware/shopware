@@ -64,8 +64,35 @@ describe('src/app/component/base/sw-tabs', () => {
         warnSpy.mockRestore();
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('should resolve labels from slot text for v-for / fragment tab items', async () => {
+    it('should not read the slotted items on the deprecated branch', async () => {
+        // The default slot must not be invoked from `mounted`, which Vue reports as a console.warn and
+        // the test setup escalates to a failure.
         const wrapper = await createWrapper({
+            global: {
+                stubs: {
+                    'sw-tabs-deprecated': true,
+                    'mt-tabs': true,
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        props: ['name'],
+                        template: '<div class="sw-tabs-item"><slot /></div>',
+                    },
+                },
+            },
+            slots: {
+                default: '<sw-tabs-item name="en-GB">Label en-GB</sw-tabs-item>',
+            },
+        });
+
+        expect(wrapper.html()).toContain('sw-tabs-deprecated');
+        expect(wrapper.vm.activeItem).toBeNull();
+    });
+
+    it('should resolve labels from slot text for v-for / fragment tab items', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                useMeteorComponent: true,
+            },
             global: {
                 stubs: {
                     'sw-tabs-deprecated': true,

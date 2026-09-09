@@ -150,6 +150,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     mounted() {
+        // `activeItem` only feeds the `mt-tabs` branch. Reading the items on the deprecated branch would
+        // invoke the default slot from a lifecycle hook, which Vue warns about.
+        if (!this.shouldUseMeteorComponent) {
+            return;
+        }
+
         // Set first item as active
         if (this.itemsBackwardCompatible.length > 0) {
             this.activeItem = this.itemsBackwardCompatible[0].name;

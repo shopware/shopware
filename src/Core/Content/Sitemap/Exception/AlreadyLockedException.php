@@ -14,27 +14,18 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[Package('discovery')]
 class AlreadyLockedException extends ShopwareHttpException
+class AlreadyLockedException extends SitemapException
 {
     public function __construct(SalesChannelContext $salesChannelContext)
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SitemapAlreadyLockedException::class)
+        parent::__construct(
+            Response::HTTP_BAD_REQUEST,
+            self::SITEMAP_ALREADY_LOCKED,
+            'Cannot acquire lock for sales channel {{salesChannelId}} and language {{languageId}}',
+            [
+                'salesChannelId' => $salesChannelContext->getSalesChannelId(),
+                'languageId' => $salesChannelContext->getLanguageId(),
+            ],
         );
-
-        parent::__construct('Cannot acquire lock for sales channel {{salesChannelId}} and language {{languageId}}', [
-            'salesChannelId' => $salesChannelContext->getSalesChannelId(),
-            'languageId' => $salesChannelContext->getLanguageId(),
-        ]);
-    }
-
-    public function getErrorCode(): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SitemapAlreadyLockedException::class)
-        );
-
-        return 'CONTENT__SITEMAP_ALREADY_LOCKED';
     }
 }

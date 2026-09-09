@@ -71,10 +71,7 @@
     }
 
     .sw-cms-page-form__empty-state-text {
-        text-align: center;
-        height: 20px;
-        margin: 85px 0;
-        color: var(--color-text-secondary-default);
+        margin-block: var(--scale-size-40);
     }
 
     &__section {

@@ -159,12 +159,7 @@ class LayoutDiagnostics
                 continue;
             }
 
-            $violations[] = new Violation(
-                ViolationCode::DuplicateElementId,
-                (string) $id,
-                null,
-                \sprintf('Element id "%s" is not unique across the layout.', $id),
-            );
+            $violations[] = Violation::duplicateElementId((string) $id);
         }
 
         return $violations;

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -222,14 +223,16 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
      */
     private function rejectIllFormedTree(StoredTree $tree): void
     {
-        $violations = $tree->validate();
+        $duplicates = $tree->duplicateElementIds();
 
-        if ($violations === []) {
+        if ($duplicates === []) {
             return;
         }
 
         throw ContentSystemException::invalidLayoutStructure(
-            $this->violationMapper->toConstraintViolationList($violations)
+            $this->violationMapper->toConstraintViolationList(
+                array_map(Violation::duplicateElementId(...), $duplicates)
+            )
         );
     }
 

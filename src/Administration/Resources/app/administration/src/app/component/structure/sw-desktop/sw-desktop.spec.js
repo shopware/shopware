@@ -4,6 +4,24 @@
 
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import useTheme, { DEFAULT_THEME } from 'src/app/composables/use-theme';
+import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
+
+const addSnackbar = jest.fn();
+const wrappers = [];
+
+// The shortcut plugin relies on the debounce delay to collect key sequences, the global mock runs immediately
+Shopware.Utils.debounce = function debounce(callback, delay) {
+    let timeout = null;
+
+    const execFunction = jest.fn(() => {
+        clearTimeout(timeout);
+        timeout = setTimeout(callback, delay);
+    });
+    execFunction.cancel = jest.fn(() => clearTimeout(timeout));
+
+    return execFunction;
+};
 
 const routes = [
     {
@@ -119,10 +137,12 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
 
     await router.push({ name: 'sw.dashboard.index' });
 
-    return mount(await wrapTestComponent('sw-desktop', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-desktop', { sync: true }), {
+        attachTo: document.body,
         global: {
             plugins: [
                 router,
+                shortcutPlugin,
             ],
             stubs: {
                 'sw-admin-menu': true,
@@ -142,9 +162,24 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
                 userActivityApiService: {
                     increment: jest.fn(() => Promise.resolve()),
                 },
+                snackbarService: {
+                    addSnackbar,
+                },
             },
         },
     });
+
+    wrappers.push(wrapper);
+
+    return wrapper;
+}
+
+async function pressKeys(wrapper, ...keys) {
+    for (const key of keys) {
+        await wrapper.trigger('keydown', { key });
+    }
+
+    await flushPromises();
 }
 
 describe('src/app/component/structure/sw-desktop', () => {
@@ -165,6 +200,13 @@ describe('src/app/component/structure/sw-desktop', () => {
             appUrlReachable: true,
             enableStagingMode: false,
         };
+    });
+
+    afterEach(() => {
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
+        addSnackbar.mockClear();
+        useTheme().setTheme(DEFAULT_THEME);
+        localStorage.removeItem('mt-theme');
     });
 
     it('should be update userConfig when at index route', async () => {
@@ -284,5 +326,41 @@ describe('src/app/component/structure/sw-desktop', () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.find('.sw-staging-bar').exists()).toBeFalsy();
+    });
+    it('should cycle the theme with the C T shortcut and confirm the change', async () => {
+        const wrapper = await createWrapper();
+
+        await pressKeys(wrapper, 'c', 't');
+        expect(useTheme().theme.value).toBe('dark');
+
+        await pressKeys(wrapper, 'c', 't');
+        expect(useTheme().theme.value).toBe('system');
+
+        await pressKeys(wrapper, 'c', 't');
+        expect(useTheme().theme.value).toBe('light');
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenLastCalledWith({
+            'core.userTheme': { theme: 'light' },
+        });
+        expect(addSnackbar).toHaveBeenCalledTimes(3);
+        expect(addSnackbar).toHaveBeenLastCalledWith({
+            message: 'global.sw-desktop.theme.changed',
+            variant: 'success',
+        });
+    });
+
+    it('should show an error when the theme could not be saved', async () => {
+        Shopware.Service('userConfigService').upsert.mockRejectedValueOnce(new Error('failed'));
+
+        const wrapper = await createWrapper();
+
+        await pressKeys(wrapper, 'c', 't');
+
+        expect(useTheme().theme.value).toBe(DEFAULT_THEME);
+        expect(addSnackbar).toHaveBeenCalledTimes(1);
+        expect(addSnackbar).toHaveBeenCalledWith({
+            message: 'global.sw-desktop.theme.saveError',
+            variant: 'error',
+        });
     });
 });

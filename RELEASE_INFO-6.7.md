@@ -127,15 +127,32 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 `Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. Both default to on, for new and for upgraded installations, so nothing changes until a shop turns one of them off. Together they cover the three states a contact person can have on a commercial account: required, optional and hidden. A hidden field is never submitted and therefore never required. Once the contact person is no longer mandatory the company name takes its place and becomes required.
 
+Both settings only do something while the account type selection is on. Without that selection a shop cannot tell a commercial registration from a private one, so first and last name stay mandatory whatever the two settings say. Read the rule through `CompanyAccountNameFields::areRequired()` and `CompanyAccountNameFields::areVisible()` rather than the two config keys, so your extension follows the same gate:
+
+```php
+CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
+```
+
 The first and last name fields of `customer`, `customer_address`, `order_customer` and `order_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
+
+The customer entity gains a runtime field `displayName`, holding the person name, or the company name when a commercial account has no contact person. Use it instead of joining `firstName` and `lastName` when you render a customer:
+
+```twig
+{{ customer.displayName }}
+```
+
+A subscriber fills it on `customer.loaded`, so a customer read through the data abstraction layer carries it and an entity built in code does not. Being a runtime field it cannot be sorted or filtered in a `Criteria`; sort on `lastName` or `company` instead.
+
+`CustomerTransformer` writes the company name into the order customer name fields when a commercial account has no contact person, so documents, mails and the order list keep naming the buyer.
+
+`GET /store-api/shop-settings` returns the two new settings under `loginRegistration`. A headless client has to apply the gate itself: the two only matter while `showAccountTypeSelection` is on.
 
 On the registration and profile forms the first and last name fields follow the account type selection through the new `CompanyNameFields` storefront plugin, so the client validation matches what the backend accepts. Address blocks keep the names required, because the backend judges those by the customer or by the top level account type rather than by the account type of the address.
 
-`CustomerEntity::getDisplayName()` returns the person name, and falls back to the company name when a commercial account has no contact person. Prefer it over concatenating `firstName` and `lastName` when rendering a customer. `CustomerTransformer` fills the order customer snapshot from the company name when a commercial account has no contact person, so documents and mail templates keep naming the buyer.
-
 ### Invoice buyer names no longer repeat the company name
 
-The buyer name on documents rendered through `DocumentV2` no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present.
+The buyer name on invoices no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present. The ZUGFeRD renderer and the document v2 trade party view both take the name from one shared formatter now, so they cannot drift apart again.
+
 ### Dynamic product group assignments follow condition changes
 
 Deleting, editing or moving a condition now updates `product_stream_mapping` and the derived `product.streamIds`; previously only adding one did, so rules, promotions and product exports could match on removed conditions.

@@ -14,10 +14,13 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'systemConfigApiService',
-    ],
+    inject: {
+        feature: {},
+        // Defaults to null so an extending component that does not provide it still mounts.
+        systemConfigApiService: {
+            default: null,
+        },
+    },
 
     emits: ['sales-channel-change'],
 
@@ -99,7 +102,9 @@ export default {
         async createdComponent() {
             // An Administration write carries no sales channel, so the routes read the global values
             // too. A hidden name field is never required, hence both flags have to be on.
-            const values = await this.systemConfigApiService.getValues('core.loginRegistration', null).catch(() => null);
+            // Optional call and catch, because an extending component may not provide the service and
+            // the request needs read rights on the system config. Both leave the form strict.
+            const values = await this.systemConfigApiService?.getValues('core.loginRegistration', null).catch(() => null);
 
             const selectable = Boolean(values?.['core.loginRegistration.showAccountTypeSelection']);
             const shown = values?.['core.loginRegistration.showNameFieldsForCompanyAccounts'] ?? true;

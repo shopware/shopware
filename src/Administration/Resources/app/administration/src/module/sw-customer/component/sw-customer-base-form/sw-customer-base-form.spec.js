@@ -142,6 +142,31 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
         expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 
+    it('should keep the contact person required when no config service is provided', async () => {
+        const wrapper = mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
+            props: {
+                customer: {
+                    ...customer,
+                    accountType: 'business',
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-entity-single-select': true,
+                    'sw-text-field': true,
+                    'sw-email-field': true,
+                    'sw-datepicker': true,
+                    'sw-entity-tag-select': true,
+                    'sw-single-select': true,
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
     it('should keep the contact person required when the settings cannot be read', async () => {
         const wrapper = mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
             props: {

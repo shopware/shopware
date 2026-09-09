@@ -45,6 +45,8 @@ class CacheHeadersService
             PlatformRequest::HEADER_LANGUAGE_ID,
             PlatformRequest::HEADER_CURRENCY_ID,
             HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
+            // a request resolving its context from the session must never match a cached anonymous entry
+            PlatformRequest::HEADER_CONTEXT_SOURCE,
         ]);
         $newVaryArray = array_unique(array_map(static fn (string $v) => \trim($v), $newVaryArray));
 

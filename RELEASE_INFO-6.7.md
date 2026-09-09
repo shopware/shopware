@@ -267,7 +267,7 @@ A Store API request that sends the storefront session cookie together with `sw-a
 
 The header is a contract: the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) when the session cannot be used, for example without a session cookie, on a cross-site fetch, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header behave as before. The container parameter `shopware.routing.session_context_token.enabled` disables the behaviour.
 
-Session-resolved responses are always `private, no-store`, so they are never stored by a shared cache, including on routes that are otherwise cacheable.
+Session-resolved responses are always `private, no-store`, so they are never stored by a shared cache, including on routes that are otherwise cacheable. `sw-context-source` is part of the `Vary` set of cacheable responses as well, so a request declaring the session can never be served a cached anonymous entry.
 
 ## Administration
 

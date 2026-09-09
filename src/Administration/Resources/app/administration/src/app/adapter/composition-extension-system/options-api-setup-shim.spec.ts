@@ -48,7 +48,8 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         expect(wrapper.text()).toBe('base subline / overridden — Demo GmbH');
     });
 
-    it('writes through previousState to the base state, not to the override result', async () => {
+    it('rejects writes through previousState and keeps the base state untouched', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         let write = (): void => {};
 
         _overridesMap['sw-shim-write'] = [
@@ -77,8 +78,12 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         write();
         await flushPromises();
 
-        // Would stay at "override 1" if the setter wrote into the override's own result instead of data.
-        expect(wrapper.text()).toBe('override 42');
+        // State only changes through what an override returns; a write attempt is reported and dropped.
+        expect(wrapper.text()).toBe('override 1');
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('previousState is read-only'));
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"counter"'));
+
+        errorSpy.mockRestore();
     });
 
     it('keeps an existing setup() of the component instead of replacing it', async () => {

@@ -44,8 +44,39 @@ describe('components/media/sw-media-folder-thumbnail', () => {
         expect(svg.findAll('path')[1].attributes('fill')).toBe('var(--color-icon-brand-default)');
     });
 
+    it('should paint the default folder in the given color', async () => {
+        const wrapper = await createWrapper({ color: '#57D9A3' });
+        const svg = wrapper.find('svg.sw-media-folder-thumbnail');
+
+        expect(svg.classes()).toContain('is--colored');
+        expect(svg.attributes('style')).toContain('--sw-media-folder-thumbnail-color: #57D9A3');
+    });
+
+    it('should stay neutral without a color', async () => {
+        const wrapper = await createWrapper();
+        const svg = wrapper.find('svg.sw-media-folder-thumbnail');
+
+        expect(svg.classes()).not.toContain('is--colored');
+        expect(svg.attributes('style')).toBeUndefined();
+    });
+
+    it.each([
+        'back',
+        'back-breadcrumb',
+    ])('should ignore the color on the %s variant', async (variant) => {
+        const wrapper = await createWrapper({ variant, color: '#57D9A3' });
+        const svg = wrapper.find('svg.sw-media-folder-thumbnail');
+
+        expect(svg.classes()).not.toContain('is--colored');
+        expect(svg.findAll('path')[0].attributes('fill')).toBe('var(--color-background-brand-default)');
+    });
+
     it('should reject unknown variants', () => {
-        const variantProp = swMediaFolderThumbnail.props.variant;
+        const { variant: variantProp } = (
+            swMediaFolderThumbnail as unknown as {
+                props: { variant: { validator: (value: string) => boolean } };
+            }
+        ).props;
 
         expect(variantProp.validator('default')).toBe(true);
         expect(variantProp.validator('back')).toBe(true);

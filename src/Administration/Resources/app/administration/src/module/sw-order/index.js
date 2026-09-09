@@ -63,25 +63,40 @@ Shopware.Component.register('sw-order-inline-field', () => import('./component/s
  */
 Shopware.Component.register('sw-order-user-card', () => import('./component/sw-order-user-card'));
 Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.register(
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-invoice-modal',
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-invoice-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-storno-modal',
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-storno-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-delivery-note-modal',
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-delivery-note-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-credit-note-modal',
     'sw-order-document-settings-modal',
@@ -104,6 +119,9 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-order-create-promotion-modal', () => import('./component/sw-order-create-promotion-modal'));
 Shopware.Component.register('sw-order-create-general-info', () => import('./component/sw-order-create-general-info'));
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.register(
     'sw-order-select-document-type-modal',
     () => import('./component/sw-order-select-document-type-modal'),

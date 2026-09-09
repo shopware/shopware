@@ -34,7 +34,7 @@ interface OrderDeleteDocument {
 }
 
 interface DocumentGenerationFailedItem {
-    orderId: string;
+    orderId: EntityKey<'order'>;
     documentType: string;
     errorCode?: string;
     detail?: string;

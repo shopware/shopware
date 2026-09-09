@@ -74,6 +74,13 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame($token, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    public function testStartSessionWithoutARequestOnTheStackIsIgnored(): void
+    {
+        $this->subscriber([])->startSession($this->requestEvent(new Request()));
+
+        $this->expectNotToPerformAssertions();
+    }
+
     public function testStartSessionIgnoresRequestsWithoutTheOwnerMarker(): void
     {
         $request = new Request();

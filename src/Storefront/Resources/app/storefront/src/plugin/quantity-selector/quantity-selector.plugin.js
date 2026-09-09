@@ -19,12 +19,24 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveUpdateMode: 'live',
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
+        purchaseLimitUrl: null,
+
+        /**
+         * Mark a change the user finished, by leaving the input or confirming with `Enter`,
+         * with `detail.submitImmediately` so the form handler applies it without its delay.
+         * Used where the form applies the quantity itself.
+         */
+        submitOnFinish: false,
     };
 
     init() {
-        this._input = DomAccess.querySelector(this.el, 'input.js-quantity-selector');
-        this._btnPlus = DomAccess.querySelector(this.el, '.js-btn-plus');
-        this._btnMinus = DomAccess.querySelector(this.el, '.js-btn-minus');
+        this._input = this.el.querySelector('input.js-quantity-selector');
+        this._btnPlus = this.el.querySelector('.js-btn-plus');
+        this._btnMinus = this.el.querySelector('.js-btn-minus');
+        this._unitLabel = this.el.querySelector('.js-quantity-selector-unit');
+        this._purchaseLimitFetched = false;
+        this._committedValue = this._input.value;
+        this._pointerTarget = null;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
@@ -68,35 +80,143 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._btnPlus.addEventListener('click', this._stepUp.bind(this));
         this._btnMinus.addEventListener('click', this._stepDown.bind(this));
 
-        // prevent default submit on
-        this._input.addEventListener('keydown', (event) => {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                this._triggerChange();
-                return false;
+        this._input.addEventListener('keydown', this._onKeyDown.bind(this));
+        this._input.addEventListener('change', this._onChange.bind(this));
+        this._input.addEventListener('blur', this._onBlur.bind(this));
+        this._input.form?.addEventListener('submit', this._onSubmit.bind(this));
+
+        this.el.addEventListener('pointerdown', this._onPointerDown.bind(this));
+    }
+
+    /**
+     * withhold a value the user is still editing, it is applied on blur or `Enter`
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onChange(event) {
+        if (event.detail) {
+            this._committedValue = this._input.value;
+        } else {
+            event.stopPropagation();
+
+            if (this._pointerTarget === this._input) {
+                this._commit();
             }
-        });
+        }
+
+        this._updateUnitLabel();
+    }
+
+    /**
+     * remember the control under the pointer, a clicked button is not focused in every browser
+     * and the blur it causes then has no `relatedTarget`
+     *
+     * @param {PointerEvent} event
+     *
+     * @private
+     */
+    _onPointerDown(event) {
+        this._pointerTarget = event.target.closest('input, button');
+    }
+
+    /**
+     * the form sent the current value, it is the one to compare against from now on
+     *
+     * @private
+     */
+    _onSubmit() {
+        this._committedValue = this._input.value;
+    }
+
+    /**
+     * apply the current value on `Enter`
+     *
+     * @param {KeyboardEvent} event
+     *
+     * @private
+     */
+    _onKeyDown(event) {
+        this._pointerTarget = null;
+
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        event.preventDefault();
+        this._commit(undefined, this.options.submitOnFinish);
+    }
+
+    /**
+     * @private
+     */
+    _onBlur(event) {
+        const pointerTarget = this._pointerTarget;
+        this._pointerTarget = null;
+
+        // Tabbing or clicking on to the `[+]` and `[-]` buttons still applies the value, but lets
+        // a step the user makes next bundle into the same request.
+        if (this.el.contains(event.relatedTarget) || (pointerTarget && pointerTarget !== this._input)) {
+            this._commit();
+            return;
+        }
+
+        this._commit(undefined, this.options.submitOnFinish);
+    }
+
+    /**
+     * pass on a value as a change event
+     *
+     * @param {'up'|'down'|undefined} btn
+     * @param {boolean} submitImmediately
+     *
+     * @private
+     */
+    _commit(btn, submitImmediately = false) {
+        if (this._input.value === this._committedValue) {
+            return;
+        }
+
+        this._triggerChange(btn, submitImmediately);
     }
 
     /**
      * trigger change event on input element
      *
+     * @param {'up'|'down'|undefined} btn
+     * @param {boolean} submitImmediately
+     *
      * @private
      */
-    _triggerChange(btn) {
-        const event = new Event('change', { bubbles: true, cancelable: false });
+    _triggerChange(btn, submitImmediately = false) {
+        // Keep form submission with its owner, including AJAX, redirects and extension hooks.
+        const event = new CustomEvent('change', {
+            bubbles: true,
+            cancelable: false,
+            detail: { submitImmediately },
+        });
         this._input.dispatchEvent(event);
 
-        if (this.options.ariaLiveUpdateMode === 'live') {
-            this._updateAriaLive();
-        } else if (this.options.ariaLiveUpdateMode === 'onload') {
-            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
-        }
+        this._announceChange();
 
         if (btn === 'up') {
             this._btnPlus.dispatchEvent(event);
         } else if (btn === 'down') {
             this._btnMinus.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * announce the new quantity, now or after the next page load
+     *
+     * @private
+     */
+    _announceChange() {
+        if (this.options.ariaLiveUpdateMode === 'live') {
+            this._updateAriaLive();
+        } else if (this.options.ariaLiveUpdateMode === 'onload') {
+            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
         }
     }
 
@@ -109,7 +229,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         const before = this._input.value;
         this._input.stepUp();
         if (this._input.value !== before) {
-            this._triggerChange('up');
+            this._commit('up');
         }
     }
 
@@ -122,7 +242,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         const before = this._input.value;
         this._input.stepDown();
         if (this._input.value !== before) {
-            this._triggerChange('down');
+            this._commit('down');
         }
     }
 
@@ -144,5 +264,157 @@ export default class QuantitySelectorPlugin extends Plugin {
         }
 
         this.ariaLiveContainer.innerHTML = text;
+    }
+
+    /**
+     * Update the visible unit label when singular and plural pack units are configured.
+     *
+     * @private
+     */
+    _updateUnitLabel() {
+        if (!this._unitLabel) {
+            return;
+        }
+
+        const { unitSingular, unitPlural } = this._unitLabel.dataset;
+
+        if (!unitSingular) {
+            return;
+        }
+
+        const quantityValue = parseFloat(this._input.value);
+
+        if (Number.isNaN(quantityValue)) {
+            return;
+        }
+
+        this._unitLabel.textContent = quantityValue > 1 && unitPlural ? unitPlural : unitSingular;
+    }
+
+    /**
+     * Register one-time interaction listeners that trigger the live purchase limit fetch.
+     * The fetch fires once on the first focus or button click, then listeners are removed.
+     *
+     * @private
+     */
+    _registerLivePurchaseLimitEvents() {
+        const url = this.options.purchaseLimitUrl;
+
+        if (!url) {
+            return;
+        }
+
+        this._onFirstInteraction = this._fetchLivePurchaseLimit.bind(this, url);
+
+        this._input.addEventListener('focus', this._onFirstInteraction);
+        this._btnPlus.addEventListener('click', this._onFirstInteraction, true);
+        this._btnMinus.addEventListener('click', this._onFirstInteraction, true);
+    }
+
+    /**
+     * Remove the one-time interaction listeners for live purchase limit fetching.
+     *
+     * @private
+     */
+    _removeLivePurchaseLimitEvents() {
+        this._input.removeEventListener('focus', this._onFirstInteraction);
+        this._btnPlus.removeEventListener('click', this._onFirstInteraction, true);
+        this._btnMinus.removeEventListener('click', this._onFirstInteraction, true);
+    }
+
+    /**
+     * Fetch live purchase limits from the server and apply them to the input.
+     * Fires only once – subsequent calls are no-ops. Falls back silently on failure.
+     *
+     * @param {string} url
+     * @private
+     */
+    _fetchLivePurchaseLimit(url) {
+        if (this._purchaseLimitFetched) {
+            return;
+        }
+
+        this._purchaseLimitFetched = true;
+
+        this._removeLivePurchaseLimitEvents();
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return null;
+                }
+
+                return response.json();
+            })
+            .then((data) => {
+                if (data) {
+                    this._applyPurchaseLimit(data);
+                }
+            })
+            .catch((error) => {
+                console.warn('Unable to fetch live quantity limits, keeping rendered values.', error);
+            });
+    }
+
+    /**
+     * Apply fetched purchase limits to the input element.
+     * Clamps the current value to the new constraints and dispatches events for the form to handle.
+     *
+     * @param {{ minPurchase: number, purchaseSteps: number, maxPurchase: number }} limits
+     * @private
+     */
+    _applyPurchaseLimit(limits) {
+        if (!this._input) {
+            return;
+        }
+
+        const max = limits.maxPurchase;
+
+        if (max <= 0) {
+            this._disableControls();
+            this._dispatchFormEvent('QuantitySelector/OutOfStock');
+            return;
+        }
+
+        const min = limits.minPurchase;
+        const step = limits.purchaseSteps;
+
+        this._input.setAttribute('min', min);
+        this._input.setAttribute('max', max);
+        this._input.setAttribute('step', step);
+
+        const currentValue = parseInt(this._input.value, 10) || min;
+        const clampedValue = Math.min(Math.max(currentValue, min), max);
+        const steppedValue = Math.floor((clampedValue - min) / step) * step + min;
+
+        if (steppedValue !== currentValue) {
+            this._input.value = steppedValue;
+            this._commit();
+            this._dispatchFormEvent('QuantitySelector/StockAdjusted', { quantity: steppedValue });
+        }
+    }
+
+    /**
+     * Disable quantity selector controls when the product is no longer purchasable.
+     *
+     * @private
+     */
+    _disableControls() {
+        this._input.disabled = true;
+        this._btnPlus.disabled = true;
+        this._btnMinus.disabled = true;
+    }
+
+    /**
+     * Dispatch a CustomEvent on the parent form so form-level plugins can react.
+     *
+     * @param {string} eventName
+     * @param {Object} detail
+     * @private
+     */
+    _dispatchFormEvent(eventName, detail = {}) {
+        this.el.closest('form')?.dispatchEvent(new CustomEvent(eventName, { detail }));
     }
 }

@@ -8,6 +8,49 @@ describe('debouncer helper', () => {
         jest.useFakeTimers();
     });
 
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    test('cancels a pending invocation and allows subsequent calls', () => {
+        const callback = jest.fn();
+        const debounced = Debouncer.debounce(callback, 800);
+
+        debounced('stale');
+        debounced.cancel();
+        jest.advanceTimersByTime(800);
+        expect(callback).not.toHaveBeenCalled();
+
+        debounced('current');
+        jest.advanceTimersByTime(800);
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith('current');
+    });
+
+    test('cancels the leading invocation of immediate mode as well', () => {
+        const callback = jest.fn();
+        const debounced = Debouncer.debounce(callback, 800, true);
+
+        debounced('stale');
+        debounced.cancel();
+        jest.advanceTimersByTime(800);
+
+        expect(callback).not.toHaveBeenCalled();
+    });
+
+    test('flushes a pending invocation with the given arguments right away', () => {
+        const callback = jest.fn();
+        const debounced = Debouncer.debounce(callback, 800);
+
+        debounced('stale');
+        debounced.flush('current');
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith('current');
+
+        jest.advanceTimersByTime(800);
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
     test('it calls a function only once when called before timeout fired', () => {
         const spy = jest.fn();
 
@@ -65,8 +108,8 @@ describe('debouncer helper', () => {
 
         jest.runAllTimers();
 
-        expect(spy).toBeCalledTimes(2);
-        expect(spy).nthCalledWith(1, 1);
-        expect(spy).nthCalledWith(2, 2);
-    })
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, 1);
+        expect(spy).toHaveBeenNthCalledWith(2, 2);
+    });
 });

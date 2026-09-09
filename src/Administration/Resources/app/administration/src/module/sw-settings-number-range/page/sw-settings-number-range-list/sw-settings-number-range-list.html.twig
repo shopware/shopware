@@ -191,9 +191,26 @@
                     {% block sw_settings_number_ranges_set_list_empty_message %}
                     <mt-empty-state
                         v-if="!isLoading && !total"
+                        centered
                         :icon="$route.meta.$module.icon"
                         :headline="$t('sw-settings-number-range.list.messageEmpty')"
-                    />
+                        description=""
+                    >
+                        <template #button>
+                            <mt-button
+                                v-tooltip="{
+                                    message: $t('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('number_ranges.creator'),
+                                    showOnDisabledElements: true
+                                }"
+                                variant="primary"
+                                :disabled="!acl.can('number_ranges.creator')"
+                                @click="$router.push({ name: 'sw.settings.number.range.create' })"
+                            >
+                                {{ $t('sw-settings-number-range.list.buttonAddNumberRange') }}
+                            </mt-button>
+                        </template>
+                    </mt-empty-state>
                     {% endblock %}
                     {% endblock %}
                 </template>

@@ -333,6 +333,8 @@
     {% block sw_integration_mcp_allowlist_empty %}
     <mt-empty-state
         v-if="!allCapabilitiesEnabled && availableTools.length === 0 && availableResources.length === 0 && availablePrompts.length === 0 && !isLoading"
+        centered
+        icon="regular-key"
         :headline="$t('sw-integration.mcp.noCapabilitiesHeadline')"
         :description="$t('sw-integration.mcp.noCapabilitiesDescription')"
     />

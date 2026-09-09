@@ -131,9 +131,10 @@
                     {% block sw_cms_list_listing_list_empty_state %}
                     <mt-empty-state
                         v-if="isValidTerm(term) && !isLoading && !total"
+                        centered
                         :icon="$route.meta.$module.icon"
                         :headline="$t('sw-empty-state.messageNoResultTitle')"
-                        :style="{ minHeight: '200px' }"
+                        description=""
                         :link-text="$t('sw-empty-state.messageNoResultLink')"
                         :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
                     />

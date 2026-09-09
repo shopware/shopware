@@ -48,9 +48,6 @@
     }
 
     &__empty-state {
-        margin: 0 auto;
-        padding: var(--scale-size-64);
-
         .mt-empty-state__button {
             display: flex;
             flex-direction: column;

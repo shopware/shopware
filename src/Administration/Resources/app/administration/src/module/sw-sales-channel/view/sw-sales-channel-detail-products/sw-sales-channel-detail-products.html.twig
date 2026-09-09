@@ -152,8 +152,10 @@
                 {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
                 <mt-empty-state
                     v-else
+                    centered
                     icon="regular-products"
                     :headline="$t('sw-sales-channel.detail.products.titleEmptyStateTable')"
+                    description=""
                 />
 
                 {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
@@ -169,8 +171,10 @@
     {% block sw_sales_channel_detail_products_empty_state %}
     <mt-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
+        centered
         icon="regular-products"
         :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
+        description=""
     >
         <template #button>
             {% block sw_sales_channel_detail_products_empty_state_button %}

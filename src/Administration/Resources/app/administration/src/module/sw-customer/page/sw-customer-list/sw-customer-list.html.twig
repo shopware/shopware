@@ -62,13 +62,31 @@
             {% block sw_customer_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
-                :centered="true"
+                centered
                 :icon="$route.meta.$module.icon"
                 :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-customer.list.messageEmpty')"
                 :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
                 :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
-            />
+            >
+                <template
+                    v-if="!filterCriteria.length && !isValidTerm(term)"
+                    #button
+                >
+                    <mt-button
+                        v-tooltip="{
+                            message: $t('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('customer.creator'),
+                            showOnDisabledElements: true
+                        }"
+                        variant="primary"
+                        :disabled="!acl.can('customer.creator')"
+                        @click="$router.push({ name: 'sw.customer.create' })"
+                    >
+                        {{ $t('sw-customer.list.buttonAddCustomer') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
             {% endblock %}
 
             {% block sw_customer_list_grid %}

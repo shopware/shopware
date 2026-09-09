@@ -13,6 +13,7 @@
 
         <mt-empty-state
             v-if="showEmptyState"
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
             :description="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTermsDescription')"
@@ -129,6 +130,7 @@
                 {% block sw_search_excliuded_terms_no_results %}
                 <mt-empty-state
                     v-else
+                    centered
                     :icon="$route.meta.$module.icon"
                     :headline="$t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults')"
                     :description="$t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResultsDescription')"

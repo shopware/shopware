@@ -107,8 +107,10 @@
         {% block sw_product_stream_modal_preview_empty_state %}
         <mt-empty-state
             v-if="!total && !isLoading"
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-product-stream.previewModal.empty')"
+            description=""
         />
         {% endblock %}
     </div>

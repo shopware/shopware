@@ -8,7 +8,12 @@
     >
         {% block sw_seo_url_card %}
         <template v-if="showEmptySeoUrlError">
-            {{ $t('sw-seo-url.textEmptySeoUrls') }}
+            <mt-empty-state
+                centered
+                icon="regular-search"
+                :headline="$t('sw-seo-url.titleCard')"
+                :description="$t('sw-seo-url.textEmptySeoUrls')"
+            />
         </template>
 
         <template v-else>

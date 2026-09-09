@@ -43,6 +43,7 @@
             >
                 <mt-empty-state
                     v-if="!isLoading && isEmpty"
+                    centered
                     :icon="$route.meta.$module.icon"
                     :headline="$t('sw-settings-units.empty-state.title')"
                     :description="$t('sw-settings-units.empty-state.subline')"

@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -23,18 +25,23 @@ use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\EventListener\SessionListener;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -227,6 +234,65 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame('fresh', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testLoginAfterContextReplacementPersistsTheLatestTokenAndSessionCookie(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-session-' . Uuid::randomHex();
+        $filesystem->mkdir($directory);
+        $session = new Session(new NativeSessionStorage(
+            ['name' => 'session-', 'cache_limiter' => '', 'use_cookies' => false],
+            new NativeFileSessionHandler($directory),
+        ));
+
+        try {
+            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'expired');
+            $originalId = $session->getId();
+            $session->save();
+
+            $context = Generator::generateSalesChannelContext(token: 'fresh');
+            $request = new Request(cookies: ['session-' => $originalId], attributes: [
+                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+            ]);
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+            $request->setSession($session);
+            $accessor = new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService());
+            static::assertSame('expired', $accessor->read($request, $context->getSalesChannelId()));
+
+            $subscriber = $this->subscriber([$request]);
+            $subscriber->onContextResolved(new SalesChannelContextResolvedEvent($context, 'expired'));
+            $replacementId = $session->getId();
+            static::assertNotSame($originalId, $replacementId);
+
+            $subscriber->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
+
+            static::assertTrue($session->isStarted(), 'Symfony must still emit the migrated session cookie');
+            static::assertNotSame($replacementId, $session->getId());
+            static::assertSame('logged-in', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertSame('logged-in', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertSame($session->getId(), $session->get(SessionContextTokenAccessor::SESSION_ID_KEY));
+
+            $response = new Response();
+            (new SessionListener())->onKernelResponse($this->responseEvent($request, $response));
+            $cookies = $response->headers->getCookies();
+            static::assertCount(1, $cookies);
+            static::assertSame('session-', $cookies[0]->getName());
+            static::assertSame($session->getId(), $cookies[0]->getValue());
+            static::assertFalse($session->isStarted());
+
+            $nextRequest = new Request(cookies: ['session-' => $cookies[0]->getValue()]);
+            $nextRequest->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+            $nextRequest->setSession($session);
+            static::assertSame('logged-in', $accessor->read($nextRequest, $context->getSalesChannelId()));
+        } finally {
+            if ($session->isStarted()) {
+                $session->save();
+            }
+            $filesystem->remove($directory);
+        }
+    }
+
     public function testAnUnchangedTokenLeavesTheSessionAlone(): void
     {
         $context = Generator::generateSalesChannelContext(token: 'current');
@@ -330,7 +396,7 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertFalse($response->headers->hasCacheControlDirective('public'));
     }
 
-    public function testSessionResolvedStoreApiResponsesDoNotHandOutTheToken(): void
+    public function testSessionResolvedStoreApiResponsesOmitTheTokenHeader(): void
     {
         $request = new Request(attributes: [
             PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],

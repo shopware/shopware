@@ -96,8 +96,8 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * A borrower declared that it never handles the token, so it is not handed one either: the response
-     * header echo would turn the HttpOnly session into a bearer credential any script on the page can read.
+     * Session-sourced clients do not need a response token header. Existing response-body token
+     * fields remain unchanged, so this does not make the token inaccessible to same-origin scripts.
      */
     public function protectSessionResolvedResponse(ResponseEvent $event): void
     {

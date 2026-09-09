@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -10,8 +11,11 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheKey;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -22,6 +26,7 @@ use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpCache\Esi;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
@@ -31,6 +36,60 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 #[CoversClass(CacheStore::class)]
 class CacheStoreTest extends TestCase
 {
+    #[DataProvider('sessionCookieProvider')]
+    public function testSessionRequestsBypassAWarmedAnonymousResponse(?string $sessionCookie): void
+    {
+        $dispatcher = new EventDispatcher();
+        $store = new CacheStore(
+            new TagAwareAdapter(new ArrayAdapter()),
+            static::createStub(CacheStateValidator::class),
+            $dispatcher,
+            new HttpCacheKeyGenerator('test', $dispatcher, []),
+            new MaintenanceModeResolver($dispatcher),
+            [],
+            static::createStub(CacheTagCollector::class),
+            false,
+            new CollectingMessageBus(),
+            new NativeClock(),
+        );
+
+        $anonymous = Request::create('https://domain.com/store-api/product');
+        $anonymous->headers->set(PlatformRequest::HEADER_ACCESS_KEY, 'sales-channel-key');
+        $cachedResponse = new Response('anonymous products');
+        $cachedResponse->setPublic();
+        $cachedResponse->setSharedMaxAge(300);
+        $cachedResponse->setVary([PlatformRequest::HEADER_CONTEXT_SOURCE]);
+        $store->write($anonymous, $cachedResponse);
+
+        $sessionRequest = clone $anonymous;
+        $sessionRequest->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+        if ($sessionCookie !== null) {
+            $sessionRequest->cookies->set(PlatformRequest::FALLBACK_SESSION_NAME, $sessionCookie);
+        }
+
+        $resolvedResponse = new Response('session resolution reached', $sessionCookie === null ? 400 : 200);
+        $resolvedResponse->headers->addCacheControlDirective('no-store');
+        $origin = $this->createMock(HttpKernelInterface::class);
+        $origin->expects($this->once())->method('handle')->willReturn($resolvedResponse);
+        $kernel = new HttpCacheKernel($origin, $store, new Esi(), [], $dispatcher, false);
+
+        static::assertSame('anonymous products', $kernel->handle(clone $anonymous)->getContent());
+        $response = $kernel->handle($sessionRequest);
+        static::assertSame('session resolution reached', $response->getContent());
+        static::assertSame($resolvedResponse->getStatusCode(), $response->getStatusCode());
+        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
+        static::assertSame('anonymous products', $kernel->handle(clone $anonymous)->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function sessionCookieProvider(): iterable
+    {
+        yield 'existing session reaches context resolution' => ['storefront-session'];
+        yield 'missing cookie reaches session validation' => [null];
+    }
+
     public function testGetLock(): void
     {
         $request = new Request();

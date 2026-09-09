@@ -222,7 +222,7 @@ class SessionContextTokenResolutionTest extends TestCase
 
         static::assertTrue($response->headers->hasCacheControlDirective('private'));
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN), 'a session sourced client is never handed the token');
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN), 'a session sourced response omits the token header');
     }
 
     public function testARotationMigratesTheSessionId(): void

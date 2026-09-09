@@ -41,6 +41,8 @@ class SessionContextTokenAccessor
 
     private const BINDING_CONFIG_KEY = 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel';
 
+    private const ATTRIBUTE_SESSION_ID = 'sw-context-session-id';
+
     private readonly string $sessionName;
 
     /**
@@ -72,8 +74,8 @@ class SessionContextTokenAccessor
 
     /**
      * Why a borrower may not use the session, null when it may. A session is only ever resumed, never
-     * created. Shared-cacheable routes are allowed: the response is forced no-store, and the cache
-     * key already carries the context through `sw-cache-hash`.
+     * created. Shared-cacheable routes are allowed: requests bypass the built-in cache and their
+     * responses are forced no-store.
      */
     public function ineligibilityReason(Request $request): ?string
     {
@@ -166,6 +168,7 @@ class SessionContextTokenAccessor
 
         $session->migrate($destroyOldSession);
         $session->set(self::SESSION_ID_KEY, $session->getId());
+        $request->attributes->set(self::ATTRIBUTE_SESSION_ID, $session->getId());
         $this->writeToken($session, $this->normalize($salesChannelId), $token);
 
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
@@ -203,8 +206,10 @@ class SessionContextTokenAccessor
             $session->start();
         }
 
-        // strict mode mints a fresh ID for an unknown cookie, which is not the session the cookie promised
-        if ($session->getId() !== $request->cookies->get($this->sessionName)) {
+        // After a rotation, the incoming cookie still holds the old ID. Follow the ID established by
+        // this request while still rejecting sessions minted by strict mode for an unknown cookie.
+        $expectedId = $request->attributes->get(self::ATTRIBUTE_SESSION_ID, $request->cookies->get($this->sessionName));
+        if ($session->getId() !== $expectedId) {
             $this->release($session);
 
             return null;

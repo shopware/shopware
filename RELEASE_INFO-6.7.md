@@ -267,7 +267,9 @@ A Store API request that sends the storefront session cookie together with `sw-a
 
 The header is a contract: the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) when the session cannot be used, for example without a session cookie, on a cross-site fetch, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header behave as before. The container parameter `shopware.routing.session_context_token.enabled` disables the behaviour; requests that still declare the header then fail with the same error.
 
-Session-resolved responses are always `private, no-store`, so they are never stored by a shared cache, including on routes that are otherwise cacheable, and they carry no `sw-context-token` response header: a client that resolves through the session is never handed the token. `sw-context-source` is part of the `Vary` set of cacheable responses as well, so a request declaring the session can never be served a cached anonymous entry. Reverse proxies that build their own cache key instead of honouring `Vary` need to include the header.
+Session-resolved responses are always `private, no-store`, including on routes that are otherwise cacheable, and carry no `sw-context-token` response header. Clients do not need to manage a context token, but existing token fields in cart and context response bodies remain available, as they already are through `/checkout/cart.json` in the storefront. This is not a guarantee that same-origin scripts cannot read the token.
+
+Requests declaring `sw-context-source: session` bypass the built-in HTTP cache before session validation. `sw-context-source` is also part of the `Vary` set for external reverse proxies. Reverse proxies that build their own cache key instead of honouring `Vary` must include the header or bypass requests declaring the session source.
 
 ## Administration
 

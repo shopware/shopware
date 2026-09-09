@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\LayoutPresetSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,11 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-#[LayoutPresetSpecification]
 final readonly class LayoutPresetSpecificationDto
 {
     /**
-     * @param array<mixed> $layout the authoring layout, validated to be a list by LayoutPresetSpecificationValidator
+     * @param list<array<string, mixed>> $layout
      */
     public function __construct(
         #[Assert\NotBlank]
@@ -27,6 +25,7 @@ final readonly class LayoutPresetSpecificationDto
         public string $description,
         #[Assert\NotBlank]
         public string $icon,
+        #[Assert\Type(type: 'list', message: 'The "layout" field must be a list of elements.')]
         public array $layout,
     ) {
     }

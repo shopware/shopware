@@ -73,7 +73,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetL
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\LayoutPresetSpecificationValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -488,9 +487,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(LayoutPresetSpecificationSerializer::class);
-
-    $services->set(LayoutPresetSpecificationValidator::class)
-        ->tag('validator.constraint_validator');
 
     $services->set(LayoutPresetNameResolver::class);
 

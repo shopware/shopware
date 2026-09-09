@@ -8,14 +8,12 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @codeCoverageIgnore
- *
- * @phpstan-type PresetPayload list<array<string, mixed>>
  */
 #[Package('framework')]
 final readonly class ContentSystemLayoutPresetSpecification
 {
     /**
-     * @param PresetPayload $payload
+     * @param list<array<string, mixed>> $payload
      */
     public function __construct(
         public string $id,

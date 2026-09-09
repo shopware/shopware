@@ -95,6 +95,14 @@ class YamlLayoutPresetLoaderTest extends TestCase
         $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESETS_INVALID);
     }
 
+    #[TestDox('rejects a layout that is not a list')]
+    public function testNonListLayoutThrows(): void
+    {
+        $this->writePreset('text-block.yaml', ['name' => 'Text block', 'layout' => ['not' => 'a list']]);
+
+        $this->assertLoadFailsWith(ContentSystemException::LAYOUT_PRESETS_INVALID);
+    }
+
     #[TestDox('fails hard on malformed YAML, naming the file')]
     public function testInvalidYamlThrows(): void
     {

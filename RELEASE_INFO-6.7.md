@@ -297,7 +297,7 @@ swDefinePublic({ opened });
 
 The component's props are exposed alongside them and need no declaration, so `ref.value.label` keeps working; they are read-only, as they are for the component itself.
 
-Calling `defineExpose()` yourself is rejected in base and override components — add the binding to `swDefinePublic()` instead. A binding you leave out of the marker reads as `undefined` through a template ref, not only through an override.
+Calling `defineExpose()` yourself is rejected in base and override components: the transform owns the call, and only the base component declares what it contains. Add the binding to `swDefinePublic()` there — an override cannot call that marker and replaces an already public binding through `swDefineOverride()` instead. A binding you leave out of `swDefinePublic()` reads as `undefined` through a template ref, not only through an override.
 
 ### Extension empty states use `mt-empty-state`
 

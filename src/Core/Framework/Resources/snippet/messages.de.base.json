@@ -32,7 +32,9 @@
         "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
         "country-region-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
         "country-region-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch kein Bundesland festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
-        "checkout-gateway-error": "%reason%"
+        "checkout-gateway-error": "%reason%",
+        "billing-address-missing": "Ihre Rechnungsadresse ist nicht mehr verfügbar. Bitte legen Sie in Ihrem Konto eine neue Rechnungsadresse an, bevor Sie mit der Bestellung fortfahren.",
+        "shipping-address-missing": "Ihre Lieferadresse ist nicht mehr verfügbar. Bitte legen Sie in Ihrem Konto eine neue Lieferadresse an, bevor Sie mit der Bestellung fortfahren."
     },
     "document": {
         "invoiceNumber": "Rechnungs-Nr. %invoiceNumber%",

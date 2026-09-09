@@ -27,6 +27,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTr
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
@@ -97,6 +98,7 @@ use Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
+use Shopware\Core\Framework\App\Lifecycle\Handler\SeoUrlRouteLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ShippingMethodLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\TaxProviderLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\TemplateLifecycleHandler;
@@ -152,12 +154,14 @@ use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
+use Shopware\Core\Framework\App\Validation\StorefrontSeoUrlValidator;
 use Shopware\Core\Framework\App\Validation\TranslationValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -230,6 +234,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.app_manifest.validator');
 
     $services->set(AppNameValidator::class)
+        ->tag('shopware.app_manifest.validator');
+
+    $services->set(StorefrontSeoUrlValidator::class)
+        ->args([
+            service(RouteBlocklistService::class),
+        ])
         ->tag('shopware.app_manifest.validator');
 
     $services->set(ManifestValidator::class)
@@ -376,6 +386,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppFeatureStorage::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
+
+    $services->set(SeoUrlRouteLifecycleHandler::class)
+        ->args([
+            service('app_seo_url_route.repository'),
+            service(Connection::class),
+            service(ClockInterface::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1400]);
 
     $services->set(AppFeatureDefinitionRegistry::class)
         ->args([
@@ -934,6 +952,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     $services->set(AppShippingMethodDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(AppSeoUrlRouteDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(AppFlowActionLoadedSubscriber::class)

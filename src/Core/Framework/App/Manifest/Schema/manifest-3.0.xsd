@@ -225,8 +225,59 @@
     <xs:complexType name="storefront">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="template-load-priority" maxOccurs="1" minOccurs="0" type="xs:int"/>
+            <xs:element name="seo-url" maxOccurs="unbounded" minOccurs="0" type="storefront-seo-url">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Define a SEO URL for a storefront route rendered by an app script.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:choice>
     </xs:complexType>
+    <xs:complexType name="storefront-seo-url">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="label" maxOccurs="unbounded" minOccurs="0" type="translatableString"/>
+            <xs:element name="path" maxOccurs="unbounded" minOccurs="0" type="translatableString">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The static SEO path the route is reachable under. Mutually exclusive with the "entity" attribute.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="default-template" maxOccurs="1" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        The Twig template the SEO path is generated from. Required for entity bound SEO URLs.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="name" type="seoUrlName" use="required"/>
+        <xs:attribute name="hook" type="seoUrlName">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The app script hook that renders the route. Defaults to the name.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="entity" type="seoUrlEntityName">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The technical name of the entity the SEO URLs are generated for.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:simpleType name="seoUrlName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z0-9]+(-[a-z0-9]+)*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="seoUrlEntityName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z][a-z0-9_]*"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="permissions">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="read" maxOccurs="unbounded" type="xs:string"/>

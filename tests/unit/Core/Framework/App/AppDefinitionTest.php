@@ -4,10 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteDefinition;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -33,6 +36,15 @@ class AppDefinitionTest extends TestCase
     public function testFieldsAreDefined(): void
     {
         static::assertNotNull($this->createDefinition()->getFields()->get('id'));
+    }
+
+    public function testSeoUrlRoutesAreCascadeDeletedWithTheApp(): void
+    {
+        $association = $this->createDefinition()->getFields()->get('seoUrlRoutes');
+
+        static::assertInstanceOf(OneToManyAssociationField::class, $association);
+        static::assertSame(AppSeoUrlRouteDefinition::class, $association->getReferenceClass());
+        static::assertTrue($association->is(CascadeDelete::class));
     }
 
     private function createDefinition(): AppDefinition

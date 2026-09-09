@@ -1,7 +1,7 @@
 import template from './sw-flow-generate-document-modal.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 

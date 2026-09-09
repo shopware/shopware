@@ -2,8 +2,7 @@ import type Repository from '../../../../core/data/repository.data';
 import type CriteriaType from '../../../../core/data/criteria.data';
 import template from './sw-flow-index.html.twig';
 import './sw-flow-index.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

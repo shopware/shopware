@@ -6,7 +6,7 @@ import errorConfig from '../../error-config.json';
  * @sw-package checkout
  */
 
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

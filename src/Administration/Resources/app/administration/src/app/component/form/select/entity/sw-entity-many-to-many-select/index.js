@@ -5,10 +5,9 @@
 import template from './sw-entity-many-to-many-select.html.twig';
 import { debounce, get } from 'shopware:utils';
 import { deepCopyObject } from 'shopware:utils/object';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 /**
  * @private
  *

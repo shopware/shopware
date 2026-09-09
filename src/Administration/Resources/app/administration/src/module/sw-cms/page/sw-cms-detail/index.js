@@ -4,11 +4,11 @@ import { debounce } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
 import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
 import { isEmpty } from 'shopware:utils/types';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin, Utils } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-const { Criteria } = Shopware.Data;
 const { CMS } = Shopware.Constants;
 const debounceTimeout = 800;
 

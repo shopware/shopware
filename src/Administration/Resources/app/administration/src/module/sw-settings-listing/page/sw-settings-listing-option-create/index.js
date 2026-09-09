@@ -3,8 +3,8 @@
  */
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

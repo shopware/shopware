@@ -2,9 +2,9 @@ import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import { types } from 'shopware:utils';
 import { chunk, intersectionBy, uniqBy } from 'shopware:utils/array';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 /**
  * @sw-package checkout
  */

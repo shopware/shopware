@@ -3,7 +3,7 @@
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 Shopware.Mixin.register('export-channel-filter', {
     inject: [

@@ -3,8 +3,8 @@
  */
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

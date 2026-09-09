@@ -5,10 +5,9 @@
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
 import { debounce } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @description This component should not be used directly.

@@ -1,10 +1,9 @@
 import template from './sw-condition-line-item-custom-field.html.twig';
 import './sw-condition-line-item-custom-field.scss';
 import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
+import { Criteria } from 'shopware:data';
 
 const { Filter, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package fundamentals@after-sales
  */

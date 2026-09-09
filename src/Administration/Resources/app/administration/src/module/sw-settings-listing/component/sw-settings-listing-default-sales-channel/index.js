@@ -7,7 +7,7 @@ import { isEmpty } from 'shopware:utils/types';
  * @sw-package inventory
  */
 
-const { EntityCollection } = Shopware.Data;
+import { EntityCollection } from 'shopware:data';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

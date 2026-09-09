@@ -4,10 +4,9 @@
 
 import template from './sw-sales-channel-modal.html.twig';
 import './sw-sales-channel-modal.scss';
+import { Criteria } from 'shopware:data';
 
 const { Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

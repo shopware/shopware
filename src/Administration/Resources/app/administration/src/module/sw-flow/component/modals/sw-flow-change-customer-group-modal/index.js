@@ -1,7 +1,7 @@
 import template from './sw-flow-change-customer-group-modal.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 

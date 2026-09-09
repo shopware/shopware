@@ -5,9 +5,9 @@
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
 import './sw-sales-channel-detail-product-comparison.scss';
 import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

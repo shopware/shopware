@@ -5,6 +5,7 @@
 
 import type Repository from '../../core/data/repository.data';
 import type { ContextState } from '../composables/use-context';
+import { Criteria } from 'shopware:data';
 
 function getRepository<EntityName extends keyof EntitySchema.EntityKeys>(
     entityName: EntityName,
@@ -71,7 +72,7 @@ function filterContext(result: any, customContext: any) {
 export default function initializeExtensionDataLoader(): void {
     Shopware.ExtensionAPI.handle(
         'repositorySearch',
-        async ({ entityName, criteria = new Shopware.Data.Criteria(), context }, additionalInformation) => {
+        async ({ entityName, criteria = new Criteria(), context }, additionalInformation) => {
             try {
                 const repository = getRepository(entityName, additionalInformation);
 
@@ -96,7 +97,7 @@ export default function initializeExtensionDataLoader(): void {
 
     Shopware.ExtensionAPI.handle(
         'repositoryGet',
-        ({ entityName, id, criteria = new Shopware.Data.Criteria(), context }, additionalInformation) => {
+        ({ entityName, id, criteria = new Criteria(), context }, additionalInformation) => {
             const repository = getRepository(entityName, additionalInformation);
             if (!repository) {
                 return rejectRepositoryCreation(entityName) as Promise<null>;

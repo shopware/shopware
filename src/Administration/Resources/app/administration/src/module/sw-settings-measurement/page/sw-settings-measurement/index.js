@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 import template from './sw-settings-measurement.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -1,6 +1,5 @@
 import template from './sw-bulk-edit-order-documents-delete-documents.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package after-sales

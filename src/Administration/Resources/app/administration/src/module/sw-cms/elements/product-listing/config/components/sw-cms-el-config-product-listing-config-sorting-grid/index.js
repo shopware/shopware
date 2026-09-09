@@ -1,7 +1,6 @@
 import template from './sw-cms-el-config-product-listing-config-sorting-grid.html.twig';
 import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
-
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @private

@@ -1,8 +1,8 @@
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**

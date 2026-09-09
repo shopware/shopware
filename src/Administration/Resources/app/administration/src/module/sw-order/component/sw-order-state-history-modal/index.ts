@@ -2,13 +2,13 @@ import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 interface StateMachineHistoryData {
     order: Entity<'state_machine_state'>;

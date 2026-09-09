@@ -4,8 +4,7 @@ import difference from 'lodash-es/difference';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 import { cloneDeep } from 'shopware:utils/object';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

@@ -1,8 +1,8 @@
 import template from './sw-flow-event-change-confirm-modal.html.twig';
 import './sw-flow-event-change-confirm-modal.scss';
+import { EntityCollection } from 'shopware:data';
 
 const { Component, Store } = Shopware;
-const { EntityCollection } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
 /**

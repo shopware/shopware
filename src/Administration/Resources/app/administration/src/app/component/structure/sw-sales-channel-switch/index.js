@@ -3,8 +3,8 @@
  */
 import template from './sw-sales-channel-switch.html.twig';
 import { debug } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 /**
  * @private
  * @description

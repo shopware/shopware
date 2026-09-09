@@ -4,6 +4,7 @@
 
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @private
@@ -51,7 +52,7 @@ export default {
         },
 
         pluginCriteria() {
-            return new Shopware.Data.Criteria(1, 50);
+            return new Criteria(1, 50);
         },
 
         isLoading() {

@@ -2,8 +2,7 @@ import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/En
 import type CriteriaType from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import type Repository from '../../../../core/data/repository.data';
 import type { ContextStore } from '../../../../app/store/context.store';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 interface LoadPayload<EntityName extends keyof EntitySchema.EntityKeys> {
     repository: Repository<EntityName>;

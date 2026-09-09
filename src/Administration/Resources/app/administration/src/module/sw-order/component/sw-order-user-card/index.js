@@ -1,12 +1,12 @@
 import template from './sw-order-user-card.html.twig';
 import './sw-order-user-card.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const ApiService = Shopware.Classes.ApiService;
 const format = Shopware.Utils.format;
 

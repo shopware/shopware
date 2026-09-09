@@ -1,13 +1,12 @@
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

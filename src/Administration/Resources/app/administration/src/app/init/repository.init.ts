@@ -1,10 +1,11 @@
+import { ChangesetGenerator, EntityFactory, EntityHydrator, ErrorResolver } from 'shopware:data';
+
 /**
  * @sw-package framework
  */
 
 const RepositoryFactory = Shopware.Classes._private.RepositoryFactory;
-const { EntityHydrator, ChangesetGenerator, EntityFactory } = Shopware.Data;
-const ErrorResolverError = Shopware.Data.ErrorResolver;
+const ErrorResolverError = ErrorResolver;
 
 const customEntityTypes = [
     {

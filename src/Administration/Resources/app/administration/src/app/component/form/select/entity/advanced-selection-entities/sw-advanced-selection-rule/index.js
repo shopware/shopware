@@ -1,7 +1,6 @@
 import template from './sw-advanced-selection-rule.html.twig';
 import './sw-advanced-selection-rule.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

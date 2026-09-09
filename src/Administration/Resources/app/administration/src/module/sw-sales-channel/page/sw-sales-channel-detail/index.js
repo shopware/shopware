@@ -6,9 +6,9 @@ import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
 import './sw-sales-channel-detail.scss';
 import { EventBus, object } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
 const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 

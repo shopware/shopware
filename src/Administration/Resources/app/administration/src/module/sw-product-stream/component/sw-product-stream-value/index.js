@@ -1,7 +1,6 @@
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package inventory

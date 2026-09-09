@@ -5,9 +5,9 @@ import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 

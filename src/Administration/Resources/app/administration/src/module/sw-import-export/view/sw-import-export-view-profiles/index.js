@@ -3,10 +3,9 @@
  */
 import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  */

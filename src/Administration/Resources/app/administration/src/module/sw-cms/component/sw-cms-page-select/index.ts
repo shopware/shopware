@@ -1,9 +1,8 @@
 import template from './sw-cms-page-select.html.twig';
 import './sw-cms-page-select.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @sw-package discovery

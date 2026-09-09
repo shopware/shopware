@@ -4,9 +4,9 @@ import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 import { get } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Mixin, Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**

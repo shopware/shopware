@@ -1,7 +1,6 @@
 import template from './sw-condition-modal.html.twig';
 import './sw-condition-modal.scss';
-
-const { EntityCollection } = Shopware.Data;
+import { EntityCollection } from 'shopware:data';
 
 /**
  * @private

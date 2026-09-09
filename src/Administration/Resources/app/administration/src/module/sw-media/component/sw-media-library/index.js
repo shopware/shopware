@@ -1,10 +1,9 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
 import { EventBus } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Context, Feature } = Shopware;
-const { Criteria } = Shopware.Data;
-
 const getDefaultMediaSorting = () => {
     if (Feature.isActive('v6.8.0.0')) {
         return { sortBy: 'createdAt', sortDirection: 'desc' };

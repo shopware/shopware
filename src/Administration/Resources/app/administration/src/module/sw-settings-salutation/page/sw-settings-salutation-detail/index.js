@@ -2,9 +2,9 @@
  * @sw-package checkout
  */
 import template from './sw-settings-salutation-detail.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;

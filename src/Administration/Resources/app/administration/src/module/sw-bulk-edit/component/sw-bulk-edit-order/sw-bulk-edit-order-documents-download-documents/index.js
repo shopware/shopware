@@ -2,8 +2,7 @@
  * @sw-package checkout
  */
 import template from './sw-bulk-edit-order-documents-download-documents.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

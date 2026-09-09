@@ -5,10 +5,9 @@
 import ApiService from 'src/core/service/api.service';
 import template from './sw-customer-imitate-customer-modal.html.twig';
 import './sw-customer-imitate-customer-modal.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

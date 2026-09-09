@@ -3,8 +3,8 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 
 import template from './sw-generic-custom-entity-list.html.twig';
+import { Criteria } from 'shopware:data';
 
-const { Criteria } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 interface EntityListingColumnConfig {

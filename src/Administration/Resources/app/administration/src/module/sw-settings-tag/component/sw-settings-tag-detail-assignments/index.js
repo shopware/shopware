@@ -4,10 +4,9 @@
 import utils from 'src/core/service/util.service';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

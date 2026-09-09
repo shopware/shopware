@@ -2,10 +2,9 @@
  * @sw-package inventory
  */
 import template from './sw-settings-search.html.twig';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

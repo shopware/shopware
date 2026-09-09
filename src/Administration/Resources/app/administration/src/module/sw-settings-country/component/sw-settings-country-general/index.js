@@ -3,11 +3,10 @@
  */
 import template from './sw-settings-country-general.html.twig';
 import './sw-settings-country-general.scss';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

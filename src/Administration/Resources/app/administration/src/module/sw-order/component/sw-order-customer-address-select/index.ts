@@ -2,14 +2,13 @@ import template from './sw-order-customer-address-select.html.twig';
 import './sw-order-customer-address-select.scss';
 import type CriteriaType from '../../../../core/data/criteria.data';
 import type Repository from '../../../../core/data/repository.data';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,

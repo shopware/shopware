@@ -1,8 +1,8 @@
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component, Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**

@@ -1,8 +1,8 @@
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin, Context, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**

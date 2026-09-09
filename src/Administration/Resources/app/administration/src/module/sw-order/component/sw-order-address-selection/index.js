@@ -3,6 +3,7 @@ import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
@@ -10,7 +11,6 @@ import { cloneDeep } from 'shopware:utils/object';
 
 const { ShopwareError } = Shopware.Classes;
 const { EntityDefinition, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

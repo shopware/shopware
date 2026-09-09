@@ -1,13 +1,13 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const { CUSTOMER } = Shopware.Constants;

@@ -1,4 +1,5 @@
 import template from './sw-cms-create.html.twig';
+import { EntityCollection } from 'shopware:data';
 
 const { Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -49,7 +50,7 @@ export default {
             }
 
             this.page = this.pageRepository.create();
-            this.page.sections = new Shopware.Data.EntityCollection(
+            this.page.sections = new EntityCollection(
                 `/cms-page/${this.page.id}/sections`,
                 'cms_section',
                 Shopware.Context.api,

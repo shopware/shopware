@@ -4,10 +4,9 @@
 
 import template from './sw-product-properties.html.twig';
 import './sw-product-properties.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

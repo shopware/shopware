@@ -5,8 +5,7 @@
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 import { object } from 'shopware:utils';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

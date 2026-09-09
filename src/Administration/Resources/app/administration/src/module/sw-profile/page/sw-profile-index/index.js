@@ -7,9 +7,9 @@ import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
+import { Criteria } from 'shopware:data';
 
 const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

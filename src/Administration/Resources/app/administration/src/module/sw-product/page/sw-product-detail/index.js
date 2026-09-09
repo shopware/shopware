@@ -9,9 +9,9 @@ import './sw-product-detail.scss';
 import '../../page/sw-product-detail/store';
 import { EventBus, types } from 'shopware:utils';
 import { cloneDeep } from 'shopware:utils/object';
+import { ChangesetGenerator, Criteria } from 'shopware:data';
 
 const { Context, Mixin, EntityDefinition } = Shopware;
-const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const type = types;
 

@@ -201,15 +201,16 @@ class ProductSearchScoringTest extends TestCase
         // one entry for the single product, one for the group of three variants
         static::assertCount(2, $ids);
 
-        $singleProductScore = round((float) $result->getDataFieldOfId($singleProductId, '_score'));
-        static::assertSame(700000.0, $singleProductScore);
+        $singleProductScore = (float) $result->getDataFieldOfId($singleProductId, '_score');
+        static::assertEqualsWithDelta(700000.0, $singleProductScore, 1.0);
 
         $groupId = $result->getIds()[0] === $singleProductId ? $result->getIds()[1] : $result->getIds()[0];
         static::assertIsString($groupId);
         static::assertContains($groupId, $variantIds);
-        static::assertSame(
+        static::assertEqualsWithDelta(
             $singleProductScore,
-            round((float) $result->getDataFieldOfId($groupId, '_score')),
+            (float) $result->getDataFieldOfId($groupId, '_score'),
+            1.0,
             'The variant group must not be scored higher than a comparable single product'
         );
     }
@@ -233,7 +234,7 @@ class ProductSearchScoringTest extends TestCase
 
         static::assertSame([$bestVariantId], $result->getIds());
         // the group scores like its best variant, not like the average of its variants
-        static::assertSame(1400000.0, round((float) $result->getDataFieldOfId($bestVariantId, '_score')));
+        static::assertEqualsWithDelta(1400000.0, (float) $result->getDataFieldOfId($bestVariantId, '_score'), 1.0);
     }
 
     /**

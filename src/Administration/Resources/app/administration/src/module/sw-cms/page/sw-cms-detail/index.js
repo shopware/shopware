@@ -1,13 +1,13 @@
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
+import { debounce } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
+import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
+import { isEmpty } from 'shopware:utils/types';
 
 const { Component, Mixin, Utils } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-const { debounce } = Shopware.Utils;
-const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
-const { isEmpty } = Shopware.Utils.types;
-const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 const { CMS } = Shopware.Constants;
 const debounceTimeout = 800;

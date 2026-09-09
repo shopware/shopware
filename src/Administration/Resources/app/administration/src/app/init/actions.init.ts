@@ -1,3 +1,5 @@
+import { createId } from 'shopware:utils';
+
 /**
  * @sw-package framework
  *
@@ -19,7 +21,7 @@ export default function initializeActions(): void {
             {
                 url: actionConfiguration.url,
                 entity: actionConfiguration.entity,
-                action: Shopware.Utils.createId(),
+                action: createId(),
                 appName: extensionName,
             },
             actionConfiguration.entityIds,

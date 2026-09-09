@@ -3,8 +3,7 @@
  */
 import template from './sw-import-export-activity-result-modal.html.twig';
 import './sw-import-export-activity-result-modal.scss';
-
-const { format } = Shopware.Utils;
+import { format } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

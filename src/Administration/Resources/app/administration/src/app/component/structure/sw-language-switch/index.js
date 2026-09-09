@@ -1,7 +1,8 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
+import { EventBus } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 
-const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -95,11 +96,11 @@ export default {
             this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
 
-            Shopware.Utils.EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
+            EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
         },
 
         destroyedComponent() {
-            Shopware.Utils.EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
+            EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
         },
 
         onInput(newLanguageId) {
@@ -133,7 +134,7 @@ export default {
 
             if (this.changeGlobalLanguage) {
                 Shopware.Store.get('context').api.languageId = this.languageId;
-                Shopware.Utils.EventBus.emit('sw-language-switch-change-application-language', {
+                EventBus.emit('sw-language-switch-change-application-language', {
                     languageId: this.languageId,
                 });
             }

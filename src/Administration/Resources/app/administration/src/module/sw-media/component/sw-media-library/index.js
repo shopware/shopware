@@ -1,5 +1,6 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
+import { EventBus } from 'shopware:utils';
 
 const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -310,7 +311,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem);
+            EventBus.on('sw-media-library-item-updated', this.refreshItem);
 
             this.refreshList();
 
@@ -326,7 +327,7 @@ export default {
         },
 
         beforeUnmountedComponent() {
-            Shopware.Utils.EventBus.off('sw-media-library-item-updated', this.refreshItem);
+            EventBus.off('sw-media-library-item-updated', this.refreshItem);
         },
 
         /*

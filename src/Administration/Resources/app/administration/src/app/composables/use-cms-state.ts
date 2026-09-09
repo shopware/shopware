@@ -7,6 +7,7 @@ import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
 import { useRoute } from 'vue-router';
 import 'src/module/sw-cms/store/cms-page.store';
 import type { CmsSlotConfig } from 'src/module/sw-cms/service/cms.service';
+import { object } from 'shopware:utils';
 
 type SlotConfigMap = { [slotId: string]: CmsSlotConfig };
 
@@ -153,7 +154,7 @@ export default function useCmsState(): {
             merged[slotId] = { ...(merged[slotId] ?? {}), ...fields };
         }
 
-        return Shopware.Utils.object.cloneDeep(merged);
+        return object.cloneDeep(merged);
     });
 
     return {

@@ -1,3 +1,5 @@
+import { format } from 'shopware:utils';
+
 /**
  * @sw-package framework
  */
@@ -7,7 +9,7 @@ Shopware.Filter.register('date', (value: string, options: Intl.DateTimeFormatOpt
         return '';
     }
 
-    return Shopware.Utils.format.date(value, options);
+    return format.date(value, options);
 });
 
 /**

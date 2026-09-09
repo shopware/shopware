@@ -1,8 +1,7 @@
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';
-
-const { deepCopyObject } = Shopware.Utils.object;
+import { deepCopyObject } from 'shopware:utils/object';
 
 /**
  * @private since v6.5.0

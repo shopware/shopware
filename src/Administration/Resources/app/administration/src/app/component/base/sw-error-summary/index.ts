@@ -4,8 +4,7 @@
 
 import template from './sw-error-summary.html.twig';
 import './sw-error-summary.scss';
-
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
 
 type error = {
     _code: string;

@@ -1,4 +1,4 @@
-const { deepCopyObject } = Shopware.Utils.object;
+import { deepCopyObject } from 'shopware:utils/object';
 
 type variantKeys = 'neutral' | 'progress' | 'done' | 'warning' | 'danger';
 

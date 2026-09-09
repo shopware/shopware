@@ -1,8 +1,7 @@
 import { defineComponent } from 'vue';
 import '../store/cms-page.store';
 import type { CmsSlotConfig } from '../service/cms.service';
-
-const { cloneDeep } = Shopware.Utils.object;
+import { cloneDeep } from 'shopware:utils/object';
 
 type WithSlotConfig = {
     slotConfig?: {

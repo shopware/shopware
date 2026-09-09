@@ -4,10 +4,9 @@
 
 import template from './sw-product-clone-modal.html.twig';
 import './sw-product-clone-modal.scss';
+import { cloneDeep } from 'shopware:utils/object';
 
 const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

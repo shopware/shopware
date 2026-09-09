@@ -1,14 +1,13 @@
 import template from './sw-settings-listing-default-sales-channel.html.twig';
 import './sw-settings-listing-default-sales-channel.scss';
+import { cloneDeep } from 'shopware:utils/object';
+import { isEmpty } from 'shopware:utils/types';
 
 /**
  * @sw-package inventory
  */
 
 const { EntityCollection } = Shopware.Data;
-const { isEmpty } = Shopware.Utils.types;
-const { cloneDeep } = Shopware.Utils.object;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

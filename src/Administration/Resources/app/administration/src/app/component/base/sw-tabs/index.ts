@@ -1,5 +1,6 @@
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-tabs.html.twig';
+import { debug } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -37,7 +38,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (Shopware.Feature.isActive('V6_8_0_0')) {
-                Shopware.Utils.debug.warn(
+                debug.warn(
                     'sw-tabs',
                     'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
                 );

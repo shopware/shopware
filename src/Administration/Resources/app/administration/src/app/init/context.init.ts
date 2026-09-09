@@ -7,6 +7,7 @@ import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
 import useTheme from '../composables/use-theme';
+import { createId } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -201,7 +202,7 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('windowGetId', () => {
         if (!contextStore.app.windowId) {
-            contextStore.app.windowId = Shopware.Utils.createId();
+            contextStore.app.windowId = createId();
         }
 
         return contextStore.app.windowId;

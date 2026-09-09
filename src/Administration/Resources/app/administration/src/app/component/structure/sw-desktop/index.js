@@ -1,8 +1,7 @@
 import template from './sw-desktop.html.twig';
 import useTheme, { THEMES, THEME_LABELS } from 'src/app/composables/use-theme';
 import './sw-desktop.scss';
-
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
 
 /**
  * @sw-package framework

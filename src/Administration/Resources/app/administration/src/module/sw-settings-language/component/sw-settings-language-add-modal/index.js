@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-language-add-modal.html.twig';
 import './sw-settings-language-add-modal.scss';
+import { format } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -52,7 +53,7 @@ export default {
                     return {
                         value: translation.locale,
                         // Pseudo languages borrow a real locale code, so only their own name describes them
-                        label: isPseudoLanguage ? translation.name : Shopware.Utils.format.localeName(translation.locale),
+                        label: isPseudoLanguage ? translation.name : format.localeName(translation.locale),
                         disabled: isLinked || existsAsLanguage,
                         isPseudoLanguage,
                     };

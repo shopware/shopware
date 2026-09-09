@@ -4,10 +4,9 @@
 
 import template from './sw-product-variants-media-upload.html.twig';
 import './sw-product-variants-media-upload.scss';
+import { isEmpty } from 'shopware:utils/types';
 
 const { Mixin, Context } = Shopware;
-const { isEmpty } = Shopware.Utils.types;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -1,9 +1,9 @@
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
+import { warn } from 'shopware:utils/debug';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**

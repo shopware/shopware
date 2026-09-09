@@ -1,4 +1,5 @@
 import template from './sw-popover.html.twig';
+import { debug } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -35,7 +36,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
+            debug.warn(
                 'sw-popover',
                 'The old usage of "sw-popover" is deprecated and will be removed in v6.8.0.0. Please use "mt-floating-ui" instead.',
             );
@@ -55,7 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     created() {
         if (this.useMeteorComponent && this.resizeWidth === true) {
-            Shopware.Utils.debug.warn(
+            debug.warn(
                 'sw-popover',
                 'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
             );

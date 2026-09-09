@@ -7,6 +7,7 @@ import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-clie
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
 import { trackSessionSnapshot } from 'src/app/service/product-analytics-session-snapshot.service';
+import { EventBus } from 'shopware:utils';
 
 /**
  * @private
@@ -27,7 +28,7 @@ export default async function (): Promise<WatchHandle | undefined> {
     const consentEventHandler = createConsentEventHandler(gatewayClient);
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
-    Shopware.Utils.EventBus.on('consent', consentEventHandler);
+    EventBus.on('consent', consentEventHandler);
 
     /*
      * initialize product analytics
@@ -54,7 +55,7 @@ export default async function (): Promise<WatchHandle | undefined> {
                 }
 
                 gatewayClient.setOptOut(false);
-                Shopware.Utils.EventBus.on('telemetry', eventHandlers);
+                EventBus.on('telemetry', eventHandlers);
 
                 Shopware.Telemetry.identify();
                 void Shopware.Application.viewInitialized.then(trackSessionSnapshot);
@@ -64,7 +65,7 @@ export default async function (): Promise<WatchHandle | undefined> {
                 }
 
                 gatewayClient.setOptOut(true);
-                Shopware.Utils.EventBus.off('telemetry', eventHandlers);
+                EventBus.off('telemetry', eventHandlers);
                 void gatewayClient.flushWithoutRetry().finally(() => {
                     deleteUser(gatewayClient);
                     gatewayClient.clearStorage();

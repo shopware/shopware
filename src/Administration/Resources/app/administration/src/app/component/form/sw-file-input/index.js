@@ -1,8 +1,8 @@
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
+import { fileSize } from 'shopware:utils/format';
 
 const { Mixin } = Shopware;
-const { fileSize } = Shopware.Utils.format;
 const utils = Shopware.Utils;
 
 /**

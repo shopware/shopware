@@ -1,7 +1,7 @@
 import template from './sw-cms-reset-inheritance.html.twig';
 import './sw-cms-reset-inheritance.scss';
-
-const { set, merge } = Shopware.Utils.object;
+import { types } from 'shopware:utils';
+import { merge, set } from 'shopware:utils/object';
 
 /**
  * @private
@@ -22,7 +22,7 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('cmsPage');
         },
         hasOverrides() {
-            return !Shopware.Utils.types.isEmpty(this.contentEntity?.slotConfig);
+            return !types.isEmpty(this.contentEntity?.slotConfig);
         },
     },
     methods: {

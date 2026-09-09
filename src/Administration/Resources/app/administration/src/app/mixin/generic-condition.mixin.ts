@@ -6,6 +6,7 @@ import { defineComponent } from 'vue';
 import type RuleConditionService from '../service/rule-condition.service';
 import createCriteriaFromArray from '../service/criteria-helper.service';
 import convertUnit from '../../module/sw-settings-rule/utils/unit-conversion.utils';
+import { object } from 'shopware:utils';
 
 const { Mixin } = Shopware;
 
@@ -172,7 +173,7 @@ export default Mixin.register(
 
         methods: {
             getBind(field: Field) {
-                const fieldClone = Shopware.Utils.object.cloneDeep(field);
+                const fieldClone = object.cloneDeep(field);
                 const snippetBasePath = [
                     'global',
                     'sw-condition-generic',

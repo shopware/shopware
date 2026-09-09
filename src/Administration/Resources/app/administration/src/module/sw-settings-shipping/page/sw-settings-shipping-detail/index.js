@@ -1,11 +1,10 @@
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './store';
+import { warn } from 'shopware:utils/debug';
 
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
-
 /**
  * @sw-package checkout
  */

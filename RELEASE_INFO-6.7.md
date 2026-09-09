@@ -145,7 +145,7 @@ A subscriber fills it on `customer.loaded`, so a customer read through the data 
 
 `CustomerTransformer` writes the company name into the order customer name fields when a commercial account has no contact person, so documents, mails and the order list keep naming the buyer.
 
-`GET /store-api/shop-settings` returns the two new settings under `loginRegistration`. A headless client has to apply the gate itself: the two only matter while `showAccountTypeSelection` is on.
+`GET /store-api/shop-settings` returns the two new settings under `loginRegistration`, with the gate above already applied, so a headless client can build the same form as the Storefront.
 
 On the registration and profile forms the first and last name fields follow the account type selection through the new `CompanyNameFields` storefront plugin, so the client validation matches what the backend accepts. Address blocks keep the names required, because the backend judges those by the customer or by the top level account type rather than by the account type of the address.
 

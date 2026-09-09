@@ -25,27 +25,39 @@ final class CompanyAccountNameFields
 
     public static function areRequired(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
-        if (!self::accountTypeIsSelectable($systemConfigService, $salesChannelId)) {
-            return true;
-        }
-
-        return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId)
-            && self::isEnabled($systemConfigService, self::CONFIG_REQUIRED, $salesChannelId);
+        return self::isRequired(
+            self::accountTypeIsSelectable($systemConfigService, $salesChannelId),
+            self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId),
+            self::isEnabled($systemConfigService, self::CONFIG_REQUIRED, $salesChannelId)
+        );
     }
 
     public static function areVisible(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
-        if (!self::accountTypeIsSelectable($systemConfigService, $salesChannelId)) {
-            return true;
-        }
-
-        return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId);
+        return self::isVisible(
+            self::accountTypeIsSelectable($systemConfigService, $salesChannelId),
+            self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId)
+        );
     }
 
     /**
-     * A shop without the account type selection cannot tell a commercial registration from a private
-     * one, so the contact person stays mandatory there and both settings above do nothing. Unlike those
-     * two, this key has no default value in loginRegistration.xml, so an unsaved value means off.
+     * The rule itself, for a caller that already holds the three values. A shop without the account
+     * type selection cannot tell a commercial registration from a private one, so the contact person
+     * stays mandatory there and the other two settings do nothing.
+     */
+    public static function isRequired(bool $accountTypeSelectable, bool $show, bool $required): bool
+    {
+        return !$accountTypeSelectable || ($show && $required);
+    }
+
+    public static function isVisible(bool $accountTypeSelectable, bool $show): bool
+    {
+        return !$accountTypeSelectable || $show;
+    }
+
+    /**
+     * Unlike the other two keys this one has no default value in loginRegistration.xml, so an unsaved
+     * value means off.
      */
     public static function accountTypeIsSelectable(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {

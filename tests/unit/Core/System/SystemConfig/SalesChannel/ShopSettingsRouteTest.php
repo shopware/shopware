@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -175,6 +176,9 @@ class ShopSettingsRouteTest extends TestCase
         static::assertSame(0, $settings->loginRegistration->passwordMinLength);
         static::assertFalse($settings->loginRegistration->showSalutation);
         static::assertSame('', $settings->loginRegistration->addressInputFieldArrangement);
+        static::assertFalse($settings->loginRegistration->showAccountTypeSelection);
+        static::assertTrue($settings->loginRegistration->showNameFieldsForCompanyAccounts);
+        static::assertTrue($settings->loginRegistration->nameFieldsRequiredForCompanyAccounts);
 
         static::assertSame(0, $settings->cart->maxQuantity);
         static::assertFalse($settings->cart->wishlistEnabled);
@@ -185,6 +189,44 @@ class ShopSettingsRouteTest extends TestCase
 
         static::assertFalse($settings->newsletter->doubleOptIn);
         static::assertFalse($settings->newsletter->doubleOptInRegistered);
+    }
+
+    /**
+     * The response has to answer what the store api routes actually enforce, so a headless client
+     * cannot build a form that the backend then rejects.
+     */
+    #[DataProvider('companyNameFieldsProvider')]
+    public function testLoadAppliesTheAccountTypeGateToTheCompanyNameFields(
+        bool $accountTypeSelection,
+        bool $show,
+        bool $required,
+        bool $expectedShow,
+        bool $expectedRequired
+    ): void {
+        $route = new ShopSettingsRoute(new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => $accountTypeSelection,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts' => $show,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts' => $required,
+            ],
+        ]));
+
+        $loginRegistration = $route->load(Generator::generateSalesChannelContext())->getSettings()->loginRegistration;
+
+        static::assertSame($expectedShow, $loginRegistration->showNameFieldsForCompanyAccounts);
+        static::assertSame($expectedRequired, $loginRegistration->nameFieldsRequiredForCompanyAccounts);
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, bool, bool, bool}>
+     */
+    public static function companyNameFieldsProvider(): iterable
+    {
+        yield 'shown and required' => [true, true, true, true, true];
+        yield 'shown but optional' => [true, true, false, true, false];
+        yield 'hidden cannot be required' => [true, false, true, false, false];
+        yield 'the account type selection gates both settings' => [false, false, false, true, true];
+        yield 'an optional contact person needs the account type selection' => [false, true, false, true, true];
     }
 
     public function testLoadDoesNotLeakConfigOfOtherSalesChannels(): void

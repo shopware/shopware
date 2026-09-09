@@ -60,11 +60,53 @@ properties:
     adminUI:
       component: "select"
 
-  showNavigationArrows:
+  thumbnailNavShowsMediaOnHover:
     type: boolean
+    title: "Show Media On Thumbnail Hover"
+    description: "Show the media belonging to a thumbnail when hovering it, without clicking it."
+    default: false
+    adminUI:
+      helpText: "Accessibility: when on, the gallery switches media on hover alone, without any click. It is easily triggered by accident while moving the pointer across the thumbnails, and it is not announced to screen readers."
+
+  showNavigationArrows:
+    type:
+      - "boolean"
+      - "object"
     title: "Show Navigation Arrows"
-    description: "Show the navigation arrows."
-    default: true
+    description: "Breakpoint-aware visibility of the navigation arrows."
+    adminUI:
+      breakpointAware: true
+    properties:
+      xs:
+        type: boolean
+        title: "Show Navigation Arrows (XS)"
+        description: "Show the navigation arrows on extra small breakpoint."
+        default: true
+      sm:
+        type: boolean
+        title: "Show Navigation Arrows (SM)"
+        description: "Show the navigation arrows on small breakpoint."
+        default: true
+      md:
+        type: boolean
+        title: "Show Navigation Arrows (MD)"
+        description: "Show the navigation arrows on medium breakpoint."
+        default: false
+      lg:
+        type: boolean
+        title: "Show Navigation Arrows (LG)"
+        description: "Show the navigation arrows on large breakpoint."
+        default: false
+      xl:
+        type: boolean
+        title: "Show Navigation Arrows (XL)"
+        description: "Show the navigation arrows on extra large breakpoint."
+        default: false
+      xxl:
+        type: boolean
+        title: "Show Navigation Arrows (XXL)"
+        description: "Show the navigation arrows on extra extra large breakpoint."
+        default: false
 
   showMagnifier:
     type: boolean

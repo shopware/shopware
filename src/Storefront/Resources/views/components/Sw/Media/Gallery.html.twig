@@ -7,7 +7,8 @@
     @prop mediaItems - Array of Shopware\Core\Content\Media
     @prop thumbnailSize - Number - The size of the thumbnail in pixels
     @prop thumbnailNavigationPosition - String 'left' | 'underneath'
-    @prop showNavigationArrows - Boolean - Show the navigation arrows
+    @prop thumbnailNavShowsMediaOnHover - Boolean - Show the media belonging to a thumbnail on hover, without clicking it
+    @prop showNavigationArrows - Boolean or Map of breakpoint keys (xs, sm, md, lg, xl, xxl) to Boolean - Show the navigation arrows
     @prop showMagnifier - Boolean - Show the magnifier
     @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
     @prop showFullScreenGallery - Boolean - Show the full screen gallery
@@ -21,8 +22,15 @@
     maxHeight = null,
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
-    thumbnailNavShowsMediaOnHover = true,
-    showNavigationArrows = true,
+    thumbnailNavShowsMediaOnHover = false,
+    showNavigationArrows = {
+        xs: true,
+        sm: true,
+        md: false,
+        lg: false,
+        xl: false,
+        xxl: false,
+    },
     showMagnifier = true,
     useSchemaMarkup = false,
     showFullScreenGallery = true,
@@ -32,6 +40,17 @@
 
 {% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
 {% set singleMedia = mediaItems|length == 1 %}
+{% set navigationArrowVisibility = {} %}
+
+{% for breakpoint in ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] %}
+    {% set navigationArrowVisibility = navigationArrowVisibility|merge({
+        (breakpoint): showNavigationArrows is mapping
+            ? (showNavigationArrows[breakpoint] ?? false)
+            : showNavigationArrows,
+    }) %}
+{% endfor %}
+
+{% set renderNavigationArrows = navigationArrowVisibility|filter(visible => visible)|length > 0 and not singleMedia %}
 
 {% set mediaGalleryCVA = cva({
     base: 'sw-media-gallery',
@@ -56,7 +75,7 @@
 {% set mediaGalleryOptions = {
     showMagnifier,
     thumbnailNavigationPosition,
-    showNavigationArrows,
+    showNavigationArrows: renderNavigationArrows,
     showFullScreenGallery,
     isLightbox,
     thumbnailNavShowsMediaOnHover,
@@ -68,6 +87,7 @@
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
     'aria-label': 'component.cms.mediaGallery.ariaLabel'|trans({'%total%': mediaItems|length})|striptags,
+    'aria-roledescription': 'carousel',
     style: "--sw-media-gallery-thumbnail-size: #{thumbnailSize}px;",
 } %}
 
@@ -76,6 +96,16 @@
         style: defaultAttributes.style ~ " --sw-media-gallery-max-height: #{maxHeight}px;",
     }) %}
 {% endif %}
+
+{% if renderNavigationArrows %}
+    {% for breakpoint, visible in navigationArrowVisibility %}
+        {% set defaultAttributes = defaultAttributes|merge({
+            style: defaultAttributes.style ~ " --sw-media-gallery-nav-button-display-#{breakpoint}: #{visible ? 'inline-flex' : 'none'};",
+        }) %}
+    {% endfor %}
+{% endif %}
+
+{% set galleryItemTag = showFullScreenGallery ? 'button' : 'div' %}
 
 {% if mediaItems is not null and mediaItems|length > 0 %}
     <section {{ attributes.defaults(defaultAttributes) }}>
@@ -91,16 +121,20 @@
         <div class="sw-media-gallery__previews-wrapper">
             <div class="sw-media-gallery__previews">
                 {% for mediaItem in mediaItems %}
-                    <div 
+                    {% set previewLabel = 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags %}
+                    {% if mediaItem.translated.alt %}
+                        {% set previewLabel = previewLabel ~ ', ' ~ mediaItem.translated.alt|striptags %}
+                    {% endif %}
+
+                    <{{ galleryItemTag }} 
                         class="sw-media-gallery__preview-item" 
                         id="sw-media-gallery-preview-{{ loop.index }}"
                         data-media-id="{{ loop.index }}"
                         {% if showFullScreenGallery %}
                             data-bs-toggle="modal"
                             data-bs-target="#{{ lightboxId }}"
-                            role="button"
                             tabindex="0"
-                            aria-label="{{ 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags }}"
+                            aria-label="{{ previewLabel }}"
                             aria-haspopup="dialog"
                             aria-controls="{{ lightboxId }}"
                         {% endif %}
@@ -112,11 +146,11 @@
                             :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
                             :autoplay="autoplayVideos"
                         />
-                    </div>
+                    </{{ galleryItemTag }}>
                 {% endfor %}
             </div>
 
-            {% if showNavigationArrows and not singleMedia %}
+            {% if renderNavigationArrows %}
                 <twig:Sw:Button
                     class="sw-media-gallery__nav-button is--backward"
                     variant="light"
@@ -137,7 +171,11 @@
             {% endif %}
 
             {% if not singleMedia %}
-                <span class="sw-media-gallery__preview-item-badge badge" aria-live="polite">
+                <span 
+                    class="sw-media-gallery__preview-item-badge badge" 
+                    aria-live="polite"
+                    aria-atomic="true"
+                >
                     <span class="visually-hidden">{{ 'component.cms.mediaGallery.counterLabel'|trans|striptags }} </span> 
                     <span class="sw-media-galley__counter-info">1 {{ mediaGalleryOptions.counterDeviderLabel }} {{ mediaItems|length }}</span>
                 </span>

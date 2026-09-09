@@ -130,24 +130,6 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     }
 }
 
-// A card body holding a centered empty state: the empty state owns the spacing,
-// so drop the card padding and center it vertically.
-// Horizontal centering stays with the empty state's own max-width and auto margin,
-// so it keeps its full box width and slotted content can still size against it.
-// Opt out by wrapping the empty state in a plain element.
-.mt-card__content:has(> .mt-empty-state:not(.mt-empty-state--left-aligned)) {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0;
-
-    // the auto inline margin stops a flex item from stretching, which would shrink the
-    // empty state to its text and leave slotted fields (a rule select, a toggle) too narrow
-    > .mt-empty-state {
-        width: 100%;
-    }
-}
-
 /**
  * Reset some global styling from
  * the Meteor Component Library

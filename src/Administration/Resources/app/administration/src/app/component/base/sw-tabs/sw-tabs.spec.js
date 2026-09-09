@@ -24,14 +24,16 @@ describe('src/app/component/base/sw-tabs', () => {
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.html()).not.toContain('mt-tabs');
-        if (Shopware.Feature.isActive('V6_8_0_0')) {
-            expect(warnSpy).toHaveBeenCalledWith(
-                'sw-tabs',
-                'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
-            );
-        } else {
-            expect(warnSpy).not.toHaveBeenCalled();
-        }
+        expect(warnSpy.mock.calls).toEqual(
+            Shopware.Feature.isActive('V6_8_0_0')
+                ? [
+                      [
+                          'sw-tabs',
+                          'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
+                      ],
+                  ]
+                : [],
+        );
 
         warnSpy.mockRestore();
     });

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UpdateElementProperties;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
@@ -27,8 +28,6 @@ use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
 class UpdateElementPropertiesTest extends TestCase
 {
     private const TYPE = 'Sw:Test:Updatable';
-
-    private const GERMAN = 'aa11bb22cc33dd44ee55ff6600112233';
 
     #[TestDox('replaces one property value and carries every other key verbatim, the undeclared storage key included')]
     public function testReplacesOneValueAndCarriesTheRest(): void
@@ -57,7 +56,8 @@ class UpdateElementPropertiesTest extends TestCase
     #[TestDox('writes a translatable property\'s language map exactly as supplied')]
     public function testWritesALanguageMapAsSupplied(): void
     {
-        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', self::GERMAN => 'Herbstschlussverkauf'];
+        $german = Uuid::randomHex();
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
 
         $result = (new UpdateElementProperties($this->registry(), 'block-a', ['label' => $map], []))->apply(new StoredTree([$this->target()]));
 
@@ -128,21 +128,18 @@ class UpdateElementPropertiesTest extends TestCase
         static::assertSame($grandchild, $keptChild->slots['content'][0]);
     }
 
-    #[TestDox('rebuilds an untouched root sibling to an equal instance without promising the identical one')]
-    public function testUntouchedRootSiblingKeepsValueButNotInstanceIdentity(): void
+    #[TestDox('carries an untouched root sibling over with its value intact')]
+    public function testUntouchedRootSiblingKeepsItsValue(): void
     {
         $sibling = StoredElementBuilder::create(self::TYPE, 'block-b')->withProperty('headline', 'Sibling')->build();
 
         $result = (new UpdateElementProperties($this->registry(), 'block-a', ['headline' => 'New'], []))
             ->apply(new StoredTree([$this->target(), $sibling]));
 
-        $rebuiltSibling = $result->roots[1];
-        static::assertEquals($sibling, $rebuiltSibling);
-        // StoredTree::replace() walks every root and rebuilds each visited node through
-        // StoredElement::withSlots(), whether or not anything below it changed (see the class docblock and
-        // replaceIn() at Layout/StoredTree.php:265-280) — so an untouched sibling is not the same instance,
-        // only an equal one; aliasing is permitted, not promised.
-        static::assertNotSame($sibling, $rebuiltSibling);
+        // Instance identity is deliberately unasserted: the module contract permits a result tree to alias an
+        // input subtree by reference, so whether the sibling comes back as the same instance or an equal one is
+        // not this op's promise to keep. StoredTree::replace()'s own rebuild behaviour is pinned in StoredTreeTest.
+        static::assertEquals($sibling, $result->roots[1]);
     }
 
     #[TestDox('rejects an element id that is not in the tree with a 400')]
@@ -215,6 +212,18 @@ class UpdateElementPropertiesTest extends TestCase
         $update = new UpdateElementProperties($this->registry(), 'block-a', ['columns' => 'three'], []);
 
         $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'string'));
+        $update->apply(new StoredTree([$this->target()]));
+    }
+
+    #[TestDox('rejects a bare string under a translatable key, which only a language map admits')]
+    public function testTranslatableValueRejectedWhenItIsNotALanguageMap(): void
+    {
+        // 'label' is declared `string` and translatable, so this same bare string would be admitted on the
+        // non-translatable branch of PropertyType::admits(); only the translatable branch, which requires a
+        // non-list array of strings, refuses it.
+        $update = new UpdateElementProperties($this->registry(), 'block-a', ['label' => 'Autumn sale'], []);
+
+        $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'string'));
         $update->apply(new StoredTree([$this->target()]));
     }
 

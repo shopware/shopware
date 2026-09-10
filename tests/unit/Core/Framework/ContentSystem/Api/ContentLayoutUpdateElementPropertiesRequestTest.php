@@ -53,6 +53,26 @@ class ContentLayoutUpdateElementPropertiesRequestTest extends TestCase
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
     }
 
+    #[TestDox('accepts a request that writes a value and removes nothing')]
+    public function testAcceptsARequestCarryingOnlyValues(): void
+    {
+        $request = new ContentLayoutUpdateElementPropertiesRequest(elementId: 'block-a', expectedVersion: null, values: ['headline' => 'Hi']);
+
+        $violations = $this->validator()->validate($request);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[TestDox('accepts a request that writes nothing and removes a key')]
+    public function testAcceptsARequestCarryingOnlyRemoveKeys(): void
+    {
+        $request = new ContentLayoutUpdateElementPropertiesRequest(elementId: 'block-a', expectedVersion: null, removeKeys: ['tag']);
+
+        $violations = $this->validator()->validate($request);
+
+        static::assertCount(0, $violations);
+    }
+
     /**
      * @return iterable<string, array{list<mixed>, string, string}>
      */

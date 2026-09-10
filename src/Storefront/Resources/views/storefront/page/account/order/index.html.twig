@@ -111,13 +111,13 @@
               data-form-preserver="true"
               method="post">
             {% block page_checkout_aside_actions_payment_method_id %}
-                <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
+                <input type="hidden" name="paymentMethodId" value="{{ page.selectedPaymentMethodId }}">
             {% endblock %}
 
             {% set paymentMethodInvalid = true %}
 
             {% for payment in page.paymentMethods %}
-                {% if payment.id is same as(context.paymentMethod.id) %}
+                {% if payment.id is same as(page.selectedPaymentMethodId) %}
                     {% set paymentMethodInvalid = false %}
                 {% endif %}
             {% endfor %}

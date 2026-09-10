@@ -5,9 +5,16 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp\Coalesce as CoalesceAssign;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
+use PhpParser\Node\Expr\BinaryOp\Identical;
+use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -16,33 +23,30 @@ use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
+use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
+use PHPStan\Parser\Parser;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Static guard for the PHPUnit 12+ "no expectations configured for mock … use a test stub" notice: flags a
- * `createMock()` double that is never `->expects()`-ed (local var, inline argument, or property) and points it
- * to `createStub()`. A property `->expects()`-ed in only some tests is flagged as mixed usage instead (fix it
- * per-method, not with `createStub()`).
- *
- * Only flags what it can prove, to never block CI on a legitimate mock: a double handed to a `$this->`/
- * `self::`/`static::` call is skipped unless the callee is a method of the same class whose matching parameter
- * provably never reaches an `->expects()` (see {@see self::parameterIsNeverExpected()}) — that covers the
- * ubiquitous `createController(dep: $double)` fixture helper, which only forwards into the SUT constructor.
- * The same reasoning applies to properties read by helpers: a helper that only configures the property as a
- * stub (`$this->dep->method(...)`) or forwards it into a constructor keeps it analysable; any other helper
- * use (an `->expects()`, an unresolvable call) skips the property wholesale (see
- * {@see self::helperUsageOfProperty()}). Helper-read properties are only ever reported as pure
- * stubs, never as mixed usage — mixed attribution would need to know which tests invoke which helper. The
- * reverse — converting a real mock — is caught for free by phpstan-phpunit (`Stub::expects()` is undefined).
+ * `createMock()` double that will trigger it, with the fix stated in the message ({@see self::ERROR_STUB},
+ * {@see self::ERROR_MIXED}, {@see self::ERROR_ORPHANED}). It only flags what it can prove; anything it cannot
+ * resolve is skipped.
  *
  * @implements Rule<InClassNode>
  *
@@ -53,19 +57,64 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 {
     public const ERROR_STUB = 'createMock(%s) is only used as a stub (no ->expects() is configured on it). Use createStub(%s) instead, the correct PHPUnit API for a test double without call expectations.';
 
-    public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in others, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
+    public const ERROR_MIXED = 'createMock(%s) is a shared mock that is ->expects()-ed in some test methods but left without an expectation in %s, so it triggers the PHPUnit "no expectations" notice there. Do not mix mock and stub usage on one shared double: give it a real expectation (e.g. ->expects($this->never())) in every test, split the test, or use a per-test double.';
+
+    public const ERROR_ORPHANED = 'createMock(%s) is created in setUp() and re-created via `$this->... = $this->createMock(...)` in %s. Re-assigning the property replaces this instance before it is used, so it never receives an expectation and triggers the PHPUnit "no expectations" notice. Configure the setUp instance directly in those tests instead of re-creating it (or move the creation out of setUp).';
 
     /**
-     * The domain-by-domain rollout is complete: every unit test suite is covered.
+     * ClassMethod attribute carrying the ancestor file an inherited method was parsed from.
+     */
+    private const SOURCE_FILE = 'noCreateMockRuleSourceFile';
+
+    /**
+     * ClassMethod attribute carrying the hierarchy depth a method was declared at: 0 for the analysed
+     * class itself, 1 for its nearest test-class ancestor, and so on. `parent::x()` resolves to the
+     * nearest declaration of x strictly above the calling method's depth.
+     */
+    private const DEPTH = 'noCreateMockRuleDepth';
+
+    /**
+     * ClassMethod attribute marking a shadowed ancestor method that joined the analysis because a
+     * `parent::x()` call chains into it. Such a method has no direct call sites of its own.
+     */
+    private const CHAINED = 'noCreateMockRuleChained';
+
+    /**
+     * StaticCall attribute carrying the method-map key ("name@depth") a `parent::x()` call resolves to.
+     */
+    private const PARENT_TARGET = 'noCreateMockRuleParentTarget';
+
+    /**
+     * Methods of PHPUnit's double-configuration chain whose arguments are consumed as data (method names,
+     * matchers, return values) — they can never configure an expectation on a double passed into them.
      *
      * @var list<string>
      */
-    private const ENABLED_NAMESPACES = [
-        'Shopware\\Tests\\Unit\\Core\\',
-        'Shopware\\Tests\\Unit\\Administration\\',
-        'Shopware\\Tests\\Unit\\Storefront\\',
-        'Shopware\\Tests\\Unit\\Elasticsearch\\',
+    private const DOUBLE_CONFIGURATION_METHODS = [
+        'method',
+        'with',
+        'willReturn',
+        'willReturnMap',
+        'willReturnOnConsecutiveCalls',
+        'willReturnArgument',
+        'willThrowException',
     ];
+
+    /**
+     * Narrows enforcement to matching test namespaces; an empty list disables the rule.
+     * Consumers rolling the rule out domain by domain grow this list via the
+     * `shopware.createMockWithoutExpectationsEnabledNamespaces` parameter of their PHPStan config.
+     *
+     * @var list<string>
+     */
+    private readonly array $enabledNamespaces;
+
+    public function __construct(
+        Configuration $configuration,
+        private readonly Parser $parser,
+    ) {
+        $this->enabledNamespaces = $configuration->getCreateMockWithoutExpectationsEnabledNamespaces();
+    }
 
     public function getNodeType(): string
     {
@@ -80,13 +129,27 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $classReflection = $node->getClassReflection();
-        if (!TestRuleHelper::isUnitTestClass($classReflection) || !$this->isEnabledNamespace($classReflection->getName())) {
+        if (!TestRuleHelper::isTestClass($classReflection) || !$this->isEnabledNamespace($classReflection->getName())) {
+            return [];
+        }
+
+        // the notice fires per concrete class run; the subclasses analyse the inherited fixtures with all
+        // call sites in view
+        if ($classReflection->isAbstract()) {
             return [];
         }
 
         $class = $node->getOriginalNode();
-        $methods = $class->getMethods();
-        $ownMethods = $this->indexByName($methods);
+        $chains = $this->ancestorMethodChains($classReflection);
+        $own = $this->indexByName($class->getMethods());
+        foreach ($own as $method) {
+            $method->setAttribute(self::DEPTH, 0);
+        }
+
+        $nearestWins = array_map(static fn (array $chain): ClassMethod => $chain[0], $chains);
+        $ownMethods = array_merge($nearestWins, $own);
+        $this->linkParentCalls($ownMethods, $chains);
+        $methods = array_values($ownMethods);
 
         $errors = [];
         foreach ($methods as $method) {
@@ -94,24 +157,142 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 continue;
             }
 
+            $file = $this->sourceFile($method);
             foreach ($this->findLocalStubMocks($method->stmts, $ownMethods) as $assign) {
-                $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), self::ERROR_STUB);
+                $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), self::ERROR_STUB, null, $file);
             }
 
             foreach ($this->findInlineStubMocks($method->stmts, $ownMethods) as $call) {
-                $errors[] = $this->buildError($call, $call->getStartLine(), self::ERROR_STUB);
+                $errors[] = $this->buildError($call, $call->getStartLine(), self::ERROR_STUB, null, $file);
             }
         }
 
-        foreach ($this->findPropertyMockIssues($methods, $ownMethods) as [$assign, $message]) {
-            $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message);
+        foreach ($this->findPropertyMockIssues($methods, $ownMethods) as [$assign, $message, $detail, $file]) {
+            $errors[] = $this->buildError($assign->expr, $assign->getStartLine(), $message, $detail, $file);
         }
 
-        foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as $createMock) {
-            $errors[] = $this->buildError($createMock, $createMock->getStartLine(), self::ERROR_STUB);
+        foreach ($this->findHelperReturnedStubMocks($methods, $ownMethods) as [$createMock, $file]) {
+            $errors[] = $this->buildError($createMock, $createMock->getStartLine(), self::ERROR_STUB, null, $file);
         }
 
         return $errors;
+    }
+
+    /**
+     * Every declaration of every method this class inherits from its test-class ancestors, parsed from the
+     * ancestor files: keyed by lowercased name, each chain ordered nearest ancestor first. Each declaration
+     * carries its origin in the {@see self::SOURCE_FILE} attribute for error reporting and its hierarchy
+     * depth in {@see self::DEPTH} so `parent::x()` calls can resolve to the declaration they chain into.
+     * Ancestors outside the enabled namespaces (the framework's TestCase and other vendor bases)
+     * contribute nothing.
+     *
+     * @return array<string, non-empty-list<ClassMethod>>
+     */
+    private function ancestorMethodChains(ClassReflection $classReflection): array
+    {
+        $chains = [];
+        $depth = 0;
+        foreach ($classReflection->getParents() as $parent) {
+            ++$depth;
+            if (!TestRuleHelper::isTestClass($parent) || !$this->isEnabledNamespace($parent->getName())) {
+                continue;
+            }
+
+            $file = $parent->getFileName();
+            if ($file === null) {
+                continue;
+            }
+
+            $classNode = $this->classNodeIn($file, $parent->getName());
+            if ($classNode === null) {
+                continue;
+            }
+
+            foreach ($classNode->getMethods() as $method) {
+                $method->setAttribute(self::SOURCE_FILE, $file);
+                $method->setAttribute(self::DEPTH, $depth);
+                $chains[mb_strtolower($method->name->name)][] = $method;
+            }
+        }
+
+        return $chains;
+    }
+
+    /**
+     * Follows `parent::x()` calls into the shadowed ancestor declarations of x. Without this, a subclass
+     * `setUp()` that chains `parent::setUp()` would shadow the base method out of view together with the
+     * `createMock()` fixtures it creates — the exact doubles that trigger the runtime notice in every
+     * subclass. Each chained-into declaration joins $ownMethods under an "x@depth" key, the call node is
+     * annotated with that key for {@see self::resolveOwnMethod()} and the call graph, and the declaration
+     * is scanned for further `parent::` chaining of its own.
+     *
+     * @param array<string, ClassMethod> $ownMethods
+     * @param array<string, non-empty-list<ClassMethod>> $chains
+     */
+    private function linkParentCalls(array &$ownMethods, array $chains): void
+    {
+        $finder = new NodeFinder();
+        $queue = array_values($ownMethods);
+
+        while ($queue !== []) {
+            $method = array_shift($queue);
+            $callerDepth = $method->getAttribute(self::DEPTH);
+            if (!\is_int($callerDepth) || $method->stmts === null) {
+                continue;
+            }
+
+            foreach ($finder->findInstanceOf($method->stmts, StaticCall::class) as $call) {
+                if (!$call->class instanceof Name || mb_strtolower($call->class->toString()) !== 'parent' || !$call->name instanceof Identifier) {
+                    continue;
+                }
+
+                $target = null;
+                foreach ($chains[mb_strtolower($call->name->name)] ?? [] as $declaration) {
+                    $declarationDepth = $declaration->getAttribute(self::DEPTH);
+                    if (\is_int($declarationDepth) && $declarationDepth > $callerDepth) {
+                        $target = $declaration;
+                        break;
+                    }
+                }
+
+                if ($target === null) {
+                    continue;
+                }
+
+                $key = mb_strtolower($call->name->name) . '@' . $target->getAttribute(self::DEPTH);
+                $call->setAttribute(self::PARENT_TARGET, $key);
+
+                if (!isset($ownMethods[$key])) {
+                    $target->setAttribute(self::CHAINED, true);
+                    $ownMethods[$key] = $target;
+                    $queue[] = $target;
+                }
+            }
+        }
+    }
+
+    private function classNodeIn(string $file, string $className): ?Class_
+    {
+        try {
+            $stmts = $this->parser->parseFile($file);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        foreach ((new NodeFinder())->findInstanceOf($stmts, Class_::class) as $class) {
+            if ($class->namespacedName !== null && $class->namespacedName->toString() === $className) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    private function sourceFile(ClassMethod $method): ?string
+    {
+        $file = $method->getAttribute(self::SOURCE_FILE);
+
+        return \is_string($file) ? $file : null;
     }
 
     /**
@@ -123,7 +304,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<ClassMethod> $methods
      * @param array<string, ClassMethod> $ownMethods
      *
-     * @return list<MethodCall|StaticCall>
+     * @return list<array{MethodCall|StaticCall, ?string}> createMock call and the ancestor file it lives in
      */
     private function findHelperReturnedStubMocks(array $methods, array $ownMethods): array
     {
@@ -131,7 +312,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         $result = [];
 
         foreach ($methods as $helper) {
-            if ($this->isTestMethod($helper) || mb_strtolower($helper->name->name) === 'setup' || $helper->stmts === null) {
+            if ($this->isTestMethod($helper) || mb_strtolower($helper->name->name) === 'setup' || $helper->stmts === null || $helper->getAttribute(self::CHAINED) === true) {
                 continue;
             }
 
@@ -145,7 +326,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
 
             foreach ($returned as $createMock) {
-                $result[] = $createMock;
+                $result[] = [$createMock, $this->sourceFile($helper)];
             }
         }
 
@@ -327,14 +508,16 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<Node> $stmts
      * @param array<string, ClassMethod> $ownMethods
      * @param list<int> $extraHarmless spl_object_ids of Variable nodes to accept
+     * @param array<string, true> $visited guards against recursive helpers and alias chains
      */
-    private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = []): bool
+    private function variableIsNeverExpected(array $stmts, string $name, array $ownMethods, array $extraHarmless = [], array $visited = []): bool
     {
         return $this->referenceIsNeverExpected(
             $stmts,
             static fn (Node $node): bool => $node instanceof Variable && $node->name === $name,
             $ownMethods,
             $extraHarmless,
+            $visited,
         );
     }
 
@@ -368,10 +551,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
         $harmless = array_fill_keys($extraHarmless, true);
 
-        // `$ref->method(...)` — stub configuration is fine, `$ref->expects(...)` is not, and a dynamic
-        // method name could be either.
+        // `$ref->method(...)` — stub configuration is fine, `$ref->expects(...)` is not (unless the caller
+        // sanctioned that occurrence via $extraHarmless), and a dynamic method name could be either.
         foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
-            if (!$isReference($call->var)) {
+            if (!$isReference($call->var) || isset($harmless[spl_object_id($call->var)])) {
                 continue;
             }
 
@@ -392,6 +575,78 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 foreach ($this->passedThrough($arg->value, $isReference) as $occurrence) {
                     $harmless[spl_object_id($occurrence)] = true;
                 }
+            }
+        }
+
+        // arguments of PHPUnit's double-configuration chain — `$other->method(...)`, `->with($ref)`,
+        // `->willReturnMap([[..., $ref]])` — are consumed as data; the stubbing machinery never
+        // configures an expectation on a double passed there.
+        foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+            if (!$call->name instanceof Identifier || !\in_array($call->name->name, self::DOUBLE_CONFIGURATION_METHODS, true)) {
+                continue;
+            }
+
+            foreach ($call->getArgs() as $arg) {
+                foreach ($this->passedThrough($arg->value, $isReference) as $occurrence) {
+                    $harmless[spl_object_id($occurrence)] = true;
+                }
+            }
+        }
+
+        // `$ref = $ref ?? <default>` / `$ref ??= <default>` self-defaulting keeps the double flowing
+        // through the same reference, whose other uses this analysis already tracks. `$alias = $ref`
+        // (incl. behind `??`/ternary defaulting) is followed into the alias, which must itself stay clean.
+        foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+            if ($isReference($assign->var)) {
+                if ($assign->expr instanceof Coalesce && $isReference($assign->expr->left)) {
+                    $harmless[spl_object_id($assign->var)] = true;
+                    $harmless[spl_object_id($assign->expr->left)] = true;
+                }
+
+                continue; // any other re-assignment of the reference stays unclassified
+            }
+
+            if (!$assign->var instanceof Variable || !\is_string($assign->var->name)) {
+                continue;
+            }
+
+            $occurrences = $this->passedThrough($assign->expr, $isReference);
+            $aliasKey = 'alias$' . $assign->var->name;
+            if ($occurrences === [] || isset($visited[$aliasKey])) {
+                continue;
+            }
+
+            if (!$this->variableIsNeverExpected($stmts, $assign->var->name, $ownMethods, [spl_object_id($assign->var)], [...$visited, $aliasKey => true])) {
+                continue;
+            }
+
+            foreach ($occurrences as $occurrence) {
+                $harmless[spl_object_id($occurrence)] = true;
+            }
+        }
+
+        foreach ($finder->findInstanceOf($stmts, CoalesceAssign::class) as $assign) {
+            if ($isReference($assign->var)) {
+                $harmless[spl_object_id($assign->var)] = true;
+            }
+        }
+
+        // `$ref === null` / `$ref !== null` reads the reference without configuring anything, and inside an
+        // `if ($ref === null) { ... }` body the tracked double is provably NOT bound to the reference, so
+        // every occurrence there (the guarded stub-defaulting of fixture helpers) belongs to the replacement.
+        foreach ([...$finder->findInstanceOf($stmts, Identical::class), ...$finder->findInstanceOf($stmts, NotIdentical::class)] as $comparison) {
+            foreach ($this->nullComparedReference($comparison->left, $comparison->right, $isReference) as $occurrence) {
+                $harmless[spl_object_id($occurrence)] = true;
+            }
+        }
+
+        foreach ($finder->findInstanceOf($stmts, If_::class) as $if) {
+            if (!$if->cond instanceof Identical || $this->nullComparedReference($if->cond->left, $if->cond->right, $isReference) === []) {
+                continue;
+            }
+
+            foreach ($finder->find($if->stmts, static fn (Node $node): bool => $isReference($node)) as $occurrence) {
+                $harmless[spl_object_id($occurrence)] = true;
             }
         }
 
@@ -534,7 +789,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     /**
      * @param array<ClassMethod> $methods
      *
-     * @return array<string, list<Assign>> createMock property assignments, keyed by property name
+     * @return array<string, list<array{Assign, ?string}>> createMock property assignments with the ancestor
+     *                                                     file they live in, keyed by property name
      */
     private function collectPropertyMockAssignments(NodeFinder $finder, array $methods): array
     {
@@ -543,7 +799,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             foreach ($finder->findInstanceOf((array) $method->stmts, Assign::class) as $assign) {
                 $name = $this->propertyName($assign->var);
                 if ($name !== null && $this->isCreateMockCall($assign->expr)) {
-                    $assignments[$name][] = $assign;
+                    $assignments[$name][] = [$assign, $this->sourceFile($method)];
                 }
             }
         }
@@ -555,7 +811,8 @@ class NoCreateMockWithoutExpectationsRule implements Rule
      * @param array<ClassMethod> $methods
      * @param array<string, ClassMethod> $ownMethods
      *
-     * @return list<array{Assign, string}>
+     * @return list<array{Assign, string, ?string, ?string}> assignment, message template, mixed-usage detail,
+     *                                                       ancestor file the assignment lives in
      */
     private function findPropertyMockIssues(array $methods, array $ownMethods): array
     {
@@ -572,54 +829,148 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             $methods,
             fn (ClassMethod $m): bool => !$this->isTestMethod($m) && mb_strtolower($m->name->name) !== 'setup'
         );
+        $callGraph = $this->buildOwnCallGraph($finder, $methods, $ownMethods);
 
         $errors = [];
         foreach ($assignments as $name => $propAssignments) {
+            // A property created in setUp() and re-created inside a test replaces the setUp instance
+            // before it is used, orphaning it.
+            $setUpAssign = $setUp !== null && !$this->methodExpectsProperty($finder, $setUp, $name)
+                ? $this->propertyCreationAssign($finder, $setUp, $name)
+                : null;
+            if ($setUpAssign !== null) {
+                $reassigners = [];
+                foreach ($testMethods as $test) {
+                    if ($this->propertyCreationAssign($finder, $test, $name) !== null) {
+                        $reassigners[] = $test->name->name . '()';
+                    }
+                }
+
+                if ($reassigners !== []) {
+                    $errors[] = [$setUpAssign, self::ERROR_ORPHANED, implode(', ', $reassigners), $this->sourceFile($setUp)];
+
+                    continue;
+                }
+            }
+
             if ($this->isPropertyOffLimits($finder, $methods, $helperMethods, $ownMethods, $name)) {
                 continue;
             }
 
-            $expectsInSetUp = $setUp !== null && $this->methodExpectsProperty($finder, $setUp, $name);
-            $createdInSetUp = $setUp !== null && $this->methodCreatesProperty($finder, $setUp, $name);
+            // Every method with a direct `$this->$name->expects(...)`. A test reaching one of them through
+            // the own call graph is covered; a helper's expectation only counts for the tests that call it.
+            $expectors = [];
+            foreach ($ownMethods as $key => $method) {
+                if ($this->methodExpectsProperty($finder, $method, $name)) {
+                    $expectors[$key] = true;
+                }
+            }
 
-            $noticing = false;
-            $hasExpects = $expectsInSetUp;
+            // Every method assigning `$this->$name = createMock(...)`. A test owns an instance — and can
+            // trigger the notice — when setUp, the test itself, or a fixture helper it calls creates one.
+            $creators = [];
+            foreach ($ownMethods as $key => $method) {
+                if ($this->methodCreatesProperty($finder, $method, $name)) {
+                    $creators[$key] = true;
+                }
+            }
+
+            $coveredBySetUp = $setUp !== null && $this->coversProperty('setup', $expectors, $callGraph);
+            $createdInSetUp = $setUp !== null && $this->coversProperty('setup', $creators, $callGraph);
+
+            $bare = [];
             foreach ($testMethods as $test) {
-                // For a setUp-created (shared) mock every test owns an instance; otherwise only the tests
-                // that create it themselves are relevant.
-                if (!$createdInSetUp && !$this->methodCreatesProperty($finder, $test, $name)) {
+                if (!$createdInSetUp && !$this->coversProperty(mb_strtolower($test->name->name), $creators, $callGraph)) {
                     continue;
                 }
 
-                if ($this->methodExpectsProperty($finder, $test, $name)) {
-                    $hasExpects = true;
-
+                if ($coveredBySetUp || $this->coversProperty(mb_strtolower($test->name->name), $expectors, $callGraph)) {
                     continue;
                 }
 
-                if (!$expectsInSetUp) {
-                    $noticing = true;
-                }
+                $bare[] = $test->name->name . '()';
             }
 
-            if (!$noticing) {
+            if ($bare === []) {
                 continue;
             }
 
-            // For a property that helpers read (transparently: stub configuration or SUT forwarding), only the
-            // provably-never-expected case is reported. Mixed usage would attribute "bare in test X" without
-            // knowing which tests invoke which helper — too weak a proof to block CI on.
-            if ($hasExpects && $this->helperUsageOfProperty($finder, $helperMethods, $ownMethods, $name) !== 'untouched') {
-                continue;
-            }
-
-            $message = $hasExpects ? self::ERROR_MIXED : self::ERROR_STUB;
-            foreach ($propAssignments as $assign) {
-                $errors[] = [$assign, $message];
+            $message = $expectors === [] ? self::ERROR_STUB : self::ERROR_MIXED;
+            $detail = $expectors === [] ? null : implode(', ', $bare);
+            foreach ($propAssignments as [$assign, $file]) {
+                $errors[] = [$assign, $message, $detail, $file];
             }
         }
 
         return $errors;
+    }
+
+    /**
+     * The class-internal call graph: for every method, the own methods it calls via `$this->`/`self::`/
+     * `static::`, lowercased.
+     *
+     * @param array<ClassMethod> $methods
+     * @param array<string, ClassMethod> $ownMethods
+     *
+     * @return array<string, list<string>>
+     */
+    private function buildOwnCallGraph(NodeFinder $finder, array $methods, array $ownMethods): array
+    {
+        $keys = [];
+        foreach ($ownMethods as $key => $method) {
+            $keys[spl_object_id($method)] = $key;
+        }
+
+        $graph = [];
+        foreach ($methods as $method) {
+            $callees = [];
+            foreach ($this->findOwnCalls($finder, (array) $method->stmts) as $call) {
+                $parentTarget = $call->getAttribute(self::PARENT_TARGET);
+                if (\is_string($parentTarget)) {
+                    $callees[$parentTarget] = true;
+
+                    continue;
+                }
+
+                if ($call->name instanceof Identifier && isset($ownMethods[mb_strtolower($call->name->name)])) {
+                    $callees[mb_strtolower($call->name->name)] = true;
+                }
+            }
+
+            $graph[$keys[spl_object_id($method)] ?? mb_strtolower($method->name->name)] = array_keys($callees);
+        }
+
+        return $graph;
+    }
+
+    /**
+     * True when $methodName — or any own method it transitively calls — is one of the $targets: the methods
+     * that directly `->expects()` the property (coverage walk), or the ones that create it (ownership walk).
+     *
+     * @param array<string, true> $targets lowercased method names
+     * @param array<string, list<string>> $callGraph
+     */
+    private function coversProperty(string $methodName, array $targets, array $callGraph): bool
+    {
+        $queue = [$methodName];
+        $visited = [];
+        while ($queue !== []) {
+            $current = array_pop($queue);
+            if (isset($visited[$current])) {
+                continue;
+            }
+            $visited[$current] = true;
+
+            if (isset($targets[$current])) {
+                return true;
+            }
+
+            foreach ($callGraph[$current] ?? [] as $callee) {
+                $queue[] = $callee;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -640,37 +991,47 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             return true;
         }
 
-        return $this->helperUsageOfProperty($finder, $helperMethods, $ownMethods, $name) === 'unsafe';
+        return $this->helperUsageOfPropertyIsUnsafe($finder, $helperMethods, $ownMethods, $name);
     }
 
     /**
-     * How the helper methods relate to `$this->$name`: `unsafe` when any helper uses it in a way that could
-     * configure an expectation out of view, `harmless` when helpers only stub-configure or forward it,
-     * `untouched` when no helper references it.
+     * True when some helper method uses `$this->$name` in a way that could configure an expectation out of
+     * view: anything that is neither stub configuration, forwarding, an inherited-assertion read, a direct
+     * `->expects()` on the property, nor its creating assignment. The direct `->expects()` and the creation
+     * are not hidden — the per-test coverage and ownership walks ({@see self::coversProperty()}) attribute
+     * them to the tests that call the helper.
      *
      * @param array<ClassMethod> $helperMethods
      * @param array<string, ClassMethod> $ownMethods
-     *
-     * @return 'unsafe'|'harmless'|'untouched'
      */
-    private function helperUsageOfProperty(NodeFinder $finder, array $helperMethods, array $ownMethods, string $name): string
+    private function helperUsageOfPropertyIsUnsafe(NodeFinder $finder, array $helperMethods, array $ownMethods, string $name): bool
     {
         $isReference = fn (Node $node): bool => $this->propertyName($node) === $name;
 
-        $touched = false;
         foreach ($helperMethods as $helper) {
             $stmts = (array) $helper->stmts;
             if ($finder->findFirst($stmts, static fn (Node $node): bool => $isReference($node)) === null) {
                 continue;
             }
 
-            $touched = true;
-            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods)) {
-                return 'unsafe';
+            $sanctioned = [];
+            foreach ($finder->findInstanceOf($stmts, MethodCall::class) as $call) {
+                if ($this->isExpectsCall($call) && $isReference($call->var)) {
+                    $sanctioned[] = spl_object_id($call->var);
+                }
+            }
+            foreach ($finder->findInstanceOf($stmts, Assign::class) as $assign) {
+                if ($isReference($assign->var) && $this->isCreateMockCall($assign->expr)) {
+                    $sanctioned[] = spl_object_id($assign->var);
+                }
+            }
+
+            if (!$this->referenceIsNeverExpected($stmts, $isReference, $ownMethods, $sanctioned)) {
+                return true;
             }
         }
 
-        return $touched ? 'harmless' : 'untouched';
+        return false;
     }
 
     private function methodExpectsProperty(NodeFinder $finder, ClassMethod $method, string $name): bool
@@ -686,13 +1047,21 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     private function methodCreatesProperty(NodeFinder $finder, ClassMethod $method, string $name): bool
     {
+        return $this->propertyCreationAssign($finder, $method, $name) !== null;
+    }
+
+    /**
+     * The first `$this->$name = $this->createMock(...)` assignment in $method, or null if there is none.
+     */
+    private function propertyCreationAssign(NodeFinder $finder, ClassMethod $method, string $name): ?Assign
+    {
         foreach ($finder->findInstanceOf((array) $method->stmts, Assign::class) as $assign) {
             if ($this->propertyName($assign->var) === $name && $this->isCreateMockCall($assign->expr)) {
-                return true;
+                return $assign;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -786,7 +1155,14 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         foreach ($finder->findInstanceOf($stmts, StaticCall::class) as $call) {
-            if ($call->class instanceof Name && \in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true) && !$call->isFirstClassCallable()) {
+            if (!$call->class instanceof Name || $call->isFirstClassCallable()) {
+                continue;
+            }
+
+            // `parent::x()` counts only when {@see self::linkParentCalls()} resolved it into a shadowed
+            // ancestor declaration; an unresolved parent call targets a vendor base (TestCase itself),
+            // which cannot configure expectations on this class's doubles.
+            if (\in_array(mb_strtolower($call->class->toString()), ['self', 'static'], true) || \is_string($call->getAttribute(self::PARENT_TARGET))) {
                 $calls[] = $call;
             }
         }
@@ -805,12 +1181,31 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private function findReturnedVariableNames(NodeFinder $finder, array $stmts): array
     {
         $names = [];
-        foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
+        foreach ($this->findScopedReturns($stmts) as $return) {
             if ($return->expr === null) {
                 continue;
             }
 
+            // A double wrapped in a returned `new <production class>(...)` does not reach the caller:
+            // production code cannot configure expectations and does not re-expose the double. A returned
+            // `new <test-namespace fixture>(...)` DOES hand it back (public fixture properties), so its
+            // arguments stay counted.
+            $shielded = [];
+            foreach ($finder->findInstanceOf([$return->expr], New_::class) as $new) {
+                if (!$this->isProductionClassNew($new)) {
+                    continue;
+                }
+
+                foreach ($finder->findInstanceOf($new->getArgs(), Variable::class) as $variable) {
+                    $shielded[spl_object_id($variable)] = true;
+                }
+            }
+
             foreach ($finder->findInstanceOf([$return->expr], Variable::class) as $variable) {
+                if (isset($shielded[spl_object_id($variable)])) {
+                    continue;
+                }
+
                 $name = $this->localName($variable);
                 if ($name !== null) {
                     $names[$name] = true;
@@ -819,6 +1214,86 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         return array_keys($names);
+    }
+
+    /**
+     * The `return` statements that leave the analysed method itself. A `return` inside a nested closure ends
+     * that closure, not the method — the fluent `->willReturnCallback(function () use ($double) { return $double; })`
+     * idiom hands the double to the SUT's call chain, never back to the method's caller. A closure that itself
+     * leaves through a method-level `return` still escapes with its captures: those returns are collected here
+     * and their full expression (the closure included) is scanned by the caller.
+     *
+     * @param array<Node> $stmts
+     *
+     * @return list<Return_>
+     */
+    private function findScopedReturns(array $stmts): array
+    {
+        $visitor = new class extends NodeVisitorAbstract {
+            /**
+             * @var list<Return_>
+             */
+            public array $returns = [];
+
+            public function enterNode(Node $node): ?int
+            {
+                if ($node instanceof Closure || $node instanceof ArrowFunction) {
+                    return NodeVisitor::DONT_TRAVERSE_CHILDREN;
+                }
+
+                if ($node instanceof Return_) {
+                    $this->returns[] = $node;
+                }
+
+                return null;
+            }
+        };
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor($visitor);
+        $traverser->traverse($stmts);
+
+        return $visitor->returns;
+    }
+
+    /**
+     * The reference occurrences of a `$ref === null` / `null !== $ref` comparison — a read that cannot
+     * configure an expectation.
+     *
+     * @param callable(Node): bool $isReference
+     *
+     * @return list<Expr>
+     */
+    private function nullComparedReference(Expr $left, Expr $right, callable $isReference): array
+    {
+        $isNull = static fn (Expr $expr): bool => $expr instanceof ConstFetch && mb_strtolower($expr->name->toString()) === 'null';
+
+        if ($isReference($left) && $isNull($right)) {
+            return [$left];
+        }
+
+        if ($isReference($right) && $isNull($left)) {
+            return [$right];
+        }
+
+        return [];
+    }
+
+    /**
+     * True when the instantiated class is resolvable production code: its constructor cannot configure
+     * expectations and does not re-expose the double to the caller — unlike a fixture struct from a test
+     * namespace, whose public properties hand the double back for a later `->expects()`.
+     */
+    private function isProductionClassNew(New_ $new): bool
+    {
+        if (!$new->class instanceof Name) {
+            return false;
+        }
+
+        $resolved = $new->class->getAttribute('resolvedName');
+        $className = $resolved instanceof Name ? $resolved->toString() : $new->class->toString();
+
+        return !$this->isEnabledNamespace($className) && !str_starts_with($className, 'Shopware\Tests\\');
     }
 
     /**
@@ -849,6 +1324,11 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     {
         if (!$call->name instanceof Identifier) {
             return null;
+        }
+
+        $parentTarget = $call->getAttribute(self::PARENT_TARGET);
+        if (\is_string($parentTarget)) {
+            return $ownMethods[$parentTarget] ?? null;
         }
 
         return $ownMethods[mb_strtolower($call->name->name)] ?? null;
@@ -914,8 +1394,10 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     }
 
     /**
-     * The reference occurrences that $expr passes on unchanged — the bare reference, or one behind the
-     * defaulting wrappers fixture helpers use (`$param ?? $this->shared`, `$param ?: $fallback`). Occurrences
+     * The reference occurrences that $expr passes on unchanged — the bare reference, one behind the
+     * defaulting wrappers fixture helpers use (`$param ?? $this->shared`, `$param ?: $fallback`), or one
+     * wrapped in an array literal (`[$ref]`, `['key' => $ref]`; a receiver can only get at the element
+     * through an access this analysis leaves unclassified, so wrapping loses no soundness). Occurrences
      * anywhere else in $expr are not passed on unchanged and are left for the caller to reject.
      *
      * @param callable(Node): bool $isReference
@@ -937,6 +1419,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
                 ...$this->passedThrough($expr->if ?? $expr->cond, $isReference),
                 ...$this->passedThrough($expr->else, $isReference),
             ];
+        }
+
+        if ($expr instanceof Array_) {
+            $occurrences = [];
+            foreach ($expr->items as $item) {
+                if ($item->byRef || $item->unpack) {
+                    continue;
+                }
+
+                $occurrences = [...$occurrences, ...$this->passedThrough($item->value, $isReference)];
+            }
+
+            return $occurrences;
         }
 
         return [];
@@ -1015,19 +1510,32 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         return null;
     }
 
-    private function buildError(Node $createMockCall, int $line, string $message): RuleError
+    private function buildError(Node $createMockCall, int $line, string $message, ?string $detail = null, ?string $file = null): RuleError
     {
         $label = $this->resolveMockedClass($createMockCall) ?? '...';
 
-        return RuleErrorBuilder::message(\sprintf($message, $label, $label))
+        $builder = RuleErrorBuilder::message(\sprintf($message, $label, $detail ?? $label))
             ->identifier('shopware.createMockWithoutExpectations')
-            ->line($line)
-            ->build();
+            ->line($line);
+
+        if ($file !== null) {
+            $builder->file($file);
+        }
+
+        return $builder->build();
     }
 
     private function isEnabledNamespace(string $className): bool
     {
-        foreach (self::ENABLED_NAMESPACES as $namespace) {
+        return self::matchesAny($className, $this->enabledNamespaces);
+    }
+
+    /**
+     * @param list<string> $namespaces
+     */
+    private static function matchesAny(string $className, array $namespaces): bool
+    {
+        foreach ($namespaces as $namespace) {
             if (\str_contains($className, $namespace)) {
                 return true;
             }

@@ -1,5 +1,6 @@
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Application, Mixin, Context } = Shopware;
 const { warn } = Shopware.Utils.debug;
@@ -44,7 +45,7 @@ export default {
             lastDefaultFolderId: null,
             iconConfig: {
                 name: '',
-                color: 'inherit',
+                color: '',
             },
         };
     },
@@ -67,20 +68,16 @@ export default {
         },
 
         iconName() {
-            switch (this.iconConfig.name) {
-                case 'regular-box':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-products':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-database':
-                    return 'multicolor-folder-thumbnail--grey';
-                case 'regular-content':
-                    return 'multicolor-folder-thumbnail--pink';
-                case 'regular-cog':
-                    return 'multicolor-folder-thumbnail--grey';
-                default:
-                    return 'multicolor-folder-thumbnail';
-            }
+            return 'folder-thumbnail';
+        },
+
+        // Module color of a default folder while the user has module colors enabled
+        folderColor() {
+            return useModuleIconColors().enabled.value && this.iconConfig.color ? this.iconConfig.color : undefined;
+        },
+
+        moduleIconColor() {
+            return this.folderColor ?? 'var(--color-icon-secondary-default)';
         },
 
         assetFilter() {
@@ -127,7 +124,7 @@ export default {
             }
 
             this.iconConfig.name = module.manifest?.icon ?? '';
-            this.iconConfig.color = module.manifest?.color ?? '#000000';
+            this.iconConfig.color = module.manifest?.color ?? '';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

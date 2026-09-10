@@ -12,7 +12,6 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -104,7 +103,7 @@ final readonly class ProductExportPartialGenerationHandler
             $productExportPartialGeneration->getSalesChannelId()
         );
 
-        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+        if (!\in_array($context->getSalesChannel()->getTypeId(), ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS, true)) {
             throw ProductExportException::salesChannelNotFound();
         }
 

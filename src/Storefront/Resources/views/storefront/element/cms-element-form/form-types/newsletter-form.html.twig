@@ -95,7 +95,9 @@
             {% endblock %}
 
             {% block cms_form_newsletter_privacy %}
-                {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+                {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' with {
+                    requiresTermsOfService: false,
+                } %}
             {% endblock %}
 
             {% block cms_form_newsletter_required_fields_info %}

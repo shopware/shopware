@@ -208,7 +208,7 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
             value: 'google-analytics-enabled=1',
         });
 
-        new GoogleAnalyticsPlugin(document)
+        new GoogleAnalyticsPlugin(document);
 
         // Simulate cookie update event
         document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, {

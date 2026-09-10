@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Api\ProductExportController;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
@@ -101,6 +102,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDefinition::class),
             service(LanguageLocaleCodeProvider::class),
             service(TwigVariableParserFactory::class),
+            service(CategoryBreadcrumbBuilder::class),
         ]);
 
     $services->set(ProductExportGenerateCommand::class)

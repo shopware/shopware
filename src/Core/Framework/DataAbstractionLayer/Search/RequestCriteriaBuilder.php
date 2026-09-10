@@ -161,7 +161,7 @@ class RequestCriteriaBuilder
             }
 
             if (isset($payload['page'])) {
-                $this->setPage($payload, $criteria, $searchException);
+                $this->setPage($payload['page'], $criteria, $searchException);
             }
         }
 
@@ -379,30 +379,30 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param array{page: int|numeric-string, limit?: int|numeric-string, ...} $payload
+     * @param int|numeric-string $page
      */
-    private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    private function setPage(mixed $page, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
-        if ($payload['page'] === '') {
+        if ($page === '') {
             $searchRequestException->add(new InvalidPageQueryException('(empty)'), '/page');
 
             return;
         }
 
-        if (!is_numeric($payload['page'])) {
-            $searchRequestException->add(new InvalidPageQueryException($payload['page']), '/page');
+        if (!is_numeric($page)) {
+            $searchRequestException->add(new InvalidPageQueryException($page), '/page');
 
             return;
         }
 
-        $page = (int) $payload['page'];
-        $limit = (int) ($payload['limit'] ?? 0);
-
+        $page = (int) $page;
         if ($page <= 0) {
             $searchRequestException->add(new InvalidPageQueryException($page), '/page');
 
             return;
         }
+
+        $limit = $criteria->getLimit() ?? 0;
 
         $offset = $limit * ($page - 1);
         $criteria->setOffset($offset);

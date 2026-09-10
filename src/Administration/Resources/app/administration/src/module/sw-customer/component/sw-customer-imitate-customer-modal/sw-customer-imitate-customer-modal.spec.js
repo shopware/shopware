@@ -6,30 +6,36 @@ import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
 
-responses.addResponse({
-    method: 'Post',
-    url: '/search/sales-channel-domain',
-    status: 200,
-    response: {
-        data: [
-            {
-                attributes: {
-                    id: 'sales-channel-domain-id',
-                    salesChannelId: 'sales-channel-id',
-                    salesChannel: {
-                        translated: {
-                            name: 'Test sales channel',
-                        },
-                    },
-                    url: 'http://localhost:8000',
+function domain(id, salesChannelId, url) {
+    return {
+        id,
+        type: 'sales_channel_domain',
+        attributes: {
+            id,
+            salesChannelId,
+            salesChannel: {
+                translated: {
+                    name: 'Test sales channel',
                 },
-                relationships: {},
             },
-        ],
-    },
-});
+            url,
+        },
+        relationships: {},
+    };
+}
 
-async function createWrapper() {
+function mockSalesChannelDomains(domains) {
+    responses.addResponse({
+        method: 'Post',
+        url: '/search/sales-channel-domain',
+        status: 200,
+        response: {
+            data: domains,
+        },
+    });
+}
+
+async function createWrapper(contextStoreServiceOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-customer-imitate-customer-modal', {
             sync: true,
@@ -58,6 +64,7 @@ async function createWrapper() {
                             token: 'a-token',
                         }),
                         redirectToSalesChannelUrl: () => {},
+                        ...contextStoreServiceOverrides,
                     },
                 },
             },
@@ -74,6 +81,12 @@ async function createWrapper() {
 
 describe('module/sw-customer-imitate-customer-modal', () => {
     let wrapper;
+
+    beforeEach(() => {
+        mockSalesChannelDomains([
+            domain('sales-channel-domain-id', 'sales-channel-id', 'http://localhost:8000'),
+        ]);
+    });
 
     it('should fetch all sales channel domains', async () => {
         wrapper = await createWrapper();
@@ -96,11 +109,59 @@ describe('module/sw-customer-imitate-customer-modal', () => {
         expect(wrapper.emitted('modal-close')).toBeDefined();
     });
 
-    it('should log in on item clicked', async () => {
+    it('should generate the imitation token upfront, before any item is clicked', async () => {
         wrapper = await createWrapper();
 
         const generateTokenSpy = jest.spyOn(wrapper.vm.contextStoreService, 'generateImitateCustomerToken');
+
+        await flushPromises();
+
+        expect(generateTokenSpy).toHaveBeenCalledWith('customer-id', 'sales-channel-id');
+        expect(wrapper.vm.imitateCustomerTokens).toEqual({ 'sales-channel-id': 'a-token' });
+    });
+
+    it('should generate one token per sales channel, not per domain', async () => {
+        mockSalesChannelDomains([
+            domain('domain-de', 'sales-channel-id', 'http://localhost:8000/de'),
+            domain('domain-en', 'sales-channel-id', 'http://localhost:8000/en'),
+            domain('domain-other', 'other-sales-channel-id', 'http://other.localhost:8000'),
+        ]);
+
+        wrapper = await createWrapper();
+
+        const generateTokenSpy = jest.spyOn(wrapper.vm.contextStoreService, 'generateImitateCustomerToken');
+
+        await flushPromises();
+
+        expect(generateTokenSpy).toHaveBeenCalledTimes(2);
+        expect(generateTokenSpy).toHaveBeenCalledWith('customer-id', 'sales-channel-id');
+        expect(generateTokenSpy).toHaveBeenCalledWith('customer-id', 'other-sales-channel-id');
+    });
+
+    it('should redirect synchronously within the click handler, so the popup blocker allows the new tab', async () => {
+        wrapper = await createWrapper();
+
         const redirectSalesChannelSpy = jest.spyOn(wrapper.vm.contextStoreService, 'redirectToSalesChannelUrl');
+
+        await flushPromises();
+
+        const item = await wrapper.find('.imitate-customer-modal-item');
+        expect(item.exists()).toBe(true);
+
+        item.element.dispatchEvent(new MouseEvent('click'));
+
+        expect(redirectSalesChannelSpy).toHaveBeenCalledWith('http://localhost:8000', 'a-token', 'customer-id', undefined);
+    });
+
+    it('should notify the user when no token could be generated', async () => {
+        wrapper = await createWrapper({
+            generateImitateCustomerToken: async () => {
+                throw new Error('token generation failed');
+            },
+        });
+
+        const redirectSalesChannelSpy = jest.spyOn(wrapper.vm.contextStoreService, 'redirectToSalesChannelUrl');
+        wrapper.vm.createNotificationError = jest.fn();
 
         await flushPromises();
 
@@ -110,7 +171,19 @@ describe('module/sw-customer-imitate-customer-modal', () => {
         await item.trigger('click');
         await flushPromises();
 
-        expect(generateTokenSpy).toHaveBeenCalledWith('customer-id', 'sales-channel-id');
-        expect(redirectSalesChannelSpy).toHaveBeenCalledWith('http://localhost:8000', 'a-token', 'customer-id', undefined);
+        expect(redirectSalesChannelSpy).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+    });
+
+    it('should show the loading state until the domains and tokens are resolved', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.isLoading).toBe(true);
+        expect(wrapper.find('.imitate-customer-modal-item').exists()).toBe(false);
+
+        await flushPromises();
+
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(wrapper.find('.imitate-customer-modal-item').exists()).toBe(true);
     });
 });

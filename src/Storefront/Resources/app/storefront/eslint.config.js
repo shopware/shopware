@@ -13,7 +13,7 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 
 module.exports = tseslint.config(
     {
-        ignores: ['test/e2e/**/*', 'vendor/**/*', 'node_modules/**/*'],
+        ignores: ['vendor/**/*', 'node_modules/**/*'],
     },
 
     { ...js.configs.recommended, ignores: ['**/*.json'] },

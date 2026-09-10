@@ -23,7 +23,7 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 /**
  * @internal
  */
-#[Package('cause')]
+#[Package('framework')]
 #[CoversClass(AnnotatePackageProcessor::class)]
 class AnnotatePackageProcessorTest extends TestCase
 {
@@ -132,7 +132,7 @@ class AnnotatePackageProcessorTest extends TestCase
         $requestStack->push($request);
 
         $context = [
-            'exception' => new TestException('test'),
+            'exception' => TestCause::createException(),
         ];
 
         $record = new LogRecord(
@@ -171,7 +171,7 @@ class AnnotatePackageProcessorTest extends TestCase
         $requestStack->push($request);
 
         $context = [
-            'exception' => new TestExceptionNoPackage('test'),
+            'exception' => TestCause::createExceptionWithoutPackage(),
         ];
 
         $record = new LogRecord(
@@ -391,8 +391,24 @@ class TestNestedCommand extends Command
  * @internal
  */
 #[Package('cause')]
-class TestCause extends Command
+class TestCause
 {
+    /**
+     * The processor resolves the causing class from the exception's instantiation
+     * site, so exceptions that must be attributed to this fixture are created here.
+     * Deliberately not a Command: the entrypoint detection scans the trace for
+     * Command subclasses and must not match this fixture.
+     */
+    public static function createException(): TestException
+    {
+        return new TestException('test');
+    }
+
+    public static function createExceptionWithoutPackage(): TestExceptionNoPackage
+    {
+        return new TestExceptionNoPackage('test');
+    }
+
     public function throw(\Throwable $exception): never
     {
         throw $exception;

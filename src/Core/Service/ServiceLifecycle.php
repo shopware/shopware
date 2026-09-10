@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DTO\Service as ServiceDto;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
 use Shopware\Core\Service\Requirement\Gate;
@@ -90,13 +91,23 @@ class ServiceLifecycle
             return;
         }
 
-        if ($this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::INSTALLATION)) {
-            $this->performUpdate($entry, $appInfo, $context);
+        $service = $this->serviceStorage->findByName($entry->name, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $entry->name);
+        }
+
+        if ($service->version === $appInfo->revision) {
+            return;
+        }
+
+        if (!$this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::INSTALLATION)) {
+            $this->uninstall($entry->name, $context);
 
             return;
         }
 
-        $this->uninstall($entry->name, $context);
+        $this->performUpdate($entry, $appInfo, $service, $context);
     }
 
     /**
@@ -215,15 +226,8 @@ class ServiceLifecycle
         }
     }
 
-    private function performUpdate(ServiceEntry $entry, AppInfo $appInfo, Context $context): bool
+    private function performUpdate(ServiceEntry $entry, AppInfo $appInfo, ServiceDto $service, Context $context): bool
     {
-        $service = $this->serviceStorage->findByName($entry->name, $context);
-
-        if (!$service) {
-            throw ServiceException::notFound('name', $entry->name);
-        }
-
-        // if it's the same version, bail
         if ($service->version === $appInfo->revision) {
             return true;
         }
@@ -296,7 +300,13 @@ class ServiceLifecycle
 
         $this->appManager->activate($service->app, $context);
 
-        $result = $this->performUpdate($entry, $appInfo, $context);
+        $service = $this->serviceStorage->findByName($entry->name, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $entry->name);
+        }
+
+        $result = $this->performUpdate($entry, $appInfo, $service, $context);
 
         if ($result) {
             return true;

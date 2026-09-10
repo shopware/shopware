@@ -223,7 +223,7 @@ class DebugMcpCommand extends Command
             foreach ($registry->getResources()->references as $resource) {
                 \assert($resource instanceof ResourceDefinition);
 
-                if (($resource->name ?? $resource->uri) === $name || $resource->uri === $name) {
+                if ($resource->name === $name || $resource->uri === $name) {
                     $ref = $registry->getResource($resource->uri, false);
                     $this->renderResourceDetail($io, $resource, $ref->handler, $scope['label']);
 
@@ -245,6 +245,9 @@ class DebugMcpCommand extends Command
     {
         $rows = [];
         $properties = $tool->inputSchema['properties'] ?? [];
+        // the SDK's SchemaGenerator omits the 'required' key when no parameter is required,
+        // and third-party registrations may carry a non-array value there
+        // @phpstan-ignore nullCoalesce.unnecessary (the ToolInputSchema type alias claims the key always exists, contrary to the SchemaGenerator output)
         $required = \is_array($tool->inputSchema['required'] ?? null) ? $tool->inputSchema['required'] : [];
 
         if (\is_array($properties)) {
@@ -325,7 +328,7 @@ class DebugMcpCommand extends Command
             $meta[] = ['MIME type' => $resource->mimeType];
         }
 
-        $this->renderCapabilityDetail($io, $resource->name ?? $resource->uri, $meta, $resource->description);
+        $this->renderCapabilityDetail($io, $resource->name, $meta, $resource->description);
     }
 
     /**
@@ -453,7 +456,7 @@ class DebugMcpCommand extends Command
             \assert($resource instanceof ResourceDefinition);
 
             $ref = $registry->getResource($resource->uri, false);
-            $rows[] = [$resource->name ?? $resource->uri, $this->describeHandler($ref->handler)];
+            $rows[] = [$resource->name, $this->describeHandler($ref->handler)];
         }
 
         $this->renderTable($io, $rows);

@@ -66,7 +66,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
             $cacheInvalidator,
             static::getContainer()->get(Connection::class),
-            true
+            true,
         );
     }
 

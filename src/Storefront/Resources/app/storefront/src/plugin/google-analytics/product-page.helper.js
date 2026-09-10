@@ -1,3 +1,5 @@
+import Feature from 'src/helper/feature.helper';
+
 /**
  * Helper for extracting product data from DOM on product pages (detail, listing, wishlist)
  * For cart/checkout data, use LineItemHelper instead.
@@ -32,9 +34,24 @@ export default class ProductPageHelper {
      * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, currency: string|undefined, value: string|undefined}}
      */
     static getProductDetailData() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            const productData = ProductPageHelper.getJsonLdProductData();
+
+            return {
+                id: productData.sku,
+                name: productData.name,
+                brand: productData.brand,
+                // JSON-LD has no field for the selected option string, so the variant is read from
+                // the DOM on both paths.
+                variant: ProductPageHelper.getVariant(),
+                currency: productData.currency || window.currencyIsoCode,
+                value: productData.value,
+            };
+        }
+
         return {
             id: ProductPageHelper.getSku(),
-            name: document.querySelector('.product-detail-name')?.textContent.trim(),
+            name: ProductPageHelper.getName(),
             brand: ProductPageHelper.getBrand(),
             variant: ProductPageHelper.getVariant(),
             currency: ProductPageHelper.getCurrency(),
@@ -75,10 +92,26 @@ export default class ProductPageHelper {
     }
 
     /**
+     * Gets the product name from the product detail page
+     * @returns {string|undefined}
+     */
+    static getName() {
+        // @deprecated tag:v6.8.0 - The `[itemprop="name"]` fallback will be removed with the
+        // microdata. It covers a statically configured CMS product-name element, which renders the
+        // microdata without the `.product-detail-name` class.
+        return document.querySelector('.product-detail-name')?.textContent.trim()
+            || document.querySelector('[itemtype="https://schema.org/Product"] [itemprop="name"]')?.textContent.trim();
+    }
+
+    /**
      * Gets SKU from product detail page
      * @returns {string|undefined}
      */
     static getSku() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().sku;
+        }
+
         // @deprecated tag:v6.8.0 - The `[itemprop="sku"]` fallback will be removed, the microdata is replaced by JSON-LD.
         return document.querySelector('.product-detail-ordernumber')?.textContent.trim()
             || document.querySelector('[itemprop="sku"]')?.textContent.trim();
@@ -89,6 +122,10 @@ export default class ProductPageHelper {
      * @returns {string|undefined}
      */
     static getBrand() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().brand;
+        }
+
         // @deprecated tag:v6.8.0 - The `[itemprop="brand"]` fallback will be removed, the microdata is replaced by JSON-LD.
         return document.querySelector('meta[property="product:brand"]')?.content
             || document.querySelector('[itemprop="brand"] [itemprop="name"]')?.content;
@@ -107,6 +144,10 @@ export default class ProductPageHelper {
      * @returns {string|undefined}
      */
     static getCurrency() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().currency || window.currencyIsoCode;
+        }
+
         return document.querySelector('meta[property="product:price:currency"]')?.content || window.currencyIsoCode;
     }
 
@@ -115,7 +156,50 @@ export default class ProductPageHelper {
      * @returns {string|undefined}
      */
     static getValue() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().value;
+        }
+
         return document.querySelector('meta[property="product:price:amount"]')?.content;
+    }
+
+    /**
+     * Gets product data from the JSON-LD product script
+     * @returns {{name: string|undefined, sku: string|undefined, brand: string|undefined, currency: string|undefined, value: string|number|undefined}}
+     */
+    static getJsonLdProductData() {
+        const productScripts = document.querySelectorAll('script[type="application/ld+json"]');
+
+        for (const productScript of productScripts) {
+            try {
+                const structuredData = JSON.parse(productScript.textContent);
+                const productData = [structuredData, ...(structuredData['@graph'] ?? [])].find((data) => {
+                    const types = Array.isArray(data['@type']) ? data['@type'] : [data['@type']];
+
+                    return types.includes('Product') || types.includes('ProductGroup');
+                });
+
+                if (!productData) {
+                    continue;
+                }
+
+                const variant = productData.hasVariant?.[0];
+                const product = variant ? { ...productData, ...variant } : productData;
+                const offers = Array.isArray(product.offers) ? product.offers[0] : product.offers;
+
+                return {
+                    name: product.name,
+                    sku: product.sku,
+                    brand: product.brand?.name,
+                    currency: offers?.priceCurrency,
+                    value: offers?.price ?? offers?.lowPrice,
+                };
+            } catch {
+                continue;
+            }
+        }
+
+        return {};
     }
 
     /**
@@ -136,4 +220,3 @@ export default class ProductPageHelper {
         return categories;
     }
 }
-

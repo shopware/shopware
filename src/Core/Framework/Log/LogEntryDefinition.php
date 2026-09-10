@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class LogEntryDefinition extends EntityDefinition
 {

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerRecoveryEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class CustomerRecoveryCollection extends EntityCollection

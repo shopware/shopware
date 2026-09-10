@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CustomFieldEntity extends Entity
 {

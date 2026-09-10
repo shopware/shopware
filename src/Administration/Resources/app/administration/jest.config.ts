@@ -22,6 +22,11 @@ process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
 
+// Tests run in Node/jsdom, so browser data freshness is irrelevant here. Without this, browserslist's
+// stale caniuse-lite warning (triggered via vue-jest -> babel preset-env target resolution) is escalated
+// to a test failure by the console.warn guard in prepare_environment.js once the lockfile data ages 6 months.
+process.env.BROWSERSLIST_IGNORE_OLD_DATA = process.env.BROWSERSLIST_IGNORE_OLD_DATA || 'true';
+
 // Check if ADMIN_PATH/test/_helper_/component-imports.js exists
 if (!existsSync(join(process.env.ADMIN_PATH, '/test/_helper_/componentWrapper/component-imports.js'))) {
     throw new Error(
@@ -35,6 +40,11 @@ const isCi = (() => {
     return process.argv.some((arg) => arg === '--ci');
 })();
 const isDocker = existsSync('/.dockerenv');
+
+// The extension-tooling e2e specs scaffold a project and run the real vue-tsc/ESLint
+// toolchain, so they are slow and turn red on any unrelated type or lint breakage.
+// Gated to a dedicated nightly job (see admin.yml) instead of every pull request.
+const runExtensionToolingE2e = process.env.EXTENSION_TOOLING_E2E === '1';
 
 if (isCi) {
     // eslint-disable-next-line no-console
@@ -228,6 +238,11 @@ const config: Config = {
         '<rootDir>/test/_setup/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
+    ],
+
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        ...(runExtensionToolingE2e ? [] : ['<rootDir>/scripts/extensionTooling/e2e\\.spec/']),
     ],
 
     testEnvironmentOptions: {

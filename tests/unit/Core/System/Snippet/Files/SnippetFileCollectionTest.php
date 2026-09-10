@@ -181,6 +181,74 @@ class SnippetFileCollectionTest extends TestCase
         static::assertSame('de-DE', $result[0]->getIso());
     }
 
+    public function testGetByName(): void
+    {
+        $collection = $this->getCollection();
+
+        $found = $collection->getByName('storefront.de-DE');
+
+        static::assertNotNull($found);
+        static::assertSame('storefront.de-DE', $found->getName());
+        static::assertNull($collection->getByName('not.available'));
+    }
+
+    public function testGetFilesArraySplitsByBaseFlag(): void
+    {
+        $collection = $this->getCollection();
+
+        $baseFiles = $collection->getFilesArray();
+        $extensionFiles = $collection->getFilesArray(false);
+
+        static::assertCount(2, $baseFiles);
+        static::assertCount(1, $extensionFiles);
+        foreach ($baseFiles as $file) {
+            static::assertTrue($file['isBase']);
+        }
+        foreach ($extensionFiles as $file) {
+            static::assertFalse($file['isBase']);
+        }
+    }
+
+    public function testSetAndRemoveUseTheGivenKey(): void
+    {
+        $file = new MockSnippetFile('storefront.en-GB', 'en-GB');
+
+        $collection = new SnippetFileCollection();
+        $collection->set('my-key', $file);
+
+        static::assertSame($file, $collection->get('my-key'));
+
+        $collection->remove('my-key');
+
+        static::assertNull($collection->get('my-key'));
+    }
+
+    public function testClearDropsAllFiles(): void
+    {
+        $collection = $this->getCollection();
+
+        $collection->clear();
+
+        static::assertCount(0, $collection);
+    }
+
+    public function testHasFileForPathMatchesOnlyExistingCollectionFiles(): void
+    {
+        $existingFile = new MockSnippetFile('storefront.de', 'de-DE');
+
+        $collection = new SnippetFileCollection();
+        $collection->add($existingFile);
+
+        static::assertTrue($collection->hasFileForPath($existingFile->getPath()));
+        static::assertFalse($collection->hasFileForPath(__FILE__));
+        static::assertFalse($collection->hasFileForPath('/does/not/exist.json'));
+    }
+
+    public function testGetApiAlias(): void
+    {
+        static::assertSame('snippet_file_collection', (new SnippetFileCollection())->getApiAlias());
+    }
+
     private function getCollection(): SnippetFileCollection
     {
         $collection = new SnippetFileCollection();

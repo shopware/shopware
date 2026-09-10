@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\Clock;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class VersionDefinition extends EntityDefinition
 {

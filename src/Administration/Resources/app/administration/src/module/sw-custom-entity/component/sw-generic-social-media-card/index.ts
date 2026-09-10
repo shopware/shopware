@@ -30,7 +30,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: '',
         },
         ogImageId: {
-            type: String as PropType<string | null>,
+            type: String as unknown as PropType<EntityKey<'media'> | null>,
             required: false,
             default: null,
         },
@@ -99,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.mediaModalIsOpen = false;
         },
 
-        onImageUpload({ targetId }: { targetId: string }) {
+        onImageUpload({ targetId }: { targetId: EntityKey<'media'> }) {
             this.emitMediaId(targetId);
         },
 
@@ -114,7 +114,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.emitMediaId(selection.id);
         },
 
-        emitMediaId(mediaId: string | null) {
+        emitMediaId(mediaId: EntityKey<'media'> | null) {
             this.$emit('update:og-image-id', mediaId);
         },
 

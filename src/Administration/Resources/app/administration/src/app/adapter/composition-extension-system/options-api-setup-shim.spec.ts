@@ -86,6 +86,135 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         errorSpy.mockRestore();
     });
 
+    it('rejects writes to refs of setup() and earlier overrides through previousState', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const fromSetup = ref('own setup');
+        const fromOverride = ref('first');
+        let write = (): void => {};
+
+        _overridesMap['sw-shim-write-ref'] = [
+            () => ({ fromOverride }),
+            (previousState: PreviousState) => {
+                write = () => {
+                    previousState.fromSetup.value = 'changed';
+                    previousState.fromOverride.value = 'changed';
+                };
+
+                return {
+                    label: computed(
+                        () => `${String(previousState.fromSetup.value)} / ${String(previousState.fromOverride.value)}`,
+                    ),
+                };
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            setup() {
+                return { fromSetup };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-write-ref', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+        expect(wrapper.text()).toBe('own setup / first');
+
+        write();
+        await flushPromises();
+
+        // Real refs are wrapped as well - otherwise the write would silently reach the original ref.
+        expect(wrapper.text()).toBe('own setup / first');
+        expect(fromSetup.value).toBe('own setup');
+        expect(fromOverride.value).toBe('first');
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"fromSetup"'));
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"fromOverride"'));
+
+        errorSpy.mockRestore();
+    });
+
+    it('rejects replacing a key on previousState itself', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        let write = (): void => {};
+
+        _overridesMap['sw-shim-write-key'] = [
+            (previousState: PreviousState & { greet: () => string }) => {
+                write = () => {
+                    (previousState as Record<string, unknown>).greet = () => 'replaced';
+                    (previousState as Record<string, unknown>).label = ref('replaced');
+                };
+
+                return {
+                    label: computed(() => `${previousState.greet()} ${String(previousState.label.value)}`),
+                };
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+            methods: {
+                greet() {
+                    return 'hello';
+                },
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-write-key', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+        expect(wrapper.text()).toBe('hello base');
+
+        write();
+        await flushPromises();
+
+        // The proxy has no backing object to write to; the next read resolves through the trap again.
+        expect(wrapper.text()).toBe('hello base');
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"greet"'));
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"label"'));
+
+        errorSpy.mockRestore();
+    });
+
+    it('serves the same ref on repeated access to a previousState key', async () => {
+        let sameRef: boolean | undefined;
+        let sameMethod: boolean | undefined;
+
+        _overridesMap['sw-shim-identity'] = [
+            (previousState: PreviousState) => {
+                sameRef = previousState.label === previousState.label;
+                sameMethod = previousState.greet === previousState.greet;
+
+                return {};
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+            methods: {
+                greet() {
+                    return 'hi';
+                },
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-identity', config);
+
+        mount(config as never);
+        await flushPromises();
+
+        // Stable identity lets an override pass the same wrapper to several watch() sources or return it.
+        expect(sameRef).toBe(true);
+        expect(sameMethod).toBe(true);
+    });
+
     it('keeps an existing setup() of the component instead of replacing it', async () => {
         _overridesMap['sw-shim-existing-setup'] = [
             () => ({ fromOverride: computed(() => 'override') }),

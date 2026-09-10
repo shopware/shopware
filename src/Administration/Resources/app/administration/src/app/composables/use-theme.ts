@@ -13,6 +13,13 @@ import type { Theme, UseThemeReturn } from '@shopware-ag/meteor-component-librar
 export const USER_THEME_CONFIG_KEY = 'core.userTheme';
 
 /**
+ * `localStorage` key Meteor persists the theme preference under.
+ *
+ * @private
+ */
+export const THEME_STORAGE_KEY = 'mt-theme';
+
+/**
  * Preference used before the user has chosen a theme. The Administration
  * starts in light mode instead of following the operating system.
  *
@@ -47,6 +54,13 @@ export const THEME_LABELS: Readonly<Record<Theme, string>> = {
 
 type UseAdminThemeReturn = UseThemeReturn & {
     /**
+     * Re-applies the theme preference persisted in `localStorage`. A document
+     * restored from the back/forward cache keeps the theme it was frozen
+     * with and misses the `storage` events of other documents, so the
+     * preference has to be read again explicitly.
+     */
+    syncPersistedTheme: () => void;
+    /**
      * Loads the persisted theme preference of the current user from the
      * server and applies it. Keeps the current (localStorage) preference
      * when the user has not persisted one yet.
@@ -63,6 +77,20 @@ let themeState: UseAdminThemeReturn | null = null;
 
 function isTheme(value: unknown): value is Theme {
     return THEMES.includes(value as Theme);
+}
+
+function syncPersistedTheme(): void {
+    let storedTheme: string | null;
+
+    try {
+        storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    } catch {
+        return;
+    }
+
+    if (isTheme(storedTheme) && storedTheme !== useTheme().theme.value) {
+        useTheme().setTheme(storedTheme);
+    }
 }
 
 async function loadUserTheme(): Promise<void> {
@@ -103,6 +131,7 @@ export default function useTheme(): UseAdminThemeReturn {
 
         themeState = {
             ...scope.run(() => useMeteorTheme({ defaultTheme: DEFAULT_THEME }))!,
+            syncPersistedTheme,
             loadUserTheme,
             saveUserTheme,
         };

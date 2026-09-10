@@ -28,6 +28,15 @@ export default function initializeUserContext() {
         void useTheme().loadUserTheme();
         void useModuleIconColors().loadUserModuleIconColors();
 
+        // A document restored from the back/forward cache keeps the theme it was
+        // frozen with, so the server-side preference has to be applied again.
+        // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
+        window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+            if (event.persisted && loginService.isLoggedIn()) {
+                void useTheme().loadUserTheme();
+            }
+        });
+
         userService
             .getUser()
             .then((response) => {

@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -94,7 +95,7 @@ class ZugferdXmlRendererTest extends TestCase
         static::assertStringContainsString('<root/>', $result->content);
         static::assertSame('xml', $result->fileExtension);
         static::assertSame('application/xml', $result->mimeType);
-        static::assertSame('zugferd_invoice_12345_zugferd_xml', $result->fileName);
+        static::assertSame('zugferd_invoice_12345', $result->fileName);
     }
 
     public function testRenderToStringThrowsWhenTemplateProducesMalformedXml(): void
@@ -201,6 +202,7 @@ class ZugferdXmlRendererTest extends TestCase
                 $env,
                 static::createStub(AbstractTranslator::class),
                 static::createStub(AbstractSalesChannelContextFactory::class),
+                new EventDispatcher(),
                 'rootDir',
             ),
             new XmlFormatter(),

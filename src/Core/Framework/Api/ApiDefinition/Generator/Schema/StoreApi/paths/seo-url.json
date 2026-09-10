@@ -48,6 +48,14 @@
                     "200": {
                         "$ref": "#/components/responses/SeoUrlListResponse"
                     },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "404": {
                         "$ref": "#/components/responses/404"
                     }
@@ -74,6 +82,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/SeoUrlListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "404": {
                         "$ref": "#/components/responses/404"

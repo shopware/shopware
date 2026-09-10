@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\Clock;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class ScheduledTaskDefinition extends EntityDefinition
 {

@@ -80,12 +80,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     public function exists(string $name)
     {
-        $template = $this->findDatabaseTemplate($name);
-        if (!$template) {
-            return false;
-        }
-
-        return true;
+        return $this->findDatabaseTemplate($name) !== null;
     }
 
     /**

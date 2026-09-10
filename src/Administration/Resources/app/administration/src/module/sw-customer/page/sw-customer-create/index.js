@@ -91,6 +91,22 @@ export default {
                     this.customer.boundSalesChannelId = salesChannelId;
                 }
             });
+
+            const currentSalesChannelId = salesChannelId;
+
+            this.loadLanguage(currentSalesChannelId)
+                .then((languageId) => {
+                    if (!this.customer || this.customer.salesChannelId !== currentSalesChannelId) {
+                        return;
+                    }
+
+                    this.customer.languageId = languageId || Shopware.Context.api.languageId;
+                })
+                .catch(() => {
+                    if (this.customer && this.customer.salesChannelId === currentSalesChannelId) {
+                        this.customer.languageId = Shopware.Context.api.languageId;
+                    }
+                });
         },
 
         'customer.accountType'(value) {
@@ -127,6 +143,7 @@ export default {
             this.customer.password = '';
             this.customer.vatIds = [];
             this.customer.salutationId = defaultSalutationId;
+            this.customer.languageId = Shopware.Context.api.languageId;
             this.address.salutationId = defaultSalutationId;
         },
 

@@ -96,11 +96,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         $this->cleanUpExpiredRefreshTokens();
 
         // no token found, token is invalid
-        if (!$refreshToken) {
-            return true;
-        }
-
-        return false;
+        return !$refreshToken;
     }
 
     public function revokeRefreshTokensForUser(string $userId): void

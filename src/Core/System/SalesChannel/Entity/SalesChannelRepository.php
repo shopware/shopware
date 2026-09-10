@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,6 +35,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('discovery')]
 class SalesChannelRepository
 {
+    /**
+     * The criteria nodes the walk restricts. A criteria that needs more than this is not a shape any
+     * storefront produces, and answering it would mean returning data the remaining criteria never
+     * restricted, so it is rejected.
+     */
+    private const CRITERIA_LIMIT = 100;
+
     /**
      * @internal
      */
@@ -246,9 +254,9 @@ class SalesChannelRepository
             ['definition' => $this->definition, 'criteria' => $topCriteria, 'path' => ''],
         ];
 
-        $maxCount = 100;
-
         $processed = [];
+
+        $maxCount = self::CRITERIA_LIMIT;
 
         // process all associations breadth-first
         while ($queue !== [] && --$maxCount > 0) {
@@ -291,6 +299,10 @@ class SalesChannelRepository
                 $referenceDefinition = $field->getToManyReferenceDefinition();
                 $queue[] = ['definition' => $referenceDefinition, 'criteria' => $associationCriteria, 'path' => $path . '.' . $associationName];
             }
+        }
+
+        if ($queue !== []) {
+            throw SalesChannelException::tooManyNestedCriteria(self::CRITERIA_LIMIT);
         }
     }
 }

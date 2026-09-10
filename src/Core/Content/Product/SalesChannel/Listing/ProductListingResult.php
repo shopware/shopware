@@ -57,6 +57,7 @@ class ProductListingResult extends EntitySearchResult
      */
     public function setPage(int $page): void
     {
+        /** @phpstan-ignore shopware.futureIncompatibility.propertyBecomesReadonly (ProductListingResult no longer extends EntitySearchResult in v6.8.0, so this code path will be removed.) */
         $this->page = $page;
     }
 
@@ -65,6 +66,7 @@ class ProductListingResult extends EntitySearchResult
      */
     public function setLimit(int $limit): void
     {
+        /** @phpstan-ignore shopware.futureIncompatibility.propertyBecomesReadonly (ProductListingResult no longer extends EntitySearchResult in v6.8.0, so this code path will be removed.) */
         $this->limit = $limit;
     }
 

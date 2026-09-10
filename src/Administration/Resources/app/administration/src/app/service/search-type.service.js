@@ -103,6 +103,16 @@ export default function createSearchTypeService() {
             listingRoute: 'sw.sales.channel.index',
             hideOnGlobalSearchBar: true,
         },
+        rule: {
+            entityName: 'rule',
+            placeholderSnippet: 'sw-settings-rule.general.placeholderSearchBar',
+            listingRoute: 'sw.settings.rule.index',
+        },
+        flow: {
+            entityName: 'flow',
+            placeholderSnippet: 'sw-flow.general.placeholderSearchBar',
+            listingRoute: 'sw.flow.index',
+        },
     };
 
     let $typeStore = {};

@@ -7,11 +7,14 @@ on:
       - labeled
 
 permissions:
-  id-token: write
+  contents: read
 
 jobs:
   find-linked-issue:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: >
       github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
@@ -69,6 +72,9 @@ jobs:
 
   reopen-linked-issue:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: >
       github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
@@ -162,6 +168,9 @@ jobs:
 
   backport:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: >
       github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
@@ -185,7 +194,7 @@ jobs:
           identity: ShopwareBackport
 
       - name: Backporting
-        uses: kiegroup/git-backporting@c176e6651d88576d2de7cfdb99525fe387e705cb # main
+        uses: kiegroup/git-backporting@2d651f7b8d88f89656c888eaa4779796db946b5b # main
         with:
           auth: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
           target-branch: ${{ matrix.target-branch }}

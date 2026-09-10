@@ -33,6 +33,19 @@ describe('src/core/data/error-resolver.system-config.data.ts', () => {
         expect(result).toBeInstanceOf(ShopwareError);
     });
 
+    it('should store sales channel scoped errors under the raw sales channel id', () => {
+        errorResolverSystemConfig.handleWriteErrors(mock.apiErrorsScoped);
+
+        const result = Shopware.Store.get('error').getSystemConfigApiError(
+            ErrorResolverSystemConfig.ENTITY_NAME,
+            '98432def39fc4624b33213a56b8c944d',
+            'scoped.key',
+        );
+
+        expect(result).toBeInstanceOf(ShopwareError);
+        expect(result.code).toBe('Scoped code');
+    });
+
     it('should handleWriteErrors has api error with translations', () => {
         errorResolverSystemConfig.handleWriteErrors(mock.apiErrorsWithTranslation);
 

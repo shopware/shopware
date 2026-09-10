@@ -9,6 +9,8 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
     async function createWrapper(propsOverride = {}, privileges = []) {
         store = Shopware.Store.get('swProductDetail');
+        store.product.id = 'productId';
+        store.product.getEntityName = () => 'product';
         store.product.guaranteeMonths = 12;
         store.product.guaranteeConfirmed = false;
 
@@ -57,11 +59,19 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                                     :disabled="disabled"
                                     @input="$emit('update:model-value', Number($event.target.value))"
                                 />
+                                <span
+                                    v-if="error"
+                                    class="mt-number-field__error"
+                                >{{ error.code }}</span>
                             </div>`,
                         props: [
                             'modelValue',
                             'label',
                             'disabled',
+                            'min',
+                            'max',
+                            'step',
+                            'error',
                         ],
                     },
                     'mt-switch': {
@@ -90,6 +100,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
     }
 
     beforeEach(async () => {
+        Shopware.Store.get('error').api = {};
         wrapper = await createWrapper({}, ['product.editor']);
     });
 
@@ -113,6 +124,36 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
         expect(store.product.guaranteeMonths).toBe(24);
         expect(store.product.guaranteeConfirmed).toBe(true);
+    });
+
+    it('should not clamp the guarantee months to a minimum or maximum', async () => {
+        const monthsField = wrapper.findComponent('.mt-number-field');
+
+        expect(monthsField.props('min')).toBeUndefined();
+        expect(monthsField.props('max')).toBeUndefined();
+        expect(monthsField.props('step')).toBe(6);
+
+        await monthsField.find('input').setValue(25);
+
+        expect(store.product.guaranteeMonths).toBe(25);
+    });
+
+    it.each([
+        25,
+        31,
+    ])('should show the validation error for %s guarantee months', async (guaranteeMonths) => {
+        store.product.guaranteeMonths = guaranteeMonths;
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'product.productId.guaranteeMonths',
+            error: {
+                code: 'INVALID_GARAN_GUARANTEE_MONTHS',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.mt-number-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_MONTHS');
     });
 
     it('should disable the fields when allowEdit is false', async () => {

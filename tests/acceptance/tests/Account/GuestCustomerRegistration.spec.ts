@@ -27,6 +27,9 @@ test(
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
         await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
+        await ShopCustomer.expects(StorefrontCheckoutRegister.page.locator('.register-submit button')).toContainText(
+            /Continue|Weiter/i,
+        );
 
         await ShopCustomer.attemptsTo(Register({ isGuest: true }));
         await ShopCustomer.goesTo(StorefrontHome.url());

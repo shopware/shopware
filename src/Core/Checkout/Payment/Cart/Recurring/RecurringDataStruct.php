@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * This is an experimental payment struct to make generic subscription information available without relying on a payment handler to a specific subscription extensions
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class RecurringDataStruct extends Struct

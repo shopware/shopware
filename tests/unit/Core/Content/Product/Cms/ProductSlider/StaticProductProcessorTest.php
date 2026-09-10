@@ -46,12 +46,18 @@ class StaticProductProcessorTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->configService->expects($this->never())->method('getBool');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $this->expectException(DecorationPatternException::class);
         $this->getProcessor()->getDecorated();
     }
 
     public function testGetSource(): void
     {
+        $this->configService->expects($this->never())->method('getBool');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         static::assertSame('static', $this->getProcessor()->getSource());
     }
 
@@ -64,6 +70,8 @@ class StaticProductProcessorTest extends TestCase
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_STATIC, $expectedIds);
         $this->config->add($config);
+
+        $this->configService->expects($this->never())->method('getBool');
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
@@ -81,6 +89,9 @@ class StaticProductProcessorTest extends TestCase
 
         $ids = $criteria->getIds();
         static::assertSame($expectedIds, $ids);
+
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->getAssociation('options')->hasAssociation('group'));
     }
 
     public function testCollectEventCanModifyCriteria(): void
@@ -90,6 +101,8 @@ class StaticProductProcessorTest extends TestCase
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1']);
         $this->config->add($config);
+
+        $this->configService->expects($this->never())->method('getBool');
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
@@ -111,6 +124,7 @@ class StaticProductProcessorTest extends TestCase
 
     public function testEnrichWithAvailableProducts(): void
     {
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
         $this->hideUnavailableProducts(false);
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1', 'product-2']));
@@ -137,6 +151,7 @@ class StaticProductProcessorTest extends TestCase
 
     public function testEnrichRestoresConfiguredProductOrder(): void
     {
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
         $this->hideUnavailableProducts(false);
 
         // Configure the slot with products in order [product-2, product-1]
@@ -167,6 +182,7 @@ class StaticProductProcessorTest extends TestCase
 
     public function testEnrichHideUnavailableProducts(): void
     {
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
         $this->hideUnavailableProducts(true);
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1', 'product-2']));
@@ -193,6 +209,9 @@ class StaticProductProcessorTest extends TestCase
 
     public function testEnrichDoesNothingWithoutSearchResult(): void
     {
+        $this->configService->expects($this->never())->method('getBool');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
         $data = new ElementDataCollection();
@@ -205,6 +224,9 @@ class StaticProductProcessorTest extends TestCase
 
     public function testEnrichDoesNothingWithoutProducts(): void
     {
+        $this->configService->expects($this->never())->method('getBool');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
 

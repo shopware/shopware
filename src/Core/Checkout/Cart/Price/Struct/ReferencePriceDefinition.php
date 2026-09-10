@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class ReferencePriceDefinition extends Struct
 {

@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -59,6 +60,8 @@ export default {
             timezoneOptions: [],
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            // Only edited for the own user — the theme select is hidden otherwise.
+            userThemeSelection: null,
         };
     },
 
@@ -69,6 +72,15 @@ export default {
     },
 
     computed: {
+        userTheme: {
+            get() {
+                return this.userThemeSelection ?? useTheme().theme.value;
+            },
+            set(theme) {
+                this.userThemeSelection = theme;
+            },
+        },
+
         ...mapPropertyErrors('user', [
             'firstName',
             'lastName',
@@ -216,6 +228,9 @@ export default {
 
     methods: {
         createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-users-permissions-user-detail__currentUser',
                 path: 'currentUser',
@@ -423,6 +438,8 @@ export default {
                         await this.updateAuthToken();
                     }
                     await this.updateCurrentUser();
+                    await useTheme().saveUserTheme(this.userTheme);
+                    this.userThemeSelection = null;
                 }
 
                 this.createdComponent();

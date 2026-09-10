@@ -241,6 +241,7 @@ class InfoControllerTest extends TestCase
             'active' => true,
             'integrationId' => $ids->get('integration'),
             'type' => 'app',
+            'sourceType' => 'local',
             'baseUrl' => 'https://example.com',
             'permissions' => [
                 'create' => ['user'],
@@ -288,6 +289,71 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('PHPUnit', $bundles);
         static::assertIsArray($bundles['PHPUnit']);
         static::assertSame($bundle, $bundles['PHPUnit']);
+    }
+
+    public function testGetConfigWithServiceSourceType(): void
+    {
+        $ids = new IdsCollection();
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([
+            [
+                'name' => 'PHPUnitService',
+                'path' => '/foo/bar',
+                'active' => true,
+                'configurable' => false,
+                'version' => '1.0.0',
+                'label' => 'PHPUnitService',
+                'sourceType' => 'service',
+                // Service apps are self-managed; this excludes them from the automatic script
+                // refresh (ScriptLifecycleHandler::refresh) which would otherwise try to resolve
+                // the service filesystem and fail without a full source config.
+                'selfManaged' => true,
+                'integration' => [
+                    'id' => $ids->create('integration'),
+                    'label' => 'foo',
+                    'accessKey' => '123',
+                    'secretAccessKey' => '456',
+                ],
+                'aclRole' => [
+                    'name' => 'PHPUnitServiceRole',
+                    'privileges' => [
+                        'user:read',
+                    ],
+                ],
+                'baseAppUrl' => 'https://example.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $bundle = [
+            'active' => true,
+            'integrationId' => $ids->get('integration'),
+            'type' => 'app',
+            'sourceType' => 'service',
+            'baseUrl' => 'https://example.com',
+            'permissions' => [
+                'read' => ['user'],
+            ],
+            'version' => '1.0.0',
+            'name' => 'PHPUnitService',
+        ];
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        $bundles = $decodedResponse['bundles'];
+        static::assertIsArray($bundles);
+        static::assertArrayHasKey('PHPUnitService', $bundles);
+        static::assertIsArray($bundles['PHPUnitService']);
+        static::assertSame($bundle, $bundles['PHPUnitService']);
     }
 
     public function testGetShopwareVersion(): void

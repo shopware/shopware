@@ -199,7 +199,11 @@
       "document": {
         "titleCreateDocument": "Generate documents",
         "labelDocumentType": "Documents",
-        "placeholderDocumentType": "Select documents..."
+        "placeholderDocumentType": "Select documents...",
+        "labelDocumentTypeSingle": "Document type",
+        "placeholderDocumentTypeSingle": "Select document type...",
+        "labelFileFormats": "File formats",
+        "placeholderFileFormats": "Select file formats..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Set download access",
@@ -361,7 +365,11 @@
       "pending": "Pending",
       "changed": "Changed",
       "update": "Update",
-      "password": "Password"
+      "password": "Password",
+      "confirm": "Confirmation",
+      "document": "Document",
+      "generation": "Generation",
+      "revocationRequest": "Revocation request"
     }
   },
   "sw-privileges": {

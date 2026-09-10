@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
@@ -42,7 +43,6 @@ use Shopware\Core\Framework\Adapter\Twig\Filter\LeadingSpacesFilter;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntimeResetter;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -214,6 +214,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(Connection::class)
         ->public()
         ->factory([Kernel::class, 'getConnection']);
+
+    $services->set(ReplicaConnectionResetter::class)
+        ->public()
+        ->args([service(Connection::class)])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(QueryDataBagResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);
@@ -474,7 +479,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SnippetFilterFactory::class),
             service(ExtensionDispatcher::class),
             service('event_dispatcher'),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service('filesystem'),
         ]);
 
@@ -508,7 +513,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ActiveAppsLoader::class),
             service(TranslationConfig::class),
             service(TranslationLoader::class),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service(SourceResolver::class),
             service('logger'),
         ]);
@@ -566,10 +571,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NamespaceHierarchyBuilder::class),
             service(TemplateScopeDetector::class),
         ])
-        ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(CachedEscaperRuntimeResetter::class)
-        ->public()
         ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(NamespaceHierarchyBuilder::class)

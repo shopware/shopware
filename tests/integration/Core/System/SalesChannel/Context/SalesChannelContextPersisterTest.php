@@ -228,6 +228,55 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    public function testSaveReplacesCustomerContextToken(): void
+    {
+        $customerId = $this->createCustomer();
+        $oldToken = Random::getAlphanumericString(32);
+        $newToken = Random::getAlphanumericString(32);
+
+        $this->contextPersister->save($oldToken, ['first' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+        $this->contextPersister->save($newToken, ['second' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+
+        static::assertFalse($this->contextExists($oldToken));
+        $context = $this->contextPersister->load($newToken, TestDefaults::SALES_CHANNEL, $customerId);
+        ksort($context);
+
+        static::assertSame(
+            [
+                'expired' => false,
+                'first' => 'value',
+                'second' => 'value',
+                'token' => $newToken,
+            ],
+            $context
+        );
+    }
+
+    public function testSaveReplacesConflictingTokenAndCustomerContext(): void
+    {
+        $customerId = $this->createCustomer();
+        $token = Random::getAlphanumericString(32);
+        $customerToken = Random::getAlphanumericString(32);
+
+        $this->contextPersister->save($token, ['guest' => 'value'], TestDefaults::SALES_CHANNEL);
+        $this->contextPersister->save($customerToken, ['customer' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+        $this->contextPersister->save($token, ['new' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+
+        static::assertFalse($this->contextExists($customerToken));
+        $context = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
+        ksort($context);
+
+        static::assertSame(
+            [
+                'customer' => 'value',
+                'expired' => false,
+                'new' => 'value',
+                'token' => $token,
+            ],
+            $context
+        );
+    }
+
     public function testLoadSameCustomerOnDifferentSalesChannel(): void
     {
         $customerId = $this->createCustomer();

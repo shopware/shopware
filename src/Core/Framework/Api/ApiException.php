@@ -22,6 +22,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException as SymfonyHttpException;
@@ -41,7 +42,6 @@ class ApiException extends HttpException
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
     public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
     public const API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT = 'FRAMEWORK__UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT';
-    public const API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST = 'FRAMEWORK__API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST';
     public const API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE = 'FRAMEWORK__API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE';
     public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
     public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
@@ -67,6 +67,7 @@ class ApiException extends HttpException
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
     public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
+    public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -199,6 +200,18 @@ class ApiException extends HttpException
     public static function noEntityCloned(string $entity, string $id): ShopwareHttpException
     {
         return new NoEntityClonedException($entity, $id);
+    }
+
+    public static function expectationNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_EXPECTATION_FAILED,
+            self::API_EXPECTATION_NOT_SUPPORTED,
+            \sprintf(
+                'The "%s" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+                PlatformRequest::HEADER_EXPECT_PACKAGES
+            )
+        );
     }
 
     /**
@@ -370,17 +383,6 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
             \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
-        );
-    }
-
-    public static function invalidStoreApiSchemaMigrationAllowlist(string $filename, string $message, ?\Throwable $exception = null): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST,
-            'Invalid Store API schema migration allowlist "{{ filename }}": {{ message }}',
-            ['filename' => $filename, 'message' => $message],
-            $exception,
         );
     }
 

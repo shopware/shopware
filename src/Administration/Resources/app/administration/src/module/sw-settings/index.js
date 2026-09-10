@@ -18,9 +18,9 @@ Module.register('sw-settings', {
     type: 'core',
     name: 'settings',
     title: 'sw-settings.general.mainMenuItemGeneral',
-    color: '#9AA8B5',
+    color: 'var(--sw-color-module-neutral-default)',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {
@@ -60,10 +60,10 @@ Module.register('sw-settings', {
         {
             id: 'sw-settings',
             label: 'sw-settings.general.mainMenuItemGeneral',
-            color: '#9AA8B5',
+            color: 'var(--sw-color-module-neutral-default)',
             icon: 'regular-cog',
             path: 'sw.settings.index',
-            position: 80,
+            position: 90,
         },
     ],
 });

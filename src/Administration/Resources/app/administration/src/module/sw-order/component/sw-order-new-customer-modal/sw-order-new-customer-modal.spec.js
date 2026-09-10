@@ -13,7 +13,6 @@ async function createWrapper({
         customerRepositoryMock: undefined,
         languageRepositoryMock: undefined,
     },
-    featureActive = false,
 } = {}) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
@@ -129,9 +128,6 @@ async function createWrapper({
                 customerValidationService: {
                     checkCustomerEmail: () => Promise.resolve(),
                 },
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
             },
         },
     });
@@ -145,13 +141,41 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+    it('should not leave any warnings behind when the modal is closed', async () => {
+        const errorStore = Shopware.Store.get('error');
+        const billingAddressMock = {
+            getEntityName: () => 'customer_address',
+            id: wrapper.vm.billingAddress.id,
+        };
+        const customerMock = {
+            getEntityName: () => 'customer',
+            id: wrapper.vm.customer.id,
+        };
+
+        wrapper.vm.createErrorMessageForCompanyField();
+        errorStore.addApiError({
+            expression: `customer.${customerMock.id}.email`,
+            error: new ShopwareError({ code: 'CONTENT__CUSTOMER_EMAIL_NOT_UNIQUE' }),
+        });
+
+        expect(errorStore.getApiError(billingAddressMock, 'company')).toBeInstanceOf(ShopwareError);
+        expect(errorStore.getApiError(customerMock, 'email')).toBeInstanceOf(ShopwareError);
+
+        wrapper.vm.onClose();
+
+        expect(errorStore.getApiError(billingAddressMock, 'company')).toBeNull();
+        expect(errorStore.getApiError(customerMock, 'email')).toBeNull();
+        expect(wrapper.emitted('close')).toBeTruthy();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch', () => {
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        wrapper = await createWrapper();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -179,8 +203,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(false);
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        wrapper = await createWrapper();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'billingAddress');
         await wrapper.vm.$nextTick();
@@ -190,8 +214,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(true);
     });
 
-    it('should pass validation errors to meteor tabs', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass validation errors to meteor tabs', async () => {
+        wrapper = await createWrapper();
 
         Shopware.Store.get('error').addApiError({
             expression: 'customer.1.email',
@@ -243,7 +267,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         });
     });
 
-    it('should navigate tab correctly', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
+    it.deprecated('v6.8.0.0')('should navigate tab correctly', async () => {
         let customerBaseForm = wrapper.find('sw-customer-base-form-stub');
         let customerAddressForm = wrapper.find('sw-customer-address-form-stub');
 
@@ -339,7 +364,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(context.languageId).toEqual(Shopware.Context.api.languageId);
     });
 
-    it('should show error inside sw-tabs-item component', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
+    it.deprecated('v6.8.0.0')('should show error inside sw-tabs-item component', async () => {
         let swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
         let swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
 

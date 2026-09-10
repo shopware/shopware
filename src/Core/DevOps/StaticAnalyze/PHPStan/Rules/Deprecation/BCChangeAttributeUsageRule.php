@@ -4,7 +4,9 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
@@ -20,7 +22,9 @@ use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
@@ -30,6 +34,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 
@@ -94,6 +99,12 @@ class BCChangeAttributeUsageRule implements Rule
         ParameterTypeWidening::class,
     ];
 
+    // TODO: Remove once https://github.com/shopware/shopware/pull/19817 adds the required compatibility methods.
+    private const CLASS_HIERARCHY_CHANGE_EXCEPTIONS = [
+        'Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\ProductListingResult' => true,
+        'Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\ProductReviewResult' => true,
+    ];
+
     public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
     }
@@ -110,14 +121,36 @@ class BCChangeAttributeUsageRule implements Rule
         $classIsFinal = $class->isFinal() || \str_contains((string) $class->getDocComment(), '@final');
 
         $methodNodes = [];
+        $propertyNodes = [];
         foreach ($node->getOriginalNode()->getMethods() as $methodNode) {
             $methodNodes[$methodNode->name->toLowerString()] = $methodNode;
+
+            if ($methodNode->name->toLowerString() !== '__construct') {
+                continue;
+            }
+
+            foreach ($methodNode->params as $parameter) {
+                if ($parameter->flags === 0 || !$parameter->var instanceof Variable || !\is_string($parameter->var->name)) {
+                    continue;
+                }
+
+                $propertyNodes[\strtolower($parameter->var->name)] = $parameter;
+            }
+        }
+
+        foreach ($node->getOriginalNode()->getProperties() as $propertyNode) {
+            foreach ($propertyNode->props as $property) {
+                $propertyNodes[$property->name->toLowerString()] = $propertyNode;
+            }
         }
 
         $errors = [];
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
             $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
             $specific = $this->validateClassLevel($attribute, $class, $classLine);
+            if ($specific === [] && $attribute->getName() === ClassHierarchyChange::class) {
+                $specific = $this->validateClassHierarchyChange($attribute, $node->getClassReflection(), $methodNodes, $classLine);
+            }
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
             }
@@ -145,6 +178,19 @@ class BCChangeAttributeUsageRule implements Rule
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
+            }
+        }
+
+        foreach ($class->getProperties() as $property) {
+            if ($property->getDeclaringClass()->getName() !== $class->getName()) {
+                continue;
+            }
+
+            $symbol = \sprintf('%s::$%s', $class->getShortName(), $property->getName());
+            $line = ($propertyNodes[\strtolower($property->getName())] ?? null)?->getStartLine() ?? $classLine;
+            foreach ($this->bcChangeAttributes($property->getAttributes()) as $attribute) {
+                $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
+                $errors = [...$errors, ...$this->validatePropertyLevel($attribute, $property, $symbol, $line)];
             }
         }
 
@@ -221,6 +267,125 @@ class BCChangeAttributeUsageRule implements Rule
     }
 
     /**
+     * @param array<string, ClassMethod> $methodNodes
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassHierarchyChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, array $methodNodes, int $line): array
+    {
+        if (isset(self::CLASS_HIERARCHY_CHANGE_EXCEPTIONS[$class->getName()])) {
+            return [];
+        }
+
+        $newParentClass = $this->argument($attribute, 'newParentClass', 2);
+        $newParentMethods = [];
+        if (\is_string($newParentClass) && $this->reflectionProvider->hasClass($newParentClass)) {
+            foreach ($this->reflectionProvider->getClass($newParentClass)->getNativeReflection()->getMethods() as $method) {
+                if (!$method->isPublic()) {
+                    continue;
+                }
+
+                $newParentMethods[strtolower($method->getName())] = true;
+            }
+        }
+
+        $removedParentMethods = [];
+        for ($parent = $class->getParentClass(); $parent !== null; $parent = $parent->getParentClass()) {
+            if (\is_string($newParentClass) && $this->isInHierarchy($parent, $newParentClass)) {
+                continue;
+            }
+
+            foreach ($parent->getNativeReflection()->getMethods() as $method) {
+                if (!$method->isPublic() || $method->getDeclaringClass()->getName() !== $parent->getName()) {
+                    continue;
+                }
+
+                $removedParentMethods[strtolower($method->getName())] ??= $method;
+            }
+        }
+
+        $errors = [];
+        foreach ($removedParentMethods as $methodName => $parentMethod) {
+            if (str_starts_with($parentMethod->getName(), '__') || $this->isDeprecated($parentMethod) || isset($newParentMethods[$methodName])) {
+                continue;
+            }
+
+            $methodNode = $methodNodes[$methodName] ?? null;
+            if ($methodNode !== null && !$this->isDeprecatedMethodNode($methodNode) && $this->callsParent($methodNode)) {
+                $errors[] = $this->error($line, \sprintf(
+                    'ClassHierarchyChange on "%s": non-deprecated method "%s()" must not call parent:: because its parent hierarchy will change.',
+                    $this->shortClassName($class->getName()),
+                    $parentMethod->getName()
+                ));
+
+                continue;
+            }
+
+            if ($this->isDeclaredByClass($class, $methodNodes, $methodName)) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'ClassHierarchyChange on "%s": inherited public method "%s()" from "%s" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                $this->shortClassName($class->getName()),
+                $parentMethod->getName(),
+                $parentMethod->getDeclaringClass()->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, ClassMethod> $methodNodes
+     */
+    private function isDeclaredByClass(ClassReflection $class, array $methodNodes, string $methodName): bool
+    {
+        if (isset($methodNodes[$methodName])) {
+            return true;
+        }
+
+        foreach ($class->getTraits() as $trait) {
+            if ($trait->hasNativeMethod($methodName)
+                && $trait->getNativeMethod($methodName)->getDeclaringClass()->getName() === $trait->getName()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function callsParent(ClassMethod $method): bool
+    {
+        return (new NodeFinder())->findFirst(
+            $method,
+            static fn (Node $node): bool => $node instanceof StaticCall
+                && $node->class instanceof Name
+                && \strtolower($node->class->toString()) === 'parent'
+        ) !== null;
+    }
+
+    private function isDeprecatedMethodNode(ClassMethod $method): bool
+    {
+        return \str_contains($method->getDocComment()?->getText() ?? '', '@deprecated');
+    }
+
+    private function isInHierarchy(ClassReflection $class, string $possibleDescendant): bool
+    {
+        if (!$this->reflectionProvider->hasClass($possibleDescendant)) {
+            return false;
+        }
+
+        for ($ancestor = $this->reflectionProvider->getClass($possibleDescendant); $ancestor !== null; $ancestor = $ancestor->getParentClass()) {
+            if ($ancestor->getName() === $class->getName()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return list<IdentifierRuleError>
      */
     private function validateMethodLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
@@ -283,6 +448,47 @@ class BCChangeAttributeUsageRule implements Rule
                 $symbol,
                 $parameterName
             ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validatePropertyLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionProperty $property, string $symbol, int $line): array
+    {
+        if ($attribute->getName() === BecomesReadonly::class && $property->isReadOnly()) {
+            return [$this->error($line, \sprintf('BecomesReadonly on "%s": the property is already readonly.', $symbol))];
+        }
+
+        if ($attribute->getName() === PropertyTypeNarrowing::class) {
+            $newType = $this->argument($attribute, 'newType', 1);
+            if (!\is_string($newType)) {
+                return [];
+            }
+
+            $currentType = $property->getType();
+            if ($currentType instanceof \ReflectionNamedType
+                && ($currentType->allowsNull() ? '?' : '') . $currentType->getName() === $newType
+            ) {
+                return [$this->error($line, \sprintf('PropertyTypeNarrowing on "%s": announced type "%s" is identical to the current property type.', $symbol, $newType))];
+            }
+        }
+
+        if ($attribute->getName() !== VisibilityChange::class) {
+            return [];
+        }
+
+        $newVisibility = $this->argument($attribute, 'newVisibility', 1);
+        if ($newVisibility === 'protected' && !$property->isPublic()) {
+            return [$this->error($line, \sprintf(
+                'VisibilityChange on "%s": announced visibility "protected" is not narrower than the current visibility.',
+                $symbol
+            ))];
+        }
+        if ($newVisibility === 'private' && $property->isPrivate()) {
+            return [$this->error($line, \sprintf('VisibilityChange on "%s": the property is already private.', $symbol))];
         }
 
         return [];
@@ -506,6 +712,18 @@ class BCChangeAttributeUsageRule implements Rule
     private function isMarkedInternal(string|false $doc): bool
     {
         return \is_string($doc) && \str_contains($doc, '@internal');
+    }
+
+    private function isDeprecated(\ReflectionMethod $method): bool
+    {
+        return $method->isDeprecated() || (\is_string($method->getDocComment()) && \str_contains($method->getDocComment(), '@deprecated'));
+    }
+
+    private function shortClassName(string $className): string
+    {
+        $parts = explode('\\', $className);
+
+        return end($parts);
     }
 
     private function shortName(ReflectionAttribute|FakeReflectionAttribute $attribute): string

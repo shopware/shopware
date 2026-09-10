@@ -194,10 +194,3 @@ What the API accepts after this change:
 * `customer.displayName` in store API and Admin API responses, resolved per account type. It is a runtime field, so it cannot be sorted or searched by. The Administration customer list keeps sorting on `lastName,firstName`, which means a commercial account without a contact person displays as its company but sorts as an empty name. Search still finds it through `company`.
 * Two new system config keys, both defaulting to on.
 * The Administration needs [#20173](https://github.com/shopware/shopware/pull/20173) before it can save an empty name at all.
-
-What the checkout domain should be aware of:
-
-* An empty given name can now reach a payment provider. `AbstractPaymentHandler::pay()` receives only a `PaymentTransactionStruct` and a `Context`, and handlers load the order themselves to build the payload from `orderCustomer` and `addresses`. Core's own payment code never reads a name, so every case lives in an integration outside this repository. `payer.name.given_name` in PayPal is the one we would check first. If a provider rejects the payload the customer has already clicked pay, and Core cannot recover from that.
-* `order_customer` has no `accountType` column, so it cannot resolve a display name the way `customer` does. Copying the company into `firstName` keeps documents and the order list working, at the cost of a column named `firstName` holding a company name.
-
-Those two decide each other. If providers accept an empty name, the snapshot can stay honest and `order_customer` gets its own runtime field. If they reject it, the company copy stays and the shared formatter is mandatory.

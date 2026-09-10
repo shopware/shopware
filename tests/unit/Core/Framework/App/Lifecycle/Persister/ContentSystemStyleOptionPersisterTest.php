@@ -34,6 +34,9 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
+use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -266,8 +269,14 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         $connection = static::createMock(Connection::class);
         $connection->expects($this->once())
             ->method('transactional')
-            ->willReturnCallback(static function (\Closure $work) {
+            ->willReturnCallback(static function (\Closure $work) use ($repo) {
+                static::assertSame([], $repo->upserts);
+                static::assertSame([], $repo->deletes);
+
                 $work();
+
+                static::assertCount(1, $repo->upserts);
+                static::assertCount(1, $repo->deletes);
 
                 return null;
             });
@@ -277,6 +286,98 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
 
         static::assertCount(1, $repo->upserts);
         static::assertCount(1, $repo->deletes);
+    }
+
+    #[TestDox('holds the per-app lock from the existing-state read through cache invalidation')]
+    public function testHoldsLockAroundReconciliationAndInvalidation(): void
+    {
+        $lockHeld = false;
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturnCallback(
+            static function () use (&$lockHeld): bool {
+                $lockHeld = true;
+
+                return true;
+            }
+        );
+        $lock->expects($this->once())->method('release')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+                $lockHeld = false;
+            }
+        );
+
+        $lockFactory = static::createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('content_system_style_option_persist_' . $this->ids->get('app'), 15.0)
+            ->willReturn($lock);
+
+        $repo = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemStyleOptionCollection {
+                static::assertTrue($lockHeld);
+
+                return new AppContentSystemStyleOptionCollection();
+            },
+            static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemStyleOptionCollection {
+                static::assertTrue($lockHeld);
+
+                return new AppContentSystemStyleOptionCollection();
+            },
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->expects($this->once())->method('all')->willReturnCallback(
+            static function () use (&$lockHeld): array {
+                static::assertTrue($lockHeld);
+
+                return [];
+            }
+        );
+        $registry->expects($this->once())->method('invalidate')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+            }
+        );
+
+        $this->buildPersister($repo, registry: $registry, lockFactory: $lockFactory)
+            ->persist($this->buildContext());
+
+        static::assertFalse($lockHeld);
+    }
+
+    #[TestDox('releases the lock and leaves the cache untouched when the transaction fails')]
+    public function testReleasesLockWhenTransactionFails(): void
+    {
+        $failure = new \RuntimeException('transaction failed');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willThrowException($failure);
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $registry = static::createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->never())->method('invalidate');
+
+        $repo = new StaticEntityRepository([
+            new AppContentSystemStyleOptionCollection(),
+            new AppContentSystemStyleOptionCollection(),
+        ]);
+
+        $this->expectExceptionObject($failure);
+        $this->buildPersister(
+            $repo,
+            registry: $registry,
+            connection: $connection,
+            lockFactory: $lockFactory,
+        )->persist($this->buildContext());
     }
 
     #[TestDox('returns early without writing when the app ships none and none are stored')]
@@ -485,6 +586,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
         ?YamlStyleOptionLoader $loader = null,
         ?AbstractContentSystemStyleOptionRegistry $registry = null,
         ?Connection $connection = null,
+        ?LockFactory $lockFactory = null,
     ): ContentSystemStyleOptionPersister {
         if ($registry === null) {
             $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
@@ -498,6 +600,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             $registry,
             $this->serializer,
             $connection ?? $this->runTransactionStub(),
+            $lockFactory ?? new LockFactory(new InMemoryStore()),
         );
     }
 
@@ -519,6 +622,7 @@ class ContentSystemStyleOptionPersisterTest extends TestCase
             $registry,
             $this->serializer,
             $this->runTransactionStub(),
+            new LockFactory(new InMemoryStore()),
         );
     }
 

@@ -66,6 +66,7 @@ class ContentSystemPreviewControllerTest extends TestCase
         $productId = $this->createProduct();
         $containerId = Uuid::randomHex();
         $textId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
 
         $store = static::getContainer()->get(ContentPreviewPayloadStore::class);
         $token = $store->store(new ContentPreviewRequest(
@@ -78,6 +79,10 @@ class ContentSystemPreviewControllerTest extends TestCase
                     'id' => $textId,
                     'component' => 'Sw:Content:Text',
                     'properties' => ['text' => '<p>Preview body</p>'],
+                ], [
+                    'id' => $manufacturerId,
+                    'component' => 'Sw:Product:Manufacturer',
+                    'properties' => [],
                 ]]],
             ]],
             entityType: 'product',
@@ -108,6 +113,10 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
         // `element.component` picked the Text component and `element.properties` fed it.
         static::assertStringContainsString('Preview body', $content);
+        // The shared element renderer marks preview components without making the manufacturer component
+        // depend on the request global itself.
+        static::assertStringContainsString('data-element-id="' . $manufacturerId . '"', $content);
+        static::assertStringContainsString('Manufacturer not available', $content);
     }
 
     private function createProduct(): string
@@ -125,7 +134,6 @@ class ContentSystemPreviewControllerTest extends TestCase
             'isCloseout' => true,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
-            'manufacturer' => ['name' => 'test'],
             'visibilities' => array_map(
                 static fn (string $salesChannelId): array => [
                     'salesChannelId' => $salesChannelId,

@@ -33,8 +33,11 @@ class HttpErrorClassifierTest extends TestCase
         yield 'lower redirect boundary' => [300, ErrorClassification::TransientRedirect];
         yield 'upper redirect boundary' => [399, ErrorClassification::TransientRedirect];
         yield 'payload rejection' => [400, ErrorClassification::NonTransientPayload];
+        yield 'unauthorized' => [401, ErrorClassification::NonTransientAuth];
+        yield 'forbidden' => [403, ErrorClassification::NonTransientAuth];
         yield 'not found' => [404, ErrorClassification::TransientServer];
         yield 'request timeout' => [408, ErrorClassification::TransientServer];
+        yield 'gone' => [410, ErrorClassification::NonTransientEndpoint];
         yield 'rate limit' => [429, ErrorClassification::TransientRateLimit];
         yield 'unlisted client error' => [451, ErrorClassification::NonTransientPayload];
         yield 'lower server error boundary' => [500, ErrorClassification::TransientServer];

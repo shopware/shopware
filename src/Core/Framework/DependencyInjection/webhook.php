@@ -310,6 +310,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('shopware.webhook.health.cooldown_schedule_seconds'),
             param('shopware.webhook.health.degraded_threshold_count'),
+            param('shopware.webhook.health.non_transient_threshold_count'),
         ]);
 
     $services->set(HttpErrorClassifier::class);

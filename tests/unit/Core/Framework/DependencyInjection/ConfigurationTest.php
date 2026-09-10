@@ -338,6 +338,7 @@ class ConfigurationTest extends TestCase
             $config['webhook']['health']['cooldown_schedule_seconds']
         );
         static::assertSame(5, $config['webhook']['health']['degraded_threshold_count']);
+        static::assertSame(3, $config['webhook']['health']['non_transient_threshold_count']);
     }
 
     /**
@@ -665,6 +666,7 @@ class ConfigurationTest extends TestCase
         yield 'first cooldown does not exceed delivery timeout' => [['cooldown_schedule_seconds' => [20]]];
         yield 'non-positive cooldown' => [['cooldown_schedule_seconds' => [300, 0]]];
         yield 'non-positive degraded threshold' => [['degraded_threshold_count' => 0]];
+        yield 'non-positive non-transient threshold' => [['non_transient_threshold_count' => 0]];
     }
 
     /**

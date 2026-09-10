@@ -16,6 +16,8 @@ enum ErrorClassification: string
     case TransientRateLimit = 'transient_rate_limit';
     case TransientRedirect = 'transient_redirect';
     case NonTransientPayload = 'non_transient_payload';
+    case NonTransientAuth = 'non_transient_auth';
+    case NonTransientEndpoint = 'non_transient_endpoint';
 
     public function isTransient(): bool
     {

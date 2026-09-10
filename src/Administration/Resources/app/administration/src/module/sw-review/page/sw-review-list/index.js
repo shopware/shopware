@@ -1,6 +1,6 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
-import customerDisplayName from '../../../sw-customer/helper/customer-display-name.helper';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

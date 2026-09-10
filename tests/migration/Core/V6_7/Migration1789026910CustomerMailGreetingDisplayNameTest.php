@@ -10,10 +10,10 @@ use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1789026910CustomerMailGreetingDisplayName;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
@@ -22,7 +22,7 @@ use Shopware\Core\Migration\V6_7\Migration1789026910CustomerMailGreetingDisplayN
 #[CoversClass(Migration1789026910CustomerMailGreetingDisplayName::class)]
 class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 

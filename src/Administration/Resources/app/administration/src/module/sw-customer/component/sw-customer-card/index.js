@@ -2,7 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
-import customerDisplayName from '../../helper/customer-display-name.helper';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 import companyNamesRequired from '../../helper/company-name-fields.helper';
 
 /**

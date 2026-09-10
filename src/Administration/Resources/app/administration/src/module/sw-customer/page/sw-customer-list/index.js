@@ -1,5 +1,5 @@
 import template from './sw-customer-list.html.twig';
-import customerDisplayName from '../../helper/customer-display-name.helper';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 import './sw-customer-list.scss';
 
 /**

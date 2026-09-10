@@ -4,7 +4,7 @@
 
 import customerDisplayName from './customer-display-name.helper';
 
-describe('module/sw-customer/helper/customer-display-name.helper', () => {
+describe('core/helper/customer-display-name.helper', () => {
     it.each([
         [
             'private account uses the person name',

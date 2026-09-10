@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerDisplayNameSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -19,12 +21,54 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(CustomerDisplayNameSubscriber::class)]
 class CustomerDisplayNameSubscriberTest extends TestCase
 {
-    public function testItSubscribesToTheCustomerLoadedEvent(): void
+    public function testItSubscribesToBothCustomerLoadedEvents(): void
     {
         static::assertSame(
-            ['customer.loaded' => 'onCustomerLoaded'],
+            [
+                'customer.loaded' => 'onCustomerLoaded',
+                'customer.partial_loaded' => 'onCustomerLoaded',
+            ],
             CustomerDisplayNameSubscriber::getSubscribedEvents()
         );
+    }
+
+    /**
+     * A partial read hands over PartialEntity instances, which carry none of the typed getters, and
+     * the field is ApiAware so it has to be filled there too.
+     */
+    #[DataProvider('displayNameProvider')]
+    public function testItResolvesTheNameOnAPartialRead(
+        string $accountType,
+        string $firstName,
+        string $lastName,
+        ?string $company,
+        string $expected
+    ): void {
+        $customer = new PartialEntity();
+        $customer->assign([
+            'accountType' => $accountType,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'company' => $company,
+        ]);
+
+        $event = new PartialEntityLoadedEvent(new CustomerDefinition(), [$customer], Context::createDefaultContext());
+
+        (new CustomerDisplayNameSubscriber())->onCustomerLoaded($event);
+
+        static::assertSame($expected, $customer->get('displayName'));
+    }
+
+    public function testAPartialReadWithoutTheNameFieldsRendersNothing(): void
+    {
+        $customer = new PartialEntity();
+        $customer->assign(['id' => 'customer-id']);
+
+        $event = new PartialEntityLoadedEvent(new CustomerDefinition(), [$customer], Context::createDefaultContext());
+
+        (new CustomerDisplayNameSubscriber())->onCustomerLoaded($event);
+
+        static::assertSame('', $customer->get('displayName'));
     }
 
     #[DataProvider('displayNameProvider')]

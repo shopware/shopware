@@ -223,6 +223,19 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## created()
+
+`created` becomes `onBeforeMount()`, emitted above the component's own lifecycle hooks so it still
+runs before them.
+
+It was previously lowered into the setup body as an immediately invoked function. That runs before
+Vue applies the Options layer, so anything a global mixin contributes through `data()` does not exist
+yet — which is how `ExtensionAPI.publishData()` ended up pushing into an undefined
+`dataSetUnwatchers`. `onBeforeMount` is the first point where that state is there.
+
+The relative order the component could observe is unchanged: an `immediate` watcher still fires
+before it, and `mounted` still after.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,

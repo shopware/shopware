@@ -78,6 +78,14 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
+## `--no-validate` removed from `app:install` and `app:refresh`
+
+The `--no-validate` option was removed from both commands. Drop it from any script that passes it.
+
+On `app:install` it already had no effect in 6.7: manifest findings that do not prevent an app from working, such as a webhook on an event the running Shopware version does not have, stopped refusing an installation. Findings that do prevent an app from working are refused during the installation itself and were never skippable.
+
+On `app:refresh` it used to skip the validation report printed before the refresh runs. That report now always runs, and any finding still stops the refresh.
+
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.

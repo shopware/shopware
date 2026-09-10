@@ -23,7 +23,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -593,8 +592,7 @@ class AppSecretRotationEndToEndTest extends TestCase
         return new InstallAppCommand(
             new AppLoader(\dirname(self::FIXTURE_APP_DIR), new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
-            new AppPrinter($this->appRepository),
-            static::getContainer()->get(ManifestValidator::class)
+            new AppPrinter($this->appRepository)
         );
     }
 

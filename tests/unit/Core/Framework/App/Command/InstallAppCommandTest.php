@@ -10,14 +10,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
@@ -34,21 +31,17 @@ class InstallAppCommandTest extends TestCase
 
     private MockObject&AbstractAppLifecycle $appLifecycle;
 
-    private MockObject&ManifestValidator $manifestValidator;
-
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
         $this->appLoader = static::createStub(AppLoader::class);
         $this->appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $this->manifestValidator = $this->createMock(ManifestValidator::class);
 
         $this->commandTester = new CommandTester(new InstallAppCommand(
             $this->appLoader,
             $this->appLifecycle,
-            static::createStub(AppPrinter::class),
-            $this->manifestValidator
+            static::createStub(AppPrinter::class)
         ));
     }
 
@@ -57,7 +50,6 @@ class InstallAppCommandTest extends TestCase
     {
         $manifest = $this->createManifest();
         $this->appLoader->method('load')->willReturn(['test' => $manifest]);
-        $this->manifestValidator->expects($this->once())->method('validate')->with($manifest);
         $this->appLifecycle
             ->expects($this->once())
             ->method('install')
@@ -79,7 +71,6 @@ class InstallAppCommandTest extends TestCase
     public function testReportsUnknownApp(): void
     {
         $this->appLoader->method('load')->willReturn([]);
-        $this->manifestValidator->expects($this->never())->method('validate');
         $this->appLifecycle->expects($this->never())->method('install');
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
@@ -92,7 +83,6 @@ class InstallAppCommandTest extends TestCase
     public function testSkipsAlreadyInstalledApp(): void
     {
         $this->appLoader->method('load')->willReturn(['test' => $this->createManifest()]);
-        $this->manifestValidator->expects($this->never())->method('validate');
         $this->appLifecycle
             ->expects($this->once())
             ->method('install')
@@ -101,32 +91,62 @@ class InstallAppCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'name' => ['test'],
             '--force' => true,
-            '--no-validate' => true,
         ]));
         static::assertStringContainsString('App test is already installed', $this->commandTester->getDisplay());
     }
 
-    #[TestDox('A validation error fails the installation of the app')]
-    public function testFailsOnValidationError(): void
+    #[TestDox('A refused installation is reported and fails the command')]
+    public function testReportsARefusedInstallation(): void
     {
         $this->appLoader->method('load')->willReturn(['test' => $this->createManifest()]);
-        $this->manifestValidator
+        $this->appLifecycle
             ->expects($this->once())
-            ->method('validate')
-            ->willThrowException(new AppValidationException('test', new ErrorCollection([
-                new MissingPermissionError(['product:read']),
-            ])));
-        $this->appLifecycle->expects($this->never())->method('install');
+            ->method('install')
+            ->willThrowException(AppException::validationFailedFromError(new MissingPermissionError(['product:read'])));
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute([
             'name' => ['test'],
             '--force' => true,
         ]));
         static::assertStringContainsString('App installation of test failed due', $this->commandTester->getDisplay());
+        static::assertStringContainsString('product:read', $this->commandTester->getDisplay());
     }
 
-    private function createManifest(): Manifest
+    #[TestDox('One refused app does not stop the others from installing')]
+    public function testARefusedAppDoesNotStopTheRest(): void
     {
-        return Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLoader->method('load')->willReturn([
+            'refused' => $this->createManifest('refused'),
+            'fine' => $this->createManifest('fine'),
+        ]);
+
+        $installed = [];
+        $this->appLifecycle
+            ->expects($this->exactly(2))
+            ->method('install')
+            ->willReturnCallback(function (Manifest $manifest) use (&$installed): void {
+                if ($manifest->getMetadata()->getName() === 'refused') {
+                    throw AppException::validationFailedFromError(new MissingPermissionError(['product:read']));
+                }
+
+                $installed[] = $manifest->getMetadata()->getName();
+            });
+
+        static::assertSame(Command::FAILURE, $this->commandTester->execute([
+            'name' => ['refused', 'fine'],
+            '--force' => true,
+        ]));
+        static::assertSame(['fine'], $installed);
+    }
+
+    private function createManifest(?string $name = null): Manifest
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        if ($name !== null) {
+            $manifest->getMetadata()->assign(['name' => $name]);
+        }
+
+        return $manifest;
     }
 }

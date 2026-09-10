@@ -3,8 +3,9 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -15,6 +16,8 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 #[Package('framework')]
 class ConfigValidator extends AbstractManifestValidator
 {
+    private const CONFIG_PATH = 'Resources/config/config.xml';
+
     private const ALLOWED_APP_CONFIGURATION_COMPONENTS = [
         'sw-entity-single-select',
         'sw-entity-multi-id-select',
@@ -23,14 +26,18 @@ class ConfigValidator extends AbstractManifestValidator
         'sw-snippet-field',
     ];
 
-    public function __construct(private readonly ConfigReader $configReader)
-    {
+    public function __construct(
+        private readonly ConfigReader $configReader,
+        private readonly SourceResolver $sourceResolver
+    ) {
     }
 
-    public function validate(Manifest $manifest, ?Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, ?Context $context): array
     {
-        $errors = new ErrorCollection();
-        $config = $this->getConfiguration($manifest->getPath());
+        $config = $this->getConfiguration($manifest);
 
         $invalids = [];
         foreach ($config as $card) {
@@ -45,24 +52,24 @@ class ConfigValidator extends AbstractManifestValidator
             }
         }
 
-        if ($invalids !== []) {
-            $errors->add(new ConfigurationError($invalids));
+        if ($invalids === []) {
+            return [];
         }
 
-        return $errors;
+        return [new ConfigurationError($invalids, $manifest->getMetadata()->getName())];
     }
 
     /**
      * @return array<array<string, mixed>>
      */
-    private function getConfiguration(string $appFolder): array
+    private function getConfiguration(Manifest $manifest): array
     {
-        $configPath = \sprintf('%s/Resources/config/config.xml', $appFolder);
+        $fs = $this->sourceResolver->filesystemForManifest($manifest);
 
-        if (!\is_file($configPath)) {
+        if (!$fs->has(self::CONFIG_PATH)) {
             return [];
         }
 
-        return $this->configReader->read($configPath);
+        return $this->configReader->read($fs->path(self::CONFIG_PATH));
     }
 }

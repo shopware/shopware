@@ -3,9 +3,10 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\RestrictedEventError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
@@ -21,33 +22,42 @@ class HookableValidator extends AbstractManifestValidator
     ) {
     }
 
-    public function validate(Manifest $manifest, Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, Context $context): array
     {
-        $errors = new ErrorCollection();
         $webhooks = $manifest->getWebhooks();
         $webhooks = $webhooks ? $webhooks->getWebhooks() : [];
 
         if (!$webhooks) {
-            return $errors;
+            return [];
         }
 
         $appPrivileges = $manifest->getPermissions();
         $appPrivileges = $appPrivileges ? $appPrivileges->asParsedPrivileges() : [];
-        $hookableEventNamesWithPrivileges = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context, $manifest);
-        $hookableEventNames = array_keys($hookableEventNamesWithPrivileges);
+        $permitted = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context, $manifest);
+        $restricted = $this->hookableEventCollector->getRestrictedEventNames($manifest);
 
+        $notPermitted = [];
         $notHookable = [];
         $missingPermissions = [];
         foreach ($webhooks as $webhook) {
-            // validate supported webhooks
-            if (!\in_array($webhook->getEvent(), $hookableEventNames, true)) {
+            // A restricted event is always absent from the permitted set, so it has to be recognised
+            // first or it reads as an event that does not exist.
+            if (\in_array($webhook->getEvent(), $restricted, true)) {
+                $notPermitted[] = $webhook->getName() . ': ' . $webhook->getEvent();
+
+                continue;
+            }
+
+            if (!isset($permitted[$webhook->getEvent()])) {
                 $notHookable[] = $webhook->getName() . ': ' . $webhook->getEvent();
 
                 continue;
             }
 
-            // validate permissions
-            foreach ($hookableEventNamesWithPrivileges[$webhook->getEvent()]['privileges'] as $privilege) {
+            foreach ($permitted[$webhook->getEvent()]['privileges'] as $privilege) {
                 if (\in_array($privilege, $appPrivileges, true)) {
                     continue;
                 }
@@ -56,12 +66,18 @@ class HookableValidator extends AbstractManifestValidator
             }
         }
 
+        $errors = [];
+
+        if ($notPermitted !== []) {
+            $errors[] = new RestrictedEventError($notPermitted);
+        }
+
         if ($notHookable !== []) {
-            $errors->add(new NotHookableError($notHookable));
+            $errors[] = new NotHookableError($notHookable);
         }
 
         if ($missingPermissions !== []) {
-            $errors->add(new MissingPermissionError($missingPermissions));
+            $errors[] = new MissingPermissionError($missingPermissions);
         }
 
         return $errors;

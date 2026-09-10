@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -13,15 +13,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class TranslationValidator extends AbstractManifestValidator
 {
-    public function validate(Manifest $manifest, ?Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, ?Context $context): array
     {
-        $errors = new ErrorCollection();
         $error = $manifest->getMetadata()->validateTranslations();
 
-        if ($error !== null) {
-            $errors->add($error);
-        }
-
-        return $errors;
+        return $error === null ? [] : [$error];
     }
 }

@@ -46,6 +46,7 @@
         <create>product_manufacturer</create>
         <delete>product_manufacturer</delete>
         <create>tax</create>
+        <read>order</read>
     </permissions>
     <webhooks>
         <webhook name="hook1" url="https://test.com/hook" event="checkout.customer.before.login"/>

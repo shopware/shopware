@@ -21,11 +21,11 @@ export default Shopware.Component.wrapComponentConfig({
     props: {
         feedbackLink: {
             type: String,
-            required: true,
+            default: '',
         },
         documentationLink: {
             type: String,
-            required: true,
+            default: '',
         },
     },
 

@@ -19,8 +19,8 @@
         />
 
         <sw-settings-services-hero
-            :documentation-link="currentRevision.links['docs-url']"
-            :feedback-link="currentRevision.links['feedback-url']"
+            :documentation-link="documentationLink"
+            :feedback-link="feedbackLink"
         />
 
         <sw-extension-component-section
@@ -29,7 +29,7 @@
 
         <div class="sw-settings-services-index__content">
             <sw-settings-services-grant-permissions-card
-                v-if="!consentGiven && !config.disabled && services.length > 0"
+                v-if="currentRevision && !consentGiven && !config.disabled && services.length > 0"
                 :docs-link="currentRevision.links['docs-url']"
             />
 
@@ -45,6 +45,22 @@
                     <p><b>{{ $t('sw-settings-services.exception.service-list') }}</b></p>
 
                     <p>{{ loadingError }}</p>
+                </mt-banner>
+
+                <mt-banner
+                    v-if="registryError"
+                    class="sw-settings-services-index__registry-error"
+                    variant="attention"
+                >
+                    <p>{{ $t('sw-settings-services.exception.service-registry') }}</p>
+
+                    <mt-button
+                        size="small"
+                        secondary
+                        @click="loadServiceRegistry"
+                    >
+                        {{ $t('sw-settings-services.exception.retry') }}
+                    </mt-button>
                 </mt-banner>
 
                 <mt-banner
@@ -93,21 +109,23 @@
             </div>
 
             <div class="sw-settings-services__footer">
-                <a
-                    class="mt-link--external"
-                    :href="currentRevision.links['docs-url']"
-                    target="_blank"
-                >
-                    {{ $t('sw-settings-services.index.label-documentation-link') }}
-                </a>
+                <template v-if="currentRevision">
+                    <a
+                        class="mt-link--external"
+                        :href="currentRevision.links['docs-url']"
+                        target="_blank"
+                    >
+                        {{ $t('sw-settings-services.index.label-documentation-link') }}
+                    </a>
 
-                <a
-                    class="mt-link--external"
-                    :href="currentRevision.links['tos-url']"
-                    target="_blank"
-                >
-                    {{ $t('sw-settings-services.index.label-tos-link') }}
-                </a>
+                    <a
+                        class="mt-link--external"
+                        :href="currentRevision.links['tos-url']"
+                        target="_blank"
+                    >
+                        {{ $t('sw-settings-services.index.label-tos-link') }}
+                    </a>
+                </template>
 
                 <sw-settings-services-revoke-permissions-modal
                     v-if="!config.disabled && config.permissionsConsent"
@@ -117,7 +135,7 @@
                 <sw-settings-services-deactivate-modal
                     v-if="!config.disabled"
                     :services-with-account-requirement="servicesWithAccountRequirement"
-                    :feedback-link="currentRevision.links['feedback-url']"
+                    :feedback-link="feedbackLink"
                 />
             </div>
         </div>

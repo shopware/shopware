@@ -504,9 +504,12 @@
         description=""
         centered
     >
-        <template #button>
+        <template
+            v-if="showCreateDocumentButton"
+            #button
+        >
             <sw-button-group
-                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showCreateDocumentButton"
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
                 split-button
             >
                 <mt-button
@@ -553,7 +556,7 @@
             </sw-button-group>
 
             <mt-button
-                v-else-if="showCreateDocumentButton"
+                v-else
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
                     disabled: acl.can('document.viewer') && !isEditing,

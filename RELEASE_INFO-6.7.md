@@ -209,6 +209,12 @@ Two consequences for operators:
 
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
+### Promotion redemptions are recounted with a covering index
+
+Placing an order that redeems a promotion recounts that promotion's redemptions across all of its past orders. A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so the recount no longer reads a table row per past order: a promotion used by 230k orders recounts in under a second instead of 18.8s, which before was long enough to exceed the payment timeout and fail the checkout. The migration builds the index across the whole `order_line_item` table, so expect it to run for several minutes on a large shop.
+
+The recount no longer filters on `order_line_item.type`, because `promotion_id` is only ever written for promotion line items. An integration that sets `promotionId` on a line item of another type through the Admin API now has that line item counted towards the promotion's redemptions.
+
 ## API
 
 ### Store API currency headers validate sales channel availability

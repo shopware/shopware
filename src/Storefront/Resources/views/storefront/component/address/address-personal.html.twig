@@ -164,8 +164,8 @@
         {# Without the selector the form cannot switch type, so it is fixed to whatever the customer
            already is. Treating that as private would keep the names required while the backend has
            already accepted them empty. #}
-        {% set customerIsCompany = accountType|default('') == businessType
-            or (context.customer is defined and context.customer and context.customer.accountType == businessType) %}
+        {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == businessType %}
+        {% set customerIsCompany = accountType|default('') == businessType or loggedInCustomerIsCompany %}
 
         {% set companyOnlyForm = onlyCompanyRegistration|default(false)
             or hasSelectedBusiness|default(false)
@@ -179,8 +179,9 @@
            account type but is judged by the customer or by the top level one, so it keeps the names required. #}
         {# The standalone address form uses the 'address' prefix but its controller unwraps that bag, so
            its selector is the value the route reads. The nested registration addresses are the ones
-           that must keep their names required. #}
-        {% set accountTypeSwitchable = prefix|default('') in ['', 'address']
+           that must keep their names required. That form also needs a commercial customer behind it,
+           because UpsertAddressRoute relaxes the names for one of those only. #}
+        {% set accountTypeSwitchable = (prefix|default('') == '' or (prefix|default('') == 'address' and loggedInCustomerIsCompany))
             and accountTypeSelectable
             and not hideCustomerTypeSelect|default(false)
             and not hasSelectedBusiness|default(false)

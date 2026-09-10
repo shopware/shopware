@@ -165,6 +165,43 @@ class CompanyAccountNameTest extends TestCase
         );
     }
 
+    public function testProfileStillNeedsACompanyWhenTheFormDoesNotPostOne(): void
+    {
+        $this->setNameFields(show: true, required: false);
+        $this->register($this->companyRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->customerRepository->update(
+            [['id' => $this->loadCustomer('company-no-contact@example.com')->getId(), 'company' => '']],
+            Context::createDefaultContext()
+        );
+
+        $this->changeProfile();
+
+        static::assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $this->browser->getResponse()->getStatusCode(),
+            'an account with neither a contact person nor a company has no name left'
+        );
+    }
+
+    public function testACompanyNamedZeroSurvivesRegistration(): void
+    {
+        $this->setNameFields(show: true, required: false);
+
+        $data = $this->companyRegistrationData();
+        $data['billingAddress']['company'] = '0';
+
+        $this->register($data);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $customer = $this->loadCustomer('company-no-contact@example.com');
+
+        static::assertSame('0', $customer->getCompany());
+        static::assertSame('0', $customer->getDisplayName());
+    }
+
     public function testCompanyAccountStillNeedsACompanyName(): void
     {
         $this->setNameFields(show: true, required: false);

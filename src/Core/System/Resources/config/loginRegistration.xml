@@ -122,8 +122,8 @@
             <name>showNameFieldsForCompanyAccounts</name>
             <label>Show first and last name for company accounts</label>
             <label lang="de-DE">Vor- und Nachname für Geschäftskonten anzeigen</label>
-            <helpText>Turn this off to drop the contact person from the registration form of commercial customers entirely.</helpText>
-            <helpText lang="de-DE">Schalte dies aus, um den Ansprechpartner ganz aus dem Registrierungsformular für Geschäftskunden zu entfernen.</helpText>
+            <helpText>Turn this off to drop the contact person from the registration form of commercial customers entirely. Needs the account type selection above, otherwise a shop cannot tell a commercial customer from a private one and the names stay required.</helpText>
+            <helpText lang="de-DE">Schalte dies aus, um den Ansprechpartner ganz aus dem Registrierungsformular für Geschäftskunden zu entfernen. Braucht die Kontoauswahl darüber, sonst kann der Shop Geschäfts- und Privatkunden nicht unterscheiden und die Namen bleiben Pflichtfelder.</helpText>
             <defaultValue>true</defaultValue>
         </input-field>
 
@@ -131,8 +131,8 @@
             <name>nameFieldsRequiredForCompanyAccounts</name>
             <label>First and last name required for company accounts</label>
             <label lang="de-DE">Vor- und Nachname sind Pflichtfelder für Geschäftskonten</label>
-            <helpText>A company account is identified by its company name. Turn this off to let commercial customers register without a contact person.</helpText>
-            <helpText lang="de-DE">Ein Geschäftskonto wird über den Firmennamen identifiziert. Schalte dies aus, damit sich Geschäftskunden ohne Ansprechpartner registrieren können.</helpText>
+            <helpText>A company account is identified by its company name. Turn this off to let commercial customers register without a contact person. Needs the account type selection above, otherwise a shop cannot tell a commercial customer from a private one and the names stay required.</helpText>
+            <helpText lang="de-DE">Ein Geschäftskonto wird über den Firmennamen identifiziert. Schalte dies aus, damit sich Geschäftskunden ohne Ansprechpartner registrieren können. Braucht die Kontoauswahl darüber, sonst kann der Shop Geschäfts- und Privatkunden nicht unterscheiden und die Namen bleiben Pflichtfelder.</helpText>
             <defaultValue>true</defaultValue>
         </input-field>
 

@@ -13,15 +13,19 @@ const customer = {
     ],
 };
 
-async function createWrapper() {
+async function createWrapper({ props = {}, systemConfig } = {}) {
     return mount(await wrapTestComponent('sw-customer-card', { sync: true }), {
         props: {
             customer: {},
             title: '',
+            ...props,
         },
         global: {
             provide: {
                 contextStoreService: {},
+                ...(systemConfig === undefined
+                    ? {}
+                    : { systemConfigApiService: { getValues: () => Promise.resolve(systemConfig) } }),
             },
             stubs: {
                 'sw-avatar': true,
@@ -161,5 +165,54 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         });
 
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeFalsy();
+    });
+
+    it('should keep the contact person required for a private account', async () => {
+        const wrapper = await createWrapper({
+            props: { customer: { accountType: 'private' } },
+            systemConfig: {
+                'core.loginRegistration.showAccountTypeSelection': true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should make the contact person optional for a company account when the settings allow it', async () => {
+        const wrapper = await createWrapper({
+            props: { customer: { accountType: 'business' } },
+            systemConfig: {
+                'core.loginRegistration.showAccountTypeSelection': true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(false);
+    });
+
+    it('should keep the contact person required for a company account without the account type selection', async () => {
+        const wrapper = await createWrapper({
+            props: { customer: { accountType: 'business' } },
+            systemConfig: {
+                'core.loginRegistration.showAccountTypeSelection': false,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should keep the contact person required when no config service is provided', async () => {
+        const wrapper = await createWrapper({ props: { customer: { accountType: 'business' } } });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 });

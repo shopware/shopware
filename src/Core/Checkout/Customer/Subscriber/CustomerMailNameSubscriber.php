@@ -80,24 +80,33 @@ class CustomerMailNameSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * Stored templates greet with the last name alone, so whatever name is left goes there. The first
+     * name is cleared with it, so a template that prints both does not repeat the same word twice.
+     */
     private function renderCustomer(mixed $customer): ?CustomerEntity
     {
         if (!$customer instanceof CustomerEntity) {
             return null;
         }
 
-        $company = trim($customer->getCompany() ?? '');
-
-        if ($company === '' || !$customer->isBusinessAccount()) {
+        if (trim($customer->getLastName()) !== '') {
             return null;
         }
 
-        if (trim($customer->getFirstName() . $customer->getLastName()) !== '') {
+        $name = trim($customer->getFirstName());
+
+        if ($name === '' && $customer->isBusinessAccount()) {
+            $name = trim($customer->getCompany() ?? '');
+        }
+
+        if ($name === '') {
             return null;
         }
 
         $renderCustomer = clone $customer;
-        $renderCustomer->setLastName($company);
+        $renderCustomer->setFirstName('');
+        $renderCustomer->setLastName($name);
 
         return $renderCustomer;
     }

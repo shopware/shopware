@@ -96,14 +96,21 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 $data->set('vatIds', $customer->getVatIds());
             }
 
-            if ($data->has('company')) {
-                $validation->add('company', CompanyAccountNameFields::companyNotBlank());
-            }
-
             if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
                 CompanyAccountNameFields::makeOptional($validation);
 
                 CompanyAccountNameFields::normalizeSubmitted($data);
+
+                // The company carries the identity once the contact person is optional, so it has to
+                // be there even when the form does not post it. Filling in the stored one first keeps
+                // the check on the value the account ends up with.
+                if (!$data->has('company')) {
+                    $data->set('company', $customer->getCompany() ?? '');
+                }
+            }
+
+            if ($data->has('company')) {
+                $validation->add('company', CompanyAccountNameFields::companyNotBlank());
             }
 
             $billingAddress = $customer->getDefaultBillingAddress();

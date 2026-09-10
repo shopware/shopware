@@ -3,6 +3,7 @@ import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
 import customerDisplayName from '../../helper/customer-display-name.helper';
+import companyNamesRequired from '../../helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout
@@ -17,11 +18,15 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'contextStoreService',
-        'repositoryFactory',
-    ],
+    inject: {
+        acl: {},
+        contextStoreService: {},
+        repositoryFactory: {},
+        // Defaults to null so an extending component that does not provide it still mounts.
+        systemConfigApiService: {
+            default: null,
+        },
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -53,7 +58,14 @@ export default {
         return {
             showImitateCustomerModal: false,
             showConvertCustomerModal: false,
+            // Required until the settings resolve, so a slow request leaves the form strict rather
+            // than claiming a field is optional that the routes still reject.
+            companyNamesRequired: true,
         };
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     computed: {
@@ -141,6 +153,10 @@ export default {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
 
+        contactPersonRequired() {
+            return !this.isBusinessAccountType || this.companyNamesRequired;
+        },
+
         canUseCustomerImitation() {
             if (this.customer.guest) {
                 return false;
@@ -221,6 +237,10 @@ export default {
     },
 
     methods: {
+        async createdComponent() {
+            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
+        },
+
         getMailTo(mail) {
             return `mailto:${mail}`;
         },

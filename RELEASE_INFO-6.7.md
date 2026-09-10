@@ -127,11 +127,14 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 `Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. Both default to on, for new and for upgraded installations, so nothing changes until a shop turns one of them off. Together they cover the three states a contact person can have on a commercial account: required, optional and hidden. A hidden field is never submitted and therefore never required. Once the contact person is no longer mandatory the company name takes its place and becomes required.
 
-Both settings only do something while the account type selection is on. Without that selection a shop cannot tell a commercial registration from a private one, so first and last name stay mandatory whatever the two settings say. Read the rule through `CompanyAccountNameFields::areRequired()` and `CompanyAccountNameFields::areVisible()` rather than the two config keys, so your extension follows the same gate:
+Both settings only do something while `core.loginRegistration.showAccountTypeSelection` is on. Without that selection a shop cannot tell a commercial registration from a private one, so first and last name stay mandatory whatever the two settings say. Apply the same gate wherever you read the two keys:
 
 ```php
-CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
+$required = !$accountTypeSelection || ($showNameFields && $nameFieldsRequired);
+$visible = !$accountTypeSelection || $showNameFields;
 ```
+
+The account type selection has no default value, so an unsaved value counts as off. The other two default to on.
 
 The first and last name fields of `customer`, `customer_address`, `order_customer` and `order_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
 

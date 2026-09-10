@@ -1,5 +1,6 @@
 import template from './sw-customer-base-form.html.twig';
 import errorConfig from '../../error-config.json';
+import companyNamesRequired from '../../helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout
@@ -100,17 +101,7 @@ export default {
 
     methods: {
         async createdComponent() {
-            // An Administration write carries no sales channel, so the routes read the global values
-            // too. A hidden name field is never required, hence both flags have to be on.
-            // Optional call and catch, because an extending component may not provide the service and
-            // the request needs read rights on the system config. Both leave the form strict.
-            const values = await this.systemConfigApiService?.getValues('core.loginRegistration', null).catch(() => null);
-
-            const selectable = Boolean(values?.['core.loginRegistration.showAccountTypeSelection']);
-            const shown = values?.['core.loginRegistration.showNameFieldsForCompanyAccounts'] ?? true;
-            const required = values?.['core.loginRegistration.nameFieldsRequiredForCompanyAccounts'] ?? true;
-
-            this.companyNamesRequired = !selectable || (Boolean(shown) && Boolean(required));
+            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
         },
 
         onSalesChannelChange(salesChannelId) {

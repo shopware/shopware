@@ -170,8 +170,8 @@
                                     v-model="customer.firstName"
                                     name="sw-field--customer-firstName"
                                     :label="$t('sw-customer.card.labelFirstName')"
-                                    :validation="isBusinessAccountType ? null : 'required'"
-                                    :required="!isBusinessAccountType"
+                                    :validation="contactPersonRequired ? 'required' : null"
+                                    :required="contactPersonRequired"
                                     :error="customerFirstNameError"
                                     :placeholder="$t('sw-customer.card.placeholderFirstName')"
                                 />
@@ -182,8 +182,8 @@
                                     v-model="customer.lastName"
                                     name="sw-field--customer-lastName"
                                     :label="$t('sw-customer.card.labelLastName')"
-                                    :validation="isBusinessAccountType ? null : 'required'"
-                                    :required="!isBusinessAccountType"
+                                    :validation="contactPersonRequired ? 'required' : null"
+                                    :required="contactPersonRequired"
                                     :error="customerLastNameError"
                                     :placeholder="$t('sw-customer.card.placeholderLastName')"
                                 />

@@ -145,6 +145,18 @@ class CustomerMailNameSubscriberTest extends TestCase
         yield 'private account never borrows the company' => [
             CustomerEntity::ACCOUNT_TYPE_PRIVATE, '', '', 'Acme GmbH', ' ',
         ];
+
+        yield 'a lone first name moves to the last name' => [
+            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', '', 'Acme GmbH', ' Ada',
+        ];
+
+        yield 'a lone first name moves on a private account too' => [
+            CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'Ada', '', null, ' Ada',
+        ];
+
+        yield 'a lone last name is left alone' => [
+            CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', 'Lovelace', 'Acme GmbH', ' Lovelace',
+        ];
     }
 
     private function customer(string $accountType, string $firstName, string $lastName, ?string $company): CustomerEntity

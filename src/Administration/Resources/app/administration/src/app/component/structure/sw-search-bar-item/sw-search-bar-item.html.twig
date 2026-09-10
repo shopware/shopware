@@ -36,7 +36,7 @@
                 {% block sw_search_bar_item_customer_label_name %}
                 <sw-highlight-text
                     :search-term="searchTerm"
-                    :text="`${item.firstName} ${item.lastName}`"
+                    :text="customerDisplayName(item)"
                 />
                 {% endblock %}
 

@@ -182,7 +182,9 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $companyName = $billingAddress['company'] ?? $shippingAddress['company'] ?? null;
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $companyName) {
+        // Compared against the empty string and not by truthiness, because a company literally named
+        // "0" passes the validation above and would otherwise leave the account without a name.
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && \is_string($companyName) && $companyName !== '') {
             $customer['company'] = $companyName;
             if ($data->get('vatIds')) {
                 $customer['vatIds'] = $data->get('vatIds');

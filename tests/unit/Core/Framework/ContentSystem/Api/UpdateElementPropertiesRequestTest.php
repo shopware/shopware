@@ -40,7 +40,7 @@ class UpdateElementPropertiesRequestTest extends TestCase
      */
     #[DataProvider('rejectedRemoveKeysProvider')]
     #[TestDox('rejects $_dataName in removeKeys')]
-    public function testRejectsAMalformedRemovalList(array $removeKeys, string $expectedPropertyPath): void
+    public function testRejectsAMalformedRemovalList(array $removeKeys, string $expectedPropertyPath, string $expectedMessage): void
     {
         $request = new UpdateElementPropertiesRequest(elementId: 'block-a', removeKeys: $removeKeys);
 
@@ -48,16 +48,17 @@ class UpdateElementPropertiesRequestTest extends TestCase
 
         static::assertCount(1, $violations);
         static::assertSame($expectedPropertyPath, $violations->get(0)->getPropertyPath());
+        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
     }
 
     /**
-     * @return iterable<string, array{list<mixed>, string}>
+     * @return iterable<string, array{list<mixed>, string, string}>
      */
     public static function rejectedRemoveKeysProvider(): iterable
     {
-        yield 'a non-string entry' => [[1], 'removeKeys[0]'];
-        yield 'a blank entry' => [[''], 'removeKeys[0]'];
-        yield 'a duplicate entry' => [['tag', 'tag'], 'removeKeys'];
+        yield 'a non-string entry' => [[1], 'removeKeys[0]', 'This value should be of type string.'];
+        yield 'a blank entry' => [[''], 'removeKeys[0]', 'This value should not be blank.'];
+        yield 'a duplicate entry' => [['tag', 'tag'], 'removeKeys', 'This collection should contain only unique elements.'];
     }
 
     private function validator(): ValidatorInterface

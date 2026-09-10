@@ -2,7 +2,7 @@
 title: Optional contact person for commercial customer accounts
 date: 2026-09-09
 area: checkout
-tags: [customer, validation, documents, payment]
+tags: [customer, b2b]
 ---
 
 ## Context

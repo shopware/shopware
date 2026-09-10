@@ -7,6 +7,12 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfigSerializer;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
@@ -154,6 +160,72 @@ class ElementLoweringTest extends TestCase
         $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cached($loaded)), [$parent]);
 
         static::assertSame(['product' => $loaded], $tree[0]->slots['main'][0]->properties);
+    }
+
+    /**
+     * The configurator loader references `product` through its empty config's declared default. The product
+     * is a page-level value, so the root-scoped consumer must receive it before this element's loader inputs
+     * are resolved even though ordinary parent delivery still happens after the forest-wide loader walk.
+     */
+    #[TestDox('resolves an element loader object input from root-scoped page context')]
+    public function testFullModeResolvesElementLoaderInputFromRootContext(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setUniqueIdentifier('product-id');
+        $product->setParentId('parent-id');
+        $configuratorSettings = new PropertyGroupCollection();
+        $context = static::createStub(SalesChannelContext::class);
+        $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $configuratorLoader->expects($this->once())->method('load')->with($product, $context)->willReturn($configuratorSettings);
+        $pageLoader = $this->loaderReturning(ContentDataLoaderResult::cached($product));
+        $productConfiguratorLoader = new ProductConfiguratorDataLoader($configuratorLoader);
+        $provider = static::createStub(DataLoaderProvider::class);
+        $provider->method('get')->willReturnMap([
+            ['entity', $pageLoader],
+            [ProductConfiguratorDataLoader::SOURCE, $productConfiguratorLoader],
+        ]);
+
+        $variantSelection = StoredElementBuilder::create('Sw:VariantSelection', 'variant-selection-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->withDataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig())
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$variantSelection])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $tree = (new ElementLowering(
+            new ElementDataResolver(
+                $provider,
+                new LoaderInputResolver(),
+                new LoaderValueIdentityFactory(
+                    new DataLoaderConfigSerializerProvider(new ServiceLocator([
+                        'entity' => static fn (): StubLoaderConfigSerializer => new StubLoaderConfigSerializer(),
+                        ProductConfiguratorDataLoader::SOURCE => static fn (): ProductConfiguratorLoaderConfigSerializer => new ProductConfiguratorLoaderConfigSerializer(),
+                    ])),
+                    new ConfigCanonicalizer(),
+                    new ValueFingerprinter(),
+                ),
+            ),
+            new ContextDeliveryResolver(
+                new ContextDistributor(new ContextPathResolver()),
+                new ContextPathResolver()
+            ),
+            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry()))
+        ))->lower(
+            [$wrapper],
+            RenderingMode::FULL,
+            $context,
+            new Request(),
+            new RenderingCacheContext(),
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper,
+        )->tree;
+
+        static::assertSame(
+            $configuratorSettings,
+            $tree[0]->slots['__page_roots__'][0]->slots['main'][0]->properties['configuratorSettings'],
+        );
     }
 
     /**
@@ -423,6 +495,10 @@ class ElementLoweringTest extends TestCase
         $specs = [
             'Sw:Section' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Section')->build(),
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
+            'Sw:VariantSelection' => ContentSystemElementTypeSpecificationBuilder::create('Sw:VariantSelection')
+                ->reference('product', SalesChannelProductEntity::class)
+                ->reference('configuratorSettings', PropertyGroupCollection::class)
+                ->build(),
             'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')
                 ->reference('product', StubStruct::class)
                 ->build(),

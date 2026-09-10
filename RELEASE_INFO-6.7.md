@@ -2,6 +2,9 @@
 
 ## Security Fixes
 
+### Self-service profile updates accept only an avatar link in `avatarMedia`
+
+`PATCH /api/_info/me` now accepts `avatarMedia` only in the form `{"id": "<media-id>"}`. Every other payload is rejected with a `403` and the error code `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
 ### Newsletter subscriptions respect double opt-in
 
 Newsletter subscription activation now consistently enforces the configured double-opt-in requirement.

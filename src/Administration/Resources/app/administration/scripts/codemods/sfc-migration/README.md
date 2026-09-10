@@ -223,6 +223,16 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## provide()
+
+A `provide()` option returned one flat object, which is a run of `provide(key, value)` calls. Value
+expressions go through the same `this` rewrite as any other option, so what an injector receives does
+not change: a data read still provides the snapshot it always did rather than the ref behind it, a
+method provides the same function, and a `computed()` wrapper stays reactive.
+
+Only the function form returning an object literal directly is converted. A spread entry, a computed
+key, or a `provide()` that returns anything else is a TODO.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,

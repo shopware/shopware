@@ -57,7 +57,6 @@ const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
     renderError: 'skip',
     metaInfo: 'todo',
     shortcuts: 'todo',
-    provide: 'todo',
     filters: 'todo',
     compatConfig: 'todo',
     components: 'todo',

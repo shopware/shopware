@@ -172,6 +172,28 @@ const ROUTE_WATCH_FIXTURE = runtimeFixture(
     `,
 );
 
+const PROVIDE_FIXTURE = runtimeFixture(
+    'sw-runtime-provide',
+    `
+        export default {
+            data() {
+                return { openedId: 7 };
+            },
+            provide() {
+                return {
+                    snapshot: this.openedId,
+                    register: this.register,
+                };
+            },
+            methods: {
+                register(id) {
+                    this.openedId = id;
+                },
+            },
+        };
+    `,
+);
+
 const CLASS_THIS_FIXTURE = runtimeFixture(
     'sw-runtime-class-this',
     `
@@ -368,6 +390,7 @@ export {
     MODULE_BINDING_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
+    PROVIDE_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,

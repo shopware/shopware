@@ -723,6 +723,7 @@ shopware:
             cooldown_schedule_seconds: [300, 600, 1200, 2400, 3600, 14400]
             degraded_threshold_count: 5
             non_transient_threshold_count: 3
+            max_suspended_days: 7
 
     app_system:
         enable_url_validation: true

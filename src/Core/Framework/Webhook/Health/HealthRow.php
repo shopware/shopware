@@ -20,7 +20,7 @@ final class HealthRow
         public ?string $cooldownUntil,
         public ?string $suspendedSince,
         public ?string $disabledSince,
-        public ?string $disabledOrigin,
+        public ?DisabledOrigin $disabledOrigin,
     ) {
     }
 
@@ -37,7 +37,7 @@ final class HealthRow
             \is_string($row['cooldown_until']) ? $row['cooldown_until'] : null,
             \is_string($row['suspended_since']) ? $row['suspended_since'] : null,
             \is_string($row['disabled_since']) ? $row['disabled_since'] : null,
-            \is_string($row['disabled_origin']) ? $row['disabled_origin'] : null,
+            \is_string($row['disabled_origin']) ? DisabledOrigin::from($row['disabled_origin']) : null,
         );
     }
 
@@ -59,6 +59,17 @@ final class HealthRow
         $next->suspendedSince = null;
         $next->disabledSince = null;
         $next->disabledOrigin = null;
+
+        return $next;
+    }
+
+    public function toDisabled(DisabledOrigin $origin, string $now): self
+    {
+        $next = clone $this;
+        $next->state = EndpointState::Disabled;
+        $next->disabledSince = $now;
+        $next->disabledOrigin = $origin;
+        $next->cooldownUntil = null;
 
         return $next;
     }

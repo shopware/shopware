@@ -82,9 +82,10 @@ class WebhookLoader
         $params = [];
         if (Feature::isActive('WEBHOOKS_REWORK')) {
             $sql = $select . "\n            LEFT JOIN webhook_health wh ON (wh.webhook_id = w.id)"
-                . "\n            WHERE w.active = 1 OR wh.endpoint_state = :suspended";
+                . "\n            WHERE w.active = 1 OR wh.endpoint_state IN (:suspended, :disabled)";
             $params = [
                 'suspended' => EndpointState::Suspended->value,
+                'disabled' => EndpointState::Disabled->value,
             ];
         } else {
             $sql = $select . "\n            WHERE w.active = 1";

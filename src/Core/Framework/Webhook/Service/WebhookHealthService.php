@@ -4,13 +4,17 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
+use Shopware\Core\Framework\Webhook\Health\HealthChange;
 use Shopware\Core\Framework\Webhook\Health\HealthConfig;
 use Shopware\Core\Framework\Webhook\Health\HealthRow;
 use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
@@ -34,6 +38,7 @@ class WebhookHealthService
         private readonly WebhookOutboxStore $outboxStore,
         private readonly HealthConfig $config,
         private readonly ClockInterface $clock,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -43,6 +48,10 @@ class WebhookHealthService
         $row = $this->fetchRow($webhookId);
         if ($row === null || $row->state === EndpointState::Healthy) {
             return WebhookDispatchDecision::Deliver;
+        }
+
+        if ($row->state === EndpointState::Disabled) {
+            return WebhookDispatchDecision::Skip;
         }
 
         if ($row->state === EndpointState::Degraded && $row->suspendedSince === null) {
@@ -70,7 +79,7 @@ class WebhookHealthService
             return;
         }
 
-        $this->transition($webhookId, fn (HealthRow $row): HealthRow => $this->decideSuccess($row));
+        $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideSuccess($row));
     }
 
     public function recordFailure(string $webhookId, ErrorClassification $classification, int $attempt): EndpointState
@@ -84,14 +93,16 @@ class WebhookHealthService
             return $this->fetchRow($webhookId)->state ?? EndpointState::Healthy;
         }
 
-        $row = $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideFailure($row, $classification, $attempt));
+        $change = $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideFailure($row, $classification, $attempt));
 
-        return $row->state ?? EndpointState::Healthy;
+        return $change->to->state ?? EndpointState::Healthy;
     }
 
     public function tick(): void
     {
+        $this->shiftSuspensionClocks(appId: null);
         $this->runDueReleases();
+        $this->retireSuspendedPastBound();
 
         foreach ($this->outboxStore->findSuspendedWebhookIdsWithClaimableRows() as $webhookId) {
             $this->outboxStore->cancelSurplusInFlightRows($webhookId);
@@ -101,7 +112,76 @@ class WebhookHealthService
             $this->outboxStore->resumeDeliveriesForWebhook($webhookId);
         }
 
+        foreach ($this->outboxStore->findDisabledWebhookIdsWithHeldRows() as $webhookId) {
+            $this->outboxStore->dropBacklogForWebhook($webhookId);
+        }
+
         $this->outboxStore->cancelOrphanedHeldRows();
+    }
+
+    /**
+     * Marks the moment from which suspension time stops counting; `updated_at` is the cursor.
+     */
+    public function pauseSuspensionClockForApp(string $appId): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE webhook_health wh
+             JOIN webhook w ON w.id = wh.webhook_id
+             SET wh.updated_at = :now
+             WHERE w.app_id = :appId AND wh.endpoint_state = :suspended',
+            [
+                'now' => $this->now(),
+                'appId' => Uuid::fromHexToBytes($appId),
+                'suspended' => EndpointState::Suspended->value,
+            ]
+        );
+    }
+
+    public function resumeSuspensionClockForApp(string $appId): void
+    {
+        $this->shiftSuspensionClocks($appId);
+    }
+
+    public function reactivate(string $webhookId, WebhookActivationTrigger $trigger): int
+    {
+        $change = $this->transition($webhookId, function (HealthRow $row) use ($trigger): HealthRow {
+            // Writing the row unchanged repairs the legacy mirror; a HEALTHY result also resumes stranded holds.
+            // A refused recovery repairs the mirror but releases nothing.
+            if ($row->state === EndpointState::Healthy || !$this->reactivationAllows($trigger, $row)) {
+                return clone $row;
+            }
+
+            return $row->toHealthy(keepStreaks: false);
+        });
+
+        return $change !== null && $change->changedState() ? 1 : 0;
+    }
+
+    public function reactivateForApp(string $appId): void
+    {
+        /** @var list<string> $webhookIds */
+        $webhookIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(wh.webhook_id)) FROM webhook_health wh
+             JOIN webhook w ON w.id = wh.webhook_id
+             WHERE w.app_id = :appId AND wh.endpoint_state <> :healthy',
+            [
+                'appId' => Uuid::fromHexToBytes($appId),
+                'healthy' => EndpointState::Healthy->value,
+            ]
+        );
+
+        foreach ($webhookIds as $webhookId) {
+            $this->reactivate($webhookId, WebhookActivationTrigger::AppReset);
+        }
+    }
+
+    public function disableByOperatorOnActiveFlip(string $webhookId): void
+    {
+        // A mirrored active=false write carries intent only where it changes the value.
+        $this->disable(
+            $webhookId,
+            static fn (HealthRow $row): bool => $row->state === EndpointState::Healthy || $row->state === EndpointState::Degraded,
+        );
     }
 
     /**
@@ -139,8 +219,12 @@ class WebhookHealthService
      * A 2xx climbs exactly one state: SUSPENDED → DEGRADED keeps the incident clock and restarts the
      * ladder at tier 0; DEGRADED → HEALTHY ends the incident and resumes the held backlog.
      */
-    private function decideSuccess(HealthRow $row): HealthRow
+    private function decideSuccess(HealthRow $row): ?HealthRow
     {
+        if ($row->state === EndpointState::Disabled) {
+            return null;
+        }
+
         if ($row->state !== EndpointState::Suspended) {
             return $row->toHealthy(keepStreaks: false);
         }
@@ -157,6 +241,10 @@ class WebhookHealthService
 
     private function decideFailure(HealthRow $row, ErrorClassification $classification, int $attempt): ?HealthRow
     {
+        if ($row->state === EndpointState::Disabled) {
+            return null;
+        }
+
         $next = clone $row;
 
         // The auth streak is independent of the trial ladder and counts on every delivery.
@@ -223,6 +311,38 @@ class WebhookHealthService
     }
 
     /**
+     * Keeps operator kills out of automated recovery, and treats a mirrored active=true on a DEGRADED
+     * webhook (whose mirror is already true) as an echo rather than intent.
+     */
+    private function reactivationAllows(WebhookActivationTrigger $trigger, HealthRow $row): bool
+    {
+        return match ($trigger) {
+            WebhookActivationTrigger::Manual => $row->state === EndpointState::Suspended || $row->state === EndpointState::Disabled,
+            WebhookActivationTrigger::AppReset => !($row->state === EndpointState::Disabled && $row->disabledOrigin === DisabledOrigin::Operator),
+            WebhookActivationTrigger::Trial,
+            WebhookActivationTrigger::Idle => false,
+        };
+    }
+
+    /**
+     * @param \Closure(HealthRow): bool $when states the operator intent applies to
+     */
+    private function disable(string $webhookId, \Closure $when): void
+    {
+        $change = $this->transition($webhookId, function (HealthRow $row) use ($when): ?HealthRow {
+            if ($row->state === EndpointState::Disabled || !$when($row)) {
+                return null;
+            }
+
+            return $row->toDisabled(DisabledOrigin::Operator, $this->now());
+        });
+
+        if ($change !== null && $change->changedState()) {
+            $this->logger->warning('Webhook endpoint disabled by operator', ['webhookId' => $webhookId]);
+        }
+    }
+
+    /**
      * Admits one natural-traffic trial. The re-arm UPDATE succeeds only while the cooldown has elapsed, the
      * ladder is where the caller saw it, and no row of this webhook is held or in flight — exactly one
      * caller per burst is admitted, without a row lock.
@@ -271,10 +391,15 @@ class WebhookHealthService
 
         /** @var list<string> $candidates */
         $candidates = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(webhook_id))
-             FROM webhook_health
-             WHERE endpoint_state IN (:degraded, :suspended)
-               AND (cooldown_until IS NULL OR cooldown_until <= :now)',
+            'SELECT LOWER(HEX(wh.webhook_id))
+             FROM webhook_health wh
+             LEFT JOIN webhook w ON w.id = wh.webhook_id
+             LEFT JOIN app a ON a.id = w.app_id
+             WHERE (wh.cooldown_until IS NULL OR wh.cooldown_until <= :now)
+               AND (
+                    wh.endpoint_state = :degraded
+                    OR (wh.endpoint_state = :suspended AND (a.id IS NULL OR a.active = 1))
+               )',
             [
                 'now' => $now,
                 'degraded' => EndpointState::Degraded->value,
@@ -284,7 +409,7 @@ class WebhookHealthService
 
         foreach ($candidates as $webhookId) {
             $this->transition($webhookId, function (HealthRow $row) use ($webhookId, $now): ?HealthRow {
-                if ($row->state === EndpointState::Healthy || !$row->cooldownElapsed($now)) {
+                if (!\in_array($row->state, [EndpointState::Degraded, EndpointState::Suspended], true) || !$row->cooldownElapsed($now)) {
                     return null;
                 }
 
@@ -304,19 +429,85 @@ class WebhookHealthService
         }
     }
 
+    private function retireSuspendedPastBound(): void
+    {
+        $cutoff = $this->clock->now()
+            ->modify(\sprintf('-%d days', $this->config->maxSuspendedDays))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        /** @var list<string> $candidates */
+        $candidates = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(wh.webhook_id))
+             FROM webhook_health wh
+             LEFT JOIN webhook w ON w.id = wh.webhook_id
+             LEFT JOIN app a ON a.id = w.app_id
+             WHERE wh.endpoint_state = :suspended
+               AND wh.suspended_since IS NOT NULL AND wh.suspended_since <= :cutoff
+               AND (a.id IS NULL OR a.active = 1)',
+            ['suspended' => EndpointState::Suspended->value, 'cutoff' => $cutoff]
+        );
+
+        foreach ($candidates as $webhookId) {
+            $change = $this->transition($webhookId, function (HealthRow $row) use ($cutoff): ?HealthRow {
+                if ($row->state !== EndpointState::Suspended || $row->suspendedSince === null || $row->suspendedSince > $cutoff) {
+                    return null;
+                }
+
+                return $row->toDisabled(DisabledOrigin::Escalation, $this->now());
+            });
+
+            if ($change !== null && $change->changedState()) {
+                $this->logger->warning('Webhook endpoint disabled after exceeding the suspension bound', [
+                    'webhookId' => $webhookId,
+                    'maxSuspendedDays' => $this->config->maxSuspendedDays,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Moves suspension clocks forward by the time since the pause cursor, so deactivated time never counts
+     * toward the retirement bound. Scoped to one app on reactivation; to every inactive app on the tick.
+     */
+    private function shiftSuspensionClocks(?string $appId): void
+    {
+        $this->connection->executeStatement(
+            \sprintf(
+                'UPDATE webhook_health wh
+                 JOIN webhook w ON w.id = wh.webhook_id
+                 LEFT JOIN app a ON a.id = w.app_id
+                 JOIN (SELECT webhook_id, updated_at AS cursor_at FROM webhook_health
+                       WHERE endpoint_state = :suspended AND updated_at IS NOT NULL) snap
+                   ON snap.webhook_id = wh.webhook_id
+                 SET wh.suspended_since = TIMESTAMPADD(MICROSECOND, TIMESTAMPDIFF(MICROSECOND, snap.cursor_at, :now), wh.suspended_since),
+                     wh.updated_at = :now
+                 WHERE %s
+                   AND wh.endpoint_state = :suspended
+                   AND wh.suspended_since IS NOT NULL
+                   AND snap.cursor_at < :now',
+                $appId === null ? 'a.active = 0' : 'w.app_id = :appId'
+            ),
+            [
+                ...($appId === null ? [] : ['appId' => Uuid::fromHexToBytes($appId)]),
+                'now' => $this->now(),
+                'suspended' => EndpointState::Suspended->value,
+            ]
+        );
+    }
+
     /**
      * The one write path: lock the row, let $decide compute the next row, store it, mirror the legacy
      * columns and flip the backlog. $decide returns null to leave the row untouched.
      *
      * @param \Closure(HealthRow): ?HealthRow $decide
      *
-     * @return HealthRow|null the row after the call, or null when the webhook no longer exists
+     * @return HealthChange|null the rows before and after, or null when the webhook no longer exists
      */
-    private function transition(string $webhookId, \Closure $decide): ?HealthRow
+    private function transition(string $webhookId, \Closure $decide): ?HealthChange
     {
         $id = Uuid::fromHexToBytes($webhookId);
 
-        $rows = RetryableTransaction::retryable($this->connection, function () use ($id, $webhookId, $decide): array {
+        $change = RetryableTransaction::retryable($this->connection, function () use ($id, $webhookId, $decide): ?HealthChange {
             $this->connection->executeStatement(
                 'INSERT INTO webhook_health (webhook_id, endpoint_state, created_at)
                  SELECT id, :healthy, :now FROM webhook WHERE id = :id
@@ -326,31 +517,36 @@ class WebhookHealthService
 
             $row = $this->fetchRow($webhookId, forUpdate: true);
             if ($row === null) {
-                return [null, null];
+                return null;
             }
 
             $next = $decide($row);
             if ($next === null) {
-                return [$row, $row];
+                return new HealthChange($row, $row);
             }
 
             $this->writeRow($id, $next);
             $this->mirrorBcColumns($id);
 
             // Held rows re-enter under the same lock, so a concurrent gate never sees HEALTHY with a paused backlog.
-            if ($next->state === EndpointState::Healthy && $row->state !== EndpointState::Healthy) {
+            if ($next->state === EndpointState::Healthy) {
                 $this->outboxStore->resumeDeliveriesForWebhook($webhookId);
             }
 
-            return [$row, $next];
+            return new HealthChange($row, $next);
         });
 
-        [$from, $to] = $rows;
-        if ($from !== null && $to !== null && $this->entersHold($from->state, $to->state)) {
+        if ($change === null || !$change->changedState()) {
+            return $change;
+        }
+
+        if ($change->to->state === EndpointState::Disabled) {
+            $this->outboxStore->dropBacklogForWebhook($webhookId);
+        } elseif ($this->entersHold($change->from->state, $change->to->state)) {
             $this->outboxStore->pauseDeliveriesForWebhook($webhookId);
         }
 
-        return $to;
+        return $change;
     }
 
     /**
@@ -358,8 +554,7 @@ class WebhookHealthService
      */
     private function entersHold(EndpointState $from, EndpointState $to): bool
     {
-        return $from !== $to
-            && $to !== EndpointState::Healthy
+        return \in_array($to, [EndpointState::Degraded, EndpointState::Suspended], true)
             && $from !== EndpointState::Suspended;
     }
 
@@ -400,7 +595,7 @@ class WebhookHealthService
                 'cooldown' => $row->cooldownUntil,
                 'suspended' => $row->suspendedSince,
                 'disabled' => $row->disabledSince,
-                'origin' => $row->disabledOrigin,
+                'origin' => $row->disabledOrigin?->value,
                 'now' => $this->now(),
                 'id' => $id,
             ]

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Health\HealthConfig;
@@ -121,8 +122,9 @@ class WebhookHealthServiceTest extends TestCase
         return new WebhookHealthService(
             $connection,
             static::createStub(WebhookOutboxStore::class),
-            new HealthConfig([300, 600, 1200, 2400, 3600, 14400], 5, 3),
+            new HealthConfig([300, 600, 1200, 2400, 3600, 14400], 5, 3, 7),
             new MockClock(),
+            new NullLogger(),
         );
     }
 }

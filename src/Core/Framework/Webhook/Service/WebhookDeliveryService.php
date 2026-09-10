@@ -289,8 +289,8 @@ class WebhookDeliveryService
         EndpointState $state,
         ?string $retryAfter,
     ): void {
-        // Payload-specific failures, and unfollowed redirects on a healthy endpoint, are final for this row.
-        if (!$classification->isTransient() || ($state === EndpointState::Healthy && $classification === ErrorClassification::TransientRedirect)) {
+        // Payload-specific failures, rows of a disabled webhook, and unfollowed redirects on a healthy endpoint are final.
+        if (!$classification->isTransient() || $state === EndpointState::Disabled || ($state === EndpointState::Healthy && $classification === ErrorClassification::TransientRedirect)) {
             $this->webhookOutboxStore->markFailed($entry, $response);
 
             return;

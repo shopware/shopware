@@ -1726,6 +1726,10 @@ class Configuration implements ConfigurationInterface
                             ->info('Consecutive auth rejections (401/403) that suspend the webhook.')
                             ->min(1)->defaultValue(3)
                         ->end()
+                        ->integerNode('max_suspended_days')
+                            ->info('Days a webhook may stay SUSPENDED before it retires to DISABLED.')
+                            ->min(1)->max(14)->defaultValue(7)
+                        ->end()
                     ->end()
                 ->end()
             ->end();

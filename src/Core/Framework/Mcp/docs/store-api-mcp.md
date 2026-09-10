@@ -125,6 +125,10 @@ The endpoint supports browser-based MCP clients. The global CORS handling
 and exposes `mcp-session-id` on responses. A browser client can therefore read the
 session ID from the `initialize` response header and send it on all subsequent requests.
 
+Bundles that introduce their own API headers add them to the same lists by registering a
+`Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface` service. The lists stay
+global for the same reason the MCP headers are: preflight requests are answered before routing.
+
 ## Sessions
 
 The server assigns a session ID (UUID) on `initialize` and returns it in the

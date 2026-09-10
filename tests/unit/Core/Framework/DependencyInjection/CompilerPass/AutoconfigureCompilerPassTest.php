@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\Log\Package;
@@ -76,6 +77,18 @@ class AutoconfigureCompilerPassTest extends TestCase
         static::assertSame('shopware.filesystem.public', (string) $arg2);
     }
 
+    public function testCorsHeaderProviderAutoConfigure(): void
+    {
+        $container = new ContainerBuilder();
+
+        $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+        $container->setDefinition('cors_header_provider', (new Definition(ExampleCorsHeaderProvider::class))->setPublic(true)->setAutoconfigured(true)->setAutowired(true));
+
+        $container->compile(true);
+
+        static::assertTrue($container->getDefinition('cors_header_provider')->hasTag(CorsHeaderProviderInterface::SERVICE_TAG));
+    }
+
     public function testAttribute(): void
     {
         $container = new ContainerBuilder();
@@ -99,6 +112,22 @@ class AutoconfigureCompilerPassTest extends TestCase
  */
 class ExampleHookableEntity implements HookableEntityInterface
 {
+}
+
+/**
+ * @internal
+ */
+class ExampleCorsHeaderProvider implements CorsHeaderProviderInterface
+{
+    public function getAllowedHeaders(): array
+    {
+        return ['sw-example'];
+    }
+
+    public function getExposedHeaders(): array
+    {
+        return [];
+    }
 }
 
 /**

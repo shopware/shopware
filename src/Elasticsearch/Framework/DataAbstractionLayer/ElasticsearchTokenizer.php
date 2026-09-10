@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Tokens that contain no letters or digits at all (e.g. `&%$`, `---`) are still rejected here so a
  * pure-punctuation request does not reach Elasticsearch.
+ *
+ * @see Resources/doc/SEARCH_ARCHITECTURE.md §5 ("Tokenization rules") for the
+ *      full rationale and how this differs from the DAL `Tokenizer`.
  */
 #[Package('framework')]
 final class ElasticsearchTokenizer implements TokenizerInterface

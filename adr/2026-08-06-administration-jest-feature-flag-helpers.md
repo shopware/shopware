@@ -47,7 +47,7 @@ Feature flags in Administration tests are declared on the test, not assigned ins
 // Runs with the flag active, in the default suite and the major suite alike.
 it.activeFeatureFlags(['v6.8.0.0'])('renders the meteor tabs', async () => { /* ... */ });
 
-// Skipped once the flag is active, because the behaviour it covers is gone by then.
+// Expected to fail once the flag is active, because the behaviour it covers is gone by then.
 // @deprecated tag:v6.8.0.0 - The test will be removed with the legacy sw-tabs branch.
 it.deprecated('v6.8.0.0')('renders the deprecated tabs', async () => { /* ... */ });
 
@@ -66,9 +66,26 @@ Three rules follow from this:
    that. Mounting a component with `provide.feature` inside a test that used
    `it.activeFeatureFlags()` now throws, because such a test can only pass for the wrong reason.
 
-3. **`it.deprecated()` means "this disappears with that version"**, not "this currently fails". It
-   marks a test whose subject is being removed, and the registered test name gains a
-   `(removed in <version>)` suffix so a skipped test explains itself in the reporter output.
+3. **`it.deprecated()` means "the flag removes the behaviour this asserts".** Once the flag is
+   active the test is registered through `it.failing`, so its failure is the expected result and a
+   test that still passes fails the suite instead. That is the point: a passing deprecated test
+   means the removal is not behind that version, so either the `removedIn` version names the wrong
+   flag or the assertion does not discriminate between the two worlds — in which case it is an
+   ordinary `it()` carrying an `@deprecated` comment, not an `it.deprecated()`. The registered test
+   name gains a `(removed in <version>)` suffix so legacy/v6.8 pairs do not share a title.
+
+   Jest can only invert what the test callback itself throws, so the console guard cooperates: the
+   environment marks such a test, and `prepare_environment.js` stops asserting on console output and
+   unhandled rejections for it. A removed code path warning on its way out is part of the expected
+   failure, not a failure of its own — and the guard raises its own in `afterEach`, where the
+   inversion can no longer reach it.
+
+   Two things stay outside the inversion:
+
+   - A failure raised from a spec's own hook, and an error Vue throws asynchronously from its
+     scheduler — a crash on re-render rather than on mount. Both are reported as plain failures.
+   - The test now runs where it used to be skipped, so state it leaves behind (a half-mounted
+     component, a global) reaches its neighbours.
 
 ## Consequences
 
@@ -77,6 +94,9 @@ belongs to, and both suites can be green at the same time.
 
 Deprecated tests become greppable. `@deprecated tag:v6.8.0` next to `it.deprecated('v6.8.0.0')`
 means the major cleanup is a search, not an audit.
+
+The major suite also audits the tags themselves: a deprecated test that keeps passing with the flag
+on is reported, rather than silently skipped until someone reads the file at cleanup time.
 
 The trade is that a test's flag context is no longer visible in its body — you have to read the `it`
 line. In exchange it is visible *everywhere*, including in hooks that run before the callback, which

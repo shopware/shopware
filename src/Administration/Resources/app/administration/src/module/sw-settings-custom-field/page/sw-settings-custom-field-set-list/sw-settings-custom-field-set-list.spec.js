@@ -59,6 +59,11 @@ async function createWrapper(
                             sortBy: 'config.name',
                             sortDirection: 'ASC',
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-bars-square',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -206,5 +211,31 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         expect(wrapper.vm.listingCriteria.page).toBe(1);
         expect(wrapper.vm.listingCriteria.limit).toBe(25);
+    });
+
+    it('should offer the create action in the empty state when no custom field set exists', async () => {
+        const wrapper = await createWrapper(['custom_field.creator'], {
+            search: () => Promise.resolve([]),
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-custom-field.set.list.messageEmpty');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper(['custom_field.creator'], {
+            search: () => Promise.resolve([]),
+        });
+        await flushPromises();
+        await wrapper.setData({ term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty custom field set list, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });
 });

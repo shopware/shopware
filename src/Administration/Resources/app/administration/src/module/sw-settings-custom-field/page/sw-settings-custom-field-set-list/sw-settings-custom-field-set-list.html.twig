@@ -194,10 +194,13 @@
                     v-if="!isLoading && items.length <= 0"
                     centered
                     :icon="$route.meta.$module.icon"
-                    :headline="$t('sw-settings-custom-field.set.list.messageEmpty')"
-                    description=""
+                    :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-custom-field.set.list.messageEmpty')"
+                    :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSublineSimple') : ''"
                 >
-                    <template #button>
+                    <template
+                        v-if="!isValidTerm(term)"
+                        #button
+                    >
                         <mt-button
                             v-tooltip="{
                                 message: $t('sw-privileges.tooltip.warning'),

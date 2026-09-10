@@ -116,6 +116,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
 
         expect(values).toEqual({});
+        expect(Object.prototype.hasOwnProperty.call(values, 'text')).toBe(false);
     });
 
     it('leaves an unauthored translatable property absent so the declared default still applies', () => {
@@ -127,6 +128,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
 
         expect(values).toEqual({});
+        expect(Object.prototype.hasOwnProperty.call(values, 'text')).toBe(false);
     });
 
     it('resolves a translatable property through the anchor chain when evaluating field visibility', () => {

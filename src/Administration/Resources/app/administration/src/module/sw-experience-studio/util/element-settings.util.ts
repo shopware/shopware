@@ -149,13 +149,13 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
  * @private
  * @sw-package discovery
  */
-export function withLanguageEntry(current: unknown, languageId: string, entry: string | null): Record<string, string> {
+export function withLanguageEntry(current: unknown, languageId: string, entry: string | null): Record<string, unknown> {
     if (entry === null && languageId === anchorLanguageId()) {
         throw new Error('The anchor language entry of a translatable property cannot be removed.');
     }
 
-    // The carried entries are typed as strings because the map is one; a non-string entry the server has to judge travels here too.
-    const languageMap: Record<string, string> = isLanguageMap(current) ? { ...(current as Record<string, string>) } : {};
+    // A non-string entry the server has to judge travels here too, so the map is not narrowed to strings.
+    const languageMap: Record<string, unknown> = isLanguageMap(current) ? { ...current } : {};
 
     if (entry === null) {
         delete languageMap[languageId];

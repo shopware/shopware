@@ -137,7 +137,13 @@ export default Shopware.Component.wrapComponentConfig({
 
                 // An absent key stays absent so the field controls still fall back to the declared default.
                 if (property.translatable && Object.prototype.hasOwnProperty.call(values, key)) {
-                    values[key] = projectTranslatableValue(values[key]);
+                    const projectedValue = projectTranslatableValue(values[key]);
+
+                    if (projectedValue === undefined) {
+                        delete values[key];
+                    } else {
+                        values[key] = projectedValue;
+                    }
                 }
             }
 

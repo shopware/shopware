@@ -153,6 +153,14 @@ class ElementStyleNormalizerTest extends TestCase
         static::assertSame(['brand-gap' => '20'], $normalized->toArray());
     }
 
+    #[TestDox('passes an unregistered option with an empty string through untouched')]
+    public function testPassesAnUnregisteredEmptyStringOptionThroughUntouched(): void
+    {
+        $normalized = $this->normalizer()->normalize(new ElementStyle(['removed-plugin-option' => '']));
+
+        static::assertSame(['removed-plugin-option' => ''], $normalized->toArray());
+    }
+
     #[TestDox('normalizes a whole style map, dropping the options that resolve to unset')]
     public function testNormalizesAWholeStyleMap(): void
     {

@@ -65,7 +65,7 @@ type ErrorResponse = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default class Repository<EntityName extends keyof EntitySchema.Entities> {
+export default class Repository<EntityName extends keyof EntitySchema.EntityKeys> {
     route: string;
 
     entityName: EntityName;
@@ -160,7 +160,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * Short hand to fetch a single entity from the server
      */
     get(
-        id: string,
+        id: EntityKey<EntityName>,
         contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
         criteriaOrOptions: Criteria | RepositoryCacheOptions | null = null,
         cacheOptions?: RepositoryCacheOptions,
@@ -272,7 +272,11 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Clones an existing entity
      */
-    clone(entityId: string, behavior: $TSDangerUnknownObject, context = Shopware.Context.api): Promise<unknown> {
+    clone(
+        entityId: EntityKey<EntityName>,
+        behavior: $TSDangerUnknownObject,
+        context = Shopware.Context.api,
+    ): Promise<unknown> {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -444,7 +448,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * where the base route contains already the owner key, e.g. /product/{id}/categories
      * The provided id contains the associated entity id.
      */
-    assign(id: string, context = Shopware.Context.api): Promise<HttpResponse> {
+    assign(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         return this.httpClient.post(`${this.route}`, { id }, this.buildRequestConfig(headers));
@@ -453,7 +457,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Sends a delete request for the provided id.
      */
-    delete(id: string, context = Shopware.Context.api): Promise<HttpResponse> {
+    delete(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         const url = `${this.route}/${id}`;
@@ -559,7 +563,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * Creates a new entity for the local schema.
      * To Many association are initialed with a collection with the corresponding remote api route
      */
-    create(context = Shopware.Context.api, id: string | null = null): Entity<EntityName> {
+    create(context = Shopware.Context.api, id: EntityKey<EntityName> | null = null): Entity<EntityName> {
         return this.entityFactory.create(this.entityName, id, context) as unknown as Entity<EntityName>;
     }
 
@@ -569,14 +573,14 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * If no version name provided, the server names the new version with `draft %date%`.
      */
     createVersion(
-        entityId: string,
+        entityId: EntityKey<EntityName>,
         context = Shopware.Context.api,
-        versionId: string | null = null,
+        versionId: EntityKey<'version'> | null = null,
         versionName: string | null = null,
     ): Promise<apiContext> {
         const headers = this.buildHeaders(context);
         const params: {
-            versionId?: string;
+            versionId?: EntityKey<'version'>;
             versionName?: string;
         } = {};
 
@@ -590,7 +594,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const url = `_action/version/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
         return this.httpClient
-            .post<{ versionId: string }>(url, params, this.buildRequestConfig(headers))
+            .post<{ versionId: EntityKey<'version'> }>(url, params, this.buildRequestConfig(headers))
             .then((response) => {
                 return {
                     ...context,
@@ -603,7 +607,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * Sends a request to the server to merge all changes of the provided version id.
      * The changes are squashed into a single change and the remaining version will be removed.
      */
-    mergeVersion(versionId: string, context = Shopware.Context.api): Promise<HttpResponse> {
+    mergeVersion(versionId: EntityKey<'version'>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         const url = `_action/version/merge/${this.entityName.replace(/_/g, '-')}/${versionId}`;
@@ -614,7 +618,11 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Deletes the provided version from the server. All changes to this version are reverted
      */
-    deleteVersion(entityId: string, versionId: string, context = Shopware.Context.api): Promise<HttpResponse> {
+    deleteVersion(
+        entityId: EntityKey<EntityName>,
+        versionId: EntityKey<'version'>,
+        context = Shopware.Context.api,
+    ): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
@@ -626,8 +634,8 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * Deletes the provided version with a request the browser can continue while the page is unloading.
      */
     deleteVersionWithKeepalive(
-        entityId: string,
-        versionId: string,
+        entityId: EntityKey<EntityName>,
+        versionId: EntityKey<'version'>,
         context = Shopware.Context.api,
     ): Promise<Response | HttpResponse> {
         if (typeof fetch !== 'function') {

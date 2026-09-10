@@ -6,7 +6,7 @@
             "get": {
                 "tags": ["Authorization & Authentication"],
                 "summary": "Start an authorization code flow",
-                "description": "Authorization endpoint of the OAuth 2.0 authorization code grant with PKCE for registered public clients (for example `shopware-cli`). Open this URL in the user's browser. The user is forwarded to the Administration, asked to log in if necessary, and shown a consent page. After the decision the browser is redirected to the `redirect_uri` with either `code` and `state` or `error` and `state`. Exchange the code at `/oauth/token` with `grant_type=authorization_code` and the PKCE `code_verifier`.",
+                "description": "Authorization endpoint of the OAuth 2.0 authorization code grant with PKCE for registered public clients (for example `shopware-cli`). Open this URL in the user's browser. The user is forwarded to the Administration, asked to log in if necessary, and shown a consent page. After the decision the browser is redirected to the `redirect_uri` with either `code` and `state` or `error` and `state`. Exchange the code at `/oauth/token` with `grant_type=authorization_code` and the PKCE `code_verifier`. An unregistered redirect URI returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message, without redirecting.",
                 "operationId": "authorize",
                 "security": [],
                 "parameters": [
@@ -68,7 +68,7 @@
             "post": {
                 "tags": ["Authorization & Authentication"],
                 "summary": "Approve or deny an authorization request",
-                "description": "Used by the consent page of the Administration. Completes the authorization request on behalf of the authenticated user and returns the redirect URI for the browser. The URI contains the authorization code, or `error=access_denied` when the user denied the request. Requires a user-bound access token; integration tokens cannot approve requests.",
+                "description": "Used by the consent page of the Administration. Completes the authorization request on behalf of the authenticated user and returns the redirect URI for the browser. The URI contains the authorization code, or `error=access_denied` when the user denied the request. Requires a user-bound access token; integration tokens cannot approve requests. An unregistered redirect URI returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message, without redirecting.",
                 "operationId": "approveAuthorization",
                 "requestBody": {
                     "required": true,
@@ -121,7 +121,7 @@
             "get": {
                 "tags": ["Authorization & Authentication"],
                 "summary": "Describe an authorization request",
-                "description": "Validates the authorization request and returns the information the consent page displays before the user decides.",
+                "description": "Validates the authorization request and returns the information the consent page displays before the user decides. An unregistered redirect URI returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message, without redirecting.",
                 "operationId": "authorizationInfo",
                 "parameters": [
                     { "name": "response_type", "in": "query", "required": true, "schema": { "type": "string", "enum": ["code"] } },

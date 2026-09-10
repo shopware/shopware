@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -226,7 +227,7 @@ class OAuthAuthorizeControllerTest extends TestCase
         $browser->request('GET', '/api/oauth/authorize', [...$this->authorizationQuery(), 'redirect_uri' => 'http://evil.example/callback']);
 
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         static::assertFalse($response->headers->has('Location'));
     }
 
@@ -236,7 +237,38 @@ class OAuthAuthorizeControllerTest extends TestCase
         $browser->followRedirects(false);
         $browser->request('GET', '/api/oauth/authorize', [...$this->authorizationQuery(), 'redirect_uri' => 'http://localhost:54321/callback']);
 
-        static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode());
+    }
+
+    #[DataProvider('invalidRedirectEndpointProvider')]
+    public function testInvalidRedirectReturnsAReadableJsonError(string $method, string $path, bool $authenticated, string $accept): void
+    {
+        $browser = $this->getBrowser($authenticated);
+        $browser->followRedirects(false);
+        $browser->request($method, $path, [
+            ...$this->authorizationQuery(),
+            'redirect_uri' => 'https://example.invalid/callback',
+            'approved' => true,
+        ], server: ['HTTP_ACCEPT' => $accept]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertFalse($response->headers->has('Location'));
+        static::assertStringStartsWith('application/json', (string) $response->headers->get('Content-Type'));
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('FRAMEWORK__OAUTH_INVALID_REDIRECT_URI', $content['errors'][0]['code']);
+        static::assertSame('Redirect URL is not registered for this application.', $content['errors'][0]['detail']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool, string}>
+     */
+    public static function invalidRedirectEndpointProvider(): iterable
+    {
+        yield 'authorization entry' => ['GET', '/api/oauth/authorize', false, 'application/json'];
+        yield 'browser entry also receives JSON' => ['GET', '/api/oauth/authorize', false, 'text/html'];
+        yield 'consent info' => ['GET', '/api/oauth/authorize/info', true, 'application/json'];
+        yield 'consent approval' => ['POST', '/api/oauth/authorize', true, 'application/json'];
     }
 
     public function testPlainCodeChallengeMethodIsRedirectedBackAsError(): void

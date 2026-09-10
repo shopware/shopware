@@ -5,10 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
+use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
+use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\ShopwareAuthCodeGrantType;
 use Shopware\Core\Framework\Log\Package;
 
@@ -63,6 +67,53 @@ class ShopwareAuthCodeGrantTypeTest extends TestCase
         $this->expectExceptionObject(OAuthServerException::invalidRequest('client_id'));
 
         $this->grant->validateAuthorizationRequest($request);
+    }
+
+    public function testInvalidRedirectIsWrappedForTheApiClient(): void
+    {
+        $clients = static::createStub(ClientRepositoryInterface::class);
+        $clients->method('getClientEntity')->willReturn(new ApiClient(
+            'shopware-cli',
+            writeAccess: true,
+            confidential: false,
+            redirectUris: ['http://127.0.0.1/callback'],
+        ));
+        $this->grant->setClientRepository($clients);
+        $request = (new ServerRequest('GET', '/api/oauth/authorize'))->withQueryParams([
+            'response_type' => 'code',
+            'client_id' => 'shopware-cli',
+            'redirect_uri' => 'https://example.invalid/callback',
+            'code_challenge_method' => 'S256',
+        ]);
+
+        $this->expectExceptionObject(ApiException::invalidOAuthRedirectUri(OAuthServerException::invalidClient($request)));
+
+        $this->grant->validateAuthorizationRequest($request);
+    }
+
+    public function testRegisteredLoopbackRedirectStillAcceptsAnyPort(): void
+    {
+        $clients = static::createStub(ClientRepositoryInterface::class);
+        $clients->method('getClientEntity')->willReturn(new ApiClient(
+            'shopware-cli',
+            writeAccess: true,
+            confidential: false,
+            redirectUris: ['http://127.0.0.1/callback'],
+        ));
+        $this->grant->setClientRepository($clients);
+        $this->grant->setScopeRepository(static::createStub(ScopeRepositoryInterface::class));
+        $this->grant->setDefaultScope('');
+        $request = (new ServerRequest('GET', '/api/oauth/authorize'))->withQueryParams([
+            'response_type' => 'code',
+            'client_id' => 'shopware-cli',
+            'redirect_uri' => 'http://127.0.0.1:54321/callback',
+            'code_challenge' => str_repeat('a', 43),
+            'code_challenge_method' => 'S256',
+        ]);
+
+        $authorization = $this->grant->validateAuthorizationRequest($request);
+
+        static::assertSame('http://127.0.0.1:54321/callback', $authorization->getRedirectUri());
     }
 
     /**

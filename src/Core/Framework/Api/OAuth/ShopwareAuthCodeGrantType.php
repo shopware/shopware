@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -33,5 +35,15 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
         }
 
         return parent::validateAuthorizationRequest($request);
+    }
+
+    protected function validateRedirectUri(string $redirectUri, ClientEntityInterface $client, ServerRequestInterface $request): void
+    {
+        try {
+            parent::validateRedirectUri($redirectUri, $client, $request);
+        } catch (OAuthServerException $exception) {
+            // The library reports an invalid callback as a generic client authentication failure.
+            throw ApiException::invalidOAuthRedirectUri($exception);
+        }
     }
 }

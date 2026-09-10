@@ -249,6 +249,7 @@ The tag association routes and a nested `tags` payload on the order or category 
 - `GET /api/oauth/authorize` starts the authorization code flow. It validates `response_type=code`, `client_id`, `redirect_uri`, `code_challenge` and `code_challenge_method=S256` and redirects the browser to the consent page of the Administration. Errors are only redirected to a redirect URI registered for the client; otherwise a JSON error is returned.
 - `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize` are used by the consent page and require a user-bound access token. The `POST` route returns `{ "redirectUri": … }` containing the authorization code, or `error=access_denied` when the user declined.
 - `POST /api/oauth/token` accepts `grant_type=authorization_code` with `client_id`, `code`, `redirect_uri` and `code_verifier`. Refreshing works with `grant_type=refresh_token` and the same `client_id`. The OpenAPI schema lists the new routes and the `authorizationCode` security flow.
+- An unregistered redirect URI on the authorization, consent-info, or approval endpoint returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message. No redirect is performed for these errors.
 
 ### Store API currency headers validate sales channel availability
 

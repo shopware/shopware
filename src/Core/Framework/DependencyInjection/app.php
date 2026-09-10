@@ -508,11 +508,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(YamlLayoutPresetLoader::class),
             service(LayoutPresetSpecificationSerializer::class),
             service(ContentSystemLayoutPresetRegistry::class),
+            service(Connection::class),
+            service('lock.factory'),
         ]);
 
     $services->set(ContentSystemLayoutPresetLifecycleHandler::class)
         ->args([
             service(ContentSystemLayoutPresetPersister::class),
+            service(ContentSystemLayoutPresetRegistry::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1403]);
 

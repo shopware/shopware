@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -28,6 +29,9 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
+use Symfony\Component\Lock\Store\InMemoryStore;
 
 /**
  * @internal
@@ -185,6 +189,87 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         static::assertSame([], $repo->deletes);
     }
 
+    #[TestDox('holds the per-app lock from the existing-state read through cache invalidation')]
+    public function testHoldsLockAroundReconciliationAndInvalidation(): void
+    {
+        $lockHeld = false;
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturnCallback(
+            static function () use (&$lockHeld): bool {
+                $lockHeld = true;
+
+                return true;
+            }
+        );
+        $lock->expects($this->once())->method('release')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+                $lockHeld = false;
+            }
+        );
+
+        $lockFactory = static::createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('content_system_layout_preset_persist_' . $this->ids->get('app'), 15.0)
+            ->willReturn($lock);
+
+        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
+        $repo = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemLayoutPresetCollection {
+                static::assertTrue($lockHeld);
+
+                return new AppContentSystemLayoutPresetCollection();
+            },
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $registry->expects($this->once())->method('invalidate')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+            }
+        );
+
+        $this->buildPersister($repo, $this->dtoLoader(['DemoApp:Hero' => $this->dto('Hero')]), $registry, lockFactory: $lockFactory)
+            ->persist($this->buildContext());
+
+        static::assertFalse($lockHeld);
+    }
+
+    #[TestDox('releases the lock and leaves the cache untouched when the transaction fails')]
+    public function testReleasesLockWhenTransactionFails(): void
+    {
+        $failure = new \RuntimeException('transaction failed');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willThrowException($failure);
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $registry = static::createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $registry->expects($this->never())->method('invalidate');
+
+        /** @var StaticEntityRepository<AppContentSystemLayoutPresetCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemLayoutPresetCollection(),
+        ]);
+
+        $this->expectExceptionObject($failure);
+        $this->buildPersister(
+            $repo,
+            $this->dtoLoader(['DemoApp:Hero' => $this->dto('Hero')]),
+            $registry,
+            connection: $connection,
+            lockFactory: $lockFactory,
+        )->persist($this->buildContext());
+    }
+
     #[TestDox('wraps a loader ContentSystemException as an AppException')]
     public function testThrowsAppExceptionWhenLoaderFails(): void
     {
@@ -229,6 +314,8 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
             $loader,
             new LayoutPresetSpecificationSerializer(),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
+            $this->runTransactionStub(),
+            new LockFactory(new InMemoryStore()),
         );
 
         try {
@@ -290,13 +377,29 @@ class ContentSystemLayoutPresetPersisterTest extends TestCase
         StaticEntityRepository $repo,
         YamlLayoutPresetLoader $loader,
         ?AbstractContentSystemLayoutPresetRegistry $registry = null,
+        ?Connection $connection = null,
+        ?LockFactory $lockFactory = null,
     ): ContentSystemLayoutPresetPersister {
         return new ContentSystemLayoutPresetPersister(
             $repo,
             $loader,
             new LayoutPresetSpecificationSerializer(),
             $registry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
+            $connection ?? $this->runTransactionStub(),
+            $lockFactory ?? new LockFactory(new InMemoryStore()),
         );
+    }
+
+    private function runTransactionStub(): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(static function (\Closure $work) {
+            $work();
+
+            return null;
+        });
+
+        return $connection;
     }
 
     private function buildContext(): AppPersistContext

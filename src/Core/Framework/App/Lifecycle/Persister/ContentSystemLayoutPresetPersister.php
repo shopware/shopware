@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetCollection;
 use Shopware\Core\Framework\App\AppException;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
@@ -35,6 +37,8 @@ class ContentSystemLayoutPresetPersister
         private readonly YamlLayoutPresetLoader $loader,
         private readonly LayoutPresetSpecificationSerializer $serializer,
         private readonly AbstractContentSystemLayoutPresetRegistry $registry,
+        private readonly Connection $connection,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
@@ -43,33 +47,46 @@ class ContentSystemLayoutPresetPersister
         $appId = $context->app->getId();
 
         $dtos = $this->loadDtos($context);
-        $existing = $this->getExistingPresets($appId, $context->context);
 
-        if ($dtos === [] && $existing->count() === 0) {
-            return;
-        }
+        // Serialize concurrent same-app persists so the delta is never computed from a stale snapshot.
+        $lock = $this->lockFactory->createLock('content_system_layout_preset_persist_' . $appId, 15.0);
+        $lock->acquire(true);
 
-        $upserts = $this->buildUpserts($dtos, $existing, $appId);
-        $deleteIds = $this->buildDeletes($dtos, $existing);
+        try {
+            $existing = $this->getExistingPresets($appId, $context->context);
 
-        if ($upserts !== []) {
-            try {
-                $this->presetRepository->upsert($upserts, $context->context);
-            } catch (UniqueConstraintViolationException $e) {
-                throw AppException::contentSystemLayoutPresetDuplicate(
-                    array_keys($dtos),
-                    'app:' . $context->app->getName(),
-                    $e,
-                );
+            if ($dtos === [] && $existing->count() === 0) {
+                return;
             }
-        }
 
-        if ($deleteIds !== []) {
-            $this->presetRepository->delete($deleteIds, $context->context);
-        }
+            $upserts = $this->buildUpserts($dtos, $existing, $appId);
+            $deleteIds = $this->buildDeletes($dtos, $existing);
 
-        if ($upserts !== [] || $deleteIds !== []) {
-            $this->registry->invalidate();
+            // Upsert and delete are one atomic unit so a partial failure cannot leave a half-synced preset set.
+            $this->connection->transactional(function () use ($upserts, $deleteIds, $dtos, $context): void {
+                if ($upserts !== []) {
+                    try {
+                        $this->presetRepository->upsert($upserts, $context->context);
+                    } catch (UniqueConstraintViolationException $e) {
+                        throw AppException::contentSystemLayoutPresetDuplicate(
+                            array_keys($dtos),
+                            'app:' . $context->app->getName(),
+                            $e,
+                        );
+                    }
+                }
+
+                if ($deleteIds !== []) {
+                    $this->presetRepository->delete($deleteIds, $context->context);
+                }
+            });
+
+            // Keep invalidation inside the lock and after commit so no concurrent persist can repopulate stale data.
+            if ($upserts !== [] || $deleteIds !== []) {
+                $this->registry->invalidate();
+            }
+        } finally {
+            $lock->release();
         }
     }
 

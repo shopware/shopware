@@ -411,6 +411,7 @@
             "productAssignmentModal": {
                 "title": "Add products",
                 "singleProducts": "Product selection",
+                "singleProductsEmptyState": "No more products found",
                 "categories": {
                     "title": "Category selection",
                     "textInfo": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of categories won't affect the assignment.",

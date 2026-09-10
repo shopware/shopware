@@ -684,6 +684,35 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertEquals($map, $stored->jsonSerialize());
     }
 
+    #[TestDox('rejects a persisted update that removes a required translatable property key outright — the whole key, not the anchor entry of a map it keeps — without writing')]
+    public function testUpdatePropertiesRejectsRemovingARequiredTranslatablePropertyKey(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->secondLanguageId() => 'Herbstschlussverkauf'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->bindCategory($layoutId);
+
+        // UpdateElementProperties is requiredness-blind: `label` is declared and primitive, so removeKeys drops it
+        // and the op returns cleanly. The refusal comes one layer down, from ContentLayoutWriteValidator's
+        // resolvability gate on the update() commit, where LayoutDiagnostics::hasStoredValue() reports the now
+        // absent key as unresolved. Sw:Test:TranslatableRequired declares no default for `label`, so the
+        // write-boundary LayoutDefaultSeeder refills nothing and the removal is a refusal, not a no-op.
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'removeKeys' => ['label'],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
     /**
      * @param array<string, string> $label
      *

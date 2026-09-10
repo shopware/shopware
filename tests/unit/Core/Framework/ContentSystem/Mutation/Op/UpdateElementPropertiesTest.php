@@ -90,6 +90,16 @@ class UpdateElementPropertiesTest extends TestCase
         static::assertArrayNotHasKey('tag', $this->propertiesOf($result, 'block-a'));
     }
 
+    #[TestDox('clears a translatable property by dropping its key outright, never by leaving an empty language map behind')]
+    public function testRemovesATranslatableKey(): void
+    {
+        // The removal gate reads only "declared and primitive", and a translatable property declares `string`,
+        // so the op admits it without consulting requiredness; that distinction is drawn above the op.
+        $result = (new UpdateElementProperties($this->registry(), 'block-a', [], ['label']))->apply(new StoredTree([$this->target()]));
+
+        static::assertSame(['headline', 'tag', 'mediaId'], array_keys($this->propertiesOf($result, 'block-a')));
+    }
+
     #[TestDox('reports the target as the only affected element and mints nothing')]
     public function testAffectedIsTheTargetAndNothingIsCreated(): void
     {
@@ -224,6 +234,18 @@ class UpdateElementPropertiesTest extends TestCase
         $update = new UpdateElementProperties($this->registry(), 'block-a', ['label' => 'Autumn sale'], []);
 
         $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'string'));
+        $update->apply(new StoredTree([$this->target()]));
+    }
+
+    #[TestDox('refuses an empty language map under a translatable key, because no translations is the key being absent and never an empty map')]
+    public function testTranslatableValueRejectedWhenTheLanguageMapIsEmpty(): void
+    {
+        // StoredValue::fromDecoded([]) yields the list variant, since array_is_list([]) is true, and
+        // PropertyType::admits() refuses a list on the translatable branch. The reported actual type is
+        // get_debug_type([]), which is 'array' for both the empty list and any map.
+        $update = new UpdateElementProperties($this->registry(), 'block-a', ['label' => []], []);
+
+        $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'));
         $update->apply(new StoredTree([$this->target()]));
     }
 

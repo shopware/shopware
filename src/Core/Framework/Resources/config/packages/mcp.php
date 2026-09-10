@@ -20,7 +20,10 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
     // reads its per-server element lists from.
     //
     // A pattern that matches nothing is a fatal error in the bundle, so the Storefront prefix is only
-    // added when that bundle is actually installed.
+    // added when that bundle is actually installed. It can still be emptied out later -- the
+    // namespace holds exactly one tool, so `shopware.mcp.allowed_tools` without `shopware-theme-config`
+    // orphans the prefix. McpToolDiscoveryCompilerPass::pruneUnmatchedPatterns() drops it again in
+    // that case, so hiding a tool never aborts the container build.
     $bundles = $builder->getParameter('kernel.bundles');
     \assert(\is_array($bundles));
 

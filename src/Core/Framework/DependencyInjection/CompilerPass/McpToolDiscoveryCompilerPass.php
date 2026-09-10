@@ -23,6 +23,19 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[Package('framework')]
 class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 {
+    /**
+     * The element kinds the bundle's McpPass resolves against the configured patterns, by the tag it
+     * reads each one from. "apps" is replayed there purely so an app pattern counts as used, so it
+     * has to be considered here as well.
+     */
+    private const BUNDLE_KIND_TAGS = [
+        'tools' => 'mcp.tool',
+        'prompts' => 'mcp.prompt',
+        'resources' => 'mcp.resource',
+        'resource_templates' => 'mcp.resource_template',
+        'apps' => 'mcp.app',
+    ];
+
     public function process(ContainerBuilder $container): void
     {
         foreach (['shopware.mcp.', 'shopware.store_api_mcp.'] as $paramPrefix) {
@@ -63,6 +76,9 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
         // After the allowlist, so a blocked tool's class is never handed to the bundle: it removes
         // the service, and a pattern naming a service that no longer exists is fatal there.
         $this->assignElementsToServers($container);
+
+        // And after the assignment, so the class names appended just above count as matches.
+        $this->pruneUnmatchedPatterns($container);
 
         // Per scope: names are unique within a scope's own registry, and the two scopes deliberately
         // share names — both endpoints expose their own shopware-tool-search, shopware-toolsets-list
@@ -146,6 +162,82 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     }
 
     /**
+     * Drops every configured pattern that no longer reaches a service, because the bundle's McpPass
+     * treats one as a typo and aborts the container build over it — which would take down every
+     * request and console command, not just MCP.
+     *
+     * packages/mcp.php claims a namespace prefix per server, and a prefix can be emptied out after
+     * it was configured: `Shopware\Storefront\Mcp\` holds exactly one tool, so an allowlist
+     * without `shopware-theme-config` leaves the prefix matching nothing. Hiding a tool must not
+     * break the container, so the orphaned pattern goes with it.
+     *
+     * Mirrors ElementMatcher: an element is tested against every server, the first matching pattern
+     * of a server's kind wins, and a pattern counts as used once it matched on any kind of its
+     * server. The wildcard is exempt there, so it is kept here too.
+     */
+    private function pruneUnmatchedPatterns(ContainerBuilder $container): void
+    {
+        if (!$container->hasParameter('mcp.servers.elements')) {
+            return;
+        }
+
+        $elements = $container->getParameter('mcp.servers.elements');
+
+        if (!\is_array($elements)) {
+            return;
+        }
+
+        /** @var array<string, array<string, true>> $used server => pattern => true */
+        $used = [];
+
+        foreach (self::BUNDLE_KIND_TAGS as $kind => $tag) {
+            foreach (array_keys($container->findTaggedServiceIds($tag)) as $serviceId) {
+                $definition = $container->getDefinition($serviceId);
+
+                // The bundle skips abstract definitions before it ever consults the matcher.
+                if ($definition->isAbstract()) {
+                    continue;
+                }
+
+                $class = $definition->getClass() ?? $serviceId;
+
+                foreach ($elements as $server => $kinds) {
+                    foreach ((\is_array($kinds) ? $kinds[$kind] ?? [] : []) as $pattern) {
+                        if (!\is_string($pattern) || !self::matchesPattern($pattern, $serviceId, $class)) {
+                            continue;
+                        }
+
+                        $used[$server][$pattern] = true;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        foreach ($elements as $server => $kinds) {
+            if (!\is_array($kinds)) {
+                continue;
+            }
+
+            foreach ($kinds as $kind => $patterns) {
+                if (!\is_array($patterns)) {
+                    continue;
+                }
+
+                $elements[$server][$kind] = array_values(array_filter(
+                    $patterns,
+                    static fn (mixed $pattern): bool => !\is_string($pattern)
+                        || $pattern === '*'
+                        || isset($used[$server][$pattern]),
+                ));
+            }
+        }
+
+        $container->setParameter('mcp.servers.elements', $elements);
+    }
+
+    /**
      * Mirrors the bundle's own pattern matching: the "*" wildcard, an exact service id or class, or a
      * namespace prefix recognised by its trailing backslash.
      *
@@ -154,20 +246,21 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     private static function isCovered(array $patterns, string $serviceId, string $class): bool
     {
         foreach ($patterns as $pattern) {
-            if (!\is_string($pattern)) {
-                continue;
-            }
-
-            if ($pattern === '*' || $pattern === $serviceId || $pattern === $class) {
-                return true;
-            }
-
-            if (str_ends_with($pattern, '\\') && (str_starts_with($class, $pattern) || str_starts_with($serviceId, $pattern))) {
+            if (\is_string($pattern) && self::matchesPattern($pattern, $serviceId, $class)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static function matchesPattern(string $pattern, string $serviceId, string $class): bool
+    {
+        if ($pattern === '*' || $pattern === $serviceId || $pattern === $class) {
+            return true;
+        }
+
+        return str_ends_with($pattern, '\\') && (str_starts_with($class, $pattern) || str_starts_with($serviceId, $pattern));
     }
 
     /**

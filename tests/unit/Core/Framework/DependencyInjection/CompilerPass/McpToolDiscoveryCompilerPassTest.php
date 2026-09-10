@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use Mcp\Capability\Attribute\McpTool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
+use Symfony\AI\McpBundle\DependencyInjection\ElementMatcher;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -394,6 +396,110 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{list<string>}>
+     */
+    public static function allowlistProvider(): iterable
+    {
+        yield 'an allowlist that keeps the theme tool' => [['shopware-discovery-core-tool', 'shopware-theme-config']];
+        yield 'an allowlist that drops the theme tool' => [['shopware-discovery-core-tool']];
+        yield 'an allowlist that drops every tool' => [['a-tool-no-service-provides']];
+    }
+
+    /**
+     * packages/mcp.php claims `Shopware\Storefront\Mcp\` for the Admin API server, and that
+     * namespace holds exactly one tool. The bundle's McpPass treats a configured pattern matching no
+     * remaining service as a fatal typo, so an allowlist that removes shopware-theme-config must not
+     * leave the prefix behind: the container would refuse to build — taking down every request and
+     * console command — instead of just hiding the tool.
+     *
+     * @param list<string> $allowedTools
+     */
+    #[DataProvider('allowlistProvider')]
+    #[TestDox('$_dataName leaves no configured pattern without a match')]
+    public function testTheAllowlistNeverLeavesAConfiguredPatternWithoutAMatch(array $allowedTools): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('shopware.mcp.allowed_tools', $allowedTools);
+
+        // The Admin API registry is one list in packages/mcp.php; the bundle copies it into every kind.
+        $elements = $this->emptyElements();
+        foreach (array_keys($elements['admin']) as $kind) {
+            $elements['admin'][$kind] = ['Shopware\\Core\\Framework\\Mcp\\', 'Shopware\\Storefront\\Mcp\\'];
+        }
+        $container->setParameter('mcp.servers.elements', $elements);
+
+        // The production service ids stand in for the production classes: the bundle matches a
+        // namespace prefix against the service id as well as the class.
+        $container->register('Shopware\\Core\\Framework\\Mcp\\Tool\\EntitySearchTool', McpDiscoveryTestCoreTool::class)->addTag('mcp.tool');
+        $container->register('Shopware\\Storefront\\Mcp\\Tool\\ThemeConfigTool', McpDiscoveryTestThemeConfigTool::class)->addTag('mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertSame([], $this->patternsMatchingNoService($container));
+    }
+
+    #[TestDox('A pattern is only dropped when it is orphaned, never while it still reaches a service')]
+    public function testAPatternThatStillMatchesIsKept(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('shopware.mcp.allowed_tools', ['shopware-discovery-core-tool']);
+
+        $elements = $this->emptyElements();
+        $elements['admin']['tools'] = ['Shopware\\Core\\Framework\\Mcp\\', 'Shopware\\Storefront\\Mcp\\', '*'];
+        $container->setParameter('mcp.servers.elements', $elements);
+
+        $container->register('Shopware\\Core\\Framework\\Mcp\\Tool\\EntitySearchTool', McpDiscoveryTestCoreTool::class)->addTag('mcp.tool');
+        $container->register('Shopware\\Storefront\\Mcp\\Tool\\ThemeConfigTool', McpDiscoveryTestThemeConfigTool::class)->addTag('mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        /** @var array<string, array<string, list<string>>> $result */
+        $result = $container->getParameter('mcp.servers.elements');
+
+        static::assertContains('Shopware\\Core\\Framework\\Mcp\\', $result['admin']['tools']);
+        static::assertNotContains('Shopware\\Storefront\\Mcp\\', $result['admin']['tools']);
+        // The bundle exempts the wildcard from the check, so pruning it would only lose elements.
+        static::assertContains('*', $result['admin']['tools']);
+    }
+
+    /**
+     * The invariant, checked against the bundle's own matcher instead of a copy of its rules: every
+     * pattern left in `mcp.servers.elements` still has to reach a registered service.
+     *
+     * @return list<string> "<server>: <pattern>" for every pattern that matches nothing
+     */
+    private function patternsMatchingNoService(ContainerBuilder $container): array
+    {
+        /** @var array<string, array<string, list<string>>> $elements */
+        $elements = $container->getParameter('mcp.servers.elements');
+
+        $matcher = new ElementMatcher($elements);
+
+        $kindTags = [
+            'tools' => 'mcp.tool',
+            'prompts' => 'mcp.prompt',
+            'resources' => 'mcp.resource',
+            'resource_templates' => 'mcp.resource_template',
+            'apps' => 'mcp.app',
+        ];
+
+        foreach ($kindTags as $kind => $tag) {
+            foreach (array_keys($container->findTaggedServiceIds($tag)) as $serviceId) {
+                $definition = $container->getDefinition($serviceId);
+                /** @var class-string $class */
+                $class = $definition->getClass() ?? $serviceId;
+
+                $matcher->match($kind, $serviceId, $class);
+            }
+        }
+
+        return array_map(
+            static fn (array $entry): string => $entry[0] . ': ' . $entry[1],
+            $matcher->getUnusedPatterns(),
+        );
+    }
+
+    /**
      * @return array<string, array<string, list<string>>>
      */
     private function emptyElements(): array
@@ -490,6 +596,18 @@ class McpDiscoveryTestMethodLevelDiscoveryGroupTool extends McpToolResponse
  * @internal
  */
 class McpDiscoveryTestNoAttribute
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'shopware-theme-config', description: 'stands in for the Storefront theme config tool')]
+class McpDiscoveryTestThemeConfigTool extends McpToolResponse
 {
     public function __invoke(): string
     {

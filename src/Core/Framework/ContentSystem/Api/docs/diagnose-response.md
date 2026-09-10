@@ -2,6 +2,8 @@
 
 The response body of the diagnose endpoint ([diagnose.md](diagnose.md)): the resolutions map, the diagnostics report, and the violation codes.
 
+`DiagnoseResponse` is a sibling `\JsonSerializable` value object, built via `fromReport(array $resolutions, DiagnosticsReport $report)`, which normalizes through `LayoutDiagnosticsResultNormalizer`; `jsonSerialize()` casts `resolutions` to `{}` when empty. Same output-only discipline as [`MutationResponse`](mutation-response.md): serialized to the response and discarded, never cached or denormalized.
+
 `200 OK` with `{ resolutions, diagnostics }` — never persisted, never cached.
 
 ```json
@@ -52,7 +54,7 @@ The response body of the diagnose endpoint ([diagnose.md](diagnose.md)): the res
 
 `resolutions` is keyed by element id; each entry is the list of that element's declared properties with how each is (or is not) filled, and encodes as `{}` when empty (never `[]`). `kind` is `primitive` or `reference`; a `reference` property carries a `resolved` candidate (or `null`) and the full `candidates` list. A candidate's `origin` is `parent` (an ancestor provider, `providerElementId` naming the providing element), `root` (a root-ambient offer from the layout's bound root source, `providerElementId` always `null` because no element supplies it), `loader` (a data loader), or `stored` (the element's own applied wiring: a stored reference wiring whose produced type resolves and is assignable to the declared FQCN; it only ever fills `resolved` directly, never a `candidates` menu entry). A `stored` candidate is not loader-shaped: its `loaderSource`, `configTemplate`, and `configComplete` all serialize as `null` (clients branch on `origin` before reading them).
 
-A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](../../Layout/Type/docs/introspection.md) (`bindingSpecifications[element.component]`) — the ids from the [Binding specifications](../../Binding/docs/introspection.md) fold that a client may pass as `bindingSpecificationId` to a bind-element action.
+A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](../../Layout/Type/docs/introspection.md) (`bindingSpecifications[element.component]`) — the ids from the [Binding specifications](../../Binding/docs/introspection.md) fold that a client may pass as `bindingSpecificationId` to a bind-element action. It is a per-element-type catalog lookup, not a resolution against an element's actual wiring or ancestry.
 
 `diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate); `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 

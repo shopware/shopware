@@ -31,7 +31,7 @@
 - **Write-time gates**: the resolvability gate, the write-boundary default seeder and the delete protection — [docs/layout-write-gates.md](docs/layout-write-gates.md)
 - **Draft Check**: `DraftLayoutChecker` (module root) — the preview action's draft-layout check; runs the same `LayoutDiagnostics` intrinsic subset as the persistence gate
 - **Resolve-and-diagnose route**: `Api/ContentDiagnoseController` (`POST /api/_action/content-system/layout/diagnose`); operates only on a draft layout tree from the request, never the persisted `content_layout` entity; an optional `rootSource` in the request resolves its root-ambient context via `Adapter/RootSourceRegistry::resolveGated()` (empty/absent → intrinsic well-formedness only)
-- **Layout mutation**: `Mutation/MutationPipeline`, its nine `Mutation/Op` operations and `Mutation/PersistedLayoutMutator` — [docs/layout-mutation.md](docs/layout-mutation.md)
+- **Layout mutation**: `Mutation/MutationPipeline`, its `Mutation/Op` operations and `Mutation/PersistedLayoutMutator` — [docs/layout-mutation.md](docs/layout-mutation.md)
 - **Assignment-free resolution**: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout()` selects a source via `supportsEntityType()`; `RenderingSpecificationFactory::createWithoutLayout()` assembles a `RenderingSpecification` with no layout id
 - **Introspection**: the element-type, style-option and root-source registries, the two compiler passes and the `/api/_info/` endpoints — [docs/introspection-endpoints.md](docs/introspection-endpoints.md)
 - **Element style**: `Layout/Element/Style/Registry/ContentSystemStyleOptionRegistry` and where an element's `style` is stored, encoded and served — [docs/element-styles.md](docs/element-styles.md)

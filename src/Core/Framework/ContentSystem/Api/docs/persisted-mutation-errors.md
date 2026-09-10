@@ -2,7 +2,7 @@
 
 The failure conditions specific to the persisted mutation actions ([persisted-mutation.md](persisted-mutation.md)).
 
-In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `bindingSpecificationNotFound`, `bindingTypeMismatch`, `#[MapRequestPayload]` validation):
+In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`, `bindingSpecificationNotFound`, `bindingTypeMismatch`, `#[MapRequestPayload]` validation):
 
 | Condition                                                                         | HTTP | Factory / source                                                                                                                            |
 |-----------------------------------------------------------------------------------|------|---------------------------------------------------------------------------------------------------------------------------------------------|

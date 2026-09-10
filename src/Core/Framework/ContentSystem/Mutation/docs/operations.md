@@ -117,3 +117,17 @@ attribution is recorded into `attributedSpecifications`, also merged and overwri
 
 Keeps the same id. `affected = [elementId]`; `created` stays the empty default (the element node is wired, not
 minted); `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.
+
+## UpdateElementProperties
+
+`__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, array $values, array $removeKeys)`.
+
+Replaces each key in `$values` on one element and drops each key in `$removeKeys`, writing a value as supplied in its
+stored shape; every property key named in neither list carries verbatim, unread. Rules, in this order, each a `400`:
+target must exist (`mutationTargetNotFound`); the element's component must be registered (`mutationUnknownType`, via
+`requireRegistered`); every key in `$values` and `$removeKeys` must name a primitive property the type declares
+(`mutationPropertyUnknown`); a key present in both lists throws `mutationPropertyConflict`; each `$values` entry must
+satisfy `PropertyType::admits()` for its declared type (`mutationPropertyValueRejected`, carrying the element id, key
+and actual type) — the one value the operation reads, judged through the shared predicate `ReplaceElement` also uses.
+`affected = [elementId]`; `created` stays the empty default; `orphaned`/`droppedWiring`/`droppedProperties` stay
+empty.

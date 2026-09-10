@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use Mcp\Server\Session\FileSessionStore;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -29,18 +30,44 @@ class McpSessionPersistenceTest extends TestCase
     use AdminApiTestBehaviour;
     use KernelTestBehaviour;
 
-    public function testSessionStoreServiceIsFileSessionStore(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function serverProvider(): iterable
+    {
+        yield 'admin' => ['mcp.server.admin.session.store'];
+        yield 'store api' => ['mcp.server.store_api.session.store'];
+    }
+
+    #[DataProvider('serverProvider')]
+    public function testSessionStoreServiceIsFileSessionStore(string $serviceId): void
     {
         $container = static::getContainer();
-        static::assertTrue($container->has('mcp.session.store'), 'mcp.session.store is not registered');
+        static::assertTrue($container->has($serviceId), $serviceId . ' is not registered');
 
-        $store = $container->get('mcp.session.store');
+        $store = $container->get($serviceId);
         static::assertInstanceOf(
             FileSessionStore::class,
             $store,
-            'mcp.session.store must be a FileSessionStore by default. If a bundle update changed '
-            . 'the default store, either override it back to `file` in mcp.yaml or register a '
-            . 'store that works with the stateless Admin API (see docs/setup.md).',
+            $serviceId . ' must be a FileSessionStore by default. If a bundle update changed '
+            . 'the default store, either override it back to `file` for that server in '
+            . 'packages/mcp.php or register a store that works with the stateless Admin API '
+            . '(see docs/setup.md).',
+        );
+    }
+
+    /**
+     * Each MCP server needs its own session store. Session ids are not namespaced by server and the
+     * SDK accepts any id present in the store, so a shared store would make a session minted on the
+     * Admin API endpoint valid on the Store API one — across a firewall boundary.
+     */
+    public function testEachServerHasItsOwnSessionStore(): void
+    {
+        $container = static::getContainer();
+
+        static::assertNotSame(
+            $container->get('mcp.server.admin.session.store'),
+            $container->get('mcp.server.store_api.session.store'),
         );
     }
 

@@ -4,12 +4,12 @@
 Loaders extend the MCP SDK's capability discovery to include tools, prompts, and resources from Shopware apps. Three concrete loaders (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`) extend `AbstractAppMcpLoader`, which provides the shared try/fetch/foreach pipeline plus `capabilityName()` (prefixes the app name) and `resolveDescription()` helpers.
 
 ## Plugin integration
-Plugins register MCP tools by tagging services with `shopware.mcp.tool` in their DI XML. At compile time, the `McpToolCompilerPass` does two things:
+Plugins register MCP tools by tagging services with `shopware.mcp.tool` in their DI XML. At compile time, `McpToolDiscoveryCompilerPass` does two things:
 
 1. Re-tags the service `shopware.mcp.tool` → `mcp.tool` so it is wired into the DI container and service locator.
-2. Reads the `#[McpTool]` attribute via reflection and adds a `addTool($className, $toolName)` method call on `mcp.server.builder` so the tool appears in the live HTTP registry — not just in `debug:mcp`.
+2. Assigns the class to the Admin API server through the MCP bundle's `mcp.servers.elements` parameter, so the bundle registers it on `mcp.server.admin.builder` and the tool appears in the live HTTP registry — not just in `debug:mcp`.
 
-This means plugins do **not** need a `scan_dirs` entry in `mcp.yaml`. Plugin lifecycle is fully respected: the service only exists in the container when the plugin is installed and active.
+Plugin lifecycle is fully respected: the service only exists in the container when the plugin is installed and active.
 
 ## App integration
 Apps declare tools in `Resources/mcp.xml`:

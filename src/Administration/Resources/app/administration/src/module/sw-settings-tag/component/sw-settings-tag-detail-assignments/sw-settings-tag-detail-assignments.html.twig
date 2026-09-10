@@ -192,7 +192,7 @@
                             >
                                 <sw-highlight-text
                                     :search-term="term"
-                                    :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+                                    :text="orderCustomerName(item.orderCustomer)"
                                 />
                                 <sw-highlight-text
                                     :search-term="term"

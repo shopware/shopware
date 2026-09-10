@@ -244,7 +244,7 @@ Only the store API routes judge whether a name is required, from the two setting
 $definition->add('firstName', new NotBlank());
 ```
 
-Read a customer name through `CustomerEntity::getDisplayName()` rather than joining `firstName` and `lastName`. It falls back to the company name when a commercial account has no contact person. It is a runtime field, filled by a subscriber on `customer.loaded` and on `customer.partial_loaded`, so a customer read through the data abstraction layer carries it. On an entity built in code the getter falls back to the person name, and only the company fallback is missing until the subscriber has run. Being a runtime field it cannot be sorted or filtered in a `Criteria`.
+Read a customer name through `CustomerEntity::getDisplayName()` rather than joining `firstName` and `lastName`. It falls back to the company name when a commercial account has no contact person. The getter resolves this from the live `firstName`, `lastName`, `company` and `accountType`, so it is right on any entity, including one you build or change in code. A subscriber fills the runtime field itself on `customer.loaded` and `customer.partial_loaded`, which is what carries the value into the API responses. Being a runtime field it cannot be sorted or filtered in a `Criteria`.
 
 </details>
 

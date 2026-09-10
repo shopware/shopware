@@ -263,6 +263,33 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### Import the global Shopware object with `shopware:*` modules
+
+The Administration now resolves a set of `shopware:*` module specifiers, so the global `Shopware` object can be reached with ordinary imports:
+
+```ts
+import { createId } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
+```
+
+| Specifier | Publishes |
+| --- | --- |
+| `shopware:utils` | every member of `Shopware.Utils` |
+| `shopware:utils/<member>` | that member as the default export, plus its own names where it is an object |
+| `shopware:data` | every class on `Shopware.Data` |
+| `shopware:data/<Class>` | that class as the default export |
+| `shopware:mixins/<name>` | the registered mixin as the default export |
+| `shopware:stores/<id>` | a composable returning the store, as the default export |
+
+Every export is the object the global already holds, so the two styles are interchangeable and can be mixed in one file. Nothing has to be migrated, and `Shopware.*` stays fully supported.
+
+The mixin and store specifiers take the registry key verbatim and have no barrel: a barrel over a runtime registry has to resolve every entry as soon as anything imports it. A store subpath publishes no named exports either, because destructuring a Pinia store drops reactivity.
+
+The specifiers work in plugin builds and in Jest, and are typed for extension programs. A store or mixin an extension registers itself is not covered; keep using `Shopware.Store.get()` and `Shopware.Mixin.getByName()` for those.
+
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

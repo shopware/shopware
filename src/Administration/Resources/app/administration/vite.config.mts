@@ -18,6 +18,7 @@ import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
 import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
+import VirtualShopwareModulesPlugin from './build/vite-plugins/virtual-shopware-modules';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -102,6 +103,9 @@ export default defineConfig(({ command }) => {
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
                 ShopwareSetupPlugin({
+                    administrationRoot: __dirname,
+                }),
+                VirtualShopwareModulesPlugin({
                     administrationRoot: __dirname,
                 }),
 

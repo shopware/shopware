@@ -143,6 +143,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Language\LanguageLoader;
+use Shopware\Core\System\OAuthClient\Field\RedirectUriListFieldSerializer;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -684,6 +685,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.field_serializer');
 
     $services->set(ListFieldSerializer::class)
+        ->args([
+            service('validator'),
+            service(DefinitionInstanceRegistry::class),
+        ])
+        ->tag('shopware.field_serializer');
+
+    $services->set(RedirectUriListFieldSerializer::class)
         ->args([
             service('validator'),
             service(DefinitionInstanceRegistry::class),

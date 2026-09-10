@@ -62,6 +62,13 @@ class ClientRepositoryTest extends TestCase
         static::assertTrue($this->clientRepository->validateClient('shopware-cli', null, 'refresh_token'));
     }
 
+    public function testUnavailableDatabaseClientDoesNotFallBackToIntegrationAccessKeys(): void
+    {
+        $this->connection->expects($this->never())->method('fetchAssociative');
+
+        static::assertNull($this->clientRepository->getClientEntity('oauth-' . Uuid::randomHex()));
+    }
+
     public function testValidateClientRejectsPublicClientForOtherGrantTypes(): void
     {
         $this->connection->expects($this->never())->method('fetchAssociative');

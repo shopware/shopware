@@ -2,6 +2,12 @@
 
 ## Features
 
+### Manage OAuth applications in the Administration
+
+Register public OAuth clients in **Settings > System > OAuth applications**, or through the `oauth_client` Admin API entity. The client ID is `oauth-` followed by the entity's UUID. Use the authorization code grant with S256 PKCE and no client secret; applications receive the approving user's current permissions, not integration roles. Existing integrations and configured `shopware.api.oauth_clients` remain unchanged. Configured clients are managed through server configuration and take precedence over database registrations.
+
+The new `oauth_client:read`, `oauth_client:create`, `oauth_client:update` and `oauth_client:delete` privileges control application management. Existing roles do not automatically receive these permissions. While an application is disabled, authorization, token refresh and existing bearer-token requests are rejected. Re-enabling it allows unexpired tokens to work again. Deleting an application also prevents its tokens from being used. Per-user authorizations and individual connected-app revocation are not part of this addition.
+
 ### Browser login for CLI tools and other public OAuth clients
 
 Tools that act on behalf of an admin user, first of all `shopware-cli`, no longer need an integration secret or the user's password in a config file. The Admin API now supports the OAuth 2.0 authorization code grant with PKCE for registered public clients: the tool opens the shop in the browser, the user logs in to the Administration, approves the request on a consent page and is redirected back to the tool, which receives user-bound access and refresh tokens. The tokens carry the permissions of the approving user, so actions are audited under that user and revoked together with their other sessions.
@@ -94,6 +100,10 @@ Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legac
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
+
+### OAuth redirect URL list field
+
+The new `Shopware\Core\System\OAuthClient\Field\RedirectUriListField` extends `ListField` with validation for 1–20 OAuth redirect URLs, each up to 2048 characters. It accepts HTTPS and loopback HTTP (`127.0.0.1` or `[::1]`) and rejects credentials, fragments and wildcards. URLs are stored unchanged; invalid entries produce DAL write errors with the affected list index.
 
 ### Authorization code grant on the Admin API authorization server
 

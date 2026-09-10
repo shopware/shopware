@@ -1,0 +1,146 @@
+{% block sw_oauth_client_list %}
+<sw-page class="sw-oauth-client-list">
+    <template #smart-bar-header>
+        <h2>{{ $t('sw-oauth-client.title') }}</h2>
+    </template>
+    <template #smart-bar-actions>
+        <mt-button
+            variant="primary"
+            :disabled="!acl.can('oauth_client.creator') || isLoading || isSaving"
+            @click="onCreate"
+        >
+            {{ $t('sw-oauth-client.create') }}
+        </mt-button>
+    </template>
+    <template #content>
+        <sw-card-view>
+            <mt-banner
+                variant="info"
+                class="sw-oauth-client-list__notice"
+            >
+                {{ $t('sw-oauth-client.permissionsHint') }}
+            </mt-banner>
+            <mt-card
+                position-identifier="sw-oauth-client-list"
+                :title="$t('sw-oauth-client.title')"
+                :subtitle="$t('sw-oauth-client.description')"
+                :is-loading="isLoading"
+            >
+                <sw-data-grid
+                    v-if="clients"
+                    :data-source="clients"
+                    :columns="columns"
+                    :show-selection="false"
+                    :allow-inline-edit="false"
+                >
+                    <template #column-id="{ item }">
+                        oauth-{{ item.id }}
+                    </template>
+                    <template #column-active="{ item }">
+                        {{ $t(item.active ? 'sw-oauth-client.active' : 'sw-oauth-client.inactive') }}
+                    </template>
+                    <template #actions="{ item }">
+                        <sw-context-menu-item @click="onEdit(item)">
+                            {{ $t('sw-oauth-client.details') }}
+                        </sw-context-menu-item>
+                        <sw-context-menu-item
+                            variant="danger"
+                            :disabled="!acl.can('oauth_client.deleter')"
+                            @click="deleteClient = item"
+                        >
+                            {{ $t('global.default.delete') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-data-grid>
+                <sw-pagination
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    @page-change="onPageChange"
+                />
+            </mt-card>
+        </sw-card-view>
+
+        {% block sw_oauth_client_detail %}
+        <sw-modal
+            v-if="currentClient"
+            :title="isNew ? $t('sw-oauth-client.create') : currentClient.name"
+            :is-loading="isSaving"
+            @modal-close="onClose"
+        >
+            <mt-text-field
+                v-model="currentClient.name"
+                :label="$t('sw-oauth-client.name')"
+                :disabled="!canSave || isSaving"
+                required
+            />
+            <mt-text-field
+                :model-value="'oauth-' + currentClient.id"
+                :label="$t('sw-oauth-client.clientId')"
+                :help-text="$t('sw-oauth-client.clientIdHelp')"
+                disabled
+                copyable
+            />
+            <mt-textarea
+                v-model="redirectUrisText"
+                :label="$t('sw-oauth-client.redirectUris')"
+                :help-text="$t('sw-oauth-client.redirectHelp')"
+                :disabled="!canSave || isSaving"
+                required
+            />
+            <mt-switch
+                v-model="currentClient.active"
+                :label="$t('sw-oauth-client.active')"
+                :help-text="$t('sw-oauth-client.activeHelp')"
+                :disabled="!canSave || isSaving"
+            />
+            <mt-banner variant="attention">
+                {{ $t('sw-oauth-client.permissionsHint') }}
+            </mt-banner>
+            <template #modal-footer>
+                <mt-button
+                    :disabled="isSaving"
+                    variant="secondary"
+                    @click="onClose"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+                <mt-button
+                    variant="primary"
+                    :disabled="!canSave || isSaving"
+                    :is-loading="isSaving"
+                    @click="onSave"
+                >
+                    {{ $t('global.default.save') }}
+                </mt-button>
+            </template>
+        </sw-modal>
+        {% endblock %}
+
+        <sw-modal
+            v-if="deleteClient"
+            :title="$t('global.default.delete')"
+            @modal-close="!isSaving && (deleteClient = null)"
+        >
+            <p>{{ $t('sw-oauth-client.deleteConfirm', { name: deleteClient.name }) }}</p>
+            <template #modal-footer>
+                <mt-button
+                    :disabled="isSaving"
+                    variant="secondary"
+                    @click="deleteClient = null"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+                <mt-button
+                    variant="critical"
+                    :disabled="isSaving || !acl.can('oauth_client.deleter')"
+                    :is-loading="isSaving"
+                    @click="onDelete"
+                >
+                    {{ $t('global.default.delete') }}
+                </mt-button>
+            </template>
+        </sw-modal>
+    </template>
+</sw-page>
+{% endblock %}

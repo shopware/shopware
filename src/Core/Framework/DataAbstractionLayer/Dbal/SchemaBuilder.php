@@ -76,6 +76,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
+use Shopware\Core\System\OAuthClient\Field\RedirectUriListField;
 
 /**
  * @internal
@@ -108,6 +109,7 @@ class SchemaBuilder
         PriceDefinitionField::class => Types::JSON,
         JsonField::class => Types::JSON,
         ListField::class => Types::JSON,
+        RedirectUriListField::class => Types::JSON,
         ConfigJsonField::class => Types::JSON,
         CustomFields::class => Types::JSON,
         BreadcrumbField::class => Types::JSON,

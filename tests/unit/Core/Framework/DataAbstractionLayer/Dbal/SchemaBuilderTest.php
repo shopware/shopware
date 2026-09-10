@@ -70,6 +70,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
+use Shopware\Core\System\OAuthClient\Field\RedirectUriListField;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -175,6 +176,9 @@ class SchemaBuilderTest extends TestCase
 
         static::assertTrue($table->hasColumn('list'));
         static::assertSame(Type::getType(Types::JSON), $table->getColumn('list')->getType());
+
+        static::assertTrue($table->hasColumn('redirect_uris'));
+        static::assertSame(Type::getType(Types::JSON), $table->getColumn('redirect_uris')->getType());
 
         static::assertTrue($table->hasColumn('config_json'));
         static::assertSame(Type::getType(Types::JSON), $table->getColumn('config_json')->getType());
@@ -400,6 +404,7 @@ class TestEntityWithAllPossibleFieldsDefinition extends EntityDefinition
             new PriceDefinitionField('price_definition', 'priceDefinition'),
             new JsonField('json', 'json'),
             new ListField('list', 'list'),
+            new RedirectUriListField('redirect_uris', 'redirectUris'),
             new ConfigJsonField('config_json', 'configJson'),
             new CustomFields(),
             new BreadcrumbField(),

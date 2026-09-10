@@ -83,7 +83,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         $publicClient = $this->publicClients->get($clientIdentifier);
-        if ($publicClient !== null) {
+        if ($publicClient !== null || $this->publicClients->isDatabaseClient($clientIdentifier)) {
             return $publicClient;
         }
 

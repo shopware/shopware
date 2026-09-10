@@ -101,6 +101,7 @@ use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\System\OAuthClient\OAuthClientDefinition;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -369,7 +370,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PublicClientRegistry::class)
         ->args([
             param('shopware.api.oauth_clients'),
+            service('oauth_client.repository'),
         ]);
+
+    $services->set(OAuthClientDefinition::class)
+        ->tag('shopware.entity.definition');
 
     $services->set(ClientRepository::class)
         ->args([
@@ -429,6 +434,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AccessTokenRepository::class),
             service(Connection::class),
             service('shopware.jwt_config'),
+            service(PublicClientRegistry::class),
         ]);
 
     $services->set(JsonRequestTransformerListener::class)

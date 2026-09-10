@@ -7,6 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\OAuthClient\OAuthClientCollection;
+use Shopware\Core\System\OAuthClient\OAuthClientEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -37,6 +41,59 @@ class PublicClientRegistryTest extends TestCase
         static::assertTrue($this->registry->has('my-app'));
         static::assertFalse($this->registry->has('administration'));
         static::assertFalse($this->registry->has(''));
+    }
+
+    public function testResolvesDatabaseClientWithoutCachingItsActiveState(): void
+    {
+        $entity = new OAuthClientEntity();
+        $entity->setId(Uuid::randomHex());
+        $entity->setName('Desktop tool');
+        $entity->setRedirectUris(['http://127.0.0.1/callback']);
+        $disabled = clone $entity;
+        $disabled->setActive(false);
+        $repository = new StaticEntityRepository([
+            new OAuthClientCollection([$entity]),
+            new OAuthClientCollection([$disabled]),
+            new OAuthClientCollection(),
+        ]);
+        $registry = new PublicClientRegistry([], $repository);
+        $clientId = 'oauth-' . $entity->getId();
+
+        $client = $registry->get($clientId);
+        static::assertNotNull($client);
+        static::assertSame('Desktop tool', $client->getName());
+        static::assertSame($clientId, $client->getIdentifier());
+        static::assertFalse($client->isConfidential());
+        static::assertFalse($client->supportsGrantType('client_credentials'));
+        static::assertNull($registry->get($clientId), 'Disabled clients cannot authenticate.');
+        static::assertNull($registry->get($clientId), 'Deleted clients cannot authenticate.');
+    }
+
+    public function testDatabaseClientRedirectMustMatchRegisteredUrl(): void
+    {
+        $entity = new OAuthClientEntity();
+        $entity->setId(Uuid::randomHex());
+        $entity->setName('Desktop tool');
+        $entity->setRedirectUris(['http://127.0.0.1/callback']);
+        $registry = new PublicClientRegistry([], new StaticEntityRepository([
+            new OAuthClientCollection([$entity]),
+            new OAuthClientCollection([$entity]),
+        ]));
+
+        static::assertTrue($registry->isRedirectUriAllowed('oauth-' . $entity->getId(), 'http://127.0.0.1:54321/callback'));
+        static::assertFalse($registry->isRedirectUriAllowed('oauth-' . $entity->getId(), 'https://attacker.example/callback'));
+    }
+
+    public function testConfiguredClientsCannotBeShadowedByDatabaseClients(): void
+    {
+        $clientId = 'oauth-' . Uuid::randomHex();
+        $registry = new PublicClientRegistry([
+            $clientId => ['name' => 'Configured tool', 'redirect_uris' => ['https://example.com/callback']],
+        ], StaticEntityRepository::of(OAuthClientCollection::class));
+
+        static::assertFalse($registry->isDatabaseClient($clientId));
+        static::assertSame('Configured tool', $registry->get($clientId)?->getName());
+        static::assertNull($registry->get('oauth-invalid'));
     }
 
     public function testGetBuildsPublicClientLimitedToAuthorizationCodeAndRefreshToken(): void

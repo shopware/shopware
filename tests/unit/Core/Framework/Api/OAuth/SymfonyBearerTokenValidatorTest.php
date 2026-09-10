@@ -15,8 +15,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\OAuthClient\OAuthClientCollection;
+use Shopware\Core\System\OAuthClient\OAuthClientEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -37,7 +42,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $validator = new SymfonyBearerTokenValidator(
             static::createStub(AccessTokenRepositoryInterface::class),
             static::createStub(Connection::class),
-            $this->getJwtConfiguration()
+            $this->getJwtConfiguration(),
+            new PublicClientRegistry([]),
         );
 
         $this->expectExceptionObject(OAuthServerException::accessDenied());
@@ -57,12 +63,48 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $validator = new SymfonyBearerTokenValidator(
             $accessTokenRepository,
             static::createStub(Connection::class),
-            $this->getJwtConfiguration()
+            $this->getJwtConfiguration(),
+            new PublicClientRegistry([]),
         );
 
         $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
+    }
+
+    public function testDatabaseClientMustStillBeActiveForBearerRequests(): void
+    {
+        $entity = new OAuthClientEntity();
+        $entity->setId(Uuid::randomHex());
+        $entity->setName('Desktop tool');
+        $entity->setRedirectUris(['https://example.com/callback']);
+        $disabled = clone $entity;
+        $disabled->setActive(false);
+        $registry = new PublicClientRegistry([], new StaticEntityRepository([
+            new OAuthClientCollection([$entity]),
+            new OAuthClientCollection([$disabled]),
+        ]));
+        $configuration = $this->getJwtConfiguration();
+        $token = $configuration->builder()
+            ->permittedFor('oauth-' . $entity->getId())
+            ->identifiedBy(Uuid::randomHex())
+            ->relatedTo(self::OAUTH_USER_ID)
+            ->issuedAt(new \DateTimeImmutable())
+            ->withClaim('scopes', ['write'])
+            ->getToken($configuration->signer(), $configuration->signingKey());
+        $validator = new SymfonyBearerTokenValidator(
+            static::createStub(AccessTokenRepositoryInterface::class),
+            $this->getConnectionMock(null),
+            $configuration,
+            $registry,
+        );
+        $request = new Request(server: ['HTTP_AUTHORIZATION' => 'Bearer ' . $token->toString()]);
+
+        $validator->validateAuthorization($request);
+        static::assertSame('oauth-' . $entity->getId(), $request->attributes->get('oauth_client_id'));
+
+        $this->expectExceptionObject(OAuthServerException::accessDenied('OAuth application is inactive or no longer exists'));
+        $validator->validateAuthorization(new Request(server: ['HTTP_AUTHORIZATION' => 'Bearer ' . $token->toString()]));
     }
 
     public function testValidTokenYieldsAttributes(): void
@@ -72,7 +114,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $validator = new SymfonyBearerTokenValidator(
             static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(null),
-            $this->getJwtConfiguration()
+            $this->getJwtConfiguration(),
+            new PublicClientRegistry([]),
         );
 
         $validator->validateAuthorization($request);
@@ -90,7 +133,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $validator = new SymfonyBearerTokenValidator(
             static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(false),
-            $this->getJwtConfiguration()
+            $this->getJwtConfiguration(),
+            new PublicClientRegistry([]),
         );
 
         $this->expectExceptionObject(OAuthServerException::accessDenied());
@@ -105,7 +149,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $validator = new SymfonyBearerTokenValidator(
             static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(null, false),
-            $this->getJwtConfiguration()
+            $this->getJwtConfiguration(),
+            new PublicClientRegistry([]),
         );
 
         $this->expectExceptionObject(OAuthServerException::accessDenied());
@@ -123,7 +168,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $validator = new SymfonyBearerTokenValidator(
             static::createStub(AccessTokenRepositoryInterface::class),
             $this->getConnectionMock(date('Y-m-d H:i:s')),
-            $this->getJwtConfiguration()
+            $this->getJwtConfiguration(),
+            new PublicClientRegistry([]),
         );
 
         $this->expectExceptionObject(OAuthServerException::accessDenied());

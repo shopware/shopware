@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -667,5 +668,37 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         await flushPromises();
 
         expect(actionMenu.attributes('side')).toBe('bottom');
+    });
+
+    describe('module colors', () => {
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should leave the active state to the stylesheet by default', async () => {
+            const wrapper = await createWrapper([headlessSalesChannel]);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-sales-channel-menu').classes()).not.toContain('is--module-colored');
+        });
+
+        it('should mark the menu as module colored so active rows drop the brand tint', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper([headlessSalesChannel]);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-sales-channel-menu').classes()).toContain('is--module-colored');
+        });
+
+        it('should follow the preference while mounted', async () => {
+            const wrapper = await createWrapper([headlessSalesChannel]);
+            await flushPromises();
+
+            useModuleIconColors().enabled.value = true;
+            await flushPromises();
+
+            expect(wrapper.find('.sw-sales-channel-menu').classes()).toContain('is--module-colored');
+        });
     });
 });

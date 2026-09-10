@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
@@ -43,6 +44,12 @@ export default {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannelMenuClasses() {
+            // Sales channels have no module color, so their active rows follow the neutral look of
+            // the colored module rows while the preference is enabled
+            return { 'is--module-colored': useModuleIconColors().enabled.value };
         },
 
         canCreateSalesChannels() {

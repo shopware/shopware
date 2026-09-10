@@ -37,6 +37,23 @@
     }
 }
 
+// With module colors the sales channel rows have no accent of their own, so the active row drops the
+// brand tint for the neutral hover grey and keeps the primary text and icon color, like the module rows
+.sw-sales-channel-menu.is--module-colored .sw-admin-menu__sales-channel-item > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-interaction-secondary-hover);
+        color: var(--color-text-primary-default);
+
+        .collapsible-text {
+            color: var(--color-text-primary-default);
+        }
+
+        .sw-admin-menu__navigation-link-icon {
+            color: var(--color-icon-primary-default);
+        }
+    }
+}
+
 .sw-admin-menu.is--collapsed .sw-sales-channel-menu .sw-admin-menu__headline {
     padding: 0;
 

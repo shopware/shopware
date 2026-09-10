@@ -44,19 +44,19 @@ export default Component.wrapComponentConfig({
             promotionError: null,
             isLoading: false,
             context: {
-                currencyId: '',
-                paymentMethodId: '',
-                shippingMethodId: '',
-                languageId: '',
-                billingAddressId: '',
-                shippingAddressId: '',
+                currencyId: '' as EntityKey<'currency'>,
+                paymentMethodId: '' as EntityKey<'payment_method'>,
+                shippingMethodId: '' as EntityKey<'shipping_method'>,
+                languageId: '' as EntityKey<'language'>,
+                billingAddressId: '' as EntityKey<'customer_address'>,
+                shippingAddressId: '' as EntityKey<'customer_address'>,
             },
         };
     },
 
     computed: {
-        salesChannelId(): string {
-            return this.salesChannelContext?.salesChannel.id || '';
+        salesChannelId(): EntityKey<'sales_channel'> {
+            return this.salesChannelContext?.salesChannel.id || ('' as EntityKey<'sales_channel'>);
         },
 
         customer(): Entity<'customer'> | null {
@@ -188,7 +188,7 @@ export default Component.wrapComponentConfig({
             handler: 'handlePromotionCodeTags',
         },
 
-        'context.languageId'(languageId: string) {
+        'context.languageId'(languageId: EntityKey<'language'>) {
             if (!languageId) {
                 return;
             }
@@ -215,8 +215,10 @@ export default Component.wrapComponentConfig({
                 languageId: this.salesChannelContext.context.languageIdChain[0],
                 shippingMethodId: this.salesChannelContext.shippingMethod.id,
                 paymentMethodId: this.salesChannelContext.paymentMethod.id,
-                billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
-                shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',
+                billingAddressId:
+                    this.salesChannelContext.customer?.activeBillingAddress?.id ?? ('' as EntityKey<'customer_address'>),
+                shippingAddressId:
+                    this.salesChannelContext.customer?.activeShippingAddress?.id ?? ('' as EntityKey<'customer_address'>),
             };
         },
 

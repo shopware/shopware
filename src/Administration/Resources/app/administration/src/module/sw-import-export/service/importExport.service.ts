@@ -21,12 +21,12 @@ export default class ImportExportService extends ApiService {
      * Export data from the Shop with the given profile. The callback function gets called with progress information
      * and final result data.
      *
-     * @param profileId {Entity} Profile entity
+     * @param profileId {EntityKey<'import_export_profile'>} Profile entity
      * @param callback {Function} Callback for progress
      * @param config {Object} Additional config for profile
      * @returns {Promise<void>}
      */
-    async export(profileId: string, callback: () => unknown, config: unknown) {
+    async export(profileId: EntityKey<'import_export_profile'>, callback: () => unknown, config: unknown) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -46,12 +46,12 @@ export default class ImportExportService extends ApiService {
     /**
      * Download the export file
      *
-     * @param fileId {Entity} File entity
+     * @param fileId {EntityKey<'import_export_file'>} File entity
      * @returns {string}
      */
-    async getDownloadUrl(fileId: string) {
+    async getDownloadUrl(fileId: EntityKey<'import_export_file'>) {
         const accessTokenResponse: {
-            data: { fileId: string; accessToken: string };
+            data: { fileId: EntityKey<'import_export_file'>; accessToken: string };
         } = await this.httpClient.post(
             `/_action/import-export/file/prepare-download/${fileId}`,
             {},
@@ -67,12 +67,12 @@ export default class ImportExportService extends ApiService {
     /**
      * Get url for profile template download.
      *
-     * @param profileId {string}
+     * @param profileId {EntityKey<'import_export_profile'>}
      * @returns {string}
      */
-    async getTemplateFileDownloadUrl(profileId: string) {
+    async getTemplateFileDownloadUrl(profileId: EntityKey<'import_export_profile'>) {
         const prepareResponse: {
-            data: { fileId: string; accessToken: string };
+            data: { fileId: EntityKey<'import_export_file'>; accessToken: string };
         } = await this.httpClient.post(
             `/_action/import-export/prepare-template-file-download?profileId=${profileId}`,
             {},
@@ -119,14 +119,20 @@ export default class ImportExportService extends ApiService {
      * Imports data from the csv file with the given profile. The callback function gets called with progress information
      * and final result data.
      *
-     * @param profileId {String} Profile entity
+     * @param profileId {EntityKey<'import_export_profile'>} Profile entity
      * @param file {File} The csv file
      * @param callback {Function} Callback for progress
      * @param config {Object} Additional config for profile
      * @param dryRun {Boolean} Set if import is a dry run
      * @returns {Promise<void>}
      */
-    async import(profileId: string, file: File, callback: () => unknown, config = {}, dryRun = false) {
+    async import(
+        profileId: EntityKey<'import_export_profile'>,
+        file: File,
+        callback: () => unknown,
+        config = {},
+        dryRun = false,
+    ) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -157,11 +163,14 @@ export default class ImportExportService extends ApiService {
     }
 
     /**
-     * @param logEntry {String} log entity
+     * @param logEntry {EntityKey<'import_export_log'>} log entity
      * @param callback
      * @returns {Promise<void>}
      */
-    async trackProgress(logEntry: { data: { log: { id: string } } }, callback: (log?: { id: string }) => unknown) {
+    async trackProgress(
+        logEntry: { data: { log: { id: EntityKey<'import_export_log'> } } },
+        callback: (log?: { id: EntityKey<'import_export_log'> }) => unknown,
+    ) {
         await this.httpClient.post(
             '/_action/import-export/process',
             {
@@ -188,10 +197,10 @@ export default class ImportExportService extends ApiService {
     }
 
     /**
-     * @param logId {String} log id
+     * @param logId {EntityKey<'import_export_log'>} log id
      * @returns {Promise<*>} - ApiService.handleResponse(response)
      */
-    cancel(logId: string): Promise<unknown> {
+    cancel(logId: EntityKey<'import_export_log'>): Promise<unknown> {
         return this.httpClient
             .post<unknown>(`/_action/${this.getApiBasePath()}/cancel`, { logId }, { headers: this.getBasicHeaders() })
             .then(ApiService.handleResponse.bind(this));

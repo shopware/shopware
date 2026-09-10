@@ -163,12 +163,12 @@ describe('src/module/sw-order/store/order.store', () => {
         expect(store.invalidPromotionCodes).toEqual([]);
         store.setPromotionCodes([
             {
-                discountId: 'test',
+                discountId: 'test' as EntityKey<'promotion_discount'>,
                 code: 'test',
                 isInvalid: true,
             },
             {
-                discountId: 'test',
+                discountId: 'test' as EntityKey<'promotion_discount'>,
                 code: 'test',
                 isInvalid: false,
             },
@@ -230,12 +230,12 @@ describe('src/module/sw-order/store/order.store', () => {
     it('removes invalid promotion code', () => {
         store.setPromotionCodes([
             {
-                discountId: 'test',
+                discountId: 'test' as EntityKey<'promotion_discount'>,
                 code: 'test',
                 isInvalid: true,
             },
             {
-                discountId: 'test',
+                discountId: 'test' as EntityKey<'promotion_discount'>,
                 code: 'test',
                 isInvalid: false,
             },
@@ -266,7 +266,7 @@ describe('src/module/sw-order/store/order.store', () => {
     });
 
     it('creates new cart', async () => {
-        await store.createCart({ salesChannelId: '1' });
+        await store.createCart({ salesChannelId: '1' as EntityKey<'sales_channel'> });
 
         expect(createCartMock).toHaveBeenLastCalledWith('1');
         expect(store.cart.token).toBe(token);
@@ -275,7 +275,7 @@ describe('src/module/sw-order/store/order.store', () => {
     });
 
     it('gets cart', async () => {
-        await store.getCart({ salesChannelId: '1', contextToken: token });
+        await store.getCart({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
         expect(getCartMock).toHaveBeenLastCalledWith('1', token);
         expect(store.cart).toEqual({ token, lineItems: [] });
@@ -285,7 +285,7 @@ describe('src/module/sw-order/store/order.store', () => {
 
     it('cancels cart', async () => {
         const spy = jest.spyOn(store, '$reset');
-        await store.cancelCart({ salesChannelId: '1', contextToken: token });
+        await store.cancelCart({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
         expect(cancelCartMock).toHaveBeenLastCalledWith('1', token);
         expect(spy).toHaveBeenCalledTimes(1);
@@ -295,26 +295,26 @@ describe('src/module/sw-order/store/order.store', () => {
 
     it('updates order context', async () => {
         const context: ContextSwitchParameters = {
-            currencyId: 'test',
-            languageId: 'test',
-            paymentMethodId: 'test',
-            shippingMethodId: 'test',
-            billingAddressId: 'test',
-            shippingAddressId: 'test',
+            currencyId: 'test' as EntityKey<'currency'>,
+            languageId: 'test' as EntityKey<'language'>,
+            paymentMethodId: 'test' as EntityKey<'payment_method'>,
+            shippingMethodId: 'test' as EntityKey<'shipping_method'>,
+            billingAddressId: 'test' as EntityKey<'customer_address'>,
+            shippingAddressId: 'test' as EntityKey<'customer_address'>,
         };
-        await store.updateOrderContext({ context, salesChannelId: '1', contextToken: token });
+        await store.updateOrderContext({ context, salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
         expect(updateContextMock).toHaveBeenLastCalledWith(context, '1', token);
     });
 
     it('gets the context', async () => {
-        await store.getContext({ salesChannelId: '1', contextToken: token });
+        await store.getContext({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
         expect(getSalesChannelContextMock).toHaveBeenLastCalledWith('1', token);
     });
 
     it('saves order', async () => {
-        await store.saveOrder({ salesChannelId: '1', contextToken: token });
+        await store.saveOrder({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
         expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendOrderConfirmationMail: true });
     });
@@ -322,34 +322,46 @@ describe('src/module/sw-order/store/order.store', () => {
     it('saves order without confirmation mail when disabled', async () => {
         store.setSendOrderConfirmationMail(false);
 
-        await store.saveOrder({ salesChannelId: '1', contextToken: token });
+        await store.saveOrder({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
         expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendOrderConfirmationMail: false });
     });
 
     it('removes line items', async () => {
-        await store.removeLineItems({ salesChannelId: '1', contextToken: token, lineItemKeys: ['1'] });
+        await store.removeLineItems({
+            salesChannelId: '1' as EntityKey<'sales_channel'>,
+            contextToken: token,
+            lineItemKeys: ['1'],
+        });
 
         expect(removeLineItemsMock).toHaveBeenLastCalledWith('1', token, ['1']);
         expect(store.cart).toEqual(cart);
     });
 
     it('saves line items', async () => {
-        await store.saveLineItem({ salesChannelId: '1', contextToken: token, item });
+        await store.saveLineItem({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token, item });
 
         expect(saveLineItemMock).toHaveBeenLastCalledWith('1', token, item);
         expect(store.cart).toEqual(cart);
     });
 
     it('saves multiple lines items', async () => {
-        await store.saveMultipleLineItems({ salesChannelId: '1', contextToken: token, items: [item] });
+        await store.saveMultipleLineItems({
+            salesChannelId: '1' as EntityKey<'sales_channel'>,
+            contextToken: token,
+            items: [item],
+        });
 
         expect(addMultipleLineItemsMock).toHaveBeenLastCalledWith('1', token, [item]);
         expect(store.cart).toEqual(cart);
     });
 
     it('adds promotion code', async () => {
-        await store.addPromotionCode({ salesChannelId: '1', contextToken: token, code: 'testCode' });
+        await store.addPromotionCode({
+            salesChannelId: '1' as EntityKey<'sales_channel'>,
+            contextToken: token,
+            code: 'testCode',
+        });
 
         expect(addPromotionCodeMock).toHaveBeenLastCalledWith('1', token, 'testCode');
         expect(store.cart).toEqual(cart);
@@ -357,7 +369,7 @@ describe('src/module/sw-order/store/order.store', () => {
 
     it('modifies shipping costs', async () => {
         await store.modifyShippingCosts({
-            salesChannelId: '1',
+            salesChannelId: '1' as EntityKey<'sales_channel'>,
             contextToken: token,
             shippingCosts: {
                 unitPrice: 1,
@@ -377,7 +389,7 @@ describe('src/module/sw-order/store/order.store', () => {
     });
 
     it('reminds payment', async () => {
-        await store.remindPayment({ orderTransactionId: '1' });
+        await store.remindPayment({ orderTransactionId: '1' as EntityKey<'order_transaction'> });
 
         expect(transitionOrderTransactionStateMock).toHaveBeenLastCalledWith('1', 'remind');
     });

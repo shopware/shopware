@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\UpdateElementProperties;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\Context;
@@ -150,6 +151,18 @@ class ContentLayoutMutationController
         Context $context,
     ): Response {
         $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->bindingApplicator);
+
+        return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/{layoutId}/update-element-properties', name: 'api.action.content_system.layout.persisted_update_element_properties', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:update']], methods: [Request::METHOD_POST])]
+    public function updateProperties(
+        string $layoutId,
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        ContentLayoutUpdateElementPropertiesRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new UpdateElementProperties($this->registry, $payload->elementId, $payload->values, $payload->removeKeys);
 
         return $this->respond($layoutId, $payload->expectedVersion, $mutation, $context);
     }

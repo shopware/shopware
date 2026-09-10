@@ -65,6 +65,9 @@ class ContentSystemException extends HttpException
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
+    public const MUTATION_PROPERTY_UNKNOWN = 'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN';
+    public const MUTATION_PROPERTY_CONFLICT = 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT';
+    public const MUTATION_PROPERTY_VALUE_REJECTED = 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED';
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
@@ -778,6 +781,45 @@ class ContentSystemException extends HttpException
             self::MUTATION_UNKNOWN_TYPE,
             'Element type "{{ type }}" is not a registered element type.',
             ['type' => $type]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyUnknown(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_UNKNOWN,
+            'Property "{{ key }}" is not a primitive property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyConflict(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_CONFLICT,
+            'Property "{{ key }}" of element "{{ elementId }}" is both written and removed by the same update.',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyValueRejected(string $elementId, string $key, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_VALUE_REJECTED,
+            'Value for property "{{ key }}" of element "{{ elementId }}" does not match its declared type, but is {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'actualType' => $actualType]
         );
     }
 

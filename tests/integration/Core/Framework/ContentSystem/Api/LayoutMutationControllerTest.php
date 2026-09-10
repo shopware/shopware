@@ -419,6 +419,55 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
     }
 
+    #[TestDox('rejects a non-array values map on update-element-properties with a 400 at denormalization')]
+    public function testUpdatePropertiesRejectsNonArrayValues(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'values' => 'not-a-map',
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    #[TestDox('rejects an unknown request field on update-element-properties with a 400 and the unknownRequestField code')]
+    public function testUpdatePropertiesRejectsUnknownRequestField(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+            'entityType' => 'product',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('leaves a removed key carrying a type default absent in the draft response tree')]
+    public function testUpdatePropertiesLeavesRemovedDefaultedKeyAbsent(): void
+    {
+        $element = $this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE);
+        $element['properties'] = ['headline' => 'Authored headline'];
+
+        // the draft route runs no write boundary, so nothing reseeds the type default the removal dropped
+        $body = $this->mutate('update-element-properties', [
+            'layout' => [$element],
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+        ]);
+
+        static::assertSame([], $body['layout'][0]['properties']);
+    }
+
     /**
      * @param array<string, mixed> $payload
      *

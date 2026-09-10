@@ -440,6 +440,27 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
             'Sw:Media:Image',
         ];
+
+        yield 'mutation property unknown' => [
+            ContentSystemException::mutationPropertyUnknown('el-1', 'ghost'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN',
+            'Property "ghost" is not a primitive property declared by the type of element "el-1".',
+        ];
+
+        yield 'mutation property conflict' => [
+            ContentSystemException::mutationPropertyConflict('el-1', 'text'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT',
+            'Property "text" of element "el-1" is both written and removed by the same update.',
+        ];
+
+        yield 'mutation property value rejected' => [
+            ContentSystemException::mutationPropertyValueRejected('el-1', 'columns', 'string'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED',
+            'Value for property "columns" of element "el-1" does not match its declared type, but is string.',
+        ];
     }
 
     /**

@@ -294,6 +294,41 @@
                     }
                 ]
             },
+            "ContentLayoutUpdateElementPropertiesRequest": {
+                "title": "Update element properties request (draft)",
+                "type": "object",
+                "description": "Writes property values onto one element and drops property keys from it. At least one of `values` and `removeKeys` must be non-empty, else the request is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`.",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element whose property values are updated."
+                            },
+                            "values": {
+                                "type": "object",
+                                "description": "Property values to write, keyed by property key, each in its stored shape. A translatable property's value is a language map keyed by language id in lowercase UUID hex; a `null` writes a present null under a non-translatable primitive. Values are written as supplied — nothing is normalized and no type default is overlaid. A key must name a primitive property the element's type declares (a reference property and a `resolvedBy` storage key are rejected with `mutationPropertyUnknown`), and its value must match the declared type (else `mutationPropertyValueRejected`). An empty map serializes as `[]`.",
+                                "additionalProperties": true,
+                                "example": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale" } }
+                            },
+                            "removeKeys": {
+                                "type": "array",
+                                "description": "Property keys to drop from the element. Each must name a primitive property the element's type declares and must not also appear in `values` (else `mutationPropertyConflict`). A dropped key with a type default stays absent in the draft; the write-boundary seeder refills it on save.",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "default": []
+                            }
+                        }
+                    }
+                ]
+            },
             "ContentLayoutPersistedInsertElementRequest": {
                 "title": "Insert element request (persisted)",
                 "type": "object",
@@ -545,6 +580,41 @@
                                 "minLength": 1,
                                 "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
                                 "example": "core:Sw:Media:Image"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedUpdateElementPropertiesRequest": {
+                "title": "Update element properties request (persisted)",
+                "type": "object",
+                "description": "Writes property values onto one element of the stored layout and drops property keys from it. At least one of `values` and `removeKeys` must be non-empty, else the request is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`.",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element whose property values are updated."
+                            },
+                            "values": {
+                                "type": "object",
+                                "description": "Property values to write, keyed by property key, each in its stored shape. A translatable property's value is a language map keyed by language id in lowercase UUID hex; a `null` writes a present null under a non-translatable primitive. Values are written as supplied — the operation normalizes nothing and overlays no type default. A key must name a primitive property the element's type declares (a reference property and a `resolvedBy` storage key are rejected with `mutationPropertyUnknown`), and its value must match the declared type (else `mutationPropertyValueRejected`). An empty map serializes as `[]`.",
+                                "additionalProperties": true,
+                                "example": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale" } }
+                            },
+                            "removeKeys": {
+                                "type": "array",
+                                "description": "Property keys to drop from the element. Each must name a primitive property the element's type declares and must not also appear in `values` (else `mutationPropertyConflict`). The committing write runs the write-boundary seeder, so a dropped key with a type default is committed carrying that default again.",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "default": []
                             }
                         }
                     }

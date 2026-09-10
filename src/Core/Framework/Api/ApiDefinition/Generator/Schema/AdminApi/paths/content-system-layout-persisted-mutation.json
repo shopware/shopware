@@ -598,6 +598,63 @@
                     "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
                 }
             }
+        },
+        "/_action/content-system/layout/{layoutId}/update-element-properties": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Update an element's property values in a stored layout",
+                "operationId": "contentSystemLayoutPersistedUpdateElementProperties",
+                "description": "Applies a single property edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Writes every entry of `values` onto `elementId` and drops every key in `removeKeys`, mirroring the draft update-element-properties action. Values are written as supplied, in their stored shape, with no normalization and no type-default overlay by the operation; the committing write runs the write-boundary seeder, so a removed key with a type default is committed carrying that default again. The committing write also runs the resolvability gates, so a gate-breaking edit is rejected and nothing is written. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. A request whose `values` and `removeKeys` are both empty is rejected with `400`. Rejected with `400` in this order: an element id that is not in the layout (`mutationTargetNotFound`), an element whose component is not a registered type (`mutationUnknownType`), a key that is not a primitive property the type declares — a reference property and a `resolvedBy` storage key included (`mutationPropertyUnknown`), a key present in both lists (`mutationPropertyConflict`), and a value that does not match its declared type (`mutationPropertyValueRejected`). The first failing rule reports. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedUpdateElementPropertiesRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Write a translatable property's language map",
+                                    "value": {
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "values": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale", "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41": "Herbstschlussverkauf" } },
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                },
+                                "withRemoval": {
+                                    "summary": "Drop a property key from a never-updated layout",
+                                    "value": {
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "removeKeys": ["tag"],
+                                        "expectedVersion": null
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics, with the property edit applied.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
         }
     }
 }

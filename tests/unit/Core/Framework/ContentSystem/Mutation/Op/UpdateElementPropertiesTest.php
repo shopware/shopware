@@ -216,37 +216,44 @@ class UpdateElementPropertiesTest extends TestCase
         $update->apply(new StoredTree([$this->target()]));
     }
 
-    #[TestDox('rejects a value its declared type does not admit, naming the element, the key and the actual type')]
-    public function testValueRejectedByTheDeclaredType(): void
+    /**
+     * @param array<string, mixed> $values
+     */
+    #[DataProvider('rejectedValueProvider')]
+    #[TestDox('rejects $_dataName, naming the element, the key and the actual type')]
+    public function testValueRejectedByTheDeclaredType(array $values, ContentSystemException $expected): void
     {
-        $update = new UpdateElementProperties($this->registry(), 'block-a', ['columns' => 'three'], []);
+        $update = new UpdateElementProperties($this->registry(), 'block-a', $values, []);
 
-        $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'string'));
+        $this->expectExceptionObject($expected);
         $update->apply(new StoredTree([$this->target()]));
     }
 
-    #[TestDox('rejects a bare string under a translatable key, which only a language map admits')]
-    public function testTranslatableValueRejectedWhenItIsNotALanguageMap(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
+     */
+    public static function rejectedValueProvider(): iterable
     {
+        yield 'a value its declared type does not admit' => [
+            ['columns' => 'three'],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'string'),
+        ];
+
         // 'label' is declared `string` and translatable, so this same bare string would be admitted on the
         // non-translatable branch of PropertyType::admits(); only the translatable branch, which requires a
         // non-list array of strings, refuses it.
-        $update = new UpdateElementProperties($this->registry(), 'block-a', ['label' => 'Autumn sale'], []);
+        yield 'a bare string under a translatable key, which only a language map admits' => [
+            ['label' => 'Autumn sale'],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'string'),
+        ];
 
-        $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'string'));
-        $update->apply(new StoredTree([$this->target()]));
-    }
-
-    #[TestDox('refuses an empty language map under a translatable key, because no translations is the key being absent and never an empty map')]
-    public function testTranslatableValueRejectedWhenTheLanguageMapIsEmpty(): void
-    {
-        // StoredValue::fromDecoded([]) yields the list variant, since array_is_list([]) is true, and
-        // PropertyType::admits() refuses a list on the translatable branch. The reported actual type is
-        // get_debug_type([]), which is 'array' for both the empty list and any map.
-        $update = new UpdateElementProperties($this->registry(), 'block-a', ['label' => []], []);
-
-        $this->expectExceptionObject(ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'));
-        $update->apply(new StoredTree([$this->target()]));
+        // No translations is the key being absent and never an empty map. StoredValue::fromDecoded([]) yields
+        // the list variant, since array_is_list([]) is true, and PropertyType::admits() refuses a list on the
+        // translatable branch. The reported actual type is get_debug_type([]), 'array' for a list and a map alike.
+        yield 'an empty language map under a translatable key' => [
+            ['label' => []],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
+        ];
     }
 
     /**

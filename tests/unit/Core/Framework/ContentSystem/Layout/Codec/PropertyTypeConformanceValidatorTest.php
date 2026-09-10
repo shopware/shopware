@@ -117,9 +117,9 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a string under a number declaration' => [['ratio' => '1.5'], 'ratio', 'number', 'string'];
         yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
         yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
-        // The full reject-row set for the translatable shape (empty map, present null, non-string entry) is
-        // pinned at {@see PropertyTypeTest}; the row below proves the call to PropertyType::admits() is wired,
-        // by keeping a case a surviving private match table would judge with a different message.
+        // The full reject-row set for the translatable shape is pinned at {@see PropertyTypeTest}; the row
+        // below proves the call to PropertyType::admits() is wired, by keeping a case a surviving private
+        // match table would judge with a different message.
         yield 'a bare string under a translatable declaration' => [['text' => 'Hallo'], 'text', 'string (translatable)', 'string'];
         // The predicate's false verdict for an empty map is pinned at {@see PropertyTypeTest}; what only this
         // pass can pin is the violation a client reads for that same refusal. The declared type, the actual

@@ -21,7 +21,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
         $tag = 'shopware.increment.gateway';
 
         foreach ($services as $pool => $service) {
-            $type = $service['type'] ?? null;
+            $type = $service['type'];
 
             if (!\is_string($type)) {
                 throw IncrementException::wrongGatewayType($pool);

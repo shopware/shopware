@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class SalutationTranslationDefinition extends EntityTranslationDefinition
 {

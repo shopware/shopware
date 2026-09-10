@@ -45,6 +45,7 @@ import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRul
  * Flows
  */
 import { CreateFlowForValidation } from '@tasks/ShopAdmin/FlowBuilder/CreateFlowForValidation';
+import { WaitForFlowValidationSideEffects } from '@tasks/ShopAdmin/FlowBuilder/WaitForFlowValidationSideEffects';
 
 export const test = mergeTests(
     GenerateVariants,
@@ -57,4 +58,5 @@ export const test = mergeTests(
     CreateDocument,
     CreateRuleBillingCountry,
     CreateFlowForValidation,
+    WaitForFlowValidationSideEffects,
 );

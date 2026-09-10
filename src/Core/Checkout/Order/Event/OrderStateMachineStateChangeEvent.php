@@ -21,6 +21,11 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Flow\GenerateDocumentActionTest
+ */
 #[Package('checkout')]
 class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware, A11yRenderedDocumentAware, FlowEventAware
 {

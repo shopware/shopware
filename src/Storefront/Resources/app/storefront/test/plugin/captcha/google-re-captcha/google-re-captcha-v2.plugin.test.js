@@ -224,6 +224,56 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
         });
     });
 
+    describe('captcha reset after form submission', () => {
+        test('resets the visible widget, clears token and input and removes the error class', () => {
+            googleReCaptchav2Plugin.options.invisible = false;
+            googleReCaptchav2Plugin.grecaptchaWidgetId = 'mockWidgetId';
+            googleReCaptchav2Plugin.currentToken = 'consumed-token';
+            googleReCaptchav2Plugin.grecaptchaInput.value = 'consumed-token';
+            googleReCaptchav2Plugin.grecaptchaContainerIframe = mockIframe;
+            mockIframe.classList.add('has-error');
+
+            googleReCaptchav2Plugin.resetGreCaptcha();
+
+            expect(window.grecaptcha.reset).toHaveBeenCalledWith('mockWidgetId');
+            expect(googleReCaptchav2Plugin.currentToken).toBeNull();
+            expect(googleReCaptchav2Plugin.grecaptchaInput.value).toBe('');
+            expect(mockIframe.classList.contains('has-error')).toBe(false);
+        });
+
+        test('resets the invisible widget without touching the iframe error class', () => {
+            googleReCaptchav2Plugin.options.invisible = true;
+            googleReCaptchav2Plugin.grecaptchaWidgetId = 'mockWidgetId';
+            googleReCaptchav2Plugin.currentToken = 'consumed-token';
+            googleReCaptchav2Plugin.grecaptchaInput.value = 'consumed-token';
+
+            googleReCaptchav2Plugin.resetGreCaptcha();
+
+            expect(window.grecaptcha.reset).toHaveBeenCalledWith('mockWidgetId');
+            expect(googleReCaptchav2Plugin.currentToken).toBeNull();
+            expect(googleReCaptchav2Plugin.grecaptchaInput.value).toBe('');
+        });
+
+        test('does nothing when the widget was not rendered yet', () => {
+            googleReCaptchav2Plugin.grecaptchaWidgetId = null;
+
+            googleReCaptchav2Plugin.resetGreCaptcha();
+
+            expect(window.grecaptcha.reset).not.toHaveBeenCalled();
+        });
+
+        test('resets the captcha when the form emits an AJAX response', () => {
+            googleReCaptchav2Plugin.grecaptchaInput.value = 'consumed-token';
+            googleReCaptchav2Plugin.currentToken = 'consumed-token';
+
+            mockElement.dispatchEvent(new CustomEvent('onFormResponse'));
+
+            expect(window.grecaptcha.reset).toHaveBeenCalledWith('mockWidgetId');
+            expect(googleReCaptchav2Plugin.currentToken).toBeNull();
+            expect(googleReCaptchav2Plugin.grecaptchaInput.value).toBe('');
+        });
+    });
+
     test('provides correct captcha info', () => {
         const info = googleReCaptchav2Plugin.getGreCaptchaInfo();
 

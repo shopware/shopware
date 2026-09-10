@@ -140,11 +140,11 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
         // Verify subscriptions to both events
         expect(mockEmitter.subscribe).toHaveBeenCalledWith(
             'offCanvasOpened',
-            expect.any(Function)
+            expect.any(Function),
         );
         expect(mockEmitter.subscribe).toHaveBeenCalledWith(
             'registerEvents',
-            expect.any(Function)
+            expect.any(Function),
         );
     });
 

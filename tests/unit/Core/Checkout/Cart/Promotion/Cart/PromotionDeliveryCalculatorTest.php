@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -366,6 +367,77 @@ class PromotionDeliveryCalculatorTest extends TestCase
 
         // Should apply the lowest fixed price (20)
         static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Should set shipping to lowest fixed price of 20');
+    }
+
+    public function testNotLoggedInAddsSpecificErrorForDeliveryDiscount(): void
+    {
+        $discountItem = $this->getDiscountItem('delivery-promotion')
+            ->setPayloadValue('code', 'SHIP10')
+            ->setPayloadValue('hasPersonaRestriction', true)
+            ->setPayloadValue('conditionRuleIds', ['rule-id-1'])
+            ->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $context
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-not-logged-in', $error->getMessageKey());
+    }
+
+    public function testRuleIdsPassedForDeliveryDiscountError(): void
+    {
+        $discountItem = $this->getDiscountItem('delivery-promotion')
+            ->setPayloadValue('code', 'SHIP10')
+            ->setPayloadValue('hasPersonaRestriction', false)
+            ->setPayloadValue('conditionRuleIds', ['rule-id-1', 'rule-id-2'])
+            ->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(40.0, 40.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $context
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible', $error->getMessageKey());
+        static::assertSame(['rule-id-1', 'rule-id-2'], $error->getRuleIds());
     }
 
     private function getDiscountItem(string $promotionId): LineItem

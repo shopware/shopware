@@ -11,7 +11,7 @@ use Shopware\Core\PlatformRequest;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - Will be removed together with the BeforeCacheControlEvent and the CacheControlListener it hooks into.
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed together with the BeforeCacheControlEvent and the CacheControlListener it hooks into.
  */
 #[Package('framework')]
 readonly class AdministrationCacheControlListener

@@ -43,7 +43,7 @@ class StructEncoder implements ResetInterface
     public function reset(): void
     {
         $this->protections = [];
-        $this->blockedCustomFields = [];
+        $this->blockedCustomFields = null;
     }
 
     /**
@@ -143,7 +143,7 @@ class StructEncoder implements ResetInterface
             if ($property === 'extensions') {
                 $data[$property] = $this->encodeExtensions($struct, $fields, $value);
 
-                if (empty($data[$property])) {
+                if ($data[$property] === []) {
                     unset($data[$property]);
                 }
 

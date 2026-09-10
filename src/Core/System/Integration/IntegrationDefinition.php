@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class IntegrationDefinition extends EntityDefinition
 {
@@ -65,7 +68,9 @@ class IntegrationDefinition extends EntityDefinition
             (new StringField('access_key', 'accessKey'))->addFlags(new Required())->setDescription('Access key to store api.'),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required())->setDescription('Secret key required for secure communication.'),
             (new DateTimeField('last_usage_at', 'lastUsageAt'))->setDescription('Date and time when teh integration was last used.'),
-            (new BoolField('admin', 'admin'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('When boolean value is `true`, it indicates this is a administrative integration that requires elevated permissions.'),
+            // The regular Admin API CRUD endpoint authorizes elevated admin changes in the controller; direct DAL writes remain write-protected.
+            // @see \Shopware\Core\Framework\Api\Controller\IntegrationController
+            (new BoolField('admin', 'admin'))->addFlags((new WriteProtected(Context::SYSTEM_SCOPE))->allowWriteThroughAdminApi())->setDescription('When boolean value is `true`, it indicates this is a administrative integration that requires elevated permissions.'),
             (new JsonField('mcp_allowlist', 'mcpAllowlist'))->setDescription('Optional per-type MCP allowlist for this integration. Structured as {tools, resources, prompts} where each key is null (unrestricted) or a list of allowed names/URIs. When null all capabilities are accessible.'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new DateTimeField('deleted_at', 'deletedAt'))->setDescription('Date and time when the integration was deleted.'),

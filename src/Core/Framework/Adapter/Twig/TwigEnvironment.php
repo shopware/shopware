@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Loader\LoaderInterface;
@@ -16,7 +17,7 @@ use Twig\TemplateWrapper;
  * @internal
  */
 #[Package('framework')]
-class TwigEnvironment extends Environment
+class TwigEnvironment extends Environment implements ResetInterface
 {
     private ?\DateTimeZone $configuredTimezone = null;
 
@@ -43,6 +44,19 @@ class TwigEnvironment extends Environment
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
             '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
         ]);
+    }
+
+    /**
+     * Resets CachedEscaperRuntime static caches between requests.
+     *
+     * This is essential for long runner environments (RoadRunner, FrankenPHP, Swoole)
+     * where the same PHP process handles multiple requests. Without reset,
+     * the escape filter cache in CachedEscaperRuntime would grow unbounded,
+     * causing memory leaks.
+     */
+    public function reset(): void
+    {
+        CachedEscaperRuntime::resetEscapeCache();
     }
 
     /**

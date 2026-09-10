@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CodeCoverageIgnoreEvaluation;
 
-use Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest;
+use Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookHealthServiceTest;
 
 class MethodSeeIntegrationTestClass
 {
     /**
      * @codeCoverageIgnore
      *
-     * @see RelatedWebhooksTest
+     * @see WebhookHealthServiceTest
      */
     public function describe(int $age): string
     {

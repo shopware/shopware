@@ -15,7 +15,7 @@ import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/htt
  * @method createHTTPClient
  * @memberOf module:core/factory/http
  * @param {Context} context Information about the environment
- * @returns {AxiosInstance}
+ * @returns {import('./http-client.types').HttpClient}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createHTTPClient(context) {
@@ -34,7 +34,7 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  * Creates the HTTP client with the provided context.
  *
  * @param {Context} context Information about the environment
- * @returns {AxiosInstance}
+ * @returns {import('./http-client.types').HttpClient}
  */
 function createClient() {
     const isV68 = Shopware?.Feature?.isActive('V6_8_0_0');
@@ -87,18 +87,21 @@ function createClient() {
      * Dispatcher function that routes requests to the appropriate axios version
      * based on the useAxiosV1 flag in the request config
      *
-     * @param {Object} config - Axios request config
+     * @param {Object|string} configOrUrl - Axios request config or URL
+     * @param {Object} config - Axios request config when a URL is passed
      * @returns {Promise} - Promise that resolves with the response
      */
-    const dispatcher = (config) => {
+    const dispatcher = (configOrUrl, config = {}) => {
+        const requestConfig = typeof configOrUrl === 'string' ? { ...config, url: configOrUrl } : configOrUrl;
+
         // Determine which axios version to use:
         // 1. If useAxiosV1 is explicitly set (true/false), use that
         // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
         // 3. Fall back to v0 for backward compatibility
-        const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
+        const shouldUseV1 = requestConfig?.useAxiosV1 ?? isV68 ?? false;
         const targetAdapter = shouldUseV1 ? adapterV1 : adapterV0;
 
-        return targetAdapter.runRequest(config);
+        return targetAdapter.runRequest(requestConfig);
     };
 
     // Add standard axios methods to the dispatcher
@@ -110,6 +113,9 @@ function createClient() {
     dispatcher.post = (url, data, config = {}) => dispatcher({ ...config, method: 'post', url, data });
     dispatcher.put = (url, data, config = {}) => dispatcher({ ...config, method: 'put', url, data });
     dispatcher.patch = (url, data, config = {}) => dispatcher({ ...config, method: 'patch', url, data });
+    dispatcher.postForm = (url, data, config = {}) => dispatcher(createFormConfig('post', url, data, config));
+    dispatcher.putForm = (url, data, config = {}) => dispatcher(createFormConfig('put', url, data, config));
+    dispatcher.patchForm = (url, data, config = {}) => dispatcher(createFormConfig('patch', url, data, config));
     dispatcher.getUri = (config = {}) => {
         const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
         return shouldUseV1 ? axiosV1.getUri(config) : axiosV0.getUri(config);
@@ -123,21 +129,165 @@ function createClient() {
     // Keep CancelToken for backward compatibility with axios v0
     dispatcher.CancelToken = CancelToken;
 
-    // Add interceptors property to maintain compatibility
-    dispatcher.interceptors = isV68 ? axiosV1.interceptors : axiosV0.interceptors;
+    // Keep the public configuration surface independent of the selected axios version.
+    dispatcher.interceptors = {
+        request: createMirroredInterceptorManager(axiosV0.interceptors.request, axiosV1.interceptors.request),
+        response: createMirroredInterceptorManager(axiosV0.interceptors.response, axiosV1.interceptors.response),
+    };
+    dispatcher.defaults = createMirroredDefaults(axiosV0.defaults, axiosV1.defaults, isV68);
+
+    // Keep the former runtime escape hatches for extensions that already use them.
+    // They intentionally stay out of the TypeScript contract so new code uses the version-agnostic facade.
+    dispatcher.axiosV0 = axiosV0;
+    dispatcher.axiosV1 = axiosV1;
     dispatcher.interceptorsV0 = axiosV0.interceptors;
     dispatcher.interceptorsV1 = axiosV1.interceptors;
-
-    // Add defaults property to maintain compatibility
-    dispatcher.defaults = isV68 ? axiosV1.defaults : axiosV0.defaults;
     dispatcher.defaultsV0 = axiosV0.defaults;
     dispatcher.defaultsV1 = axiosV1.defaults;
 
-    // Expose underlying axios instances for testing/mocking purposes
-    dispatcher.axiosV0 = axiosV0;
-    dispatcher.axiosV1 = axiosV1;
-
     return dispatcher;
+}
+
+function createFormConfig(method, url, data, config) {
+    return {
+        ...config,
+        method,
+        headers: {
+            ...config.headers,
+            'Content-Type': 'multipart/form-data',
+        },
+        url,
+        data,
+    };
+}
+
+function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
+    // Keep the public facade separate from Axios' internal interceptor stacks. The
+    // initial handlers contain version-specific closures (notably the cache
+    // adapter), so copying v0 handlers into v1 would break v1 requests.
+    const handlers = axiosV0Interceptors.handlers.map(cloneInterceptorHandler);
+
+    const mirrorHandlerMutation = (property, value) => {
+        const mirroredValue = property === 'length' ? value : cloneInterceptorHandler(value);
+
+        axiosV0Interceptors.handlers[property] = mirroredValue;
+        axiosV1Interceptors.handlers[property] = mirroredValue;
+    };
+
+    const mirroredHandlers = new Proxy(handlers, {
+        set(target, property, value) {
+            Reflect.set(target, property, value);
+            mirrorHandlerMutation(property, value);
+
+            return true;
+        },
+        deleteProperty(target, property) {
+            Reflect.deleteProperty(target, property);
+            Reflect.deleteProperty(axiosV0Interceptors.handlers, property);
+            Reflect.deleteProperty(axiosV1Interceptors.handlers, property);
+
+            return true;
+        },
+    });
+    const replaceHandlers = (value) => {
+        if (value === mirroredHandlers) {
+            return;
+        }
+
+        handlers.length = 0;
+        handlers.push(...value);
+        axiosV0Interceptors.handlers = handlers.map(cloneInterceptorHandler);
+        axiosV1Interceptors.handlers = handlers.map(cloneInterceptorHandler);
+    };
+
+    return {
+        get handlers() {
+            return mirroredHandlers;
+        },
+        set handlers(value) {
+            replaceHandlers(value);
+        },
+        use(onFulfilled, onRejected, options) {
+            const id = handlers.length;
+            handlers.push({
+                fulfilled: onFulfilled,
+                rejected: onRejected,
+                synchronous: options?.synchronous ?? false,
+                runWhen: options?.runWhen ?? null,
+            });
+            axiosV0Interceptors.handlers.push(cloneInterceptorHandler(handlers[id]));
+            axiosV1Interceptors.handlers.push(cloneInterceptorHandler(handlers[id]));
+
+            return id;
+        },
+        eject(id) {
+            if (!handlers[id]) {
+                return;
+            }
+
+            handlers[id] = null;
+            axiosV0Interceptors.eject(id);
+            axiosV1Interceptors.eject(id);
+        },
+        clear() {
+            replaceHandlers([]);
+        },
+        forEach(callback) {
+            handlers.forEach((handler) => {
+                if (handler !== null) {
+                    callback(handler);
+                }
+            });
+        },
+    };
+}
+
+function cloneInterceptorHandler(handler) {
+    return handler === null || handler === undefined ? handler : { ...handler };
+}
+
+function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {
+    const primaryDefaults = isV68 ? axiosV1Defaults : axiosV0Defaults;
+    const secondaryDefaults = isV68 ? axiosV0Defaults : axiosV1Defaults;
+    const originalAdapters = [
+        primaryDefaults.adapter,
+        secondaryDefaults.adapter,
+    ];
+
+    return createMirroredObject(primaryDefaults, secondaryDefaults, originalAdapters);
+}
+
+function createMirroredObject(primary, secondary, originalAdapters = null) {
+    return new Proxy(primary, {
+        get(target, property) {
+            const value = Reflect.get(target, property);
+            const secondaryValue = Reflect.get(secondary, property);
+
+            if (isObject(value) && isObject(secondaryValue)) {
+                return createMirroredObject(value, secondaryValue);
+            }
+
+            return value;
+        },
+        set(target, property, value) {
+            Reflect.set(target, property, value);
+
+            const secondaryValue =
+                property === 'adapter' && originalAdapters && value === originalAdapters[0] ? originalAdapters[1] : value;
+            Reflect.set(secondary, property, secondaryValue);
+
+            return true;
+        },
+        deleteProperty(target, property) {
+            Reflect.deleteProperty(target, property);
+            Reflect.deleteProperty(secondary, property);
+            return true;
+        },
+    });
+}
+
+function isObject(value) {
+    return value !== null && typeof value === 'object';
 }
 
 /**

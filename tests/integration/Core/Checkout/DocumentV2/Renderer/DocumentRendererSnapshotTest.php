@@ -4,6 +4,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer as LegacyDeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -18,10 +23,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\CreditNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CreditNoteRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DeliveryNoteRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
@@ -39,6 +46,7 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
@@ -171,6 +179,11 @@ class DocumentRendererSnapshotTest extends TestCase
         yield 'storno' => [
             'documentType' => DocumentType::CANCELLATION_INVOICE,
             'dataProviderClass' => CancellationInvoiceDataProvider::class,
+        ];
+
+        yield 'credit_note' => [
+            'documentType' => DocumentType::CREDIT_NOTE,
+            'dataProviderClass' => CreditNoteDataProvider::class,
         ];
 
         yield 'delivery_note' => [
@@ -321,14 +334,73 @@ class DocumentRendererSnapshotTest extends TestCase
             DocumentMetaProvider::KEY => $this->buildMeta($companyCountry, $itemsPerPage),
         ];
 
-        /** @phpstan-ignore match.unhandled */
         $data += match ($documentType) {
             DocumentType::INVOICE => [InvoiceDataProvider::KEY => $this->buildInvoiceRenderData($order)],
             DocumentType::CANCELLATION_INVOICE => [CancellationInvoiceDataProvider::KEY => $this->buildCancellationInvoiceRenderData($order)],
+            DocumentType::CREDIT_NOTE => [CreditNoteDataProvider::KEY => $this->buildCreditNoteRenderData($order)],
             DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY => $this->buildDeliveryNoteRenderData()],
+            /**
+             * The app_provided sentinel is not a renderable document type, it carries no provider data.
+             *
+             * @phpstan-ignore classConstant.deprecated
+             */
+            DocumentType::APP_PROVIDED => [],
         };
 
         return $data;
+    }
+
+    private function buildCreditNoteRenderData(OrderEntity $order): CreditNoteRenderData
+    {
+        $this->seedDemoBaseConfig('credit_note');
+
+        $referencedInvoiceId = $this->seedReferenceInvoice($order->getId());
+
+        $order->getLineItems()?->add($this->buildCreditLineItem());
+
+        $provider = static::getContainer()->get(CreditNoteDataProvider::class);
+
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            DocumentType::CREDIT_NOTE,
+            [DocumentFormat::ZUGFERD_XML],
+            self::DOCUMENT_NUMBER,
+            documentDate: self::DOCUMENT_DATE,
+        );
+
+        $input = new ProviderInput($order, $request, new ReferencedDocument(
+            id: $referencedInvoiceId,
+            documentNumber: self::DOCUMENT_NUMBER,
+            orderVersionId: $order->getVersionId() ?? Defaults::LIVE_VERSION,
+        ));
+
+        return $provider->provideRenderingData($input, $this->context);
+    }
+
+    private function buildCreditLineItem(): OrderLineItemEntity
+    {
+        $credit = new OrderLineItemEntity();
+        $credit->setId(Uuid::randomHex());
+        $credit->setUniqueIdentifier(Uuid::randomHex());
+        $credit->setType(LineItem::CREDIT_LINE_ITEM_TYPE);
+        $credit->setIdentifier('credit');
+        $credit->setLabel('Credit');
+        $credit->setPosition(100);
+        $credit->setQuantity(1);
+        $credit->setUnitPrice(-40.0);
+        $credit->setTotalPrice(-40.0);
+        $credit->setPrice(new CalculatedPrice(
+            -40.0,
+            -40.0,
+            new CalculatedTaxCollection([
+                new CalculatedTax(-3.8, 19.0, -20.0),
+                new CalculatedTax(-1.4, 7.0, -20.0),
+            ]),
+            new TaxRuleCollection(),
+            1,
+        ));
+
+        return $credit;
     }
 
     private function buildCancellationInvoiceRenderData(OrderEntity $order): CancellationInvoiceRenderData

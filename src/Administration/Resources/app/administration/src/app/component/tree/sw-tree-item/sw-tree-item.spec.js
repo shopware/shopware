@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({ stubs } = {}) {
+async function createWrapper({ props, stubs, provide } = {}) {
     return mount(await wrapTestComponent('sw-tree-item', { sync: true }), {
         attachTo: document.body,
         props: {
@@ -14,6 +14,7 @@ async function createWrapper({ stubs } = {}) {
                 },
                 children: [],
             },
+            ...props,
         },
         global: {
             renderStubDefaultSlot: true,
@@ -32,6 +33,7 @@ async function createWrapper({ stubs } = {}) {
             },
             provide: {
                 getItems: () => {},
+                ...provide,
             },
             directives: {
                 tooltip: {
@@ -54,6 +56,54 @@ async function createWrapper({ stubs } = {}) {
 }
 
 describe('src/app/component/tree/sw-tree-item', () => {
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    it('should move the dragged item into a folder after hovering over it', async () => {
+        jest.useFakeTimers();
+        const moveDrag = jest.fn();
+        const openTreeById = jest.fn();
+        const wrapper = await createWrapper({
+            props: {
+                allowDropIntoFolder: true,
+            },
+            provide: {
+                moveDrag,
+                openTreeById,
+            },
+        });
+        const draggedItem = { id: 'dragged' };
+
+        wrapper.vm.onMouseEnter(draggedItem, wrapper.vm.item);
+        jest.advanceTimersByTime(1200);
+
+        expect(openTreeById).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(moveDrag).toHaveBeenLastCalledWith(draggedItem, wrapper.vm.item, true);
+    });
+
+    it('should not move the dragged item into a folder after leaving it', async () => {
+        jest.useFakeTimers();
+        const moveDrag = jest.fn();
+        const openTreeById = jest.fn();
+        const wrapper = await createWrapper({
+            props: {
+                allowDropIntoFolder: true,
+            },
+            provide: {
+                moveDrag,
+                openTreeById,
+            },
+        });
+
+        wrapper.vm.onMouseEnter({ id: 'dragged' }, wrapper.vm.item);
+        wrapper.vm.onMouseLeave();
+        jest.advanceTimersByTime(1200);
+
+        expect(openTreeById).not.toHaveBeenCalled();
+        expect(moveDrag).not.toHaveBeenCalledWith(expect.anything(), expect.anything(), true);
+    });
+
     it('should have an enabled context menu', async () => {
         const wrapper = await createWrapper();
 

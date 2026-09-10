@@ -35,6 +35,8 @@
             <option value="{{ country.id }}"
                     {% if country.id == initialCountryId %}selected="selected"{% endif %}
                     data-zipcode-required="{{ country.postalCodeRequired }}"
+                    data-zipcode-pattern="{{ country.checkAdvancedPostalCodePattern ? country.advancedPostalCodePattern : country.defaultPostalCodePattern }}"
+                    data-check-zipcode-pattern="{{ country.checkPostalCodePattern or country.checkAdvancedPostalCodePattern }}"
                     data-vat-id-required="{{ country.vatIdRequired }}"
                     data-vat-id-pattern="{{ country.vatIdPattern }}"
                     data-check-vat-id-pattern="{{ country.checkVatIdPattern }}"

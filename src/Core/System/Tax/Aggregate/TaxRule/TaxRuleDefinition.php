@@ -20,6 +20,9 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class TaxRuleDefinition extends EntityDefinition
 {

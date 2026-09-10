@@ -18,20 +18,49 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-tabs', () => {
-    it('should render the deprecated tabs when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
+    it('should render the deprecated tabs by default', async () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.html()).not.toContain('mt-tabs');
+        expect(warnSpy.mock.calls).toEqual(
+            Shopware.Feature.isActive('V6_8_0_0')
+                ? [
+                      [
+                          'sw-tabs',
+                          'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
+                      ],
+                  ]
+                : [],
+        );
+
+        warnSpy.mockRestore();
     });
 
-    it('should render the mt-tabs when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['V6_8_0_0'];
-
-        const wrapper = await createWrapper();
+    it('should render the mt-tabs with an opt-in before the v6.8.0.0 feature flag is active', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                useMeteorComponent: true,
+            },
+        });
 
         expect(wrapper.html()).toContain('mt-tabs');
+        expect(wrapper.html()).not.toContain('sw-tabs-deprecated');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the mt-tabs with an opt-in', async () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+        const wrapper = await createWrapper({
+            props: {
+                useMeteorComponent: true,
+            },
+        });
+
+        expect(wrapper.html()).toContain('mt-tabs');
+        expect(wrapper.html()).not.toContain('sw-tabs-deprecated');
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
     });
 });

@@ -5,20 +5,63 @@
 >
     <div v-if="loginConfigLoaded">
         {% block sw_login_login_form_headline %}
-        <h2 class="sw-login__content-headline">
-            {{ $t('sw-login.index.headlineForm') }}
-        </h2>
+        <div class="sw-login__heading">
+            <h1 class="sw-login__content-headline">
+                {{ $t('sw-login.index.headlineForm') }}
+            </h1>
+        </div>
         {% endblock %}
 
         {% block sw_login_login_alert %}
         <mt-banner
             v-if="showLoginAlert"
-            variant="info"
+            class="sw-login__alert-banner"
+            variant="attention"
             :show-icon="true"
             :closable="false"
         >
             {{ loginAlertMessage }}
         </mt-banner>
+        {% endblock %}
+
+        {% block sw_login_login_sso %}
+        <div
+            v-if="loginConfig.url"
+            class="sw-login__sso"
+        >
+            {% block sw_login_login_sso_button %}
+            <mt-button
+                class="sw-login__sso-button"
+                :is-loading="ssoLoading"
+                :block="true"
+                size="default"
+                variant="secondary"
+                @click.prevent="doSsoForwarding"
+            >
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-shopware"
+                        class="sw-login__sso-button-icon"
+                        size="16px"
+                        decorative
+                    />
+                </template>
+
+                {{ $t('sw-login.index.buttonSsoLogin') }}
+            </mt-button>
+            {% endblock %}
+
+            {% block sw_login_login_sso_divider %}
+            <div
+                v-if="loginConfig.useDefault"
+                class="sw-login__sso-divider"
+            >
+                <span class="sw-login__sso-divider-text">
+                    {{ $t('sw-login.index.orContinueWith') }}
+                </span>
+            </div>
+            {% endblock %}
+        </div>
         {% endblock %}
 
         <div v-if="loginConfig.useDefault">
@@ -28,7 +71,6 @@
                 v-autofocus
                 name="sw-field--username"
                 :label="$t('sw-login.index.labelUsername')"
-                :placeholder="$t('sw-login.index.placeholderUsername')"
                 :disabled="showLoginAlert"
                 required
             />
@@ -39,14 +81,30 @@
                 v-model="password"
                 name="sw-field--password"
                 :label="$t('sw-login.index.labelPassword')"
-                :placeholder="$t('sw-login.index.placeholderPassword')"
                 :disabled="showLoginAlert"
                 required
             />
             {% endblock %}
 
+            {% block sw_login_login_error %}
+            <mt-banner
+                v-if="loginErrorMessage"
+                class="sw-login__error-banner"
+                variant="critical"
+                :show-icon="true"
+                :closable="false"
+            >
+                {{ loginErrorMessage }}
+            </mt-banner>
+            {% endblock %}
+
             {% block sw_login_login_submit %}
             <div class="sw-login__submit">
+                <mt-checkbox
+                    v-model:checked="rememberMe"
+                    :label="$t('sw-login.index.labelKeepLoggedIn')"
+                />
+
                 {% block sw_login_login_submit_button %}
                 <mt-button
                     :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
@@ -59,59 +117,17 @@
                     {{ $t('sw-login.index.buttonLogin') }}
                 </mt-button>
                 {% endblock %}
-
-                <div class="sw-login__submit-container">
-                    <mt-checkbox
-                        v-model:checked="rememberMe"
-                        :label="$t('sw-login.index.labelKeepLoggedIn')"
-                    />
-
-                    {% block sw_login_login_forgot_password %}
-                    <mt-link
-                        :to="{ name: 'sw.login.index.recovery' }"
-                        class="sw-login__forgot-password-action"
-                    >
-                        {{ $t('sw-login.index.forgottenPasswordLink') }}
-                    </mt-link>
-                    {% endblock %}
-                </div>
             </div>
             {% endblock %}
         </div>
-
-        <div
-            v-if="loginConfig.url"
-            class="sw-login__sso"
-        >
-            <div class="sw-login__sso-divider">
-                <span class="sw-login__sso-divider-text">
-                    {{ $t('sw-login.index.orContinueWith') }}
-                </span>
-            </div>
-
-            <mt-button
-                class="sw-login__sso-button"
-                :disabled="!loginConfigLoaded"
-                :is-loading="ssoLoading"
-                :block="true"
-                size="default"
-                variant="secondary"
-                @click.prevent="doSsoForwarding"
-            >
-                <template #iconFront>
-                    <mt-icon
-                        name="regular-shopware"
-                        class="sw-login__sso-button-icon"
-                        size="14px"
-                    />
-                </template>
-
-                {{ $t('sw-login.index.buttonSsoLogin') }}
-            </mt-button>
-        </div>
     </div>
 
-    <div v-else>
+    <div
+        v-else
+        class="sw-login__view-loader"
+        role="status"
+        :aria-label="$t('sw-login.general.loadingLabel')"
+    >
         <mt-loader />
     </div>
 </form>

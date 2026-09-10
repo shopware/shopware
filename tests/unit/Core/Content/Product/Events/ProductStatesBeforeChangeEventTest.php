@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -17,20 +17,20 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ProductStatesBeforeChangeEvent::class)]
 class ProductStatesBeforeChangeEventTest extends TestCase
 {
-    public function testProductStatesBeforeChangeEvent(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUpdatedStatesCanBeReadAndReplaced(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-        $updatedStates = [new UpdatedStates('foobar', ['foo'], ['bar'])];
         $context = Context::createDefaultContext();
+        $initial = [new UpdatedStates('product-id', ['physical'], ['digital'])];
 
-        $event = new ProductStatesBeforeChangeEvent($updatedStates, $context);
+        $event = new ProductStatesBeforeChangeEvent($initial, $context);
 
-        static::assertSame($updatedStates, $event->getUpdatedStates());
+        static::assertSame($initial, $event->getUpdatedStates());
         static::assertSame($context, $event->getContext());
 
-        $updatedStates = [new UpdatedStates('foobar', ['foo'], ['baz'])];
-        $event->setUpdatedStates($updatedStates);
+        $replacement = [new UpdatedStates('other-id', ['digital'], ['physical'])];
+        $event->setUpdatedStates($replacement);
 
-        static::assertSame($updatedStates, $event->getUpdatedStates());
+        static::assertSame($replacement, $event->getUpdatedStates());
     }
 }

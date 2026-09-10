@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\Commands\SitemapGenerateCommand;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
+use Shopware\Core\Content\Sitemap\Service\SitemapSalesChannelLoader;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +15,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -35,10 +38,12 @@ class SitemapGenerateCommandTest extends TestCase
         $this->exporter = $this->createMock(SitemapExporter::class);
 
         $this->command = new SitemapGenerateCommand(
-            static::getContainer()->get('sales_channel.repository'),
+            new SitemapSalesChannelLoader(
+                static::getContainer()->get('sales_channel.repository'),
+                $this->createMock(EventDispatcher::class)
+            ),
             $this->exporter,
-            static::getContainer()->get(SalesChannelContextFactory::class),
-            $this->createMock(EventDispatcher::class)
+            static::getContainer()->get(SalesChannelContextFactory::class)
         );
     }
 
@@ -86,6 +91,96 @@ class SitemapGenerateCommandTest extends TestCase
             ->method('generate')
             ->with(static::callback(static function (SalesChannelContext $context) use ($storefrontId) {
                 static::assertSame($storefrontId, $context->getSalesChannelId());
+
+                return true;
+            }))
+            ->willReturn($result);
+
+        $input = new ArrayInput([]);
+        $this->command->run($input, new NullOutput());
+    }
+
+    public function testContinuesWhenSitemapGenerationIsLocked(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM sales_channel');
+
+        $storefrontId = Uuid::randomHex();
+        $this->createSalesChannel([
+            'id' => $storefrontId,
+            'name' => 'storefront',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://valid.test',
+            ]],
+        ]);
+
+        // hold the lock like a concurrently running generation would
+        $cache = static::getContainer()->get('cache.system');
+        $lockKey = \sprintf('sitemap-exporter-running-%s-%s', $storefrontId, Defaults::LANGUAGE_SYSTEM);
+        $lock = $cache->getItem($lockKey);
+        $lock->set(true);
+        $cache->save($lock);
+
+        $command = new SitemapGenerateCommand(
+            new SitemapSalesChannelLoader(
+                static::getContainer()->get('sales_channel.repository'),
+                $this->createMock(EventDispatcher::class)
+            ),
+            static::getContainer()->get(SitemapExporter::class),
+            static::getContainer()->get(SalesChannelContextFactory::class)
+        );
+
+        $output = new BufferedOutput();
+
+        try {
+            $status = $command->run(new ArrayInput([]), $output);
+        } finally {
+            $cache->deleteItem($lockKey);
+        }
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertStringContainsString('ERROR: Cannot acquire lock', $output->fetch());
+    }
+
+    public function testGeneratesHeadlessSalesChannelWithExternalStorefrontDomain(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM sales_channel');
+
+        $headlessId = Uuid::randomHex();
+        $this->createSalesChannel([
+            'id' => $headlessId,
+            'name' => 'headless',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://frontend.test',
+                    'isExternalStorefront' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://api.test',
+                ],
+            ],
+        ]);
+
+        $result = new SitemapGenerationResult(true, null, null, $headlessId, Defaults::LANGUAGE_SYSTEM);
+
+        // exactly one generation run: only the external storefront domain qualifies the language
+        $this->exporter->expects($this->once())
+            ->method('generate')
+            ->with(static::callback(static function (SalesChannelContext $context) use ($headlessId) {
+                static::assertSame($headlessId, $context->getSalesChannelId());
+                static::assertSame(Defaults::LANGUAGE_SYSTEM, $context->getLanguageId());
 
                 return true;
             }))

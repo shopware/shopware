@@ -1,0 +1,91 @@
+name: Reproduce Evidence Cleanup
+
+# Weekly prune of the reproduction evidence branch (ci/repro-evidence) — a git branch of committed
+# png/webm blobs (embedded in verdict comments via a stable raw URL) that has NO auto-expiry and
+# grows one commit per run. It is pruned by rebuilding it as a fresh orphan (dropping the runs/ dirs
+# whose issue has been closed > 7 days) and force-pushing with lease, so the dropped blobs become
+# unreferenced and GitHub's periodic GC reclaims them. (Uploaded Actions artifacts are not touched —
+# they self-expire on their retention-days.)
+#
+# How a runs/ dir is traced back to its issue: embed-evidence.sh commits blobs under
+# runs/<RUN_ID>/*.{png,webm}, so the directory NAME is the run id. reproduce.md sets run-name
+# "Reproduce #<n>", so the run's display_title (fallback: name) carries the issue number, extracted
+# with /#(\d+)/. Chain: runs/<RUN_ID> -> run -> title -> issue -> closed_at (the cutoff).
+on:
+  schedule:
+    - cron: '23 3 * * 1'   # weekly, Monday 03:23 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List deletions without deleting anything'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  actions: read     # read run titles to map runs/<id> -> issue
+  contents: write   # force-push the pruned evidence branch
+  issues: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Drop the runs/<id> dirs whose issue has been closed > 7 days, then rebuild the branch as a
+      # single fresh orphan commit and force-push with lease — this leaves the dropped blobs
+      # unreferenced for GitHub's GC (a plain delete-commit would keep them in history).
+      - name: Prune evidence branch
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          BRANCH: ci/repro-evidence   # hardcoded: a repo var here could redirect the force-push to any branch
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # This job force-pushes an orphan history with a contents:write token. Refuse any branch
+          # other than the dedicated evidence namespace so it can never rewrite a real branch.
+          [ "$BRANCH" = "ci/repro-evidence" ] || { echo "::error::refusing to prune non-evidence branch '$BRANCH'"; exit 1; }
+          cutoff=$(( $(date -u +%s) - 7*24*3600 ))
+          work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
+          git -C "$work" init -q
+          git -C "$work" remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+          if ! git -C "$work" fetch -q --depth 1 origin "$BRANCH"; then
+            echo "evidence branch '$BRANCH' does not exist — nothing to prune"; exit 0
+          fi
+          git -C "$work" checkout -q FETCH_HEAD
+          base=$(git -C "$work" rev-parse FETCH_HEAD)
+          [ -d "$work/runs" ] || { echo "no runs/ in '$BRANCH' — nothing to prune"; exit 0; }
+
+          keep=0; drop=0
+          for d in "$work"/runs/*/; do
+            [ -d "$d" ] || continue
+            run_id=$(basename "$d")
+            # Map run -> issue (run title "Reproduce #<n>") -> closed_at.
+            title=$(gh api "repos/$REPO/actions/runs/$run_id" --jq '.display_title // .name // ""' 2>/dev/null || echo "")
+            issue=$(printf '%s' "$title" | grep -oiE '#[0-9]+' | head -1 | tr -d '#')
+            closed=""
+            [ -n "$issue" ] && closed=$(gh api "repos/$REPO/issues/$issue" \
+              --jq 'select(.state=="closed" and (.pull_request|not)) | .closed_at // ""' 2>/dev/null || echo "")
+            ce=0; [ -n "$closed" ] && ce=$(date -u -d "$closed" +%s 2>/dev/null || echo 0)
+            if [ "$ce" -gt 0 ] && [ "$ce" -le "$cutoff" ]; then
+              echo "prune runs/$run_id (issue #$issue closed $closed)"; rm -rf "$d"; drop=$((drop+1))
+            else
+              keep=$((keep+1))   # open, recent, or undeterminable → keep (safe default)
+            fi
+          done
+          echo "evidence branch: keep=$keep drop=$drop"
+          [ "$drop" -eq 0 ] && { echo "nothing to prune"; exit 0; }
+          if [ "${DRY_RUN}" = "true" ]; then echo "(dry run) would rebuild '$BRANCH' keeping $keep run(s), dropping $drop"; exit 0; fi
+
+          git -C "$work" checkout -q --orphan pruned
+          git -C "$work" add -A
+          git -C "$work" -c user.name=github-actions -c user.email=actions@github.com \
+            commit -q -m "prune evidence: keep $keep run(s), drop $drop closed-issue run(s)"
+          # Lease against the tip we fetched, so a concurrent evidence push isn't silently clobbered;
+          # if it moved, skip this run rather than fail the job — next week's run will prune again.
+          if git -C "$work" push -q --force-with-lease="refs/heads/$BRANCH:$base" origin "HEAD:refs/heads/$BRANCH"; then
+            echo "rebuilt '$BRANCH' as a fresh orphan ($keep run(s) kept); dropped blobs are now unreferenced for GC"
+          else
+            echo "::warning::force-with-lease rejected — the evidence branch moved during prune (concurrent run); retrying next week"
+          fi

@@ -1,0 +1,64 @@
+{
+  "_comment": "All human-facing comment copy. Edit wording here — comment.mjs only selects and fills {{PLACEHOLDER}}s. FIX = candidate fix, UNSURE = why the verdict isn't trusted.",
+  "verdicts": {
+    "live_bug": {
+      "headline": "Bug reproduced — present on the reported version and on trunk",
+      "badge": "🔴 Live bug",
+      "callout": ""
+    },
+    "fixed_on_trunk": {
+      "headline": "Bug reproduced on the reported version — already fixed on trunk",
+      "badge": "🟢 Fixed on trunk",
+      "callout": ""
+    },
+    "regression": {
+      "headline": "Regression — fine on the reported version, broken on trunk",
+      "badge": "🟠 Regression",
+      "callout": "> [!WARNING]\n> Confirm the reported leg actually exercised the symptom — a missing fixture can fake a regression."
+    },
+    "not_reproducible": {
+      "headline": "Could not reproduce the bug",
+      "badge": "⚪ Not reproducible",
+      "callout": "> [!NOTE]\n> The symptom was observed on NEITHER version, including the reported (buggy) one — most often the repro doesn't faithfully hit the scenario. Confirm before closing."
+    },
+    "needs_human_review": {
+      "headline": "{{NHR_HEADLINE}}",
+      "badge": "🟡 Needs human review",
+      "callout": "{{NHR_CALLOUT}}"
+    },
+    "blocked": {
+      "headline": "Reproduction blocked (environment)",
+      "badge": "⚫ Blocked",
+      "callout": ""
+    }
+  },
+  "phrases": {
+    "nhr_headline_with_fix": "Reported precondition not found — needs human review",
+    "nhr_headline": "Needs human review",
+    "nhr_callout_with_fix": "> [!CAUTION]\n> Treat as inconclusive — inspect {{FIX}} as a possible fix candidate for the missing reported state.",
+    "nhr_callout": "> [!CAUTION]\n> Treat as unconfirmed — a human should verify the repro faithfully matches the report before acting.",
+    "status": {
+      "reproduced": "🔴 reproduced",
+      "not_reproduced": "🟢 not reproduced",
+      "inconclusive": "🟡 inconclusive",
+      "blocked": "⚫ blocked",
+      "null": "— not run"
+    },
+    "gloss": {
+      "reproduced": "→ the healthy assertion **failed**, so the symptom is present — **bug reproduced**.",
+      "not_reproduced": "→ the healthy assertion **passed** — no symptom on this version (**healthy**).",
+      "inconclusive": "→ the symptom **could not be judged** here — needs a human look.",
+      "blocked": "→ the environment/seed **failed** — this leg did not run."
+    },
+    "surface": {
+      "storefront-ui": "Storefront (browser)",
+      "admin-ui": "Admin (browser)",
+      "store-api": "Store API",
+      "admin-api": "Admin API",
+      "service": "service / DAL"
+    },
+    "executor": { "playwright": "Playwright", "http": "HTTP", "direct": "PHPUnit" },
+    "testcase_tool": { "playwright": "Playwright", "http": "curl", "direct": "PHPUnit" }
+  },
+  "incomplete_reason_default": "The agent did not produce a verified reproduction bundle."
+}

@@ -1,0 +1,124 @@
+# End-to-end test of the reproduce action against a REAL provisioned Shopware, with a scripted fake
+# agent (no LLM). This is the "red field" coverage the unit suite can't give: real provisioning, the
+# live-shop executors (http/direct/playwright), sandbox arming, and the executor→verdict→comment spine.
+#
+# Triggers, by intent:
+#   pull_request (path-filtered) → catches OUR regressions at the PR that caused them.
+#   schedule (nightly)           → catches EXTERNAL drift (new Shopware release, setup-shopware/runner
+#                                  image changes) that a path filter would miss because our files
+#                                  didn't change — the "environment drift" this action is most exposed to.
+#   workflow_dispatch            → on demand.
+#
+# NOTE: the harness + http scenarios are validated locally against a mock; the direct/playwright legs
+# and the full provisioning path are first exercised HERE and may need iteration on the first real run.
+name: reproduce-action-e2e
+
+on:
+  pull_request:
+    paths:
+      - '.github/actions/reproduce/**'
+      - '.github/workflows/reproduce-e2e.yml'
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reproduce-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      # Provision a real shop. trunk keeps the e2e independent of version-resolution heuristics; the
+      # nightly signal is "does the current toolchain still provision + reproduce end to end".
+      - name: Provision Shopware (trunk)
+        uses: shopware/setup-shopware@e12701e21d8a6003103426969ba544cdc91bf41c # v2.0.12
+        with:
+          shopware-version: trunk
+          shopware-repository: shopware/shopware
+          path: shop
+          php-version: "8.4"
+          composer-root-version: .auto
+          mysql-version: "builtin"
+          install: "true"
+          install-admin: "true"
+          install-storefront: "true"
+          skip-js-build: "false"
+          env: prod
+
+      - name: Finish provision
+        id: provision
+        env:
+          SHOP_DIR: shop
+          DEMODATA: "false"
+        run: bash .github/actions/reproduce/steps/finish-provision.sh
+
+      # Register host.docker.internal as an additional storefront domain so the sandboxed direct/pw
+      # containers reach the shop at the same origin the host-side legs use.
+      - name: Register sandbox host as a storefront domain
+        env:
+          SHOP_DIR: shop
+          SANDBOX_URL: http://host.docker.internal:8000
+        run: bash .github/actions/reproduce/steps/register-sandbox-domain.sh
+
+      - name: Snapshot clean DB
+        run: bash .github/actions/reproduce/steps/snapshot-db.sh
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22'
+
+      # Host-side Playwright is used to mint the storefront consent / admin login storage-state; the
+      # sandboxed spec itself runs against the image's browsers.
+      - name: Install Playwright (host, for storage-state)
+        run: |
+          npm init -y >/dev/null
+          npm i -D @playwright/test
+          npx playwright install --with-deps chromium
+
+      # Full arm (all executors, CI parity): resolve host.docker.internal on the host, build/pull the
+      # sandbox images, relay the builtin MySQL to the docker gateway (direct), then DROP container
+      # egress. Exports REPRO_SANDBOX* + ARMED so drive.sh's own light-arm is a no-op (it respects a
+      # pre-armed env). Mirrors the arm steps in reproduce.md.
+      - name: Arm sandbox (direct + playwright)
+        run: |
+          set -euo pipefail
+          echo '127.0.0.1 host.docker.internal' | sudo tee -a /etc/hosts >/dev/null
+          docker build -t repro-php:local - < .github/actions/reproduce/dev/php-sandbox.Dockerfile
+          docker build -t repro-jq:local  - < .github/actions/reproduce/dev/jq-sandbox.Dockerfile
+          PW_VER=$(node -p "require('@playwright/test/package.json').version")
+          PW_IMG="mcr.microsoft.com/playwright:v${PW_VER}-noble"
+          docker pull "$PW_IMG"
+          command -v socat >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q socat; }
+          GW=$(ip -4 -o addr show docker0 | awk '{print $4}' | cut -d/ -f1)
+          sudo socat "TCP-LISTEN:3306,bind=${GW},fork,reuseaddr" TCP:127.0.0.1:3306 &
+          sleep 2
+          sudo iptables -I DOCKER-USER -j DROP
+          {
+            echo "REPRO_SANDBOX=1"
+            echo "REPRO_SANDBOX_PHP_IMAGE=repro-php:local"
+            echo "REPRO_SANDBOX_JQ_IMAGE=repro-jq:local"
+            echo "REPRO_SANDBOX_PW_IMAGE=$PW_IMG"
+            echo "REPRO_SANDBOX_ARMED=1"
+          } >> "$GITHUB_ENV"
+
+      - name: Run e2e scenarios
+        env:
+          APP_URL: http://host.docker.internal:8000
+          SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
+          SHOP_DIR: shop
+          ADMIN_USER: admin
+          ADMIN_PASS: shopware
+          REPORTED_VERSION: trunk
+        run: |
+          bash .github/actions/reproduce/tests/e2e/drive.sh --lockdown \
+            healthy-store-api reproduced-store-api reproduced-direct healthy-storefront

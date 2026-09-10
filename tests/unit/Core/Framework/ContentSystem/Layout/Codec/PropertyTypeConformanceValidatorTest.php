@@ -118,9 +118,13 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
         yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
         // The full reject-row set for the translatable shape (empty map, present null, non-string entry) is
-        // pinned once at {@see PropertyTypeTest}; this keeps only the row that a surviving private match table
-        // would judge with a different message, to prove the call to PropertyType::admits() is wired.
+        // pinned at {@see PropertyTypeTest}; the row below proves the call to PropertyType::admits() is wired,
+        // by keeping a case a surviving private match table would judge with a different message.
         yield 'a bare string under a translatable declaration' => [['text' => 'Hallo'], 'text', 'string (translatable)', 'string'];
+        // The predicate's false verdict for an empty map is pinned at {@see PropertyTypeTest}; what only this
+        // pass can pin is the violation a client reads for that same refusal. The declared type, the actual
+        // type and the path are what the predicate's boolean does not express.
+        yield 'an empty language map, refused because absence rather than an empty map means no translations' => [['text' => []], 'text', 'string (translatable)', 'array'];
     }
 
     #[DataProvider('rejectsLanguageKeyProvider')]

@@ -659,6 +659,29 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame('Seeded headline', $stored->asString());
     }
 
+    #[TestDox('commits the reseeded type default of a translatable key as a one-entry language map under the anchor language, not as a bare scalar')]
+    public function testUpdatePropertiesCommitsTheReseededTranslatableDefaultAsALanguageMap(): void
+    {
+        $layoutId = $this->createLayout([[
+            'id' => 'block-a',
+            'component' => TestElementTypeLoader::DEFAULTED_TRANSLATABLE,
+            'properties' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Authored tagline']],
+        ]]);
+
+        // same removal as the non-translatable case above; what differs is the shape the seeder puts back, which
+        // PropertyType::storedDefault() decides: a translatable declaration seeds its default under the anchor
+        // language rather than storing the bare scalar
+        $this->mutate('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'removeKeys' => ['tagline'],
+            'expectedVersion' => null,
+        ]);
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('tagline');
+        static::assertNotNull($stored);
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => 'Seeded tagline'], $stored->jsonSerialize());
+    }
+
     #[TestDox('rejects a persisted update that removes the anchor entry of a required translatable property without writing')]
     public function testUpdatePropertiesRejectsRemovingTheAnchorEntryOfARequiredTranslatableProperty(): void
     {

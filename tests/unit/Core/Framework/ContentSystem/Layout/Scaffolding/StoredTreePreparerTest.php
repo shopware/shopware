@@ -423,6 +423,39 @@ class StoredTreePreparerTest extends TestCase
         yield 'map with an integer entry' => [[Defaults::LANGUAGE_SYSTEM => 7], 'a map with a non-string entry'];
     }
 
+    /**
+     * An empty map is the shape a writer reaches for to mean "no translations", and reduction refuses it:
+     * absence of the key is that meaning, so a zero-entry value is the same internal fault as any other
+     * non-map. The raw `[]` reaches reduction as the list variant, because `StoredValue::fromDecoded()`
+     * wraps an array whose keys are a zero-based sequence as a list and an empty array is such a sequence,
+     * so the reported type is `list` rather than `get_debug_type([])`'s `array`.
+     *
+     * The benign contrast is a NON-empty map that merely carries no entry for a requested language: the shape
+     * check passes, no chain language matches, and it collapses to the null variant instead of throwing.
+     */
+    #[TestDox('refuses an empty language map as an internal fault, where a map that only lacks the chain language collapses to the null variant')]
+    public function testPrepareRefusesAnEmptyLanguageMap(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [])
+            ->build();
+
+        try {
+            $this->prepare([$element], []);
+            static::fail('Expected the empty language map to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::TRANSLATION_SHAPE_INVALID, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertSame(
+                'Property "headline" of element "root-id" is translatable and must hold a language map, but holds list.',
+                $exception->getMessage()
+            );
+            // Every client-supplied path rejects the empty map earlier, so reaching reduction with one is
+            // never the client's mistake.
+            static::assertFalse(ContentSystemException::isClientDefect($exception));
+        }
+    }
+
     private function preparer(): StoredTreePreparer
     {
         return new StoredTreePreparer(

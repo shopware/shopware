@@ -86,50 +86,84 @@ export function getElementPropertyStorageKey(
 }
 
 /**
- * Reads the anchor-language entry out of a translatable property value.
- *
- * A value that is not a language map, and a map without the anchor entry, both
- * read as an empty string: the studio edits the anchor language only.
+ * How a translatable property value resolves against a language chain: the
+ * chain head carries its own entry, an entry further down the chain is
+ * inherited, or no chain language carries an entry at all.
  *
  * @private
  * @sw-package discovery
  */
-export function readTranslatableValue(value: unknown): string {
-    if (!isLanguageMap(value)) {
-        return '';
+export type TranslatableEntry =
+    | { state: 'own'; value: string }
+    | { state: 'inherited'; value: string; fromLanguageId: string }
+    | { state: 'missing' };
+
+/**
+ * Resolves a translatable property value along a language chain in serving order.
+ *
+ * A value that is neither `undefined` nor a non-empty map of string entries
+ * throws: neither the server nor the write gate produces such a value on a
+ * translatable property, so meeting one is a fault rather than a missing entry.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function resolveTranslatableEntry(value: unknown, chain: readonly string[]): TranslatableEntry {
+    if (value === undefined) {
+        return { state: 'missing' };
     }
 
-    const anchorValue = value[anchorLanguageId()];
+    if (!isStringLanguageMap(value)) {
+        throw new Error(
+            `A translatable property value must be undefined or a non-empty language map of strings, received ${describeTranslatableValue(value)}.`,
+        );
+    }
 
-    return typeof anchorValue === 'string' ? anchorValue : '';
+    for (const [
+        index,
+        languageId,
+    ] of chain.entries()) {
+        const entry = value[languageId];
+
+        if (entry === undefined) {
+            continue;
+        }
+
+        if (index === 0) {
+            return { state: 'own', value: entry };
+        }
+
+        return { state: 'inherited', value: entry, fromLanguageId: languageId };
+    }
+
+    return { state: 'missing' };
 }
 
 /**
- * Replaces the anchor-language entry, preserving every other language entry the
- * current value carries.
+ * Sets the entry of one language, or removes it when `entry` is `null`.
  *
- * Entries whose value is not a string are dropped: a language map holds strings.
+ * Every other entry travels verbatim, a non-string entry included: the write
+ * route judges the carried values. Removing the anchor entry throws, since no
+ * studio action offers it.
  *
  * @private
  * @sw-package discovery
  */
-export function writeTranslatableValue(current: unknown, next: string): Record<string, string> {
-    if (!isLanguageMap(current)) {
-        return { [anchorLanguageId()]: next };
+export function withLanguageEntry(current: unknown, languageId: string, entry: string | null): Record<string, string> {
+    if (entry === null && languageId === anchorLanguageId()) {
+        throw new Error('The anchor language entry of a translatable property cannot be removed.');
     }
 
-    const languageMap: Record<string, string> = {};
+    // The carried entries are typed as strings because the map is one; a non-string entry the server has to judge travels here too.
+    const languageMap: Record<string, string> = isLanguageMap(current) ? { ...(current as Record<string, string>) } : {};
 
-    for (const [
-        languageId,
-        entry,
-    ] of Object.entries(current)) {
-        if (typeof entry === 'string') {
-            languageMap[languageId] = entry;
-        }
+    if (entry === null) {
+        delete languageMap[languageId];
+
+        return languageMap;
     }
 
-    languageMap[anchorLanguageId()] = next;
+    languageMap[languageId] = entry;
 
     return languageMap;
 }
@@ -260,6 +294,28 @@ function anchorLanguageId(): string {
  */
 export function isLanguageMap(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isStringLanguageMap(value: unknown): value is Record<string, string> {
+    if (!isLanguageMap(value)) {
+        return false;
+    }
+
+    const entries = Object.values(value);
+
+    return entries.length > 0 && entries.every((entry) => typeof entry === 'string');
+}
+
+function describeTranslatableValue(value: unknown): string {
+    if (value === null) {
+        return 'null';
+    }
+
+    if (Array.isArray(value)) {
+        return 'an array';
+    }
+
+    return typeof value === 'object' ? 'an object that is not a map of string entries' : `a ${typeof value}`;
 }
 
 function propertyHasType(property: ContentSystemElementTypeProperty, type: string): boolean {

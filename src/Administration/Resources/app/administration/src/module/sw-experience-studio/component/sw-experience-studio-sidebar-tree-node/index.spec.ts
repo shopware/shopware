@@ -1,10 +1,29 @@
 import sidebarTreeNodeComponent from './index';
+import { getContentElementLabel } from '../../util/content-element-label.util';
+
+jest.mock('../../util/content-element-label.util', () => ({
+    getContentElementLabel: jest.fn(),
+}));
+
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node', () => {
     const computed = (sidebarTreeNodeComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> })
         .computed;
     const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
         .methods;
+
+    it('labels the node through the anchor-only language chain', () => {
+        const labelMock = getContentElementLabel as jest.Mock;
+        labelMock.mockReturnValue('Headline');
+        const contentElement = {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+        };
+
+        expect(computed.label.call({ contentElement })).toBe('Headline');
+        expect(labelMock).toHaveBeenCalledWith(contentElement, [ANCHOR_LANGUAGE_ID]);
+    });
 
     it('uses configured type icon when available', () => {
         const vm = {

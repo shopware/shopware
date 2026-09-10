@@ -47,6 +47,15 @@ export type ContentLayoutDraftMovePayload = ContentLayoutDraftMutationEnvelope &
     index?: number | null;
 };
 
+/**
+ * @private
+ */
+export type ContentLayoutDraftUpdatePropertiesPayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    values?: Record<string, unknown>;
+    removeKeys?: string[];
+};
+
 type ContentLayoutDraftMutationDiagnostics = {
     wellFormed: boolean;
     resolvable: boolean;
@@ -123,6 +132,12 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
 
     moveElement(payload: ContentLayoutDraftMovePayload): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('move-element', payload);
+    }
+
+    updateElementProperties(
+        payload: ContentLayoutDraftUpdatePropertiesPayload,
+    ): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('update-element-properties', payload);
     }
 
     private mutate(

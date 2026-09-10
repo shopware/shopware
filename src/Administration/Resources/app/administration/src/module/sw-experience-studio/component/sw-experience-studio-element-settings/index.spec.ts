@@ -70,9 +70,8 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
 
         expect($emit).toHaveBeenCalledWith('update-properties', {
             elementId: 'image-element',
-            properties: {
-                mediaId: 'media-id',
-            },
+            propertyKey: 'mediaId',
+            value: 'media-id',
         });
     });
 
@@ -86,7 +85,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         },
     };
 
-    it('presents the anchor language entry of a translatable property to the field controls', () => {
+    it('presents the anchor chain entry of a translatable property to the field controls', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
                 properties: {
@@ -104,6 +103,21 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
+    it('leaves a translatable property without an anchor chain entry absent so the declared default still applies', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    text: {
+                        [GERMAN_LANGUAGE_ID]: 'Hallo',
+                    },
+                },
+            },
+            selectedElementType: textType,
+        });
+
+        expect(values).toEqual({});
+    });
+
     it('leaves an unauthored translatable property absent so the declared default still applies', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
@@ -115,7 +129,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         expect(values).toEqual({});
     });
 
-    it('resolves a translatable property to its anchor entry when evaluating field visibility', () => {
+    it('resolves a translatable property through the anchor chain when evaluating field visibility', () => {
         const fields = computed.elementFields.call({
             selectedElement: {
                 properties: {
@@ -164,7 +178,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         ]);
     });
 
-    it('emits a translatable property as a language map that keeps the other entries', () => {
+    it('emits the raw control value of a translatable property under its own key', () => {
         const $emit = jest.fn();
 
         methods.onUpdateElementField.call(
@@ -190,111 +204,8 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
 
         expect($emit).toHaveBeenCalledWith('update-properties', {
             elementId: 'text-element',
-            properties: {
-                text: {
-                    [ANCHOR_LANGUAGE_ID]: 'Hello again',
-                    [GERMAN_LANGUAGE_ID]: 'Hallo',
-                },
-            },
-        });
-    });
-
-    const captionType = {
-        properties: {
-            caption: {
-                type: 'string',
-                translatable: true,
-                default: 'Placeholder',
-            },
-        },
-    };
-
-    it('presents the anchor language entry of a translatable property under a key other than text', () => {
-        const values = computed.elementPropertyValues.call({
-            selectedElement: {
-                properties: {
-                    caption: {
-                        [GERMAN_LANGUAGE_ID]: 'Bildunterschrift',
-                        [ANCHOR_LANGUAGE_ID]: 'Caption',
-                    },
-                },
-            },
-            selectedElementType: captionType,
-        });
-
-        expect(values).toEqual({
-            caption: 'Caption',
-        });
-    });
-
-    it('emits a translatable property under a key other than text as a language map that keeps the other entries', () => {
-        const $emit = jest.fn();
-
-        methods.onUpdateElementField.call(
-            {
-                selectedElement: {
-                    id: 'caption-element',
-                    properties: {
-                        caption: {
-                            [ANCHOR_LANGUAGE_ID]: 'Caption',
-                            [GERMAN_LANGUAGE_ID]: 'Bildunterschrift',
-                        },
-                    },
-                },
-                selectedElementType: captionType,
-                allowEdit: true,
-                $emit,
-            },
-            {
-                key: 'caption',
-                value: 'Caption updated',
-            },
-        );
-
-        expect($emit).toHaveBeenCalledWith('update-properties', {
-            elementId: 'caption-element',
-            properties: {
-                caption: {
-                    [ANCHOR_LANGUAGE_ID]: 'Caption updated',
-                    [GERMAN_LANGUAGE_ID]: 'Bildunterschrift',
-                },
-            },
-        });
-    });
-
-    it('emits a non-translatable property as the bare control value', () => {
-        const $emit = jest.fn();
-
-        methods.onUpdateElementField.call(
-            {
-                selectedElement: {
-                    id: 'text-element',
-                    properties: {
-                        headline: 'Hello',
-                    },
-                },
-                selectedElementType: {
-                    properties: {
-                        headline: {
-                            type: 'string',
-                            translatable: false,
-                        },
-                    },
-                },
-                allowEdit: true,
-                $emit,
-            },
-            {
-                key: 'headline',
-                value: 'Hello again',
-            },
-        );
-
-        expect($emit).toHaveBeenCalledWith('update-properties', {
-            elementId: 'text-element',
-            properties: {
-                headline: 'Hello again',
-            },
+            propertyKey: 'text',
+            value: 'Hello again',
         });
     });
 

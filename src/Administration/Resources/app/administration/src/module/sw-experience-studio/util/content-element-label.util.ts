@@ -1,11 +1,11 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import { isLanguageMap, readTranslatableValue } from './element-settings.util';
+import { isLanguageMap, resolveTranslatableEntry } from './element-settings.util';
 
 /**
  * @private
  * @sw-package discovery
  */
-export function getContentElementLabel(element: ContentElementNode): string {
+export function getContentElementLabel(element: ContentElementNode, chain: readonly string[]): string {
     const properties = element.properties ?? {};
     const nameKeys = [
         'name',
@@ -17,7 +17,7 @@ export function getContentElementLabel(element: ContentElementNode): string {
         const value = properties[key];
 
         // a plain-object value here is only ever a language map: these keys never store any other object shape
-        const candidate = isLanguageMap(value) ? readTranslatableValue(value) : value;
+        const candidate = isLanguageMap(value) ? resolveLabelCandidate(value, chain) : value;
 
         if (typeof candidate === 'string' && candidate.trim() !== '') {
             return candidate;
@@ -25,6 +25,12 @@ export function getContentElementLabel(element: ContentElementNode): string {
     }
 
     return formatComponentName(element.component);
+}
+
+function resolveLabelCandidate(value: unknown, chain: readonly string[]): string | null {
+    const entry = resolveTranslatableEntry(value, chain);
+
+    return entry.state === 'missing' ? null : entry.value;
 }
 
 /**

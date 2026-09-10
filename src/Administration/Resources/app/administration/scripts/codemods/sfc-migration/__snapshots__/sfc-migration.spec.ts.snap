@@ -1492,6 +1492,50 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-route-guards 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_route_guards">
+        <button class="sw-route-guards" @click="discard">{{ loadedId }}</button>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';
+
+const discard = function () {
+    hasUnsavedChanges.value = false;
+};
+
+const hasUnsavedChanges = ref(false);
+const loadedId = ref(null);
+
+onBeforeRouteLeave(function (to, from, next) {
+    if (hasUnsavedChanges.value) {
+        next(false);
+        return;
+    }
+
+    next();
+});
+
+onBeforeRouteUpdate(function (to) {
+    loadedId.value = to.params.id;
+});
+
+swDefinePublic({
+    hasUnsavedChanges,
+    loadedId,
+    discard,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-shadowed-locals 1`] = `
 {
   "outcome": "partial",

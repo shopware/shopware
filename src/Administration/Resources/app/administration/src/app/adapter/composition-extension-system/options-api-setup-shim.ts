@@ -15,6 +15,14 @@ import { customRef, getCurrentInstance, unref } from 'vue';
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
+import {
+    createOverrideLocalState,
+    exposeOverrideLocalState,
+    getOverrideLocalState,
+    isOverrideLocalStateKey,
+    mergeOverrideState,
+} from './data-scope-helper';
+import type { OverrideLocalState } from './data-scope-helper';
 
 type AnyRecord = Record<string, unknown>;
 type SetupResult = AnyRecord | undefined;
@@ -43,6 +51,14 @@ export function attachSetupOverrideShim(componentName: string, config: Component
         const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
 
         const bag: AnyRecord = originalResult ?? {};
+
+        // Override-file-local bindings (`__swOverride`) are nested one level down, where Vue's setupState
+        // unwrapping no longer reaches. A reactive container unwraps refs on access at any depth, and
+        // lets several override files merge their namespaces instead of replacing each other - the same
+        // shape createExtendableSetup() gives migrated components. Non-enumerable, so the per-override
+        // previousState snapshot (`{ ...bag }`) never picks it up.
+        exposeOverrideLocalState(bag, createOverrideLocalState());
+
         const instance = getCurrentInstance();
 
         if (instance) {
@@ -107,7 +123,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                     get: (_target, key) => {
                         // Vue probes objects with `__v_isRef`, `__v_raw` & co and with symbol keys.
                         // Answering those with an accessor would make the proxy itself look like a ref.
-                        if (typeof key !== 'string' || key.startsWith('__v_')) {
+                        if (typeof key !== 'string' || key.startsWith('__v_') || isOverrideLocalStateKey(key)) {
                             return undefined;
                         }
 
@@ -158,6 +174,11 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 }
 
                 Object.keys(result).forEach((key) => {
+                    if (isOverrideLocalStateKey(key)) {
+                        mergeOverrideState(getOverrideLocalState(bag), result[key] as OverrideLocalState);
+                        return;
+                    }
+
                     bag[key] = result[key];
                     // Vue memoises which bucket a key resolved from on first access. Anything that read the
                     // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,

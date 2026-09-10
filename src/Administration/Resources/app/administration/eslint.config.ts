@@ -2,12 +2,18 @@
  * @sw-package admin
  */
 
+/**
+ * ESLint flat-config entrypoint for Administration and Storefront administration sources.
+ *
+ * The config keeps legacy Shopware rule behavior while running on ESLint 9, including compatibility
+ * patches for plugins that still expose pre-flat-config rule metadata.
+ */
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
-import { fixupPluginRules } from '@eslint/compat';
 import tseslint from 'typescript-eslint';
-import pluginVue from 'eslint-plugin-vue';
+import { fixupPluginRules } from '@eslint/compat';
 import importX from 'eslint-plugin-import-x';
 import jestPlugin from 'eslint-plugin-jest';
 import prettier from 'eslint-config-prettier';
@@ -19,10 +25,13 @@ import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
 
-import swCoreRules from 'eslint-plugin-sw-core-rules';
-import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
+// The factory is the single source of the base lint setup for admin AND
+// extensions. pluginVue/swDeprecationRules must be the factory's own objects:
+// ESLint refuses to redefine a plugin key with a different object reference,
+// and the factory blocks register these plugins for overlapping files.
+import shopwareAdminExtension, { pluginVue, swCoreRules, swDeprecationRules } from './extension-tooling/eslint.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -59,6 +68,12 @@ const filenameRulesPatched = {
 const vueParserSetup = pluginVue.configs['flat/recommended'].find((c) => c.name === 'vue/base/setup-for-vue');
 const vueParser = vueParserSetup.languageOptions.parser;
 
+/**
+ * Shared rule policy applied to normal source files and TypeScript-specific overrides.
+ *
+ * Keep cross-cutting Shopware rules here so JS, TS, Vue, and Twig sections only override parser or
+ * file-type-specific behavior.
+ */
 const baseRules = {
     'file-progress/activate': 0,
     'max-len': [
@@ -67,6 +82,8 @@ const baseRules = {
         { ignoreRegExpLiterals: true },
     ],
     'import/no-useless-path-segments': 0,
+    // `.vue` needs the explicit extension (js/ts/tsx don't): nothing resolves `./sw-thing` to
+    // `./sw-thing.vue` - not TypeScript's `*.vue` shim, not Vite's default `resolve.extensions`.
     'import/extensions': [
         'error',
         'ignorePackages',
@@ -74,7 +91,7 @@ const baseRules = {
             js: 'never',
             ts: 'never',
             tsx: 'never',
-            vue: 'never',
+            vue: 'always',
         },
     ],
     'no-console': [
@@ -108,16 +125,24 @@ const baseRules = {
     ],
     'sw-core-rules/require-package-annotation': ['error'],
     'sw-core-rules/no-tc-translation': 'error',
+    'sw-core-rules/valid-shopware-setup': 'error',
+    // Must be an error: this is the only check on a directory-derived component name, and `npm run lint`
+    // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
+    'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
-        /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/,
+        /^.*(?:\.js|\.ts|\.vue|\.html|\.html\.twig)$/,
     ],
     'vue/multi-word-component-names': [
         'error',
         {
-            ignores: ['index.html'],
+            // Support for our `sw-some-component/index.vue` convention
+            ignores: [
+                'index.html',
+                'index',
+            ],
         },
     ],
     'func-names': 'off',
@@ -180,16 +205,45 @@ export default [
             'eslint.config.ts',
             'jest.config.js',
             'jest.config.ts',
-            'test/e2e/**/*',
             'scripts/**/*',
+            '!scripts/extensionTooling/',
+            '!scripts/extensionTooling/**/*',
+            '!scripts/codemods/',
+            '!scripts/codemods/sfc-migration/',
+            '!scripts/codemods/sfc-migration/**/*',
+            // Codemod inputs are intentionally old-style Options API components.
+            'scripts/codemods/sfc-migration/__fixtures__/**/*',
+            // Declaration-only type surface; admin-types imports the gitignored
+            // generated entity schema, and spec-types references jest, so both
+            // must stay outside the admin's own typed-lint program.
+            'extension-tooling/admin-types.d.ts',
+            'extension-tooling/spec-types.d.ts',
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
+            'build/vue-setup-transform/**/*.d.ts',
             '**/*.fixtures.js',
-            'src/app/adapter/_mocks_/example-extendable-script-setup-component.vue',
+            // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
+            // .ts of the same name shadows them), so the typed parser cannot resolve them.
+            'build/**/*.d.ts',
         ],
     },
 
     { ...js.configs.recommended, ignores: ['**/*.json'] },
+
+    // The shared extension factory supplies the typed-lint bootstrap
+    // (tseslint recommendedTypeChecked via projectService) and the common rule
+    // sets, so the admin and extension configs cannot drift apart. Host
+    // options: the admin IS src (no src-import boundary), tracks deprecated
+    // usage through sw-deprecation-rules instead of
+    // @typescript-eslint/no-deprecated, type-checks its spec files, and runs
+    // its own stricter twig pipeline below instead of the lenient legacy one.
+    ...shopwareAdminExtension({
+        tsconfigRootDir: __dirname,
+        legacyTwig: false,
+        srcImportBoundary: false,
+        deprecatedApiSeverity: 'off',
+        specFiles: 'typed',
+    }),
 
     // Vue plugin setup (global) + parser for .vue files
     ...pluginVue.configs['flat/recommended']
@@ -215,8 +269,11 @@ export default [
             'inclusive-language': fixupPluginRules(inclusiveLanguage),
             'file-progress': fixupPluginRules(fileProgress),
             'filename-rules': fixupPluginRules(filenameRulesPatched),
-            'sw-core-rules': fixupPluginRules(swCoreRules),
-            'sw-deprecation-rules': fixupPluginRules(swDeprecationRules),
+            // Deliberately not fixup-wrapped: the wrapper would be a second
+            // object under the keys the factory already registers, and the
+            // rules only use context APIs that still exist in ESLint 9.
+            'sw-core-rules': swCoreRules,
+            'sw-deprecation-rules': swDeprecationRules,
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,
             listeners: fixupPluginRules(listeners),
@@ -230,8 +287,6 @@ export default [
                 ...globals.jest,
                 Shopware: true,
                 VueJS: true,
-                Cypress: true,
-                cy: true,
                 autoStub: true,
                 flushPromises: true,
                 wrapTestComponent: true,
@@ -277,6 +332,49 @@ export default [
         },
         rules: {
             ...baseRules,
+        },
+    },
+
+    {
+        files: ['**/*.vue'],
+        languageOptions: {
+            parser: vueParser,
+            parserOptions: {
+                parser: {
+                    ts: tseslint.parser,
+                    tsx: tseslint.parser,
+                },
+                extraFileExtensions: ['.vue'],
+                sourceType: 'module',
+                // The only .vue files in the admin sources are the jest-transform
+                // fixtures under app/adapter/_mocks_, and the admin tsconfig does
+                // not pull them into its program (.vue is not a TS-resolved
+                // extension). Keep them out of the project service so the factory's
+                // type-aware .vue block has nothing to resolve them against and
+                // does not error. Extensions carry their own typed .vue programs
+                // and get the full type-aware coverage through that same block.
+                projectService: false,
+            },
+            globals: {
+                swDefinePublic: 'readonly',
+                swDefineOverride: 'readonly',
+                useSwPreviousState: 'readonly',
+                useSwProps: 'readonly',
+                useSwContext: 'readonly',
+            },
+        },
+        rules: {
+            // No type program backs these fixtures, so the type-aware rules the
+            // factory turns on for .vue would throw "requires type information" —
+            // switch the whole type-checked set back off here.
+            ...tseslint.configs.disableTypeChecked.rules,
+            // Same reason: without a program, no-unused-vars cannot see the
+            // fixtures' bindings reliably, so leave unused-var coverage to the
+            // factory's typed extension path.
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            // If a binding shares the same name as a prop, the binding gets silently undefined. Erroring in ESLint will make that issue loud in most cases (not for imported prop types)
+            'vue/no-dupe-keys': 'error',
         },
     },
 
@@ -514,6 +612,18 @@ export default [
             'vue/no-multi-spaces': 'off',
         },
     },
+    {
+        // Mouse handlers have focus and keydown counterparts these rules do not recognise
+        files: [
+            'src/app/**/sw-admin-menu/sw-admin-menu.html.twig',
+            'src/app/**/sw-admin-menu-item/sw-admin-menu-item.html.twig',
+        ],
+        rules: {
+            'vuejs-accessibility/click-events-have-key-events': 'off',
+            'vuejs-accessibility/mouse-events-have-key-events': 'off',
+            'vuejs-accessibility/no-static-element-interactions': 'off',
+        },
+    },
 
     // Test files
     {
@@ -538,9 +648,38 @@ export default [
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',
+            'sw-test-rules/stabilize-feature-flag': [
+                'error',
+                {
+                    // Handcrafted list of stabilized (shipped) feature flags; each is auto-removed from
+                    // it.activeFeatureFlags activations. Add a flag here once its major has shipped.
+                    stabilizedFlags: [
+                        'v6.5.0.0',
+                        'v6.6.0.0',
+                        'v6.7.0.0',
+                    ],
+                },
+            ],
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
-            'jest/expect-expect': 'error',
+            'jest/expect-expect': [
+                'error',
+                {
+                    assertFunctionNames: [
+                        'expect',
+                        'expect*',
+                    ],
+                },
+            ],
+            'jest/no-standalone-expect': [
+                'error',
+                {
+                    additionalTestBlockFunctions: [
+                        'it.activeFeatureFlags',
+                        'it.deprecated',
+                    ],
+                },
+            ],
             'jest/no-duplicate-hooks': 'error',
             'jest/no-test-return-statement': 'error',
             'jest/prefer-hooks-in-order': 'error',
@@ -580,25 +719,16 @@ export default [
         },
     },
 
-    // TypeScript files
-    ...tseslint.configs.recommendedTypeChecked.map((config) => ({
-        ...config,
-        files: [
-            '**/*.ts',
-            '**/*.tsx',
-        ],
-    })),
+    // TypeScript rules on top of the factory's typed-lint bootstrap. The
+    // factory already spreads tseslint recommendedTypeChecked with
+    // projectService — `project` must not reappear anywhere: parserOptions
+    // merge per key across flat configs, and typescript-estree throws when
+    // both are set.
     {
         files: [
             '**/*.ts',
             '**/*.tsx',
         ],
-        languageOptions: {
-            parserOptions: {
-                tsconfigRootDir: __dirname,
-                project: ['./tsconfig.json'],
-            },
-        },
         rules: {
             ...baseRules,
             '@typescript-eslint/ban-ts-comment': 0,
@@ -633,6 +763,13 @@ export default [
             'sw-deprecation-rules/no-vue-options-api': 'off',
         },
     },
+
+    {
+        files: ['build/vue-setup-transform/**/*.ts'],
+        rules: {
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
     {
         ...prettier,
         files: [
@@ -641,6 +778,26 @@ export default [
             '**/*.tsx',
             '**/*.vue',
         ],
+    },
+    {
+        files: [
+            'extension-tooling/**/*.mjs',
+            'scripts/extensionTooling/**/*.ts',
+            'scripts/codemods/sfc-migration/**/*.ts',
+        ],
+        rules: {
+            'filename-rules/match': 'off',
+            'import/extensions': 'off',
+            'no-console': 'off',
+            'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
+    {
+        files: ['scripts/codemods/sfc-migration/**/*.ts'],
+        rules: {
+            // The codemod emits and documents TODO(sfc-migration) markers by design.
+            'no-warning-comments': 'off',
+        },
     },
 
     // Snippet JSON files: parse as JSON and flag entries that duplicate a global.default translation

@@ -26,10 +26,10 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class LineItemView
 {
     /**
-     * Used when the product carries no `purchaseUnit` — a basis quantity is required to compute
-     * the per-unit price.
+     * BT-146 is written per billed unit, so the price base quantity (BT-149) must be 1,
+     * otherwise the PEPPOL-EN16931-R120 line amount calculation breaks.
      */
-    final public const DEFAULT_BASIS_QUANTITY = 1.0;
+    final public const PRICE_BASIS_QUANTITY = 1.0;
 
     /**
      * @var list<string>
@@ -161,7 +161,7 @@ final readonly class LineItemView
             ean: $product?->getEan(),
             name: $lineItem->getLabel(),
             quantity: $quantity,
-            basisQuantity: $product?->getPurchaseUnit() ?? self::DEFAULT_BASIS_QUANTITY,
+            basisQuantity: self::PRICE_BASIS_QUANTITY,
             unitCode: UnitCode::PIECE,
             netUnitPrice: $totalNet / $quantity,
             lineTotal: $totalNet,
@@ -259,7 +259,7 @@ final readonly class LineItemView
             ean: $product?->getEan(),
             name: $lineItem->getLabel(),
             quantity: $quantity,
-            basisQuantity: $product?->getPurchaseUnit() ?? self::DEFAULT_BASIS_QUANTITY,
+            basisQuantity: self::PRICE_BASIS_QUANTITY,
             unitCode: UnitCode::PIECE,
             netUnitPrice: $lineTotal / $quantity,
             lineTotal: $lineTotal,

@@ -199,7 +199,11 @@
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
-        "placeholderDocumentType": "Dokumente auswählen ..."
+        "placeholderDocumentType": "Dokumente auswählen ...",
+        "labelDocumentTypeSingle": "Dokumenttyp",
+        "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
+        "labelFileFormats": "Dateiformate",
+        "placeholderFileFormats": "Dateiformate auswählen ..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Download-Recht setzen",
@@ -361,7 +365,11 @@
       "pending": "Ausstehend",
       "changed": "Geändert",
       "update": "Aktualisierung",
-      "password": "Passwort"
+      "password": "Passwort",
+      "confirm": "Bestätigung",
+      "document": "Dokument",
+      "generation": "Erzeugung",
+      "revocationRequest": "Widerrufsantrag"
     }
   },
   "sw-privileges": {

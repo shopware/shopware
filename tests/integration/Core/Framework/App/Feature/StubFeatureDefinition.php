@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Util\Filesystem;
 /**
  * @internal
  *
- * @implements AppFeatureDefinition<AppFeatureConfig>
+ * @extends AppFeatureDefinition<AppFeatureConfig>
  */
-final class StubFeatureDefinition implements AppFeatureDefinition
+final class StubFeatureDefinition extends AppFeatureDefinition
 {
     public function getType(): string
     {

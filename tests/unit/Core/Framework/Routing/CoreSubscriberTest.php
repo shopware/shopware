@@ -37,7 +37,12 @@ class CoreSubscriberTest extends TestCase
         $event = new RequestEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST);
         $subscriber->initializeCspNonce($event);
 
-        static::assertNotNull($event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE));
+        $nonce = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+
+        static::assertIsString($nonce);
+        // URL-safe Base64 alphabet without padding: no '+', '/' or '=' that could be mistaken for a URL
+        static::assertMatchesRegularExpression('/^[A-Za-z0-9\-_]+$/', $nonce);
+        static::assertSame(24, \strlen($nonce));
     }
 
     public function testNonSuccessfulResponseDoesNotGetTouched(): void

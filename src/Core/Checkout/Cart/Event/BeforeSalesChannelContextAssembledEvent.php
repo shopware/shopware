@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Allows the manipulation of the sales channel context options before it is assembled from the order
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class BeforeSalesChannelContextAssembledEvent extends Event

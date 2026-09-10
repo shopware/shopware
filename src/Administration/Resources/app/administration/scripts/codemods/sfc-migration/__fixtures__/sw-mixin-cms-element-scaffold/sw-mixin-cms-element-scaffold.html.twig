@@ -1,0 +1,11 @@
+{% block sw_mixin_cms_element_scaffold %}
+    <div class="sw-mixin-cms-element-scaffold" :class="{ 'is--disabled': disabled }">
+        <p class="sw-mixin-cms-element-scaffold__demo">{{ demoValue }}</p>
+
+        <input
+            class="sw-mixin-cms-element-scaffold__input"
+            :value="contentValue"
+            @input="onInput($event.target.value)"
+        >
+    </div>
+{% endblock %}

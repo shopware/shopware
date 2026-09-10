@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -85,7 +85,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-color-badge': true,
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
-                'mt-floating-ui': true,
             },
             provide: {
                 repositoryFactory: {
@@ -205,7 +204,7 @@ describe('components/sw-entity-multi-select', () => {
         await wrapper.find('input').trigger('change');
         await flushPromises();
 
-        const firstListEntry = wrapper.findAll('.sw-select-result-list__item-list li').at(0);
+        const firstListEntry = new DOMWrapper(document.body).get('.sw-select-result-list__item-list li');
 
         expect(firstListEntry.classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
@@ -243,7 +242,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .mt-icon')).toBeDefined();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__item-list li .mt-icon').exists()).toBeTruthy();
     });
 
     it('should be possible to clear the selection', async () => {

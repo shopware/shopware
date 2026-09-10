@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Jest configuration shared by Administration unit tests and Storefront administration tests.
+ *
+ * It includes build-time TypeScript helpers such as `vue-setup-transform` so transform tests run in
+ * the same project-level module aliases and coverage collection as application code.
+ */
+
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 import type { Config } from 'jest';
@@ -14,6 +21,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '.';
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
+
+// Tests run in Node/jsdom, so browser data freshness is irrelevant here. Without this, browserslist's
+// stale caniuse-lite warning (triggered via vue-jest -> babel preset-env target resolution) is escalated
+// to a test failure by the console.warn guard in prepare_environment.js once the lockfile data ages 6 months.
+process.env.BROWSERSLIST_IGNORE_OLD_DATA = process.env.BROWSERSLIST_IGNORE_OLD_DATA || 'true';
 
 // Check if ADMIN_PATH/test/_helper_/component-imports.js exists
 if (!existsSync(join(process.env.ADMIN_PATH, '/test/_helper_/componentWrapper/component-imports.js'))) {
@@ -28,6 +40,11 @@ const isCi = (() => {
     return process.argv.some((arg) => arg === '--ci');
 })();
 const isDocker = existsSync('/.dockerenv');
+
+// The extension-tooling e2e specs scaffold a project and run the real vue-tsc/ESLint
+// toolchain, so they are slow and turn red on any unrelated type or lint breakage.
+// Gated to a dedicated nightly job (see admin.yml) instead of every pull request.
+const runExtensionToolingE2e = process.env.EXTENSION_TOOLING_E2E === '1';
 
 if (isCi) {
     // eslint-disable-next-line no-console
@@ -53,7 +70,7 @@ const config: Config = {
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
-    testEnvironment: 'jsdom',
+    testEnvironment: '<rootDir>/test/_setup/feature-flag-test-environment.js',
 
     // Worker configuration - prevent OOM kills while maximizing parallelism
     // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
@@ -96,6 +113,17 @@ const config: Config = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+        'build/vue-setup-transform/**/*.ts',
+        '!build/vue-setup-transform/**/*.spec.ts',
+        '!build/vue-setup-transform/**/index.spec/**',
+
+        // The extension tooling ships as production code (it runs in a shop via
+        // composer/bin/console), so its coverage is measured like any other.
+        // test-helpers.ts is fixture plumbing, not a covered source.
+        'scripts/extensionTooling/**/*.ts',
+        '!scripts/extensionTooling/**/*.spec.ts',
+        '!scripts/extensionTooling/**/*.spec/**',
+        '!scripts/extensionTooling/test-helpers.ts',
     ],
 
     coverageReporters: [
@@ -113,6 +141,7 @@ const config: Config = {
         resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
         'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
+        resolve(join(__dirname, '/test/_setup/jest-extensions.ts')),
     ],
 
     transform: {
@@ -144,7 +173,7 @@ const config: Config = {
         ],
         '^.+(\\.twig|\\.html)$': '<rootDir>/test/transformer/twigToVueTransformer.js',
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
-        '^.+\\.vue$': '@vue/vue3-jest',
+        '^.+\\.vue$': '<rootDir>/test/transformer/shopwareSetupVueTransformer.js',
     },
 
     transformIgnorePatterns: [
@@ -165,7 +194,7 @@ const config: Config = {
         '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
         '^lodash-es$': 'lodash',
         '^lodash-es/(.*)$': 'lodash/$1',
-        vue$: 'vue/dist/vue.cjs.js',
+        '^vue$': 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi
@@ -204,9 +233,16 @@ const config: Config = {
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
+        '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
+        '<rootDir>/test/_setup/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
+    ],
+
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        ...(runExtensionToolingE2e ? [] : ['<rootDir>/scripts/extensionTooling/e2e\\.spec/']),
     ],
 
     testEnvironmentOptions: {

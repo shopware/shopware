@@ -44,6 +44,6 @@ class CategorySubscriberTest extends TestCase
         $category = $searchResult->get($ids->get('c.1'));
 
         static::assertInstanceOf(SalesChannelCategoryEntity::class, $category);
-        static::assertSame("124c71d524604ccbad6042edce3ac799/navigation/{$ids->get('c.1')}#", $category->getSeoUrl());
+        static::assertSame("124c71d524604ccbad6042edce3ac799/store-api/category/{$ids->get('c.1')}#", $category->getSeoUrl());
     }
 }

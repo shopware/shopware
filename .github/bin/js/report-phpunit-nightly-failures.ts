@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 
-// Aggregates the junit.xml artifacts of a failed scheduled PHPUnit run into a
+// Aggregates the junit.xml artifacts of a failed nightly PHPUnit run into a
 // tracking-issue payload (consumed by .github/workflows/report-phpunit-failures.yml).
 // Failing tests are grouped by owning domain, resolved from the test file's
 // #[Package] attribute with a fallback to the dominant package of the mirrored
 // src/ directory. This is an inventory, not a triage: clustering failures into
 // root causes and filing per-domain issues stays a manual step — see
 // .agents/skills/nightly-triage/SKILL.md.
+//
+// A failed lane whose junit carries no failing test is reported as its own issue:
+// the junit-phpunit-* artifacts only exist for failed jobs, so a clean report
+// there means the failure is invisible to testcase-level aggregation (a
+// runner-level PHPUnit error, or a non-test step failing after a green suite).
 
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -36,11 +41,8 @@ interface DomainIssue extends IssueContent {
 }
 
 interface IssuePayload {
-  parent: IssueContent;
-  domains: DomainIssue[];
+  issues: DomainIssue[];
 }
-
-export const ISSUE_MARKER = '<!-- nightly-phpunit-failures -->';
 
 const MAX_TESTS_PER_DOMAIN = 40;
 const UNROUTED_LABEL = 'needs manual routing';
@@ -278,41 +280,58 @@ function formatTest(test: FailedTest): string {
   return `- \`${shortClass}::${test.testName}\`${message}`;
 }
 
-function testCount(count: number): string {
-  return count === 1 ? '1 failing test' : `${count} failing tests`;
+const TRIAGE_NOTE =
+  'Grouping uses the test files\' `#[Package]`/`@sw-package` markers only. Root-cause clustering, routing overrides, ' +
+  'and re-routing between the per-domain issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
+
+// A run can fail without producing any junit report (infrastructure failure,
+// a shard dying before reporting). That still needs an issue — a run that
+// reports nothing must not look like a run without failures.
+function buildNoReportsIssue(issueTitle: string, runUrl: string): DomainIssue {
+  const marker = '<!-- nightly-phpunit-failures:no-reports -->';
+  const title = `${issueTitle}: no test reports`;
+  const lines = [
+    `Run: ${runUrl}`,
+    '',
+    'No junit reports were produced: the failure is outside the reported test suites (PHPUnit and Jest), or a job died before reporting. Check the run logs.',
+  ];
+
+  return {
+    issueTitle: title,
+    issueMarker: marker,
+    label: null,
+    issueBody: [marker, `# ${title}`, '', 'Latest failure:', '', ...lines].join('\n').trimEnd(),
+    commentBody: [marker, '## Scheduled test failure update', '', ...lines].join('\n').trimEnd(),
+  };
 }
 
-const TRIAGE_NOTE =
-  'Grouping uses the test files\' `#[Package]` markers only. Root-cause clustering, routing overrides, ' +
-  'and re-routing between the domain sub-issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
+// The junit-phpunit-* artifacts are only uploaded by failed jobs; one without a
+// failing testcase is a red lane the per-test aggregation cannot represent.
+function buildSilentLanesIssue(issueTitle: string, silentLanes: string[], runUrl: string): DomainIssue {
+  const marker = '<!-- nightly-phpunit-failures:failed-lane-without-test-failures -->';
+  const title = `${issueTitle}: failed lane without test failures`;
+  const lines = [
+    `Run: ${runUrl}`,
+    '',
+    'These lanes failed, but their junit reports contain no failing test:',
+    '',
+    ...silentLanes.map((lane) => `- \`${lane}\``),
+    '',
+    'Either PHPUnit hit a runner-level error it cannot attribute to a test (the console summary counts an error, for example a crash during a setUpBeforeClass kernel boot, while the junit report stays clean), or a step after a green suite failed. The failure is only visible in the job logs.',
+  ];
 
-function buildParentLines(groups: DomainGroup[], runUrl: string): string[] {
-  const totalCount = groups.reduce((sum, group) => sum + group.tests.length, 0);
-  const lines = [`Run: ${runUrl}`, `Failing tests: ${totalCount}`];
-
-  if (groups.length === 0) {
-    lines.push('');
-    lines.push(
-      'No junit reports were produced: the failure is outside the reported test suites (PHPUnit and Jest), or a job died before reporting. Check the run logs.'
-    );
-    return lines;
-  }
-
-  lines.push('');
-  for (const group of groups) {
-    const packageKeys = group.packageKeys.size > 0 ? [...group.packageKeys].sort().join(', ') : 'none resolved';
-    lines.push(`- **${group.label}**: ${testCount(group.tests.length)} (package keys: ${packageKeys})`);
-  }
-  lines.push('');
-  lines.push('Per-domain details live in the sub-issues.');
-  lines.push('');
-  lines.push(TRIAGE_NOTE);
-
-  return lines;
+  return {
+    issueTitle: title,
+    issueMarker: marker,
+    label: null,
+    issueBody: [marker, `# ${title}`, '', 'Latest failure:', '', ...lines].join('\n').trimEnd(),
+    commentBody: [marker, '## Scheduled test failure update', '', ...lines].join('\n').trimEnd(),
+  };
 }
 
 function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
-  const lines = [`Run: ${runUrl}`, `Failing tests: ${group.tests.length}`, ''];
+  // the listing folds behind the count, so long updates stay scannable on the issue
+  const lines = [`Run: ${runUrl}`, '<details>', `<summary>Failing tests: ${group.tests.length}</summary>`, ''];
 
   for (const test of group.tests.slice(0, MAX_TESTS_PER_DOMAIN)) {
     lines.push(formatTest(test));
@@ -321,30 +340,18 @@ function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
     lines.push(`- …and ${group.tests.length - MAX_TESTS_PER_DOMAIN} more, see the run logs.`);
   }
 
+  lines.push('', '</details>');
+
   return lines;
 }
 
-export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], runUrl: string): IssuePayload {
-  const parentLines = buildParentLines(groups, runUrl);
-  const parent: IssueContent = {
-    issueTitle,
-    issueMarker: ISSUE_MARKER,
-    issueBody: [
-      ISSUE_MARKER,
-      `# ${issueTitle}`,
-      '',
-      'This issue tracks failing scheduled test runs (PHPUnit and Jest): one sub-issue per owning domain, new failures are added as comments.',
-      '',
-      'Latest failure:',
-      '',
-      ...parentLines,
-    ]
-      .join('\n')
-      .trimEnd(),
-    commentBody: [ISSUE_MARKER, '## Scheduled test failure update', '', ...parentLines].join('\n').trimEnd(),
-  };
-
-  const domains = groups.map((group): DomainIssue => {
+export function buildIssuePayload(
+  issueTitle: string,
+  groups: DomainGroup[],
+  runUrl: string,
+  silentLanes: string[] = []
+): IssuePayload {
+  const issues = groups.map((group): DomainIssue => {
     const slug = group.label === UNROUTED_LABEL ? 'needs-manual-routing' : group.label;
     const marker = `<!-- nightly-phpunit-failures:${slug} -->`;
     const title = `${issueTitle}: ${group.label}`;
@@ -360,6 +367,8 @@ export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], run
         '',
         'Failing scheduled tests grouped to this domain, PHPUnit by its `#[Package]` markers, Jest by its `@sw-package` markers. New failures are added as comments.',
         '',
+        TRIAGE_NOTE,
+        '',
         'Latest failure:',
         '',
         ...lines,
@@ -370,7 +379,15 @@ export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], run
     };
   });
 
-  return { parent, domains };
+  if (silentLanes.length > 0) {
+    issues.push(buildSilentLanesIssue(issueTitle, silentLanes, runUrl));
+  }
+
+  if (issues.length === 0) {
+    return { issues: [buildNoReportsIssue(issueTitle, runUrl)] };
+  }
+
+  return { issues };
 }
 
 function collectXmlFiles(directory: string): string[] {
@@ -387,6 +404,70 @@ function collectXmlFiles(directory: string): string[] {
   });
 }
 
+// The tracking issues only reflect trunk and the maintenance branches; a nightly
+// dispatched manually on any other branch runs without reporting. The shapes mirror
+// the branch globs of release-gate.yml (6.6.x minor lines, 6.7.11.x patch lines).
+export function isNightlyBranch(refName: string): boolean {
+  return refName === 'trunk' || /^\d+\.\d+(\.\d+)?\.x$/.test(refName);
+}
+
+/**
+ * Walks the downloaded artifact directories. Every junit-phpunit-* artifact stems
+ * from a failed job (their upload steps run on `if: failure()`), so an artifact
+ * whose reports contain no failing testcase marks a red lane that testcase-level
+ * aggregation cannot see.
+ */
+export function scanReports(reportDirectory: string): { failures: FailedTest[]; silentLanes: string[]; reports: number } {
+  const seen = new Set<string>();
+  const failures: FailedTest[] = [];
+  const silentLanes: string[] = [];
+  let reports = 0;
+
+  const register = (xmlFile: string): number => {
+    const parsed = parseReport(xmlFile);
+    reports++;
+    for (const failure of parsed) {
+      const key = `${failure.className}::${failure.testName}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        failures.push(failure);
+      }
+    }
+
+    return parsed.length;
+  };
+
+  for (const entry of readdirSync(reportDirectory, { withFileTypes: true })) {
+    const fullPath = join(reportDirectory, entry.name);
+
+    if (entry.isFile()) {
+      if (entry.name.endsWith('.xml')) {
+        register(fullPath);
+      }
+      continue;
+    }
+
+    if (!entry.isDirectory()) {
+      continue;
+    }
+
+    let laneFailures = 0;
+    for (const xmlFile of collectXmlFiles(fullPath)) {
+      laneFailures += register(xmlFile);
+    }
+
+    // an artifact directory without any junit.xml (a lane that died before
+    // reporting) is silent too: collectXmlFiles finds nothing, laneFailures stays 0
+    if (entry.name.startsWith('junit-phpunit-') && laneFailures === 0) {
+      silentLanes.push(entry.name);
+    }
+  }
+
+  silentLanes.sort();
+
+  return { failures, silentLanes, reports };
+}
+
 function main(): void {
   const reportDirectory = process.argv[2];
   const payloadFile = process.argv[3];
@@ -399,6 +480,13 @@ function main(): void {
     process.exit(1);
   }
 
+  const refName = process.env['GITHUB_REF_NAME'] ?? '';
+  if (!isNightlyBranch(refName)) {
+    writeFileSync(payloadFile, `${JSON.stringify({ issues: [] })}\n`, 'utf8');
+    console.log(`Branch '${refName}' is neither trunk nor a maintenance branch: reporting skipped.`);
+    return;
+  }
+
   const repoRoot = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
   const runUrl =
     process.env['GITHUB_SERVER_URL'] && process.env['GITHUB_REPOSITORY'] && process.env['GITHUB_RUN_ID']
@@ -406,24 +494,17 @@ function main(): void {
       : 'GitHub Actions run URL unavailable';
 
   const stats = statSync(reportDirectory, { throwIfNoEntry: false });
-  const xmlFiles = stats?.isDirectory() ? collectXmlFiles(resolve(reportDirectory)) : [];
+  const scan = stats?.isDirectory()
+    ? scanReports(resolve(reportDirectory))
+    : { failures: [], silentLanes: [], reports: 0 };
 
-  const seen = new Set<string>();
-  const failures: FailedTest[] = [];
-  for (const xmlFile of xmlFiles) {
-    for (const failure of parseReport(xmlFile)) {
-      const key = `${failure.className}::${failure.testName}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        failures.push(failure);
-      }
-    }
-  }
-
-  const payload = buildIssuePayload(issueTitle, groupByDomain(failures, repoRoot), runUrl);
+  const payload = buildIssuePayload(issueTitle, groupByDomain(scan.failures, repoRoot), runUrl, scan.silentLanes);
 
   writeFileSync(payloadFile, `${JSON.stringify(payload)}\n`, 'utf8');
-  console.log(`${failures.length} failing tests aggregated from ${xmlFiles.length} junit reports.`);
+  console.log(
+    `${scan.failures.length} failing tests aggregated from ${scan.reports} junit reports; ` +
+      `${scan.silentLanes.length} failed lanes without test failures.`
+  );
 }
 
 /** Jest artifacts land in jest-* subdirectories (see report-phpunit-failures.yml). */

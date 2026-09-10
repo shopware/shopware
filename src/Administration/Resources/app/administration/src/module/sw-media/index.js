@@ -39,9 +39,9 @@ Module.register('sw-media', {
     description: 'sw-media.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-pink-500)',
+    color: 'var(--sw-color-module-pink-default)',
     icon: 'regular-image',
-    favicon: 'icon-module-content.png',
+    favicon: 'icon-module-content.svg',
     entity: 'media',
 
     routes: {
@@ -67,7 +67,7 @@ Module.register('sw-media', {
         {
             id: 'sw-media',
             label: 'sw-media.general.mainMenuItemGeneral',
-            color: 'var(--color-pink-500)',
+            color: 'var(--sw-color-module-pink-default)',
             icon: 'regular-image',
             path: 'sw.media.index',
             position: 20,

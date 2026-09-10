@@ -25,5 +25,7 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  * - GHSA-7c78-jf6q-g5cm by pinning tmp to 0.2.7
  */
 runNpmAudit({
-    ignoredGHSAs: [],
+    ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Lighthouse/Puppeteer browser downloads, test-only; fixed Lighthouse requires Node 22.19+ while this package still supports Node 20
+    ],
 });

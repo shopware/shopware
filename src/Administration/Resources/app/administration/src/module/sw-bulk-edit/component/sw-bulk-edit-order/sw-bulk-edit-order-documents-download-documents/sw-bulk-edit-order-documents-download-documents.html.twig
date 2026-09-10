@@ -8,7 +8,7 @@
         v-for="documentType in documentTypes"
         :key="documentType.id"
         v-model:checked="documentType.selected"
-        :label="documentType.translated.name"
+        :label="documentType.translated?.name ?? documentType.name"
         class="sw-bulk-edit-order-documents-download-documents__checkbox"
         :class="`is--${documentType.technicalName}`"
     />

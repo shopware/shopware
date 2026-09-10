@@ -3,7 +3,10 @@
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 #[Package('discovery')]
 class LandingPageStoreApiUrlRoute implements EntitySeoUrlRouteInterface
@@ -26,5 +29,11 @@ class LandingPageStoreApiUrlRoute implements EntitySeoUrlRouteInterface
             true,
             'landingPageId'
         );
+    }
+
+    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
+    {
+        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannel->getId()));
     }
 }

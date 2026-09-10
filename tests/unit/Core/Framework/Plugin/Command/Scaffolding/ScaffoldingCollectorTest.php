@@ -196,4 +196,75 @@ class ScaffoldingCollectorTest extends TestCase
             $filesystem->remove($dir);
         }
     }
+
+    public function testCollectsOnlyRequestedGenerator(): void
+    {
+        $configuration = new PluginScaffoldConfiguration(
+            'TestPlugin',
+            'Test',
+            sys_get_temp_dir() . '/non-existing-plugin'
+        );
+
+        $selectedGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $selectedGenerator
+            ->expects($this->once())
+            ->method('generateStubs')
+            ->willReturnCallback(static function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
+                $stubCollection->add(Stub::raw('src/TestPlugin.php', 'class TestPlugin'));
+            });
+
+        $otherGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $otherGenerator->expects($this->never())->method('generateStubs');
+
+        $stubCollection = (new ScaffoldingCollector([$selectedGenerator, $otherGenerator]))
+            ->collect($configuration, $selectedGenerator);
+
+        static::assertTrue($stubCollection->has('src/TestPlugin.php'));
+        static::assertCount(1, $stubCollection);
+    }
+
+    public function testIncrementalCollectionPreservesExistingAggregateAndWrapsNewAggregate(): void
+    {
+        $directory = sys_get_temp_dir() . '/' . uniqid(__FUNCTION__, true);
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile(
+            $directory . '/src/Resources/config/services.php',
+            "<?php\n\nreturn static function (): void {\n    existing();\n};\n"
+        );
+
+        $configuration = new PluginScaffoldConfiguration(
+            'TestPlugin',
+            'Test',
+            $directory,
+            [PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME => true],
+        );
+
+        $generator = $this->createMock(ScaffoldingGenerator::class);
+        $generator
+            ->expects($this->once())
+            ->method('generateStubs')
+            ->willReturnCallback(static function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
+                $stubCollection->append('src/Resources/config/services.php', "\n    generatedService();\n");
+                $stubCollection->append('src/Resources/config/routes.php', "\n    generatedRoute();\n");
+            });
+
+        try {
+            $stubCollection = (new ScaffoldingCollector([$generator]))->collect($configuration, $generator);
+
+            $servicesStub = $stubCollection->get('src/Resources/config/services.php');
+            static::assertInstanceOf(Stub::class, $servicesStub);
+            static::assertSame(Stub::TYPE_APPEND, $servicesStub->getType());
+            static::assertSame("\n    generatedService();\n", $servicesStub->getContent());
+
+            $routesStub = $stubCollection->get('src/Resources/config/routes.php');
+            static::assertInstanceOf(Stub::class, $routesStub);
+            static::assertSame(Stub::TYPE_RAW, $routesStub->getType());
+            $routesContent = $routesStub->getContent();
+            static::assertIsString($routesContent);
+            static::assertStringContainsString('return static function (RoutingConfigurator $routes): void {', $routesContent);
+            static::assertStringContainsString('generatedRoute();', $routesContent);
+        } finally {
+            $filesystem->remove($directory);
+        }
+    }
 }

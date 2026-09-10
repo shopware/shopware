@@ -8,6 +8,7 @@ use GuzzleHttp\HandlerStack;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecutor;
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -80,6 +81,7 @@ use Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
+use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
@@ -111,6 +113,7 @@ use Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
@@ -135,6 +138,7 @@ use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
+use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -164,6 +168,7 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
@@ -281,6 +286,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(WebhookCacheClearer::class),
             service(ClockInterface::class),
+            service(WebhookTargetValidator::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -100]);
 
@@ -454,6 +460,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ExceptionLogger::class),
             service(ActiveAppsLoader::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(AppContextGateway::class)
@@ -464,12 +471,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('app.repository'),
             service('event_dispatcher'),
             service(ExceptionLogger::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(AppCookieCollectListener::class)
         ->args([
             service('app.repository'),
-            service('payment_method.repository'),
         ])
         ->tag('kernel.event_listener');
 
@@ -493,6 +500,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             param('kernel.shopware_version'),
             service(ClockInterface::class),
+            service('logger'),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -504,6 +512,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ManifestFactory::class),
             service(ClockInterface::class),
+            service(DeletedAppsGateway::class),
         ]);
 
     $services->set(AppFeatureValidator::class)
@@ -552,6 +561,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
         ]);
+
+    $services->set(DiscardUnconfirmedAppSecretsListener::class)
+        ->args([
+            service('app.repository'),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(AppLifecycle::class)
         ->args([
@@ -615,14 +630,35 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppLocaleProvider::class),
         ]);
 
+    $services->set('shopware.app_system.trusted_url_resolver', TrustedUrlResolver::class)
+        ->args([
+            null,
+            true,
+            param('shopware.app_system.allowed_private_ip_addresses'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set('shopware.app_system.guzzle.security_middleware', AppSystemHttpMiddleware::class)
+        ->args([
+            service('shopware.app_system.trusted_url_resolver'),
+            param('shopware.app_system.allow_unencrypted_traffic'),
+        ])
+        ->arg('$enableUrlValidation', param('shopware.app_system.enable_url_validation'));
+
     $services->set('shopware.app_system.guzzle', Client::class)
         ->lazy()
         ->args([
             [
                 'timeout' => 5,
                 'connect_timeout' => 1,
+                'proxy' => [],
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
+                    ->call('after', [
+                        'allow_redirects',
+                        service('shopware.app_system.guzzle.security_middleware'),
+                        'app_system_http_security',
+                    ])
                     ->call('push', [
                         service('shopware.app_system.guzzle.middleware'),
                     ]),
@@ -969,6 +1005,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('event_dispatcher'),
+        ]);
+
+    $services->set(AppCapability::class)
+        ->args([
+            service(Privileges::class),
         ]);
 
     $services->set(AppPrivilegeController::class)

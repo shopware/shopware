@@ -100,7 +100,7 @@ export default class ImageZoomPlugin extends Plugin {
         this._updateTranslateRange();
         this._initHammer();
         this._registerEvents();
-        
+
         // Set button state after a brief delay to ensure image is laid out
         setTimeout(() => {
             this._setActionButtonState();
@@ -114,15 +114,15 @@ export default class ImageZoomPlugin extends Plugin {
         // Reset transform state when switching images
         this._storedTransform = new Vector3(0, 0, 1);
         this._transform = new Vector3(0, 0, 1);
-        
+
         // Recalculate sizes for the new image
         this._imageMaxSize = new Vector2(this._image.naturalWidth, this._image.naturalHeight).multiply(2);
         this._imageSize = new Vector2(this._image.offsetWidth, this._image.offsetHeight);
         this._containerSize = new Vector2(this.el.offsetWidth, this.el.offsetHeight);
-        
+
         this._updateTranslateRange();
         this._updateTransform(true);
-        
+
         // Set button state after a brief delay to ensure image is laid out
         setTimeout(() => {
             this._setActionButtonState();
@@ -139,7 +139,7 @@ export default class ImageZoomPlugin extends Plugin {
             touchAction: 'none',
         });
         this._hammer.get('pinch').set({ enable: true });
-        this._hammer.get('pan').set({ 
+        this._hammer.get('pan').set({
             direction: Hammer.DIRECTION_ALL,
             threshold: 0,
         });
@@ -226,9 +226,16 @@ export default class ImageZoomPlugin extends Plugin {
             const y = this._storedTransform.y + deltaY;
             const z = this._storedTransform.z * event.scale;
 
+            // Hammer only sets isFinal once every pointer is a changed pointer, so releasing
+            // a pinch — where the two fingers never lift in the same frame — leaves it false
+            // and the reached zoom level would never be stored. The END/CANCEL input type is
+            // the reliable end-of-gesture signal for multi-pointer recognisers.
+            const isGestureEnd = Boolean(event.isFinal)
+                || Boolean(event.eventType & (Hammer.INPUT_END | Hammer.INPUT_CANCEL));
+
             this._transform = new Vector3(x, y, z);
             this._unsetTransition();
-            this._updateTransform(event.isFinal);
+            this._updateTransform(isGestureEnd);
             this._setCursor('move');
         }
 
@@ -403,10 +410,6 @@ export default class ImageZoomPlugin extends Plugin {
         const maxZoom = this._getMaxZoomValue();
 
         if (currentZoom === 1 && maxZoom === 1) {
-            this._setButtonDisabledState(this._zoomResetActionElement);
-            this._setButtonDisabledState(this._zoomOutActionElement);
-            this._setButtonDisabledState(this._zoomInActionElement);
-        } else if (maxZoom === currentZoom && !this._isTranslatable()) {
             this._setButtonDisabledState(this._zoomResetActionElement);
             this._setButtonDisabledState(this._zoomOutActionElement);
             this._setButtonDisabledState(this._zoomInActionElement);

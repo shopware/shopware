@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Page\Robots\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
@@ -161,5 +162,54 @@ class DomainRuleStructTest extends TestCase
         $domainRuleStruct = new DomainRuleStruct($parsed, '');
 
         static::assertSame([], $domainRuleStruct->getDirectives());
+    }
+
+    public function testOrphanedPathDirectivesGetTheBasePathApplied(): void
+    {
+        $parsed = new ParsedRobots([], [
+            new RobotsDirective(RobotsDirectiveType::DISALLOW, '/account/'),
+        ]);
+
+        $directives = (new DomainRuleStruct($parsed, '/en'))->getDirectives();
+
+        static::assertCount(1, $directives);
+        static::assertSame('/en/account/', $directives[0]->value);
+    }
+
+    public function testConstructorRejectsRuleStringsWhenTheFeatureIsActive(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Passing a string to DomainRuleStruct constructor is deprecated. Use RobotsDirectiveParser::parse() and pass the ParsedRobots object instead.'
+        ));
+
+        new DomainRuleStruct('Disallow: /private/', '');
+    }
+
+    public function testGetRulesThrowsWhenTheFeatureIsActive(): void
+    {
+        $domainRuleStruct = new DomainRuleStruct(new ParsedRobots([], []), '');
+
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Method "Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct::getRules()" is deprecated and will be removed in v6.8.0.0. Use "getDirectives" instead.'
+        ));
+
+        $domainRuleStruct->getRules();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Tests the deprecated legacy rule arrays, will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetRulesReturnsTheLegacyRuleArraysWhenTheFeatureIsInactive(): void
+    {
+        $parsed = new ParsedRobots([], [
+            new RobotsDirective(RobotsDirectiveType::DISALLOW, '/account/'),
+        ]);
+
+        $fromParsed = new DomainRuleStruct($parsed, '/en');
+        static::assertSame([['type' => 'Disallow', 'path' => '/en/account/']], $fromParsed->getRules());
+
+        $fromString = new DomainRuleStruct('Disallow: /private/', '/en');
+        static::assertSame([['type' => 'Disallow', 'path' => '/en/private/']], $fromString->getRules());
     }
 }

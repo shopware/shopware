@@ -176,6 +176,7 @@
                             class="sw-settings-cache__indexers-select"
                             :label="indexingMethod === 'skip' ? $t('sw-settings-cache.section.indexesSkipSelectLabel') : $t('sw-settings-cache.section.indexesOnlySelectLabel')"
                             :disabled="processes.updateIndexes"
+                            @clear="clearIndexerSelection"
                         >
                             <template #sw-select-selection>
                                 <sw-label
@@ -225,7 +226,7 @@
                                                             :label="updater"
                                                             :name="updater"
                                                             size="small"
-                                                            :disabled="indexerSelection.includes(indexer)"
+                                                            :disabled="indexingMethod === 'only' || indexerSelection.includes(indexer)"
                                                             @update:checked="changeSelection($event, updater)"
                                                         />
                                                     </li>

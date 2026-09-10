@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 final class DocumentOrderCriteriaEvent extends Event implements GenericEvent
 {

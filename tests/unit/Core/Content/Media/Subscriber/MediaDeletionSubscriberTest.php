@@ -242,6 +242,32 @@ class MediaDeletionSubscriberTest extends TestCase
         static::assertFalse($this->filesystemPublic->fileExists('media/image.jpg'));
     }
 
+    public function testThumbnailDeletionSkipsFileDeleteWhenSkipStateSet(): void
+    {
+        $thumbId = $this->ids->get('thumb-1');
+        $media = new MediaEntity();
+        $media->setId($this->ids->get('media-1'));
+        $media->setPrivate(false);
+
+        $thumbnail = new MediaThumbnailEntity();
+        $thumbnail->setId($thumbId);
+        $thumbnail->setPath('thumbnail/thumbnail.jpg');
+        $thumbnail->setMedia($media);
+
+        $this->thumbnailRepository->addSearch(new MediaThumbnailCollection([$thumbnail]));
+
+        $this->filesystemPublic->write('thumbnail/thumbnail.jpg', 'content');
+
+        $context = Context::createDefaultContext();
+        $context->addState(MediaDeletionSubscriber::SKIP_FILE_DELETE);
+
+        $event = $this->createDeleteEvent(MediaThumbnailDefinition::ENTITY_NAME, $thumbId, $context);
+        $this->createMediaDeletionSubscriber()->beforeDelete($event);
+
+        static::assertEmpty($this->messageBus->getMessages());
+        static::assertTrue($this->filesystemPublic->fileExists('thumbnail/thumbnail.jpg'));
+    }
+
     public function testThumbnailDeletionDispatchesDeleteMessageForPublicThumbnail(): void
     {
         $thumbId = $this->ids->get('thumb-1');

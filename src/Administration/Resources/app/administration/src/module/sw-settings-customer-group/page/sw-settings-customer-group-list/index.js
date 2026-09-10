@@ -48,6 +48,10 @@ export default {
             return this.repositoryFactory.create('customer_group');
         },
 
+        showEmptyState() {
+            return !this.isLoading && !this.total && this.isValidTerm(this.term);
+        },
+
         allCustomerGroupsCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 

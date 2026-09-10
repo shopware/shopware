@@ -42,6 +42,7 @@ export default class LineItemHelper
                 item_name: itemEl.getAttribute('data-name'),
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
+                discount: itemEl.getAttribute('data-discount'),
                 item_brand: itemEl.getAttribute('data-brand'),
                 item_variant: itemEl.getAttribute('data-variant'),
             };

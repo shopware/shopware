@@ -309,6 +309,7 @@ valid-functions = [
     "searchMedia",
     "sw_breadcrumb_full",
     "sw_breadcrumb_full_by_id",
+    "sw_analytics_line_item_prices",
     "category_url",
     "category_linknewtab",
     "inAppPurchase",

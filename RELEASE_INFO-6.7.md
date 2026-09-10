@@ -482,6 +482,18 @@ Variant products report their selected options as `item_variant`, for example `R
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 
+### Google Analytics reports prices after the promotion discount
+
+**Shops that use promotions will see lower revenue figures in Google Analytics. The previous figures were too high.**
+
+Promotion discounts live in their own line items, which are not products and were therefore never reported. The reported item price was the undiscounted unit price, and because the event value is the sum of the reported items, every ecommerce event overstated the value by the full discount. A cart with a 20 percent coupon reported 20 percent more revenue than the customer paid.
+
+Product items now report the unit price after the discount as `price`, and the discount per unit as the new `discount` property. Google Analytics treats both as independent metrics and does not subtract one from the other, so only `price` contributes to the value. `begin_checkout`, `view_cart`, `add_shipping_info`, `add_payment_info`, `purchase`, and `remove_from_cart` are affected.
+
+The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
+
+Themes that override the block `component_hidden_line_item_information` and read `data-price` will now read the discounted price. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
+
 ### `robots.txt` allows crawling thumbnails
 
 The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.

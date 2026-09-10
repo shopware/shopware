@@ -75,25 +75,29 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return;
         }
 
-        $filter = $this->connection->fetchOne(
-            'SELECT api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL AND id = :id',
+        /** @var array{invalid: int|string, api_filter: string|null}|false $stream */
+        $stream = $this->connection->fetchAssociative(
+            'SELECT invalid, api_filter FROM product_stream WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($streamId)]
         );
-        // if the filter is invalid
-        if ($filter === false) {
+        // the stream is gone, its mappings went with it through the foreign key
+        if ($stream === false) {
             return;
         }
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
+        // an invalid stream, or one left without filters, has nothing to match against
+        $criteria = null;
+        if ((int) $stream['invalid'] === 0 && $stream['api_filter'] !== null) {
+            $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
 
-        $criteria = $this->getCriteria($filter);
-        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        if ($criteria === null) {
-            return;
+            if (\is_array($filter)) {
+                $criteria = $this->getCriteria($filter);
+            }
         }
+
+        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
@@ -103,12 +107,17 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             ['id' => $binaryStreamId],
         );
 
-        try {
-            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
-        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
-            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
-            // invalid filter, remove all mappings
+        if ($criteria === null) {
+            // nothing left to match against, so every mapping the stream still holds has to go
             $newMatches = [];
+        } else {
+            try {
+                $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
+                // invalid filter, remove all mappings
+                $newMatches = [];
+            }
         }
 
         $toBeAdded = array_values(array_diff($newMatches, $oldMatches));

@@ -25,7 +25,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         cmsPageId: {
-            type: String as PropType<string | null>,
+            type: String as unknown as PropType<EntityKey<'cms_page'> | null>,
             required: false,
             default: null,
         },
@@ -118,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.showLayoutSelection = false;
         },
 
-        onLayoutSelect(selectedLayoutId: string | null): void {
+        onLayoutSelect(selectedLayoutId: EntityKey<'cms_page'> | null): void {
             this.$emit('update:cms-page-id', selectedLayoutId);
         },
 

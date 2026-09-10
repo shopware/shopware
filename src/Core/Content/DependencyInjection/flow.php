@@ -150,7 +150,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderConverter::class),
             service(DeliveryBuilder::class),
             tagged_iterator('shopware.cart.collector'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(FlowExecutor::class)
         ->public()

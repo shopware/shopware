@@ -458,17 +458,9 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ### Admin list and card empty states use `mt-empty-state`
 
-The remaining prominent empty states of the Administration render `mt-empty-state` with the icon of the module they belong to, replacing `sw-empty-state`, plain text and illustration markup. Affected are the flow, mail template and mail header/footer lists, the promotion individual codes card, the order customer grid and address modal, the sales channel dynamic product group assignment, the product sorting settings and criteria grid, the tax rule card, the product feature set values card, the CMS layout assignment modal and page form, and the SEO URL card. List pages whose empty state means "nothing exists yet" offer the create action of the smart bar inside the `button` slot, disabled without the `creator` privilege.
+The prominent empty states of the Administration render `mt-empty-state` instead of `sw-empty-state`, plain text or illustration markup. List pages whose empty state means "nothing exists yet" offer their create action in its `button` slot, and the customer group, flow and rule lists hide their listing while the empty state shows, so blocks nested inside those listings no longer render.
 
-The Twig blocks that wrapped the former icon, image or label markup still exist as empty anchors outside the empty state and are deprecated for removal in v6.8.0: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. Pass a custom icon through the `icon` prop of `mt-empty-state` by overriding the surrounding `*_empty_state` block instead.
-
-`sw_promotion_v2_individual_codes_behavior_empty_state_actions` now fills the `button` slot of `mt-empty-state`; overrides that reproduced the `<template #actions>` wrapper must switch to `<template #button>`.
-
-The classes `.sw-promotion-v2-individual-codes-behavior__empty-state-icon`, `.sw-settings-tax-rule-card__empty-state--label` and `.sw-settings-product-feature-set-card__empty-state--label` no longer exist, and `sw-mail-template-list.scss` was removed.
-
-`sw_settings_customer_group_list_empty_state` moved from the page content into the `grid` slot of the list card, so the empty state renders inside the card instead of next to it, and the listing is hidden while it shows. Overrides of that block now extend a card-local element.
-
-The flow and rule lists replace their `sw-entity-listing` with the empty state once no entity exists, so blocks nested inside those listings do not render in that state; override the surrounding `sw_flow_list_empty_state` or `sw_settings_rule_list_empty_message` block to add markup there. Both lists, like the other list pages, show the generic no-result headline with a link to the search preferences when a search or filter has no hit, and offer the create action only when nothing exists yet.
+The Twig blocks that wrapped the former icon, image or label are now empty anchors, deprecated for removal in v6.8.0; pass a custom icon through the `icon` prop by overriding the surrounding `*_empty_state` block instead. `sw_promotion_v2_individual_codes_behavior_empty_state_actions` fills the `button` slot now, so overrides must switch from `<template #actions>` to `<template #button>`, and the former icon and label classes of these empty states no longer exist.
 
 ## Storefront
 

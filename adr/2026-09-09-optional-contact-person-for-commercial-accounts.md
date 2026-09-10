@@ -28,6 +28,12 @@ To achieve this we touch the following scopes.
 
 `firstName` and `lastName` on `customer`, `customer_address`, `order_customer` and `order_address` get `AllowEmptyString` beside `Required`. `StringFieldSerializer::getConstraints()` then yields `NotNull` instead of `NotBlank`, so an empty string becomes legal while `null` stays rejected. The columns stay `NOT NULL`.
 
+```php
+// the same change in all four definitions
+(new StringField('first_name', 'firstName'))
+    ->addFlags(new Required(), new AllowEmptyString());
+```
+
 ### Customer identity
 
 `CustomerDefinition` gets a runtime field, filled by a subscriber on `customer.loaded`:
@@ -53,6 +59,16 @@ The company stands in only when there is no person name, so a commercial account
 
 `RegisterRoute`, `ChangeCustomerProfileRoute`, `UpsertAddressRoute` and `CheckoutConfirmPageLoader` resolve the effective account type from the request first and the authenticated customer second, because the profile and address forms omit it whenever the account type selection is hidden. Once the names are optional the company gains a `NotBlank` on the write paths, with a trimming normalizer guarded by `is_string()` because `HappyPathValidator` calls normalizers without checking the type. The confirm page relaxes the names but does not require a company, so an address stored before the setting was switched on cannot block checkout.
 
+```php
+$accountType = $data->get('accountType') ?: $customer->getAccountType();
+
+if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !$config->areNamesRequired($salesChannelId)) {
+    // keep every constraint on the names except NotBlank
+    $config->makeNamesOptional($definition);
+    $definition->add('company', new NotBlank(normalizer: $trimIfString));
+}
+```
+
 ### Orders and documents
 
 `CustomerTransformer` writes the company into the order snapshot when there is no person name. `ZugferdDocument` and `TradePartyView` move to one shared formatter:
@@ -72,13 +88,54 @@ return $personName === '' ? $company : $personName . ' - ' . $company;
 
 A subscriber on `MailBeforeValidateEvent` swaps a rendered copy of the customer into the template data and patches the recipient name in `getData()`, which `MailService::send()` reads separately. Templates live in the shop database, so they keep addressing `customer.firstName` and `customer.lastName`.
 
+```php
+// the stored customer is never touched, only the copy the template renders
+$rendered = clone $customer;
+$rendered->setFirstName($customer->getCompany());
+$rendered->setLastName('');
+
+$event->setTemplateData([...$templateData, 'customer' => $rendered]);
+$event->setData([...$data, 'recipients' => [$customer->getEmail() => $customer->getCompany()]]);
+```
+
 ### Storefront
 
 The name fields follow the account type `<select>` through storefront JavaScript that toggles the required rule with `window.formValidation.setFieldRequired()` and `setFieldNotRequired()`. `FormFieldTogglePlugin` is not reused because it disables what it hides, which drops the values from the payload. The sidebar and the account overview read `customer.displayName`.
 
+```twig
+{# server rendered starting state #}
+validationRules: personNameRequired ? 'required' : ''
+
+{# identity, instead of firstName ~ ' ' ~ lastName #}
+{{ context.customer.displayName }}
+```
+
+```js
+// the visitor can switch type without a reload, so the marker has to follow
+accountTypeSelect.addEventListener('change', () => nameFields.forEach((field) => {
+    isCompanySelected() && !namesRequired
+        ? window.formValidation.setFieldNotRequired(field)
+        : window.formValidation.setFieldRequired(field);
+}));
+```
+
 ### Administration
 
 The two name fields become optional only when both settings allow it. `Customers > New customer` gains a company field in the account section for the commercial type, so the company is persisted on the customer and not only on the address. This is a requirement of its own in the issue, not a side effect of the name change. The customer and order lists read the resolved name.
+
+```js
+// sw-customer-base-form, starts strict until the settings resolve
+contactPersonRequired() {
+    return !this.isBusinessAccountType || this.companyNamesRequired;
+}
+```
+
+```twig
+<mt-text-field :required="contactPersonRequired" v-model="customer.firstName" />
+
+<mt-text-field v-if="isBusinessAccountType" v-model="customer.company"
+               :required="!contactPersonRequired" />
+```
 
 ## Consequences
 

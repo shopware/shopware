@@ -9,8 +9,9 @@
 
         {% block component_privacy_dpi %}
             {% set cmsPath = 'frontend.cms.page' %}
-            {% set privacyNoticeSnippet = 'general.privacyNoticeTextModal' %}
+            {% set requiresTermsOfService = requiresTermsOfService ?? true %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
+                {% set privacyNoticeSnippet = requiresTermsOfService ? 'general.privacyNoticeTextModal' : 'contact.privacyNoticeTextModal' %}
 
                 {% set dataProtectionLabel = privacyNoticeSnippet|trans({
                     '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
@@ -26,6 +27,8 @@
                     validationRules: 'required',
                 } %}
             {% else %}
+                {% set privacyNoticeSnippet = requiresTermsOfService ? 'general.privacyNoticeInformation' : 'contact.privacyNoticeInformation' %}
+
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
                         <div>

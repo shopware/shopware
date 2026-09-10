@@ -46,6 +46,14 @@ services:
         tags:
             - phpstan.rules.rule
 
+    # gated to the core unit suite inside the rule; downstream repositories run their own phpunit configurations
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversTargetInCoverageSourceRule
+        arguments:
+            projectDir: %currentWorkingDirectory%
+        tags:
+            - phpstan.rules.rule
+
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
         arguments:

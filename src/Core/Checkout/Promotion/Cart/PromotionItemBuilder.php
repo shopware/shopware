@@ -208,6 +208,17 @@ class PromotionItemBuilder
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
 
+        // indicates whether the promotion restricts usage to specific customers or customer groups
+        $payload['hasPersonaRestriction'] = ($promotion->getPersonaRules()?->count() > 0)
+            || ($promotion->getPersonaCustomers()?->count() > 0);
+
+        // all condition rule entity IDs (cart, order, persona) for rule-specific snippet fallback
+        $payload['conditionRuleIds'] = array_values(array_unique(array_merge(
+            $promotion->getCartRules()?->getIds() ?? [],
+            $promotion->getOrderRules()?->getIds() ?? [],
+            $promotion->getPersonaRules()?->getIds() ?? [],
+        )));
+
         // set promotion priority for sorting
         $payload['priority'] = $promotion->getPriority();
 

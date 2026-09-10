@@ -50,7 +50,7 @@ export default {
             mediaDefaultFolderId: null,
             showMediaModal: false,
             timezoneOptions: [],
-            userTheme: useTheme().theme.value,
+            userThemeSelection: null,
             userModuleIconColors: useModuleIconColors().enabled.value,
         };
     },
@@ -62,6 +62,10 @@ export default {
     },
 
     computed: {
+        userTheme() {
+            return this.userThemeSelection ?? useTheme().theme.value;
+        },
+
         minSearchTermLength() {
             return Store.get('swProfile').minSearchTermLength;
         },
@@ -163,6 +167,9 @@ export default {
 
     methods: {
         createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             this.isUserLoading = true;
 
             const languagePromise = new Promise((resolve) => {
@@ -462,7 +469,7 @@ export default {
         },
 
         onChangeUserTheme(userTheme) {
-            this.userTheme = userTheme;
+            this.userThemeSelection = userTheme;
         },
 
         onChangeUserModuleIconColors(userModuleIconColors) {
@@ -472,6 +479,9 @@ export default {
         saveUserTheme() {
             return useTheme()
                 .saveUserTheme(this.userTheme)
+                .then(() => {
+                    this.userThemeSelection = null;
+                })
                 .catch(() => {
                     this.createErrorMessage(this.$t('sw-profile.index.notificationSaveErrorMessage'));
                 });

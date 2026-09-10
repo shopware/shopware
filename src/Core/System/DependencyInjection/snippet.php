@@ -98,9 +98,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(InstallTranslationCommand::class)
         ->args([
-            service(TranslationLoader::class),
             service(TranslationConfig::class),
             service(TranslationMetadataStore::class),
+            service(TranslationUpdater::class),
         ])
         ->tag('console.command');
 

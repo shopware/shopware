@@ -11,7 +11,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
-import { getCurrentInstance, isRef } from 'vue';
+import { customRef, getCurrentInstance, unref } from 'vue';
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
@@ -78,36 +78,32 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 return (instance as unknown as { ctx: AnyRecord }).ctx[key];
             };
 
-            // Override callbacks read `previousState.x.value`, so plain values are served as a ref-like
-            // accessor. Refs pass through as they are; functions stay callable as `previousState.x()`,
-            // matching what createExtendableSetup() hands to overrides of migrated components.
-            // previousState is read-only: state changes go through the override's return value, so a
-            // write attempt is reported and dropped instead of reaching data or ctx behind Vue's back.
-            const toRefLike = (key: string, read: () => unknown): unknown => {
-                const current = read();
-
-                if (isRef(current) || typeof current === 'function') {
-                    return current;
-                }
-
-                return {
-                    __v_isRef: true,
-                    get value() {
-                        return read();
-                    },
-                    set value(_next: unknown) {
-                        console.error(
-                            `[${componentName}] previousState is read-only. Return "${key}" from the override instead of assigning to previousState.${key}.value.`,
-                        );
-                    },
-                };
-            };
-
             // Resolves `installed` first, then the base state - the same order Vue's instance proxy uses,
             // with `installed` standing in for setupState. A proxy avoids having to enumerate data,
             // computed and methods upfront.
-            const createPreviousState = (installed: AnyRecord): AnyRecord =>
-                new Proxy({} as AnyRecord, {
+            //
+            // Every key except functions is served as a read-only ref, plain values and refs alike. That is
+            // what createDataScope() hands to overrides of migrated components (toRefs semantics), so an
+            // override reads `previousState.x.value` without knowing whether the component was migrated.
+            // Functions stay callable as `previousState.x()`. Writes go through the override's return
+            // value; a write attempt - to `.value` or to the key itself - is reported and dropped instead
+            // of reaching data, ctx or an earlier override's ref behind Vue's back. Wrapping refs as well
+            // means an override returning `{ x: previousState.x }` installs the read-only wrapper, not the
+            // original ref.
+            const createPreviousState = (installed: AnyRecord): AnyRecord => {
+                const reportWrite = (key: string): void => {
+                    console.error(
+                        `[${componentName}] previousState is read-only. Return "${key}" from the override instead of assigning to previousState.${key}.`,
+                    );
+                };
+
+                // One wrapper per key, so `previousState.x === previousState.x` holds and passing the same
+                // ref to several watch() sources does not create a new object on every access.
+                const wrapperCache = new Map<string, unknown>();
+
+                const read = (key: string): unknown => (Object.hasOwn(installed, key) ? installed[key] : readBaseState(key));
+
+                return new Proxy({} as AnyRecord, {
                     get: (_target, key) => {
                         // Vue probes objects with `__v_isRef`, `__v_raw` & co and with symbol keys.
                         // Answering those with an accessor would make the proxy itself look like a ref.
@@ -115,13 +111,31 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                             return undefined;
                         }
 
-                        if (Object.hasOwn(installed, key)) {
-                            return toRefLike(key, () => installed[key]);
+                        if (!wrapperCache.has(key)) {
+                            const current = read(key);
+
+                            wrapperCache.set(
+                                key,
+                                typeof current === 'function'
+                                    ? current
+                                    : customRef(() => ({
+                                          get: () => unref(read(key)),
+                                          set: () => reportWrite(key),
+                                      })),
+                            );
                         }
 
-                        return toRefLike(key, () => readBaseState(key));
+                        return wrapperCache.get(key);
+                    },
+                    // Without this trap the assignment would land in the empty target and vanish silently.
+                    // Returning false would throw in strict mode, so the write is reported and swallowed.
+                    set: (_target, key) => {
+                        reportWrite(String(key));
+
+                        return true;
                     },
                 });
+            };
 
             const context = {
                 attrs: instance.attrs,

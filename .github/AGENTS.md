@@ -44,10 +44,10 @@ Three mechanisms decide how much runs:
   `nightly` widens the matrix. The matrix is generated at runtime and consumed as
   `matrix: ${{ fromJson(...) }}` — the expression must stay on `matrix:`, since
   zizmor cannot audit a file whose whole `strategy:` block is an expression.
-- **Major arms** — opt in on a PR with the `major-php` or `major-acceptance`
-  label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml` applies
-  `major-php` automatically when the diff touches major feature flags. Nightly
-  and manual runs ignore the labels.
+- **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
+  `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
+  applies the relevant PHP and Administration JS labels automatically when the diff
+  touches major feature flags. Nightly and manual runs ignore the labels.
 - **`markdown-only-changes`** — a first job in each heavy workflow that
   short-circuits docs-only PRs.
 
@@ -128,7 +128,7 @@ grows a branch worth getting wrong, move it out:
 
 - **JavaScript/TypeScript** → `.github/bin/js/<name>.ts` with a sibling
   `<name>.test.ts`; `node --test` runs them from `lint-actions.yml`. See
-  `auto-label-major-php.ts` for the shape. Do not use Python.
+  `auto-label-major-tests.ts` for the shape. Do not use Python.
 - **PHP** → `.github/bin/<name>.php` with a PHPUnit test.
 - Logic repeated across workflows → a composite action under `.github/actions/`.
 - Start every non-trivial Bash `run:` block with `set -euo pipefail`.

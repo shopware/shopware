@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Primary/replica connections switch back to the replica between requests
+
+When database replicas are configured (`DATABASE_REPLICA_*_URL`), the connection now keeps the replica connection open next to the primary one and switches back to the replica between HTTP requests and Messenger messages. Previously a request that wrote to the primary pinned the connection to the primary — in long running runtimes (for example FrankenPHP worker mode) for the whole lifetime of the worker, which silently disabled replica reads. A worker that has written to the primary may now hold two open database connections instead of one; add `?keepReplica=0` to the `DATABASE_URL` to restore the previous behaviour.
+
 ### State machine transitions resolve deterministically
 
 When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
@@ -463,6 +467,10 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
+
+### `robots.txt` allows crawling thumbnails
+
+The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.
 
 ### Passive privacy notices without a checkbox
 

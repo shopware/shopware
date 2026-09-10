@@ -115,7 +115,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
 
         if ($namesAreOptional) {
-            $this->keepStoredNames($addressId, $data, $context);
+            // Only an update has stored names to keep; a create carries an id nothing is saved under.
+            if (!$isCreate) {
+                $this->keepStoredNames($addressId, $data, $context);
+            }
+
             CompanyAccountNameFields::normalize($data);
         }
 

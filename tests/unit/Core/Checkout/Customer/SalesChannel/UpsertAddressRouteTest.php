@@ -94,6 +94,9 @@ class UpsertAddressRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
+        // A create carries a fresh id, so there is nothing stored to look up.
+        $addressRepository->expects($this->never())->method('search');
+
         $this->upsertWithOptionalNames($addressRepository, null, ['street' => 'New Street 1']);
 
         static::assertIsArray($written);

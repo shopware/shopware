@@ -583,8 +583,7 @@ class ProductStreamUpdaterTest extends TestCase
      */
     private function createUpdaterWithStaticMatches(array $matches): ProductStreamUpdater
     {
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository([], new ProductDefinition());
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [], new ProductDefinition());
 
         // one search runs per stream and language context, so the stale match has to stay available
         $search = static function () use ($matches, &$search, $productRepository): array {
@@ -596,8 +595,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $language = new LanguageEntity();
         $language->setId(Defaults::LANGUAGE_SYSTEM);
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = new StaticEntityRepository([new LanguageCollection([$language])]);
+        $languageRepository = StaticEntityRepository::of(LanguageCollection::class, [new LanguageCollection([$language])]);
 
         return new ProductStreamUpdater(
             static::getContainer()->get(Connection::class),

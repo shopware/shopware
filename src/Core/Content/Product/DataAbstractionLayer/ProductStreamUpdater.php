@@ -220,6 +220,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $matches): void {
+            if ($matches !== []) {
+                $this->lockProducts($ids);
+            }
+
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
@@ -241,6 +245,29 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * Locks the products before the mapping rows are touched, as a concurrent product delete takes the same
+     * locks in that order through its cascade. Sorted ids keep parallel runs in one order.
+     *
+     * @param string[] $productIds
+     */
+    private function lockProducts(array $productIds): void
+    {
+        $ids = Uuid::fromHexToBytesList($productIds);
+        sort($ids);
+
+        foreach (array_chunk($ids, 250) as $chunk) {
+            $this->connection->executeStatement(
+                'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY id FOR UPDATE',
+                [
+                    'ids' => $chunk,
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+                ['ids' => ArrayParameterType::BINARY],
+            );
+        }
     }
 
     /**

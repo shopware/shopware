@@ -56,6 +56,11 @@ class ContentSystemException extends HttpException
     public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
     public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
+    public const LAYOUT_PRESET_DUPLICATE = 'CONTENT_SYSTEM__LAYOUT_PRESET_DUPLICATE';
+    public const LAYOUT_PRESET_LOAD_FAILED = 'CONTENT_SYSTEM__LAYOUT_PRESET_LOAD_FAILED';
+    public const LAYOUT_PRESET_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_PRESET_NOT_FOUND';
+    public const LAYOUT_PRESETS_INVALID = 'CONTENT_SYSTEM__LAYOUT_PRESETS_INVALID';
+    public const LAYOUT_PRESET_INVALID_FILENAME = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -665,6 +670,62 @@ class ContentSystemException extends HttpException
             self::ELEMENT_TYPE_NOT_FOUND,
             'Element type "{{ name }}" not found',
             ['name' => $name]
+        );
+    }
+
+    public static function layoutPresetDuplicate(string $id): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::LAYOUT_PRESET_DUPLICATE,
+            'Layout preset "{{ id }}" is defined more than once.',
+            ['id' => $id]
+        );
+    }
+
+    public static function layoutPresetInvalidFilename(string $segment, string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESET_INVALID_FILENAME,
+            'Invalid layout preset filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
+            ['segment' => $segment, 'file' => $file]
+        );
+    }
+
+    public static function layoutPresetLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_LOAD_FAILED,
+            'Failed to load layout preset from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function layoutPresetNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::LAYOUT_PRESET_NOT_FOUND,
+            'Layout preset "{{ id }}" not found',
+            ['id' => $id]
+        );
+    }
+
+    public static function layoutPresetsInvalid(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESETS_INVALID,
+            'Layout preset validation failed: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
         );
     }
 

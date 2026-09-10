@@ -1,6 +1,16 @@
 import template from './sw-experience-studio-element-picker.html.twig';
 import './sw-experience-studio-element-picker.scss';
 
+type PickerItem = {
+    name: string;
+    label: string;
+    icon: string | null;
+    category?: string | null;
+    kind?: 'element' | 'preset';
+    id?: string;
+    description?: string | null;
+};
+
 /**
  * @private
  * @sw-package discovery
@@ -14,6 +24,7 @@ export default Shopware.Component.wrapComponentConfig({
                 'layout',
                 'content',
                 'commerce',
+                'presets',
             ],
             fallbackCategoryKey: 'other',
         };
@@ -48,27 +59,28 @@ export default Shopware.Component.wrapComponentConfig({
     emits: [
         'close',
         'select',
+        'select-preset',
     ],
 
     computed: {
         groupedElements(): Array<{
             key: string;
             headlineSnippetKey: string;
-            elements: Array<{ name: string; label: string; icon: string | null }>;
+            elements: PickerItem[];
         }> {
             type Group = {
                 key: string;
                 headlineSnippetKey: string;
-                elements: Array<{ name: string; label: string; icon: string | null }>;
+                elements: PickerItem[];
                 firstSeenIndex: number;
             };
 
             const groups = this.elements.reduce<Group[]>((result, element, index) => {
-                const categoryKey = this.normalizeCategoryKey((element as { category?: string | null }).category ?? null);
+                const categoryKey = this.normalizeCategoryKey((element as PickerItem).category ?? null);
                 const existingGroup = result.find((group) => group.key === categoryKey);
 
                 if (existingGroup) {
-                    existingGroup.elements.push(element as { name: string; label: string; icon: string | null });
+                    existingGroup.elements.push(element as PickerItem);
 
                     return result;
                 }
@@ -76,7 +88,7 @@ export default Shopware.Component.wrapComponentConfig({
                 result.push({
                     key: categoryKey,
                     headlineSnippetKey: this.categoryHeadlineSnippetKey(categoryKey),
-                    elements: [element as { name: string; label: string; icon: string | null }],
+                    elements: [element as PickerItem],
                     firstSeenIndex: index,
                 });
 
@@ -130,8 +142,24 @@ export default Shopware.Component.wrapComponentConfig({
             return `sw-experience-studio.detail.elementPicker.categoryHeadlines.${categoryKey}`;
         },
 
-        onSelect(component: string): void {
-            this.$emit('select', component);
+        onSelect(item: PickerItem): void {
+            if (item.kind === 'preset' && item.id) {
+                this.$emit('select-preset', item.id);
+
+                return;
+            }
+
+            this.$emit('select', item.name);
+        },
+
+        itemTooltip(item: PickerItem): { message: string } {
+            if (item.kind !== 'preset') {
+                return { message: item.label };
+            }
+
+            const description = item.description ? `<br>${item.description}` : '';
+
+            return { message: `<strong>${item.label}</strong>${description}` };
         },
     },
 });

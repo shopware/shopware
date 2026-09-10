@@ -47,6 +47,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Loader\AbstractContentSystemBi
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractContentSystemStyleOptionLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\AbstractContentSystemLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
@@ -82,6 +83,7 @@ return [
             'content_system.config_serializer' => AbstractContentDataLoaderConfigSerializer::class,
             'content_system.data_loader' => AbstractContentDataLoader::class,
             'content_system.entity_specification_source' => AbstractSpecificationSource::class,
+            'content_system.layout_preset_loader' => AbstractContentSystemLayoutPresetLoader::class,
             'content_system.output_format' => AbstractResponseFactory::class,
             'content_system.specification_source' => AbstractSpecificationSource::class,
             'content_system.style_option_loader' => AbstractContentSystemStyleOptionLoader::class,

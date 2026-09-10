@@ -6,11 +6,13 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
@@ -52,6 +54,7 @@ class LayoutMutationController
         private readonly StoredElementCodec $elementCodec,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
+        private readonly AbstractContentSystemLayoutPresetRegistry $presetRegistry,
     ) {
     }
 
@@ -132,7 +135,21 @@ class LayoutMutationController
         AttachElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+        $element = $this->decoder->decodeOne($payload->element);
+        $mutation = new AttachElement($this->registry, $element, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot, $payload->index);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/insert-preset', name: 'api.action.content_system.layout.insert_preset', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function insertPreset(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        InsertPresetRequest $payload,
+        Context $context,
+    ): Response {
+        $preset = $this->presetRegistry->get($payload->presetId);
+        $elements = $this->decoder->decode($preset->payload);
+        $mutation = new AttachElements($this->registry, $elements, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

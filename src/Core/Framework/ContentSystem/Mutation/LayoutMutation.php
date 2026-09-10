@@ -30,6 +30,12 @@ interface LayoutMutation
     public function affected(): array;
 
     /**
+     * @return list<string> element ids whose node the op built fresh; a replace keeps its target's id but
+     *                      still counts (node is re-scaffolded). Consumer mirroring wires only these ids.
+     */
+    public function created(): array;
+
+    /**
      * @return list<StoredElement> subtrees detached by the op (e.g. replace dropping a slot's children),
      *                             returned so the caller can re-place them; never discarded
      */

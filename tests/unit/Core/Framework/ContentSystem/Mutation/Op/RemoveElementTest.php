@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RemoveElement::class)]
 class RemoveElementTest extends TestCase
 {
-    #[TestDox('deletes the element together with its whole subtree and reports no affected survivor')]
+    #[TestDox('deletes the element together with its whole subtree and reports no affected survivor or created node')]
     public function testRemoveDeletesElementAndSubtree(): void
     {
         $tree = new StoredTree([
@@ -36,6 +36,7 @@ class RemoveElementTest extends TestCase
         static::assertCount(1, $result->roots);
         static::assertSame('keep', $result->roots[0]->id);
         static::assertSame([], $remove->affected());
+        static::assertSame([], $remove->created());
     }
 
     #[TestDox('removes a nested element while keeping its siblings')]

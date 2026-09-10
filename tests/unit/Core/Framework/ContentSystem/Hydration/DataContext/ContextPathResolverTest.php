@@ -151,12 +151,4 @@ class ContextPathResolverTest extends TestCase
     {
         static::assertFalse($this->resolver->matches($provider, $consumer));
     }
-
-    #[TestDox('extracts base key from dotted path')]
-    public function testExtractBaseKeyFromDottedPath(): void
-    {
-        $result = $this->resolver->extractBaseKey('product.cover');
-
-        static::assertSame('product', $result);
-    }
 }

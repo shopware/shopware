@@ -33,6 +33,8 @@ final class DuplicateElement extends AbstractLayoutMutation
 
         $clone = $this->cloneWithNewIds($location->node);
         $this->affected = $this->subtreeIds($clone);
+        // created and affected are the same set here: every node of the fresh subtree.
+        $this->created = $this->subtreeIds($clone);
 
         $index = $this->index ?? $location->index + 1;
 

@@ -40,6 +40,18 @@ class WrapElementsTest extends TestCase
         static::assertSame([$result->roots[1]->id, 'b', 'a'], $wrap->affected());
     }
 
+    #[TestDox('reports only the minted container as created, never the wrapped targets it moved')]
+    public function testCreatedIsTheContainerOnly(): void
+    {
+        $tree = new StoredTree([new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')]);
+
+        $wrap = new WrapElements($this->registry('Sw:Container'), ['a', 'b'], 'Sw:Container', 'content');
+        $result = $wrap->apply($tree);
+
+        static::assertSame([$result->roots[0]->id], $wrap->created());
+        static::assertSame('Sw:Container', $result->roots[0]->component);
+    }
+
     #[TestDox('wraps nested siblings inside their parent slot')]
     public function testWrapNestedSiblings(): void
     {

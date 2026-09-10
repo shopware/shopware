@@ -51,6 +51,7 @@ final class InsertElement extends AbstractLayoutMutation
             : $this->scaffoldBoundElement($bindingSpecificationId);
 
         $this->affected = [$element->id];
+        $this->created = [$element->id];
 
         if ($this->parentElementId === null) {
             return $tree->insertAtRoot($this->index, [$element]);

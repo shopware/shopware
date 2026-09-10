@@ -31,6 +31,11 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     protected array $affected = [];
 
     /**
+     * @var list<string>
+     */
+    protected array $created = [];
+
+    /**
      * @var list<StoredElement>
      */
     protected array $orphaned = [];
@@ -48,6 +53,11 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     public function affected(): array
     {
         return $this->affected;
+    }
+
+    public function created(): array
+    {
+        return $this->created;
     }
 
     public function orphaned(): array

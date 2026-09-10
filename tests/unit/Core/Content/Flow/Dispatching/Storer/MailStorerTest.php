@@ -97,6 +97,26 @@ class MailStorerTest extends TestCase
         static::assertNull($flow->getData(MailAware::MAIL_STRUCT)->getCc());
     }
 
+    public function testRestoreNamesAOrderCustomerByItsCompanyWhenThereIsNoContactPerson(): void
+    {
+        $flow = new StorableFlow('test', Context::createDefaultContext(), [OrderAware::ORDER_ID => Uuid::randomHex()]);
+        $customer = new OrderCustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setFirstName('');
+        $customer->setLastName('');
+        $customer->setCompany('Acme GmbH');
+        $customer->setEmail('info@acme.example');
+        $order = new OrderEntity();
+        $order->setOrderCustomer($customer);
+        $order->setSalesChannelId(TestDefaults::SALES_CHANNEL);
+        $flow->setData(OrderAware::ORDER, $order);
+
+        $this->storer->restore($flow);
+
+        static::assertInstanceOf(MailRecipientStruct::class, $flow->getData(MailAware::MAIL_STRUCT));
+        static::assertSame('Acme GmbH', $flow->getData(MailAware::MAIL_STRUCT)->getRecipients()['info@acme.example']);
+    }
+
     public function testRestoreHasDataCustomer(): void
     {
         $flow = new StorableFlow('test', Context::createDefaultContext(), [OrderAware::ORDER_ID => Uuid::randomHex()]);

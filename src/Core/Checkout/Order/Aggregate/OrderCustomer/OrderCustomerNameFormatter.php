@@ -14,6 +14,24 @@ final class OrderCustomerNameFormatter
     {
     }
 
+    /**
+     * The name to address the buyer by, for a greeting or a recipient header. Unlike buyerName() it
+     * never joins the two, because a person and their company read as one name there.
+     */
+    public static function displayName(?OrderCustomerEntity $customer): string
+    {
+        if ($customer === null) {
+            return '';
+        }
+
+        $personName = trim($customer->getFirstName() . ' ' . $customer->getLastName());
+
+        return $personName !== '' ? $personName : trim($customer->getCompany() ?? '');
+    }
+
+    /**
+     * The buyer block of a document, where the company belongs next to the contact person.
+     */
     public static function buyerName(?OrderCustomerEntity $customer): string
     {
         if ($customer === null) {

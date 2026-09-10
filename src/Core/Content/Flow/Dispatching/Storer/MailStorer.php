@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -95,7 +96,7 @@ class MailStorer extends FlowStorer
         }
 
         $storable->setData(MailAware::SALES_CHANNEL_ID, $order->getSalesChannelId());
-        $mailStruct = new MailRecipientStruct([$customer->getEmail() => trim($customer->getFirstName() . ' ' . $customer->getLastName())]);
+        $mailStruct = new MailRecipientStruct([$customer->getEmail() => OrderCustomerNameFormatter::displayName($customer)]);
         $storable->setData(MailAware::MAIL_STRUCT, $mailStruct);
     }
 

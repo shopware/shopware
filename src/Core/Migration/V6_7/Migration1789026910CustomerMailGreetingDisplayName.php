@@ -27,6 +27,8 @@ class Migration1789026910CustomerMailGreetingDisplayName extends MigrationStep
     private const MAIL_TYPES = [
         MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED,
         MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED,
+        MailTemplateTypes::MAILTYPE_CUSTOMER_RECOVERY_REQUEST,
+        MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER_DOUBLE_OPT_IN,
         MailTemplateTypes::MAILTYPE_GUEST_ORDER_DOUBLE_OPT_IN,
         MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE,
         CustomerPasswordChangedEvent::EVENT_NAME,

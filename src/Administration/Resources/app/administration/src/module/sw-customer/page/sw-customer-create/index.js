@@ -1,4 +1,5 @@
 import template from './sw-customer-create.html.twig';
+import companyNamesRequired from '../../helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout
@@ -27,6 +28,9 @@ export default {
 
     data() {
         return {
+            // Required until the settings resolve, so a slow request rejects a blank name rather
+            // than letting one through that the store api would refuse.
+            companyNamesRequired: true,
             customer: null,
             address: null,
             customerNumberPreview: '',
@@ -54,6 +58,18 @@ export default {
 
         resolvedCompany() {
             return this.customer.company?.trim() || this.address.company?.trim() || '';
+        },
+
+        contactPersonRequired() {
+            return this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || this.companyNamesRequired;
+        },
+
+        validContactPersonFields() {
+            if (!this.contactPersonRequired) {
+                return true;
+            }
+
+            return Boolean(this.customer.firstName?.trim().length && this.customer.lastName?.trim().length);
         },
 
         languageRepository() {
@@ -153,6 +169,10 @@ export default {
             this.customer.salutationId = defaultSalutationId;
             this.customer.languageId = Shopware.Context.api.languageId;
             this.address.salutationId = defaultSalutationId;
+
+            // Loaded last so the form is built before the settings request, which only decides
+            // whether a blank contact person may be saved.
+            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
         },
 
         saveFinish() {
@@ -212,6 +232,13 @@ export default {
                 hasError = true;
             }
 
+            // The data abstraction layer accepts an empty name now, so the page has to hold the line
+            // the two settings draw.
+            if (!this.validContactPersonFields) {
+                this.createErrorMessageForContactPerson();
+                hasError = true;
+            }
+
             if (hasError) {
                 this.createNotificationError({
                     message: this.$t('sw-customer.detail.messageSaveError'),
@@ -223,6 +250,11 @@ export default {
             if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
                 this.customer.company = this.resolvedCompany;
                 this.address.company = this.resolvedCompany;
+            }
+
+            // Only a commercial account the settings released may go in without a name; anywhere else
+            // an empty string would be a name the routes still reject.
+            if (!this.contactPersonRequired) {
                 this.customer.firstName ??= '';
                 this.customer.lastName ??= '';
                 this.address.firstName ??= '';
@@ -256,6 +288,26 @@ export default {
             this.numberRangeService.reserve('customer', salesChannelId, true).then((response) => {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;
+            });
+        },
+
+        createErrorMessageForContactPerson() {
+            this.isLoading = false;
+
+            [
+                'firstName',
+                'lastName',
+            ].forEach((field) => {
+                if (this.customer[field]?.trim().length) {
+                    return;
+                }
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `customer.${this.customer.id}.${field}`,
+                    error: new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }),
+                });
             });
         },
 

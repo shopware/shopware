@@ -1,6 +1,7 @@
 import './sw-customer-convert-guest-modal.scss';
 import template from './sw-customer-convert-guest-modal.html.twig';
 import errorConfig from '../../error-config.json';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout
@@ -52,7 +53,7 @@ export default {
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: `${this.customer.firstName} ${this.customer.lastName}`,
+                        name: customerDisplayName(this.customer),
                     }),
                 });
             } catch (error) {
@@ -77,7 +78,7 @@ export default {
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: `${this.customer.firstName} ${this.customer.lastName}`,
+                        name: customerDisplayName(this.customer),
                     }),
                 });
             } catch (error) {

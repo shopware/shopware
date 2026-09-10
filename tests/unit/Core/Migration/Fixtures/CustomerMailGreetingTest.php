@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Migration\Fixtures;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -27,6 +28,8 @@ class CustomerMailGreetingTest extends TestCase
         'customer.group.registration.accepted',
         'customer.group.registration.declined',
         'customer.password.changed',
+        'customer.recovery.request',
+        'customer_register.double_opt_in',
         'guest_order.double_opt_in',
         'password_change',
     ];
@@ -80,6 +83,7 @@ class CustomerMailGreetingTest extends TestCase
 
         return $twig->render('mail', [
             'customer' => $customer,
+            'customerRecovery' => $this->recovery($customer),
             'shopName' => 'Demostore',
             'salesChannel' => ['translated' => ['name' => 'Demostore']],
             'customerGroup' => ['translated' => ['name' => 'Wholesale']],
@@ -101,6 +105,16 @@ class CustomerMailGreetingTest extends TestCase
         }
 
         static::fail('the rendered mail carries no greeting');
+    }
+
+    private function recovery(CustomerEntity $customer): CustomerRecoveryEntity
+    {
+        $recovery = new CustomerRecoveryEntity();
+        $recovery->setId('recovery-id');
+        $recovery->setUniqueIdentifier('recovery-id');
+        $recovery->setCustomer($customer);
+
+        return $recovery;
     }
 
     private function customer(string $displayName): CustomerEntity

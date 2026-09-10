@@ -7,7 +7,7 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock } = {}) {
+async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock, systemConfig = {} } = {}) {
     return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
         global: {
             stubs: {
@@ -32,6 +32,7 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                     getValues: () =>
                         Promise.resolve({
                             'core.register.minPasswordLength': 8,
+                            ...systemConfig,
                         }),
                 },
                 customerValidationService: {},
@@ -149,6 +150,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
                 id: '1',
                 email: 'user@domain.com',
                 accountType: 'business',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
                 password: 'shopware',
                 salesChannelId: 'a7921464677a4ef591683d144beecd24',
             },
@@ -183,6 +186,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
                 id: '1',
                 email: 'user@domain.com',
                 accountType: 'business',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
                 password: 'shopware',
                 salesChannelId: 'a7921464677a4ef591683d144beecd24',
             },
@@ -289,6 +294,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             customer: {
                 id: '1',
                 email: 'ytn@shopware.com',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
                 boundSalesChannelId: null,
             },
         });
@@ -346,5 +353,65 @@ describe('module/sw-customer/page/sw-customer-create', () => {
 
         expect(wrapper.vm.resolvedCompany).toBe(expected);
         expect(wrapper.vm.validCompanyField).toBe(valid);
+    });
+
+    it('should refuse to save a company account without a contact person while the settings require one', async () => {
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
+
+        await wrapper.setData({
+            customer: { id: '1', email: 'user@domain.com', accountType: 'business', password: 'shopware' },
+            address: { id: '2', company: 'Acme GmbH' },
+        });
+
+        expect(await wrapper.vm.onSave()).toBe(false);
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
+    });
+
+    it('should save a company account without a contact person once the settings allow it', async () => {
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const wrapper = await createWrapper({
+            customerRepositorySaveMock,
+            systemConfig: {
+                'core.loginRegistration.showAccountTypeSelection': true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+            },
+        });
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { id: '1', email: 'user@domain.com', accountType: 'business', password: 'shopware' },
+            address: { id: '2', company: 'Acme GmbH' },
+        });
+
+        expect(wrapper.vm.companyNamesRequired).toBe(false);
+        expect(await wrapper.vm.onSave()).not.toBe(false);
+        expect(customerRepositorySaveMock).toHaveBeenCalled();
+        expect(wrapper.vm.customer.firstName).toBe('');
+        expect(wrapper.vm.customer.lastName).toBe('');
+    });
+
+    it('should still require a contact person on a private account the settings released', async () => {
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const wrapper = await createWrapper({
+            customerRepositorySaveMock,
+            systemConfig: {
+                'core.loginRegistration.showAccountTypeSelection': true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+            },
+        });
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
+
+        await wrapper.setData({
+            customer: { id: '1', email: 'user@domain.com', accountType: 'private', password: 'shopware' },
+            address: { id: '2' },
+        });
+
+        expect(await wrapper.vm.onSave()).toBe(false);
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
     });
 });

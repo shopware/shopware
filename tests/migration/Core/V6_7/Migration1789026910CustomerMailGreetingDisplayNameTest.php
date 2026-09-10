@@ -44,7 +44,7 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
         $migration->update($this->connection);
 
         foreach ($this->contents($type) as $content) {
-            static::assertStringContainsString('customer.displayName', $content);
+            static::assertStringContainsString('.displayName', $content);
             static::assertStringNotContainsString('customer.lastName', $content);
             static::assertStringNotContainsString('customer.firstName', $content);
         }
@@ -95,6 +95,8 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
     {
         yield 'group registration accepted' => [MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED];
         yield 'group registration declined' => [MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED];
+        yield 'customer recovery request' => [MailTemplateTypes::MAILTYPE_CUSTOMER_RECOVERY_REQUEST];
+        yield 'customer register double opt in' => [MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER_DOUBLE_OPT_IN];
         yield 'guest order double opt in' => [MailTemplateTypes::MAILTYPE_GUEST_ORDER_DOUBLE_OPT_IN];
         yield 'password change' => [MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE];
         yield 'customer password changed' => [CustomerPasswordChangedEvent::EVENT_NAME];

@@ -240,6 +240,10 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
 
+### Stale persisted sales channel context options are recovered
+
+When a sales channel no longer provides the language or currency saved for a context token, Store API and storefront requests now remove that stale saved option and continue with the sales channel default. Explicitly requested unavailable languages and currencies still return their existing errors.
+
 ### Store API context token response header is restricted on cacheable reads
 
 Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.

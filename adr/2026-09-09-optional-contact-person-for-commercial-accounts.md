@@ -86,10 +86,10 @@ return $personName === '' ? $company : $personName . ' - ' . $company;
 
 ### Mail
 
-The shipped templates move to the resolved name, and a migration carries that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps what it has.
+The shipped templates move to the resolved name, and a migration carries that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps its own text. Twenty fixture files across five templates read the customer name today, in two shapes, one of which never reads `firstName`.
 
 ```twig
-{# fixtures today, in two shapes, one of which never reads firstName #}
+{# before #}
 Hello {{ customer.firstName }} {{ customer.lastName }},
 Hello {{ customer.salutation.translated.letterName }} {{ customer.lastName }},
 
@@ -98,19 +98,16 @@ Hello {{ customer.displayName }},
 Hello {{ customer.salutation.translated.letterName }} {{ customer.displayName }},
 ```
 
-Customised templates still address `customer.firstName` and `customer.lastName`, so a subscriber on `MailBeforeValidateEvent` covers them. It swaps a rendered copy of the customer into the template data and patches the recipient name in `getData()`, which `MailService::send()` reads separately.
-
-The copy puts the company in `lastName`, not `firstName`, because the shape that greets with `letterName` never reads `firstName` and the company would not appear at all. A customised template that renders both parts gets a double space, which HTML collapses and plain text keeps. That is the residue we accept, and it reaches only shops that edited their own mails.
+The recipient name is built in the events, not the template, so the ten `MailAware` customer events read the resolved name instead of joining the two columns. Otherwise the `To:` header of a nameless company account is a single space.
 
 ```php
-// the stored customer is never touched, only the copy the template renders
-$rendered = clone $customer;
-$rendered->setFirstName('');
-$rendered->setLastName($customer->getCompany());
-
-$event->setTemplateData([...$templateData, 'customer' => $rendered]);
-$event->setData([...$data, 'recipients' => [$customer->getEmail() => $customer->getCompany()]]);
+// CustomerRegisterEvent::getMailStruct() and its nine siblings
+new MailRecipientStruct([$this->customer->getEmail() => $this->customer->getDisplayName()]);
 ```
+
+Order mails need nothing. They read `order.orderCustomer.firstName`, which already carries the company through the snapshot.
+
+There is no runtime patching of the customer for the render. A shop that customised a mail template keeps addressing `customer.firstName` and `customer.lastName`, and gets an empty greeting for an account with no contact person. That is the trade we accept: the shop owns that template, and hiding the change behind a subscriber would mean every mail renders a customer that does not match the one in the database.
 
 ### Storefront
 

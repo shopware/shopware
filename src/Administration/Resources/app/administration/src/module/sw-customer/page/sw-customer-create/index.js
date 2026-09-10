@@ -112,12 +112,11 @@ export default {
     },
 
     watch: {
-        'customer.salesChannelId'() {
+        'customer.salesChannelId'(salesChannelId) {
             // The three settings are switchable per sales channel, so moving the customer to another
             // one can change whether the contact person is required.
             this.loadCompanyNamesRequired();
-        },
-        'customer.salesChannelId'(salesChannelId) {
+
             this.systemConfigApiService.getValues('core.systemWideLoginRegistration').then((response) => {
                 if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
                     this.customer.boundSalesChannelId = salesChannelId;

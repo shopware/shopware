@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package after-sales
@@ -240,7 +240,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         const buttonSave = wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button');
@@ -257,14 +257,14 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await selectionSet.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         const selectionField = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field');
         await selectionField.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         const valueOption = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value-options');
@@ -291,14 +291,14 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await selectionSet.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         const selectionField = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field');
         await selectionField.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         const valueOption = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value-options');
@@ -327,14 +327,14 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await selectionSet.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         const selectionField = wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field');
         await selectionField.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value').attributes().disabled).toBeFalsy();
@@ -367,7 +367,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await wrapper.find(fieldClasses[0]).find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.find(fieldClasses[0]).classes()).not.toContain('has--error');
@@ -379,7 +379,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await wrapper.find(fieldClasses[1]).find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.find(fieldClasses[1]).classes()).not.toContain('has--error');

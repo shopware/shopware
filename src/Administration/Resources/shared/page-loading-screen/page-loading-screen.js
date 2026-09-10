@@ -4,9 +4,14 @@
 
 (() => {
     try {
-        let theme = window.localStorage.getItem('mt-theme');
+        // Mirrors `useTheme()` in `app/administration/src/app/composables/use-theme.ts`:
+        // the `'light'` fallback has to stay in sync with `DEFAULT_THEME` there.
+        const storedTheme = window.localStorage.getItem('mt-theme');
+        let theme = 'light';
 
-        if (theme !== 'light' && theme !== 'dark') {
+        if (storedTheme === 'light' || storedTheme === 'dark') {
+            theme = storedTheme;
+        } else if (storedTheme === 'system') {
             theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
 

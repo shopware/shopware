@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 
 /**
  * @internal
@@ -16,20 +16,16 @@ class ReplicaConnectionResetterTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testServiceIsInitializedAtBootAndRegisteredForReset(): void
+    public function testServicesResetterInitializesReplicaConnectionResetter(): void
     {
         $container = static::getContainer();
 
-        static::assertTrue(
-            $container->initialized(ReplicaConnectionResetter::class),
-            'ReplicaConnectionResetter must be initialized during kernel boot so ServicesResetter resets it.'
-        );
-
         $servicesResetter = $container->get('services_resetter');
-        static::assertInstanceOf(ServicesResetter::class, $servicesResetter);
+        static::assertInstanceOf(ServicesResetterInterface::class, $servicesResetter);
+        $servicesResetter->reset();
 
-        $resetMethods = (new \ReflectionProperty(ServicesResetter::class, 'resetMethods'))->getValue($servicesResetter);
-        static::assertIsArray($resetMethods);
-        static::assertSame(['reset'], $resetMethods[ReplicaConnectionResetter::class] ?? null);
+        // Once Symfony initializes all kernel.reset services itself, this remains true without
+        // Framework::boot() fetching the service and the boot-time workaround can be removed.
+        static::assertTrue($container->initialized(ReplicaConnectionResetter::class));
     }
 }

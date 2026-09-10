@@ -44,6 +44,7 @@ use Shopware\Core\Framework\Api\Controller\HealthCheckController;
 use Shopware\Core\Framework\Api\Controller\IndexingController;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Controller\IntegrationController;
+use Shopware\Core\Framework\Api\Controller\OAuthAuthorizeController;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Api\Controller\UserController;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
@@ -55,8 +56,11 @@ use Shopware\Core\Framework\Api\EventListener\JsonRequestTransformerListener;
 use Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener;
 use Shopware\Core\Framework\Api\EventListener\ResponseHeaderListener;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
+use Shopware\Core\Framework\Api\OAuth\Client\PublicClientRegistry;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
+use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
@@ -331,6 +335,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.api.authorization_server'),
             service(PsrHttpFactory::class),
             service('shopware.rate_limiter'),
+            service(Connection::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(OAuthAuthorizeController::class)
+        ->public()
+        ->args([
+            service('shopware.api.authorization_server'),
+            service(PsrHttpFactory::class),
+            service(Psr17Factory::class),
+            service(PublicClientRegistry::class),
+            service('shopware.rate_limiter'),
+            service('router'),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -349,10 +366,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AccessTokenRepository::class);
 
+    $services->set(PublicClientRegistry::class)
+        ->args([
+            param('shopware.api.oauth_clients'),
+        ]);
+
     $services->set(ClientRepository::class)
         ->args([
             service(Connection::class),
             service(ClockInterface::class),
+            service(PublicClientRegistry::class),
         ]);
 
     $services->set(RefreshTokenRepository::class)
@@ -426,24 +449,38 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(AuthCodeRepository::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
+        ]);
+
+    $services->set(GrantTypeFactory::class)
+        ->args([
+            service(UserRepository::class),
+            service(RefreshTokenRepository::class),
+            service(AuthCodeRepository::class),
+            service(UserService::class),
+            service(ExternalTokenService::class),
+            service(ClockInterface::class),
+            param('shopware.api.refresh_token_ttl'),
+            param('shopware.api.auth_code_ttl'),
+        ]);
+
     $services->set(ApiAuthenticationListener::class)
         ->args([
             service(SymfonyBearerTokenValidator::class),
             service('shopware.api.authorization_server'),
-            service(UserRepository::class),
-            service(RefreshTokenRepository::class),
+            service(GrantTypeFactory::class),
             service(RouteScopeRegistry::class),
-            service(UserService::class),
-            service(ExternalTokenService::class),
-            service(ClockInterface::class),
             param('shopware.api.access_token_ttl'),
-            param('shopware.api.refresh_token_ttl'),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(UserCredentialsChangedSubscriber::class)
         ->args([
             service(RefreshTokenRepository::class),
+            service(AuthCodeRepository::class),
             service(Connection::class),
             service(ClockInterface::class),
         ])

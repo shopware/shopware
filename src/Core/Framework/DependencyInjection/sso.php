@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\Controller\SsoController;
@@ -94,6 +95,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LoginConfigService::class),
             service(RefreshTokenRepository::class),
+            service(AuthCodeRepository::class),
         ]);
 
     $services->set(StateValidator::class);

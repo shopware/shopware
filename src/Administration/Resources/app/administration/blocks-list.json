@@ -3805,6 +3805,7 @@
  "sw_number_filter_from_field",
  "sw_number_filter_to_field",
  "sw_number_range_list_grid_columns_name",
+ "sw_oauth_authorize",
  "sw_order_address_modal",
  "sw_order_address_modal_action_close",
  "sw_order_address_modal_actions",

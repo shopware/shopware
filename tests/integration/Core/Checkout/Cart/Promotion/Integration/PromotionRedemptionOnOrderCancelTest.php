@@ -139,7 +139,7 @@ class PromotionRedemptionOnOrderCancelTest extends TestCase
     public function testReopeningAnOrderClaimedElsewhereExceedsTheGlobalLimit(): void
     {
         $promotionId = Uuid::randomHex();
-        $this->createPromotion($promotionId, maxRedemptionsGlobal: 1);
+        $this->createLimitedPromotion($promotionId, maxRedemptionsGlobal: 1);
 
         $firstOrderId = $this->placeOrder($this->createCustomer());
         $this->transition($firstOrderId, StateMachineTransitionActions::ACTION_CANCEL);
@@ -163,12 +163,12 @@ class PromotionRedemptionOnOrderCancelTest extends TestCase
 
     private function placeOrderWithPromotion(string $promotionId, string $customerId, ?string $productId = null): string
     {
-        $this->createPromotion($promotionId, maxRedemptionsPerCustomer: 1);
+        $this->createLimitedPromotion($promotionId, maxRedemptionsPerCustomer: 1);
 
         return $this->placeOrder($customerId, $productId);
     }
 
-    private function createPromotion(string $promotionId, ?int $maxRedemptionsGlobal = null, ?int $maxRedemptionsPerCustomer = null): void
+    private function createLimitedPromotion(string $promotionId, ?int $maxRedemptionsGlobal = null, ?int $maxRedemptionsPerCustomer = null): void
     {
         $this->promotionRepository->create([[
             'id' => $promotionId,

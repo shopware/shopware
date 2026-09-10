@@ -411,6 +411,7 @@
             "productAssignmentModal": {
                 "title": "Produkte hinzufügen",
                 "singleProducts": "Produkt-Auswahl",
+                "singleProductsEmptyState": "Keine weiteren Produkte gefunden",
                 "categories": {
                     "title": "Kategorie-Auswahl",
                     "textInfo": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung in Kategorien beeinflussen die Zuweisung nicht.",

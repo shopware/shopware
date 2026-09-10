@@ -89,6 +89,10 @@
 |`state_leave.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"entity":"user_recovery","resetUrl":"string"}
+|`webhook.health.activated` | __EMPTY__ | - | {"webhookId":"string","fromState":"string","trigger":"string","clearedSuspendedSince":"string","webhookName":"string","eventName":"string","occurredAt":"string"}
+|`webhook.health.degraded` | __EMPTY__ | - | {"webhookId":"string","fromState":"string","webhookName":"string","eventName":"string","occurredAt":"string"}
+|`webhook.health.disabled` | __EMPTY__ | - | {"webhookId":"string","fromState":"string","origin":"string","webhookName":"string","eventName":"string","occurredAt":"string"}
+|`webhook.health.suspended` | __EMPTY__ | - | {"webhookId":"string","fromState":"string","suspendedSince":"string","cause":"string","webhookName":"string","eventName":"string","occurredAt":"string"}
 |`sales_channel.written` | Triggers when a sales_channel is written | `sales_channel:read` | {"entity":"sales_channel","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`sales_channel.deleted` | Triggers when a sales_channel is deleted | `sales_channel:read` | {"entity":"sales_channel","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`sales_channel_domain.written` | Triggers when a sales_channel_domain is written | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":"update insert","primaryKey":"array string","payload":"array"}
@@ -121,6 +125,10 @@
 |`shopware.updated` | Fires after an shopware update has been finished | - | 
 |`app.config.changed` | Fires when a system config value is changed | `system_config:read` | 
 |`app.system_heartbeat` | Fires as a recurrent task. Indicates to the app that the system is up and running. | - | 
+|`webhook.health.activated` | Fires when one of the app&#039;s webhooks recovers to healthy | - | 
+|`webhook.health.degraded` | Fires when one of the app&#039;s webhooks degrades after repeated transient delivery failures | - | 
+|`webhook.health.suspended` | Fires when one of the app&#039;s webhooks is suspended and new events start being shed | - | 
+|`webhook.health.disabled` | Fires when one of the app&#039;s webhooks is disabled by escalation or an operator | - | 
 |`consent.backend_data.accepted` | Fires when the backend_data consent is accepted. | `consent:backend_data:read` | 
 |`consent.backend_data.revoked` | Fires when the backend_data consent is revoked. | `consent:backend_data:read` | 
 |`consent.product_analytics.accepted` | Fires when the product_analytics consent is accepted. | `consent:product_analytics:read` | 

@@ -42,6 +42,10 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -179,5 +183,15 @@ class Framework extends Bundle
 
         $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);
         $stampedeProtectionConfigurator->apply();
+    }
+
+    protected function getActionEventClasses(): array
+    {
+        return [
+            WebhookActivatedEvent::class,
+            WebhookDegradedEvent::class,
+            WebhookSuspendedEvent::class,
+            WebhookDisabledEvent::class,
+        ];
     }
 }

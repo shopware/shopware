@@ -393,6 +393,14 @@ shopware:
                 policy: 'sliding_window'
                 limit: 60
                 interval: '60 minutes'
+            webhook_reactivation:
+                enabled: true
+                policy: 'token_bucket'
+                limit: 10
+                rate:
+                    interval: '1 minute'
+                    amount: 10
+
     admin_worker:
         enable_admin_worker: true
         enable_queue_stats_worker: true

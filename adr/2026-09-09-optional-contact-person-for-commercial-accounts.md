@@ -136,15 +136,6 @@ public function getMailStruct(): MailRecipientStruct
 }
 ```
 
-`MailStorer` builds the same name twice when it restores a flow, without even a
-space between the two parts, and reads the resolved name too.
-
-Order events keep their own join. `OrderStateMachineStateChangeEvent`,
-`OrderPaymentMethodChangedEvent` and `CheckoutOrderPlacedEvent` read
-`orderCustomer`, which already carries the company through the snapshot. The two
-newsletter events and `UserRecoveryRequestEvent` address a recipient that is not
-a customer at all.
-
 There is no runtime patching of the customer for the render. A shop that customised a mail template keeps addressing `customer.firstName` and `customer.lastName`, and gets an empty greeting for an account with no contact person. That is the trade we accept: the shop owns that template, and hiding the change behind a subscriber would mean every mail renders a customer that does not match the one in the database.
 
 ### Storefront

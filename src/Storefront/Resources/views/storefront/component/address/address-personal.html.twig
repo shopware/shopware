@@ -88,8 +88,12 @@
             </div>
         {% elseif not hideCustomerTypeSelect %}
             {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
-            {# The registration is always of type "commercial" then. #}
-            <input type="hidden" name="{{ accountTypeFieldName }}">
+            {# The registration is always of type "commercial" then, so the value has to say so: the
+               routes read the account type off the request and would otherwise treat the whole
+               registration as private. #}
+            <input type="hidden"
+                   name="{{ accountTypeFieldName }}"
+                   value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
         {% endif %}
     {% endblock %}
 

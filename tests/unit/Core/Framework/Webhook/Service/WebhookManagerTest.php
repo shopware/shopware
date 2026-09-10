@@ -146,6 +146,24 @@ class WebhookManagerTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
     }
 
+    public function testSkippedWebhookIsNotDispatched(): void
+    {
+        $event = $this->prepareEvent();
+        $this->prepareWebhook('foobar');
+
+        $webhookHealthService = static::createStub(WebhookHealthService::class);
+        $webhookHealthService->method('gateFor')->willReturn(WebhookDispatchDecision::Skip);
+
+        $deliveryService = $this->createMock(WebhookDeliveryService::class);
+        $deliveryService->expects($this->never())->method('process');
+        $deliveryService->expects($this->never())->method('hold');
+
+        $manager = $this->getWebhookManager(true, $webhookHealthService, $deliveryService);
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
+    }
+
     public function testChecksEligibilityBeforeHealthGate(): void
     {
         $event = $this->prepareHookableEvent();

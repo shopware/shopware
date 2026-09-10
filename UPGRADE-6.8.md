@@ -78,6 +78,12 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
+## Legacy webhook health fields and hooks removed
+
+The `webhook.active` and `webhook.error_count` columns, their `WebhookEntity` properties and accessors, `RetryWebhookMessageFailedSubscriber::failed()`, and `WebhookHealthService::recordLegacyFailure()` and `resetErrorCount()` have been removed.
+
+Read `endpointState` through `GET /api/app-system/webhook/state`. Use `POST /api/app-system/webhook/reactivate` to reactivate app webhooks and `POST /api/_action/webhook/{id}/deactivate` for operator disablement. The [removal runbook](adr/2026-06-05-webhook-rework-v6.8.0-removal-runbook.md) lists the complete cutover.
+
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.

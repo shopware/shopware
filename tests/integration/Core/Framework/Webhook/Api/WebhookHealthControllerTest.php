@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -14,9 +15,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Api\WebhookHealthController;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -127,6 +130,16 @@ class WebhookHealthControllerTest extends TestCase
         ], $content);
     }
 
+    public function testStateRejectsAdminUserTokenWithoutIntegration(): void
+    {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $browser = $this->getBrowser();
+            $browser->request('GET', '/api/app-system/webhook/state');
+
+            $this->assertApiError($browser, Response::HTTP_BAD_REQUEST, WebhookException::MISSING_INTEGRATION);
+        });
+    }
+
     public function testReactivateResetsSuspendedWebhookToHealthyAndResumesHeldRows(): void
     {
         $appId = $this->createAppForIntegration($this->ids->create('integration'));
@@ -166,6 +179,28 @@ class WebhookHealthControllerTest extends TestCase
         );
     }
 
+    public function testReactivateResetsEscalationDisabledWebhook(): void
+    {
+        $appId = $this->createAppForIntegration($this->ids->create('integration'));
+        $this->seedWebhook('wh', appId: $appId, active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Disabled, disabledSince: $this->dateTime('-1 day'), disabledOrigin: DisabledOrigin::Escalation);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $browser = $this->appBrowser('integration');
+            $browser->request('POST', '/api/app-system/webhook/reactivate', [], [], [], $this->namesBody(['wh']));
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+            return $this->decode($browser);
+        });
+
+        static::assertSame(['reactivated' => [['name' => 'wh', 'url' => self::URL, 'reset' => true]]], $content);
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Healthy->value, $health['endpoint_state']);
+        static::assertNull($health['disabled_since']);
+        static::assertNull($health['disabled_origin']);
+    }
+
     public function testReactivateRefusesOperatorDisabledWebhook(): void
     {
         $appId = $this->createAppForIntegration($this->ids->create('integration'));
@@ -189,6 +224,59 @@ class WebhookHealthControllerTest extends TestCase
         $health = $this->fetchHealthRow('wh');
         static::assertSame(EndpointState::Disabled->value, $health['endpoint_state'], 'an operator kill is not undone by app self-service');
         static::assertSame(DisabledOrigin::Operator->value, $health['disabled_origin']);
+    }
+
+    public function testReactivateSilentlyDropsAnotherAppsWebhookName(): void
+    {
+        $this->createAppForIntegration($this->ids->create('integration'));
+        $otherAppId = $this->createApp();
+        $this->seedWebhook('shared-name', appId: $otherAppId, active: false);
+        $this->seedHealth('shared-name', EndpointState::Suspended, cooldownUntil: $this->dateTime('+1 hour'), suspendedSince: $this->dateTime('-2 days'));
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $browser = $this->appBrowser('integration');
+            $browser->request('POST', '/api/app-system/webhook/reactivate', [], [], [], $this->namesBody(['shared-name']));
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+            return $this->decode($browser);
+        });
+
+        static::assertSame(['reactivated' => []], $content, 'a name owned by another app is silently dropped');
+        static::assertSame(EndpointState::Suspended->value, $this->fetchHealthRow('shared-name')['endpoint_state'], 'the other app\'s webhook is untouched');
+    }
+
+    public function testReactivateReportsAlreadyHealthyWebhookAsNotReset(): void
+    {
+        $appId = $this->createAppForIntegration($this->ids->create('integration'));
+        $this->seedWebhook('wh', appId: $appId);
+        $this->seedHealth('wh', EndpointState::Healthy);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $browser = $this->appBrowser('integration');
+            $browser->request('POST', '/api/app-system/webhook/reactivate', [], [], [], $this->namesBody(['wh']));
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+            return $this->decode($browser);
+        });
+
+        static::assertSame(['reactivated' => [['name' => 'wh', 'url' => self::URL, 'reset' => false]]], $content);
+    }
+
+    public function testReactivateAcceptsFiftyNamesAndRejectsFiftyOne(): void
+    {
+        $this->createAppForIntegration($this->ids->create('integration'));
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $browser = $this->appBrowser('integration');
+
+            $atLimit = array_map(static fn (int $i): string => 'wh-' . $i, range(1, WebhookHealthController::MAX_REACTIVATION_NAMES));
+            $browser->request('POST', '/api/app-system/webhook/reactivate', [], [], [], $this->namesBody($atLimit));
+            static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'exactly 50 names are accepted');
+
+            $overLimit = array_map(static fn (int $i): string => 'wh-' . $i, range(1, WebhookHealthController::MAX_REACTIVATION_NAMES + 1));
+            $browser->request('POST', '/api/app-system/webhook/reactivate', [], [], [], $this->namesBody($overLimit));
+            $this->assertApiError($browser, Response::HTTP_BAD_REQUEST, WebhookException::TOO_MANY_REACTIVATION_NAMES);
+        });
     }
 
     public function testReactivateIsRateLimitedPerIntegration(): void
@@ -215,6 +303,90 @@ class WebhookHealthControllerTest extends TestCase
         });
     }
 
+    public function testHealthStatusReportsFreshTickAsNotStale(): void
+    {
+        $lastTick = $this->dateTime('-10 seconds');
+        $this->seedTickHeartbeat($lastTick);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $admin = $this->getBrowser();
+            $admin->request('GET', '/api/_action/webhook/health-status');
+            static::assertSame(Response::HTTP_OK, $admin->getResponse()->getStatusCode());
+
+            return $this->decode($admin);
+        });
+
+        static::assertSame(['lastTickAt' => $lastTick, 'stale' => false], $content, 'a tick 10s ago within a 60s interval is fresh');
+    }
+
+    public function testHealthStatusReportsTickOlderThanTwoIntervalsAsStale(): void
+    {
+        $lastTick = $this->dateTime('-10 minutes');
+        $this->seedTickHeartbeat($lastTick);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $admin = $this->getBrowser();
+            $admin->request('GET', '/api/_action/webhook/health-status');
+            static::assertSame(Response::HTTP_OK, $admin->getResponse()->getStatusCode());
+
+            return $this->decode($admin);
+        });
+
+        static::assertSame(['lastTickAt' => $lastTick, 'stale' => true], $content, 'a tick older than 2x the interval is stale');
+    }
+
+    public function testHealthStatusReportsNeverTickedAsStale(): void
+    {
+        $this->seedTickHeartbeat(null);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $admin = $this->getBrowser();
+            $admin->request('GET', '/api/_action/webhook/health-status');
+            static::assertSame(Response::HTTP_OK, $admin->getResponse()->getStatusCode());
+
+            return $this->decode($admin);
+        });
+
+        static::assertSame(['lastTickAt' => null, 'stale' => true], $content, 'no completed tick yet reads as stale, not as an error');
+    }
+
+    /**
+     * The privilege passes the ACL, leaving userId as the boundary under test.
+     */
+    public function testHealthStatusRejectsAppCredentialEvenWithPluginMaintainPrivilege(): void
+    {
+        $this->createAppForIntegration($this->ids->create('integration'), privileges: ['system.plugin_maintain']);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $browser = $this->appBrowser('integration');
+            $browser->request('GET', '/api/_action/webhook/health-status');
+
+            $this->assertApiError($browser, Response::HTTP_FORBIDDEN, WebhookException::OPERATOR_ROUTE_REQUIRES_USER);
+        });
+    }
+
+    public function testDeactivateDisablesWebhookWithoutHealthRowWithOperatorOrigin(): void
+    {
+        $appId = $this->createApp();
+        $this->seedWebhook('wh', appId: $appId);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $admin = $this->getBrowser();
+            $admin->request('POST', \sprintf('/api/_action/webhook/%s/deactivate', $this->ids->get('wh')));
+            static::assertSame(Response::HTTP_OK, $admin->getResponse()->getStatusCode());
+
+            return $this->decode($admin);
+        });
+
+        static::assertSame(['disabled' => true], $content);
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Disabled->value, $health['endpoint_state']);
+        static::assertSame(DisabledOrigin::Operator->value, $health['disabled_origin']);
+        static::assertNotNull($health['disabled_since']);
+        static::assertSame(['active' => 0, 'error_count' => 0], $this->fetchMirroredColumns('wh'));
+    }
+
     public function testDeactivateDisablesSuspendedWebhookWithOperatorOrigin(): void
     {
         $appId = $this->createApp();
@@ -235,6 +407,53 @@ class WebhookHealthControllerTest extends TestCase
         static::assertSame(EndpointState::Disabled->value, $health['endpoint_state']);
         static::assertSame(DisabledOrigin::Operator->value, $health['disabled_origin']);
         static::assertNull($health['cooldown_until'], 'the suspension cooldown is cleared by the kill');
+    }
+
+    public function testDeactivateUpgradesEscalationDisabledWebhookToOperatorOrigin(): void
+    {
+        $appId = $this->createApp();
+        $this->seedWebhook('wh', appId: $appId, active: false);
+        $this->seedHealth('wh', EndpointState::Disabled, disabledSince: $this->dateTime('-1 day'), disabledOrigin: DisabledOrigin::Escalation);
+
+        $content = Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): array {
+            $admin = $this->getBrowser();
+            $admin->request('POST', \sprintf('/api/_action/webhook/%s/deactivate', $this->ids->get('wh')));
+            static::assertSame(Response::HTTP_OK, $admin->getResponse()->getStatusCode());
+
+            return $this->decode($admin);
+        });
+
+        // The state is unchanged, but app self-recovery must now be refused.
+        static::assertSame(['disabled' => false], $content);
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Disabled->value, $health['endpoint_state']);
+        static::assertSame(DisabledOrigin::Operator->value, $health['disabled_origin']);
+    }
+
+    public function testDeactivateRejectsUnknownOrMalformedWebhookId(): void
+    {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $admin = $this->getBrowser();
+
+            $admin->request('POST', \sprintf('/api/_action/webhook/%s/deactivate', Uuid::randomHex()));
+            $this->assertApiError($admin, Response::HTTP_NOT_FOUND, WebhookException::WEBHOOK_NOT_FOUND);
+
+            $admin->request('POST', '/api/_action/webhook/not-a-uuid/deactivate');
+            $this->assertApiError($admin, Response::HTTP_NOT_FOUND, WebhookException::WEBHOOK_NOT_FOUND);
+        });
+    }
+
+    public function testDeactivateRejectsAppCredentialEvenWithPluginMaintainPrivilege(): void
+    {
+        $this->createAppForIntegration($this->ids->create('integration'), privileges: ['system.plugin_maintain']);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $browser = $this->appBrowser('integration');
+            $browser->request('POST', \sprintf('/api/_action/webhook/%s/deactivate', Uuid::randomHex()));
+
+            $this->assertApiError($browser, Response::HTTP_FORBIDDEN, WebhookException::OPERATOR_ROUTE_REQUIRES_USER);
+        });
     }
 
     public function testWholeSurfaceIsHiddenWhenFlagOff(): void
@@ -305,7 +524,10 @@ class WebhookHealthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createAppForIntegration(string $integrationId): string
+    /**
+     * @param list<string> $privileges
+     */
+    private function createAppForIntegration(string $integrationId, array $privileges = []): string
     {
         $appId = Uuid::randomBytes();
         $aclRoleId = Uuid::randomBytes();
@@ -313,7 +535,7 @@ class WebhookHealthControllerTest extends TestCase
         $this->connection->insert('acl_role', [
             'id' => $aclRoleId,
             'name' => 'wh-health-' . Uuid::randomHex(),
-            'privileges' => json_encode([], \JSON_THROW_ON_ERROR),
+            'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
             'created_at' => $this->dateTime(),
         ]);
 
@@ -412,6 +634,21 @@ class WebhookHealthControllerTest extends TestCase
             'delivery_status' => WebhookEventLogDefinition::STATUS_PAUSED,
             'created_at' => $this->dateTime(),
         ]);
+    }
+
+    /**
+     * Use the service because the key-value store caches values in memory.
+     */
+    private function seedTickHeartbeat(?string $lastTick): void
+    {
+        $storage = static::getContainer()->get(AbstractKeyValueStorage::class);
+        if ($lastTick === null) {
+            $storage->remove(WebhookHealthTick::HEARTBEAT_STORAGE_KEY);
+
+            return;
+        }
+
+        $storage->set(WebhookHealthTick::HEARTBEAT_STORAGE_KEY, $lastTick);
     }
 
     /**

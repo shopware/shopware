@@ -25,6 +25,8 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -39,6 +41,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -233,6 +236,70 @@ class WebhookManagerTest extends TestCase
         ]);
 
         $this->getManager($client)->dispatch($event);
+    }
+
+    public function testPendingShopIdChangeDoesNotBurnASuspendedTrial(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->connection->insert('webhook_health', [
+            'webhook_id' => Uuid::fromHexToBytes($webhookId),
+            'endpoint_state' => EndpointState::Suspended->value,
+            'degraded_cycle_count' => 0,
+            'cooldown_until' => (new \DateTimeImmutable('-1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'suspended_since' => (new \DateTimeImmutable('-2 hours'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, ShopId::v2(Uuid::randomHex(), [
+            AppUrl::IDENTIFIER => 'https://test.com',
+        ])->toArray());
+        $this->shopIdProvider->reset();
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $healthBefore = $this->connection->fetchAssociative(
+            'SELECT degraded_cycle_count, cooldown_until FROM webhook_health WHERE webhook_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
+        );
+        static::assertIsArray($healthBefore);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager()->dispatch($event);
+        });
+
+        $healthAfter = $this->connection->fetchAssociative(
+            'SELECT degraded_cycle_count, cooldown_until FROM webhook_health WHERE webhook_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
+        );
+        static::assertIsArray($healthAfter);
+        static::assertSame($healthBefore, $healthAfter);
+        static::assertSame(0, (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'hook1']
+        ));
+        static::assertSame(0, (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
+        ));
     }
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void

@@ -205,7 +205,8 @@ class WebhookHealthService
     }
 
     /**
-     * Pre-rework `error_count` failure handling. Runs only with WEBHOOKS_REWORK off.
+     * @deprecated tag:v6.8.0 - Pre-rework `error_count` failure handling. Runs only with WEBHOOKS_REWORK
+     * off and is removed together with the `webhook.active`/`error_count` columns.
      */
     public function recordLegacyFailure(string $webhookId, WebhookFailureStrategy $strategy): void
     {
@@ -228,7 +229,8 @@ class WebhookHealthService
     }
 
     /**
-     * Pre-rework `error_count` reset. Runs only with WEBHOOKS_REWORK off.
+     * @deprecated tag:v6.8.0 - Pre-rework `error_count` reset. Runs only with WEBHOOKS_REWORK off and is
+     * removed together with the legacy columns.
      */
     public function resetErrorCount(string $webhookId): void
     {

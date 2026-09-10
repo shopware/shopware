@@ -42,6 +42,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
     init() {
         this.client = new HttpClient();
+        this._requestQueue = Promise.resolve();
         this._registerOpenTriggerEvents();
     }
 
@@ -108,10 +109,19 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         if (numberInputs) {
             Iterator.iterate(numberInputs, (input) => {
-                input.addEventListener('change', Debouncer.debounce(
+                // On the form: the `QuantitySelectorPlugin` withholds events on the input.
+                const delayedChange = Debouncer.debounce(
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
-                ));
+                );
+                input.form?.addEventListener('change', (event) => {
+                    if (event.detail?.submitImmediately) {
+                        delayedChange.flush(event);
+                        return;
+                    }
+
+                    delayedChange(event);
+                });
             });
         }
     }
@@ -202,15 +212,59 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _fireRequest(form, selector, callback) {
-        ElementLoadingIndicatorUtil.create(form.closest(selector));
+        const container = form.closest(selector);
+        ElementLoadingIndicatorUtil.create(container);
 
         const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
         const requestUrl = DomAccess.getAttribute(form, 'action');
         const data = FormSerializeUtil.serialize(form);
 
-        this.$emitter.publish('beforeFireRequest');
+        // Snapshot the form before a preceding response replaces it, then apply mutations
+        // in order. Dropping responses cannot prevent older requests from changing the cart.
+        this._requestQueue = this._requestQueue
+            .then(() => {
+                this.$emitter.publish('beforeFireRequest');
 
-        this.client.post(requestUrl, data, cb);
+                return this._sendRequest('post', requestUrl, data);
+            })
+            .then(({ response, request }) => cb(response, request))
+            .catch((error) => {
+                // A failed mutation must not block later edits in the queue.
+                ElementLoadingIndicatorUtil.remove(container);
+                console.warn('Unable to update the off-canvas cart.', error);
+            });
+    }
+
+    /**
+     * Keep the 6.6 HttpClient callbacks while waiting for each request to finish.
+     *
+     * @param {'get'|'post'} method
+     * @param {string} url
+     * @param {FormData|null} data
+     * @returns {Promise}
+     * @private
+     */
+    _sendRequest(method, url, data = null) {
+        return new Promise((resolve, reject) => {
+            const onResponse = (response, request) => {
+                // HttpClient calls back on loadend, including failed and aborted requests.
+                if (request && request.status === 0) {
+                    reject(new Error(`The request to ${url} failed.`));
+                    return;
+                }
+
+                resolve({ response, request });
+            };
+
+            const request = method === 'post'
+                ? this.client.post(url, data, onResponse)
+                : this.client.get(url, onResponse, 'text/html');
+
+            // With internal error handling enabled, HttpClient only calls back on load.
+            ['error', 'abort', 'timeout'].forEach((eventName) => {
+                request?.addEventListener(eventName, () => reject(new Error(`The request to ${url} failed (${eventName}).`)));
+            });
+        });
     }
 
     /**
@@ -245,7 +299,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         this.$emitter.publish('onChangeProductQuantity');
 
-        this._saveFocusState(select);
+        this._saveFocusState(form.contains(document.activeElement) ? document.activeElement : select);
         this._fireRequest(form, selector);
     }
 
@@ -303,10 +357,10 @@ export default class OffCanvasCartPlugin extends Plugin {
         const url = window.router['frontend.cart.offcanvas'];
 
         const _callback = () => {
-            this.client.get(url, response => {
+            return this._sendRequest('get', url).then(({ response }) => {
                 this._updateOffCanvasContent(response);
                 this._registerEvents();
-            }, 'text/html');
+            });
         };
 
         this._fireRequest(event.target.form, '.offcanvas-summary', _callback);

@@ -2,7 +2,9 @@
 
 The failure conditions specific to the persisted mutation actions ([persisted-mutation.md](persisted-mutation.md)).
 
-In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`, `bindingSpecificationNotFound`, `bindingTypeMismatch`, `#[MapRequestPayload]` validation):
+In addition to the structural `400`s of the stateless endpoints (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`, `mutationPropertyLanguageKeyInvalid`, `bindingSpecificationNotFound`, `bindingTypeMismatch`, `#[MapRequestPayload]` validation):
+
+`mutationPropertyLanguageKeyInvalid` fires inside the operation, ahead of the DAL constraint pass, so it reports the first offending map key only — the per-key enumeration `PropertyTypeConformanceValidator` produces on a direct entity write does not apply on this route.
 
 | Condition                                                                         | HTTP | Factory / source                                                                                                                            |
 |-----------------------------------------------------------------------------------|------|---------------------------------------------------------------------------------------------------------------------------------------------|

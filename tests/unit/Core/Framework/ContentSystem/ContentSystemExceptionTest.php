@@ -504,6 +504,13 @@ class ContentSystemExceptionTest extends TestCase
             'Value for property "columns" of element "el-1" does not match its declared type, but is string.',
         ];
 
+        yield 'mutation property language key invalid' => [
+            ContentSystemException::mutationPropertyLanguageKeyInvalid('el-1', 'label', 'de-DE'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
+            'Language key "de-DE" of translatable property "label" of element "el-1" is not a language id in lowercase UUID hex.',
+        ];
+
         // The Admin mutation 404 half of the pair whose other half is the 'layout not found' row above: that one
         // is the Store-API render-time 500 for a layout that should exist, this one answers an unknown {layoutId}.
         yield 'content layout not found as the admin mutation 404' => [

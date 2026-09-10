@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -487,6 +488,30 @@ class LayoutMutationControllerTest extends TestCase
 
         static::assertSame(['headline' => 'Authored headline'], $body['layout'][0]['properties']);
         static::assertSame(['block-a'], $body['affectedElementIds']);
+    }
+
+    #[TestDox('rejects a language map carrying a non-language key with a 400 and the mutationPropertyLanguageKeyInvalid code')]
+    public function testUpdatePropertiesRejectsANonLanguageMapKey(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_TRANSLATABLE)],
+            'elementId' => 'block-a',
+            'values' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo']],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $errors = array_values(array_filter(
+            $body['errors'],
+            static fn (array $error): bool => $error['code'] === ContentSystemException::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+        ));
+
+        static::assertCount(1, $errors);
+        // the reported map key on the error entry itself, not a whole-body substring: a rejection naming the
+        // wrong key, or one merely echoing the payload back, must fail here
+        static::assertSame('de-DE', $errors[0]['meta']['parameters']['languageKey'] ?? null);
     }
 
     /**

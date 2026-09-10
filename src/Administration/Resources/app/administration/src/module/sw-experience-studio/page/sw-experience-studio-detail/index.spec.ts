@@ -389,6 +389,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN',
         'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT',
         'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED',
+        'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
     ])('reports %s as a structural mutation failure', (code) => {
         const createNotificationError = jest.fn();
 

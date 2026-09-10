@@ -257,6 +257,37 @@ class UpdateElementPropertiesTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $map
+     */
+    #[DataProvider('nonLanguageKeyProvider')]
+    #[TestDox('rejects $_dataName with a 400')]
+    public function testNonLanguageMapKeyRejected(array $map, string $rejectedKey): void
+    {
+        $update = new UpdateElementProperties($this->registry(), 'block-a', ['label' => $map], []);
+
+        $this->expectExceptionObject(ContentSystemException::mutationPropertyLanguageKeyInvalid('block-a', 'label', $rejectedKey));
+        $update->apply(new StoredTree([$this->target()]));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>, string}>
+     */
+    public static function nonLanguageKeyProvider(): iterable
+    {
+        yield 'a locale code as a language-map key' => [
+            [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', 'de' => 'Herbstschlussverkauf'],
+            'de',
+        ];
+
+        // Uuid::VALID_PATTERN is anchored lowercase-only hex, so an upper-case id fails the format rule with
+        // no separate case check.
+        yield 'an upper-case language id as a language-map key' => [
+            [strtoupper(Defaults::LANGUAGE_SYSTEM) => 'Autumn sale'],
+            strtoupper(Defaults::LANGUAGE_SYSTEM),
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $values
      * @param list<string> $removeKeys
      */
@@ -294,6 +325,23 @@ class UpdateElementPropertiesTest extends TestCase
             ['columns' => 'three'],
             ['ghost'],
             ContentSystemException::mutationPropertyUnknown('block-a', 'ghost'),
+        ];
+
+        // A non-string entry fails PropertyType::admits() before the key rule reads the map, so the value
+        // rejection reports even though the same map also carries a non-language key.
+        yield 'the value rejection ahead of the language-key rejection it also carries' => [
+            ['label' => ['de' => 5]],
+            [],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
+        ];
+
+        // The two failures sit on different keys, and the language-key failure sits on the EARLIER key in
+        // iteration order: only a per-rule evaluation (every value judged before any language key) reports
+        // the value rejection here, so a per-key loop carrying both rules fails this case.
+        yield 'the value rejection on a later key ahead of the language-key rejection on an earlier one' => [
+            ['label' => ['de' => 'Herbstschlussverkauf'], 'columns' => 'three'],
+            [],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'string'),
         ];
     }
 

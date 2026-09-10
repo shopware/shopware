@@ -638,6 +638,31 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertStringContainsString($this->ids->get('no-such-language'), $violations[0]['message']);
     }
 
+    #[TestDox('rejects a language map carrying a non-language key with the same mutationPropertyLanguageKeyInvalid code as the draft route, without writing')]
+    public function testUpdatePropertiesRejectsANonLanguageMapKey(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+
+        // The op inside PersistedLayoutMutator raises this before the DAL constraint pass can answer with a
+        // generic write-constraint violation, which is what keeps the two routes' codes shared.
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale', 'de-DE' => 'Winterschlussverkauf']],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID, array_column($body['errors'], 'code'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
     #[TestDox('commits the reseeded type default when a persisted update removes a defaulted key')]
     public function testUpdatePropertiesCommitsTheReseededDefault(): void
     {

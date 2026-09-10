@@ -68,6 +68,8 @@ class ContentSystemException extends HttpException
     public const MUTATION_PROPERTY_UNKNOWN = 'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN';
     public const MUTATION_PROPERTY_CONFLICT = 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT';
     public const MUTATION_PROPERTY_VALUE_REJECTED = 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED';
+    public const MUTATION_PROPERTY_LANGUAGE_KEY_INVALID = 'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID';
+
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
@@ -820,6 +822,19 @@ class ContentSystemException extends HttpException
             self::MUTATION_PROPERTY_VALUE_REJECTED,
             'Value for property "{{ key }}" of element "{{ elementId }}" does not match its declared type, but is {{ actualType }}.',
             ['elementId' => $elementId, 'key' => $key, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyLanguageKeyInvalid(string $elementId, string $key, string $languageKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+            'Language key "{{ languageKey }}" of translatable property "{{ key }}" of element "{{ elementId }}" is not a language id in lowercase UUID hex.',
+            ['elementId' => $elementId, 'key' => $key, 'languageKey' => $languageKey]
         );
     }
 

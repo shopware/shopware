@@ -297,7 +297,7 @@
             "ContentLayoutUpdateElementPropertiesRequest": {
                 "title": "Update element properties request (draft)",
                 "type": "object",
-                "description": "Writes property values onto one element and drops property keys from it. At least one of `values` and `removeKeys` must be non-empty, else the request is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`.",
+                "description": "Writes property values onto one element and drops property keys from it. At least one of `values` and `removeKeys` must be non-empty, else the request is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`, `mutationPropertyLanguageKeyInvalid`.",
                 "allOf": [
                     { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
                     {
@@ -311,7 +311,7 @@
                             },
                             "values": {
                                 "type": "object",
-                                "description": "Property values to write, keyed by property key, each in its stored shape. A translatable property's value is a language map keyed by language id in lowercase UUID hex; a `null` writes a present null under a non-translatable primitive. Values are written as supplied — nothing is normalized and no type default is overlaid. A key must name a primitive property the element's type declares (a reference property and a `resolvedBy` storage key are rejected with `mutationPropertyUnknown`), and its value must match the declared type (else `mutationPropertyValueRejected`). An empty map serializes as `[]`.",
+                                "description": "Property values to write, keyed by property key, each in its stored shape. A translatable property's value is a language map keyed by language id in lowercase UUID hex; a `null` writes a present null under a non-translatable primitive. Values are written as supplied — nothing is normalized and no type default is overlaid. A key must name a primitive property the element's type declares (a reference property and a `resolvedBy` storage key are rejected with `mutationPropertyUnknown`), and its value must match the declared type (else `mutationPropertyValueRejected`); a translatable property's language map may carry only keys that are language ids in lowercase UUID hex (else `mutationPropertyLanguageKeyInvalid`). An empty map serializes as `[]`.",
                                 "additionalProperties": true,
                                 "example": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale" } }
                             },
@@ -588,7 +588,7 @@
             "ContentLayoutPersistedUpdateElementPropertiesRequest": {
                 "title": "Update element properties request (persisted)",
                 "type": "object",
-                "description": "Writes property values onto one element of the stored layout and drops property keys from it. At least one of `values` and `removeKeys` must be non-empty, else the request is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`.",
+                "description": "Writes property values onto one element of the stored layout and drops property keys from it. At least one of `values` and `removeKeys` must be non-empty, else the request is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyUnknown`, `mutationPropertyConflict`, `mutationPropertyValueRejected`, `mutationPropertyLanguageKeyInvalid`.",
                 "allOf": [
                     { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
                     {
@@ -602,7 +602,7 @@
                             },
                             "values": {
                                 "type": "object",
-                                "description": "Property values to write, keyed by property key, each in its stored shape. A translatable property's value is a language map keyed by language id in lowercase UUID hex; a `null` writes a present null under a non-translatable primitive. Values are written as supplied — the operation normalizes nothing and overlays no type default. A key must name a primitive property the element's type declares (a reference property and a `resolvedBy` storage key are rejected with `mutationPropertyUnknown`), and its value must match the declared type (else `mutationPropertyValueRejected`). An empty map serializes as `[]`.",
+                                "description": "Property values to write, keyed by property key, each in its stored shape. A translatable property's value is a language map keyed by language id in lowercase UUID hex; a `null` writes a present null under a non-translatable primitive. Values are written as supplied — the operation normalizes nothing and overlays no type default. A key must name a primitive property the element's type declares (a reference property and a `resolvedBy` storage key are rejected with `mutationPropertyUnknown`), and its value must match the declared type (else `mutationPropertyValueRejected`); a translatable property's language map may carry only keys that are language ids in lowercase UUID hex (else `mutationPropertyLanguageKeyInvalid`). An empty map serializes as `[]`.",
                                 "additionalProperties": true,
                                 "example": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale" } }
                             },

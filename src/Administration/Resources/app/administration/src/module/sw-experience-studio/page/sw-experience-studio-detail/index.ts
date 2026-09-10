@@ -980,6 +980,7 @@ export default Shopware.Component.wrapComponentConfig({
                 'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN',
                 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT',
                 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED',
+                'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
             ]);
 
             if (codes.some((code) => structuralErrorCodes.has(code))) {

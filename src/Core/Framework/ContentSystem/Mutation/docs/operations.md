@@ -128,6 +128,9 @@ target must exist (`mutationTargetNotFound`); the element's component must be re
 `requireRegistered`); every key in `$values` and `$removeKeys` must name a primitive property the type declares
 (`mutationPropertyUnknown`); a key present in both lists throws `mutationPropertyConflict`; each `$values` entry must
 satisfy `PropertyType::admits()` for its declared type (`mutationPropertyValueRejected`, carrying the element id, key
-and actual type) — the one value the operation reads, judged through the shared predicate `ReplaceElement` also uses.
-`affected = [elementId]`; `created` stays the empty default; `orphaned`/`droppedWiring`/`droppedProperties` stay
-empty.
+and actual type) — the one value the operation reads, judged through the shared predicate `ReplaceElement` also uses;
+every key of a translatable property's language map must be a language id in lowercase UUID hex
+(`mutationPropertyLanguageKeyInvalid`, carrying the element id, property key and offending map key) — the same key
+rule the DAL write path enforces in `PropertyTypeConformanceValidator`, while key existence stays a
+`dangling_language` diagnostics warning. `affected = [elementId]`; `created` stays the empty default;
+`orphaned`/`droppedWiring`/`droppedProperties` stay empty.

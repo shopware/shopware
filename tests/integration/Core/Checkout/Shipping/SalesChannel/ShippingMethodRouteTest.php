@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -65,7 +66,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('shipping2'), $ids);
         static::assertEmpty($response['elements'][0]['availabilityRule']);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->browser->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -121,6 +122,63 @@ class ShippingMethodRouteTest extends TestCase
             ],
             $ids
         );
+    }
+
+    public function testOnlyAvailableExcludesShippingMethodsWithoutAnyPrice(): void
+    {
+        static::getContainer()->get('shipping_method.repository')->update([[
+            'id' => $this->ids->get('shipping'),
+            'prices' => [
+                [
+                    'id' => $this->ids->create('price'),
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 10,
+                            'gross' => 11,
+                            'linked' => false,
+                        ],
+                    ],
+                ],
+                // A nullable field on one row must not turn the existence check into an anti-join
+                [
+                    'id' => $this->ids->create('price-without-currency-price'),
+                    'calculation' => 1,
+                    'quantityStart' => 2,
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/shipping-method', ['onlyAvailable' => true]);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame([$this->ids->get('shipping')], array_column($response['elements'], 'id'));
+
+        $this->browser->request('POST', '/store-api/shipping-method', []);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame(3, $response['total']);
+    }
+
+    public function testOnlyAvailableExcludesShippingMethodsWhoseOnlyPricesHaveNoCurrencyValues(): void
+    {
+        static::getContainer()->get('shipping_method.repository')->update([[
+            'id' => $this->ids->get('shipping'),
+            'prices' => [
+                ['id' => $this->ids->create('empty1'), 'calculation' => 1, 'quantityStart' => 1],
+                ['id' => $this->ids->create('empty2'), 'calculation' => 1, 'quantityStart' => 2],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/shipping-method', ['onlyAvailable' => true]);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame([], array_column($response['elements'], 'id'));
     }
 
     public function testIncludes(): void

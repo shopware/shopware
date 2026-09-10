@@ -25,6 +25,37 @@
         "version": "Version",
         "update": "Aktualisierung"
       },
+      "bulk": {
+        "selectExtensionAria": "{name} auswählen",
+        "install": "Installieren",
+        "activate": "Aktivieren",
+        "deactivate": "Deaktivieren",
+        "update": "Aktualisieren",
+        "uninstall": "Deinstallieren",
+        "uninstallModal": {
+          "title": "{count} Erweiterung deinstallieren|{count} Erweiterungen deinstallieren",
+          "description": "Die folgenden Erweiterungen werden deinstalliert:",
+          "alert": "Diese Aktion kann nicht rückgängig gemacht werden.",
+          "buttonLabel": "Deinstallieren",
+          "labelRemovePluginData": "Alle Daten jeder ausgewählten Erweiterung ebenfalls entfernen",
+          "helpTextRemovePluginData": "Achtung: Wenn aktiviert, werden alle von diesen Erweiterungen erstellten Daten unwiderruflich gelöscht."
+        },
+        "deactivationModal": {
+          "title": "{count} Erweiterung deaktivieren|{count} Erweiterungen deaktivieren",
+          "description": "Die folgenden Erweiterungen erfordern eine monatliche Miete. Durch das Deaktivieren wird die Miete nicht beendet und Gebühren fallen weiter an:",
+          "alert": "Möchtest Du die ausgewählten Erweiterungen wirklich deaktivieren?",
+          "buttonLabel": "Deaktivieren"
+        },
+        "consent": {
+          "extensionLabel": "{count} Erweiterung|{count} Erweiterungen",
+          "installTitle": "{count} Erweiterung installieren|{count} Erweiterungen installieren",
+          "installDescription": "Die ausgewählten Erweiterungen fordern die folgenden Berechtigungen an:",
+          "installAction": "Akzeptieren und installieren",
+          "updateTitle": "{count} Erweiterung aktualisieren|{count} Erweiterungen aktualisieren",
+          "updateDescription": "Für die Aktualisierung der ausgewählten Erweiterungen müssen die folgenden neuen Berechtigungen akzeptiert werden:",
+          "updateAction": "Akzeptieren und aktualisieren"
+        }
+      },
       "account": {
         "headline": "Shopware Account",
         "isLoggedIn": "Du hast Dich erfolgreich mit dem Shopware Account verbunden. Gehe zur Registerkarte \"Apps\" oder \"Themes\" und prüfe, ob Deine gekauften Erweiterungen aufgeführt sind. Wenn nicht, gehe in den Shopware Account und stelle sicher, dass die richtige Domain für Erweiterungen eingestellt wurde.",
@@ -95,9 +126,8 @@
     },
     "sw-extension-app-module-error-page": {
       "error": {
-        "heading": "Hoppla! Du bist zu schnell und hast die Orientierung verloren.",
-        "phrase": "Die Seite, die Du gesucht hast, liegt außerhalb unserer Reichweite. Vielleicht ist die Seite umgezogen, existiert nicht mehr oder Du magst einfach unsere 404-Seite. Wir werden es wahrscheinlich nie erfahren.",
-        "info": "Mach Dir keine Sorgen! Wir haben eine Weltraumrettungskatze entsandt, die Dich wieder in Sicherheit bringen wird."
+        "heading": "Seite nicht gefunden",
+        "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
       }
     }
   },

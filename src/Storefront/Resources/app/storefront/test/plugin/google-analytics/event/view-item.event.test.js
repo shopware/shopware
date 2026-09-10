@@ -1,8 +1,10 @@
+import Feature from 'src/helper/feature.helper';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 
 describe('plugin/google-analytics/events/view-item.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        Feature.init({ JSON_LD_DATA: false });
     });
 
     afterEach(() => {
@@ -53,6 +55,50 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         });
     });
 
+    test('fires view_item event with JSON-LD product data', () => {
+        Feature.init({ JSON_LD_DATA: true });
+
+        const productData = {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: 'JSON-LD Product',
+            sku: 'product-456',
+            brand: {
+                '@type': 'Brand',
+                name: 'JSON-LD Brand',
+            },
+            offers: {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: '49.99',
+            },
+        };
+
+        document.body.innerHTML = `
+            <script type="application/ld+json">${JSON.stringify(productData)}</script>
+            <div class="product-detail-buy" data-product-variant="Red, L"></div>
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Category 1</span>
+            </nav>
+        `;
+
+        new ViewItemEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
+            'items': [{
+                'item_id': 'product-456',
+                'item_name': 'JSON-LD Product',
+                'item_brand': 'JSON-LD Brand',
+                // JSON-LD carries no selected option string, so the variant still comes from the DOM
+                'item_variant': 'Red, L',
+                'price': 49.99,
+                'item_category': 'Category 1',
+            }],
+            'currency': 'USD',
+            'value': 49.99,
+        });
+    });
+
     /**
      * @deprecated tag:v6.8.0 - The microdata is replaced by JSON-LD, this test will be removed.
      */
@@ -83,6 +129,27 @@ describe('plugin/google-analytics/events/view-item.event', () => {
             'currency': 'EUR',
             'value': 99.99,
         });
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - The microdata is replaced by JSON-LD, this test will be removed.
+     */
+    test('fires view_item event from a static CMS product name element', () => {
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <span itemprop="name">Static Product</span>
+                <span class="product-detail-ordernumber">product-123</span>
+            </div>
+        `;
+
+        new ViewItemEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'product-123',
+                'item_name': 'Static Product',
+            })],
+        }));
     });
 
     test('does not fire event when no product markup is present', () => {

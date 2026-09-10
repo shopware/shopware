@@ -1,5 +1,7 @@
 /**
  * @sw-package discovery
+ *
+ * Duplicated in `src/app/composables/use-media-sidebar-modal`; change both together.
  */
 Shopware.Mixin.register('media-sidebar-modal-mixin', {
     inject: [

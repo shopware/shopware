@@ -39,7 +39,7 @@ class LandingPageControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(LandingPageLoadedHook::HOOK_NAME, $traces);
     }

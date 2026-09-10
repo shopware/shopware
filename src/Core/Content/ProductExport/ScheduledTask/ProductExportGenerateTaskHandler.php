@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -41,14 +42,14 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
+        $now = $this->clock->now();
+
         foreach ($this->fetchSalesChannelIds() as $salesChannelId) {
             $productExports = $this->fetchProductExports($salesChannelId);
 
             if ($productExports === []) {
                 continue;
             }
-
-            $now = $this->clock->now();
 
             foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {
@@ -71,11 +72,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             <<<'SQL'
                 SELECT LOWER(HEX(id))
                 FROM `sales_channel`
-                WHERE `type_id` = :typeId
+                WHERE `type_id` IN (:typeIds)
                   AND `active` = 1
             SQL,
-            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)],
-            ['typeId' => ParameterType::BINARY]
+            ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
+            ['typeIds' => ArrayParameterType::BINARY]
         );
     }
 

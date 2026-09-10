@@ -20,7 +20,7 @@ export default class ViewItemEvent extends AnalyticsEvent
 
         const productData = ProductPageHelper.getProductDetailData();
         if (!productData.id || !productData.name) {
-            console.warn('[Google Analytics Plugin] Product number (.product-detail-ordernumber) or product name (.product-detail-name) could not be found, do not track page view.');
+            console.warn('[Google Analytics Plugin] Product number or product name could not be found, do not track page view.');
             return;
         }
 

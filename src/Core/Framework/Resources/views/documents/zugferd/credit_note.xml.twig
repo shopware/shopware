@@ -1,0 +1,17 @@
+{% sw_extends '@Framework/documents/zugferd/base.xml.twig' %}
+
+{% block zugferd_header_settlement_payment_terms %}
+    <ram:SpecifiedTradePaymentTerms>
+        <ram:Description>{{ 'document.creditNotePaymentTerms'|trans }}</ram:Description>
+    </ram:SpecifiedTradePaymentTerms>
+{% endblock %}
+
+{% block zugferd_header_settlement_monetary_summation %}
+    {{ parent() }}
+
+    {% if renderData.custom.invoiceNumber %}
+        <ram:InvoiceReferencedDocument>
+            <ram:IssuerAssignedID>{{ renderData.custom.invoiceNumber }}</ram:IssuerAssignedID>
+        </ram:InvoiceReferencedDocument>
+    {% endif %}
+{% endblock %}

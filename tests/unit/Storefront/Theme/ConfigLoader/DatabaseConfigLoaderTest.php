@@ -22,7 +22,7 @@ use Shopware\Storefront\Theme\ThemeEntity;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(DatabaseConfigLoader::class)]
 class DatabaseConfigLoaderTest extends TestCase
 {

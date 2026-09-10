@@ -34,6 +34,7 @@ const documentRepositoryMock = {
             total: documentIds.length,
         }),
     ),
+    search: jest.fn(() => Promise.resolve([])),
 };
 
 const repositoryFactoryMock = {
@@ -47,6 +48,16 @@ const repositoryFactoryMock = {
 
 const syncServiceMock = {
     sync: jest.fn(() => Promise.resolve()),
+};
+
+const documentV2ApiServiceMock = {
+    createDocument: jest.fn(() =>
+        Promise.resolve({
+            documentId: 'document-id',
+            deepLinkCode: 'deep-link-code',
+            formats: ['pdf'],
+        }),
+    ),
 };
 
 async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures) {
@@ -85,6 +96,7 @@ async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures
                     },
                     syncService: syncServiceMock,
                     repositoryFactory: repositoryFactoryMock,
+                    documentV2ApiService: documentV2ApiServiceMock,
                 },
             },
         },
@@ -95,6 +107,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
         await flushPromises();
     });
@@ -522,6 +535,241 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             },
         ]);
+    });
+
+    describe('DOCUMENT_GENERATION_REWORK', () => {
+        beforeEach(() => {
+            global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+            documentV2ApiServiceMock.createDocument.mockClear();
+            documentRepositoryMock.search.mockClear();
+            documentRepositoryMock.search.mockResolvedValue([]);
+        });
+
+        it('calls documentV2Service.createDocument per order with the selected file formats', async () => {
+            const result = await wrapper.vm.createDocument('invoice', [
+                {
+                    config: {
+                        documentDate: 'documentDate',
+                        documentComment: 'documentComment',
+                        fileFormats: [
+                            'pdf',
+                            'html',
+                        ],
+                    },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+                {
+                    config: {
+                        documentDate: 'documentDate',
+                        documentComment: 'documentComment',
+                        fileFormats: ['pdf'],
+                    },
+                    fileType: 'pdf',
+                    orderId: 'orderId2',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenNthCalledWith(
+                1,
+                'orderId',
+                'invoice',
+                [
+                    'pdf',
+                    'html',
+                ],
+                undefined,
+                'documentDate',
+                'documentComment',
+                undefined,
+            );
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenNthCalledWith(
+                2,
+                'orderId2',
+                'invoice',
+                ['pdf'],
+                undefined,
+                'documentDate',
+                'documentComment',
+                undefined,
+            );
+            expect(result).toEqual({
+                requested: 2,
+                failed: 0,
+                skipped: 0,
+                failedItems: [],
+            });
+            expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        });
+
+        it('collects failed items using the error from a rejected createDocument call', async () => {
+            documentV2ApiServiceMock.createDocument.mockImplementationOnce(() => {
+                const error = new Error('Document generation failed');
+                error.response = {
+                    data: {
+                        errors: [
+                            {
+                                code: 'DOCUMENT_GENERATION_FAILED',
+                                detail: 'Document generation failed',
+                            },
+                        ],
+                    },
+                };
+
+                return Promise.reject(error);
+            });
+
+            const result = await wrapper.vm.createDocument('invoice', [
+                {
+                    config: { fileFormats: ['pdf'] },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(result).toEqual({
+                requested: 1,
+                failed: 1,
+                skipped: 0,
+                failedItems: [
+                    {
+                        orderId: 'orderId',
+                        documentType: 'invoice',
+                        errorCode: 'DOCUMENT_GENERATION_FAILED',
+                        detail: 'Document generation failed',
+                    },
+                ],
+            });
+        });
+
+        it('passes the selected file formats through as-is, without falling back to pdf', async () => {
+            await wrapper.vm.createDocument('invoice', [
+                {
+                    config: {},
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId',
+                'invoice',
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            );
+        });
+
+        it('routes credit notes through the v2 endpoint as well', async () => {
+            await wrapper.vm.createDocument('credit_note', [
+                {
+                    config: { fileFormats: ['pdf'] },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'credit_note',
+                },
+            ]);
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId',
+                'credit_note',
+                ['pdf'],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            );
+        });
+
+        it('forwards the delivery date from the custom config to the v2 endpoint', async () => {
+            await wrapper.vm.createDocument('delivery_note', [
+                {
+                    config: {
+                        documentDate: 'documentDate',
+                        documentComment: 'documentComment',
+                        fileFormats: ['pdf'],
+                        custom: { deliveryDate: 'deliveryDate' },
+                    },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'delivery_note',
+                },
+            ]);
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId',
+                'delivery_note',
+                ['pdf'],
+                undefined,
+                'documentDate',
+                'documentComment',
+                'deliveryDate',
+            );
+        });
+
+        it('does not query for existing documents when forceDocumentCreation is true', async () => {
+            await wrapper.vm.createDocument('invoice', [
+                {
+                    config: { fileFormats: ['pdf'], forceDocumentCreation: true },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(documentRepositoryMock.search).not.toHaveBeenCalled();
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledTimes(1);
+        });
+
+        it('skips orders that already have a document of this type when forceDocumentCreation is false', async () => {
+            documentRepositoryMock.search.mockResolvedValueOnce([{ orderId: 'orderId' }]);
+
+            const result = await wrapper.vm.createDocument('invoice', [
+                {
+                    config: { fileFormats: ['pdf'], forceDocumentCreation: false },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+                {
+                    config: { fileFormats: ['pdf'], forceDocumentCreation: false },
+                    fileType: 'pdf',
+                    orderId: 'orderId2',
+                    type: 'invoice',
+                },
+            ]);
+
+            const criteria = documentRepositoryMock.search.mock.calls[0][0];
+            const orderIdFilter = criteria.filters.find((filter) => filter.field === 'orderId');
+            const documentTypeFilter = criteria.filters.find((filter) => filter.field === 'documentType.technicalName');
+
+            expect(orderIdFilter.value).toBe('orderId|orderId2');
+            expect(documentTypeFilter.value).toBe('invoice');
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledTimes(1);
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId2',
+                'invoice',
+                ['pdf'],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            );
+
+            expect(result).toEqual({
+                requested: 2,
+                failed: 0,
+                skipped: 1,
+                failedItems: [],
+            });
+        });
     });
 
     describe('delete documents', () => {

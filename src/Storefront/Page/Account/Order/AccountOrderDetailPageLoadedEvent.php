@@ -19,6 +19,11 @@ class AccountOrderDetailPageLoadedEvent extends PageLoadedEvent
         SalesChannelContext $salesChannelContext,
         Request $request,
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
+
         parent::__construct($salesChannelContext, $request);
     }
 

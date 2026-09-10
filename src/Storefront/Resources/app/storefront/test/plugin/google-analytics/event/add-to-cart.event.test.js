@@ -131,7 +131,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         // Verify it subscribed to the Listing plugin's afterRenderResponse event
         expect(subscribeSpy).toHaveBeenCalledWith(
             'Listing/afterRenderResponse',
-            expect.any(Function)
+            expect.any(Function),
         );
     });
 

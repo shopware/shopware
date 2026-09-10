@@ -18,6 +18,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineHistoryDefinition extends EntityDefinition
 {
@@ -64,6 +67,7 @@ class StateMachineHistoryDefinition extends EntityDefinition
             (new FkField('user_id', 'userId', UserDefinition::class))->setDescription('Unique identity of user.'),
             new FkField('integration_id', 'integrationId', IntegrationDefinition::class),
             new LongTextField('internal_comment', 'internalComment'),
+            (new StringField('source_type', 'sourceType', 32))->setDescription('Type of the API context source which triggered the transition.'),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('integration', 'integration_id', IntegrationDefinition::class, 'id', false),

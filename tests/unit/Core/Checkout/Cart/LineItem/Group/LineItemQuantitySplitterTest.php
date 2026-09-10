@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -55,6 +56,23 @@ class LineItemQuantitySplitterTest extends TestCase
         static::assertSame(1, $newLineItem->getQuantity());
         static::assertSame(39.95, $newLineItem->getPrice()?->getTotalPrice());
         static::assertSame(1.903, $newLineItem->getPrice()->getCalculatedTaxes()->first()?->getTax());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSplitTaxesRoundedDeprecated(): void
+    {
+        $splitter = $this->createQtySplitter();
+
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 10);
+        $lineItem->setPrice(new CalculatedPrice(39.95, 399.50, new CalculatedTaxCollection([new CalculatedTax(19.03, 5, 399.50)]), new TaxRuleCollection([new TaxRule(5)]), 10));
+        $lineItem->setStackable(true);
+
+        $newLineItem = $splitter->split($lineItem, 1, $this->salesChannelContext);
+
+        static::assertNotSame($lineItem, $newLineItem);
+        static::assertSame(1, $newLineItem->getQuantity());
+        static::assertSame(39.95, $newLineItem->getPrice()?->getTotalPrice());
+        static::assertSame(1.9, $newLineItem->getPrice()->getCalculatedTaxes()->first()?->getTax());
     }
 
     #[DataProvider('splitProvider')]

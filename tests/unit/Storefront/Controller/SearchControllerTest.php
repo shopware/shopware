@@ -45,7 +45,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(SearchController::class)]
 class SearchControllerTest extends TestCase
 {

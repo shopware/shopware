@@ -20,6 +20,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -58,7 +59,8 @@ class ThemeChangeCommandTest extends TestCase
             $this->themeService,
             $this->pluginRegistry,
             $this->salesChannelRepository,
-            $this->themeRepository
+            $this->themeRepository,
+            static::createStub(UnusedThemeDirectoryDeleter::class)
         );
 
         $this->commandTester = new CommandTester($themeChangeCommand);
@@ -104,9 +106,13 @@ class ThemeChangeCommandTest extends TestCase
 
         $this->themeRepository->create($themes, $context);
 
+        // without --sync the command defers the switch until the (background) compilation finished
+        $expectedContext = Context::createDefaultContext();
+        $expectedContext->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
+
         $this->themeService->expects($this->exactly(1))
             ->method('assignTheme')
-            ->with($themes[0]['id'], $salesChannel['id'], $context);
+            ->with($themes[0]['id'], $salesChannel['id'], $expectedContext);
 
         $this->commandTester->execute([
             'theme-name' => $themes[0]['technicalName'],

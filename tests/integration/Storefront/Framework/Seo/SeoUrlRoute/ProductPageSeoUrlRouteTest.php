@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
@@ -28,15 +27,18 @@ class ProductPageSeoUrlRouteTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        $salesChannel = $this->createSalesChannel();
+        // Storefront-type sales channels: SEO URLs are generated directly (headless channels only generate for
+        // domains marked as external storefront, which is covered in the headless SEO tests).
+        $salesChannel1 = $this->createSalesChannel(['domains' => [['url' => 'http://sw-seo-main-category-1.test']]]);
+        $salesChannel2 = $this->createSalesChannel(['domains' => [['url' => 'http://sw-seo-main-category-2.test']]]);
 
         $product = (new ProductBuilder($ids, 'p1'))
             ->price(100)
-            ->visibility()
-            ->visibility($salesChannel['id'])
+            ->visibility($salesChannel1['id'])
+            ->visibility($salesChannel2['id'])
             ->categories(['c1', 'c2'])
-            ->mainCategory(TestDefaults::SALES_CHANNEL, 'c1')
-            ->mainCategory($salesChannel['id'], 'c2')
+            ->mainCategory($salesChannel1['id'], 'c1')
+            ->mainCategory($salesChannel2['id'], 'c2')
             ->build();
 
         static::getContainer()->get('product.repository')
@@ -45,14 +47,14 @@ class ProductPageSeoUrlRouteTest extends TestCase
         $this->generateAndAssert(
             ids: array_values($ids->getList(['p1'])),
             template: '{{ product.mainCategories.first.category.translated.name }}',
-            salesChannelId: TestDefaults::SALES_CHANNEL,
+            salesChannelId: $salesChannel1['id'],
             expected: ['c1']
         );
 
         $this->generateAndAssert(
             ids: array_values($ids->getList(['p1'])),
             template: '{{ product.mainCategories.first.category.translated.name }}',
-            salesChannelId: $salesChannel['id'],
+            salesChannelId: $salesChannel2['id'],
             expected: ['c2']
         );
     }

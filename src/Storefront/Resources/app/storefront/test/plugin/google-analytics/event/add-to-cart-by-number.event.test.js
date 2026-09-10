@@ -46,7 +46,7 @@ describe('plugin/google-analytics/events/add-to-cart-by-number.event', () => {
     });
 
     test('does not register listener when form is missing', () => {
-        document.body.innerHTML = `<div>No form here</div>`;
+        document.body.innerHTML = '<div>No form here</div>';
 
         const event = new AddToCartByNumberEvent();
         event.execute();

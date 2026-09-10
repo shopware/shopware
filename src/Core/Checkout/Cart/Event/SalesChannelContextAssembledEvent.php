@@ -11,6 +11,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Allows the manipulation of the sales channel context after it was assembled from the order
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class SalesChannelContextAssembledEvent extends Event implements ShopwareSalesChannelEvent

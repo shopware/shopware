@@ -5,6 +5,7 @@ namespace Shopware\Core\System\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeState\NumberRangeStateDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTranslation\NumberRangeTranslationDefinition;
@@ -13,6 +14,8 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\Number
 use Shopware\Core\System\NumberRange\Api\NumberRangeController;
 use Shopware\Core\System\NumberRange\Command\MigrateIncrementStorageCommand;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
+use Shopware\Core\System\NumberRange\Telemetry\IncrementStorageMetricsDecorator;
+use Shopware\Core\System\NumberRange\Telemetry\NumberRangeTypeResolver;
 use Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -67,6 +70,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AbstractIncrementStorage::class)
         ->factory([service(IncrementStorageRegistry::class), 'getStorage']);
+
+    $services->set(NumberRangeTypeResolver::class);
+
+    $services->set(IncrementStorageMetricsDecorator::class)
+        ->decorate(AbstractIncrementStorage::class)
+        ->args([
+            service(IncrementStorageMetricsDecorator::class . '.inner'),
+            service(Meter::class),
+            service(NumberRangeTypeResolver::class),
+            param('shopware.number_range.increment_storage'),
+        ]);
 
     $services->set(IncrementRedisStorage::class)
         ->args([

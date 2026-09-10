@@ -23,6 +23,28 @@ export const USER_THEME_CONFIG_KEY = 'core.userTheme';
  */
 export const DEFAULT_THEME: Theme = 'light';
 
+/**
+ * Selectable theme preferences in the order the appearance shortcut cycles through them.
+ *
+ * @private
+ */
+export const THEMES: readonly Theme[] = [
+    'light',
+    'dark',
+    'system',
+];
+
+/**
+ * Snippet keys of the theme preference names.
+ *
+ * @private
+ */
+export const THEME_LABELS: Readonly<Record<Theme, string>> = {
+    light: 'global.theme.names.light',
+    dark: 'global.theme.names.dark',
+    system: 'global.theme.names.system',
+};
+
 type UseAdminThemeReturn = UseThemeReturn & {
     /**
      * Loads the persisted theme preference of the current user from the
@@ -40,7 +62,7 @@ type UseAdminThemeReturn = UseThemeReturn & {
 let themeState: UseAdminThemeReturn | null = null;
 
 function isTheme(value: unknown): value is Theme {
-    return value === 'light' || value === 'dark' || value === 'system';
+    return THEMES.includes(value as Theme);
 }
 
 async function loadUserTheme(): Promise<void> {

@@ -213,10 +213,6 @@ class NavigationRoute extends AbstractNavigationRoute
             return false;
         }
 
-        if (mb_strpos($path, '|' . $rootId . '|') !== false) {
-            return true;
-        }
-
-        return false;
+        return mb_strpos($path, '|' . $rootId . '|') !== false;
     }
 }

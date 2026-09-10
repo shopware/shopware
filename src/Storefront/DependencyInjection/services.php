@@ -825,6 +825,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelDomainProvider::class),
             service('sales_channel.product.repository'),
             service(SalesChannelContextFactory::class),
+            service(ProductCloseoutFilterFactory::class),
+            service(SystemConfigService::class),
         ])
         ->tag('shopware.system_check');
 

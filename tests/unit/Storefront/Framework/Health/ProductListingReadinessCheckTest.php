@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
@@ -49,6 +51,11 @@ class ProductListingReadinessCheckTest extends TestCase
     private array $requestedNavigationIds = [];
 
     private int $handledRequests = 0;
+
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $contextOptions = [];
 
     protected function setUp(): void
     {
@@ -184,6 +191,29 @@ class ProductListingReadinessCheckTest extends TestCase
     }
 
     /**
+     * The URL that is probed belongs to one domain, and language, currency and domain all feed the
+     * criteria processing that decides which categories are visible. Looking the category up with the
+     * sales channel defaults instead would evaluate a restriction against a different context than the
+     * request that follows.
+     */
+    #[TestDox('The lookup context describes the domain whose URL is probed, not the sales channel defaults')]
+    public function testTheLookupContextIsBuiltForTheProbedDomain(): void
+    {
+        $this->initDataMocks();
+        $this->initHandleRequest(Response::HTTP_OK);
+        $this->initCreateEmptyResult();
+
+        $this->createCheck([[], []])->run();
+
+        static::assertNotSame([], $this->contextOptions);
+        static::assertSame([
+            SalesChannelContextService::DOMAIN_ID => $this->ids->get('domain-sales-channel-1'),
+            SalesChannelContextService::LANGUAGE_ID => $this->ids->get('language-sales-channel-1'),
+            SalesChannelContextService::CURRENCY_ID => $this->ids->get('currency-sales-channel-1'),
+        ], $this->contextOptions[0]);
+    }
+
+    /**
      * @param array<callable(Criteria, SalesChannelContext): list<string>|list<string>> $searchResults
      */
     private function createCheck(array $searchResults = []): ProductListingReadinessCheck
@@ -252,7 +282,11 @@ class ProductListingReadinessCheckTest extends TestCase
     {
         $this->contextFactory = static::createStub(SalesChannelContextFactory::class);
         $this->contextFactory->method('create')->willReturnCallback(
-            static fn (): SalesChannelContext => Generator::generateSalesChannelContext()
+            function (string $token, string $salesChannelId, array $options = []): SalesChannelContext {
+                $this->contextOptions[] = $options;
+
+                return Generator::generateSalesChannelContext();
+            }
         );
     }
 
@@ -269,12 +303,23 @@ class ProductListingReadinessCheckTest extends TestCase
     private function initDomainMocks(): void
     {
         $collection = new SalesChannelDomainCollection([
-            SalesChannelDomain::create($this->ids->get('sales-channel-1'), 'http://localhost:8000/de'),
-            SalesChannelDomain::create($this->ids->get('sales-channel-2'), 'http://localhost:8000/en'),
-            SalesChannelDomain::create($this->ids->get('sales-channel-3'), 'http://localhost:8000/invalid'),
+            $this->domain('sales-channel-1', 'http://localhost:8000/de'),
+            $this->domain('sales-channel-2', 'http://localhost:8000/en'),
+            $this->domain('sales-channel-3', 'http://localhost:8000/invalid'),
         ]);
 
         $this->domainProvider->method('fetchSalesChannelDomains')->willReturn($collection);
+    }
+
+    private function domain(string $key, string $url): SalesChannelDomain
+    {
+        return SalesChannelDomain::create(
+            $this->ids->get($key),
+            $url,
+            $this->ids->get('domain-' . $key),
+            $this->ids->get('language-' . $key),
+            $this->ids->get('currency-' . $key),
+        );
     }
 
     private function initCreateEmptyResult(): void

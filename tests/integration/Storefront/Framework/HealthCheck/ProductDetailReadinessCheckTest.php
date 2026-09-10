@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 
@@ -109,6 +110,57 @@ class ProductDetailReadinessCheckTest extends TestCase
         static::assertTrue($result->healthy);
         static::assertSame(Status::OK, $result->status);
         static::assertCount(2, $result->extra);
+    }
+
+    /**
+     * `ProductDetailRoute::addCloseoutFilter()` only excludes closeout products out of stock while
+     * `core.listing.hideCloseoutProductsWhenOutOfStock` is on. With the setting off their detail pages
+     * render, so the check must still probe them instead of reporting SKIPPED.
+     */
+    public function testClosedOutProductsAreProbedWhenTheSettingIsOff(): void
+    {
+        $this->createClosedOutProducts();
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
+
+        $result = $this->createCheck()->run();
+
+        static::assertSame(Status::OK, $result->status);
+        static::assertCount(2, $result->extra);
+    }
+
+    public function testClosedOutProductsAreSkippedWhenTheSettingIsOn(): void
+    {
+        $this->createClosedOutProducts();
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $result = $this->createCheck()->run();
+
+        static::assertTrue($result->healthy);
+        static::assertSame(Status::SKIPPED, $result->status);
+    }
+
+    /**
+     * The only products in either sales channel are closeout and out of stock, so the setting alone
+     * decides whether the check has anything to probe.
+     */
+    private function createClosedOutProducts(): void
+    {
+        $products = [];
+        foreach ([$this->ids->get('sales-channel-1'), $this->ids->get('sales-channel-2')] as $index => $id) {
+            $products[] = (new ProductBuilder($this->ids, 'closeout-' . $index))
+                ->name('Closeout-' . $index)
+                ->price(10)
+                ->manufacturer('manufacturer')
+                ->tax('tax')
+                ->visibility($id)
+                ->stock(0)
+                ->closeout()
+                ->build();
+        }
+
+        $this->productRepository->create($products, Context::createDefaultContext());
     }
 
     /**

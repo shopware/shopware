@@ -6,6 +6,7 @@ import {
     computed,
     getCurrentInstance,
     onBeforeUnmount,
+    onBeforeUpdate,
     provide,
     ref,
     watch,
@@ -145,7 +146,18 @@ export default Shopware.Component.wrapComponentConfig({
         const providedParents = ref<ReturnType<Slot>[]>([]);
         provide(parentsInjectionKey, providedParents);
 
+        // Slot scope arrives as a function argument, not a reactive read, so a
+        // scope-only change never invalidates the computed below — bump a counter
+        // on every update so the cached nodes are rebuilt from the fresh slots.
+        const slotGeneration = ref(0);
+        onBeforeUpdate(() => {
+            slotGeneration.value += 1;
+        });
+
         const template = computed(() => {
+            // Read so a new slot function from the parent invalidates the cached nodes below.
+            void slotGeneration.value;
+
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }

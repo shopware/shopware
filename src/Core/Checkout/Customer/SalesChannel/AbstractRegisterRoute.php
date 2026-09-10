@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route is used for customer registration
  * The required parameters are: "salutationId", "firstName", "lastName", "email", "password", "billingAddress" and "storefrontUrl"
  * The "billingAddress" should has required parameters: "salutationId", "firstName", "lastName", "street", "zipcode", "city", "countyId".
+ * "firstName" and "lastName" may be omitted, at the top level and on the billing address, for a commercial
+ * registration in a shop that turned "core.loginRegistration.nameFieldsRequiredForCompanyAccounts" off. The
+ * company then takes their place and is required instead. A separate "shippingAddress" keeps its own names.
  */
 #[Package('checkout')]
 abstract class AbstractRegisterRoute

@@ -229,6 +229,38 @@ class CompanyAccountNameTest extends TestCase
         static::assertSame('0', $customer->getDisplayName());
     }
 
+    /**
+     * The top level names come from the billing address, so only that one follows the setting. A
+     * separate shipping address names the recipient and must not suddenly demand a company.
+     */
+    public function testAShippingAddressKeepsItsOwnRules(): void
+    {
+        $this->setNameFields(show: true, required: false);
+
+        $data = $this->companyRegistrationData();
+        $data['shippingAddress'] = [
+            'firstName' => 'Ada',
+            'lastName' => 'Lovelace',
+            'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
+            'street' => 'Recipientstreet 3',
+            'zipcode' => '20095',
+            'city' => 'Hamburg',
+        ];
+
+        $this->register($data);
+
+        static::assertSame(
+            Response::HTTP_OK,
+            $this->browser->getResponse()->getStatusCode(),
+            'a shipping address without a company has to stay valid: ' . (string) $this->browser->getResponse()->getContent()
+        );
+
+        $customer = $this->loadCustomer('company-no-contact@example.com');
+
+        static::assertSame('', $customer->getFirstName());
+        static::assertSame('Acme GmbH', $customer->getCompany());
+    }
+
     public function testCompanyAccountStillNeedsACompanyName(): void
     {
         $this->setNameFields(show: true, required: false);

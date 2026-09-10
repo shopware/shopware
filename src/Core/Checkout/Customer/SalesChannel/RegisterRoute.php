@@ -330,11 +330,11 @@ class RegisterRoute extends AbstractRegisterRoute
         // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
         // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).
         if ($billingAddress instanceof DataBag || (!$shippingAddress instanceof DataBag && $billingAddress === null)) {
-            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context));
+            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context, true));
         }
 
         if ($shippingAddress instanceof DataBag) {
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, self::addressAccountType($shippingAddress), $shippingAddress, $context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, self::addressAccountType($shippingAddress), $shippingAddress, $context, false));
         }
 
         if ($data->get('vatIds') instanceof DataBag) {
@@ -446,11 +446,15 @@ class RegisterRoute extends AbstractRegisterRoute
         DataBag $data,
         ?string $accountType,
         DataBag $address,
-        SalesChannelContext $context
+        SalesChannelContext $context,
+        bool $isBillingAddress
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        $namesAreOptional = $this->namesAreOptional($data, $context);
+        // The top level names are copied from the billing address, so only that one follows the
+        // optional contact person. A separate shipping address names whoever receives the parcel and
+        // keeps its own rules, company included.
+        $namesAreOptional = $isBillingAddress && $this->namesAreOptional($data, $context);
 
         if ($namesAreOptional
             || ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS

@@ -219,6 +219,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 - `executeWithDryRun()` catches any `\Throwable` and returns it as a structured `$this->error()` response
 - Unhandled exceptions from `__invoke()` produce a generic MCP error (`-32603`). Prefer catching known exceptions and returning `$this->error($message)` instead.
 - Write tools should validate inputs before the operation (e.g., `SystemConfigWriteTool` rejects null values, entity tools validate entity existence)
+- `invalidCriteriaError()` renders a `RequestCriteriaBuilder::fromArray()` failure as an actionable message. Wrap **only** the `fromArray()` call and catch `ShopwareHttpException`: the builder reports bad payloads through several unrelated classes (`SearchRequestException` with one pointer per rejected element, `DataAbstractionLayerException` directly, `FrameworkException::associationNotFound()`, and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from `ApiCriteriaValidator`). Keep the following read/search/aggregate call outside the `try`, so a real DAL failure still reaches the log instead of being reported as bad input.
 
 ## Adding a new tool
 1. Create a class in this directory

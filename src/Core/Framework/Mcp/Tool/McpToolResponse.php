@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -132,12 +132,17 @@ abstract class McpToolResponse
      *
      * `SearchRequestException` carries one entry per rejected pointer, so each
      * detail is prefixed with it: "/aggregations/0/avg/field" names the element
-     * that is wrong. The base `DataAbstractionLayerException` is accepted, not
-     * only its InvalidFilterQuery / InvalidAggregationQuery subclasses, because
-     * the builder throws the base class directly for some input errors, e.g.
-     * `expectedArrayWithType()` for `{"includes":"id"}`.
+     * that is wrong. Every other `ShopwareHttpException` is rendered by its own
+     * message, because the builder reports bad input through several unrelated
+     * classes: `DataAbstractionLayerException` directly for e.g.
+     * `expectedArrayWithType()` on `{"includes":"id"}`,
+     * `FrameworkException::associationNotFound()` for an unknown association,
+     * and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from
+     * `ApiCriteriaValidator` for a field the caller may not query. All of them
+     * name the offending part of the payload, so the message is what the caller
+     * needs; only the exception class differs.
      */
-    protected function invalidCriteriaError(SearchRequestException|DataAbstractionLayerException $e): string
+    protected function invalidCriteriaError(ShopwareHttpException $e): string
     {
         if (!$e instanceof SearchRequestException) {
             return $this->error($e->getMessage());

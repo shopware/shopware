@@ -6,9 +6,7 @@ use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -16,6 +14,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -50,7 +49,7 @@ class EntitySearchTool extends McpToolResponse
         string $entity,
         #[Schema(description: 'A JSON OBJECT of Admin API criteria, as a string — "filter", "sort", "associations", "includes". E.g. {"sort":[{"field":"orderDateTime","order":"DESC"}]} for the most recent first, or {"filter":[{"type":"equals","field":"productNumber","value":"SW10001"}]} to look one up. Defaults to no criteria.')]
         string $criteria = '{}',
-        #[Schema(description: 'Records per page, 1-500.')]
+        #[Schema(description: 'Records per page, starting at 1. The upper bound is the shop\'s configured Admin API limit (shopware.api.max_limit); exceeding it returns an error naming the real maximum.')]
         int $limit = 25,
         #[Schema(description: 'Page number, starting at 1.')]
         int $page = 1,
@@ -91,7 +90,11 @@ class EntitySearchTool extends McpToolResponse
                 $definition,
                 $context,
             );
-        } catch (SearchRequestException|DataAbstractionLayerException $e) {
+        } catch (ShopwareHttpException $e) {
+            // Scoped to this call on purpose: a DAL failure from the search
+            // below is a bug, not bad input, and must still reach the log.
+            // `fromArray()` only parses the payload and checks field flags, so
+            // every ShopwareHttpException it raises is something the caller can fix.
             return $this->invalidCriteriaError($e);
         }
 

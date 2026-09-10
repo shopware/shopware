@@ -6,9 +6,7 @@ use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -16,6 +14,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -78,9 +77,11 @@ class EntityReadTool extends McpToolResponse
                 $definition,
                 $context,
             );
-        } catch (SearchRequestException|DataAbstractionLayerException $e) {
+        } catch (ShopwareHttpException $e) {
             // Scoped to this call on purpose: a DAL failure from the read
             // below is a bug, not bad input, and must still reach the log.
+            // `fromArray()` only parses the payload and checks field flags, so
+            // every ShopwareHttpException it raises is something the caller can fix.
             return $this->invalidCriteriaError($e);
         }
 

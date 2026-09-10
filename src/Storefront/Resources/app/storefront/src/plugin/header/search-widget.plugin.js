@@ -203,8 +203,8 @@ export default class SearchWidgetPlugin extends Plugin {
             const searchWidgetButtonField = this.el.querySelector(this.options.searchWidgetButtonFieldSelector);
             searchWidgetButtonField.insertAdjacentHTML('afterend', response);
 
-                this._setAccessibilityAttributes();
-                this._inputField.setAttribute('aria-expanded', 'true');
+            this._setAccessibilityAttributes();
+            this._inputField.setAttribute('aria-expanded', 'true');
 
             const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
 

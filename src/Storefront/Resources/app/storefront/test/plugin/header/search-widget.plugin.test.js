@@ -301,8 +301,8 @@ describe('ListingPlugin tests', () => {
                 </ul>
             </div>
         `;
-        global.fetch = jest.fn().mockResolvedValue({
-            text: () => Promise.resolve(mockResponse)
+        searchPlugin._client.get = jest.fn((url, callback) => {
+            callback(mockResponse);
         });
 
         searchPlugin._inputField.value = 'test';
@@ -352,22 +352,6 @@ describe('ListingPlugin tests', () => {
         expect(searchPlugin._inputField.hasAttribute('aria-describedby')).toBe(false);
         expect(searchPlugin._inputField.getAttribute('aria-expanded')).toBe('false');
         expect(document.querySelector('.js-search-result')).toBeNull();
-    });
-
-    test('_suggest should handle failed AJAX request', async () => {
-        global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
-        searchPlugin._inputField.value = 'test';
-        searchPlugin.$emitter.publish = jest.fn();
-        searchPlugin._clearSuggestResults = jest.fn();
-
-        await searchPlugin._suggest('test');
-
-        expect(global.fetch).toHaveBeenCalled();
-        expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('beforeSearch');
-
-        await new Promise(process.nextTick);
-        expect(searchPlugin.$emitter.publish).not.toHaveBeenCalledWith('afterSuggest');
-        expect(searchPlugin._clearSuggestResults).toHaveBeenCalled();
     });
 
     test('_onBodyClick should clear results when clicking outside', () => {

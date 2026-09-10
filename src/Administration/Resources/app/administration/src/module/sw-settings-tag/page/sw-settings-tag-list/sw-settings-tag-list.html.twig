@@ -468,10 +468,13 @@
                         v-else
                         centered
                         :icon="$route.meta.$module.icon"
-                        :headline="$t('sw-settings-tag.list.titleEmptyStateList')"
-                        description=""
+                        :headline="filterCount || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-tag.list.titleEmptyStateList')"
+                        :description="filterCount || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSublineSimple') : ''"
                     >
-                        <template #button>
+                        <template
+                            v-if="!filterCount && !isValidTerm(term)"
+                            #button
+                        >
                             <mt-button
                                 v-tooltip="{
                                     message: $t('sw-privileges.tooltip.warning'),

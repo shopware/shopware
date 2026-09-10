@@ -105,6 +105,7 @@ class ProductListingRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('product_listing', $response['apiAlias']);
+        static::assertSame(6, $response['total']);
         static::assertCount(6, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
@@ -143,6 +144,7 @@ class ProductListingRouteTest extends TestCase
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('product_listing', $payload['apiAlias']);
         static::assertSame(3, $payload['page']);
+        static::assertSame(6, $payload['total']);
     }
 
     public function testReturnsHttpOkOnFirstPageEvenWhenOnlyOnePageOfResults(): void

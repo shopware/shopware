@@ -183,7 +183,7 @@ class ProductListingLoader
 
         $this->addExtensions($clone, $idResult, $productSearchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $idResult->getTotal(), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $this->getTotal($clone, $idResult, $ids, $context), $productSearchResult->getEntities(), $aggregations, $criteria, $context->getContext());
         $result->addState(...$idResult->getStates());
         $result->addExtensions($productSearchResult->getExtensions());
 
@@ -420,6 +420,27 @@ class ProductListingLoader
         }
 
         return !$isSearchRoute;
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    private function getTotal(Criteria $criteria, IdSearchResult $idResult, array $ids, SalesChannelContext $context): int
+    {
+        if ($this->shouldSkipGrouping($criteria) || $criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT || !array_filter($criteria->getGroupFields(), static fn (FieldGrouping $grouping): bool => $grouping->getField() === 'displayGroup')) {
+            return $idResult->getTotal();
+        }
+
+        $limit = $criteria->getLimit();
+        if ($limit === null || \count($ids) < $limit) {
+            return ($criteria->getOffset() ?? 0) + \count($ids);
+        }
+
+        $countCriteria = clone $criteria;
+        $countCriteria->setLimit(1);
+        $countCriteria->setOffset(0);
+
+        return $this->productRepository->searchIds($countCriteria, $context)->getTotal();
     }
 
     /**

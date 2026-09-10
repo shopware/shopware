@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
+use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
@@ -121,6 +122,180 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertSame(['red-l', 'blue-m'], array_values($result->getEntities()->getIds()));
         static::assertSame(2, $result->getTotal());
+    }
+
+    public function testLoadUsesGroupedPartialPageAsExactTotal(): void
+    {
+        $this->systemConfigService
+            ->expects($this->exactly(3))
+            ->method('getBool')
+            ->willReturnCallback(function (string $key, string $salesChannelId): bool {
+                static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
+
+                return match ($key) {
+                    'core.listing.partialDataLoading' => false,
+                    'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                    'core.listing.findBestVariant' => false,
+                    default => throw new \RuntimeException('Unexpected config key ' . $key),
+                };
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
+                return $this->createIdSearchResult($criteria, [
+                    'red-l' => ['score' => 10.0],
+                    'blue-m' => ['score' => 5.0],
+                ], total: 4);
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
+            static function (LoadPreviewExtension $extension): void {
+                $extension->result = array_combine($extension->ids, $extension->ids);
+                $extension->stopPropagation();
+            }
+        );
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
+                return $this->createProductSearchResult($criteria, ['red-l', 'blue-m']);
+            });
+
+        $criteria = new Criteria();
+        $criteria->setLimit(24);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(2, $result->getTotal());
+    }
+
+    public function testLoadCountsGroupedFullPage(): void
+    {
+        $this->systemConfigService
+            ->expects($this->exactly(3))
+            ->method('getBool')
+            ->willReturnCallback(function (string $key, string $salesChannelId): bool {
+                static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
+
+                return match ($key) {
+                    'core.listing.partialDataLoading' => false,
+                    'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                    'core.listing.findBestVariant' => false,
+                    default => throw new \RuntimeException('Unexpected config key ' . $key),
+                };
+            });
+
+        $this->productRepository
+            ->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
+                if ($criteria->getLimit() === 1) {
+                    static::assertSame(0, $criteria->getOffset());
+
+                    return $this->createIdSearchResult($criteria, [
+                        'red-l' => ['score' => 10.0],
+                    ], total: 3);
+                }
+
+                return $this->createIdSearchResult($criteria, [
+                    'red-l' => ['score' => 10.0],
+                    'blue-m' => ['score' => 5.0],
+                ], total: 4);
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
+            static function (LoadPreviewExtension $extension): void {
+                $extension->result = array_combine($extension->ids, $extension->ids);
+                $extension->stopPropagation();
+            }
+        );
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
+                return $this->createProductSearchResult($criteria, ['red-l', 'blue-m']);
+            });
+
+        $criteria = new Criteria();
+        $criteria->setLimit(2);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(3, $result->getTotal());
+    }
+
+    public function testLoadKeepsExtensionTotalWhenGroupingIsSkipped(): void
+    {
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getBool')
+            ->willReturnMap([
+                ['core.listing.partialDataLoading', $this->salesChannelContext->getSalesChannelId(), false],
+            ]);
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(ResolveListingIdsExtension::NAME),
+            function (ResolveListingIdsExtension $extension): void {
+                $extension->criteria->resetFilters();
+                $extension->criteria->addGroupField(new FieldGrouping('displayGroup'));
+                $extension->result = $this->createIdSearchResult($extension->criteria, [
+                    'red-l' => ['score' => 10.0],
+                    'blue-m' => ['score' => 5.0],
+                ], total: 7);
+                $extension->stopPropagation();
+            }
+        );
+
+        $this->productRepository
+            ->expects($this->never())
+            ->method('searchIds');
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
+            static function (LoadPreviewExtension $extension): void {
+                $extension->result = array_combine($extension->ids, $extension->ids);
+                $extension->stopPropagation();
+            }
+        );
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
+                return $this->createProductSearchResult($criteria, ['red-l', 'blue-m']);
+            });
+
+        $criteria = new Criteria();
+        $criteria->setLimit(24);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+
+        $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(7, $result->getTotal());
     }
 
     public function testLoadSkipsGroupingAndPreviewWhenDirectVariantStateIsPresent(): void
@@ -387,7 +562,7 @@ class ProductListingLoaderTest extends TestCase
     /**
      * @param array<string, array<string, mixed>> $ids
      */
-    private function createIdSearchResult(Criteria $criteria, array $ids): IdSearchResult
+    private function createIdSearchResult(Criteria $criteria, array $ids, ?int $total = null): IdSearchResult
     {
         $data = [];
         foreach ($ids as $id => $row) {
@@ -397,7 +572,7 @@ class ProductListingLoaderTest extends TestCase
             ];
         }
 
-        return new IdSearchResult(\count($data), $data, $criteria, $this->salesChannelContext->getContext());
+        return new IdSearchResult($total ?? \count($data), $data, $criteria, $this->salesChannelContext->getContext());
     }
 
     /**

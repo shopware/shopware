@@ -3,7 +3,6 @@ const FEEDBACK_SELECTOR = '.sw-form-feedback';
 const INVALID_CLASS = 'is-invalid';
 const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
 const BUTTON_LOADER_CLASS = 'is-loading-indicator-inner';
-const LOADER_TEMPLATE = '<div class="loader" role="status"><span class="visually-hidden">Loading...</span></div>';
 
 /**
  * Owns the form submission lifecycle and is the only `submit` listener on the form.
@@ -454,15 +453,30 @@ export default class Form extends ShopwareComponent {
         });
     }
 
+    /** Mirrors the markup of `LoadingIndicatorUtil` so the existing loader styling applies. */
+    createLoader() {
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        loader.setAttribute('role', 'status');
+
+        const label = document.createElement('span');
+        label.className = 'visually-hidden';
+        label.textContent = 'Loading...';
+        loader.appendChild(label);
+
+        return loader;
+    }
+
     startLoading() {
         this.el.setAttribute('aria-busy', 'true');
 
         this.getSubmitButtons().forEach((button) => {
-            // Keep the button from jumping in width while the loader replaces its content.
-            this.buttonLoaders.push({ button, content: button.innerHTML, width: button.style.width });
+            // The nodes are kept rather than the markup, so a component inside the button survives.
+            this.buttonLoaders.push({ button, content: [...button.childNodes], width: button.style.width });
 
+            // Keep the button from jumping in width while the loader replaces its content.
             button.style.width = `${button.getBoundingClientRect().width}px`;
-            button.innerHTML = LOADER_TEMPLATE;
+            button.replaceChildren(this.createLoader());
             button.classList.add(BUTTON_LOADER_CLASS);
             button.disabled = true;
         });
@@ -475,7 +489,10 @@ export default class Form extends ShopwareComponent {
                 return;
             }
 
-            target.insertAdjacentHTML('beforeend', `<div class="${ELEMENT_LOADER_CLASS}">${LOADER_TEMPLATE}</div>`);
+            const backdrop = document.createElement('div');
+            backdrop.className = ELEMENT_LOADER_CLASS;
+            backdrop.appendChild(this.createLoader());
+            target.appendChild(backdrop);
 
             window.setTimeout(() => {
                 target.querySelector(`.${ELEMENT_LOADER_CLASS}`)?.classList.add('element-loader-backdrop-open');
@@ -488,7 +505,7 @@ export default class Form extends ShopwareComponent {
 
         this.buttonLoaders.forEach(({ button, content, width }) => {
             button.style.width = width;
-            button.innerHTML = content;
+            button.replaceChildren(...content);
             button.classList.remove(BUTTON_LOADER_CLASS);
             button.disabled = false;
         });

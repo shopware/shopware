@@ -235,6 +235,23 @@ describe('Sw:Form', () => {
         expect(button.innerHTML).toBe('Save');
     });
 
+    // Round-tripping the button through innerHTML would rebuild its children, tearing down any
+    // component instance inside it.
+    it('keeps the nodes inside a submit button alive across the loading state', async () => {
+        const { el } = createForm(
+            `${field('title')}<button type="submit"><span class="sw-icon">icon</span>Save</button>`,
+            { ajax: true },
+        );
+        const icon = el.querySelector('.sw-icon');
+
+        submit(el);
+        expect(el.querySelector('.sw-icon')).toBeNull();
+
+        await vi.waitFor(() => expect(el.querySelector('button').disabled).toBe(false));
+
+        expect(el.querySelector('.sw-icon')).toBe(icon);
+    });
+
     it('restores the submit button and reports the failure when the request fails', async () => {
         window.fetch = vi.fn(() => Promise.reject(new Error('offline')));
         vi.spyOn(console, 'error').mockImplementation(() => {});

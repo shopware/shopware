@@ -131,18 +131,54 @@ class PromotionRedemptionOnOrderCancelTest extends TestCase
         static::assertSame(0, $this->fetchOrderCount($promotionId), 'the count must not drift below zero');
     }
 
+    /**
+     * Documents the accepted trade-off from the review: an order reopened after its promotion was
+     * claimed elsewhere over-redeems, until either of the two orders is cancelled again.
+     */
+    #[Group('promotions')]
+    public function testReopeningAnOrderClaimedElsewhereExceedsTheGlobalLimit(): void
+    {
+        $promotionId = Uuid::randomHex();
+        $this->createPromotion($promotionId, maxRedemptionsGlobal: 1);
+
+        $firstOrderId = $this->placeOrder($this->createCustomer());
+        $this->transition($firstOrderId, StateMachineTransitionActions::ACTION_CANCEL);
+
+        $secondOrderId = $this->placeOrder($this->createCustomer());
+        static::assertSame(1, $this->fetchOrderCount($promotionId));
+
+        $this->transition($firstOrderId, StateMachineTransitionActions::ACTION_REOPEN);
+
+        static::assertSame(
+            2,
+            $this->fetchOrderCount($promotionId),
+            'the reopened order claims the promotion again, exceeding the global limit by one'
+        );
+        static::assertSame(1, $this->countPromotionLineItems($firstOrderId), 'the reopened order keeps its discount');
+        static::assertSame(1, $this->countPromotionLineItems($secondOrderId), 'the second order keeps its discount');
+
+        $this->transition($firstOrderId, StateMachineTransitionActions::ACTION_CANCEL);
+        static::assertSame(1, $this->fetchOrderCount($promotionId), 'the absolute recount heals the excess again');
+    }
+
     private function placeOrderWithPromotion(string $promotionId, string $customerId, ?string $productId = null): string
     {
-        $productId ??= Uuid::randomHex();
+        $this->createPromotion($promotionId, maxRedemptionsPerCustomer: 1);
 
+        return $this->placeOrder($customerId, $productId);
+    }
+
+    private function createPromotion(string $promotionId, ?int $maxRedemptionsGlobal = null, ?int $maxRedemptionsPerCustomer = null): void
+    {
         $this->promotionRepository->create([[
             'id' => $promotionId,
-            'name' => 'Once per customer',
+            'name' => 'Test promotion',
             'active' => true,
             'code' => 'TESTCODE',
             'useCodes' => true,
             'useIndividualCodes' => false,
-            'maxRedemptionsPerCustomer' => 1,
+            'maxRedemptionsGlobal' => $maxRedemptionsGlobal,
+            'maxRedemptionsPerCustomer' => $maxRedemptionsPerCustomer,
             'salesChannels' => [
                 ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
             ],
@@ -155,6 +191,11 @@ class PromotionRedemptionOnOrderCancelTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
+    }
+
+    private function placeOrder(string $customerId, ?string $productId = null): string
+    {
+        $productId ??= Uuid::randomHex();
 
         $context = $this->createCustomerContext($customerId);
         $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $context);
@@ -196,6 +237,19 @@ class PromotionRedemptionOnOrderCancelTest extends TestCase
         }
 
         return json_decode($counts, true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    private function countPromotionLineItems(string $orderId): int
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM order_line_item
+             WHERE order_id = :orderId AND version_id = :version AND type = :type',
+            [
+                'orderId' => Uuid::fromHexToBytes($orderId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'type' => PromotionProcessor::LINE_ITEM_TYPE,
+            ]
+        );
     }
 
     private function fetchOrderCount(string $promotionId): int

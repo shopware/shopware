@@ -303,6 +303,40 @@ class CompanyAccountNameTest extends TestCase
     }
 
     /**
+     * The form can leave a name out entirely or send it as null. CompanyAccountNameFields rewrites a
+     * submitted null to an empty string and leaves an absent one alone, so the stored name survives.
+     */
+    public function testProfileTakesANullNameAndLeavesAnAbsentOneAlone(): void
+    {
+        $this->setNameFields(show: true, required: false);
+        $this->register($this->companyRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->customerRepository->update(
+            [[
+                'id' => $this->loadCustomer('company-no-contact@example.com')->getId(),
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
+            ]],
+            Context::createDefaultContext()
+        );
+
+        $this->changeProfile(['firstName' => null]);
+
+        static::assertSame(
+            Response::HTTP_OK,
+            $this->browser->getResponse()->getStatusCode(),
+            'a submitted null has to pass as an empty name: ' . (string) $this->browser->getResponse()->getContent()
+        );
+
+        $customer = $this->loadCustomer('company-no-contact@example.com');
+
+        static::assertSame('', $customer->getFirstName());
+        static::assertSame('Lovelace', $customer->getLastName(), 'the name the form never sent must survive');
+        static::assertSame('Lovelace', $customer->getDisplayName());
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     private function register(array $data): void
@@ -323,7 +357,10 @@ class CompanyAccountNameTest extends TestCase
         }
     }
 
-    private function changeProfile(): void
+    /**
+     * @param array<string, mixed>|null $names
+     */
+    private function changeProfile(?array $names = null): void
     {
         $this->browser->request(
             'POST',
@@ -331,11 +368,10 @@ class CompanyAccountNameTest extends TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'salutationId' => $this->getValidSalutationId(),
-                'firstName' => '',
-                'lastName' => '',
-            ], \JSON_THROW_ON_ERROR)
+            json_encode(array_merge(
+                ['salutationId' => $this->getValidSalutationId()],
+                $names ?? ['firstName' => '', 'lastName' => ''],
+            ), \JSON_THROW_ON_ERROR)
         );
     }
 

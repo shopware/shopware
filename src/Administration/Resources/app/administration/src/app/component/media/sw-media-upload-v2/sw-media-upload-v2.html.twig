@@ -66,7 +66,10 @@
         class="sw-media-upload-v2__content"
     >
         {% block sw_media_upload_v2_regular_header %}
-        <div class="sw-media-upload-v2__header">
+        <div
+            v-if="hasHeaderContent"
+            class="sw-media-upload-v2__header"
+        >
             {% block sw_media_upload_v2_regular_header_label %}
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label

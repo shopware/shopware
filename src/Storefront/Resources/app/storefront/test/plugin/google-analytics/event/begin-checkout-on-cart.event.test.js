@@ -1,13 +1,31 @@
 import BeginCheckoutOnCartEvent from 'src/plugin/google-analytics/events/begin-checkout-on-cart.event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 
 describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        window.sessionStorage.clear();
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         jest.clearAllMocks();
+    });
+
+    test('clears the reported checkout steps so the new checkout reports them again', () => {
+        CheckoutStepHelper.markReported('add_shipping_info');
+        CheckoutStepHelper.markReported('add_payment_info');
+
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR"></div>
+            <button class="begin-checkout-btn"></button>
+        `;
+
+        new BeginCheckoutOnCartEvent().execute();
+        document.querySelector('.begin-checkout-btn').click();
+
+        expect(CheckoutStepHelper.hasReported('add_shipping_info')).toBe(false);
+        expect(CheckoutStepHelper.hasReported('add_payment_info')).toBe(false);
     });
 
     test('supports returns true on cart page', () => {
@@ -41,14 +59,13 @@ describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'begin_checkout', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
                 },
             ],
         });
@@ -65,4 +82,3 @@ describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
     });
 });
-

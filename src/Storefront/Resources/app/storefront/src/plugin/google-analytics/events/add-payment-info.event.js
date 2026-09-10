@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class AddPaymentInfoEvent extends AnalyticsEvent
@@ -18,9 +19,17 @@ export default class AddPaymentInfoEvent extends AnalyticsEvent
      * We intentionally don't listen for change events because the payment form uses
      * auto-submit (data-form-auto-submit), which reloads the page after selection.
      * Listening to both change and page load would result in duplicate events.
+     *
+     * The auto-submit reload runs this route again, so the event is reported at most once
+     * per checkout. Without that guard, changing the payment method would report it again
+     * and push the count above `begin_checkout`.
      */
     execute() {
         if (!this.active) {
+            return;
+        }
+
+        if (CheckoutStepHelper.hasReported('add_payment_info')) {
             return;
         }
 
@@ -32,12 +41,15 @@ export default class AddPaymentInfoEvent extends AnalyticsEvent
         const paymentType = this._getPaymentType();
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'add_payment_info', {
+        this.pushEvent('add_payment_info', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'payment_type': paymentType,
             'items': lineItems,
         });
+
+        CheckoutStepHelper.markReported('add_payment_info');
     }
 
     /**

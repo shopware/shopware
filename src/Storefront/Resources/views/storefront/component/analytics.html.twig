@@ -16,6 +16,7 @@
                     window.trackOrders = '{{ storefrontAnalytics.isTrackOrders() }}';
                     window.trackOffcanvasCart = '{{ storefrontAnalytics.isTrackOffcanvasCart() }}';
                     window.gtagTrackingId = '{{ trackingId }}';
+                    window.gtagIsTagManager = {{ trackingId starts with 'GTM-' ? 'true' : 'false' }};
                     window.dataLayer = window.dataLayer || [];
                     window.gtagConfig = {
                         'anonymize_ip': '{{ storefrontAnalytics.isAnonymizeIp() }}',

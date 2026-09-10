@@ -54,4 +54,49 @@ class ProductGatewayTest extends TestCase
 
         $gateway->get($ids, $context);
     }
+
+    public function testCriteriaContainsPayloadAssociations(): void
+    {
+        $ids = [Uuid::randomHex()];
+
+        $context = Generator::generateSalesChannelContext();
+
+        $repository = static::createStub(SalesChannelRepository::class);
+        $repository->method('search')->willReturn(new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection(),
+            null,
+            new Criteria(),
+            $context->getContext()
+        ));
+
+        $criteria = null;
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')
+            ->with(static::callback(static function (ProductGatewayCriteriaEvent $event) use (&$criteria) {
+                $criteria = $event->getCriteria();
+
+                return true;
+            }));
+
+        $gateway = new ProductGateway($repository, $eventDispatcher);
+        $gateway->get($ids, $context);
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertTrue($criteria->hasAssociation('manufacturer'));
+        static::assertTrue($criteria->hasAssociation('categories'));
+
+        // the manufacturer name is read from the translated fields of the same query,
+        // so no nested association may be added which would trigger a second read
+        static::assertSame([], $criteria->getAssociation('manufacturer')->getAssociations());
+
+        // the category breadcrumb is a stored field on the category itself, so the assigned
+        // categories are enough and no ancestor association is needed
+        static::assertSame([], $criteria->getAssociation('categories')->getAssociations());
+
+        // the main category has to be preloaded, otherwise resolving it would query per product
+        static::assertTrue($criteria->hasAssociation('mainCategories'));
+        static::assertTrue($criteria->getAssociation('mainCategories')->hasAssociation('category'));
+    }
 }

@@ -315,6 +315,227 @@ class ProductCartProcessorTest extends TestCase
         static::assertArrayHasKey('features', $lineItem->getPayload());
     }
 
+    public function testPayloadContainsManufacturerName(): void
+    {
+        $this->createProduct([
+            'manufacturer' => [
+                'id' => $this->ids->create('manufacturer'),
+                'name' => 'shopware AG',
+            ],
+        ]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame($this->ids->get('manufacturer'), $lineItem->getPayloadValue('manufacturerId'));
+        static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
+    }
+
+    public function testPayloadContainsCategoryNamesBelowTheNavigationRoot(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('mid'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Mid',
+            'children' => [
+                ['id' => $this->ids->create('leaf'), 'name' => 'Leaf'],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [['id' => $this->ids->get('leaf')]]]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        // the sales channel navigation root itself is stripped, so tracking starts below the shop root
+        static::assertSame(['Mid', 'Leaf'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesUsesASinglePathForMultiBranchProducts(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('mid'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Mid',
+            'children' => [
+                ['id' => $this->ids->create('leaf'), 'name' => 'Leaf'],
+            ],
+        ], [
+            'id' => $this->ids->create('other'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Other',
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [
+            ['id' => $this->ids->get('leaf')],
+            ['id' => $this->ids->get('other')],
+        ]]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // categoryIds is the union of both branches and therefore not a path, the deepest
+        // assigned category is used so the names stay a single breadcrumb
+        static::assertSame(['Mid', 'Leaf'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesPrefersTheSalesChannelMainCategory(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('deep'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Deep',
+            'children' => [[
+                'id' => $this->ids->create('deeper'),
+                'name' => 'Deeper',
+                'children' => [
+                    ['id' => $this->ids->create('deepest'), 'name' => 'Deepest'],
+                ],
+            ]],
+        ], [
+            'id' => $this->ids->create('main'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'MainCat',
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [
+            ['id' => $this->ids->get('deepest')],
+            ['id' => $this->ids->get('main')],
+        ]]);
+
+        static::getContainer()->get('main_category.repository')->create([[
+            'productId' => $this->ids->get('product'),
+            'categoryId' => $this->ids->get('main'),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]], Context::createDefaultContext());
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // the main category wins over the deeper branch, matching the breadcrumb the storefront shows
+        static::assertSame(['MainCat'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesIgnoresInvisibleCategories(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('visible'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Visible',
+        ], [
+            'id' => $this->ids->create('hidden'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Hidden',
+            'children' => [
+                ['id' => $this->ids->create('hiddenChild'), 'name' => 'HiddenChild', 'visible' => false],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [
+            ['id' => $this->ids->get('visible')],
+            ['id' => $this->ids->get('hiddenChild')],
+        ]]);
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // the deeper category is not visible, so the visible one is reported instead
+        static::assertSame(['Visible'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesIsEmptyWithoutCategories(): void
+    {
+        $this->createProduct();
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame([], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadManufacturerNameIsNullWithoutManufacturer(): void
+    {
+        $this->createProduct();
+
+        $cart = $this->getProductCart();
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertArrayHasKey('manufacturerName', $lineItem->getPayload());
+        static::assertNull($lineItem->getPayloadValue('manufacturerName'));
+    }
+
+    public function testPayloadManufacturerNameOverwritesClientProvidedValue(): void
+    {
+        $this->createProduct([
+            'manufacturer' => [
+                'id' => $this->ids->create('manufacturer'),
+                'name' => 'shopware AG',
+            ],
+        ]);
+
+        $context = $this->getContext();
+
+        $product = static::getContainer()->get(ProductLineItemFactory::class)->create([
+            'id' => $this->ids->get('product'),
+            'referencedId' => $this->ids->get('product'),
+            'payload' => ['manufacturerName' => 'spoofed brand'],
+        ], $context);
+
+        $cart = $this->cartService->add($this->cartService->getCart($context->getToken(), $context), $product, $context);
+        $lineItem = $cart->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
+    }
+
+    public function testPayloadManufacturerNameIsInheritedByVariant(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'parent'))
+            ->price(100)
+            ->manufacturer('shopware AG')
+            ->visibility()
+            ->variant(
+                (new ProductBuilder($ids, 'variant'))
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $lineItem = static::getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $ids->get('variant'), 'referencedId' => $ids->get('variant')], $context);
+
+        $cart = $this->cartService->add($this->cartService->getCart($context->getToken(), $context), $lineItem, $context);
+        $lineItem = $cart->get($ids->get('variant'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertSame($ids->get('shopware AG'), $lineItem->getPayloadValue('manufacturerId'));
+        static::assertSame('shopware AG', $lineItem->getPayloadValue('manufacturerName'));
+    }
+
     /**
      * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData

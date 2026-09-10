@@ -1180,6 +1180,75 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->intrinsicErrors());
     }
 
+    #[TestDox('never queries the language table for a tree carrying no translatable property')]
+    public function testLanguageTableIsNotQueriedWithoutTranslatableProperties(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('headline', 'Hallo')
+            ->build();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string')->build()],
+            connection: $connection,
+        )->analyze([$element], null)->report;
+
+        static::assertTrue($report->isWellFormed());
+    }
+
+    #[TestDox('queries the language table once per analysis and judges every element against that one set')]
+    public function testLanguageTableIsQueriedOncePerAnalysis(): void
+    {
+        $danglingLanguageId = Uuid::randomHex();
+        $first = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo'])
+            ->build();
+        // The dangling key sits on the SECOND element, so the assertion fails if the memoized set is
+        // not consulted past the first one.
+        $second = StoredElementBuilder::create('Sw:Block', 'el-2')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Ciao', $danglingLanguageId => 'Hola'])
+            ->build();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchFirstColumn')->willReturn([Defaults::LANGUAGE_SYSTEM]);
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
+            connection: $connection,
+        )->analyze([$first, $second], null)->report;
+
+        static::assertCount(1, $report->violations);
+        static::assertSame(ViolationCode::DanglingLanguage, $report->violations[0]->code);
+        static::assertSame('el-2', $report->violations[0]->elementId);
+        static::assertSame('text', $report->violations[0]->key);
+    }
+
+    #[TestDox('re-reads the language set on the next analysis, so a freshly created language stops reporting as dangling')]
+    public function testLanguageSetIsReReadPerAnalysis(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo'])
+            ->build();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))->method('fetchFirstColumn')
+            ->willReturnOnConsecutiveCalls([], [Defaults::LANGUAGE_SYSTEM]);
+
+        $diagnostics = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
+            connection: $connection,
+        );
+
+        $before = $diagnostics->analyze([$element], null)->report;
+        $after = $diagnostics->analyze([$element], null)->report;
+
+        static::assertCount(1, $before->violations);
+        static::assertSame(ViolationCode::DanglingLanguage, $before->violations[0]->code);
+        static::assertSame([], $after->violations);
+    }
+
     /**
      * @return iterable<string, array{string}>
      */

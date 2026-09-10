@@ -68,7 +68,14 @@ class LayoutDiagnostics
         // Read once per analysis rather than per element: the strict view is the same one the write boundary's
         // constraint descriptor reads, so the two cannot disagree about which options exist.
         $styleOptions = $this->styleOptionRegistry->all();
-        $languageIds = $this->existingLanguageIds();
+
+        // Queried at most once per analysis, and only when a tree carries a translatable property: the memo
+        // keeps the per-analyze() freshness existingLanguageIds() promises while a tree with no translatable
+        // property pays no language scan.
+        $languageIdsMemo = null;
+        $languageIds = function () use (&$languageIdsMemo): array {
+            return $languageIdsMemo ??= $this->existingLanguageIds();
+        };
 
         foreach ($this->duplicateIdViolations($elements) as $violation) {
             $violations[] = $violation;
@@ -175,8 +182,9 @@ class LayoutDiagnostics
     }
 
     /**
-     * The set of language ids that exist, read once for the whole analysis. Every id is lowercase hex, which
-     * is the shape a stored language map is keyed by, so an entry key matches by string identity.
+     * The set of language ids that exist, read at most once for the whole analysis and only when a tree
+     * carries a translatable property. Every id is lowercase hex, which is the shape a stored language map is
+     * keyed by, so an entry key matches by string identity.
      *
      * Deliberately re-read per `analyze()` and never cached on the instance: a diagnose run must judge the
      * languages that exist now, and a long-lived instance caching the set would report a freshly created
@@ -194,11 +202,11 @@ class LayoutDiagnostics
 
     /**
      * @param array<string, StyleOptionSpecification> $styleOptions
-     * @param array<string, true> $languageIds
+     * @param \Closure(): array<string, true> $languageIds
      *
      * @return list<Violation>
      */
-    private function intrinsicElementViolations(StoredElement $element, array $styleOptions, array $languageIds): array
+    private function intrinsicElementViolations(StoredElement $element, array $styleOptions, \Closure $languageIds): array
     {
         $violations = [];
 
@@ -312,11 +320,11 @@ class LayoutDiagnostics
      * null variant are wrong shapes for a translatable property, already reported as
      * {@see ViolationCode::MismatchedPropertyType}, and carry no language keys.
      *
-     * @param array<string, true> $languageIds
+     * @param \Closure(): array<string, true> $languageIds
      *
      * @return list<Violation>
      */
-    private function danglingLanguageViolations(StoredElement $element, array $languageIds): array
+    private function danglingLanguageViolations(StoredElement $element, \Closure $languageIds): array
     {
         if (!$this->registry->has($element->component)) {
             return [];
@@ -339,7 +347,7 @@ class LayoutDiagnostics
             foreach (array_keys($value->asMap()) as $rawKey) {
                 $languageId = (string) $rawKey;
 
-                if (isset($languageIds[$languageId])) {
+                if (\array_key_exists($languageId, $languageIds())) {
                     continue;
                 }
 

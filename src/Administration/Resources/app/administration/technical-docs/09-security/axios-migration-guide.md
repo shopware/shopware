@@ -216,7 +216,19 @@ Checklist before upgrading to 6.8:
 1. Remove every `useAxiosV1: true`; Axios v1 is the default.
 2. Replace every `useAxiosV1: false` with Axios v1 compatible code, most often `AbortController` instead of `CancelToken`.
 3. Replace `axios-v1` imports with `axios`, or better, with Shopware's HTTP types.
-4. Replace access to `axiosV0`, `axiosV1`, `interceptorsV*` and `defaults*V*` with `httpClient.interceptors` and `httpClient.defaults`.
+4. Replace access to `axiosV0` and `axiosV1` with `httpClient` itself, and access to `interceptorsV*` and `defaults*V*` with `httpClient.interceptors` and `httpClient.defaults`.
+
+While both transports exist, `httpClient.interceptors.<request|response>.handlers` is a copy of the handler list rather than the array Axios runs, because the facade has to keep two handler stacks in sync. `use()`, `eject()`, `clear()` and assigning a whole element are mirrored onto both transports and behave as expected. Mutating a handler object in place does not:
+
+```javascript
+// Has no effect during 6.7: only the facade's copy is changed
+httpClient.interceptors.response.handlers[0].fulfilled = myWrapper;
+
+// Works in both versions
+const id = httpClient.interceptors.response.use(myWrapper);
+```
+
+From 6.8 on, `httpClient.interceptors` is the Axios interceptor manager itself and `handlers` is the list Axios runs.
 
 The removal is documented in `UPGRADE-6.8.md`, section "Axios 1.x is the only HTTP client of the Administration".
 

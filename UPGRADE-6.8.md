@@ -1564,6 +1564,8 @@ Axios ignores an unknown property in a request configuration, so a leftover `use
 | The `axios-v1` package alias | `axios`, which now resolves to 1.x |
 | `src/core/factory/http-client-adapter` with `HttpClientAdapter`, `createAxiosV0Adapter` and `createAxiosV1Adapter` | Nothing. Call the HTTP client directly. |
 
+`httpClient.interceptors` gains behaviour in the exchange. During 6.7 its `handlers` array was a copy that the facade mirrored onto both transports, so mutating a handler object in place had no effect on requests. It is now the axios interceptor manager itself, and `handlers` is the list axios runs.
+
 ### Import `axios` instead of `axios-v1`
 
 Axios 1.x is installed under its own name again:

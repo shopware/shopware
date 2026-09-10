@@ -7,7 +7,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
     let wrapper;
     let store;
 
-    async function createWrapper(propsOverride = {}, privileges = [], productOverride = {}) {
+    async function createWrapper(propsOverride = {}, privileges = [], productOverride = {}, stubNumberField = true) {
         store = Shopware.Store.get('swProductDetail');
         store.product.id = 'productId';
         store.product.getEntityName = () => 'product';
@@ -54,31 +54,62 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                             'inheritedValue',
                         ],
                     },
-                    'mt-number-field': {
-                        template: `
+                    ...(stubNumberField
+                        ? {
+                              'mt-number-field': {
+                                  template: `
                             <div class="mt-number-field">
                                 <label>{{ label }}</label>
                                 <input
                                     type="number"
                                     :value="modelValue"
                                     :disabled="disabled"
-                                    @input="$emit('update:model-value', Number($event.target.value))"
+                                    @input="commitTypedValue(Number($event.target.value))"
                                 />
+                                <button
+                                    data-testid="mt-number-field-increase-button"
+                                    @click="stepBy(step)"
+                                ></button>
+                                <button
+                                    data-testid="mt-number-field-decrease-button"
+                                    @click="stepBy(-step)"
+                                ></button>
                                 <span
                                     v-if="error"
                                     class="mt-number-field__error"
                                 >{{ error.code }}</span>
                             </div>`,
-                        props: [
-                            'modelValue',
-                            'label',
-                            'disabled',
-                            'min',
-                            'max',
-                            'step',
-                            'error',
-                        ],
-                    },
+                                  props: [
+                                      'modelValue',
+                                      'label',
+                                      'disabled',
+                                      'min',
+                                      'max',
+                                      'step',
+                                      'error',
+                                  ],
+                                  methods: {
+                                      // mt-number-field answers a typed value with `change` before
+                                      // the model update.
+                                      commitTypedValue(value) {
+                                          this.$emit('change');
+                                          this.$emit('update:model-value', value);
+                                      },
+
+                                      // Its stepper emits no `change`, and steps from the current
+                                      // value without looking at the grid.
+                                      stepBy(step) {
+                                          const stepped = Math.min(
+                                              Math.max(Number(this.modelValue) + step, this.min),
+                                              this.max,
+                                          );
+
+                                          this.$emit('update:model-value', stepped);
+                                      },
+                                  },
+                              },
+                          }
+                        : {}),
                     'mt-switch': {
                         template: `
                             <div class="mt-switch">
@@ -144,6 +175,139 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(monthsField.props('min')).toBe(30);
         expect(monthsField.props('max')).toBe(600);
         expect(monthsField.props('step')).toBe(6);
+    });
+
+    describe('the stepper', () => {
+        async function step(direction) {
+            await wrapper.find(`[data-testid="mt-number-field-${direction}-button"]`).trigger('click');
+        }
+
+        it.each([
+            [
+                44,
+                48,
+            ],
+            [
+                38,
+                42,
+            ],
+            [
+                31,
+                36,
+            ],
+            [
+                36,
+                42,
+            ],
+        ])('should step up from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
+            store.product.guaranteeMonths = guaranteeMonths;
+            await flushPromises();
+
+            await step('increase');
+
+            expect(store.product.guaranteeMonths).toBe(expected);
+        });
+
+        it.each([
+            [
+                44,
+                42,
+            ],
+            [
+                38,
+                36,
+            ],
+            [
+                31,
+                30,
+            ],
+            [
+                36,
+                30,
+            ],
+        ])('should step down from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
+            store.product.guaranteeMonths = guaranteeMonths;
+            await flushPromises();
+
+            await step('decrease');
+
+            expect(store.product.guaranteeMonths).toBe(expected);
+        });
+
+        it('should clear the validation error of an invalid duration', async () => {
+            store.product.guaranteeMonths = 44;
+            await flushPromises();
+
+            expect(wrapper.find('.mt-number-field__error').exists()).toBe(true);
+
+            await step('increase');
+            await flushPromises();
+
+            expect(wrapper.find('.mt-number-field__error').exists()).toBe(false);
+        });
+
+        it.each([
+            [
+                'increase',
+                600,
+            ],
+            [
+                'decrease',
+                30,
+            ],
+        ])('should keep the %s stepper inside the allowed range', async (direction, guaranteeMonths) => {
+            store.product.guaranteeMonths = guaranteeMonths;
+            await flushPromises();
+
+            await step(direction);
+
+            expect(store.product.guaranteeMonths).toBe(guaranteeMonths);
+        });
+
+        it('should not correct a typed duration', async () => {
+            await wrapper.find('.mt-number-field input').setValue(44);
+
+            expect(store.product.guaranteeMonths).toBe(44);
+            expect(wrapper.find('.mt-number-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_MONTHS');
+        });
+    });
+
+    // The stub above encodes how mt-number-field tells a typed value from a stepped one. Drive the
+    // real component too, so a library bump cannot break that assumption unnoticed.
+    describe('the stepper of the real mt-number-field', () => {
+        beforeEach(async () => {
+            wrapper = await createWrapper({}, ['product.editor'], {}, false);
+        });
+
+        it('should step an invalid typed duration onto the half-year grid', async () => {
+            const input = wrapper.find('.mt-number-field input');
+
+            await input.setValue(44);
+            await input.trigger('change');
+
+            expect(store.product.guaranteeMonths).toBe(44);
+
+            await wrapper.find('[data-testid="mt-number-field-increase-button"]').trigger('click');
+            await flushPromises();
+
+            expect(store.product.guaranteeMonths).toBe(48);
+
+            await wrapper.find('[data-testid="mt-number-field-decrease-button"]').trigger('click');
+            await flushPromises();
+
+            expect(store.product.guaranteeMonths).toBe(42);
+        });
+
+        it('should leave a typed duration untouched', async () => {
+            const input = wrapper.find('.mt-number-field input');
+
+            await input.setValue(44);
+            await input.trigger('change');
+            await flushPromises();
+
+            expect(store.product.guaranteeMonths).toBe(44);
+            expect(input.element.value).toBe('44');
+        });
     });
 
     it.each([

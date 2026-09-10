@@ -22,6 +22,35 @@ function isValidGuaranteeDuration(guaranteeMonths) {
     );
 }
 
+function clampGuaranteeDuration(guaranteeMonths) {
+    return Math.min(Math.max(guaranteeMonths, GUARANTEE_MONTHS_MINIMUM), GUARANTEE_MONTHS_MAXIMUM);
+}
+
+// Both boundaries sit on the half-year grid, so clamping before rounding stays on the grid.
+function nearestValidGuaranteeDuration(guaranteeMonths) {
+    return Math.round(clampGuaranteeDuration(guaranteeMonths) / GUARANTEE_MONTHS_STEP) * GUARANTEE_MONTHS_STEP;
+}
+
+// The field steps from the value it holds, so an off-grid duration would only ever reach the
+// next off-grid one. Step from the grid around the previous value instead.
+function steppedValidGuaranteeDuration(guaranteeMonths, previousGuaranteeMonths) {
+    if (guaranteeMonths === null || guaranteeMonths === undefined) {
+        return null;
+    }
+
+    // No direction to read: an empty field, or a boundary the field already clamped the step to.
+    if (!Number.isFinite(previousGuaranteeMonths) || guaranteeMonths === previousGuaranteeMonths) {
+        return nearestValidGuaranteeDuration(guaranteeMonths);
+    }
+
+    const stepped =
+        guaranteeMonths > previousGuaranteeMonths
+            ? Math.floor(previousGuaranteeMonths / GUARANTEE_MONTHS_STEP) * GUARANTEE_MONTHS_STEP + GUARANTEE_MONTHS_STEP
+            : Math.ceil(previousGuaranteeMonths / GUARANTEE_MONTHS_STEP) * GUARANTEE_MONTHS_STEP - GUARANTEE_MONTHS_STEP;
+
+    return clampGuaranteeDuration(stepped);
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -32,6 +61,12 @@ export default {
             required: false,
             default: true,
         },
+    },
+
+    data() {
+        return {
+            guaranteeMonthsWasTyped: false,
+        };
     },
 
     computed: {
@@ -151,6 +186,26 @@ export default {
     },
 
     methods: {
+        // mt-number-field emits `change` for typed input only, never for its stepper.
+        onGuaranteeMonthsTyped() {
+            this.guaranteeMonthsWasTyped = true;
+        },
+
+        /**
+         * A typed duration is kept as typed: a guarantee duration is a commercial claim, so the
+         * merchant should see the error rather than have their 44 silently become 42.
+         */
+        commitGuaranteeMonths(guaranteeMonths, previousGuaranteeMonths) {
+            const wasTyped = this.guaranteeMonthsWasTyped;
+            this.guaranteeMonthsWasTyped = false;
+
+            if (wasTyped) {
+                return guaranteeMonths;
+            }
+
+            return steppedValidGuaranteeDuration(guaranteeMonths, previousGuaranteeMonths);
+        },
+
         /**
          * A product saves fine while the label is switched on but incomplete, so nothing pulls the
          * merchant away from wherever they were. Bring them to the notice that tells them the label

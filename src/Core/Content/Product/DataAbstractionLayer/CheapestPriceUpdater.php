@@ -200,6 +200,12 @@ class CheapestPriceUpdater
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'IFNULL(product.min_purchase, parent.min_purchase) as min_purchase',
+            // Note: a variant without its own pricing row inherits the parent's
+            // `is_closeout` flag via IFNULL. `available` is NOT inherited because
+            // it is recomputed per-row by the stock indexer, so a variant pricing
+            // row always carries the variant's own availability.
+            'IFNULL(product.is_closeout, parent.is_closeout) as is_closeout',
+            'product.available as available',
             'price.price',
         );
 
@@ -233,6 +239,8 @@ class CheapestPriceUpdater
             'LOWER(HEX(IFNULL(product.unit_id, parent.unit_id))) as unit_id',
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
+            'IFNULL(product.is_closeout, parent.is_closeout) as is_closeout',
+            'product.available as available',
             'product.child_count as child_count',
         );
 
@@ -260,6 +268,8 @@ class CheapestPriceUpdater
         foreach ($data as $row) {
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+            $row['is_closeout'] = (bool) ($row['is_closeout'] ?? false);
+            $row['available'] = (bool) ($row['available'] ?? true);
             $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
         }
 
@@ -273,6 +283,8 @@ class CheapestPriceUpdater
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
             $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+            $row['is_closeout'] = (bool) ($row['is_closeout'] ?? false);
+            $row['available'] = (bool) ($row['available'] ?? true);
 
             if ($row['child_count'] > 0) {
                 $grouped[(string) $row['parent_id']]['default'] = $row;

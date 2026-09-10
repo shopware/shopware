@@ -216,8 +216,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->factory([Kernel::class, 'getConnection']);
 
     $services->set(ReplicaConnectionResetter::class)
+        ->public()
         ->args([service(Connection::class)])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(QueryDataBagResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);

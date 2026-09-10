@@ -9,7 +9,7 @@ tags: [customer, validation, documents, payment]
 
 Registering a commercial account always requires a first and last name, and `Settings > Login & Registration` offers no way to turn that off. Issue [#15321](https://github.com/shopware/shopware/issues/15321) states the case: a legal transaction with a GmbH or an AG is a transaction with a legal entity, and a legal entity has no first and last name. The same issue asks for the company name to become an account level field for commercial customers in the Administration, where today it exists only on the address.
 
-We want the shop to decide. A merchant should be able to set the contact person to required, optional or hidden, and the company name should take over as the identity when there is none. Dropping the two `NotBlank` constraints is the small part. `firstName` and `lastName` are what the storefront greets, the Administration sorts by, mail templates address and e-invoices print, and no single place in the system answers what a customer is called.
+We want the shop to decide. A merchant should be able to set the contact person to required, optional or hidden, and the company name should take over as the identity when there is none.
 
 ## Decision
 

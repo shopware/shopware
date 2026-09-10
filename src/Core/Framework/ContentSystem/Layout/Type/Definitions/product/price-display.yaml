@@ -22,11 +22,3 @@ properties:
     default: true
     adminUI:
       component: "switch"
-
-  jsonLd:
-    type: boolean
-    title: "JSON-LD structured data"
-    description: "Emit schema.org (JSON-LD) structured pricing data for search engines. Enabled on the product detail page."
-    default: true
-    adminUI:
-      component: "switch"

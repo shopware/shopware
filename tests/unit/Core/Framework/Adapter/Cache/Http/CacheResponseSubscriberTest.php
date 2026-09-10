@@ -987,7 +987,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{?string, ?string, array{method?: string, httpCacheRoute?: bool}}>
+     * @return iterable<string, array{?string, ?string, array{method?: string, httpCacheRoute?: bool, existing?: string}}>
      */
     public static function noVarySearchProvider(): iterable
     {

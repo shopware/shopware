@@ -482,6 +482,23 @@ Variant products report their selected options as `item_variant`, for example `R
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Clicking a product in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Adding a product to the cart or to the wishlist from the same card is not a selection and is not reported.
+
+`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it, so the detail page view is attributed to the list the customer came from. The attribution is stored for the session and consumed once, so opening a product directly is not attributed.
+
+The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
+
+- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
+- Search results report `search` and `Search results`.
+- The wishlist reports `wishlist` and `Wishlist`.
+- A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes.
+
+`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
+
 ### `robots.txt` allows crawling thumbnails
 
 The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.
@@ -1150,40 +1167,6 @@ Nothing changes for existing flows unless you opt in: in a platform checkout `co
 
 ## Storefront
 
-### Google Tag Manager events use the GA4 ecommerce data layer format
-
-Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
-
-With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
-
-`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, not only for products added from the product detail page. The values come from the product line item payload instead of the buy widget's hidden `manufacturerName` and `categoryNames` inputs, which are deprecated and removed with Shopware 6.8. Themes that extend the `buy_widget_buy_product_buy_info` block and read those inputs should switch to the payload.
-
-Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
-
-`add_shipping_info` and `add_payment_info` are now reported at most once per checkout. Both were reported on every load of the confirm page, and because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported them again. Expect lower counts for both events, no longer exceeding `begin_checkout`.
-
-Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
-
-`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
-
-`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. It reads the product number from `.product-detail-ordernumber` and the manufacturer from the `product:brand` meta tag instead, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
-
-### Google Analytics reports `select_item` and the list a product was presented in
-
-Clicking a product in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Adding a product to the cart or to the wishlist from the same card is not a selection and is not reported.
-
-`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it, so the detail page view is attributed to the list the customer came from. The attribution is stored for the session and consumed once, so opening a product directly is not attributed.
-
-The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
-
-- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
-- Search results report `search` and `Search results`.
-- The wishlist reports `wishlist` and `Wishlist`.
-- A cross selling tab reports the id and the name of the cross selling group.
-
-Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes.
-
-`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 ### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
 
 A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.

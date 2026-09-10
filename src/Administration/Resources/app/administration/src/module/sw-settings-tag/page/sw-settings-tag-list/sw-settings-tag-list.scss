@@ -101,10 +101,10 @@
         animation: loading 2s linear infinite;
     }
 
-    .sw-card__toolbar {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 20px;
+    .mt-card__toolbar {
+        .sw-card-filter {
+            width: 100%;
+        }
     }
 
     .sw-card-view__content {

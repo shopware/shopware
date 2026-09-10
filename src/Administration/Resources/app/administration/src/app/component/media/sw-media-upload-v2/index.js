@@ -241,6 +241,12 @@ export default {
             return this.isUploadUrlFeatureEnabled;
         },
 
+        // The header keeps its line height even when empty, which leaves a gap above the
+        // dropzone whenever the field is labelled from the outside.
+        hasHeaderContent() {
+            return !!this.label || !!this.helpText || (!this.source && this.uploadUrlFeatureEnabled);
+        },
+
         swFieldLabelClasses() {
             return {
                 'is--required': this.required,

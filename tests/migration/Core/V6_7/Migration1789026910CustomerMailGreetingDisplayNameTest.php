@@ -45,7 +45,8 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
 
         foreach ($this->contents($type) as $content) {
             static::assertStringContainsString('.displayName', $content);
-            static::assertStringNotContainsString('customer.lastName', $content);
+            // The surname greetings keep reading lastName, with displayName only standing in for a
+            // company account that has no contact person, so only the joined pair has to be gone.
             static::assertStringNotContainsString('customer.firstName', $content);
         }
     }

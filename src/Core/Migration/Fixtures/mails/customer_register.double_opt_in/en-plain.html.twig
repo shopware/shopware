@@ -1,5 +1,5 @@
 
-            Hello {{ customer.salutation.translated.displayName }} {{ customer.displayName }},
+            Hello {{ customer.salutation.translated.displayName }} {{ customer.lastName ?: customer.displayName }},
 
             thank you for your signing up with {{ salesChannel.translated.name }}.
             Please confirm the sign-up via the following link:

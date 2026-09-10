@@ -1,7 +1,7 @@
 
             <div style="font-family:arial; font-size:12px;">
                 <p>
-                    Hello {{ customer.salutation.translated.displayName }} {{ customer.displayName }},<br/>
+                    Hello {{ customer.salutation.translated.displayName }} {{ customer.lastName ?: customer.displayName }},<br/>
                     <br/>
                     thank you for your signing up with {{ salesChannel.translated.name }}.<br/>
                     Please confirm the sign-up via the following link:<br/>

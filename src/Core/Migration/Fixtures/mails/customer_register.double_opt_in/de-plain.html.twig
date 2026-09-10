@@ -1,5 +1,5 @@
 
-            Hallo {{ customer.salutation.translated.displayName }} {{ customer.displayName }},
+            Hallo {{ customer.salutation.translated.displayName }} {{ customer.lastName ?: customer.displayName }},
 
             vielen Dank für Ihre Anmeldung bei {{ salesChannel.translated.name }}.
             Bitte bestätigen Sie die Registrierung über den nachfolgenden Link:

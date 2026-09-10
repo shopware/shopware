@@ -51,13 +51,50 @@ class CustomerMailGreetingTest extends TestCase
         static::assertStringNotContainsString(' ,', $this->greeting($rendered));
     }
 
+    /**
+     * Four of these greet by surname alone and three by the full name, so the assertion is the part
+     * they share. What matters is that a contact person is still greeted as one, and never as the
+     * company.
+     */
     #[DataProvider('templateProvider')]
     public function testAContactPersonIsStillGreetedByName(string $type, string $file): void
     {
-        $rendered = $this->render($type, $file, $this->customer('Ada Lovelace'));
+        $rendered = $this->render($type, $file, $this->customer('Ada Lovelace', 'Ada', 'Lovelace'));
 
-        static::assertStringContainsString('Ada Lovelace', $rendered);
+        static::assertStringContainsString('Lovelace', $rendered);
         static::assertStringNotContainsString('Acme GmbH', $rendered);
+    }
+
+    /**
+     * The templates that greeted by surname before this change still do, so an upgraded shop does not
+     * suddenly read "Mr Ada Lovelace".
+     */
+    #[DataProvider('surnameTemplateProvider')]
+    public function testASurnameGreetingStaysASurnameGreeting(string $type, string $file): void
+    {
+        $rendered = $this->render($type, $file, $this->customer('Ada Lovelace', 'Ada', 'Lovelace'));
+
+        static::assertStringContainsString('Lovelace', $this->greeting($rendered));
+        static::assertStringNotContainsString('Ada', $this->greeting($rendered));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function surnameTemplateProvider(): iterable
+    {
+        $surnameOnly = [
+            'customer.group.registration.accepted',
+            'customer.group.registration.declined',
+            'customer_register.double_opt_in',
+            'guest_order.double_opt_in',
+        ];
+
+        foreach ($surnameOnly as $type) {
+            foreach (self::FILES as $file) {
+                yield $type . ' ' . $file => [$type, $file];
+            }
+        }
     }
 
     /**
@@ -99,7 +136,7 @@ class CustomerMailGreetingTest extends TestCase
     private function greeting(string $rendered): string
     {
         foreach (explode("\n", $rendered) as $line) {
-            if (str_contains($line, 'Acme GmbH') || str_contains($line, 'Ada Lovelace')) {
+            if (str_contains($line, 'Acme GmbH') || str_contains($line, 'Lovelace')) {
                 return trim(strip_tags($line));
             }
         }
@@ -117,7 +154,7 @@ class CustomerMailGreetingTest extends TestCase
         return $recovery;
     }
 
-    private function customer(string $displayName): CustomerEntity
+    private function customer(string $displayName, string $firstName = '', string $lastName = ''): CustomerEntity
     {
         $salutation = new SalutationEntity();
         $salutation->setId('salutation-id');
@@ -128,8 +165,8 @@ class CustomerMailGreetingTest extends TestCase
         $customer->setId('customer-id');
         $customer->setUniqueIdentifier('customer-id');
         $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-        $customer->setFirstName('');
-        $customer->setLastName('');
+        $customer->setFirstName($firstName);
+        $customer->setLastName($lastName);
         $customer->setCompany('Acme GmbH');
         $customer->setDisplayName($displayName);
         $customer->setSalutation($salutation);

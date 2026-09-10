@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Psr\Clock\ClockInterface;
 use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
@@ -16,13 +17,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 #[Package('after-sales')]
 final class DocumentMerger
 {
+    /**
+     * Fallback name for the merged file if the merged documents do not share a single document type
+     */
+    private const MIXED_DOCUMENT_TYPES_FILE_NAME = 'documents';
+
+    private const MAX_FILE_NAME_LENGTH = 100;
+
     /**
      * Cache of document media file IDs indexed by document ID
      *
@@ -41,6 +48,7 @@ final class DocumentMerger
         private readonly DocumentGenerator $documentGenerator,
         private readonly Fpdi $fpdi,
         private readonly Filesystem $filesystem,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -80,7 +88,7 @@ final class DocumentMerger
         }
 
         try {
-            $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
+            $fileName = $this->buildFileName($documents) . '.' . PdfRenderer::FILE_EXTENSION;
             $renderedDocument = new RenderedDocument(name: $fileName);
 
             return $this->mergeWithFpdi($documents, $context, $renderedDocument);
@@ -92,7 +100,7 @@ final class DocumentMerger
     private function createRenderedDocument(DocumentEntity $document, string $fileBlob): RenderedDocument
     {
         $fileExtension = $this->resolveFileType($document);
-        $fileName = $document->getDocumentMediaFile()?->getFileName() ?? Random::getAlphanumericString(32);
+        $fileName = $document->getDocumentMediaFile()?->getFileName() ?? $this->buildFileName(new DocumentCollection([$document]));
         $contentType = $document->getDocumentMediaFile()?->getMimeType() ?? $this->getContentType($fileExtension);
 
         $renderedDocument = new RenderedDocument(
@@ -230,6 +238,109 @@ final class DocumentMerger
         return new DocumentCollection($preparedDocuments);
     }
 
+    /**
+     * Builds a human readable file name without the file extension, e.g. `invoice_10000` for a single document or
+     * `delivery_note_2026-09-10` for multiple merged documents of the same document type.
+     */
+    private function buildFileName(DocumentCollection $documents): string
+    {
+        if ($documents->count() === 1) {
+            $document = $documents->first();
+            $documentName = $document !== null ? $this->getDocumentName($document) : null;
+
+            if ($documentName !== null) {
+                return $documentName;
+            }
+        }
+
+        $date = $this->clock->now()->format('Y-m-d');
+
+        return $this->getSharedFileNamePrefix($documents) . '_' . $date;
+    }
+
+    /**
+     * Resolves the name the document was rendered with, so that downloading a single document always yields the
+     * same file name, no matter whether it is downloaded on its own or via the merge endpoint.
+     */
+    private function getDocumentName(DocumentEntity $document): ?string
+    {
+        $config = $document->getConfig();
+
+        $documentNumber = $this->getConfigValue($config, 'documentNumber');
+        if ($documentNumber === '') {
+            $documentNumber = $document->getDocumentNumber() ?? '';
+        }
+
+        if ($documentNumber === '') {
+            return null;
+        }
+
+        $prefix = $this->getConfigValue($config, 'filenamePrefix');
+        $suffix = $this->getConfigValue($config, 'filenameSuffix');
+
+        if ($prefix === '' && $suffix === '') {
+            // Without a configured prefix the document number alone would not describe the content of the file
+            $typeName = $document->getTypeName();
+            $prefix = $typeName !== null ? $typeName . '_' : '';
+        }
+
+        $name = $this->sanitizeFileName($prefix . $documentNumber . $suffix);
+
+        return $name !== '' ? $name : null;
+    }
+
+    /**
+     * Documents downloaded via the merge endpoint are usually grouped by document type, so the file name prefix that
+     * is configured for that document type describes the content of the merged file best.
+     */
+    private function getSharedFileNamePrefix(DocumentCollection $documents): string
+    {
+        $typeNames = [];
+        $prefixes = [];
+
+        foreach ($documents as $document) {
+            $typeName = $this->sanitizeFileName($document->getTypeName() ?? '');
+            if ($typeName !== '') {
+                $typeNames[] = $typeName;
+            }
+
+            $prefix = $this->sanitizeFileName($this->getConfigValue($document->getConfig(), 'filenamePrefix'));
+            if ($prefix !== '') {
+                $prefixes[] = $prefix;
+            }
+        }
+
+        $typeNames = array_values(array_unique($typeNames));
+        $prefixes = array_values(array_unique($prefixes));
+
+        if (\count($typeNames) !== 1) {
+            return self::MIXED_DOCUMENT_TYPES_FILE_NAME;
+        }
+
+        if (\count($prefixes) === 1) {
+            return $prefixes[0];
+        }
+
+        return $typeNames[0];
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function getConfigValue(array $config, string $key): string
+    {
+        $value = $config[$key] ?? null;
+
+        return \is_scalar($value) ? (string) $value : '';
+    }
+
+    private function sanitizeFileName(string $name): string
+    {
+        $name = preg_replace('/[^A-Za-z0-9_.-]+/', '-', $name) ?? '';
+
+        return trim(mb_substr($name, 0, self::MAX_FILE_NAME_LENGTH), '-._');
+    }
+
     private function createDocumentsZip(DocumentCollection $documents, Context $context): ?RenderedDocument
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'sw_documents_');
@@ -269,7 +380,7 @@ final class DocumentMerger
             return null;
         }
 
-        $fileName = Random::getAlphanumericString(32) . '.zip';
+        $fileName = $this->buildFileName($documents) . '.zip';
 
         $renderedDocument = new RenderedDocument(
             name: $fileName,

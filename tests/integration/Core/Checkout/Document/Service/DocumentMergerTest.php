@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -108,6 +109,7 @@ class DocumentMergerTest extends TestCase
             $this->documentGenerator,
             $mockFpdi,
             $this->createMock(Filesystem::class),
+            static::getContainer()->get(ClockInterface::class),
         );
 
         $doc1 = Uuid::randomHex();
@@ -150,6 +152,7 @@ class DocumentMergerTest extends TestCase
             $mockGenerator,
             static::getContainer()->get('pdf.merger'),
             $this->createMock(Filesystem::class),
+            static::getContainer()->get(ClockInterface::class),
         );
 
         $documentId = Uuid::randomHex();
@@ -216,6 +219,7 @@ class DocumentMergerTest extends TestCase
             $this->documentGenerator,
             $mockFpdi,
             $this->createMock(Filesystem::class),
+            static::getContainer()->get(ClockInterface::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
@@ -259,6 +263,10 @@ class DocumentMergerTest extends TestCase
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertSame(
+                    DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.pdf',
+                    $mergeResult->getName()
+                );
             },
         ];
 
@@ -279,6 +287,10 @@ class DocumentMergerTest extends TestCase
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertSame(
+                    DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.pdf',
+                    $mergeResult->getName()
+                );
             },
         ];
     }
@@ -342,6 +354,7 @@ class DocumentMergerTest extends TestCase
             $this->documentGenerator,
             $mockFpdi,
             $filesystem,
+            static::getContainer()->get(ClockInterface::class),
         );
 
         $result = $documentMerger->merge($docIds, $this->context);
@@ -349,6 +362,10 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
+        static::assertSame(
+            DeliveryNoteRenderer::TYPE . '_' . (new \DateTimeImmutable())->format('Y-m-d') . '.zip',
+            $result->getName()
+        );
 
         // save content to a temporary zip file
         $filesystem = static::getContainer()->get('filesystem');

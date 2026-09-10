@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -36,6 +38,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class DocumentMergerTest extends TestCase
 {
     public const PDF_CONTENT = 'PDF content for testing';
+
+    private const DOWNLOAD_DATE = '2026-01-15';
 
     public function testMergeOneDocument(): void
     {
@@ -68,6 +72,7 @@ class DocumentMergerTest extends TestCase
             $documentGenerator,
             static::createStub(Fpdi::class),
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -119,6 +124,7 @@ class DocumentMergerTest extends TestCase
             $documentGenerator,
             $fpdi,
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -171,6 +177,7 @@ class DocumentMergerTest extends TestCase
             $documentGenerator,
             $fpdi,
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -181,6 +188,7 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
         static::assertSame('pdf', $result->getFileExtension());
         static::assertSame(self::PDF_CONTENT, $result->getContent());
+        static::assertSame('invoice_' . self::DOWNLOAD_DATE . '.pdf', $result->getName());
     }
 
     public function testMergeTriggersDocumentGenerationWhenMediaMissing(): void
@@ -240,6 +248,7 @@ class DocumentMergerTest extends TestCase
             $documentGenerator,
             static::createStub(Fpdi::class),
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -320,6 +329,7 @@ class DocumentMergerTest extends TestCase
             $documentGenerator,
             static::createStub(Fpdi::class),
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -370,6 +380,7 @@ class DocumentMergerTest extends TestCase
             static::createStub(DocumentGenerator::class),
             $fpdi,
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -413,6 +424,7 @@ class DocumentMergerTest extends TestCase
             static::createStub(DocumentGenerator::class),
             $fpdi,
             $filesystem,
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -424,6 +436,7 @@ class DocumentMergerTest extends TestCase
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
         static::assertNotEmpty($result->getContent());
+        static::assertSame('invoice_' . self::DOWNLOAD_DATE . '.zip', $result->getName());
     }
 
     public function testMergeMultipleDocumentsWithNonPdfFileTypesCreatesZip(): void
@@ -468,6 +481,7 @@ class DocumentMergerTest extends TestCase
             static::createStub(DocumentGenerator::class),
             $fpdi,
             $filesystem,
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -479,6 +493,7 @@ class DocumentMergerTest extends TestCase
         static::assertSame('zip', $result->getFileExtension());
         static::assertSame('application/zip', $result->getContentType());
         static::assertSame('zip file content', $result->getContent());
+        static::assertSame('invoice_' . self::DOWNLOAD_DATE . '.zip', $result->getName());
     }
 
     public function testCreateDocumentsZipThrowsExceptionWhenZipFileCannotBeRead(): void
@@ -517,6 +532,7 @@ class DocumentMergerTest extends TestCase
             static::createStub(DocumentGenerator::class),
             $fpdi,
             $filesystem,
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $documentMerger->merge(
@@ -551,6 +567,7 @@ class DocumentMergerTest extends TestCase
             $documentGenerator,
             static::createStub(Fpdi::class),
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -638,6 +655,7 @@ class DocumentMergerTest extends TestCase
             static::createStub(DocumentGenerator::class),
             $mockFpdi,
             static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
         );
 
         $result = $documentMerger->merge(
@@ -648,8 +666,135 @@ class DocumentMergerTest extends TestCase
         static::assertNotNull($result);
     }
 
+    public function testMergeOneDocumentWithoutMediaFileUsesTheNameOfTheDocument(): void
+    {
+        $document = $this->createDocument(
+            withMedia: true,
+            config: [
+                'filenamePrefix' => 'invoice_',
+                'documentNumber' => '10000',
+                'filenameSuffix' => '',
+            ],
+            withMediaFile: false,
+        );
+
+        $result = $this->mergeDocuments([$document]);
+
+        static::assertNotNull($result);
+        static::assertSame('invoice_10000.pdf', $result->getName());
+    }
+
+    public function testMergeOneDocumentWithoutMediaFileFallsBackToDocumentTypeAndNumber(): void
+    {
+        $document = $this->createDocument(withMedia: true, withMediaFile: false);
+        $document->setDocumentNumber('10000');
+
+        $result = $this->mergeDocuments([$document]);
+
+        static::assertNotNull($result);
+        static::assertSame('invoice_10000.pdf', $result->getName());
+    }
+
+    public function testMergeOneDocumentWithoutMediaFileSanitizesTheNameOfTheDocument(): void
+    {
+        $document = $this->createDocument(
+            withMedia: true,
+            config: [
+                'filenamePrefix' => 'Rechnung /',
+                'documentNumber' => '10 000',
+                'filenameSuffix' => '',
+            ],
+            withMediaFile: false,
+        );
+
+        $result = $this->mergeDocuments([$document]);
+
+        static::assertNotNull($result);
+        static::assertSame('Rechnung-10-000.pdf', $result->getName());
+    }
+
+    public function testMergeOneDocumentWithoutAnyNameUsesDocumentTypeAndDate(): void
+    {
+        $document = $this->createDocument(withMedia: true, withMediaFile: false);
+
+        $result = $this->mergeDocuments([$document]);
+
+        static::assertNotNull($result);
+        static::assertSame('invoice_' . self::DOWNLOAD_DATE . '.pdf', $result->getName());
+    }
+
+    public function testMergeMultipleDocumentsUsesTheConfiguredFileNamePrefixAndDate(): void
+    {
+        $firstDocument = $this->createDocument(
+            withMedia: true,
+            config: ['filenamePrefix' => 'Rechnung_', 'documentNumber' => '10000'],
+        );
+        $secondDocument = $this->createDocument(
+            withMedia: true,
+            config: ['filenamePrefix' => 'Rechnung_', 'documentNumber' => '10001'],
+        );
+
+        $result = $this->mergeDocuments([$firstDocument, $secondDocument]);
+
+        static::assertNotNull($result);
+        static::assertSame('Rechnung_' . self::DOWNLOAD_DATE . '.pdf', $result->getName());
+    }
+
+    public function testMergeMultipleDocumentsOfDifferentTypesUsesGenericNameAndDate(): void
+    {
+        $firstDocument = $this->createDocument(true);
+        $secondDocument = $this->createDocument(withMedia: true, technicalName: 'delivery_note');
+
+        $result = $this->mergeDocuments([$firstDocument, $secondDocument]);
+
+        static::assertNotNull($result);
+        static::assertSame('documents_' . self::DOWNLOAD_DATE . '.pdf', $result->getName());
+    }
+
     /**
-     * @param array<string, array<string>> $config
+     * @param array<DocumentEntity> $documents
+     */
+    private function mergeDocuments(array $documents): ?RenderedDocument
+    {
+        $fpdi = static::createStub(Fpdi::class);
+        $fpdi->method('setSourceFile')->willReturn(1);
+        $fpdi->method('importPage')->willReturn('template');
+        $fpdi->method('getTemplateSize')->willReturn(['0' => 210, '1' => 297, 'orientation' => 'P']);
+        $fpdi->method('Output')->willReturn(self::PDF_CONTENT);
+
+        $documentRepository = static::createStub(EntityRepository::class);
+        $documentRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'document',
+                \count($documents),
+                new DocumentCollection($documents),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            )
+        );
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('loadFile')->willReturn(self::PDF_CONTENT);
+        $mediaService->method('loadFileStream')->willReturn(Utils::streamFor());
+
+        $documentMerger = new DocumentMerger(
+            $documentRepository,
+            $mediaService,
+            static::createStub(DocumentGenerator::class),
+            $fpdi,
+            static::createStub(Filesystem::class),
+            new MockClock(self::DOWNLOAD_DATE . ' 10:00:00'),
+        );
+
+        return $documentMerger->merge(
+            array_map(static fn (DocumentEntity $document): string => $document->getId(), $documents),
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $config
      */
     private function createDocument(
         bool $withMedia,
@@ -658,6 +803,8 @@ class DocumentMergerTest extends TestCase
         string $mimeType = 'application/pdf',
         string $fileName = 'document',
         array $config = [],
+        string $technicalName = 'invoice',
+        bool $withMediaFile = true,
     ): DocumentEntity {
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
@@ -668,9 +815,10 @@ class DocumentMergerTest extends TestCase
         if ($withDocumentType) {
             $documentType = new DocumentTypeEntity();
             $documentType->setId(Uuid::randomHex());
-            $documentType->setTechnicalName('invoice');
+            $documentType->setTechnicalName($technicalName);
             $document->setDocumentTypeId($documentType->getId());
             $document->setDocumentType($documentType);
+            $document->setTypeName($technicalName);
         }
 
         if ($withMedia) {
@@ -679,8 +827,12 @@ class DocumentMergerTest extends TestCase
             $mediaEntity->setFileExtension($fileExtension);
             $mediaEntity->setMimeType($mimeType);
             $mediaEntity->setFileName($fileName);
-            $document->setDocumentMediaFile($mediaEntity);
             $document->setDocumentMediaFileId($mediaEntity->getId());
+
+            // The media file may exist without its association being loaded
+            if ($withMediaFile) {
+                $document->setDocumentMediaFile($mediaEntity);
+            }
         }
 
         return $document;

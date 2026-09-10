@@ -468,6 +468,8 @@ The classes `.sw-promotion-v2-individual-codes-behavior__empty-state-icon`, `.sw
 
 `sw_settings_customer_group_list_empty_state` moved from the page content into the `grid` slot of the list card, so the empty state renders inside the card instead of next to it, and the listing is hidden while it shows. Overrides of that block now extend a card-local element.
 
+The flow and rule lists replace their `sw-entity-listing` with the empty state once no entity exists, so blocks nested inside those listings do not render in that state; override the surrounding `sw_flow_list_empty_state` or `sw_settings_rule_list_empty_message` block to add markup there. Both lists, like the other list pages, show the generic no-result headline with a link to the search preferences when a search or filter has no hit, and offer the create action only when nothing exists yet.
+
 ## Storefront
 
 ### `robots.txt` allows crawling thumbnails

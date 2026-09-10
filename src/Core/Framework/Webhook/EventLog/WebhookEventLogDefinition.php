@@ -31,6 +31,8 @@ class WebhookEventLogDefinition extends EntityDefinition
 
     final public const STATUS_SUCCESS = 'success';
 
+    final public const STATUS_PAUSED = 'paused';
+
     final public const ENTITY_NAME = 'webhook_event_log';
 
     public function getEntityName(): string
@@ -80,6 +82,7 @@ class WebhookEventLogDefinition extends EntityDefinition
             (new BlobField('serialized_webhook_message', 'serializedWebhookMessage'))->removeFlag(ApiAware::class)->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new IntField('sequence', 'sequence'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('failure_reason', 'failureReason', 32))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Reason an unfinished webhook delivery was cancelled.'),
         ]);
     }
 }

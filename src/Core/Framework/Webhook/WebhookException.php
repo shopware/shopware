@@ -19,6 +19,17 @@ class WebhookException extends HttpException
     public const TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_TARGET_NOT_ALLOWED';
     public const REDIRECT_TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED';
     public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
+    public const UNEXPECTED_CLASSIFICATION = 'FRAMEWORK__WEBHOOK_UNEXPECTED_CLASSIFICATION';
+
+    public static function unexpectedClassification(string $classification): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNEXPECTED_CLASSIFICATION,
+            'Webhook delivery outcome "{{ classification }}" cannot be recorded as a failure.',
+            ['classification' => $classification]
+        );
+    }
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {

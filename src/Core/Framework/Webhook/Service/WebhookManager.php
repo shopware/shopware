@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -58,6 +59,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly WebhookHealthService $webhookHealthService,
     ) {
     }
 
@@ -103,13 +105,10 @@ class WebhookManager implements ResetInterface
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
-
-            if ($messages !== []) {
-                $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
-
-                Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent));
-            }
+            $this->dispatchWebhooksWithHealth(
+                $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale),
+                $event,
+            );
 
             return;
         }
@@ -128,6 +127,40 @@ class WebhookManager implements ResetInterface
             'webhook::dispatch-async',
             fn () => $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $languageId, $userLocale)
         );
+    }
+
+    /**
+     * @param list<WebhookEventMessage> $messages
+     */
+    private function dispatchWebhooksWithHealth(
+        array $messages,
+        Hookable $event,
+    ): void {
+        $deliver = [];
+        $hold = [];
+
+        foreach ($messages as $message) {
+            if ($this->webhookHealthService->gateFor($message->getWebhookId()) === WebhookDispatchDecision::Hold) {
+                $hold[] = $message;
+
+                continue;
+            }
+
+            $deliver[] = $message;
+        }
+
+        if ($hold !== []) {
+            $this->webhookDeliveryService->hold($hold);
+        }
+
+        if ($deliver === []) {
+            return;
+        }
+
+        /** @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $forceSynchronous will be removed; lifecycle events will go async with retries */
+        $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
+
+        Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($deliver, forceSynchronous: $isAppLifecycleEvent));
     }
 
     /**

@@ -22,9 +22,11 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -33,6 +35,7 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
+use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
@@ -103,6 +106,62 @@ class WebhookManagerTest extends TestCase
 
         $webhook = $this->prepareWebhook($event2->getName());
         $this->assertSyncWebhookIsSent($webhook, $event2, $webhookManager);
+    }
+
+    public function testDegradedWebhookDoesNotHoldHealthySibling(): void
+    {
+        $event = $this->prepareEvent();
+        $degraded = $this->getWebhook('foobar');
+        $healthy = $this->getWebhook('foobar');
+
+        $this->webhookLoader->expects($this->once())->method('getWebhooks')->willReturn([$degraded, $healthy]);
+        $this->webhookLoader->method('getPrivilegesForRoles')->willReturnCallback(
+            static fn (array $roleIds): array => array_fill_keys($roleIds, new AclPrivilegeCollection([])),
+        );
+
+        $webhookHealthService = $this->createMock(WebhookHealthService::class);
+        $webhookHealthService->expects($this->exactly(2))->method('gateFor')->willReturnMap([
+            [$degraded->id, WebhookDispatchDecision::Hold],
+            [$healthy->id, WebhookDispatchDecision::Deliver],
+        ]);
+
+        $deliveryService = $this->createMock(WebhookDeliveryService::class);
+        $deliveryService->expects($this->once())->method('hold')->with(
+            static::callback(static fn (array $messages): bool => [$degraded->id] === array_map(
+                static fn (WebhookEventMessage $message): string => $message->getWebhookId(),
+                $messages
+            )),
+        );
+        $deliveryService->expects($this->once())->method('process')->with(
+            static::callback(static fn (array $messages): bool => [$healthy->id] === array_map(
+                static fn (WebhookEventMessage $message): string => $message->getWebhookId(),
+                $messages
+            )),
+        );
+
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+
+        $manager = $this->getWebhookManager(true, $webhookHealthService, $deliveryService);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
+    }
+
+    public function testChecksEligibilityBeforeHealthGate(): void
+    {
+        $event = $this->prepareHookableEvent();
+        $this->prepareWebhook('product.written', true, acl: []);
+
+        $webhookHealthService = $this->createMock(WebhookHealthService::class);
+        $webhookHealthService->expects($this->never())->method('gateFor');
+
+        $deliveryService = $this->createMock(WebhookDeliveryService::class);
+        $deliveryService->expects($this->never())->method('hold');
+        $deliveryService->expects($this->never())->method('process');
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+
+        $manager = $this->getWebhookManager(false, $webhookHealthService, $deliveryService);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $manager->dispatch($event));
     }
 
     public function testDispatchWithWebhooksSync(): void
@@ -547,16 +606,26 @@ class WebhookManagerTest extends TestCase
         return $webhook;
     }
 
-    private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
-    {
+    private function getWebhookManager(
+        bool $isAdminWorkerEnabled,
+        ?WebhookHealthService $webhookHealthService = null,
+        ?WebhookDeliveryService $deliveryService = null,
+    ): WebhookManager {
         $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
-        $deliveryService = static::createStub(WebhookDeliveryService::class);
-        $deliveryService->method('buildRequest')->willReturnCallback(
-            fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
-        );
+        if ($deliveryService === null) {
+            $deliveryService = static::createStub(WebhookDeliveryService::class);
+            $deliveryService->method('buildRequest')->willReturnCallback(
+                fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
+            );
+        }
+
+        if ($webhookHealthService === null) {
+            $webhookHealthService = static::createStub(WebhookHealthService::class);
+            $webhookHealthService->method('gateFor')->willReturn(WebhookDispatchDecision::Deliver);
+        }
 
         return new WebhookManager(
             $this->webhookLoader,
@@ -570,6 +639,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
+            $webhookHealthService,
         );
     }
 

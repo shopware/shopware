@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -43,7 +45,7 @@ class WebhookTransportTest extends TestCase
             ->with($envelope)
             ->willReturn($envelope);
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class), static::createStub(WebhookHealthTick::class));
 
         static::assertSame($envelope, $transport->send($envelope));
     }
@@ -59,7 +61,24 @@ class WebhookTransportTest extends TestCase
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->never())->method('send');
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class), static::createStub(WebhookHealthTick::class));
+
+        static::assertSame($envelope, $transport->send($envelope));
+    }
+
+    public function testSendPersistsHeldDeliveryWhenStamped(): void
+    {
+        $message = $this->makeMessage();
+        $envelope = new Envelope($message, [new HeldDeliveryStamp()]);
+
+        // Held deliveries must not enter the claimable queue.
+        $stateService = $this->createMock(WebhookOutboxStore::class);
+        $stateService->expects($this->once())
+            ->method('recordHeldOutboxEntry')
+            ->with(static::callback(static fn (OutboxInsert $entry): bool => $entry->webhookId === $message->getWebhookId()));
+        $stateService->expects($this->never())->method('recordOutboxEntry');
+
+        $transport = new WebhookTransport($stateService, static::createStub(TransportInterface::class), static::createStub(MySQLWebhookReceiver::class), static::createStub(WebhookHealthTick::class));
 
         static::assertSame($envelope, $transport->send($envelope));
     }
@@ -70,6 +89,7 @@ class WebhookTransportTest extends TestCase
             static::createStub(WebhookOutboxStore::class),
             static::createStub(TransportInterface::class),
             static::createStub(MySQLWebhookReceiver::class),
+            static::createStub(WebhookHealthTick::class),
         );
 
         $this->expectException(WebhookException::class);
@@ -86,6 +106,7 @@ class WebhookTransportTest extends TestCase
             static::createStub(WebhookOutboxStore::class),
             static::createStub(TransportInterface::class),
             $receiver,
+            static::createStub(WebhookHealthTick::class),
         );
 
         static::assertSame([], iterator_to_array($transport->get()));
@@ -101,9 +122,41 @@ class WebhookTransportTest extends TestCase
             static::createStub(WebhookOutboxStore::class),
             static::createStub(TransportInterface::class),
             $receiver,
+            static::createStub(WebhookHealthTick::class),
         );
 
         static::assertSame([$envelope], iterator_to_array($transport->get()));
+    }
+
+    public function testGetRunsHealthTickBeforeIdleReceiverPoll(): void
+    {
+        $calls = [];
+
+        $receiver = $this->createMock(MySQLWebhookReceiver::class);
+        $receiver->expects($this->once())->method('get')->willReturnCallback(
+            static function () use (&$calls): iterable {
+                $calls[] = 'receiver';
+
+                return [];
+            }
+        );
+
+        $tick = $this->createMock(WebhookHealthTick::class);
+        $tick->expects($this->once())->method('run')->willReturnCallback(
+            static function () use (&$calls): void {
+                $calls[] = 'tick';
+            }
+        );
+
+        $transport = new WebhookTransport(
+            static::createStub(WebhookOutboxStore::class),
+            static::createStub(TransportInterface::class),
+            $receiver,
+            $tick,
+        );
+
+        static::assertSame([], iterator_to_array($transport->get()));
+        static::assertSame(['tick', 'receiver'], $calls);
     }
 
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
@@ -119,6 +172,7 @@ class WebhookTransportTest extends TestCase
             static::createStub(WebhookOutboxStore::class),
             static::createStub(TransportInterface::class),
             $receiver,
+            static::createStub(WebhookHealthTick::class),
         );
 
         $transport->ack($envelope);
@@ -138,6 +192,7 @@ class WebhookTransportTest extends TestCase
             static::createStub(WebhookOutboxStore::class),
             static::createStub(TransportInterface::class),
             $receiver,
+            static::createStub(WebhookHealthTick::class),
         );
 
         $transport->ack($envelope);
@@ -176,7 +231,7 @@ class WebhookTransportTest extends TestCase
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->once())->method('send')->willReturn($envelope);
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class), static::createStub(WebhookHealthTick::class));
 
         $transport->send($envelope);
     }
@@ -199,7 +254,7 @@ class WebhookTransportTest extends TestCase
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->once())->method('send')->willReturn($envelope);
 
-        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class));
+        $transport = new WebhookTransport($stateService, $asyncTransport, static::createStub(MySQLWebhookReceiver::class), static::createStub(WebhookHealthTick::class));
 
         $transport->send($envelope);
     }

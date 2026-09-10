@@ -10,7 +10,7 @@ async function selectMtSelectOptionByText(wrapper, text, selector = '.mt-select 
     await flushPromises();
 
     // Step 2 result list should have opened
-    const popover = wrapper.find('.mt-popover-deprecated');
+    const popover = wrapper.find('.mt-floating-ui, .mt-popover-deprecated');
     expect(popover.exists()).toBe(true);
     expect(popover.isVisible()).toBe(true);
 

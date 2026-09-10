@@ -263,6 +263,21 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### Select dropdowns stay anchored to their field while scrolling
+
+`sw-select-result-list`, `sw-multi-tag-select` and `sw-category-tree-field` render their dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`. An open dropdown now follows its input while the page scrolls, instead of staying where it was when it opened.
+
+The dropdown is still teleported to `<body>`, but the element around it changed. Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around a select result list is replaced by `.mt-floating-ui__content`. Update styles and end-to-end selectors that matched the old wrapper.
+- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content`. Descendant selectors such as `.my-popover .sw-select-result-list__content` keep working; selectors that expected the class on an element *around* the content do not.
+- The `--placement-bottom-outside` modifier class is gone. `mt-floating-ui` flips the dropdown itself and marks the resolved side with `.mt-floating-ui--top` / `.mt-floating-ui--bottom`. Pass `:floating-ui-options="{ placement: 'top-start' }"` to force a placement above the field.
+- The dropdown's stacking context comes from `.mt-floating-ui__content` (`z-index: 1070`); the popover's `z-index` prop is gone.
+- `sw-multi-tag-select` renders its "add data" / "enter valid data" hint as a `sw-select-result` inside `sw-select-result-list`. The Twig blocks `sw_multi_tag_select_validation_valid` and `sw_multi_tag_select_validation_invalid` still exist, but their content is now a `<template>` inside a result item.
+- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements now: the inline wrapper inside the field and the teleported dropdown. `mt-floating-ui` copies the classes it is given onto its teleported content, so a rule written for the dropdown can also hit the field itself. Scope it with `.mt-floating-ui__content` to keep it on the dropdown, or with `.mt-floating-ui` for the inline wrapper.
+- The category tree dropdown is styled as `.mt-floating-ui__content.sw-category-tree-field__results_popover`. An override written on the single class, such as `.sw-category-tree-field__results_popover { height: 500px; }`, is less specific than the core rule and stops applying without an error. Add `.mt-floating-ui__content` to the selector.
+
+`sw-category-tree-field` also wraps its input side in `mt-floating-ui`, not only its dropdown. `.sw-category-tree-field__selected-label` and `.sw-category-tree__input-field` now sit inside `.mt-floating-ui > .mt-floating-ui__trigger > .sw-category-tree-field__trigger`. Descendant selectors keep working; child combinators, `:first-child` / `:nth-child`, flex or grid layout applied to the former parent, and end-to-end locators built on the old nesting do not.
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

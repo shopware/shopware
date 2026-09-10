@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@currents/playwright": "2.3.3",
-    "@shopware-ag/acceptance-test-suite": "12.18.3",
+    "@shopware-ag/acceptance-test-suite": "https://pkg.pr.new/shopware/acceptance-test-suite/@shopware-ag/acceptance-test-suite@ec36c4b",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"
@@ -53,7 +53,7 @@
     "picomatch@2": "2.3.2",
     "picomatch@4": "4.0.4",
     "form-data": "4.0.6",
-    "js-yaml": "4.3.1",
+    "js-yaml": "4.3.2",
     "tmp": "0.2.7"
   }
 }

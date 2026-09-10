@@ -128,14 +128,14 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
             singleSelect: true,
         });
 
-        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+        expect(wrapper.find('.sw-category-tree-field__results_base .mt-floating-ui__content').exists()).toBe(false);
 
         wrapper.vm.term = 'some-search-term';
         await wrapper.find('.sw-category-tree__input-field').trigger('focus');
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
+        expect(wrapper.find('.sw-category-tree-field__results_base .mt-floating-ui__content').exists()).toBe(true);
 
         wrapper.vm.onCheckItem({
             id: 'categoryId-0',
@@ -144,7 +144,7 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+        expect(wrapper.find('.sw-category-tree-field__results_base .mt-floating-ui__content').exists()).toBe(false);
     });
 
     it('should remove the category item', async () => {

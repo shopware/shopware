@@ -197,6 +197,10 @@ export default {
                 return;
             }
 
+            if (path.some((element) => element.classList?.contains('mt-floating-ui__content'))) {
+                return;
+            }
+
             if (path.some((element) => element.classList?.contains('mt-select-result-list-popover-wrapper'))) {
                 return;
             }

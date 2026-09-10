@@ -986,73 +986,43 @@ class CacheResponseSubscriberTest extends TestCase
         ];
     }
 
-    public function testNoVarySearchHeaderIsAppliedForCacheableResponse(): void
+    /**
+     * @return iterable<string, array{?string, ?string, array{method?: string, httpCacheRoute?: bool}}>
+     */
+    public static function noVarySearchProvider(): iterable
     {
-        $response = $this->dispatchWithNoVarySearchPolicy('key-order');
+        yield 'a cacheable response carries the value the policy declares' => ['key-order', 'key-order', []];
+        yield 'a policy without the key sends no header' => [null, null, []];
+        yield 'the policy overrides a value set earlier in the request' => ['key-order', 'key-order', ['existing' => 'params=("ref")']];
 
-        static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
-    }
-
-    public function testNoVarySearchHeaderIsAppliedForCacheableStoreApiResponse(): void
-    {
-        // store-api responses are fetched by script rather than by navigation, but they still enter
-        // the browser HTTP cache, where `No-Vary-Search` applies just as it does on the storefront
-        $response = $this->dispatchWithNoVarySearchPolicy('key-order', area: 'store_api');
-
-        static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
-    }
-
-    public function testNoVarySearchHeaderIsNotAppliedWhenPolicyHasNone(): void
-    {
-        $response = $this->dispatchWithNoVarySearchPolicy(null);
-
-        static::assertFalse($response->headers->has('No-Vary-Search'));
-    }
-
-    public function testExistingNoVarySearchHeaderIsRemovedWhenPolicyHasNone(): void
-    {
         // the resolved policy is the only source of truth for the header, same as for cache-control
-        $response = new Response();
-        $response->headers->set('No-Vary-Search', 'params=("ref")');
+        yield 'a policy without the key clears a value set earlier' => [null, null, ['existing' => 'params=("ref")']];
 
-        $this->dispatchWithNoVarySearchPolicy(null, response: $response);
-
-        static::assertFalse($response->headers->has('No-Vary-Search'));
+        // an uncacheable response has nothing for a client to match a later request against
+        yield 'an uncacheable request sends no header' => ['key-order', null, ['method' => Request::METHOD_POST]];
+        yield 'an uncacheable request clears a value set earlier' => ['key-order', null, ['method' => Request::METHOD_POST, 'existing' => 'params=("ref")']];
+        yield 'an uncacheable route sends no header' => ['key-order', null, ['httpCacheRoute' => false]];
     }
 
-    public function testExistingNoVarySearchHeaderIsRemovedForUncacheableRequest(): void
+    /**
+     * @param array{method?: string, httpCacheRoute?: bool, existing?: string} $request
+     */
+    #[DataProvider('noVarySearchProvider')]
+    public function testNoVarySearchHeaderFollowsTheResolvedPolicy(?string $policyValue, ?string $expected, array $request): void
     {
         $response = new Response();
-        $response->headers->set('No-Vary-Search', 'params=("ref")');
+        if (isset($request['existing'])) {
+            $response->headers->set('No-Vary-Search', $request['existing']);
+        }
 
-        $this->dispatchWithNoVarySearchPolicy('key-order', method: Request::METHOD_POST, response: $response);
+        $this->dispatchWithNoVarySearchPolicy(
+            $policyValue,
+            method: $request['method'] ?? Request::METHOD_GET,
+            httpCacheRoute: $request['httpCacheRoute'] ?? true,
+            response: $response,
+        );
 
-        static::assertFalse($response->headers->has('No-Vary-Search'));
-    }
-
-    public function testExistingNoVarySearchHeaderIsOverriddenByPolicy(): void
-    {
-        $response = new Response();
-        $response->headers->set('No-Vary-Search', 'params=("ref")');
-
-        $this->dispatchWithNoVarySearchPolicy('key-order', response: $response);
-
-        static::assertSame('key-order', $response->headers->get('No-Vary-Search'));
-    }
-
-    public function testNoVarySearchHeaderIsNotAppliedForUncacheableRequest(): void
-    {
-        // POST responses are never cacheable, so there is nothing to match against
-        $response = $this->dispatchWithNoVarySearchPolicy('key-order', method: Request::METHOD_POST);
-
-        static::assertFalse($response->headers->has('No-Vary-Search'));
-    }
-
-    public function testNoVarySearchHeaderIsNotAppliedForUncacheableRoute(): void
-    {
-        $response = $this->dispatchWithNoVarySearchPolicy('key-order', httpCacheRoute: false);
-
-        static::assertFalse($response->headers->has('No-Vary-Search'));
+        static::assertSame($expected, $response->headers->get('No-Vary-Search'));
     }
 
     #[DisabledFeatures(['CACHE_REWORK', 'v6.8.0.0'])]
@@ -1067,14 +1037,14 @@ class CacheResponseSubscriberTest extends TestCase
      * Dispatches a GET response through the subscriber using a cacheable policy that optionally
      * declares `no_vary_search`.
      *
-     * @param 'storefront'|'store_api' $area
+     * The area is always the storefront: `applyPolicy()` only uses it to resolve the policy name and
+     * has no per-area branch for this header, so a store-api run would exercise the same code.
      */
     private function dispatchWithNoVarySearchPolicy(
         ?string $noVarySearch,
         string $method = Request::METHOD_GET,
         bool $httpCacheRoute = true,
         ?Response $response = null,
-        string $area = 'storefront',
     ): Response {
         // this helper builds its own subscriber, so the doubles from setUp() stay untouched
         $this->cartService->expects($this->never())->method('getCart');
@@ -1095,17 +1065,14 @@ class CacheResponseSubscriberTest extends TestCase
             static::createStub(CacheHeadersService::class),
             $this->createCachePolicyProvider(
                 ['cacheable' => ['headers' => $headers], 'uncacheable' => ['headers' => ['cache_control' => ['private' => true]]]],
-                [$area => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
+                ['storefront' => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],
             ),
         );
 
         $request = new Request();
         $request->setMethod($method);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
-        $request->attributes->set(
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE,
-            [$area === 'store_api' ? StoreApiRouteScope::ID : StorefrontRouteScope::ID]
-        );
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
         if ($httpCacheRoute) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         }

@@ -522,9 +522,10 @@ With `CACHE_REWORK` active, cacheable storefront and store-api responses send [`
 
 The header is a specification draft, support differs per browser and per cache, and it does not replace query sorting in a reverse proxy such as Varnish or Fastly. A client that ignores it keeps treating a reordered query string as a different URL, which is the behaviour you have today.
 
-Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. The resolved policy owns the header the same way it owns `Cache-Control`: omit the key and no `No-Vary-Search` is sent, even if a controller or plugin set one earlier.
+Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. If the key is omitted from the policy, no `No-Vary-Search` header is sent, and any value a controller or plugin set earlier in the request is removed. Unlike `Cache-Control`, the header cannot be influenced by a `#[HttpCache]` attribute. The policy is its only source.
 
 Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. A client would then match a stored response against the wrong URL and show page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
+
 ## App System
 
 ### Target validation can be disabled for local development

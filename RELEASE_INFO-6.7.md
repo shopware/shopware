@@ -482,6 +482,23 @@ Variant products report their selected options as `item_variant`, for example `R
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Clicking a product in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Adding a product to the cart or to the wishlist from the same card is not a selection and is not reported.
+
+`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it, so the detail page view is attributed to the list the customer came from. The attribution is stored for the session and consumed once, so opening a product directly is not attributed.
+
+The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
+
+- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
+- Search results report `search` and `Search results`.
+- The wishlist reports `wishlist` and `Wishlist`.
+- A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes.
+
+`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
+
 ### `robots.txt` allows crawling thumbnails
 
 The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.

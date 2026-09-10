@@ -47,10 +47,13 @@
                                     {% set crossSelling = item.crossSelling %}
                                     {% set products = item.products %}
                                     {% set id = crossSelling.id %}
+                                    {# the slider below receives a synthetic element without an id, so the group is identified here #}
                                     <div class="tab-pane fade show{% if loop.first %} active{% endif %}"
                                          id="cross-selling-tab-{{ id }}-pane"
                                          role="tabpanel"
                                          aria-labelledby="cross-selling-tab-{{ id }}"
+                                         data-list-id="{{ id }}"
+                                         data-list-name="{{ crossSelling.translated.name ?: crossSelling.name }}"
                                     >
                                         {% set config = {
                                             title: {

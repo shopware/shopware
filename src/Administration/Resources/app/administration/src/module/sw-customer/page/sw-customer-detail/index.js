@@ -300,9 +300,11 @@ export default {
         async createdComponent() {
             Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
 
-            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
-
             await this.loadCustomer();
+
+            // Loaded last so the page is built before the settings request, which only decides
+            // whether a blank contact person may be saved.
+            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
         },
 
         saveFinish() {

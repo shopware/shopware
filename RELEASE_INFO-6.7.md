@@ -294,6 +294,11 @@ The tag association routes and a nested `tags` payload on the order or category 
 Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an app are written to the translation filesystem on install and update, and removed on uninstall. A snippet catalogue build reads them from there instead of from the app's location, so a self-managed app's source is no longer downloaded during a storefront request.
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
+### Promotion redemptions are recounted with a covering index
+
+Placing an order that redeems a promotion recounts that promotion's redemptions across all of its past orders. A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so the recount no longer reads a table row per past order: a promotion used by 230k orders recounts in under a second instead of 18.8s, which before was long enough to exceed the payment timeout and fail the checkout. The migration builds the index across the whole `order_line_item` table, so expect it to run for several minutes on a large shop.
+
+The recount no longer filters on `order_line_item.type`, because `promotion_id` is only ever written for promotion line items. An integration that sets `promotionId` on a line item of another type through the Admin API now has that line item counted towards the promotion's redemptions.
 
 ## API
 

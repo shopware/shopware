@@ -8,7 +8,11 @@ import ApiService from '../api.service';
 
 /**
  * Standalone client for the direct-to-S3 PUT. It bypasses the Administration HTTP client so no API
- * interceptor, base URL or auth header is applied to a presigned upload.
+ * interceptor, base URL or auth header is applied to a presigned upload. Because of that it carries its own
+ * axios 0.x dependency: `axios` resolves to 0.x today and to 1.x once the alias is dropped.
+ *
+ * @deprecated tag:v6.8.0 - Verify this client against axios 1.x, starting with the `Content-Type` constraint
+ * below.
  */
 const s3Client = Axios.create();
 

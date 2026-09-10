@@ -466,6 +466,8 @@ The Twig blocks that wrapped the former icon, image or label markup still exist 
 
 The classes `.sw-promotion-v2-individual-codes-behavior__empty-state-icon`, `.sw-settings-tax-rule-card__empty-state--label` and `.sw-settings-product-feature-set-card__empty-state--label` no longer exist, and `sw-mail-template-list.scss` was removed.
 
+`sw_settings_customer_group_list_empty_state` moved from the page content into the `grid` slot of the list card, so the empty state renders inside the card instead of next to it, and the listing is hidden while it shows. Overrides of that block now extend a card-local element.
+
 ## Storefront
 
 ### `robots.txt` allows crawling thumbnails

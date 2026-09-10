@@ -329,4 +329,40 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
+
+    it('should show the empty state inside the card instead of the grid when a searchable term has no result', async () => {
+        const wrapper = await createWrapper();
+        // the initial getList() would otherwise reset total after the setData below
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            term: 'foo',
+            entitySearchable: true,
+            total: 0,
+        });
+
+        expect(wrapper.vm.showEmptyState).toBe(true);
+
+        // the grid must give way, otherwise its header renders behind the empty state
+        expect(wrapper.find('.sw-settings-customer-group-list-grid').exists()).toBe(false);
+
+        const emptyState = wrapper.find('.mt-empty-state');
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.text()).toContain('sw-empty-state.messageNoResultTitle');
+    });
+
+    it('should show the grid and no empty state when the search has results', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            term: 'foo',
+            entitySearchable: true,
+            total: 1,
+        });
+
+        expect(wrapper.vm.showEmptyState).toBe(false);
+        expect(wrapper.find('.sw-settings-customer-group-list-grid').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+    });
 });

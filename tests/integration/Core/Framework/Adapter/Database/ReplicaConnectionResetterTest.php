@@ -16,6 +16,7 @@ class ReplicaConnectionResetterTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    // Remove this test with the Framework::boot() workaround once a Symfony upgrade proves the resetter initializes this service.
     public function testServicesResetterInitializesReplicaConnectionResetter(): void
     {
         $container = static::getContainer();

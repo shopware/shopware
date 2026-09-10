@@ -183,6 +183,7 @@ class Framework extends Bundle
 
         // ServicesResetter only resets initialized services; Symfony 8.1 removes this requirement.
         // https://github.com/symfony/symfony/pull/63751
+        // https://github.com/shopware/shopware/blob/trunk/tests/integration/Core/Framework/Adapter/Database/ReplicaConnectionResetterTest.php
         $this->container->get(ReplicaConnectionResetter::class);
     }
 }

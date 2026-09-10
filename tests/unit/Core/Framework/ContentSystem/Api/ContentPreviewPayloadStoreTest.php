@@ -11,6 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -22,7 +24,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
     #[TestDox('returns the stored request unchanged for the token store minted')]
     public function testRoundTripsTheStoredRequest(): void
     {
-        $store = new ContentPreviewPayloadStore(new ArrayAdapter());
+        $store = new ContentPreviewPayloadStore(new ArrayAdapter(), self::validator());
         $payload = new ContentPreviewRequest(
             layout: [['id' => 'el-1', 'component' => 'Sw:Block']],
             entityType: 'product',
@@ -57,7 +59,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
     #[TestDox('returns null for a token that addresses no entry')]
     public function testLoadReturnsNullForUnknownToken(): void
     {
-        $store = new ContentPreviewPayloadStore(new ArrayAdapter());
+        $store = new ContentPreviewPayloadStore(new ArrayAdapter(), self::validator());
 
         static::assertNull($store->load('no-such-token'));
     }
@@ -70,7 +72,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
         $item->set('not-an-array');
         $cache->save($item);
 
-        $store = new ContentPreviewPayloadStore($cache);
+        $store = new ContentPreviewPayloadStore($cache, self::validator());
 
         $this->expectExceptionObject(ContentSystemException::previewPayloadInvalid('payload', 'array', 'string'));
 
@@ -176,6 +178,16 @@ class ContentPreviewPayloadStoreTest extends TestCase
     }
 
     /**
+     * The container's validator has attribute mapping enabled (`framework.validation.enable_attributes`), and
+     * the DTO declares its constraints as attributes, so a bare validator would find none and the
+     * constraint cases below would pass without validating anything.
+     */
+    private static function validator(): ValidatorInterface
+    {
+        return Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+    }
+
+    /**
      * @param array<string, mixed> $stored
      */
     private static function storeHolding(array $stored): ContentPreviewPayloadStore
@@ -185,7 +197,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
         $item->set($stored);
         $cache->save($item);
 
-        return new ContentPreviewPayloadStore($cache);
+        return new ContentPreviewPayloadStore($cache, self::validator());
     }
 
     /**

@@ -143,6 +143,7 @@ export default {
                 .addAssociation('options.group');
 
             criteria
+                .addAssociation('tax')
                 .addAssociation('cover')
                 .addAssociation('categories')
                 .addAssociation('visibilities.salesChannel')
@@ -237,6 +238,13 @@ export default {
         },
 
         pricesFormFields() {
+            // Without a single tax rate for all selected products the price fields cannot convert
+            // between gross and net, so only the gross value can be entered.
+            const netProps = {
+                netDisabled: !this.taxRate?.id,
+                netHelpText: this.taxRate?.id ? null : this.$t('sw-bulk-edit.product.prices.netHelpTextMixedTaxRates'),
+            };
+
             const fields = [
                 {
                     name: 'taxId',
@@ -261,6 +269,7 @@ export default {
                             : this.$t('sw-bulk-edit.product.prices.price.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.price.placeholderPrice'),
                         disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
+                        ...netProps,
                     },
                 },
                 {
@@ -275,6 +284,7 @@ export default {
                             : this.$t('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
                         disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
+                        ...netProps,
                     },
                 },
                 {
@@ -289,6 +299,7 @@ export default {
                             : this.$t('sw-bulk-edit.product.prices.listPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
                         disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
+                        ...netProps,
                     },
                 },
                 {
@@ -303,6 +314,7 @@ export default {
                             : this.$t('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
                         disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
+                        ...netProps,
                     },
                 },
             ];
@@ -1071,8 +1083,42 @@ export default {
 
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
-                this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
                 Shopware.Store.get('swProductDetail').setTaxes(taxes);
+
+                if (this.isChild) {
+                    this.taxRate = this.parentProduct?.tax;
+
+                    return null;
+                }
+
+                return this.loadSelectedTaxRate(taxes);
+            });
+        },
+
+        /**
+         * The gross/net conversion of the price fields needs a single tax rate, but every selected product
+         * can use its own one. Only preselect a rate when all selected products share the same tax, otherwise
+         * the net prices are calculated per product when the changes are applied.
+         */
+        loadSelectedTaxRate(taxes) {
+            if (!this.selectedIds.length) {
+                return null;
+            }
+
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.equalsAny('id', this.selectedIds));
+            criteria.addAggregation(Criteria.terms('taxIds', 'taxId', null, null, null));
+
+            return this.productRepository.search(criteria).then((result) => {
+                const buckets = result.aggregations?.taxIds?.buckets ?? [];
+
+                if (buckets.length !== 1) {
+                    this.taxRate = {};
+
+                    return;
+                }
+
+                this.taxRate = taxes.find((tax) => tax.id === buckets[0].key) ?? {};
             });
         },
 
@@ -1189,7 +1235,6 @@ export default {
         onProcessData() {
             let hasListPrice = false;
             let hasRegulationPrice = false;
-            let hasPriceChange = false;
 
             Object.keys(this.bulkEditProduct).forEach((key) => {
                 const bulkEditField = cloneDeep(this.bulkEditProduct[key]);
@@ -1199,25 +1244,14 @@ export default {
 
                 if (key === 'listPrice') {
                     hasListPrice = true;
-                    hasPriceChange = true;
 
                     return;
                 }
 
                 if (key === 'regulationPrice') {
                     hasRegulationPrice = true;
-                    hasPriceChange = true;
 
                     return;
-                }
-
-                if (
-                    [
-                        'price',
-                        'purchasePrices',
-                    ].includes(key)
-                ) {
-                    hasPriceChange = true;
                 }
 
                 let bulkEditValue = this.product[key];
@@ -1282,14 +1316,6 @@ export default {
 
                 this.bulkEditSelected.push(change);
             });
-
-            if (hasPriceChange && !this.bulkEditProduct.taxId?.isChanged && this.taxRate?.id) {
-                this.bulkEditSelected.push({
-                    field: 'taxId',
-                    type: 'overwrite',
-                    value: this.taxRate.id,
-                });
-            }
 
             if (hasListPrice) {
                 this.processListPrice();

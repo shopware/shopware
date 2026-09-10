@@ -126,6 +126,24 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
     });
 
+    it('should only disable the net field when netDisabled is set', async () => {
+        const wrapper = await setup({ netDisabled: true });
+
+        expect(wrapper.find('.sw-price-field__gross input').attributes('disabled')).toBeUndefined();
+        expect(wrapper.find('.sw-price-field__net input').attributes('disabled')).toBeDefined();
+    });
+
+    it('should not allow to unlink the price when netDisabled is set', async () => {
+        const wrapper = await setup({ value: [{ ...euroPrice, currencyId: currency.id }], netDisabled: true });
+        const lock = wrapper.find('.sw-price-field__lock');
+
+        expect(lock.classes()).toContain('is--disabled');
+
+        await lock.trigger('click');
+
+        expect(wrapper.vm.priceForCurrency.linked).toBe(true);
+    });
+
     it('should calculate price based on default price', async () => {
         const wrapper = await setup({ value: [euroPrice] });
 

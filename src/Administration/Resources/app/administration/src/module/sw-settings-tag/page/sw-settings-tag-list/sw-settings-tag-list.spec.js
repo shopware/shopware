@@ -59,6 +59,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-tag',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -367,5 +372,58 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(wrapper.vm.showDetailModal).toBe('foo');
         expect(wrapper.vm.detailProperty).toBe('bar');
         expect(wrapper.vm.detailEntity).toBe('baz');
+    });
+
+    it('should offer the create action in the empty state when no tag exists', async () => {
+        const wrapper = await createWrapper([
+            'tag.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, total: 0 });
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-tag.list.titleEmptyStateList');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper([
+            'tag.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, total: 0, term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty tag list, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
+    it.each([
+        [
+            'assignmentFilter',
+            { assignmentFilter: ['products'] },
+        ],
+        [
+            'emptyFilter',
+            { emptyFilter: true },
+        ],
+        [
+            'duplicateFilter',
+            { duplicateFilter: true },
+        ],
+    ])('should not offer the create action when %s leaves no hits', async (_name, filter) => {
+        const wrapper = await createWrapper([
+            'tag.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, total: 0, ...filter });
+
+        // the filter dropdown narrows an existing list, so this is a no-result state too
+        expect(wrapper.vm.filterCount).toBeGreaterThan(0);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });
 });

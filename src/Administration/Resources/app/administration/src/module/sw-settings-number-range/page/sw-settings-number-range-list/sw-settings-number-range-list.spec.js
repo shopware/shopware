@@ -160,4 +160,30 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
     });
+
+    it('should offer the create action in the empty state when no number range exists', async () => {
+        wrapper = await createWrapper([
+            'number_ranges.creator',
+        ]);
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-number-range.list.messageEmpty');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        wrapper = await createWrapper([
+            'number_ranges.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty number range list, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
 });

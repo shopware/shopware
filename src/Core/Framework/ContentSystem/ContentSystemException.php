@@ -380,7 +380,7 @@ class ContentSystemException extends HttpException
     /**
      * A served layout is stored data, not client input, so a corrupt one is an internal fault rather than a
      * client defect: deliberately absent from {@see self::CLIENT_DEFECT_CODES}. Element ids are unique across
-     * a forest by contract, and the DAL write enforces it through `StoredTree::validate()`. The read path runs
+     * a forest by contract, and the DAL write enforces it through `StoredTree::duplicateElementIds()`. The read path runs
      * no validation, so a raw-SQL or migration write, or a preparation listener replacing the stored tree, can
      * put a repeated id in front of a consumer whose correctness depends on the invariant — and so can a
      * finalization listener replacing the rendered tree, which is why the rendered forest is checked as well

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -145,7 +144,7 @@ class ContentPipeline
      * authored under that literal id therefore collides with the wrapper and fails the render.
      *
      * The write gate cannot see that particular collision, which is why it lands at render time: the virtual
-     * root is minted during rendering and is never part of a stored tree, so the `StoredTree::validate()` run
+     * root is minted during rendering and is never part of a stored tree, so the `StoredTree::duplicateElementIds()` run
      * on the write path only ever sees the authored elements. A layout carrying the reserved id passes every
      * write gate and then fails every render that wraps.
      *
@@ -153,12 +152,10 @@ class ContentPipeline
      */
     private function rejectRepeatedStoredId(array $forest): void
     {
-        foreach ((new StoredTree($forest))->validate() as $violation) {
-            if ($violation->code !== ViolationCode::DuplicateElementId) {
-                continue;
-            }
+        $duplicates = (new StoredTree($forest))->duplicateElementIds();
 
-            throw ContentSystemException::duplicateElementId($violation->elementId);
+        if ($duplicates !== []) {
+            throw ContentSystemException::duplicateElementId($duplicates[0]);
         }
     }
 

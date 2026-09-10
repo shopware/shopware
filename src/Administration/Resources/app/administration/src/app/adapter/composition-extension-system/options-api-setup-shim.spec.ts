@@ -86,23 +86,26 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         errorSpy.mockRestore();
     });
 
-    it('rejects writes to refs of setup() and earlier overrides through previousState', async () => {
+    it('rejects writes to refs and functions of setup() and earlier overrides through previousState', async () => {
         const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         const fromSetup = ref('own setup');
         const fromOverride = ref('first');
+        const greet = (): string => 'hello';
         let write = (): void => {};
 
         _overridesMap['sw-shim-write-ref'] = [
-            () => ({ fromOverride }),
-            (previousState: PreviousState) => {
+            () => ({ fromOverride, greet }),
+            (previousState: PreviousState & { greet: () => string }) => {
                 write = () => {
                     previousState.fromSetup.value = 'changed';
                     previousState.fromOverride.value = 'changed';
+                    (previousState as Record<string, unknown>).greet = () => 'changed';
                 };
 
                 return {
                     label: computed(
-                        () => `${String(previousState.fromSetup.value)} / ${String(previousState.fromOverride.value)}`,
+                        () =>
+                            `${String(previousState.fromSetup.value)} / ${String(previousState.fromOverride.value)} / ${previousState.greet()}`,
                     ),
                 };
             },
@@ -119,17 +122,19 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
         const wrapper = mount(config as never);
         await flushPromises();
-        expect(wrapper.text()).toBe('own setup / first');
+        expect(wrapper.text()).toBe('own setup / first / hello');
 
         write();
         await flushPromises();
 
         // Real refs are wrapped as well - otherwise the write would silently reach the original ref.
-        expect(wrapper.text()).toBe('own setup / first');
+        // Functions have no `.value`, so replacing one only works through the key, which the set trap rejects.
+        expect(wrapper.text()).toBe('own setup / first / hello');
         expect(fromSetup.value).toBe('own setup');
         expect(fromOverride.value).toBe('first');
         expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"fromSetup"'));
         expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"fromOverride"'));
+        expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('"greet"'));
 
         errorSpy.mockRestore();
     });

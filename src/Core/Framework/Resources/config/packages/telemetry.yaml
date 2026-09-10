@@ -143,6 +143,26 @@ shopware:
                         backend:
                             allowed_values: [sql, elasticsearch]
 
+                dal.write.duration:
+                    # EntityWriter::sync (Sync API bulk writes) is not included — it spans multiple entities
+                    # and is covered end-to-end by api.sync.duration
+                    description: 'Duration of a DAL write operation (normalization, command extraction and gateway execution; post-write indexing excluded)'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # from fast single-row writes up to slow nested payloads
+                        buckets: [0.5, 1, 5, 10, 50, 100, 500, 1000]
+                    labels:
+                        # see EntityGroupResolver
+                        entity_group:
+                            policy: open
+                        # write covers insert/update/upsert (same code shape); delete is separate because of cascade resolution
+                        operation:
+                            allowed_values: [write, delete]
+                        # failed writes (e.g. constraint violations) are kept out of the healthy distribution
+                        result:
+                            allowed_values: [success, failed]
+
                 database.locks.count:
                     description: 'Number of database locks'
                     enabled: true

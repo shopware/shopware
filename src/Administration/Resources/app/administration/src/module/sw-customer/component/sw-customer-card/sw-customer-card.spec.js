@@ -154,6 +154,22 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         expect(wrapper.vm.fullName).toBe('Acme GmbH');
     });
 
+    it('should not pair the salutation with the company when there is no contact person', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: '',
+                lastName: '',
+                company: 'Acme GmbH',
+                salutation: { translated: { displayName: 'Mr' } },
+            },
+        });
+
+        expect(wrapper.vm.fullName).toBe('Acme GmbH');
+    });
+
     it('should hide vat fields when switching to private type', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

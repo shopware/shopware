@@ -105,15 +105,18 @@ export default {
         },
 
         fullName() {
-            const personName = this.salutation(this.customer);
             const company = (this.customer.company ?? '').trim();
 
-            if (personName === '') {
-                return this.isBusinessAccountType ? company : '';
+            // Read from the raw names and not from salutation(), which returns the salutation on its
+            // own when both are empty and would pair that with the company as "Mr - Acme GmbH".
+            const hasContactPerson = `${this.customer.firstName ?? ''}${this.customer.lastName ?? ''}`.trim() !== '';
+
+            if (!hasContactPerson) {
+                return this.isBusinessAccountType && company !== '' ? company : this.salutation(this.customer);
             }
 
             return [
-                personName,
+                this.salutation(this.customer),
                 company,
             ]
                 .filter((part) => part !== '')

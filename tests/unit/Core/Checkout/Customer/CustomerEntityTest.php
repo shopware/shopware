@@ -198,6 +198,19 @@ class CustomerEntityTest extends TestCase
         static::assertTrue($customer->hasLegacyPassword());
     }
 
+    public function testTheStringRepresentationFollowsTheDisplayName(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setFirstName('Ada');
+        $customer->setLastName('Lovelace');
+
+        static::assertSame('Ada Lovelace', (string) $customer);
+
+        $customer->setDisplayName('Analytical Engines');
+
+        static::assertSame('Analytical Engines', (string) $customer);
+    }
+
     public function testDisplayNameFallsBackToThePersonNameUntilTheSubscriberFillsIt(): void
     {
         $customer = new CustomerEntity();

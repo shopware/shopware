@@ -181,7 +181,7 @@ class CustomerEntity extends Entity implements \Stringable
 
     public function __toString(): string
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getDisplayName();
     }
 
     public function isBusinessAccount(): bool

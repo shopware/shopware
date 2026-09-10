@@ -65,7 +65,10 @@ export default {
         },
 
         validContactPersonFields() {
-            if (!this.contactPersonRequired) {
+            // Only a commercial account can reach the save with names this page filled in as empty
+            // strings. A private one never does, so the data abstraction layer still rejects a
+            // missing name there and this page does not need to repeat it.
+            if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.companyNamesRequired) {
                 return true;
             }
 

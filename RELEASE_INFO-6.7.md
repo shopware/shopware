@@ -157,7 +157,7 @@ On the registration and profile forms the first and last name fields follow the 
 
 ### Customer mails greet a company account by its company name
 
-The five shipped mail templates that greet the customer by name now use `{{ customer.displayName }}` instead of `{{ customer.firstName }} {{ customer.lastName }}`: `customer.group.registration.accepted`, `customer.group.registration.declined`, `customer.password.changed`, `guest_order.double_opt_in` and `password_change`. A migration applies the same change to existing installations, and skips any template a shop has edited.
+The seven shipped mail templates that greet the customer by name now use the resolved display name instead of `{{ customer.firstName }} {{ customer.lastName }}`: `customer.group.registration.accepted`, `customer.group.registration.declined`, `customer.password.changed`, `customer_register.double_opt_in`, `guest_order.double_opt_in` and `password_change` read `{{ customer.displayName }}`, and `customer.recovery.request` reads `{{ customerRecovery.customer.displayName }}`. A migration applies the same change to existing installations, and skips any template a shop has edited.
 
 The recipient name of the ten customer mail events follows the same rule, so the `To:` header of a commercial account without a contact person carries the company instead of a blank.
 

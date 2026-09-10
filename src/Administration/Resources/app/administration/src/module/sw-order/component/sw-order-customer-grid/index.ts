@@ -1,6 +1,7 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from '../../../../core/data/repository.data';
 
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 import template from './sw-order-customer-grid.html.twig';
 import './sw-order-customer-grid.scss';
 
@@ -192,6 +193,8 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        customerDisplayName,
+
         async mountedComponent(): Promise<void> {
             this.salesChannelIds = await this.loadSalesChannel();
 

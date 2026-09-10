@@ -39,7 +39,7 @@
 {% set yearOptions = range(currentYear, startYear)|map(yearValue => { value: yearValue, label: yearValue }) %}
 
 {% set groupCVA = cva({
-    base: 'sw-form-birthday-select form-group',
+    base: 'sw-form-birthday-select',
 }) %}
 
 {% set attributeDefaults = {
@@ -67,7 +67,7 @@
                 :formViolations="formViolations"
                 :violationPath="dayViolationPath"
                 autocomplete="bday-day"
-                class="sw-form-birthday-select__day col-4 mb-0"
+                class="sw-form-birthday-select__day col-4"
             />
         {% endblock %}
 
@@ -83,7 +83,7 @@
                 :formViolations="formViolations"
                 :violationPath="monthViolationPath"
                 autocomplete="bday-month"
-                class="sw-form-birthday-select__month col-4 mb-0"
+                class="sw-form-birthday-select__month col-4"
             />
         {% endblock %}
 
@@ -99,7 +99,7 @@
                 :formViolations="formViolations"
                 :violationPath="yearViolationPath"
                 autocomplete="bday-year"
-                class="sw-form-birthday-select__year col-4 mb-0"
+                class="sw-form-birthday-select__year col-4"
             />
         {% endblock %}
     </div>

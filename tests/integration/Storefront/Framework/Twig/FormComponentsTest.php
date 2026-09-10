@@ -31,7 +31,7 @@ class FormComponentsTest extends TestCase
             'validationRules' => 'required',
         ]);
 
-        static::assertStringContainsString('class="sw-form-input sw-form-field form-group"', $html);
+        static::assertStringContainsString('class="sw-form-input sw-form-field"', $html);
         static::assertStringContainsString('class="sw-form-label form-label" for="firstName"', $html);
         static::assertStringContainsString('First name', $html);
         static::assertStringContainsString('class="sw-form-input__control sw-form-field__control form-control"', $html);
@@ -44,7 +44,7 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('data-validation="required"', $html);
         static::assertStringContainsString('aria-required="true"', $html);
         static::assertStringContainsString('aria-describedby="firstName-feedback"', $html);
-        static::assertStringContainsString('class="sw-form-feedback form-field-feedback" id="firstName-feedback"', $html);
+        static::assertStringContainsString('class="sw-form-feedback" id="firstName-feedback"', $html);
     }
 
     /**
@@ -103,7 +103,7 @@ class FormComponentsTest extends TestCase
     }
 
     /**
-     * The control is the primary element: `class` and `style` dress the form-group wrapper and
+     * The control is the primary element: `class` and `style` dress the field wrapper and
      * everything else lands on the control, so native input attributes need no props of their own.
      */
     public function testClassAndStyleDressTheWrapperAndEveryOtherAttributeReachesTheControl(): void
@@ -118,7 +118,7 @@ class FormComponentsTest extends TestCase
             'data-form-validation-equal' => 'passwordMatch',
         ]);
 
-        static::assertStringContainsString('class="sw-form-input sw-form-field form-group col-sm-6"', $html);
+        static::assertStringContainsString('class="sw-form-input sw-form-field col-sm-6"', $html);
         static::assertMatchesRegularExpression('/<div[^>]*style="order: 2"/', $html);
 
         static::assertMatchesRegularExpression('/<input[^>]*placeholder="Jane"/', $html);
@@ -144,7 +144,7 @@ class FormComponentsTest extends TestCase
             'control:style' => 'width: 4rem',
         ]);
 
-        static::assertStringContainsString('class="sw-form-input sw-form-field form-group col-sm-6"', $html);
+        static::assertStringContainsString('class="sw-form-input sw-form-field col-sm-6"', $html);
         static::assertStringContainsString('class="sw-form-input__control sw-form-field__control form-control is--custom"', $html);
         static::assertMatchesRegularExpression('/<input[^>]*style="width: 4rem"/', $html);
 
@@ -262,7 +262,7 @@ class FormComponentsTest extends TestCase
             'validationRules' => 'required',
         ]);
 
-        static::assertStringContainsString('class="sw-form-checkbox sw-form-field form-group form-check"', $html);
+        static::assertStringContainsString('class="sw-form-checkbox sw-form-field form-check"', $html);
         static::assertStringContainsString('class="sw-form-checkbox__control sw-form-field__control form-check-input"', $html);
         static::assertStringContainsString('type="checkbox"', $html);
         static::assertStringContainsString('value="1"', $html);
@@ -285,7 +285,7 @@ class FormComponentsTest extends TestCase
         ]);
 
         static::assertStringContainsString('<fieldset ', $html);
-        static::assertStringContainsString('class="sw-form-radio-group sw-form-field form-radio-group mb-3"', $html);
+        static::assertStringContainsString('class="sw-form-radio-group sw-form-field"', $html);
         static::assertStringContainsString('class="sw-form-fieldset-label form-label sw-form-radio-group__legend fs-5 fw-bold"', $html);
         static::assertStringContainsString('Choose a size', $html);
         static::assertSame(1, substr_count($html, 'form-required-label'));
@@ -326,7 +326,7 @@ class FormComponentsTest extends TestCase
             'label' => 'Small',
         ]);
 
-        static::assertStringContainsString('class="sw-form-radio form-check mb-2"', $html);
+        static::assertStringContainsString('class="sw-form-radio form-check"', $html);
         static::assertStringContainsString('class="sw-form-radio__control sw-form-field__control form-check-input"', $html);
 
         // A standalone radio has no feedback element of its own, so it must not point at one.
@@ -345,7 +345,7 @@ class FormComponentsTest extends TestCase
         ]);
 
         static::assertStringContainsString('<fieldset ', $html);
-        static::assertStringContainsString('class="sw-form-birthday-select form-group"', $html);
+        static::assertStringContainsString('class="sw-form-birthday-select"', $html);
         static::assertStringContainsString('class="sw-form-fieldset-label form-label"', $html);
         static::assertStringNotContainsString('<label', $html);
 
@@ -459,9 +459,9 @@ class FormComponentsTest extends TestCase
         foreach ($fields as $component => $props) {
             $html = $this->render($component, $props);
 
-            static::assertStringContainsString('sw-form-field ', $html, $component);
+            static::assertMatchesRegularExpression('/sw-form-field(?![\w-])/', $html, $component);
             static::assertStringContainsString('sw-form-field__control ', $html, $component);
-            static::assertStringContainsString('sw-form-feedback ', $html, $component);
+            static::assertMatchesRegularExpression('/sw-form-feedback(?![\w-])/', $html, $component);
         }
     }
 
@@ -483,7 +483,7 @@ class FormComponentsTest extends TestCase
     }
 
     /**
-     * The group is the field, the radios are its controls — a form component must not treat the
+     * The group is the field, the radios are its controls, so a form component must not treat the
      * individual radios as fields with feedback of their own.
      */
     public function testRadioGroupIsOneFieldWithSeveralControls(): void
@@ -497,11 +497,11 @@ class FormComponentsTest extends TestCase
             ],
         ]);
 
-        static::assertSame(1, substr_count($html, 'sw-form-field '));
+        static::assertSame(1, preg_match_all('/sw-form-field(?![\w-])/', $html));
         static::assertSame(2, substr_count($html, 'sw-form-field__control '));
-        static::assertSame(1, substr_count($html, 'sw-form-feedback '));
+        static::assertSame(1, preg_match_all('/sw-form-feedback(?![\w-])/', $html));
         static::assertSame(1, substr_count($html, 'data-violation-path="/sizeChoice"'));
-        static::assertStringNotContainsString('sw-form-radio sw-form-field ', $html);
+        static::assertStringNotContainsString('sw-form-radio sw-form-field', $html);
     }
 
     /**
@@ -512,8 +512,8 @@ class FormComponentsTest extends TestCase
     {
         $html = $this->render('Sw:Form:BirthdaySelect', []);
 
-        static::assertSame(3, substr_count($html, 'sw-form-field '));
-        static::assertStringNotContainsString('sw-form-birthday-select sw-form-field ', $html);
+        static::assertSame(3, preg_match_all('/sw-form-field(?![\w-])/', $html));
+        static::assertStringNotContainsString('sw-form-birthday-select sw-form-field', $html);
 
         static::assertStringContainsString('data-violation-path="/birthdayDay"', $html);
         static::assertStringContainsString('data-violation-path="/birthdayMonth"', $html);
@@ -743,6 +743,196 @@ class FormComponentsTest extends TestCase
 
         static::assertStringContainsString('aria-invalid="true"', $invalid);
         static::assertStringNotContainsString('aria-invalid', $valid);
+    }
+
+    public function testFormRendersItsActionMethodAndSlottedContent(): void
+    {
+        $html = $this->renderTemplate(
+            '<twig:Sw:Form action="/some-path" method="post">'
+            . '<twig:Sw:Form:Input type="text" name="something" />'
+            . '<input type="hidden" name="redirectTo" value="frontend.product.reviews">'
+            . '<twig:Sw:Button variant="primary" type="submit">Submit</twig:Sw:Button>'
+            . '</twig:Sw:Form>'
+        );
+
+        static::assertStringStartsWith('<form ', $html);
+        static::assertStringContainsString('action="/some-path"', $html);
+        static::assertStringContainsString('method="post"', $html);
+
+        static::assertStringContainsString('name="something"', $html);
+        static::assertStringContainsString('<input type="hidden" name="redirectTo" value="frontend.product.reviews">', $html);
+        static::assertStringContainsString('type="submit"', $html);
+        static::assertStringContainsString('Submit', $html);
+    }
+
+    /**
+     * Without an action the browser posts to the current URL, which is what the predecessor markup
+     * relied on. An empty `action=""` would resolve differently in some browsers.
+     */
+    public function testFormOmitsTheActionAttributeWhenThereIsNoAction(): void
+    {
+        $html = $this->renderTemplate('<twig:Sw:Form>x</twig:Sw:Form>');
+
+        static::assertStringNotContainsString('action=', $html);
+        static::assertStringContainsString('method="post"', $html);
+    }
+
+    public function testFormAnnouncesItselfToTheComponentSystemWithItsDefaults(): void
+    {
+        $html = $this->renderTemplate('<twig:Sw:Form action="/some-path">x</twig:Sw:Form>');
+
+        static::assertStringContainsString('data-component="Sw:Form"', $html);
+        static::assertSame([
+            'ajax' => false,
+            'replaceSelectors' => [],
+            'submitOnChange' => false,
+            'pagination' => false,
+            'validate' => true,
+        ], $this->componentOptions($html));
+    }
+
+    /**
+     * The predecessor accepted `replaceSelectors` as a bare string as well as a list, and the review
+     * templates used both spellings.
+     */
+    public function testFormNormalizesASingleReplaceSelectorIntoAList(): void
+    {
+        $html = $this->renderTemplate(
+            '<twig:Sw:Form :ajax="true" replaceSelectors=".js-review-container">x</twig:Sw:Form>'
+        );
+
+        static::assertSame(['.js-review-container'], $this->componentOptions($html)['replaceSelectors']);
+    }
+
+    public function testFormPassesItsAjaxConfigurationToTheComponent(): void
+    {
+        $html = $this->renderTemplate(
+            '<twig:Sw:Form :ajax="true" :replaceSelectors="[\'.js-review-container\']"'
+            . ' :submitOnChange="true" :pagination="true" :validate="false">x</twig:Sw:Form>'
+        );
+
+        static::assertSame([
+            'ajax' => true,
+            'replaceSelectors' => ['.js-review-container'],
+            'submitOnChange' => true,
+            'pagination' => true,
+            'validate' => false,
+        ], $this->componentOptions($html));
+    }
+
+    public function testFormKeepsItsRootClassWhileTakingArbitraryAttributes(): void
+    {
+        $html = $this->renderTemplate(
+            '<twig:Sw:Form class="review-form" id="review" novalidate="novalidate" data-testid="review">x</twig:Sw:Form>'
+        );
+
+        static::assertStringContainsString('class="sw-form review-form"', $html);
+        static::assertStringContainsString('id="review"', $html);
+        static::assertStringContainsString('novalidate="novalidate"', $html);
+        static::assertStringContainsString('data-testid="review"', $html);
+    }
+
+    /**
+     * The review submit form of `storefront/component/review/review-form.html.twig` expressed with
+     * the components: nothing it needs may require markup or wiring outside of them.
+     */
+    public function testTheReviewSubmitFormIsBuildableFromTheComponents(): void
+    {
+        $html = $this->renderTemplate(
+            '<twig:Sw:Form
+                class="review-form"
+                action="/product/1/rating"
+                method="post"
+                :ajax="true"
+                replaceSelectors=".js-review-container"
+            >
+                <twig:Sw:Form:Input type="hidden" name="forwardTo" value="frontend.product.reviews" />
+                <twig:Sw:Form:Input type="hidden" name="parentId" value="2" />
+                <twig:Sw:Form:Input
+                    id="reviewTitle"
+                    name="title"
+                    label="Title"
+                    violationPath="/title"
+                    :formViolations="formViolations"
+                    validationRules="required,minLength"
+                    minlength="5"
+                    maxlength="255"
+                />
+                <twig:Sw:Form:Textarea
+                    id="reviewContent"
+                    name="content"
+                    label="Your review"
+                    violationPath="/content"
+                    validationRules="required,minLength"
+                    minlength="40"
+                />
+                <twig:Sw:Button variant="primary" type="submit">Save review</twig:Sw:Button>
+            </twig:Sw:Form>',
+            ['formViolations' => $this->violations('/title')]
+        );
+
+        static::assertStringContainsString('action="/product/1/rating"', $html);
+        static::assertSame(['.js-review-container'], $this->componentOptions($html)['replaceSelectors']);
+
+        // The forward parameters the route needs are ordinary hidden inputs, no dedicated API.
+        static::assertStringContainsString('name="forwardTo"', $html);
+        static::assertStringContainsString('name="parentId"', $html);
+
+        // Client validation reads these off the controls, the JS component reads the paths off the wrappers.
+        static::assertSame(2, substr_count($html, 'data-validation="required,minLength"'));
+        static::assertStringContainsString('data-violation-path="/title"', $html);
+        static::assertStringContainsString('data-violation-path="/content"', $html);
+        static::assertStringContainsString('minlength="40"', $html);
+
+        // The server-rendered violation of the failed round-trip reaches the field it belongs to.
+        // In production `formViolations` is a Twig global; a nested component only sees globals and
+        // its own props, so here it is handed over explicitly.
+        static::assertStringContainsString('aria-invalid="true"', $html);
+        static::assertSame(1, substr_count($html, 'is-invalid'));
+    }
+
+    /**
+     * The language, sorting and pagination forms of `storefront/component/review/review.html.twig`
+     * are the submit-on-change and pagination side of the same component.
+     */
+    public function testTheReviewListFormsAreBuildableFromTheComponents(): void
+    {
+        $sorting = $this->renderTemplate(
+            '<twig:Sw:Form action="/product/1/reviews" method="post" :ajax="true"'
+            . ' replaceSelectors=".js-review-container" :submitOnChange="true">'
+            . '<twig:Sw:Form:Select name="sort" label="Sort by" :options="[{ value: \'points\', label: \'Top rated\' }]" />'
+            . '</twig:Sw:Form>'
+        );
+
+        $pagination = $this->renderTemplate(
+            '<twig:Sw:Form action="/product/1/reviews" method="post" :ajax="true"'
+            . ' replaceSelectors=".js-review-container" :pagination="true">'
+            . '<twig:Sw:Form:Input type="hidden" name="p" value="1" />'
+            . '<twig:Sw:Content:Pagination :page="1" :total="30" :limit="10" />'
+            . '</twig:Sw:Form>'
+        );
+
+        static::assertTrue($this->componentOptions($sorting)['submitOnChange']);
+        static::assertStringContainsString('name="sort"', $sorting);
+
+        static::assertTrue($this->componentOptions($pagination)['pagination']);
+        static::assertStringContainsString('name="p"', $pagination);
+        // The page the JS writes into the `p` field is read from the link.
+        static::assertStringContainsString('data-page="2"', $pagination);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function componentOptions(string $html): array
+    {
+        preg_match('/data-component-options="([^"]*)"/', $html, $matches);
+        static::assertArrayHasKey(1, $matches, 'The form does not pass any options to its JavaScript component.');
+
+        $options = json_decode(html_entity_decode($matches[1], \ENT_QUOTES), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($options);
+
+        return $options;
     }
 
     private function violations(string $propertyPath): ConstraintViolationException

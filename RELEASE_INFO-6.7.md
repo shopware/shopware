@@ -213,7 +213,7 @@ Product breadcrumbs are generated again when the product's main category — or 
 
 Placing an order that redeems a promotion recounts that promotion's redemptions across all of its past orders. A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so the recount no longer reads a table row per past order: a promotion used by 230k orders recounts in under a second instead of 18.8s, which before was long enough to exceed the payment timeout and fail the checkout. The migration builds the index across the whole `order_line_item` table, so expect it to run for several minutes on a large shop.
 
-The recount no longer filters on `order_line_item.type`, because `promotion_id` is only ever written for promotion line items. An integration that sets `promotionId` on a line item of another type through the Admin API now has that line item counted towards the promotion's redemptions.
+The recount no longer filters on `order_line_item.type`, because `promotion_id` is only ever written for promotion line items. Redemptions are counted per order, so an integration that sets `promotionId` on a line item of another type through the Admin API now has that order counted towards the promotion's redemptions, unless a real promotion line item already links the two.
 
 ## API
 

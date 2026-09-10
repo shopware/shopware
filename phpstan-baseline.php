@@ -47,19 +47,7 @@ $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 2,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/Event/Subscriber/ProductCategoryPathsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/ImportExport.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -72,18 +60,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/Processing/Mapping/UpdateBy.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Cannot call method deserialize() on Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\Entity\\AbstractEntitySerializer|null.',
-    'identifier' => 'method.nonObject',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Cannot call method serialize() on Shopware\\Core\\Content\\ImportExport\\DataAbstractionLayer\\Serializer\\Entity\\AbstractEntitySerializer|null.',
-    'identifier' => 'method.nonObject',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

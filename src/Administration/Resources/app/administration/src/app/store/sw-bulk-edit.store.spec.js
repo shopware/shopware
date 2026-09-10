@@ -29,6 +29,26 @@ describe('src/app/store/sw-bulk-edit.store', () => {
         expect(state.orderDocuments.invoice.isChanged).toBe(false);
     });
 
+    it('should be able to update fileFormats via setOrderDocumentsValue', async () => {
+        const store = Shopware.Store.get('swBulkEdit');
+
+        store.setOrderDocumentsValue({
+            type: 'invoice',
+            value: {
+                ...store.orderDocuments.invoice.value,
+                fileFormats: [
+                    'pdf',
+                    'html',
+                ],
+            },
+        });
+
+        expect(store.orderDocuments.invoice.value.fileFormats).toEqual([
+            'pdf',
+            'html',
+        ]);
+    });
+
     it('should be able to resetOrderDocumentsIsChanged', async () => {
         const store = Shopware.Store.get('swBulkEdit');
 

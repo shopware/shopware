@@ -101,6 +101,12 @@ class ProductHydrator extends EntityHydrator
         if (isset($row[$root . '.manufacturerNumber'])) {
             $entity->manufacturerNumber = $row[$root . '.manufacturerNumber'];
         }
+        if (isset($row[$root . '.guaranteeMonths'])) {
+            $entity->guaranteeMonths = (int) $row[$root . '.guaranteeMonths'];
+        }
+        if (isset($row[$root . '.guaranteeConfirmed'])) {
+            $entity->guaranteeConfirmed = (bool) $row[$root . '.guaranteeConfirmed'];
+        }
         if (isset($row[$root . '.ean'])) {
             $entity->ean = $row[$root . '.ean'];
         }

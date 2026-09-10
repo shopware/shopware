@@ -383,6 +383,7 @@ class EnumMetaShopwareHttpException extends SimpleShopwareHttpException
         foreach (parent::getErrors($withTrace) as $error) {
             $error['meta']['enumValue'] = TestEnum::FOO;
 
+            /** @phpstan-ignore generator.valueType (Adding the undocumented meta value for testing purpose) */
             yield $error;
         }
     }

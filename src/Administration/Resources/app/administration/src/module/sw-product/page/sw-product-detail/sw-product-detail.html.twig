@@ -209,7 +209,7 @@
 
                 {% block sw_product_detail_content_tabs_layout %}
                     <sw-tabs-item
-                        v-show="!isChild && showModeSetting"
+                        v-show="showModeSetting"
                         class="sw-product-detail__tab-layout"
                         :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
                         :title="$t('sw-product.detail.tabLayout')"

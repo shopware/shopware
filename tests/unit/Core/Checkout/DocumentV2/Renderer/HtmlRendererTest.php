@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -107,7 +108,7 @@ class HtmlRendererTest extends TestCase
         static::assertSame($rendered, $result->content);
         static::assertSame('html', $result->fileExtension);
         static::assertSame('text/html', $result->mimeType);
-        static::assertSame('invoice_12345_html', $result->fileName);
+        static::assertSame('invoice_12345', $result->fileName);
     }
 
     public function testResolvesTemplateByDocumentType(): void
@@ -191,6 +192,7 @@ class HtmlRendererTest extends TestCase
                 $env,
                 static::createStub(AbstractTranslator::class),
                 static::createStub(AbstractSalesChannelContextFactory::class),
+                new EventDispatcher(),
                 'rootDir',
             ),
         );

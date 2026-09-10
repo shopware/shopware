@@ -71,16 +71,13 @@
                                         name="result-label-property"
                                         v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
                                     >
-
-                                        <sw-highlight-text
-                                            v-if="highlightSearchTerm"
-                                            :text="getKey(item, `translated.${labelProperty}`)"
+                                        <sw-product-variant-info
+                                            :variations="item.variation"
                                             :search-term="searchTerm"
-                                        />
-
-                                        <template v-else>
+                                            highlighted
+                                        >
                                             {{ getKey(item, `translated.${labelProperty}`) }}
-                                        </template>
+                                        </sw-product-variant-info>
                                     </slot>
                                 {% endblock %}
                                 </sw-select-result>

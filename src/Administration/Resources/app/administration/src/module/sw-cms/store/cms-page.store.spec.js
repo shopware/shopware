@@ -23,4 +23,62 @@ describe('src/module/sw-cms/store/cms-page.store.ts', () => {
         expect(cmsPageState.selectedBlock).toBeNull();
         expect(cmsPageState.isSystemDefaultLanguage).toBe(true);
     });
+
+    describe('updateElementConfig', () => {
+        const slot = () => ({
+            id: 'slot-1',
+            config: {
+                media: {
+                    source: 'static',
+                    value: null,
+                },
+            },
+        });
+
+        function setCurrentPage(elementSlot) {
+            Shopware.Store.get('cmsPage').currentPage = {
+                sections: [
+                    { blocks: [] },
+                    { blocks: [{ slots: [elementSlot] }] },
+                ],
+            };
+        }
+
+        afterEach(() => {
+            Shopware.Store.get('cmsPage').removeCurrentPage();
+        });
+
+        it('should write a config value of an element of the current page', () => {
+            const elementSlot = slot();
+            setCurrentPage(elementSlot);
+
+            Shopware.Store.get('cmsPage').updateElementConfig('slot-1', 'media.value', 'media-id');
+
+            expect(elementSlot.config.media.value).toBe('media-id');
+        });
+
+        it('should create a config path the element does not carry yet', () => {
+            const elementSlot = slot();
+            setCurrentPage(elementSlot);
+
+            Shopware.Store.get('cmsPage').updateElementConfig('slot-1', 'headline', { source: 'static', value: 'Hi' });
+
+            expect(elementSlot.config.headline).toEqual({ source: 'static', value: 'Hi' });
+        });
+
+        it('should ignore an element that is not part of the current page', () => {
+            const elementSlot = slot();
+            setCurrentPage(elementSlot);
+
+            Shopware.Store.get('cmsPage').updateElementConfig('other-slot', 'media.value', 'media-id');
+
+            expect(elementSlot.config.media.value).toBeNull();
+        });
+
+        it('should ignore a write while no page is open', () => {
+            expect(() => {
+                Shopware.Store.get('cmsPage').updateElementConfig('slot-1', 'media.value', 'media-id');
+            }).not.toThrow();
+        });
+    });
 });

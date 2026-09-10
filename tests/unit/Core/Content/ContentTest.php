@@ -59,6 +59,7 @@ class ContentTest extends TestCase
             'landing_page.php',
             'flow.php',
             'measurement_system.php',
+            'legal_guarantee_notice.php',
             'shared.php',
             'product_export_tracking.php',
             'media_test.php',

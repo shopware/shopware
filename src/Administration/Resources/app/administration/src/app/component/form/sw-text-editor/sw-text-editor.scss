@@ -19,10 +19,11 @@
         display: inline-block;
         border-radius: $border-radius-default;
         padding: 2px 24px;
-        font-size: var(--font-size-xs);
+        font-size: var(--font-size-s);
         outline: none;
         font-weight: var(--font-weight-semibold);
         vertical-align: middle;
+        text-align: center;
         text-decoration: none;
         user-select: none;
         margin: 0;
@@ -31,13 +32,13 @@
         border: 0 none;
 
         &-primary {
-            background-color: var(--color-interaction-primary-default);
+            background-color: var(--color-storefront-brand-primary);
             color: var(--color-static-white);
         }
 
         &-secondary {
-            background-color: var(--color-background-tertiary-default);
-            color: var(--color-text-primary-default);
+            background-color: var(--color-storefront-brand-secondary);
+            color: var(--color-static-white);
         }
 
         &-sm {

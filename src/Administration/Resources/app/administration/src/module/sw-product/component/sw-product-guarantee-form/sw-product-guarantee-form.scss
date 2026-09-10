@@ -1,0 +1,19 @@
+.sw-product-guarantee-form {
+    > p {
+        margin-bottom: var(--scale-size-32);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-s);
+    }
+
+    .sw-product-guarantee-form__switches {
+        display: flex;
+        align-items: center;
+        height: 100%;
+
+        .mt-switch {
+            margin: 0;
+        }
+    }
+}

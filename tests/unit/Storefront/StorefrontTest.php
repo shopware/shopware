@@ -23,7 +23,7 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(Storefront::class)]
 class StorefrontTest extends TestCase
 {

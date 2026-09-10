@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cookie\AppCookieCollectListener;
 use Shopware\Core\Framework\Log\Package;
@@ -262,7 +263,7 @@ class AppCookieCollectListenerTest extends TestCase
     {
         $appRepo = new StaticEntityRepository([
             new AppCollection([...$appEntity]),
-        ]);
+        ], new AppDefinition());
 
         return new AppCookieCollectListener($appRepo);
     }

@@ -9,6 +9,7 @@
                 "headers": {
                     "sw-context-token": {
                         "description": "Contains sw-context-token value",
+                        "required": true,
                         "schema": {
                             "type": "string"
                         }

@@ -208,7 +208,22 @@ class ServiceDefinitionRule implements Rule
         }
 
         $files = [];
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($srcDir, \FilesystemIterator::SKIP_DOTS));
+
+        // both filters below only match `/DependencyInjection/` or `/Resources/config/`, so
+        // the frontend roots pruned here cannot contribute a service definition
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveCallbackFilterIterator(
+                new \RecursiveDirectoryIterator($srcDir, \FilesystemIterator::SKIP_DOTS),
+                static function (\SplFileInfo $current): bool {
+                    if (!$current->isDir()) {
+                        return true;
+                    }
+
+                    return $current->getFilename() !== 'node_modules'
+                        && !str_ends_with($current->getPathname(), '/Resources/app');
+                }
+            )
+        );
 
         foreach ($iterator as $file) {
             if (!$file instanceof \SplFileInfo || !$file->isFile()) {

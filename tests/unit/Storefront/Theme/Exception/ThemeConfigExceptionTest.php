@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeConfigException::class)]
 class ThemeConfigExceptionTest extends TestCase
 {

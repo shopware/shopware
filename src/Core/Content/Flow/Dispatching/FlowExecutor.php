@@ -17,6 +17,7 @@ use Shopware\Core\Content\Flow\Extension\FlowExecutorExtension;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Content\Flow\Rule\CustomerRuleScope;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
+use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -55,7 +56,8 @@ class FlowExecutor
         private readonly Connection $connection,
         private readonly ExtensionDispatcher $extensions,
         private readonly LoggerInterface $logger,
-        $actions
+        $actions,
+        private readonly FlowMetricsInstrumentor $flowMetrics,
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }
@@ -71,11 +73,7 @@ class FlowExecutor
             $name = $flowHolder['name'];
 
             try {
-                $this->extensions->publish(
-                    name: FlowExecutorExtension::NAME,
-                    extension: new FlowExecutorExtension($flow, $event),
-                    function: $this->_execute(...)
-                );
+                $this->runFlow($flow, $event);
             } catch (ExecuteSequenceException $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
@@ -101,11 +99,7 @@ class FlowExecutor
 
     public function execute(Flow $flow, StorableFlow $event): void
     {
-        $this->extensions->publish(
-            name: FlowExecutorExtension::NAME,
-            extension: new FlowExecutorExtension($flow, $event),
-            function: $this->_execute(...)
-        );
+        $this->runFlow($flow, $event);
     }
 
     public function executeSequence(?Sequence $sequence, StorableFlow $event): void
@@ -162,6 +156,20 @@ class FlowExecutor
         }
 
         $this->executeSequence($sequence->falseCase, $event);
+    }
+
+    private function runFlow(Flow $flow, StorableFlow $event): void
+    {
+        // Metric covers extension too: an extension may stop propagation and replace _execute entirely - and
+        // every flow execution still will be covered, and the duration will include extension pre/post overhead.
+        $this->flowMetrics->measureExecution(
+            $event,
+            fn () => $this->extensions->publish(
+                name: FlowExecutorExtension::NAME,
+                extension: new FlowExecutorExtension($flow, $event),
+                function: $this->_execute(...)
+            ),
+        );
     }
 
     private function _execute(Flow $flow, StorableFlow $event): void

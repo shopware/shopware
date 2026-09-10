@@ -3,6 +3,14 @@
  */
 import { mount } from '@vue/test-utils';
 
+const documentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        name: 'Invoice',
+    },
+];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents', { sync: true }), {
         global: {
@@ -14,9 +22,16 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve([]),
+                            search: () => Promise.resolve([...documentTypesFixtures]),
                         };
                     },
+                },
+                documentV2Service: {
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({
+                        invoice: { formats: ['pdf'] },
+                    }),
+                    getDocumentTypeLabel: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
             },
         },
@@ -36,6 +51,7 @@ describe('sw-bulk-edit-order-documents', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
     });
 
@@ -73,5 +89,20 @@ describe('sw-bulk-edit-order-documents', () => {
         });
         expect(wrapper.findComponent('.mt-field--checkbox__container').props().disabled).toBe(false);
         expect(wrapper.findComponent('.mt-switch').props().disabled).toBeUndefined();
+    });
+
+    it('fetches document types from the available types endpoint', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.documentTypes).toEqual([
+            {
+                id: 'invoice',
+                technicalName: 'invoice',
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
+            },
+        ]);
     });
 });

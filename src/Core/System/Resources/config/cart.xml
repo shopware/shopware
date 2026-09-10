@@ -28,8 +28,10 @@
 
         <input-field type="bool">
             <name>enableOrderRefunds</name>
-            <label>Enable refunds</label>
-            <label lang="de-DE">Stornierungen erlauben</label>
+            <label>Allow customers to cancel orders</label>
+            <label lang="de-DE">Kunden dürfen Bestellungen stornieren</label>
+            <helpText>Allows customers to cancel their own orders in the account area, as long as the order status is still "Open". Cancelling sets the order status to "Cancelled"; the selected payment method and all applied promotions are lost.</helpText>
+            <helpText lang="de-DE">Erlaubt Kunden, ihre Bestellungen im Kundenkonto selbst zu stornieren, solange der Bestellstatus noch "Offen" ist. Bei einer Stornierung wird der Bestellstatus auf "Abgebrochen" gesetzt; die gewählte Zahlungsart und alle enthaltenen Rabatte und Aktionen gehen verloren.</helpText>
         </input-field>
 
         <input-field type="int">
@@ -80,6 +82,15 @@
             <name>logoutGuestAfterCheckout</name>
             <label>Automatically log out guest customers after order completion</label>
             <label lang="de-DE">Gastkunden nach dem Bestellabschluss automatisch ausloggen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showLegalGuaranteeNotice</name>
+            <defaultValue>true</defaultValue>
+            <label>Show legal guarantee notice on checkout page</label>
+            <label lang="de-DE">Gewährleistungshinweis auf Bestellabschlussseite anzeigen</label>
+            <helpText>Displays the EU-harmonised legal guarantee notice in the customer's storefront language.</helpText>
+            <helpText lang="de-DE">Zeigt den EU-weit harmonisierten Gewährleistungshinweis in der Storefront-Sprache des Kunden an.</helpText>
         </input-field>
     </card>
 

@@ -23,7 +23,7 @@ Module.register('sw-settings-number-range', {
     description: 'Number Range section in the settings module',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'number_range',
 
     routes: {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class Migration1752750234AddIndexToOrderTransactionCreateAndUpdate extends MigrationStep
 {
     public function getCreationTimestamp(): int

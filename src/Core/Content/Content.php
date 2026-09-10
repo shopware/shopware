@@ -47,6 +47,7 @@ class Content extends Bundle
         $phpLoader->load('landing_page.php');
         $phpLoader->load('flow.php');
         $phpLoader->load('measurement_system.php');
+        $phpLoader->load('legal_guarantee_notice.php');
         $phpLoader->load('shared.php');
 
         $phpLoader->load('product_export_tracking.php');

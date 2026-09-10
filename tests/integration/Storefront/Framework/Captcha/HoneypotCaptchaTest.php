@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
@@ -28,13 +29,30 @@ class HoneypotCaptchaTest extends TestCase
     }
 
     #[DataProvider('requestDataProvider')]
-    public function testIsValid(Request $request, bool $shouldBeValid): void
+    public function testValidate(Request $request, bool $shouldBeValid): void
     {
-        if ($shouldBeValid) {
-            static::assertTrue($this->captcha->isValid($request, []));
-        } else {
-            static::assertFalse($this->captcha->isValid($request, []));
-        }
+        static::assertSame($shouldBeValid, $this->captcha->validate($request, [])->count() === 0);
+    }
+
+    public function testShouldBreakReturnsTrue(): void
+    {
+        // The honeypot is bot-only, so it must abort with a 403 rather than a visible error.
+        static::assertTrue($this->captcha->shouldBreak());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    public function testDeprecatedIsValidStillValidates(): void
+    {
+        // DisabledFeatures is unit-namespace only, so the major flag is skipped explicitly.
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        static::assertTrue($this->captcha->isValid(self::getRequest(), []));
+        static::assertFalse($this->captcha->isValid(
+            self::getRequest([HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'something']),
+            []
+        ));
     }
 
     /**

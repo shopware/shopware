@@ -1,0 +1,7 @@
+# codeowners-plus configuration, read from the repository root (see .github/workflows/codeowner.yml).
+#
+# Keep the long-standing policy of not dismissing reviews on new pushes. codeowners-plus enables
+# "smart dismissal" (dropping a code owner's approval when a later push changes files they own) by
+# default. This repository has deliberately kept review dismissal off for years, so it is turned off
+# here to preserve that policy.
+disable_smart_dismissal = true

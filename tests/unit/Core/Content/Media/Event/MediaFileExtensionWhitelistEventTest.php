@@ -26,6 +26,17 @@ class MediaFileExtensionWhitelistEventTest extends TestCase
         static::assertSame($context, $event->getContext());
     }
 
+    public function testSetWhitelistReplacesTheWhitelist(): void
+    {
+        $event = new MediaFileExtensionWhitelistEvent(['jpg'], Context::createDefaultContext());
+
+        static::assertSame(['jpg'], $event->getWhitelist());
+
+        $event->setWhitelist(['jpg', 'png']);
+
+        static::assertSame(['jpg', 'png'], $event->getWhitelist());
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetNullableContextReturnsContextWhenFeatureInactiveAndContextProvided(): void
     {

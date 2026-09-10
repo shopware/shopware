@@ -1,0 +1,27 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Checkout\Customer\Event;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('checkout')]
+#[CoversClass(CustomerDeletedEvent::class)]
+class CustomerDeletedEventTest extends TestCase
+{
+    use MailRecipientNameTestBehaviour;
+
+    public function testTheMailRecipientCarriesTheResolvedName(): void
+    {
+        $this->assertRecipientNames(
+            fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerDeletedEvent($context, $customer)
+        );
+    }
+}

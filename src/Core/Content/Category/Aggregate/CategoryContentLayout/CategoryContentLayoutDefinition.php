@@ -3,7 +3,10 @@
 namespace Shopware\Core\Content\Category\Aggregate\CategoryContentLayout;
 
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\Log\Package;
 
@@ -42,6 +45,21 @@ class CategoryContentLayoutDefinition extends AbstractContentLayoutAssignableDef
     public function getCacheTags(string $entityId): array
     {
         return [CategoryRoute::buildName($entityId)];
+    }
+
+    public function getPageDataRequirements(): array
+    {
+        return [
+            ...parent::getPageDataRequirements(),
+            new DataRequirement(
+                'productListing',
+                ProductListingDataLoader::SOURCE,
+                new ProductListingLoaderConfig(
+                    property: 'categoryId',
+                    associations: ['cover', 'cover.media', 'cover.media.thumbnails', 'manufacturer'],
+                )
+            ),
+        ];
     }
 
     protected function getEntityAssociations(): array

@@ -154,8 +154,10 @@
             class="sw-flow-list__empty-state"
             centered
             icon="regular-flow"
-            :headline="$t('sw-flow.list.emptyStateTitle')"
-            :description="$t('sw-flow.list.emptyStateSubTitle')"
+            :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-flow.list.emptyStateTitle')"
+            :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t('sw-flow.list.emptyStateSubTitle')"
+            :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+            :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
         >
             <template
                 v-if="!isValidTerm(term)"

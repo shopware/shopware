@@ -287,6 +287,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         expect(wrapper.find('.sw-data-grid').exists()).toBe(false);
         expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-flow.list.emptyStateTitle');
 
         const createButton = wrapper.find('.mt-empty-state__button .mt-button');
 
@@ -300,5 +301,9 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
         expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+
+        // a search without hits is not a first-time state, so it drops the "add a flow" wording
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-empty-state.messageNoResultSubline');
     });
 });

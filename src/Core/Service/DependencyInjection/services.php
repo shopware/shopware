@@ -114,6 +114,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequirementsValidator::class),
             service(Client::class),
             service(ServiceClientFactory::class),
+            service(Privileges::class),
         ]);
 
     $services->set(ServiceStorage::class)
@@ -251,32 +252,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             env('ENABLE_SERVICES'),
             param('kernel.environment'),
-            service(Privileges::class),
             service(SystemConfigService::class),
             service(ServiceStorage::class),
             service(ServiceLifecycle::class),
             service(AllServiceInstaller::class),
             service(PermissionsService::class),
             service(Client::class),
-            service(RequirementsValidator::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
             service(Notification::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(PermissionsSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
+            service(ServiceLifecycle::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ShopwareAccountSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
+            service(ServiceLifecycle::class),
         ])
         ->tag('kernel.event_subscriber');
 

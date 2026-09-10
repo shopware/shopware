@@ -20,7 +20,7 @@
       "labelColumnDescription": "Beschreibung",
       "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
       "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
-      "emptyStateTitle": "Noch keine Flows erstellt",
+      "emptyStateTitle": "Noch keine Flows",
       "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
       "unknownTrigger": "Unbekannter Auslöser"
     },

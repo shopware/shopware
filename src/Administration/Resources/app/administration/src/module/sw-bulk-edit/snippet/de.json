@@ -10,7 +10,7 @@
     },
     "product": {
       "textTitle": "Mehrfachänderung: {productTotal} Produkt | Mehrfachänderung: {productTotal} Produkte",
-      "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
+      "messageEmptyTitle": "Keine Produkte ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
       "alertInheritance": {
         "message": "Diese Varianten besitzen vererbte Felder. Der Inhalt der vererbten Felder wird vom jeweiligen Hauptprodukt übernommen. Sie können Vererbungen aktivieren und deaktivieren, indem Sie auf das Kettensymbol anklicken."

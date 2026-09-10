@@ -114,7 +114,7 @@
           "label": "Einträge",
           "placeholder": "Einträge auswählen ...",
           "emptyState": {
-            "title": "Keine Einträge ausgewählt"
+            "title": "Keine Einträge zugewiesen"
           }
         }
       },

@@ -375,7 +375,7 @@
             "descriptionTextUseFilterByProperties": "Eigenschaften, die auf nicht filterbar eingestellt sind, werden hier nicht angezeigt. Du kannst dies im <a href=\"#/sw/property/index\" target=\"_blank\">Eigenschaftsmodul</a> ändern.",
             "gridHeaderStatus": "Status",
             "gridHeaderName": "Name",
-            "gridEmptyStateLabel": "Keine Eigenschaften gefunden.",
+            "gridEmptyStateLabel": "Keine Eigenschaften gefunden",
             "gridEmptyStateHint": "Versuche es mit einem anderen Suchbegriff"
           }
         }

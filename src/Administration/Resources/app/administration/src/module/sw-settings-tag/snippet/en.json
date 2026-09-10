@@ -14,7 +14,7 @@
       "contextMenuDuplicate": "Duplicate tag",
       "contextMenuDelete": "Delete tag",
       "messageDeleteSuccess": "Tag \"{name}\" deleted.",
-      "titleEmptyStateList": "No tags found.",
+      "titleEmptyStateList": "No tags found",
       "searchPlaceholder": "Search tags...",
       "filter": "Filter",
       "filterAssignemnt": "Filter by assigned entity",

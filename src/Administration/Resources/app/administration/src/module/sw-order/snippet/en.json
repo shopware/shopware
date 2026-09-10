@@ -310,7 +310,7 @@
       "headlineTabCreateAddress": "Add address",
       "currentlySelected": "Currently selected",
       "searchAddressToolbarPlaceholder": "Search addresses...",
-      "emptySearchResults": "No addresses found."
+      "emptySearchResults": "No addresses found"
     },
     "leavePageModal": {
       "description": "There are unsaved changes. Are you sure you want to leave this page without saving?",

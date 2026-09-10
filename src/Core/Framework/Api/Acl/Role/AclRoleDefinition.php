@@ -23,6 +23,9 @@ use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDe
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AclRoleDefinition extends EntityDefinition
 {

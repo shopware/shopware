@@ -1,10 +1,11 @@
 {% block mt_tabs %}
 <mt-tabs-original
-    v-bind="$attrs"
+    v-bind="meteorAttributes"
     ref="mtTabsOriginal"
     :default-item="activeItemName"
     :items="mergedItems"
     :small="small"
+    :vertical="vertical"
     @new-item-active="onNewItemActive"
 />
 

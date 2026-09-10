@@ -5,6 +5,7 @@
       "mainMenuItemGeneral": "Erlebniswelten",
       "moduleTitle": "Erlebniswelten",
       "greeting": "Layouts",
+      "switchLayoutListMode": "Zwischen Raster- und Listenansicht wechseln",
       "createNewLayout": "Neues Layout anlegen",
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",

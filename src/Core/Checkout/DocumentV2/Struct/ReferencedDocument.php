@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The document another document references, resolved by the generation pipeline.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

@@ -96,6 +96,64 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
         wrapper.vm.createNotificationError.mockRestore();
     });
 
+    it('should prefer the server translated cart error message', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        Shopware.Store.get('swOrder').setCart({
+            token: null,
+            lineItems: [],
+            errors: {
+                'promotion-not-found': {
+                    code: 0,
+                    key: 'promotion-not-found',
+                    level: 20,
+                    message: 'Promotion with code SUMMER not found!',
+                    messageKey: 'promotion-not-found',
+                    translatedMessage: 'Gutscheincode "SUMMER" existiert nicht.',
+                },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Gutscheincode "SUMMER" existiert nicht.',
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should fall back to the untranslated cart error message', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        Shopware.Store.get('swOrder').setCart({
+            token: null,
+            lineItems: [],
+            errors: {
+                'custom-plugin-error': {
+                    code: 0,
+                    key: 'custom-plugin-error',
+                    level: 20,
+                    message: 'Something went wrong',
+                    messageKey: 'custom-plugin-error',
+                    translatedMessage: 'checkout.custom-plugin-error',
+                },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Something went wrong',
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
     it('should be show warning notification', async () => {
         const wrapper = await createWrapper();
 

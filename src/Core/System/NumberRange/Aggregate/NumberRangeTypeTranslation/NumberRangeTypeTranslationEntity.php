@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class NumberRangeTypeTranslationEntity extends TranslationEntity
 {

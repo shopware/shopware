@@ -33,7 +33,11 @@ export function mapPropertyErrors<T extends string, K extends string>(
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function mapSystemConfigErrors(entityName: string, saleChannelId: string | null, key: string = ''): $TSFixMe {
+export function mapSystemConfigErrors(
+    entityName: string,
+    saleChannelId: EntityKey<'sales_channel'> | null,
+    key: string = '',
+): $TSFixMe {
     return Shopware.Store.get('error').getSystemConfigApiError(entityName, saleChannelId!, key);
 }
 

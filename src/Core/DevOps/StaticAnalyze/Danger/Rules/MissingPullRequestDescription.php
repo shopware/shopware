@@ -28,10 +28,7 @@ class MissingPullRequestDescription
         $description = $this->authoredText($context->platform->pullRequest->body);
 
         if ($description === '') {
-            $context->failure(\sprintf(
-                'The pull request has no description. Please fill in the pull request template: why the change is necessary and what it does exactly (at least %d characters).',
-                self::MIN_LENGTH
-            ));
+            $context->failure('The pull request has no description. Please fill in the pull request template: why the change is necessary and what it does exactly.');
 
             return;
         }

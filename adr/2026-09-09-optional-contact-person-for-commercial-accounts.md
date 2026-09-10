@@ -74,7 +74,7 @@ A subscriber on `MailBeforeValidateEvent` swaps a rendered copy of the customer 
 
 ### Storefront
 
-The name fields follow the account type `<select>` through a small plugin that toggles the required rule with `window.formValidation.setFieldRequired()` and `setFieldNotRequired()`. `FormFieldTogglePlugin` is not reused because it disables what it hides, which drops the values from the payload. The sidebar and the account overview read `customer.displayName`.
+The name fields follow the account type `<select>` through storefront JavaScript that toggles the required rule with `window.formValidation.setFieldRequired()` and `setFieldNotRequired()`. `FormFieldTogglePlugin` is not reused because it disables what it hides, which drops the values from the payload. The sidebar and the account overview read `customer.displayName`.
 
 ### Administration
 

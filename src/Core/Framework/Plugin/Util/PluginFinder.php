@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
+use Composer\Package\CompleteAliasPackage;
+use Composer\Package\CompletePackage;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
@@ -95,9 +97,13 @@ class PluginFinder
 
     private function isPluginComposerValid(CompletePackageInterface $package): bool
     {
-        return isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
-            && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== ''
-            && !empty($package->getExtra()['label']);
+        $extra = $package->getExtra();
+        $label = $extra['label'] ?? null;
+
+        return isset($extra[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
+            && $extra[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== ''
+            && \is_array($label)
+            && $label !== [];
     }
 
     private function getPluginNameFromPackage(CompletePackageInterface $pluginPackage): string
@@ -125,6 +131,8 @@ class PluginFinder
             ->getLocalRepository()
             ->getPackages();
 
+        $rootAliases = $composer->getPackage()->getAliases();
+
         foreach ($composerPackages as $composerPackage) {
             if (!$this->isShopwarePluginType($composerPackage)) {
                 continue;
@@ -148,7 +156,7 @@ class PluginFinder
                 'path' => $localPlugin?->getPath() ?? $pluginPath,
                 'managedByComposer' => true,
                 // use local composer package (if it exists) as composer caches the version info
-                'composerPackage' => $localPlugin?->getComposerPackage() ?? $composerPackage,
+                'composerPackage' => $localPlugin?->getComposerPackage() ?? $this->applyRootAlias($composerPackage, $rootAliases),
             ]);
         }
 
@@ -164,6 +172,30 @@ class PluginFinder
         }
 
         return $plugins;
+    }
+
+    /**
+     * Root-level inline aliases (e.g. requiring a plugin as "dev-bugfix as 1.2.3") are not applied to the
+     * packages of the installed repository, so without resolving them here the plugin version would be
+     * reported as the raw branch version ("dev-bugfix") and break version comparisons during plugin updates.
+     *
+     * @param list<array{package: string, version: string, alias: string, alias_normalized: string}> $rootAliases
+     */
+    private function applyRootAlias(CompletePackageInterface $package, array $rootAliases): CompletePackageInterface
+    {
+        $basePackage = $package instanceof CompleteAliasPackage ? $package->getAliasOf() : $package;
+
+        if (!$basePackage instanceof CompletePackage) {
+            return $package;
+        }
+
+        foreach ($rootAliases as $rootAlias) {
+            if ($rootAlias['package'] === $basePackage->getName() && $rootAlias['version'] === $basePackage->getVersion()) {
+                return new CompleteAliasPackage($basePackage, $rootAlias['alias_normalized'], $rootAlias['alias']);
+            }
+        }
+
+        return $package;
     }
 
     private function getVendorPluginPath(CompletePackageInterface $pluginPackage, Composer $composer): string

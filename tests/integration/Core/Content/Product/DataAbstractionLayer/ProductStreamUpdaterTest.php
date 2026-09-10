@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -29,9 +31,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
@@ -524,6 +528,97 @@ class ProductStreamUpdaterTest extends TestCase
         $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
 
         $this->assertProductIsInStream($productId, $streamId);
+    }
+
+    public function testHandleSkipsProductsDeletedAfterTheStreamSearch(): void
+    {
+        $streamId = Uuid::randomHex();
+        $this->createStream($streamId, [[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        $deletedProductId = Uuid::randomHex();
+        $this->createProduct($deletedProductId);
+        $this->productRepository->delete([['id' => $deletedProductId]], Context::createDefaultContext());
+
+        $updater = $this->createUpdaterWithStaticMatches([$productId, $deletedProductId]);
+
+        $updater->handle(new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext()));
+
+        static::assertSame([$productId], $this->getMappedProductIds($streamId));
+    }
+
+    public function testUpdateProductsSkipsProductsDeletedAfterTheStreamSearch(): void
+    {
+        $streamId = Uuid::randomHex();
+        $this->createStream($streamId, [[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        $deletedProductId = Uuid::randomHex();
+        $this->createProduct($deletedProductId);
+        $this->productRepository->delete([['id' => $deletedProductId]], Context::createDefaultContext());
+
+        $updater = $this->createUpdaterWithStaticMatches([$productId, $deletedProductId]);
+
+        $updater->updateProducts([$productId, $deletedProductId], Context::createDefaultContext());
+
+        static::assertSame([$productId], $this->getMappedProductIds($streamId));
+    }
+
+    /**
+     * Returns an updater whose search reports a stale match, as a concurrent delete would.
+     *
+     * @param list<string> $matches
+     */
+    private function createUpdaterWithStaticMatches(array $matches): ProductStreamUpdater
+    {
+        /** @var StaticEntityRepository<ProductCollection> $productRepository */
+        $productRepository = new StaticEntityRepository([], new ProductDefinition());
+
+        // one search runs per stream and language context, so the stale match has to stay available
+        $search = static function () use ($matches, &$search, $productRepository): array {
+            $productRepository->searches[] = $search;
+
+            return $matches;
+        };
+        $productRepository->searches[] = $search;
+
+        $language = new LanguageEntity();
+        $language->setId(Defaults::LANGUAGE_SYSTEM);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([new LanguageCollection([$language])]);
+
+        return new ProductStreamUpdater(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(ProductDefinition::class),
+            $productRepository,
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get(ManyToManyIdFieldUpdater::class),
+            $languageRepository,
+            true,
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getMappedProductIds(string $streamId): array
+    {
+        return static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
+            ['id' => Uuid::fromHexToBytes($streamId)]
+        );
     }
 
     /**

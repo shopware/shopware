@@ -11,7 +11,6 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteR
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -85,8 +84,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return;
         }
 
-        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
-
         // an invalid stream, or one left without filters, has nothing to match against
         $criteria = null;
         if ((int) $stream['invalid'] === 0 && $stream['api_filter'] !== null) {
@@ -123,17 +120,11 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $toBeAdded = array_values(array_diff($newMatches, $oldMatches));
         $toBeDeleted = array_values(array_diff($oldMatches, $newMatches));
 
-        $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
-
-        foreach ($toBeAdded as $id) {
-            $insert->addInsert('product_stream_mapping', [
-                'product_id' => Uuid::fromHexToBytes($id),
-                'product_version_id' => $version,
-                'product_stream_id' => $binaryStreamId,
-            ]);
+        if ($toBeAdded !== []) {
+            RetryableTransaction::retryable($this->connection, function () use ($toBeAdded, $binaryStreamId): void {
+                $this->insertMappings($toBeAdded, $binaryStreamId);
+            });
         }
-
-        $insert->execute();
 
         if ($toBeDeleted !== []) {
             RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
@@ -196,11 +187,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
 
-        $insert = new MultiInsertQueryQueue($this->connection);
-
-        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
-
         $languageContexts = $this->getLanguageContexts($context);
+
+        /** @var list<array{streamId: string, productIds: list<string>}> $matches */
+        $matches = [];
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
@@ -222,22 +212,23 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
-            foreach ($matchedIds as $id) {
-                $insert->addInsert('product_stream_mapping', [
-                    'product_id' => Uuid::fromHexToBytes($id),
-                    'product_version_id' => $version,
-                    'product_stream_id' => $stream['id'],
-                ]);
+            if ($matchedIds === []) {
+                continue;
             }
+
+            $matches[] = ['streamId' => (string) $stream['id'], 'productIds' => $matchedIds];
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $matches): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
                 ['ids' => ArrayParameterType::BINARY]
             );
-            $insert->execute();
+
+            foreach ($matches as $match) {
+                $this->insertMappings($match['productIds'], $match['streamId']);
+            }
         });
     }
 
@@ -250,6 +241,30 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * Selecting from `product` keeps the existence check in the insert, as the ids come from a search that
+     * ran before the write, so a product may be deleted by now.
+     *
+     * @param list<string> $productIds
+     */
+    private function insertMappings(array $productIds, string $binaryStreamId): void
+    {
+        foreach (array_chunk($productIds, 250) as $chunk) {
+            $this->connection->executeStatement(
+                'INSERT IGNORE INTO product_stream_mapping (product_id, product_version_id, product_stream_id)
+                 SELECT product.id, product.version_id, :streamId
+                 FROM product
+                 WHERE product.id IN (:ids) AND product.version_id = :version',
+                [
+                    'streamId' => $binaryStreamId,
+                    'ids' => Uuid::fromHexToBytesList($chunk),
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+                ['ids' => ArrayParameterType::BINARY],
+            );
+        }
     }
 
     /**

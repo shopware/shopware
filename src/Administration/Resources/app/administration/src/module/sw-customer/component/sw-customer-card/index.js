@@ -230,6 +230,11 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            // The three settings are switchable per sales channel, so moving the customer to another
+            // one can change whether the contact person is required.
+            this.createdComponent();
+        },
         'customer.accountType'(value) {
             if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
                 return;
@@ -241,7 +246,10 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
+            this.companyNamesRequired = await companyNamesRequired(
+                this.systemConfigApiService,
+                this.customer?.salesChannelId,
+            );
         },
 
         getMailTo(mail) {

@@ -8,6 +8,19 @@ function service(values: Record<string, unknown>) {
     return { getValues: () => Promise.resolve(values) };
 }
 
+function recordingService(values: Record<string, unknown>) {
+    const seen: Array<string | null | undefined> = [];
+
+    return {
+        seen,
+        getValues: (_domain: string, salesChannelId?: string | null) => {
+            seen.push(salesChannelId);
+
+            return Promise.resolve(values);
+        },
+    };
+}
+
 describe('module/sw-customer/helper/company-name-fields.helper', () => {
     it('follows both settings while the account type selection is on', async () => {
         await expect(
@@ -57,5 +70,21 @@ describe('module/sw-customer/helper/company-name-fields.helper', () => {
 
     it('stays required when the request fails', async () => {
         await expect(companyNamesRequired({ getValues: () => Promise.reject(new Error('forbidden')) })).resolves.toBe(true);
+    });
+
+    it('reads the settings of the sales channel the customer belongs to', async () => {
+        const api = recordingService({ 'core.loginRegistration.showAccountTypeSelection': true });
+
+        await companyNamesRequired(api, 'sales-channel-id');
+
+        expect(api.seen).toEqual(['sales-channel-id']);
+    });
+
+    it('falls back to the global settings without a sales channel', async () => {
+        const api = recordingService({ 'core.loginRegistration.showAccountTypeSelection': true });
+
+        await companyNamesRequired(api);
+
+        expect(api.seen).toEqual([null]);
     });
 });

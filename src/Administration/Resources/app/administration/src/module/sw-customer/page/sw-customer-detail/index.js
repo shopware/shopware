@@ -223,6 +223,11 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            // The three settings are switchable per sales channel, so moving the customer to another
+            // one can change whether the contact person is required.
+            this.loadCompanyNamesRequired();
+        },
         customerId() {
             this.createdComponent();
         },
@@ -300,6 +305,13 @@ export default {
             }
         },
 
+        async loadCompanyNamesRequired() {
+            this.companyNamesRequired = await companyNamesRequired(
+                this.systemConfigApiService,
+                this.customer?.salesChannelId,
+            );
+        },
+
         async createdComponent() {
             Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
 
@@ -307,7 +319,7 @@ export default {
 
             // Loaded last so the page is built before the settings request, which only decides
             // whether a blank contact person may be saved.
-            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
+            await this.loadCompanyNamesRequired();
         },
 
         saveFinish() {

@@ -112,6 +112,11 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            // The three settings are switchable per sales channel, so moving the customer to another
+            // one can change whether the contact person is required.
+            this.loadCompanyNamesRequired();
+        },
         'customer.salesChannelId'(salesChannelId) {
             this.systemConfigApiService.getValues('core.systemWideLoginRegistration').then((response) => {
                 if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
@@ -150,6 +155,13 @@ export default {
     },
 
     methods: {
+        async loadCompanyNamesRequired() {
+            this.companyNamesRequired = await companyNamesRequired(
+                this.systemConfigApiService,
+                this.customer?.salesChannelId,
+            );
+        },
+
         async createdComponent() {
             const defaultSalutationId = await this.getDefaultSalutation();
 
@@ -175,7 +187,7 @@ export default {
 
             // Loaded last so the form is built before the settings request, which only decides
             // whether a blank contact person may be saved.
-            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
+            await this.loadCompanyNamesRequired();
         },
 
         saveFinish() {

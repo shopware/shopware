@@ -92,6 +92,11 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            // The three settings are switchable per sales channel, so moving the customer to another
+            // one can change whether the contact person is required.
+            this.createdComponent();
+        },
         'customer.guest'(newVal) {
             if (newVal) {
                 this.customer.password = null;
@@ -101,7 +106,10 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.companyNamesRequired = await companyNamesRequired(this.systemConfigApiService);
+            this.companyNamesRequired = await companyNamesRequired(
+                this.systemConfigApiService,
+                this.customer?.salesChannelId,
+            );
         },
 
         onSalesChannelChange(salesChannelId) {

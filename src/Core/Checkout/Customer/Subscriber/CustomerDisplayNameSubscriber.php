@@ -37,23 +37,18 @@ class CustomerDisplayNameSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * The company stands in only when there is no contact person, so a commercial account that has one
-     * keeps showing that person and an existing shop sees no change.
-     */
     private function resolve(Entity $customer): string
     {
         // getVars() and not has()/get(), because on a hydrated entity has() is a property_exists check
         // and a name the read did not select would throw on access.
         $vars = $customer->getVars();
 
-        $personName = trim($this->string($vars, 'firstName') . ' ' . $this->string($vars, 'lastName'));
-
-        if ($personName !== '' || $this->string($vars, 'accountType') !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return $personName;
-        }
-
-        return trim($this->string($vars, 'company'));
+        return CustomerEntity::resolveDisplayName(
+            $this->string($vars, 'firstName'),
+            $this->string($vars, 'lastName'),
+            $this->string($vars, 'company'),
+            $this->string($vars, 'accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+        );
     }
 
     /**

@@ -190,12 +190,38 @@ class CustomerEntity extends Entity implements \Stringable
     }
 
     /**
-     * The person name stands in when the subscriber never ran, so an entity built in code still reads
-     * as a name instead of an empty string.
+     * Resolved from the live fields, so a setter is reflected straight away and the value never goes
+     * stale. What the subscriber stored stands in only when a partial read left every source field
+     * behind.
      */
     public function getDisplayName(): string
     {
-        return $this->displayName ?? trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
+        if (!isset($this->firstName) && !isset($this->lastName) && !isset($this->company)) {
+            return $this->displayName ?? '';
+        }
+
+        return self::resolveDisplayName(
+            $this->firstName ?? '',
+            $this->lastName ?? '',
+            $this->company,
+            $this->isBusinessAccount()
+        );
+    }
+
+    /**
+     * The one place the rule lives, so the subscriber that fills the runtime field and this entity
+     * cannot drift apart. The company stands in only when there is no contact person, so a
+     * commercial account that has one keeps showing that person.
+     */
+    public static function resolveDisplayName(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
+    {
+        $personName = trim($firstName . ' ' . $lastName);
+
+        if ($personName !== '' || !$isBusinessAccount) {
+            return $personName;
+        }
+
+        return trim($company ?? '');
     }
 
     public function setDisplayName(?string $displayName): void

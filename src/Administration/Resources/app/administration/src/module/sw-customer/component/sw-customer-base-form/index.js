@@ -106,10 +106,16 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.companyNamesRequired = await companyNamesRequired(
-                this.systemConfigApiService,
-                this.customer?.salesChannelId,
-            );
+            const salesChannelId = this.customer?.salesChannelId;
+            const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
+
+            // A slower request for the channel the user has already left must not decide the rule
+            // for the one they are on now.
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
         },
 
         onSalesChannelChange(salesChannelId) {

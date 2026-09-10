@@ -33,7 +33,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'v-for-default-reference.override.vue').code;
 
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, fallbackLabel } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: __swSetupOverrideState } }"`);
     });
 
     it('detects override-local references in v-for alias computed keys', () => {
@@ -53,7 +53,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         const result = transformOrFail(source, 'v-for-computed-key-reference.override.vue').code;
 
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, dynamicKey } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: __swSetupOverrideState } }"`);
     });
 
     it('does not let child component slot scopes shadow same-element directive references', () => {
@@ -78,7 +78,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
         // The `@[eventName]`, `:title` and `track` references sit on <Child> itself, outside that
         // scope, so they still resolve to the override's setup bindings and are forwarded through
         // the sw-block rather than being shadowed by the same-element alias.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { eventName, title, track } } }"`);
+        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: __swSetupOverrideState } }"`);
     });
 
     it('does not expose setup state for v-for defaults that reference earlier object aliases', () => {

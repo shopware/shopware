@@ -28,7 +28,7 @@
  */
 
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
-import type { Node as BabelNode, PatternLike } from '@babel/types';
+import type { Identifier, Node as BabelNode, PatternLike } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
@@ -115,7 +115,7 @@ function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<strin
 function collectPatternReferences(
     pattern: BabelNode | null | undefined,
     outerScopes: Set<string>[],
-    references: Set<string>,
+    references: ReferenceSink,
     patternScope: Set<string> = new Set(),
 ): void {
     if (!pattern) {
@@ -176,6 +176,26 @@ function collectPatternReferences(
 }
 
 /**
+ * Where `collectBabelReferences` reports each outer-scope read.
+ *
+ * A `Set<string>` satisfies it, which is what the name-only callers pass. The occurrence collector
+ * passes a sink that also keeps the identifier node, so a caller that needs to *rewrite* a reference
+ * gets its source range from the same walk that decides what counts as a reference at all.
+ */
+type ReferenceSink = {
+    add(name: string, node?: Identifier): unknown;
+};
+
+/**
+ * One outer-scope read, with its range inside the parsed expression.
+ */
+type ReferenceOccurrence = {
+    name: string;
+    start: number;
+    end: number;
+};
+
+/**
  * Whether `name` is declared in any scope on the stack (so it is not an outer reference).
  */
 function isDeclared(name: string, scopes: Set<string>[]): boolean {
@@ -193,7 +213,7 @@ function isDeclared(name: string, scopes: Set<string>[]): boolean {
 function collectBabelReferences(
     node: BabelNode | null | undefined,
     scopes: Set<string>[],
-    references: Set<string>,
+    references: ReferenceSink,
     parent: BabelNode | null = null,
 ): void {
     if (!node || typeof node.type !== 'string') {
@@ -202,7 +222,7 @@ function collectBabelReferences(
 
     if (node.type === 'Identifier') {
         if (isValueReadPosition(node, parent) && !isDeclared(node.name, scopes)) {
-            references.add(node.name);
+            references.add(node.name, node);
         }
 
         return;
@@ -355,6 +375,47 @@ function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<strin
 }
 
 /**
+ * Returns every outer-scope read of one Vue expression, with its range inside `expression`.
+ *
+ * Same walk and same scope rules as {@link collectExpressionReferences} - it is the identifier nodes
+ * of that walk, kept instead of collapsed into a Set of names. A caller that rewrites references needs
+ * both an assignment target and a plain read, and `isValueReadPosition` already reports the operand of
+ * `count++` and the left side of `count = 1` as reads, so one list covers reads and writes alike.
+ *
+ * Ranges are relative to `expression`; the caller adds the offset of the expression in the SFC.
+ */
+function collectExpressionReferenceOccurrences(
+    expression: string | undefined,
+    templateScope: Set<string>,
+): ReferenceOccurrence[] {
+    const occurrences: ReferenceOccurrence[] = [];
+
+    if (!expression || expression.trim() === '') {
+        return occurrences;
+    }
+
+    collectBabelReferences(
+        parseTemplateExpression(expression),
+        [
+            new Set(templateScope),
+        ],
+        {
+            add: (name: string, node?: Identifier) => {
+                // Babel reports a range for every identifier it parses; a node without one cannot be
+                // rewritten, and skipping it leaves the binding on the read-only destructure path.
+                if (node?.start === null || node?.start === undefined || node.end === null || node.end === undefined) {
+                    return;
+                }
+
+                occurrences.push({ name, start: node.start, end: node.end });
+            },
+        },
+    );
+
+    return occurrences;
+}
+
+/**
  * Returns the outer-scope identifiers one Vue expression writes to (assignment/update targets).
  *
  * @param templateScope names already bound by the surrounding template (v-for aliases, slot props);
@@ -399,9 +460,12 @@ function collectExpressionReferences(expression: string | undefined, templateSco
 /**
  * @private
  */
+export type { ReferenceOccurrence };
+
 export {
     addPatternNames,
     collectExpressionReferences,
+    collectExpressionReferenceOccurrences,
     collectExpressionWriteTargets,
     collectPatternReferences,
     parseBindingPattern,

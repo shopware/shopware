@@ -51,6 +51,9 @@ async function createWrapper(
                 'sw-page': { template: '<main><slot name="smart-bar-actions"/><slot name="content"/></main>' },
                 'sw-card-view': { template: '<div><slot/></div>' },
                 'mt-card': { template: '<div><slot/></div>' },
+                'mt-empty-state': { template: '<section data-testid="empty-state" />' },
+                'sw-data-grid': { template: '<table data-testid="application-grid" />' },
+                'sw-pagination': { template: '<nav data-testid="pagination" />' },
                 'sw-modal': { template: '<div><slot/><slot name="modal-footer"/></div>' },
             },
         },
@@ -89,6 +92,23 @@ describe('OAuth application management', () => {
         expect(page.repository.get).toHaveBeenCalledWith(client.id, Shopware.Context.api);
         expect(page.repository.search).toHaveBeenCalledTimes(2);
         expect(page.vm.currentClient).toBeNull();
+    });
+
+    it('shows a useful empty state instead of an empty table', async () => {
+        page = await createWrapper();
+        expect(page.wrapper.find('[data-testid="empty-state"]').exists()).toBe(true);
+        expect(page.wrapper.find('[data-testid="application-grid"]').exists()).toBe(false);
+        expect(page.wrapper.find('[data-testid="pagination"]').exists()).toBe(false);
+    });
+
+    it('shows the table and pagination for a populated multi-page result', async () => {
+        page = await createWrapper();
+        page.repository.search.mockResolvedValueOnce(Object.assign([{ ...client }], { total: 26 }));
+        page.vm.onPageChange({ page: 1, limit: 25 });
+        await flushPromises();
+        expect(page.wrapper.find('[data-testid="empty-state"]').exists()).toBe(false);
+        expect(page.wrapper.find('[data-testid="application-grid"]').exists()).toBe(true);
+        expect(page.wrapper.find('[data-testid="pagination"]').exists()).toBe(true);
     });
 
     it('keeps edits isolated until saved', async () => {

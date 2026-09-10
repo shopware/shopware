@@ -1,6 +1,31 @@
 /**
  * @sw-package framework
  */
-.sw-oauth-client-list__notice {
-    margin-bottom: var(--scale-size-24);
+@import "~scss/variables";
+
+.sw-oauth-client-list {
+    &__notice {
+        max-width: $content-width;
+        margin: 0 auto var(--scale-size-24);
+    }
+
+    .sw-oauth-client-list__overview .mt-card__content {
+        padding: 0;
+    }
+
+    &__client-id {
+        font-family: monospace;
+        font-size: var(--font-size-xs);
+    }
+
+    &__redirects {
+        margin-bottom: var(--scale-size-8);
+    }
+
+    &__redirect-hint {
+        margin-bottom: var(--scale-size-24);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
 }

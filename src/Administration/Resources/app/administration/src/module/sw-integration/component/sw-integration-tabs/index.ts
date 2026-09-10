@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import template from './sw-integration-tabs.html.twig';
+import './sw-integration-tabs.scss';
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({

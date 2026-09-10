@@ -77,6 +77,9 @@
     },
     "sw-oauth-client": {
         "title": "OAuth-Anwendungen",
+        "emptyTitle": "Noch keine OAuth-Anwendungen",
+        "emptyDescription": "Füge eine Anwendung hinzu, damit Benutzer sich über die Browser-Anmeldung mit PKCE verbinden können.",
+        "redirectHint": "Eine URL pro Zeile. Verwende HTTPS oder HTTP für einen lokalen Callback auf 127.0.0.1 oder [::1].",
         "description": "Registriere öffentliche Anwendungen für die Browser-Anmeldung mit PKCE. Auf dem Server konfigurierte Anwendungen verwaltest Du in der Server-Konfiguration, nicht hier.",
         "permissionsHint": "Nach der Zustimmung handelt eine Anwendung mit den aktuellen Berechtigungen des zustimmenden Benutzers. Die Registrierung allein gewährt keinen Zugriff. Nutze Integrationen für den Server-zu-Server-Zugriff.",
         "create": "Anwendung hinzufügen",

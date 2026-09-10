@@ -1,11 +1,19 @@
 {% block sw_oauth_client_list %}
 <sw-page class="sw-oauth-client-list">
     <template #smart-bar-header>
-        <h2>{{ $t('sw-integration.general.headlineIntegrations') }}</h2>
+        <h2>
+            <span>{{ $t('sw-settings.index.title') }}</span>
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            <span>{{ $t('sw-integration.general.headlineIntegrations') }}</span>
+        </h2>
     </template>
     <template #smart-bar-actions>
         <mt-button
             variant="primary"
+            size="default"
             :disabled="!acl.can('oauth_client.creator') || isLoading || isSaving"
             @click="onCreate"
         >
@@ -22,23 +30,26 @@
                 {{ $t('sw-oauth-client.permissionsHint') }}
             </mt-banner>
             <mt-card
+                class="sw-oauth-client-list__overview"
                 position-identifier="sw-oauth-client-list"
                 :title="$t('sw-oauth-client.title')"
                 :subtitle="$t('sw-oauth-client.description')"
                 :is-loading="isLoading"
             >
                 <sw-data-grid
-                    v-if="clients"
+                    v-if="clients && clients.length > 0"
                     :data-source="clients"
                     :columns="columns"
                     :show-selection="false"
                     :allow-inline-edit="false"
                 >
                     <template #column-id="{ item }">
-                        oauth-{{ item.id }}
+                        <span class="sw-oauth-client-list__client-id">oauth-{{ item.id }}</span>
                     </template>
                     <template #column-active="{ item }">
-                        {{ $t(item.active ? 'sw-oauth-client.active' : 'sw-oauth-client.inactive') }}
+                        <mt-badge :variant="item.active ? 'positive' : 'neutral'">
+                            {{ $t(item.active ? 'sw-oauth-client.active' : 'sw-oauth-client.inactive') }}
+                        </mt-badge>
                     </template>
                     <template #actions="{ item }">
                         <sw-context-menu-item @click="onEdit(item)">
@@ -53,7 +64,14 @@
                         </sw-context-menu-item>
                     </template>
                 </sw-data-grid>
+                <mt-empty-state
+                    v-else-if="!isLoading && clients"
+                    icon="regular-key"
+                    :headline="$t('sw-oauth-client.emptyTitle')"
+                    :description="$t('sw-oauth-client.emptyDescription')"
+                />
                 <sw-pagination
+                    v-if="total > limit"
                     :page="page"
                     :limit="limit"
                     :total="total"
@@ -67,6 +85,7 @@
             v-if="currentClient"
             :title="isNew ? $t('sw-oauth-client.create') : currentClient.name"
             :is-loading="isSaving"
+            class="sw-oauth-client-list__detail"
             @modal-close="onClose"
         >
             <mt-text-field
@@ -84,11 +103,20 @@
             />
             <mt-textarea
                 v-model="redirectUrisText"
+                class="sw-oauth-client-list__redirects"
                 :label="$t('sw-oauth-client.redirectUris')"
                 :help-text="$t('sw-oauth-client.redirectHelp')"
                 :disabled="!canSave || isSaving"
+                placeholder="https://example.com/callback"
+                aria-describedby="oauth-client-redirect-hint"
                 required
             />
+            <p
+                id="oauth-client-redirect-hint"
+                class="sw-oauth-client-list__redirect-hint"
+            >
+                {{ $t('sw-oauth-client.redirectHint') }}
+            </p>
             <mt-switch
                 v-model="currentClient.active"
                 :label="$t('sw-oauth-client.active')"

@@ -55,6 +55,7 @@ async function createWrapper(
 
                             return privileges.includes(identifier);
                         },
+                        isAdmin: () => !!Shopware.Store.get('session').currentUser?.admin,
                     },
                     loginService: mockedLoginService,
                     userService: {
@@ -211,6 +212,29 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // not work with automatic unmount
         await wrapper.unmount();
         Shopware.Store.get('session').languageId = '';
+        Shopware.Store.get('session').removeCurrentUser();
+    });
+
+    it.each([
+        [
+            true,
+            false,
+        ],
+        [
+            false,
+            true,
+        ],
+    ])('should render the admin switch with admin %s as disabled %s', async (isAdmin, expectedDisabled) => {
+        Shopware.Store.get('session').setCurrentUser({ admin: isAdmin });
+
+        wrapper = await createWrapper(['users_and_permissions.editor']);
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        const adminSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin input');
+
+        expect(adminSwitch.exists()).toBe(true);
+        expect(adminSwitch.element.disabled).toBe(expectedDisabled);
     });
 
     it('should contain all fields', async () => {

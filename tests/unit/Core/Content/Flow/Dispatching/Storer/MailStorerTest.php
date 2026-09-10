@@ -92,7 +92,7 @@ class MailStorerTest extends TestCase
         static::assertTrue($flow->hasData(MailAware::MAIL_STRUCT));
 
         static::assertInstanceOf(MailRecipientStruct::class, $flow->getData(MailAware::MAIL_STRUCT));
-        static::assertSame('barfoo', $flow->getData(MailAware::MAIL_STRUCT)->getRecipients()['foo@bar.com']);
+        static::assertSame('bar foo', $flow->getData(MailAware::MAIL_STRUCT)->getRecipients()['foo@bar.com']);
         static::assertNull($flow->getData(MailAware::MAIL_STRUCT)->getBcc());
         static::assertNull($flow->getData(MailAware::MAIL_STRUCT)->getCc());
     }
@@ -114,7 +114,7 @@ class MailStorerTest extends TestCase
         static::assertTrue($flow->hasData(MailAware::MAIL_STRUCT));
 
         static::assertInstanceOf(MailRecipientStruct::class, $flow->getData(MailAware::MAIL_STRUCT));
-        static::assertSame('barfoo', $flow->getData(MailAware::MAIL_STRUCT)->getRecipients()['foo@bar.com']);
+        static::assertSame('bar foo', $flow->getData(MailAware::MAIL_STRUCT)->getRecipients()['foo@bar.com']);
         static::assertNull($flow->getData(MailAware::MAIL_STRUCT)->getBcc());
         static::assertNull($flow->getData(MailAware::MAIL_STRUCT)->getCc());
     }

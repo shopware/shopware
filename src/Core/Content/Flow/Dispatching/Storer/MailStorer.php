@@ -95,7 +95,7 @@ class MailStorer extends FlowStorer
         }
 
         $storable->setData(MailAware::SALES_CHANNEL_ID, $order->getSalesChannelId());
-        $mailStruct = new MailRecipientStruct([$customer->getEmail() => $customer->getFirstName() . $customer->getLastName()]);
+        $mailStruct = new MailRecipientStruct([$customer->getEmail() => trim($customer->getFirstName() . ' ' . $customer->getLastName())]);
         $storable->setData(MailAware::MAIL_STRUCT, $mailStruct);
     }
 
@@ -108,7 +108,7 @@ class MailStorer extends FlowStorer
         }
 
         $storable->setData(MailAware::SALES_CHANNEL_ID, $customer->getSalesChannelId());
-        $mailStruct = new MailRecipientStruct([$customer->getEmail() => $customer->getFirstName() . $customer->getLastName()]);
+        $mailStruct = new MailRecipientStruct([$customer->getEmail() => $customer->getDisplayName()]);
         $storable->setData(MailAware::MAIL_STRUCT, $mailStruct);
     }
 }

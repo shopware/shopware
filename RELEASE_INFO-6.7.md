@@ -155,6 +155,14 @@ A subscriber fills it on `customer.loaded`, so a customer read through the data 
 
 On the registration and profile forms the first and last name fields follow the account type selection through the new `CompanyNameFields` storefront plugin, so the client validation matches what the backend accepts. Address blocks keep the names required, because the backend judges those by the customer or by the top level account type rather than by the account type of the address.
 
+### Customer mails greet a company account by its company name
+
+The five shipped mail templates that greet the customer by name now use `{{ customer.displayName }}` instead of `{{ customer.firstName }} {{ customer.lastName }}`: `customer.group.registration.accepted`, `customer.group.registration.declined`, `customer.password.changed`, `guest_order.double_opt_in` and `password_change`. A migration applies the same change to existing installations, and skips any template a shop has edited.
+
+The recipient name of the ten customer mail events follows the same rule, so the `To:` header of a commercial account without a contact person carries the company instead of a blank.
+
+A template of your own that greets by name needs the same change, otherwise it renders an empty greeting for such an account.
+
 ### Invoice buyer names no longer repeat the company name
 
 The buyer name on invoices no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present. The ZUGFeRD renderer and the document v2 trade party view both take the name from one shared formatter now, so they cannot drift apart again.

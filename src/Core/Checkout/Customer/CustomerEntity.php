@@ -174,8 +174,8 @@ class CustomerEntity extends Entity implements \Stringable
     protected ?UserEntity $updatedBy = null;
 
     /**
-     * Resolved by CustomerDisplayNameSubscriber on customer.loaded, so an entity built by hand carries
-     * nothing and reads as an empty string.
+     * Resolved by CustomerDisplayNameSubscriber on customer.loaded, so only an entity that came
+     * through the data abstraction layer carries the company fallback.
      */
     protected ?string $displayName = null;
 
@@ -189,9 +189,13 @@ class CustomerEntity extends Entity implements \Stringable
         return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
     }
 
+    /**
+     * The person name stands in when the subscriber never ran, so an entity built in code still reads
+     * as a name instead of an empty string.
+     */
     public function getDisplayName(): string
     {
-        return $this->displayName ?? '';
+        return $this->displayName ?? trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
     }
 
     public function setDisplayName(?string $displayName): void

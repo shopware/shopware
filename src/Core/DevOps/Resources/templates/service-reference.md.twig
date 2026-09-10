@@ -9,11 +9,15 @@ nav:
 # {{ title }} script services reference
 
 {% for service in services %}
+{% if not loop.first %}
+
+_________
+
+{% endif %}
 {% if service.link is not null %}
 ## [{{ service.name|raw }}]({{ service.link }}) {{ service.marker }}
 {% else %}
 ## {{ service.name|raw }} {{ service.marker }}
-
 {% endif %}
 
 {% if service.deprecated %}
@@ -21,9 +25,14 @@ nav:
 
 {% endif %}
 {{ service.summary|raw }}
+{% if service.description|trim is not empty %}
 {{ service.description|raw }}
+{% endif %}
 
 {% for method in service.methods %}
+{% if not loop.first %}
+
+{% endif %}
 ### {{ method.title }}
 
 {% if method.deprecated %}
@@ -31,17 +40,22 @@ nav:
 
 {% endif %}
 * {{ method.summary|raw }}
+{% if method.description|trim is not empty %}
 
-    {{ method.description|replace({"\n": "\n\t"})|raw }}
+    {{ method.description|replace({"\n": "\n\t"})|replace({"\t\n": "\n"})|raw }}
+{% endif %}
 {% if method.return is not empty %}
+
 * **Returns** {{ method.return.type }}
+{% if method.return.description|trim is not empty %}
 
     {{ method.return.description }}
+{% endif %}
 {% endif %}
 {% if method.arguments is not empty %}
 * **Arguments:**
 {% for argument in method.arguments %}
-    * *{{ argument.type }}* **{{ argument.name }}**: {{ argument.description }}
+    * *{{ argument.type }}* **{{ argument.name }}**:{{ argument.description|trim is not empty ? ' ' ~ argument.description : '' }}
 {% if argument.default is not null %}
 
         Default: `{{ argument.default }}`
@@ -51,6 +65,7 @@ nav:
 {% if method.examples is not empty %}
 * **Examples:**
 {% for example in method.examples %}
+
     * {{ example.description|raw }}
 
         ```{{ example.extension }}
@@ -60,5 +75,4 @@ nav:
 {% endfor %}
 {% endif %}
 {% endfor %}
-_________
 {% endfor %}

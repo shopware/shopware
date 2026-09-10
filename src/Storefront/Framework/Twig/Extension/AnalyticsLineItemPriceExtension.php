@@ -47,13 +47,23 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
      * is already cheaper. Dividing the aggregated discount by the line item quantity therefore stays
      * correct, while dividing per composition entry would not.
      *
-     * @param iterable<LineItem|OrderLineItemEntity> $lineItems the top level line items, including
-     *                                                          the discount line items
+     * @param iterable<LineItem|OrderLineItemEntity>|null $lineItems the top level line items,
+     *                                                               including the discount line
+     *                                                               items. Null is accepted because
+     *                                                               this is a Twig function: a
+     *                                                               template that includes the
+     *                                                               component without a cart must
+     *                                                               get an empty result, not a
+     *                                                               `TypeError` rendered as a 500.
      *
      * @return array<string, array{price: float, discount: float}> keyed by line item id
      */
-    public function getPrices(iterable $lineItems, SalesChannelContext $context): array
+    public function getPrices(?iterable $lineItems, SalesChannelContext $context): array
     {
+        if ($lineItems === null) {
+            return [];
+        }
+
         $lineItems = array_values(\is_array($lineItems) ? $lineItems : iterator_to_array($lineItems, false));
 
         $discounts = $this->collectDiscounts($lineItems);

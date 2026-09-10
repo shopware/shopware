@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -38,6 +39,17 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
         $names = array_map(static fn ($function) => $function->getName(), $this->extension->getFunctions());
 
         static::assertSame(['sw_analytics_line_item_prices'], $names);
+    }
+
+    /**
+     * The account edit-order page inherits the analytics block from the confirm page without a cart,
+     * so the Twig function is reached with a null. A `TypeError` there renders as a 500 for the whole
+     * page, which is a much worse outcome than reporting no prices.
+     */
+    #[TestDox('A missing line item collection reports no prices instead of raising a TypeError')]
+    public function testReturnsNoPricesWithoutLineItems(): void
+    {
+        static::assertSame([], $this->extension->getPrices(null, $this->context()));
     }
 
     public function testReportsTheUnitPriceWhenNoPromotionApplies(): void

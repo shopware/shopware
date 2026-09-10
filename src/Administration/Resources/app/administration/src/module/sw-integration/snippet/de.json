@@ -1,84 +1,98 @@
 {
-  "sw-integration": {
-    "general": {
-      "mainMenuItemIndex": "Integrationen",
-      "headlineIntegrations": "Integrationen",
-      "buttonCreateIntegration": "Integration anlegen",
-      "heroHeadlineIntegrations": "Integrationen verwalten",
-      "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
+    "sw-integration": {
+        "general": {
+            "mainMenuItemIndex": "Integrationen",
+            "headlineIntegrations": "Integrationen",
+            "buttonCreateIntegration": "Integration anlegen",
+            "heroHeadlineIntegrations": "Integrationen verwalten",
+            "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
+        },
+        "list": {
+            "contextMenuEdit": "Integration bearbeiten",
+            "contextMenuEditMcp": "MCP-Allowlist bearbeiten",
+            "messageEmpty": "Noch keine Integrationen vorhanden",
+            "sublineEmpty": "Verwaltung von Integrationen.",
+            "permissions": "Rollen",
+            "writeAccess": "Schreiben",
+            "readAccess": "Lesen",
+            "integrationName": "Integration",
+            "labelManagedByApp": "Von App verwaltet"
+        },
+        "mcp": {
+            "cardTitle": "MCP-Allowlist",
+            "modalTitle": "MCP-Allowlist",
+            "infoText": "Lege fest, welche MCP-Funktionen diese Integration nutzen darf. Wenn \"Alle Funktionen\" aktiviert ist, sind alle registrierten Tools, Ressourcen und Prompts zugänglich. Deaktiviere die Option, um den Zugriff pro Typ zu konfigurieren. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
+            "adminBanner": "Diese Integration verfügt über Administrator-Rechte. Alle MCP-Funktionen sind standardmäßig zugänglich. Du kannst den Zugriff hier auf bestimmte Tools, Ressourcen oder Prompts einschränken.",
+            "allCapabilitiesLabel": "Alle Funktionen",
+            "allTypeLabel": "Alle",
+            "toolsSection": "Tools",
+            "resourcesSection": "Ressourcen",
+            "promptsSection": "Prompts",
+            "toolsGuidance": "Tools führen Aktionen aus und können Nebenwirkungen haben (Schreiben, Löschen). Beschränke den Zugriff auf das, was diese Integration wirklich benötigt.",
+            "resourcesGuidance": "Ressourcen liefern schreibgeschützte Referenzdaten (Entitätslisten, State Machines, Vertriebskanäle). Schränke diese ein, um sensible Geschäftsdaten nicht unnötig offenzulegen.",
+            "promptsGuidance": "Prompts sind System-Anweisungen, die den Kontext der KI bestimmen. Nicht benötigte Prompts verschwenden Kontextfenster und können die KI verwirren.",
+            "noCapabilitiesHeadline": "Keine Funktionen gefunden",
+            "noCapabilitiesDescription": "Es sind derzeit keine MCP-Tools, Ressourcen oder Prompts registriert.",
+            "dep": "Abhäng.",
+            "dependencyOf": "Dieses Tool wird automatisch ausgewählt, weil ein anderes ausgewähltes Tool davon abhängt.",
+            "missingDeps": "Abhängigkeit nicht ausgewählt: {deps}",
+            "requiresLabel": "benötigt",
+            "requiresTooltip": "Dieses Tool aktiviert auch: {deps}",
+            "staleEntries": "Einige gespeicherte Einträge sind nicht mehr verfügbar: {entries}. Sie werden zur Laufzeit ignoriert.",
+            "privilegesLabel": "Benötigt:",
+            "coverageWarning": "{count} Tool(s) benötigen ACL-Rechte, die der zugewiesenen Rolle fehlen.",
+            "missingPrivilegesList": "Fehlend: {privileges}",
+            "missingPrivilegesTooltip": "Fehlende Berechtigungen: {privileges}",
+            "expandAll": "Alle aufklappen",
+            "collapseAll": "Alle einklappen",
+            "deniedTypeWarning": "Keine {types} sind fur diese Integration aktiviert.",
+            "missingCapabilitySuggestions": "{count} Ressource(n) oder Prompt(s) aus demselben Modul sind nicht in der Allowlist:"
+        },
+        "detail": {
+            "detailModalTitle": "Integration anlegen",
+            "detailModalTitleEdit": "Bearbeiten:",
+            "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
+            "buttonApply": "Integration speichern",
+            "buttonApplyEdit": "Änderungen speichern",
+            "buttonCreateNewApiKeys": "API-Zugangsschlüssel neu generieren",
+            "hintCreateNewApiKeys": "Die Neuerstellung des API-Zugangsschlüssels macht die Aktualisierung aller zugehörigen Skripte und/oder Anwendungen erforderlich.",
+            "labelFieldLabel": "Name",
+            "idFieldLabel": "Zugangs-ID",
+            "secretFieldLabel": "Sicherheitsschlüssel",
+            "secretHelpText": "Zugangs-ID und Sicherheitsschlüssel werden erst nach dem Speichern aktiv. Bitte notiere Dir jetzt den Sicherheitsschlüssel. Nachdem die Integration gespeichert wurde, wird der Schlüssel aus Sicherheitsgründen nicht wieder angezeigt.",
+            "permissions": "Berechtigungen",
+            "readAccessFieldLabel": "Lesen (Standard)",
+            "writeAccessFieldLabel": "Schreiben (optional)",
+            "messageSaveSuccess": "Integration erfolgreich gespeichert.",
+            "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
+            "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
+        }
     },
-    "list": {
-      "contextMenuEdit": "Integration bearbeiten",
-      "contextMenuEditMcp": "MCP-Allowlist bearbeiten",
-      "messageEmpty": "Noch keine Integrationen vorhanden",
-      "sublineEmpty": "Verwaltung von Integrationen.",
-      "permissions": "Rollen",
-      "writeAccess": "Schreiben",
-      "readAccess": "Lesen",
-      "integrationName": "Integration",
-      "labelManagedByApp": "Von App verwaltet"
+    "sw-privileges": {
+        "permissions": {
+            "oauth_client": {
+                "label": "OAuth-Anwendungen"
+            }
+        }
     },
-    "mcp": {
-      "cardTitle": "MCP-Allowlist",
-      "modalTitle": "MCP-Allowlist",
-      "infoText": "Lege fest, welche MCP-Funktionen diese Integration nutzen darf. Wenn \"Alle Funktionen\" aktiviert ist, sind alle registrierten Tools, Ressourcen und Prompts zugänglich. Deaktiviere die Option, um den Zugriff pro Typ zu konfigurieren. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
-      "adminBanner": "Diese Integration verfügt über Administrator-Rechte. Alle MCP-Funktionen sind standardmäßig zugänglich. Du kannst den Zugriff hier auf bestimmte Tools, Ressourcen oder Prompts einschränken.",
-      "allCapabilitiesLabel": "Alle Funktionen",
-      "allTypeLabel": "Alle",
-      "toolsSection": "Tools",
-      "resourcesSection": "Ressourcen",
-      "promptsSection": "Prompts",
-      "toolsGuidance": "Tools führen Aktionen aus und können Nebenwirkungen haben (Schreiben, Löschen). Beschränke den Zugriff auf das, was diese Integration wirklich benötigt.",
-      "resourcesGuidance": "Ressourcen liefern schreibgeschützte Referenzdaten (Entitätslisten, State Machines, Vertriebskanäle). Schränke diese ein, um sensible Geschäftsdaten nicht unnötig offenzulegen.",
-      "promptsGuidance": "Prompts sind System-Anweisungen, die den Kontext der KI bestimmen. Nicht benötigte Prompts verschwenden Kontextfenster und können die KI verwirren.",
-      "noCapabilitiesHeadline": "Keine Funktionen gefunden",
-      "noCapabilitiesDescription": "Es sind derzeit keine MCP-Tools, Ressourcen oder Prompts registriert.",
-      "dep": "Abhäng.",
-      "dependencyOf": "Dieses Tool wird automatisch ausgewählt, weil ein anderes ausgewähltes Tool davon abhängt.",
-      "missingDeps": "Abhängigkeit nicht ausgewählt: {deps}",
-      "requiresLabel": "benötigt",
-      "requiresTooltip": "Dieses Tool aktiviert auch: {deps}",
-      "staleEntries": "Einige gespeicherte Einträge sind nicht mehr verfügbar: {entries}. Sie werden zur Laufzeit ignoriert.",
-      "privilegesLabel": "Benötigt:",
-      "coverageWarning": "{count} Tool(s) benötigen ACL-Rechte, die der zugewiesenen Rolle fehlen.",
-      "missingPrivilegesList": "Fehlend: {privileges}",
-      "missingPrivilegesTooltip": "Fehlende Berechtigungen: {privileges}",
-      "expandAll": "Alle aufklappen",
-      "collapseAll": "Alle einklappen",
-      "deniedTypeWarning": "Keine {types} sind fur diese Integration aktiviert.",
-      "missingCapabilitySuggestions": "{count} Ressource(n) oder Prompt(s) aus demselben Modul sind nicht in der Allowlist:"
-    },
-    "detail": {
-      "detailModalTitle": "Integration anlegen",
-      "detailModalTitleEdit": "Bearbeiten:",
-      "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
-      "buttonApply": "Integration speichern",
-      "buttonApplyEdit": "Änderungen speichern",
-      "buttonCreateNewApiKeys": "API-Zugangsschlüssel neu generieren",
-      "hintCreateNewApiKeys": "Die Neuerstellung des API-Zugangsschlüssels macht die Aktualisierung aller zugehörigen Skripte und/oder Anwendungen erforderlich.",
-      "labelFieldLabel": "Name",
-      "idFieldLabel": "Zugangs-ID",
-      "secretFieldLabel": "Sicherheitsschlüssel",
-      "secretHelpText": "Zugangs-ID und Sicherheitsschlüssel werden erst nach dem Speichern aktiv. Bitte notiere Dir jetzt den Sicherheitsschlüssel. Nachdem die Integration gespeichert wurde, wird der Schlüssel aus Sicherheitsgründen nicht wieder angezeigt.",
-      "permissions": "Berechtigungen",
-      "readAccessFieldLabel": "Lesen (Standard)",
-      "writeAccessFieldLabel": "Schreiben (optional)",
-      "messageSaveSuccess": "Integration erfolgreich gespeichert.",
-      "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
-      "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
+    "sw-oauth-client": {
+        "title": "OAuth-Anwendungen",
+        "description": "Registriere öffentliche Anwendungen für die Browser-Anmeldung mit PKCE. Auf dem Server konfigurierte Anwendungen verwaltest Du in der Server-Konfiguration, nicht hier.",
+        "permissionsHint": "Nach der Zustimmung handelt eine Anwendung mit den aktuellen Berechtigungen des zustimmenden Benutzers. Die Registrierung allein gewährt keinen Zugriff. Nutze Integrationen für den Server-zu-Server-Zugriff.",
+        "create": "Anwendung hinzufügen",
+        "details": "Details anzeigen",
+        "name": "Anwendungsname",
+        "clientId": "Client-ID",
+        "clientIdHelp": "Verwende diese ID mit dem Authorization-Code-Verfahren und S256 PKCE. Ein Client-Secret ist nicht erforderlich.",
+        "redirectUris": "Weiterleitungs-URLs",
+        "redirectHelp": "Eine URL pro Zeile, bis zu 20 URLs (jeweils 2048 Zeichen). Verwende HTTPS oder HTTP mit 127.0.0.1 oder [::1]. Keine Zugangsdaten, Fragmente oder Platzhalter. Loopback-Ports dürfen variieren; die übrige URL muss exakt übereinstimmen.",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "activeHelp": "Deaktivierte Anwendungen können keine Tokens anfordern, erneuern oder verwenden. Nach der Reaktivierung funktionieren noch gültige Tokens wieder.",
+        "deleteConfirm": "„{name}“ löschen? Dadurch kann sich die Anwendung nicht mehr anmelden und ihre bestehenden Tokens nicht mehr verwenden.",
+        "saved": "Anwendung gespeichert.",
+        "loadError": "Anwendungen konnten nicht geladen werden. Bitte versuche es erneut.",
+        "saveError": "Die Anwendung konnte nicht gespeichert werden. Prüfe den Namen und die Weiterleitungs-URLs und versuche es erneut.",
+        "deleteError": "Die Anwendung konnte nicht gelöscht werden. Bitte versuche es erneut."
     }
-  },
-  "sw-privileges": {
-    "permissions": {
-      "integration": {
-        "label": "Integrationen"
-      }
-    },
-    "additional_permissions": {
-      "integration_mcp": {
-        "label": "Integrationen",
-        "editor": "MCP-Allowlist bearbeiten"
-      }
-    }
-  }
 }

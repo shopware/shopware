@@ -2,6 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import './acl';
+import './acl/oauth-client';
 
 const { Module } = Shopware;
 
@@ -10,6 +11,12 @@ Shopware.Component.register('sw-integration-list', () => import('./page/sw-integ
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-integration-mcp-allowlist', () => import('./component/sw-integration-mcp-allowlist'));
+
+/** @private */
+Shopware.Component.register('sw-oauth-client-list', () => import('./page/sw-oauth-client-list'));
+
+/** @private */
+Shopware.Component.register('sw-integration-tabs', () => import('./component/sw-integration-tabs'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {
@@ -33,12 +40,25 @@ Module.register('sw-integration', {
                 privilege: 'integration.viewer',
             },
         },
+        oauth: {
+            component: 'sw-oauth-client-list',
+            path: 'oauth',
+            meta: {
+                parentPath: 'sw.settings.index.system',
+                privilege: 'oauth_client.viewer',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
-        to: 'sw.integration.index',
+        // Resolve at render time so OAuth-only roles can use the same Settings entry.
+        get to() {
+            return Shopware.Service('acl').can('integration.viewer') ? 'sw.integration.index' : 'sw.integration.oauth';
+        },
         icon: 'regular-key',
-        privilege: 'integration.viewer',
+        get privilege() {
+            return Shopware.Service('acl').can('integration.viewer') ? 'integration.viewer' : 'oauth_client.viewer';
+        },
     },
 });

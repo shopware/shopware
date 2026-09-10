@@ -4,7 +4,7 @@
 
 ### Manage OAuth applications in the Administration
 
-Register public OAuth clients in **Settings > System > OAuth applications**, or through the `oauth_client` Admin API entity. The client ID is `oauth-` followed by the entity's UUID. Use the authorization code grant with S256 PKCE and no client secret; applications receive the approving user's current permissions, not integration roles. Existing integrations and configured `shopware.api.oauth_clients` remain unchanged. Configured clients are managed through server configuration and take precedence over database registrations.
+Register public OAuth clients in **Settings > System > Integrations > OAuth applications**, or through the `oauth_client` Admin API entity. The client ID is `oauth-` followed by the entity's UUID. Use the authorization code grant with S256 PKCE and no client secret; applications receive the approving user's current permissions, not integration roles. Both types share the Integrations module, but their entities and management permissions remain separate. Existing integrations and configured `shopware.api.oauth_clients` remain unchanged. Configured clients are managed through server configuration and take precedence over database registrations.
 
 The new `oauth_client:read`, `oauth_client:create`, `oauth_client:update` and `oauth_client:delete` privileges control application management. Existing roles do not automatically receive these permissions. While an application is disabled, authorization, token refresh and existing bearer-token requests are rejected. Re-enabling it allows unexpired tokens to work again. Deleting an application also prevents its tokens from being used. Per-user authorizations and individual connected-app revocation are not part of this addition.
 

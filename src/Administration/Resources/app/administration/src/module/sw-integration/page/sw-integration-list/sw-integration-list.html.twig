@@ -41,6 +41,10 @@
     {% block sw_integration_list_content %}
     <template #content>
         <sw-card-view class="sw-integration-list__content">
+            {% block sw_integration_list_tabs %}
+            <sw-integration-tabs />
+            {% endblock %}
+
             {# @deprecated tag:v6.8.0 - Will be removed. #}
             {% block sw_integration_list_introduction %}
             <sw-extension-component-section

@@ -88,11 +88,13 @@ return $personName === '' ? $company : $personName . ' - ' . $company;
 
 A subscriber on `MailBeforeValidateEvent` swaps a rendered copy of the customer into the template data and patches the recipient name in `getData()`, which `MailService::send()` reads separately. Templates live in the shop database, so they keep addressing `customer.firstName` and `customer.lastName`.
 
+The company goes into `lastName`, not `firstName`. Most shipped templates greet with `{{ customer.salutation.translated.letterName }} {{ customer.lastName }}` and never read `firstName`, so a company placed there would not appear in the mail at all. Templates that render both parts produce a double space, which HTML collapses. Plain text mails keep it.
+
 ```php
 // the stored customer is never touched, only the copy the template renders
 $rendered = clone $customer;
-$rendered->setFirstName($customer->getCompany());
-$rendered->setLastName('');
+$rendered->setFirstName('');
+$rendered->setLastName($customer->getCompany());
 
 $event->setTemplateData([...$templateData, 'customer' => $rendered]);
 $event->setData([...$data, 'recipients' => [$customer->getEmail() => $customer->getCompany()]]);

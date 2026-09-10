@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import utils from 'src/core/service/util.service';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
 
@@ -243,6 +244,8 @@ export default {
     },
 
     methods: {
+        customerDisplayName,
+
         getList() {
             this.isLoading = true;
             const criteria = this.entityCriteria;

@@ -294,6 +294,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             customer: {
                 id: '1',
                 email: 'ytn@shopware.com',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
                 boundSalesChannelId: null,
             },
         });
@@ -393,7 +395,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         expect(wrapper.vm.customer.lastName).toBe('');
     });
 
-    it('should leave a private account to the data abstraction layer', async () => {
+    it('should still require a contact person on a private account', async () => {
         const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
         const wrapper = await createWrapper({ customerRepositorySaveMock });
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
@@ -404,9 +406,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             address: { id: '2' },
         });
 
-        // This page only fills empty names in for a commercial account, so a private one still
-        // reaches the layer with the name unset and is rejected there as before.
-        expect(await wrapper.vm.onSave()).not.toBe(false);
-        expect(customerRepositorySaveMock).toHaveBeenCalled();
+        expect(await wrapper.vm.onSave()).toBe(false);
+        expect(customerRepositorySaveMock).not.toHaveBeenCalled();
     });
 });

@@ -109,7 +109,11 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 }
             }
 
-            if ($data->has('company')) {
+            // Required on an explicit switch to business, as before, and on the stored value the
+            // branch above fills in. Only a request that leaves an existing business account alone
+            // without touching the company skips it.
+            if ($data->has('company') || $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+                $data->set('company', $data->get('company') ?? '');
                 $validation->add('company', CompanyAccountNameFields::companyNotBlank());
             }
 

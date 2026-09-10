@@ -52,7 +52,7 @@ import {
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
-import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
+import CUSTOMER from './constant/customer.constant';
 import FLOW from '../module/sw-flow/constant/flow.constant';
 import InAppPurchase from './in-app-purchase';
 import ExtensionApi from './extension-api';

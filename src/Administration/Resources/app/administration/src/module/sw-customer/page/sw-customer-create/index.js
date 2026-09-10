@@ -65,13 +65,13 @@ export default {
         },
 
         validContactPersonFields() {
-            // Only a commercial account can reach the save with names this page filled in as empty
-            // strings. A private one never does, so the data abstraction layer still rejects a
-            // missing name there and this page does not need to repeat it.
-            if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.companyNamesRequired) {
+            if (!this.contactPersonRequired) {
                 return true;
             }
 
+            // Private accounts included: a name the user types and then clears is an empty string,
+            // which the data abstraction layer accepts once the field allows one, so nothing below
+            // this page would reject it any more.
             return Boolean(this.customer.firstName?.trim().length && this.customer.lastName?.trim().length);
         },
 

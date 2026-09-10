@@ -185,6 +185,33 @@ class CompanyAccountNameTest extends TestCase
         );
     }
 
+    public function testSwitchingToACompanyAccountStillNeedsACompanyName(): void
+    {
+        $this->setNameFields(show: true, required: true);
+        $this->register($this->privateRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'salutationId' => $this->getValidSalutationId(),
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'firstName' => 'Ada',
+                'lastName' => 'Lovelace',
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        static::assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $this->browser->getResponse()->getStatusCode(),
+            'a request that names itself a company account has to bring a company'
+        );
+    }
+
     public function testACompanyNamedZeroSurvivesRegistration(): void
     {
         $this->setNameFields(show: true, required: false);
@@ -299,6 +326,22 @@ class CompanyAccountNameTest extends TestCase
                 'city' => 'Cologne',
             ],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function privateRegistrationData(): array
+    {
+        $data = $this->companyRegistrationData();
+        $data['accountType'] = CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+        $data['firstName'] = 'Ada';
+        $data['lastName'] = 'Lovelace';
+        $data['billingAddress']['firstName'] = 'Ada';
+        $data['billingAddress']['lastName'] = 'Lovelace';
+        unset($data['billingAddress']['company']);
+
+        return $data;
     }
 
     private function setNameFields(bool $show, bool $required): void

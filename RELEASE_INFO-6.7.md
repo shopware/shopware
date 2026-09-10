@@ -96,6 +96,11 @@ The GARAN label that 6.7.14.0 added to the `order_confirmation_mail` template (s
 As with the original change, a migration re-applies the template only for shops that never edited their order confirmation mail template. If you customized that template and copied the label markup from 6.7.14.0, replace your `<tr><td colspan="6">` label row with the markup from `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
 
 Note that the label is embedded as an SVG `data:` URI, which Gmail and Outlook do not render at all. Recipients on those clients see the `alt` text; the label remains visible in the storefront and in the customer account.
+### GARAN guarantee duration is capped at 600 months
+
+`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.
+
+Values already stored above 600 months are untouched and keep rendering their label; they only have to be corrected the next time that product is written.
 
 ### State machine transitions resolve deterministically
 

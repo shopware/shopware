@@ -86,26 +86,64 @@ return $personName === '' ? $company : $personName . ' - ' . $company;
 
 ### Mail
 
-The shipped templates move to the resolved name, and a migration carries that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps its own text. Twenty fixture files across five templates read the customer name today, in two shapes, one of which never reads `firstName`.
+The shipped templates move to the resolved name, and a migration carries that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps its own text. Twenty fixture files across five templates read the customer name today, in three shapes. Two of them never read `firstName`, so a company placed there would not appear in the mail at all.
 
 ```twig
 {# before #}
 Hello {{ customer.firstName }} {{ customer.lastName }},
 Hello {{ customer.salutation.translated.letterName }} {{ customer.lastName }},
+Hello {{ customer.salutation.translated.letterName }} {{ customer.firstName }} {{ customer.lastName }},
 
 {# after #}
 Hello {{ customer.displayName }},
 Hello {{ customer.salutation.translated.letterName }} {{ customer.displayName }},
 ```
 
-The recipient name is built in the events, not the template, so the ten `MailAware` customer events read the resolved name instead of joining the two columns. Otherwise the `To:` header of a nameless company account is a single space.
+The recipient name is built in the events, not the template. Ten `MailAware`
+customer events join the two columns in `getMailStruct()`, so without a change
+the `To:` header of a nameless company account is a single space. All ten read
+the resolved name instead:
 
-```php
-// CustomerRegisterEvent::getMailStruct() and its nine siblings
-new MailRecipientStruct([$this->customer->getEmail() => $this->customer->getDisplayName()]);
+```
+Shopware\Core\Checkout\Customer\Event\
+    CustomerRegisterEvent
+    CustomerLoginEvent
+    CustomerLogoutEvent
+    CustomerDeletedEvent
+    CustomerPasswordChangedEvent
+    CustomerAccountRecoverRequestEvent
+    CustomerDoubleOptInRegistrationEvent
+    CustomerGroupRegistrationAccepted
+    CustomerGroupRegistrationDeclined
+    DoubleOptInGuestOrderEvent
 ```
 
-Order mails need nothing. They read `order.orderCustomer.firstName`, which already carries the company through the snapshot.
+```php
+// before, in each of the ten
+public function getMailStruct(): MailRecipientStruct
+{
+    return new MailRecipientStruct([
+        $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+    ]);
+}
+
+// after
+public function getMailStruct(): MailRecipientStruct
+{
+    return new MailRecipientStruct([
+        $this->customer->getEmail() => $this->customer->getDisplayName(),
+    ]);
+}
+```
+
+`MailStorer` builds the same name twice when it restores a flow, without even a
+space between the two parts, and reads the resolved name too.
+
+Order events keep their own join. `OrderStateMachineStateChangeEvent`,
+`OrderPaymentMethodChangedEvent` and `CheckoutOrderPlacedEvent` read
+`orderCustomer`, which already carries the company through the snapshot. The two
+newsletter events and `UserRecoveryRequestEvent` address a recipient that is not
+a customer at all.
 
 There is no runtime patching of the customer for the render. A shop that customised a mail template keeps addressing `customer.firstName` and `customer.lastName`, and gets an empty greeting for an account with no contact person. That is the trade we accept: the shop owns that template, and hiding the change behind a subscriber would mean every mail renders a customer that does not match the one in the database.
 

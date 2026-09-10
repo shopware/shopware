@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -360,6 +361,68 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->createSubscriber()->invalidateCategoryRouteBySeoUrlChanges(
             $this->createSeoUrlWrittenEvent([$seoUrlId], $context)
         );
+    }
+
+    public function testInvalidateCategoryRouteBySeoUrlUpdate(): void
+    {
+        $categoryId = Uuid::randomHex();
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([$categoryId]);
+
+        $this->cacheInvalidator
+            ->expects($this->once())
+            ->method('invalidate')
+            ->with([CategoryRoute::buildName($categoryId)]);
+
+        $event = new SeoUrlUpdateEvent(
+            [
+                ['foreignKey' => $categoryId, 'seoPathInfo' => 'new-path/'],
+                // the same key twice must not be looked up twice
+                ['foreignKey' => $categoryId, 'seoPathInfo' => 'new-path/', 'salesChannelId' => Uuid::randomHex()],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $this->createSubscriber()->invalidateCategoryRouteBySeoUrlUpdate($event);
+    }
+
+    public function testDoesNotInvalidateCategoryRouteForSeoUrlUpdatesOfOtherEntities(): void
+    {
+        // the lookup against `category` yields nothing for a product seo url
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $event = new SeoUrlUpdateEvent(
+            [['foreignKey' => Uuid::randomHex()]],
+            Context::createDefaultContext()
+        );
+
+        $this->createSubscriber()->invalidateCategoryRouteBySeoUrlUpdate($event);
+    }
+
+    public function testSeoUrlUpdateWithoutUsableForeignKeysIsIgnored(): void
+    {
+        // a malformed entry must not abort the seo url regeneration this listener runs inside of
+        $this->connection->expects($this->never())->method('fetchFirstColumn');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $event = new SeoUrlUpdateEvent(
+            [
+                ['seoPathInfo' => 'no-foreign-key/'],
+                ['foreignKey' => 'not-a-uuid'],
+                ['foreignKey' => null],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $this->createSubscriber()->invalidateCategoryRouteBySeoUrlUpdate($event);
     }
 
     public function testDoesNotInvalidateCategoryRouteWhenNoSeoUrlWasWritten(): void

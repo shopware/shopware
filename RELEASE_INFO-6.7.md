@@ -269,7 +269,9 @@ Pass `skipBreadcrumb=1` to skip loading it; the breadcrumb costs two additional 
 GET /store-api/product/{productId}?skipBreadcrumb=1
 ```
 
-`slotConfig` is no longer part of the `translated` object of a breadcrumb entry, on this field and on `GET /store-api/breadcrumb/{id}`. A breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` filter that a `category` payload gets, and `slotConfig` is not `ApiAware` on the category definition — it was never part of the Store API contract. Read it from the `category` payload instead. Every other translated field, `customFields` included, is unchanged.
+`slotConfig` is no longer part of the `translated` object of a breadcrumb entry, on this field and on `GET /store-api/breadcrumb/{id}`. A breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` filter that a `category` payload gets, and `slotConfig` is not `ApiAware` on the category definition — it was never part of the Store API contract. Read it from the `category` payload instead.
+
+`customFields` stays part of the breadcrumb, and entries a merchant marked as not `store_api_aware` for the `category` entity are now stripped from it. The Store API encoder only strips the unscoped ones here, because it keys that lookup by api alias and `breadcrumb` is not a registered entity, so those entries used to be exposed through `GET /store-api/breadcrumb/{id}`. Every other translated field is unchanged.
 
 `GET /store-api/breadcrumb/{id}` stays available, for example to load a breadcrumb from a listing without loading the full product.
 

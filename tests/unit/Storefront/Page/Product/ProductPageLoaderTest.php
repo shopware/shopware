@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;

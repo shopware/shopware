@@ -31,6 +31,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
@@ -186,6 +187,10 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), array_keys($categoryIds)));
     }
 
+    /**
+     * Covers seo urls written through the DAL, for example the admin api. The regeneration path bypasses the DAL
+     * entirely, see invalidateCategoryRouteBySeoUrlUpdate().
+     */
     public function invalidateCategoryRouteBySeoUrlChanges(EntityWrittenContainerEvent $event): void
     {
         $seoUrlIds = $event->getPrimaryKeys(SeoUrlDefinition::ENTITY_NAME);
@@ -201,6 +206,47 @@ class CacheInvalidationSubscriber
              INNER JOIN category ON category.id = seo_url.foreign_key AND category.version_id = :version
              WHERE seo_url.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($seoUrlIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if ($categoryIds === []) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $categoryIds));
+    }
+
+    /**
+     * `SeoUrlPersister` regenerates seo urls with a `MultiInsertQueryQueue` and raw statements, so no DAL write event
+     * is dispatched. The event carries the affected foreign keys, which is also the only usable key here: the seo url
+     * rows themselves are replaced or obsoleted by the time this runs.
+     */
+    public function invalidateCategoryRouteBySeoUrlUpdate(SeoUrlUpdateEvent $event): void
+    {
+        $foreignKeys = [];
+
+        foreach ($event->getSeoUrls() as $seoUrl) {
+            $foreignKey = $seoUrl['foreignKey'] ?? null;
+
+            // a malformed entry must not abort the seo url regeneration this listener runs inside of
+            if (\is_string($foreignKey) && Uuid::isValid($foreignKey)) {
+                $foreignKeys[$foreignKey] = true;
+            }
+        }
+
+        if ($foreignKeys === []) {
+            return;
+        }
+
+        // keeps product and landing page seo urls out, they do not carry a category breadcrumb
+        $categoryIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) as category_id
+             FROM category
+             WHERE id IN (:ids) AND version_id = :version',
+            [
+                'ids' => Uuid::fromHexToBytesList(array_keys($foreignKeys)),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
             ['ids' => ArrayParameterType::BINARY]
         );
 

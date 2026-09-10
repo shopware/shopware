@@ -280,6 +280,8 @@ class CategoryBreadcrumbBuilder
      */
     private function convertCategoriesToBreadcrumbUrls(CategoryCollection $categories, array $seoUrls): BreadcrumbCollection
     {
+        $blockedCustomFields = $this->getBlockedCustomFields($categories);
+
         $seoBreadcrumbCollection = [];
         foreach ($categories as $category) {
             $categoryId = $category->getId();
@@ -288,7 +290,7 @@ class CategoryBreadcrumbBuilder
                 $category->getTranslation('name'),
                 $categoryId,
                 $category->getType(),
-                $this->filterTranslated($category),
+                $this->filterTranslated($category, $blockedCustomFields),
             );
 
             if ($categorySeoUrls === []) {
@@ -315,14 +317,18 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * The breadcrumb is a plain struct, so the store-api encoder cannot apply the `ApiAware` and `store_api_aware`
-     * filters it applies to a `category` payload. Therefore only fields that are explicitly safe to expose are
-     * copied over; `slotConfig` (not `ApiAware`) and `customFields` (filtered per field in a category payload)
-     * are deliberately not part of it.
+     * The breadcrumb is a plain struct, so `StructEncoder::isProtected()` bails out for its alias and the `ApiAware`
+     * filter a `category` payload gets is never applied. Therefore only fields that are explicitly safe to expose are
+     * copied over, which leaves out `slotConfig` because it is not `ApiAware` on the category definition.
+     *
+     * `customFields` is `ApiAware`, so it stays part of the payload, but the encoder would only strip its `global`
+     * scoped blocked entries for this alias. The ones scoped to `category` are therefore removed here.
+     *
+     * @param list<string> $blockedCustomFields
      *
      * @return array<string, mixed>
      */
-    private function filterTranslated(CategoryEntity $category): array
+    private function filterTranslated(CategoryEntity $category, array $blockedCustomFields): array
     {
         $translated = [];
 
@@ -330,9 +336,50 @@ class CategoryBreadcrumbBuilder
             $translated[$field] = $category->getTranslation($field);
         }
 
-        $translated['customFields'] = $category->getTranslation('customFields');
+        $customFields = $category->getTranslation('customFields');
+
+        if (\is_array($customFields) && $blockedCustomFields !== []) {
+            $customFields = array_diff_key($customFields, array_flip($blockedCustomFields));
+        }
+
+        $translated['customFields'] = $customFields;
 
         return $translated;
+    }
+
+    /**
+     * Mirrors what `StructEncoder` does for an entity payload, for the `category` and the unscoped sets. It has to be
+     * repeated here because the encoder keys its lookup by api alias and `breadcrumb` is not a registered entity.
+     *
+     * @return list<string>
+     */
+    private function getBlockedCustomFields(CategoryCollection $categories): array
+    {
+        $hasCustomFields = false;
+
+        foreach ($categories as $category) {
+            $customFields = $category->getTranslation('customFields');
+
+            if (\is_array($customFields) && $customFields !== []) {
+                $hasCustomFields = true;
+
+                break;
+            }
+        }
+
+        if (!$hasCustomFields) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            '# breadcrumb-builder::blocked-custom-fields
+            SELECT cf.name
+            FROM custom_field cf
+            LEFT JOIN custom_field_set_relation cfsr ON cfsr.set_id = cf.set_id
+            WHERE cf.store_api_aware = 0
+              AND (cfsr.entity_name = :entityName OR cfsr.entity_name IS NULL)',
+            ['entityName' => CategoryDefinition::ENTITY_NAME]
+        );
     }
 
     /**

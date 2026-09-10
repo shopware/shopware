@@ -648,6 +648,9 @@ export default [
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',
+            // A warning until the suite is swept: the rule bans every `setData` call, and the ones it
+            // cannot rewrite need a decision per call site. Raise it to `error` once none are left.
+            'sw-test-rules/no-set-data': 'warn',
             'sw-test-rules/stabilize-feature-flag': [
                 'error',
                 {

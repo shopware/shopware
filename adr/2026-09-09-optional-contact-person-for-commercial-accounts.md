@@ -86,9 +86,21 @@ return $personName === '' ? $company : $personName . ' - ' . $company;
 
 ### Mail
 
-A subscriber on `MailBeforeValidateEvent` swaps a rendered copy of the customer into the template data and patches the recipient name in `getData()`, which `MailService::send()` reads separately. Templates live in the shop database, so they keep addressing `customer.firstName` and `customer.lastName`.
+The shipped templates move to the resolved name, and a migration carries that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps what it has.
 
-The company goes into `lastName`, not `firstName`. Most shipped templates greet with `{{ customer.salutation.translated.letterName }} {{ customer.lastName }}` and never read `firstName`, so a company placed there would not appear in the mail at all. Templates that render both parts produce a double space, which HTML collapses. Plain text mails keep it.
+```twig
+{# fixtures today, in two shapes, one of which never reads firstName #}
+Hello {{ customer.firstName }} {{ customer.lastName }},
+Hello {{ customer.salutation.translated.letterName }} {{ customer.lastName }},
+
+{# after #}
+Hello {{ customer.displayName }},
+Hello {{ customer.salutation.translated.letterName }} {{ customer.displayName }},
+```
+
+Customised templates still address `customer.firstName` and `customer.lastName`, so a subscriber on `MailBeforeValidateEvent` covers them. It swaps a rendered copy of the customer into the template data and patches the recipient name in `getData()`, which `MailService::send()` reads separately.
+
+The copy puts the company in `lastName`, not `firstName`, because the shape that greets with `letterName` never reads `firstName` and the company would not appear at all. A customised template that renders both parts gets a double space, which HTML collapses and plain text keeps. That is the residue we accept, and it reaches only shops that edited their own mails.
 
 ```php
 // the stored customer is never touched, only the copy the template renders

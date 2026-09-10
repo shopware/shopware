@@ -24,6 +24,7 @@ use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
 use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
+use Shopware\Elasticsearch\Admin\AdminElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Admin\AdminSearchController;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
@@ -47,6 +48,7 @@ use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
 use Shopware\Elasticsearch\FieldQueryBuilder;
 use Shopware\Elasticsearch\Framework\ClientFactory;
+use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminCleanIndicesCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminTestCommand;
@@ -74,6 +76,8 @@ use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchStagingHandler;
+use Shopware\Elasticsearch\Framework\Indexing\CleanupIndicesTask;
+use Shopware\Elasticsearch\Framework\Indexing\CleanupIndicesTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -351,6 +355,25 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CreateAliasTask::class)
         ->tag('shopware.scheduled.task');
 
+    $services->set(CleanupIndicesTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('shopware.elasticsearch.logger'),
+            service(Client::class),
+            service('admin.openSearch.client'),
+            service(Connection::class),
+            service(ElasticsearchOutdatedIndexDetector::class),
+            service(AdminElasticsearchOutdatedIndexDetector::class),
+            service(AdminElasticsearchHelper::class),
+            service(ClockInterface::class),
+            param('elasticsearch.enabled'),
+            param('elasticsearch.index_cleanup_minimum_age'),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(CleanupIndicesTask::class)
+        ->tag('shopware.scheduled.task');
+
     $services->set(ElasticsearchRegistry::class)
         ->args([
             tagged_iterator('shopware.es.definition'),
@@ -473,6 +496,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(ElasticsearchAdminCleanIndicesCommand::class)
+        ->args([
+            service('admin.openSearch.client'),
+            service(AdminElasticsearchOutdatedIndexDetector::class),
+            service(AdminElasticsearchHelper::class),
+        ])
+        ->tag('console.command');
+
     $services->set(ElasticsearchAdminIndexingCommand::class)
         ->args([
             service(AdminSearchRegistry::class),
@@ -588,6 +619,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.environment'),
             param('elasticsearch.administration.throw_exception'),
             service('shopware.elasticsearch.logger'),
+        ]);
+
+    $services->set(AdminElasticsearchOutdatedIndexDetector::class)
+        ->args([
+            service('admin.openSearch.client'),
+            service(AdminElasticsearchHelper::class),
         ]);
 
     $services->set(AdminSearchController::class)

@@ -112,11 +112,11 @@
             class="sw-settings-product-feature-set-card__empty-state"
             centered
             icon="regular-check-square"
-            :headline="$t('sw-settings-product-feature-sets.valuesCard.cardTitle')"
-            :description="disabled
+            :headline="disabled
                 ? $t('sw-settings-product-feature-sets.valuesCard.createStateDescription')
                 : $t('sw-settings-product-feature-sets.valuesCard.emptyStateDescription')
             "
+            description=""
         >
             <template #button>
                 {% block sw_product_feature_set_card_empty_state_button %}

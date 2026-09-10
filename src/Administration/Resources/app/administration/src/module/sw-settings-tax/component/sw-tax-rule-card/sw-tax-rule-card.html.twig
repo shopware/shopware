@@ -200,11 +200,11 @@
             class="sw-settings-tax-rule-card__empty-state"
             centered
             icon="regular-chart-pie"
-            :headline="$t('sw-settings-tax.taxRuleCard.cardTitle')"
-            :description="disabled
+            :headline="disabled
                 ? $t('sw-settings-tax.taxRuleCard.createStateDescription')
                 : $t('sw-settings-tax.taxRuleCard.emptyStateDescription')
             "
+            description=""
         >
             <template #button>
                 {% block sw_tax_rule_card_empty_state_button %}

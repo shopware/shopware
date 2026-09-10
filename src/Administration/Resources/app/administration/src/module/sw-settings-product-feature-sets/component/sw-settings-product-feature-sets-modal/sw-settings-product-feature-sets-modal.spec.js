@@ -38,6 +38,12 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         productInformationListNameHeader: 'sw-settings-product-feature-sets.modal.labelName',
     };
 
+    const searchCriteria = {};
+
+    beforeEach(() => {
+        Object.keys(searchCriteria).forEach((key) => delete searchCriteria[key]);
+    });
+
     function returnPageConfigDataObject(config) {
         return {
             showPageOne: false,
@@ -99,7 +105,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         },
                         repositoryFactory: {
                             create: (entity) => ({
-                                search: () => {
+                                search: (criteria) => {
+                                    searchCriteria[entity] = criteria;
+
                                     if (entity === 'custom_field') {
                                         return Promise.resolve(
                                             new Array(10).fill(null).map((_, i) => ({
@@ -297,5 +305,99 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         expect(selectItemMock).toHaveBeenCalledTimes(1);
         expect(selectItemMock).toHaveBeenCalledWith(true, { id: 'prop-id-2', name: 'prop-2' });
+    });
+
+    it('searches custom fields by their label, not only by their technical name', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material thickness' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const locale = Shopware.Store.get('session').currentLocale;
+
+        // a term search would only match the technical `name` of a custom field
+        expect(criteria.term).toBeNull();
+
+        expect(criteria.queries).toContainEqual({
+            score: 250,
+            query: { type: 'contains', field: 'name', value: 'Material thickness' },
+        });
+        expect(criteria.queries).toContainEqual({
+            score: 250,
+            query: { type: 'contains', field: `config.label.${locale}`, value: 'Material thickness' },
+        });
+    });
+
+    it('matches the single words of a search term below the whole term', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material thickness' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const wholeTerm = criteria.queries.find(
+            (query) => query.query.type === 'contains' && query.query.value === 'Material thickness',
+        );
+
+        [
+            'Material',
+            'thickness',
+        ].forEach((part) => {
+            const partQuery = criteria.queries.find(
+                (query) => query.query.type === 'contains' && query.query.field === 'name' && query.query.value === part,
+            );
+
+            expect(partQuery).toBeDefined();
+            expect(partQuery.score).toBeLessThan(wholeTerm.score);
+        });
+    });
+
+    it('does not split a single word search term', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const nameQueries = criteria.queries.filter((query) => query.query.field === 'name');
+
+        expect(nameQueries).toHaveLength(2);
+    });
+
+    it('ranks exact custom field matches above partial ones', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const locale = Shopware.Store.get('session').currentLocale;
+
+        [
+            'name',
+            `config.label.${locale}`,
+        ].forEach((field) => {
+            const exact = criteria.queries.find((query) => query.query.type === 'equals' && query.query.field === field);
+            const partial = criteria.queries.find((query) => query.query.type === 'contains' && query.query.field === field);
+
+            expect(exact.score).toBeGreaterThan(partial.score);
+        });
+
+        // the score sorting has to win over the type sorting
+        expect(criteria.sortings[0]).toEqual({ field: '_score', order: 'DESC', naturalSorting: false });
+        expect(criteria.sortings[1]).toEqual({ field: 'type', order: 'DESC', naturalSorting: false });
     });
 });

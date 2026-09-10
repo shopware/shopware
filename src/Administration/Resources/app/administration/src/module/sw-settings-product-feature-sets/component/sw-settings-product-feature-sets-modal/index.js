@@ -3,8 +3,9 @@
  */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
-const { Context } = Shopware;
+const { Context, Locale } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -31,6 +32,7 @@ export default {
             selectedFeatureType: null,
             showPageOne: true,
             term: '',
+            customFieldSearchTerm: '',
             showCustomField: false,
             showPropertyGroups: false,
             showProductInfo: false,
@@ -117,7 +119,29 @@ export default {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 10);
+
+            if (this.customFieldSearchTerm) {
+                // score queries restrict the result set on their own, the score sorting has to be added before the
+                // type sorting to stay the primary one
+                criteria.addSorting(Criteria.sort('_score', 'DESC'));
+
+                this.customFieldSearchFields.forEach((field) => {
+                    criteria.addQuery(
+                        Criteria.equals(field, this.customFieldSearchTerm),
+                        searchRankingPoint.HIGH_SEARCH_RANKING,
+                    );
+                    criteria.addQuery(
+                        Criteria.contains(field, this.customFieldSearchTerm),
+                        searchRankingPoint.MIDDLE_SEARCH_RANKING,
+                    );
+
+                    this.customFieldSearchParts.forEach((part) => {
+                        criteria.addQuery(Criteria.contains(field, part), searchRankingPoint.LOW_SEARCH_RANKING);
+                    });
+                });
+            }
+
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
@@ -126,6 +150,28 @@ export default {
             }
 
             return criteria;
+        },
+
+        customFieldSearchParts() {
+            const parts = this.customFieldSearchTerm
+                .trim()
+                .split(/\s+/)
+                .filter((part) => part.length > 1);
+
+            return parts.length > 1 ? parts : [];
+        },
+
+        customFieldSearchFields() {
+            const locales = new Set([
+                Shopware.Store.get('session').currentLocale,
+                Shopware.Context.app.fallbackLocale,
+                ...Locale.getLocaleRegistry().keys(),
+            ]);
+
+            return [
+                'name',
+                ...[...locales].filter(Boolean).map((locale) => `config.label.${locale}`),
+            ];
         },
 
         propertyGroupCriteria() {
@@ -220,7 +266,6 @@ export default {
                 this.features = this.productFeatureSet.features;
             }
 
-            this.customFieldCriteria.setLimit(10);
             this.propertyGroupCriteria.setLimit(10);
 
             this.getCustomFieldList();
@@ -229,7 +274,7 @@ export default {
         },
 
         onSearchCustomFields() {
-            this.customFieldCriteria.setTerm(this.term);
+            this.customFieldSearchTerm = this.term;
             this.getCustomFieldList();
         },
 

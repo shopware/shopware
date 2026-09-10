@@ -14,7 +14,7 @@
       "contextMenuDuplicate": "Tag duplizieren",
       "contextMenuDelete": "Tag löschen",
       "messageDeleteSuccess": "Tag \"{name}\" gelöscht.",
-      "titleEmptyStateList": "Keine Tags gefunden.",
+      "titleEmptyStateList": "Keine Tags gefunden",
       "searchPlaceholder": "Durchsuche Tags ...",
       "filter": "Filter",
       "filterAssignemnt": "Filter nach zugewiesenen Entitäten",

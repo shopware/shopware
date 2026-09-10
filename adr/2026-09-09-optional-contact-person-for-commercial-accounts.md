@@ -7,9 +7,9 @@ tags: [customer, validation, documents, payment]
 
 ## Context
 
-Registering a commercial account always requires a first and last name. A company that buys through a shared mailbox has no single contact person to enter, so those shops type `-`, `.`, or the company name twice to get past the form. Issue [#15321](https://github.com/shopware/shopware/issues/15321) asks for the contact person to become optional.
+Registering a commercial account always requires a first and last name, and `Settings > Login & Registration` offers no way to turn that off. Issue [#15321](https://github.com/shopware/shopware/issues/15321) states the case: a legal transaction with a GmbH or an AG is a transaction with a legal entity, and a legal entity has no first and last name. The same issue asks for the company name to become an account level field for commercial customers in the Administration, where today it exists only on the address.
 
-We want the shop to decide. A merchant should be able to say that commercial accounts need a contact person, may leave it empty, or do not get the fields at all, and the company name should take over as the identity when there is none. Dropping the two `NotBlank` constraints is the small part. `firstName` and `lastName` are what the storefront greets, the Administration sorts by, mail templates address and e-invoices print, and no single place in the system answers what a customer is called.
+We want the shop to decide. A merchant should be able to set the contact person to required, optional or hidden, and the company name should take over as the identity when there is none. Dropping the two `NotBlank` constraints is the small part. `firstName` and `lastName` are what the storefront greets, the Administration sorts by, mail templates address and e-invoices print, and no single place in the system answers what a customer is called.
 
 ## Decision
 
@@ -78,7 +78,7 @@ The name fields follow the account type `<select>` through a small plugin that t
 
 ### Administration
 
-The two name fields become optional only when both settings allow it. The account level company becomes editable rather than only copied from the address, and the customer and order lists read the resolved name.
+The two name fields become optional only when both settings allow it. `Customers > New customer` gains a company field in the account section for the commercial type, so the company is persisted on the customer and not only on the address. This is a requirement of its own in the issue, not a side effect of the name change. The customer and order lists read the resolved name.
 
 ## Consequences
 

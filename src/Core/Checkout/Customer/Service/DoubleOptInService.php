@@ -94,14 +94,7 @@ class DoubleOptInService
      */
     public function mapCustomerDoubleOptInData(array $customer, SalesChannelContext $context): array
     {
-        $configKey = $customer['guest']
-            ? 'core.loginRegistration.doubleOptInGuestOrder'
-            : 'core.loginRegistration.doubleOptInRegistration';
-
-        $doubleOptInRequired = $this->systemConfigService
-            ->getBool($configKey, $context->getSalesChannelId());
-
-        if (!$doubleOptInRequired) {
+        if (!$this->isDoubleOptInEnabled((bool) $customer['guest'], $context)) {
             return $customer;
         }
 
@@ -110,6 +103,15 @@ class DoubleOptInService
         $customer['hash'] = Uuid::randomHex();
 
         return $customer;
+    }
+
+    public function isDoubleOptInEnabled(bool $isGuest, SalesChannelContext $context): bool
+    {
+        $configKey = $isGuest
+            ? 'core.loginRegistration.doubleOptInGuestOrder'
+            : 'core.loginRegistration.doubleOptInRegistration';
+
+        return $this->systemConfigService->getBool($configKey, $context->getSalesChannelId());
     }
 
     private function buildConfirmPath(CustomerEntity $customer, SalesChannelContext $context): string

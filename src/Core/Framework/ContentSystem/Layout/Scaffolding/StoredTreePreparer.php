@@ -136,18 +136,16 @@ final class StoredTreePreparer
      * selected, so a dangling language id cannot reach serving, and a map carrying no chain entry collapses
      * to the null variant, which the rendered-tree mint skips.
      *
-     * The map variant is recognised the way {@see StoredValue::fromDecoded()} assigns it — an unwrapped array
-     * whose keys are not a zero-based sequence — because no variant predicate is exposed. Anything else, and a
-     * selected entry that is not a string, is an internal fault: every client-supplied path rejects both on a
-     * translatable property before a render can reach one.
+     * Anything but a map variant, and a selected entry that is not a string, is an internal fault: every
+     * client-supplied path rejects both on a translatable property before a render can reach one.
      *
      * @param non-empty-list<string> $languageIdChain
      */
     private function selectTranslation(string $elementId, string $key, StoredValue $value, array $languageIdChain): StoredValue
     {
-        $raw = $value->jsonSerialize();
+        if (!$value->isMap()) {
+            $raw = $value->jsonSerialize();
 
-        if (!\is_array($raw) || array_is_list($raw)) {
             throw ContentSystemException::translationShapeInvalid(
                 $elementId,
                 $key,

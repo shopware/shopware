@@ -105,7 +105,6 @@ class StoredValueTest extends TestCase
         yield 'zero int' => [StoredValue::ofInt(0), false];
         yield 'false bool' => [StoredValue::ofBool(false), false];
         yield 'empty list' => [StoredValue::ofList([]), false];
-        yield 'empty map' => [StoredValue::ofMap([]), false];
     }
 
     /**
@@ -179,7 +178,11 @@ class StoredValueTest extends TestCase
             StoredValue::ofMap(['y' => StoredValue::ofInt(1)]),
             false,
         ];
-        yield 'empty list and empty map' => [StoredValue::ofList([]), StoredValue::ofMap([]), false];
+        yield 'a list and a map carrying the same single payload' => [
+            StoredValue::ofList([StoredValue::ofString('a')]),
+            StoredValue::ofMap(['x' => StoredValue::ofString('a')]),
+            false,
+        ];
         yield 'nested maps compared recursively' => [
             StoredValue::ofMap(['a' => StoredValue::ofList([StoredValue::ofMap(['b' => StoredValue::ofString('c')])])]),
             StoredValue::ofMap(['a' => StoredValue::ofList([StoredValue::ofMap(['b' => StoredValue::ofString('c')])])]),
@@ -233,6 +236,41 @@ class StoredValueTest extends TestCase
         static::assertSame($expected, $value->isNull());
     }
 
+    #[DataProvider('mapVariantProvider')]
+    #[TestDox('returns true only for the map variant, never for a list')]
+    public function testIsMapIsTrueOnlyForTheMapVariant(StoredValue $value, bool $expected): void
+    {
+        static::assertSame($expected, $value->isMap());
+    }
+
+    /**
+     * @return iterable<string, array{StoredValue, bool}>
+     */
+    public static function mapVariantProvider(): iterable
+    {
+        yield 'map variant' => [StoredValue::ofMap(['x' => StoredValue::ofString('a')]), true];
+        yield 'decoded keyed array' => [StoredValue::fromDecoded(['x' => 'a']), true];
+        yield 'list variant' => [StoredValue::ofList([StoredValue::ofString('a')]), false];
+        yield 'empty list' => [StoredValue::ofList([]), false];
+        yield 'decoded empty array' => [StoredValue::fromDecoded([]), false];
+        yield 'null variant' => [StoredValue::ofNull(), false];
+        yield 'string variant' => [StoredValue::ofString('a'), false];
+    }
+
+    #[TestDox('rejects an empty map at construction, keeping `[]` a list everywhere')]
+    public function testOfMapRejectsTheEmptyMap(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidFieldValueType('StoredValue', 'non-empty map', 'empty array'));
+        StoredValue::ofMap([]);
+    }
+
+    #[TestDox('rejects a keyed array at list construction rather than building a list that serializes as an object')]
+    public function testOfListRejectsAKeyedArray(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidFieldValueType('StoredValue', 'list', 'keyed array'));
+        StoredValue::ofList(['x' => StoredValue::ofString('a')]); // @phpstan-ignore argument.type (deliberately violates the declared list to prove the runtime guard)
+    }
+
     #[DataProvider('decodableValueProvider')]
     #[TestDox('wraps a raw decoded value so it unwraps back unchanged')]
     public function testFromDecodedRoundTripsARawValue(mixed $raw): void
@@ -251,7 +289,7 @@ class StoredValueTest extends TestCase
     #[TestDox('reads a zero-indexed array as a list and a keyed array as a map')]
     public function testFromDecodedDistinguishesListsFromMaps(): void
     {
-        static::assertFalse(StoredValue::fromDecoded([])->equals(StoredValue::ofMap([])));
+        static::assertFalse(StoredValue::fromDecoded([])->isMap());
         static::assertTrue(StoredValue::fromDecoded([])->equals(StoredValue::ofList([])));
         static::assertTrue(StoredValue::fromDecoded(['x' => 1])->equals(StoredValue::ofMap(['x' => StoredValue::ofInt(1)])));
     }

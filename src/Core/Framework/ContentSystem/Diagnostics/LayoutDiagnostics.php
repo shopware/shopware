@@ -308,9 +308,9 @@ class LayoutDiagnostics
      * key existence is not a write constraint, reduction never selects a key outside the request's language
      * chain, and the layout serves correctly with the entry sitting unread.
      *
-     * Only a map value is walked. A bare string, the empty map and a list are wrong shapes for a translatable
-     * property, already reported as {@see ViolationCode::MismatchedPropertyType}, and their keys name no
-     * language.
+     * Only a map variant is walked. A bare string, a list (the wire shape of an empty map included) and the
+     * null variant are wrong shapes for a translatable property, already reported as
+     * {@see ViolationCode::MismatchedPropertyType}, and carry no language keys.
      *
      * @param array<string, true> $languageIds
      *
@@ -332,13 +332,11 @@ class LayoutDiagnostics
                 continue;
             }
 
-            $raw = $value->jsonSerialize();
-
-            if (!\is_array($raw) || array_is_list($raw)) {
+            if (!$value->isMap()) {
                 continue;
             }
 
-            foreach (array_keys($raw) as $rawKey) {
+            foreach (array_keys($value->asMap()) as $rawKey) {
                 $languageId = (string) $rawKey;
 
                 if (isset($languageIds[$languageId])) {

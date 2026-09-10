@@ -110,9 +110,11 @@ class PropertyTypeTest extends TestCase
      */
     public static function rejectedValueProvider(): iterable
     {
-        yield 'empty map on a translatable string' => [
+        // The wire shape of "an empty map": `[]` decodes to the (empty) list variant — the map variant itself
+        // cannot be empty ({@see StoredValue::ofMap()}) — and no translations is the key being absent.
+        yield 'empty array on a translatable string' => [
             new PropertyType('string', true, null, null),
-            StoredValue::ofMap([]),
+            StoredValue::fromDecoded([]),
         ];
 
         yield 'bare string on a translatable string' => [

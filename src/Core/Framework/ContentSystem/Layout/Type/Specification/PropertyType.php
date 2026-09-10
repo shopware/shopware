@@ -149,20 +149,17 @@ final readonly class PropertyType
     }
 
     /**
-     * A language map is recognised on the unwrapped value the way {@see StoredValue::fromDecoded()} assigns the
-     * map variant, because no variant predicate is exposed: an array whose keys are not a zero-based sequence.
-     * That rejects the empty map and the list in one test, since both unwrap to a sequence.
+     * Only a map variant whose every entry is a string. Emptiness needs no test of its own: the empty map is
+     * unrepresentable ({@see StoredValue::ofMap()}), and the wire's empty `[]` decodes to the list variant.
      */
     private function admitsLanguageMap(StoredValue $value): bool
     {
-        $raw = $value->jsonSerialize();
-
-        if (!\is_array($raw) || array_is_list($raw)) {
+        if (!$value->isMap()) {
             return false;
         }
 
-        foreach ($raw as $entry) {
-            if (!\is_string($entry)) {
+        foreach ($value->asMap() as $entry) {
+            if (!$entry->isString()) {
                 return false;
             }
         }

@@ -105,7 +105,7 @@
     {% endfor %}
 {% endif %}
 
-{% set galleryItemTag = showFullScreenGallery ? 'button' : 'div' %}
+{% set previewItemTag = showFullScreenGallery ? 'button' : 'div' %}
 
 {% if mediaItems is not null and mediaItems|length > 0 %}
     <section {{ attributes.defaults(defaultAttributes) }}>
@@ -126,7 +126,7 @@
                         {% set previewLabel = previewLabel ~ ', ' ~ mediaItem.translated.alt|striptags %}
                     {% endif %}
 
-                    <{{ galleryItemTag }} 
+                    <{{ previewItemTag }} 
                         class="sw-media-gallery__preview-item" 
                         id="sw-media-gallery-preview-{{ loop.index }}"
                         data-media-id="{{ loop.index }}"
@@ -146,7 +146,7 @@
                             :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
                             :autoplay="autoplayVideos"
                         />
-                    </{{ galleryItemTag }}>
+                    </{{ previewItemTag }}>
                 {% endfor %}
             </div>
 

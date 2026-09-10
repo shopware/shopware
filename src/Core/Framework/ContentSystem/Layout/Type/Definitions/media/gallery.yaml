@@ -17,6 +17,7 @@ properties:
     resolvedBy: mediaIds
     adminUI:
       component: "media-collection"
+      panel: "general"
 
   displayMode:
     type: string
@@ -28,6 +29,7 @@ properties:
       - "fixedHeight"
     adminUI:
       component: "select"
+      panel: "general"
 
   maxHeight:
     type: integer
@@ -37,6 +39,7 @@ properties:
     default: null
     adminUI:
       component: "number"
+      panel: "general"
       visibleWhen:
         field: "displayMode"
         equals: "fixedHeight"
@@ -48,10 +51,11 @@ properties:
     default: 70
     adminUI:
       component: "number"
+      panel: "thumbnails"
 
   thumbnailNavigationPosition:
     type: string
-    title: "Thumbnail Navigation Position"
+    title: "Position"
     description: "Position of the thumbnail navigation."
     default: "left"
     enum:
@@ -59,14 +63,16 @@ properties:
       - "bottom"
     adminUI:
       component: "select"
+      panel: "thumbnails"
 
   thumbnailNavShowsMediaOnHover:
     type: boolean
-    title: "Show Media On Thumbnail Hover"
+    title: "Navigate on hover"
     description: "Show the media belonging to a thumbnail when hovering it, without clicking it."
     default: false
     adminUI:
-      helpText: "Accessibility: when on, the gallery switches media on hover alone, without any click. It is easily triggered by accident while moving the pointer across the thumbnails, and it is not announced to screen readers."
+      panel: "thumbnails"
+      helpText: "Accessibility: when active, the gallery switches media on hover alone, without any click. This could be triggered by accident."
 
   showNavigationArrows:
     type:
@@ -75,6 +81,7 @@ properties:
     title: "Show Navigation Arrows"
     description: "Breakpoint-aware visibility of the navigation arrows."
     adminUI:
+      panel: "behaviour"
       breakpointAware: true
     properties:
       xs:
@@ -113,15 +120,21 @@ properties:
     title: "Show Magnifier"
     description: "Show the magnifier when hovering over the images."
     default: true
+    adminUI:
+      panel: "behaviour"
 
   showFullScreenGallery:
     type: boolean
     title: "Show Fullscreen Gallery"
     description: "Show the fullscreen gallery when clicking on the images."
     default: true
+    adminUI:
+      panel: "behaviour"
 
   autoplayVideos:
     type: boolean
     title: "Autoplay Videos"
     description: "Automatically play videos shown in the gallery."
     default: true
+    adminUI:
+      panel: "behaviour"

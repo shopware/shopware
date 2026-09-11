@@ -50,130 +50,136 @@ class ConfigReaderTest extends TestCase
     {
         return [
             [
-                'title' => [
-                    'en-GB' => 'Basic configuration',
-                    'de-DE' => 'Grundeinstellungen',
-                ],
+                'title' => null,
                 'name' => null,
-                'elements' => [
+                'cards' => [
                     [
-                        'type' => 'text',
-                        'name' => 'email',
-                        'copyable' => true,
-                        'label' => [
-                            'en-GB' => 'eMail',
-                            'de-DE' => 'E-Mail',
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
                         ],
-                        'placeholder' => [
-                            'en-GB' => 'Enter your eMail address',
-                            'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
-                        ],
-                        'defaultValue' => '42',
-                    ],
-                    [
-                        'type' => 'text',
-                        'name' => 'stringWithQuoteDefaultValueRemovesQuotes',
-                        'defaultValue' => '42',
-                    ],
-                    [
-                        'type' => 'text',
-                        'name' => 'nullDefault',
-                        'defaultValue' => null,
-                    ],
-                    [
-                        'type' => 'int',
-                        'name' => 'int',
-                        'defaultValue' => 42,
-                    ],
-                    [
-                        'type' => 'float',
-                        'name' => 'float',
-                        'defaultValue' => 42.0,
-                    ],
-                    [
-                        'type' => 'float',
-                        'name' => 'floatWithStringValueExpectsValueIsCastedToFloat',
-                        'defaultValue' => 42.5,
-                    ],
-                    [
-                        'type' => 'bool',
-                        'cacheRelevant' => true,
-                        'name' => 'bool',
-                        'defaultValue' => true,
-                    ],
-                    [
-                        'type' => 'single-select',
-                        'name' => 'mailMethod',
-                        'options' => [
+                        'name' => null,
+                        'elements' => [
                             [
-                                'id' => 'smtp',
-                                'name' => [
-                                    'en-GB' => 'SMTP',
+                                'type' => 'text',
+                                'name' => 'email',
+                                'copyable' => true,
+                                'label' => [
+                                    'en-GB' => 'eMail',
+                                    'de-DE' => 'E-Mail',
                                 ],
+                                'placeholder' => [
+                                    'en-GB' => 'Enter your eMail address',
+                                    'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                ],
+                                'defaultValue' => '42',
                             ],
                             [
-                                'id' => 'pop3',
-                                'name' => [
-                                    'en-GB' => 'POP3',
+                                'type' => 'text',
+                                'name' => 'stringWithQuoteDefaultValueRemovesQuotes',
+                                'defaultValue' => '42',
+                            ],
+                            [
+                                'type' => 'text',
+                                'name' => 'nullDefault',
+                                'defaultValue' => null,
+                            ],
+                            [
+                                'type' => 'int',
+                                'name' => 'int',
+                                'defaultValue' => 42,
+                            ],
+                            [
+                                'type' => 'float',
+                                'name' => 'float',
+                                'defaultValue' => 42.0,
+                            ],
+                            [
+                                'type' => 'float',
+                                'name' => 'floatWithStringValueExpectsValueIsCastedToFloat',
+                                'defaultValue' => 42.5,
+                            ],
+                            [
+                                'type' => 'bool',
+                                'cacheRelevant' => true,
+                                'name' => 'bool',
+                                'defaultValue' => true,
+                            ],
+                            [
+                                'type' => 'single-select',
+                                'name' => 'mailMethod',
+                                'options' => [
+                                    [
+                                        'id' => 'smtp',
+                                        'name' => [
+                                            'en-GB' => 'SMTP',
+                                        ],
+                                    ],
+                                    [
+                                        'id' => 'pop3',
+                                        'name' => [
+                                            'en-GB' => 'POP3',
+                                        ],
+                                    ],
                                 ],
+                                'label' => [
+                                    'en-GB' => 'Mailing protocol',
+                                    'de-DE' => 'E-Mail Versand Protokoll',
+                                ],
+                                'placeholder' => [
+                                    'en-GB' => 'Choose your preferred transfer method',
+                                    'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                                ],
+                                'defaultValue' => 'smtp',
+                            ],
+                            [
+                                'type' => 'single-select',
+                                'name' => 'period',
+                                'options' => [
+                                    [
+                                        'id' => '30',
+                                        'name' => [
+                                            'en-GB' => '1 Month',
+                                        ],
+                                    ],
+                                    [
+                                        'id' => '60',
+                                        'name' => [
+                                            'en-GB' => '2 Months',
+                                        ],
+                                    ],
+                                ],
+                                'defaultValue' => '30',
+                            ],
+                            [
+                                'componentName' => 'sw-select',
+                                'cacheRelevant' => true,
+                                'name' => 'mailMethodComponent',
+                                'disabled' => true,
+                                'options' => [
+                                    [
+                                        'id' => 'smtp',
+                                        'name' => [
+                                            'en-GB' => 'English smtp',
+                                            'de-DE' => 'German smtp',
+                                        ],
+                                    ],
+                                    [
+                                        'id' => 'pop3',
+                                        'name' => [
+                                            'en-GB' => 'English pop3',
+                                            'de-DE' => 'German pop3',
+                                        ],
+                                    ],
+                                ],
+                                'defaultValue' => 'pop3',
                             ],
                         ],
-                        'label' => [
-                            'en-GB' => 'Mailing protocol',
-                            'de-DE' => 'E-Mail Versand Protokoll',
+                        'subtitle' => [
+                            'en-GB' => 'Basic configuration subtitle',
+                            'de-DE' => 'Grundkonfiguration Untertitel',
                         ],
-                        'placeholder' => [
-                            'en-GB' => 'Choose your preferred transfer method',
-                            'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
-                        ],
-                        'defaultValue' => 'smtp',
                     ],
-                    [
-                        'type' => 'single-select',
-                        'name' => 'period',
-                        'options' => [
-                            [
-                                'id' => '30',
-                                'name' => [
-                                    'en-GB' => '1 Month',
-                                ],
-                            ],
-                            [
-                                'id' => '60',
-                                'name' => [
-                                    'en-GB' => '2 Months',
-                                ],
-                            ],
-                        ],
-                        'defaultValue' => '30',
-                    ],
-                    [
-                        'componentName' => 'sw-select',
-                        'cacheRelevant' => true,
-                        'name' => 'mailMethodComponent',
-                        'disabled' => true,
-                        'options' => [
-                            [
-                                'id' => 'smtp',
-                                'name' => [
-                                    'en-GB' => 'English smtp',
-                                    'de-DE' => 'German smtp',
-                                ],
-                            ],
-                            [
-                                'id' => 'pop3',
-                                'name' => [
-                                    'en-GB' => 'English pop3',
-                                    'de-DE' => 'German pop3',
-                                ],
-                            ],
-                        ],
-                        'defaultValue' => 'pop3',
-                    ],
-                ],
-                'subtitle' => [
-                    'en-GB' => 'Basic configuration subtitle',
-                    'de-DE' => 'Grundkonfiguration Untertitel',
                 ],
             ],
         ];

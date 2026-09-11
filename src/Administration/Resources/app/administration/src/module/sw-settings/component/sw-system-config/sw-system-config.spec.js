@@ -17,10 +17,13 @@ import 'src/app/filter/unicode-uri';
 
 /** @type Wrapper */
 let wrapper;
+let numberOfTabs = 1;
+let numberOfCards = 2;
+let firstCardHasCssField = false;
 
 async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}) {
     const systemConfigApiService = {
-        getConfig: jest.fn(() => Promise.resolve(config)),
+        getSchema: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
             if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
                 return Promise.resolve(defaultValues[domain][salesChannelId]);
@@ -122,6 +125,28 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    emits: [
+                        'new-item-active',
+                    ],
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
             },
             provide: {
                 systemConfigApiService,
@@ -493,6 +518,7 @@ function createConfig() {
                 label: {
                     'en-GB': 'colorpicker field',
                 },
+                css: firstCardHasCssField ? 'first-card-colorpicker' : undefined,
             },
             _test: {
                 domValueCheck: (field, domValue) => {
@@ -719,26 +745,93 @@ function createConfig() {
     return [
         {
             name: null,
-            title: { 'en-GB': 'First card' },
-            elements: firstCardElements,
+            title: null,
+            cards: [
+                {
+                    name: null,
+                    title: { 'en-GB': 'First card' },
+                    elements: firstCardElements,
+                },
+                {
+                    name: null,
+                    title: { 'en-GB': 'Card with AI badge' },
+                    elements: [],
+                    aiBadge: true,
+                },
+            ].slice(0, numberOfCards),
         },
         {
-            name: null,
-            title: { 'en-GB': 'Card with AI badge' },
-            elements: [],
-            aiBadge: true,
+            name: 'custom',
+            title: { 'en-GB': 'Custom tab' },
+            cards: [
+                {
+                    name: null,
+                    title: { 'en-GB': 'Custom card 1' },
+                    elements: [
+                        {
+                            name: 'ConfigRenderer.config.customField1',
+                            type: 'text',
+                            config: {
+                                defaultValue: 'Custom field 1',
+                                label: {
+                                    'en-GB': 'Custom field 1',
+                                },
+                            },
+                        },
+                        {
+                            name: 'ConfigRenderer.config.customField2',
+                            type: 'bool',
+                            config: {
+                                defaultValue: true,
+                                label: {
+                                    'en-GB': 'Custom field 2',
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    name: null,
+                    title: { 'en-GB': 'Custom card 2 with css field' },
+                    elements: [
+                        {
+                            name: 'ConfigRenderer.config.customField3',
+                            type: 'text',
+                            config: {
+                                defaultValue: 'Custom field 3',
+                                label: {
+                                    'en-GB': 'Custom field 3',
+                                },
+                            },
+                        },
+                        {
+                            name: 'ConfigRenderer.config.customField4',
+                            type: 'colorpicker',
+                            config: {
+                                defaultValue: '#bc121b',
+                                label: {
+                                    'en-GB': 'Custom field 4',
+                                },
+                                css: 'custom-field-4-color',
+                            },
+                        },
+                    ],
+                },
+            ].slice(0, numberOfCards),
         },
-    ];
+    ].slice(0, numberOfTabs);
 }
 
 function createConfigWithCacheRelevantField(fieldName) {
     const config = createConfig();
 
-    config.forEach((card) => {
-        card.elements.forEach((element) => {
-            if (element.name === fieldName) {
-                element.config.cacheRelevant = true;
-            }
+    config.forEach((tab) => {
+        tab.cards.forEach((card) => {
+            card.elements.forEach((element) => {
+                if (element.name === fieldName) {
+                    element.config.cacheRelevant = true;
+                }
+            });
         });
     });
 
@@ -750,6 +843,12 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
+    beforeEach(() => {
+        numberOfTabs = 1;
+        numberOfCards = 2;
+        firstCardHasCssField = false;
+    });
+
     afterEach(() => {
         Shopware.Store.get('error').resetApiErrors();
     });
@@ -881,11 +980,17 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     it('should add a class based on the card name when provided', async () => {
         wrapper = await createWrapper({}, [
             {
-                name: 'companyInformation',
-                title: {
-                    'en-GB': 'Company information',
-                },
-                elements: [],
+                title: null,
+                name: null,
+                cards: [
+                    {
+                        name: 'companyInformation',
+                        title: {
+                            'en-GB': 'Company information',
+                        },
+                        elements: [],
+                    },
+                ],
             },
         ]);
 
@@ -894,7 +999,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find('.sw-system-config__card--company-information').exists()).toBe(true);
     });
 
-    createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
+    createConfig()[0].cards[0].elements.forEach(({ name, type, config, _test }) => {
         it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
             const afterValueDom = _test.afterValueDom || _test.afterValue;
@@ -1590,15 +1695,21 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             {},
             [
                 {
-                    name: 'probeCard',
-                    title: { 'en-GB': 'Probe card' },
-                    elements: [
+                    title: null,
+                    name: null,
+                    cards: [
                         {
-                            name: 'ConfigRenderer.config.probeField',
-                            config: {
-                                componentName: 'test-scope-setup-probe',
-                                label: { 'en-GB': 'probe field' },
-                            },
+                            name: 'probeCard',
+                            title: { 'en-GB': 'Probe card' },
+                            elements: [
+                                {
+                                    name: 'ConfigRenderer.config.probeField',
+                                    config: {
+                                        componentName: 'test-scope-setup-probe',
+                                        label: { 'en-GB': 'probe field' },
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
@@ -1619,5 +1730,469 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         await flushPromises();
 
         expect(wrapper.find('.test-scope-setup').text()).toBe('global');
+    });
+
+    it('should display one single card with implemented compile notice when css field exists', async () => {
+        numberOfCards = 1;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-compile-notice').exists()).toBe(false);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(1);
+
+        const card = cards.at(0);
+
+        expect(card.exists()).toBe(true);
+
+        const compileNotice = card.find('.sw-system-config__compile-notice');
+
+        expect(compileNotice.exists()).toBe(true);
+        expect(compileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+    });
+
+    it('should display multiple cards with global compile notice when css field exists', async () => {
+        numberOfCards = 2;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-compile-notice').exists()).toBe(true);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(2);
+
+        cards.forEach((card) => {
+            expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
+        });
+    });
+
+    it('should display one single card with implemented sales channel switch and compile notice', async () => {
+        numberOfCards = 1;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-sales-channel-switch').exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(1);
+
+        const card = cards.at(0);
+
+        expect(card.exists()).toBe(true);
+        expect(card.find('.sw-sales-channel-switch').exists()).toBe(true);
+
+        const compileNotice = card.find('.sw-system-config__compile-notice');
+
+        expect(compileNotice.exists()).toBe(true);
+        expect(compileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+    });
+
+    it('should display multiple cards with global sales channel switch and compile notice', async () => {
+        numberOfCards = 2;
+        firstCardHasCssField = true;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-sales-channel-switch').exists()).toBe(true);
+
+        const globalCompileNotice = wrapper.find('.sw-system-config__global-compile-notice');
+
+        expect(globalCompileNotice.exists()).toBe(true);
+        expect(globalCompileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+
+        const cards = wrapper.findAll('.mt-card');
+
+        expect(cards).toHaveLength(2);
+
+        cards.forEach((card) => {
+            expect(card.find('.sw-sales-channel-switch').exists()).toBe(false);
+            expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
+        });
+    });
+
+    it('should display tabs with their cards', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__global-sales-channel-switch').exists()).toBe(true);
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const generalId = 'tab-0';
+        const customId = 'tab-custom';
+
+        expect(wrapper.vm.activeTab).toBe(generalId);
+        expect(tabs.exists()).toBe(true);
+        expect(tabs.props('positionIdentifier')).toBe('sw-system-config');
+        expect(tabs.props('defaultItem')).toBe(generalId);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings.system-config.tabGeneral',
+                name: generalId,
+            },
+            {
+                label: 'Custom tab',
+                name: customId,
+            },
+        ]);
+
+        let activeCards = wrapper.findAll('.mt-card');
+
+        expect(activeCards).toHaveLength(2);
+
+        expect(activeCards.at(0).find('.mt-card__title').text()).toBe('First card');
+        expect(activeCards.at(1).find('.mt-card__title').text()).toBe('Card with AI badge');
+
+        await tabs.vm.$emit('new-item-active', customId);
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe(customId);
+
+        activeCards = wrapper.findAll('.mt-card');
+
+        expect(activeCards).toHaveLength(2);
+        expect(activeCards.at(0).find('.mt-card__title').text()).toBe('Custom card 1');
+        expect(activeCards.at(1).find('.mt-card__title').text()).toBe('Custom card 2 with css field');
+    });
+
+    it('should display global compile notice with existing css field in inactive tab', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const globalCompileNotice = wrapper.find('.sw-system-config__global-compile-notice');
+
+        expect(globalCompileNotice.exists()).toBe(true);
+        expect(globalCompileNotice.text()).toBe('sw-settings.system-config.compileNotice');
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const generalId = 'tab-0';
+
+        expect(wrapper.vm.activeTab).toBe(generalId);
+        expect(tabs.exists()).toBe(true);
+
+        const activeCards = wrapper.findAll('.mt-card');
+
+        expect(activeCards).toHaveLength(2);
+
+        activeCards.forEach((card) => {
+            expect(card.find('.mt-card__title').text()).not.toBe('Custom card 2 with css field');
+            expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
+        });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should mirror the schema into the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.config).toEqual(wrapper.vm.schema.flatMap((tab) => tab.cards));
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should keep existing tabs when the deprecated config prop is mutated', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.schema).toHaveLength(2);
+
+        const generalTabCardsBefore = wrapper.vm.schema[0].cards;
+        const customTabCardsBefore = wrapper.vm.schema[1].cards;
+        const newCard = {
+            name: null,
+            title: { 'en-GB': 'New card' },
+            elements: [],
+        };
+
+        // Simulate an extension developer still writing to the deprecated flat config prop
+        wrapper.vm.config = [
+            ...wrapper.vm.config,
+            newCard,
+        ];
+        await flushPromises();
+
+        // Tabs must not collapse into a single tab
+        expect(wrapper.vm.schema).toHaveLength(2);
+        expect(wrapper.vm.schema[1].name).toBe('custom');
+
+        // Existing cards stay assigned to the tab they originally belonged to
+        expect(wrapper.vm.schema[1].cards).toEqual(customTabCardsBefore);
+
+        // Cards that cannot be matched to an existing tab are appended to the general tab (name === null)
+        expect(wrapper.vm.schema[0].cards).toEqual([
+            ...generalTabCardsBefore,
+            newCard,
+        ]);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should remove a card from its original tab when it is removed from the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const [
+            removedCard,
+            ...remainingCustomTabCards
+        ] = wrapper.vm.schema[1].cards;
+
+        wrapper.vm.config = wrapper.vm.config.filter((card) => card !== removedCard);
+        await flushPromises();
+
+        expect(wrapper.vm.schema).toHaveLength(2);
+        expect(wrapper.vm.schema[1].cards).toEqual(remainingCustomTabCards);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should keep existing tabs when a card is replaced immutably in the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const config = wrapper.vm.config;
+        const customCard = config.find((card) => card.title?.['en-GB'] === 'Custom card 1');
+
+        // Replace the card with a new object instead of mutating it in place. The internal `__configId`
+        // is copied over by the spread, so the card is still matched back to its original tab.
+        wrapper.vm.config = config.map((card) => {
+            return card === customCard ? { ...card, title: { 'en-GB': 'Renamed custom card' } } : card;
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.schema).toHaveLength(2);
+        expect(wrapper.vm.schema[1].name).toBe('custom');
+        expect(wrapper.vm.schema[1].cards[0].title).toEqual({ 'en-GB': 'Renamed custom card' });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should keep existing tabs when cards are reordered in the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        // Reverse the whole flat list, moving cards across their original tab boundaries
+        wrapper.vm.config = [...wrapper.vm.config].reverse();
+        await flushPromises();
+
+        expect(wrapper.vm.schema).toHaveLength(2);
+        expect(wrapper.vm.schema[0].cards.map((card) => card.title?.['en-GB'])).toEqual([
+            'Card with AI badge',
+            'First card',
+        ]);
+        expect(wrapper.vm.schema[1].cards.map((card) => card.title?.['en-GB'])).toEqual([
+            'Custom card 2 with css field',
+            'Custom card 1',
+        ]);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should keep a newly added card in place across further edits via the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const newCard = {
+            name: null,
+            title: { 'en-GB': 'New card' },
+            elements: [],
+        };
+
+        // Adding a card assigns it a fresh internal id and places it in the general tab
+        wrapper.vm.config = [
+            ...wrapper.vm.config,
+            newCard,
+        ];
+        await flushPromises();
+
+        const newCardId = wrapper.vm.config.at(-1).__configId;
+        expect(newCardId).toBeDefined();
+        expect(wrapper.vm.schema[0].cards.map((card) => card.__configId)).toContain(newCardId);
+
+        // Reordering afterwards must still track the new card by its id, not push it back to the general tab
+        wrapper.vm.config = [...wrapper.vm.config].reverse();
+        await flushPromises();
+
+        expect(wrapper.vm.schema[0].cards[0].__configId).toBe(newCardId);
+        expect(wrapper.vm.schema[1].cards.map((card) => card.__configId)).not.toContain(newCardId);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should change a card title on an existing tab via the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const customCard = wrapper.vm.config.find((card) => card.title?.['en-GB'] === 'Custom card 1');
+
+        customCard.title = { 'en-GB': 'Renamed custom card' };
+        await flushPromises();
+
+        expect(wrapper.vm.schema).toHaveLength(2);
+        expect(wrapper.vm.schema[1].name).toBe('custom');
+        expect(wrapper.vm.schema[1].cards[0].title).toEqual({ 'en-GB': 'Renamed custom card' });
+
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-card__title').text()).not.toBe('Custom card 1');
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should add an element to an existing card on an existing tab via the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const customCard = wrapper.vm.config.find((card) => card.title?.['en-GB'] === 'Custom card 1');
+        const newElement = {
+            name: 'ConfigRenderer.config.newField',
+            type: 'text',
+            config: {
+                defaultValue: 'New field value',
+                label: {
+                    'en-GB': 'New field',
+                },
+            },
+        };
+
+        customCard.elements.push(newElement);
+        await flushPromises();
+
+        expect(wrapper.vm.schema).toHaveLength(2);
+        expect(wrapper.vm.schema[1].cards[0].elements.map((element) => element.name)).toContain(newElement.name);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should change an element on an existing card via the deprecated config prop', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstCard = wrapper.vm.config[0];
+        const textField = firstCard.elements.find((element) => element.name === 'ConfigRenderer.config.textField');
+
+        textField.config.label = { 'en-GB': 'Renamed text field' };
+        await flushPromises();
+
+        const updatedTextField = wrapper.vm.schema[0].cards[0].elements.find(
+            (element) => element.name === 'ConfigRenderer.config.textField',
+        );
+
+        expect(updatedTextField.config.label).toEqual({ 'en-GB': 'Renamed text field' });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should mirror an added card on the schema prop into the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const newCard = {
+            name: null,
+            title: { 'en-GB': 'New card' },
+            elements: [],
+        };
+
+        wrapper.vm.schema[1].cards.push(newCard);
+        await flushPromises();
+
+        expect(wrapper.vm.config.map((card) => card.title?.['en-GB'])).toEqual([
+            'First card',
+            'Card with AI badge',
+            'Custom card 1',
+            'Custom card 2 with css field',
+            'New card',
+        ]);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should mirror a changed card title on the schema prop into the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.schema[1].cards[0].title = { 'en-GB': 'Renamed custom card' };
+        await flushPromises();
+
+        const mirroredCard = wrapper.vm.config.find((card) => card.title?.['en-GB'] === 'Renamed custom card');
+
+        expect(mirroredCard).toBeDefined();
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should mirror a removed card on the schema prop into the deprecated config prop', async () => {
+        numberOfTabs = 2;
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.schema[1].cards.splice(0, 1);
+        await flushPromises();
+
+        expect(wrapper.vm.config.map((card) => card.title?.['en-GB'])).toEqual([
+            'First card',
+            'Card with AI badge',
+            'Custom card 2 with css field',
+        ]);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should mirror an added element on the schema prop into the deprecated config prop', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const newElement = {
+            name: 'ConfigRenderer.config.newField',
+            type: 'text',
+            config: {
+                defaultValue: 'New field value',
+                label: {
+                    'en-GB': 'New field',
+                },
+            },
+        };
+
+        wrapper.vm.schema[0].cards[0].elements.push(newElement);
+        await flushPromises();
+
+        expect(wrapper.vm.config[0].elements.map((element) => element.name)).toContain(newElement.name);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should mirror a changed element on the schema prop into the deprecated config prop', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.schema[0].cards[0].elements[0].config.label = { 'en-GB': 'Renamed text field' };
+        await flushPromises();
+
+        expect(wrapper.vm.config[0].elements[0].config.label).toEqual({ 'en-GB': 'Renamed text field' });
     });
 });

@@ -2,39 +2,29 @@
 
 namespace Shopware\Core\System\SystemConfig\Service;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService instead
+ */
 #[Package('framework')]
 class ConfigurationService
 {
     /**
      * @internal
-     *
-     * @param BundleInterface[] $bundles
-     * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly iterable $bundles,
-        private readonly ConfigReader $configReader,
-        private readonly AppConfigReader $appConfigReader,
-        private readonly EntityRepository $appRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly LoggerInterface $logger
+        private readonly SystemConfigDefinitionService $systemConfigDefinitionService
     ) {
     }
 
@@ -48,55 +38,23 @@ class ConfigurationService
      */
     public function getConfiguration(string $domain, Context $context): array
     {
-        $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SystemConfigDefinitionService::class));
 
-        if (!$validDomain) {
-            throw SystemConfigException::invalidDomain();
-        }
+        $config = $this->systemConfigDefinitionService->getConfiguration($domain, $context);
 
-        $scope = $match[1];
-        $configName = $match[2] !== '' ? $match[2] : null;
+        // collect all cards from the tabs into the config array to keep the legacy structure
+        $config = array_values(array_reduce($config, fn (array $carry, SystemConfigTab $tab) => [
+            ...$carry,
+            ...array_map(static function (SystemConfigCard $card): array {
+                $card = (array) $card;
 
-        $config = $this->fetchConfiguration($scope === 'core' ? 'System' : $scope, $configName, $context);
-        if (!$config) {
-            throw SystemConfigException::configurationNotFound($scope);
-        }
+                $card['elements'] = array_map(fn (SystemConfigElement $element): array => (array) $element, $card['elements']);
 
-        $domain = rtrim($domain, '.') . '.';
+                return $card;
+            }, $tab->cards),
+        ], []));
 
-        foreach ($config as $i => $card) {
-            if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
-                unset($config[$i]);
-
-                continue;
-            }
-
-            foreach ($card['elements'] ?? [] as $j => $field) {
-                $newField = ['name' => $domain . $field['name']];
-
-                if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
-                    unset($card['elements'][$j]);
-
-                    continue;
-                }
-
-                if (\array_key_exists('type', $field)) {
-                    $newField['type'] = $field['type'];
-                }
-
-                unset($field['type'], $field['name']);
-                $newField['config'] = $field;
-                $card['elements'][$j] = $newField;
-            }
-
-            if (isset($card['elements']) && \is_array($card['elements'])) {
-                $card['elements'] = array_values($card['elements']);
-            }
-
-            $config[$i] = $card;
-        }
-
-        return array_values($config);
+        return $config;
     }
 
     /**
@@ -104,7 +62,10 @@ class ConfigurationService
      */
     public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SystemConfigDefinitionService::class));
+
         $config = [];
+
         if ($this->checkConfiguration($domain, $context)) {
             $config = array_merge(
                 $config,
@@ -120,73 +81,9 @@ class ConfigurationService
 
     public function checkConfiguration(string $domain, Context $context): bool
     {
-        try {
-            $this->getConfiguration($domain, $context);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', SystemConfigDefinitionService::class));
 
-            return true;
-        } catch (\InvalidArgumentException|SystemConfigException|BundleConfigNotFoundException|UtilException $e) {
-            $this->logConfigurationException($domain, $e);
-
-            return false;
-        }
-    }
-
-    private function logConfigurationException(string $domain, \Throwable $e): void
-    {
-        $context = [
-            'domain' => $domain,
-            'message' => $e->getMessage(),
-            'exception' => $e,
-        ];
-
-        match (true) {
-            $e instanceof \InvalidArgumentException => $this->logger->debug(
-                'Invalid configuration domain "{domain}": {message}',
-                $context
-            ),
-            $e instanceof BundleConfigNotFoundException => $this->logger->debug(
-                'No configuration file found for "{domain}": {message}',
-                $context
-            ),
-            $e instanceof SystemConfigException => $this->logger->debug(
-                'Configuration not loaded for "{domain}" (plugin/app not installed or not activated): {message}',
-                $context
-            ),
-            // UtilException (XML parsing errors) and any other unexpected exceptions
-            default => $this->logger->error(
-                'Failed to parse configuration for "{domain}": {message}',
-                $context
-            ),
-        };
-    }
-
-    /**
-     * @return array<mixed>|null
-     */
-    private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
-    {
-        $technicalName = \array_slice(explode('\\', $scope), -1)[0];
-
-        foreach ($this->bundles as $bundle) {
-            if ($bundle->getName() === $technicalName && $bundle instanceof Bundle) {
-                return $this->configReader->getConfigFromBundle($bundle, $configName);
-            }
-        }
-
-        $app = $this->getAppByName($technicalName, $context);
-
-        return $app ? $this->appConfigReader->read($app) : null;
-    }
-
-    private function getAppByName(string $name, Context $context): ?AppEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
-
-        /** @var AppEntity|null $result */
-        $result = $this->appRepository->search($criteria, $context)->getEntities()->first();
-
-        return $result;
+        return $this->systemConfigDefinitionService->checkConfiguration($domain, $context);
     }
 
     /**

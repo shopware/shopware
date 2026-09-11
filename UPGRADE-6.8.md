@@ -314,6 +314,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Removal of deprecated `ConfigurationService` class
+
+The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+
 ## `AbstractCartPersister::exists()` is abstract
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister::exists()` was introduced in 6.7.15.0 with a default implementation that delegated to the decorated persister. It is abstract now, so every cart persister declares it itself:

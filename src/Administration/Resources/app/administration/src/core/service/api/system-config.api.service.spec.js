@@ -91,6 +91,29 @@ describe('Test function batchSave at file src/core/service/api/system-config.api
     });
 });
 
+describe('Test getSchema at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onGet('_action/system-config/get-schema').reply(200, {});
+
+        const res = await systemConfigService.getSchema('dummy.domain');
+
+        expect(res).toEqual({});
+    });
+});
+
+/**
+ * @deprecated tag:v6.8.0 - Will be removed
+ */
 describe('Test getConfig at file src/core/service/api/system-config.api.service.js', () => {
     let systemConfigService = null;
     let axiosMock = null;

@@ -375,9 +375,7 @@ class SystemConfigService implements ResetInterface
             return;
         }
 
-        $prefix = $bundle->getName() . '.config.';
-
-        $this->saveConfig($config, $prefix, $override);
+        $this->saveConfig($config, $bundle->getName() . '.config.', $override);
     }
 
     /**
@@ -387,15 +385,17 @@ class SystemConfigService implements ResetInterface
     {
         $relevantSettings = $this->getDomain($prefix);
 
-        foreach ($config as $card) {
-            foreach ($card['elements'] as $element) {
-                $key = $prefix . $element['name'];
-                if (!isset($element['defaultValue'])) {
-                    continue;
-                }
+        foreach ($config as $tab) {
+            foreach ($tab['cards'] as $card) {
+                foreach ($card['elements'] as $element) {
+                    $key = $prefix . $element['name'];
+                    if (!isset($element['defaultValue'])) {
+                        continue;
+                    }
 
-                if ($override || !isset($relevantSettings[$key])) {
-                    $this->set($key, $element['defaultValue'], null, false);
+                    if ($override || !isset($relevantSettings[$key])) {
+                        $this->set($key, $element['defaultValue'], null, false);
+                    }
                 }
             }
         }
@@ -418,11 +418,13 @@ class SystemConfigService implements ResetInterface
     public function deleteExtensionConfiguration(string $extensionName, array $config): void
     {
         $prefix = $extensionName . '.config.';
-
         $configKeys = [];
-        foreach ($config as $card) {
-            foreach ($card['elements'] as $element) {
-                $configKeys[] = $prefix . $element['name'];
+
+        foreach ($config as $tab) {
+            foreach ($tab['cards'] as $card) {
+                foreach ($card['elements'] as $element) {
+                    $configKeys[] = $prefix . $element['name'];
+                }
             }
         }
 

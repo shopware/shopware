@@ -13,6 +13,7 @@ import {
 import {
     prepareLegacyComponent,
     createLegacyComponent,
+    resolveLegacyHotUpdate,
 } from 'src/app/adapter/options-composition-shim/component-definition';
 import { createSetupDispatch } from 'src/app/adapter/composition-extension-system/setup-dispatch';
 import Bottle from 'bottlejs';
@@ -164,6 +165,7 @@ class ShopwareClass implements CustomShopwareProperties {
         resolveLegacyAsset,
         prepareLegacyComponent,
         createLegacyComponent,
+        resolveLegacyHotUpdate,
         applyLegacySlotBlocks,
         mapSlotNames,
         overrideComponentSetup: overrideComponentSetup,

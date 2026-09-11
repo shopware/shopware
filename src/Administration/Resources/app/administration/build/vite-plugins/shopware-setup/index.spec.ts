@@ -30,6 +30,7 @@ type ProbeResult = {
     wrappedNativeOverride: boolean;
     productionDefinitionBridge: boolean;
     productionSlotBridge: boolean;
+    developmentHotUpdateBridge: boolean;
     developmentDefinitionBridge: boolean;
     developmentSlotBridge: boolean;
     slots: ProbeSide;
@@ -406,6 +407,7 @@ swDefinePublic({ count });
         expect(result.wrappedNativeOverride).toBe(false);
         expect(result.productionSlotBridge).toBe(true);
         expect(result.developmentDefinitionBridge).toBe(true);
+        expect(result.developmentHotUpdateBridge).toBe(true);
         expect(result.developmentSlotBridge).toBe(true);
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is

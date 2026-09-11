@@ -43,6 +43,8 @@ export function prepareLegacyComponent(
     if (definition.__swLegacyRender) {
         const setup = base.setup;
         const render = definition.__swLegacyRender;
+        // Template-only HMR uses definition.render directly instead of running setup again.
+        definition.render = () => renderLegacyContent(render, getCurrentInstance());
         definition.setup = function (props, context) {
             const instance = getCurrentInstance();
             const result: unknown = setup?.(props, context);
@@ -102,4 +104,10 @@ export function createLegacyComponent<T extends ComponentConfig>(base: T, name: 
         _renderedBySfcTemplate: true,
         __swResolveComponent: resolve,
     }) as unknown as T;
+}
+
+/** Preserve legacy definition options when Vite passes an updated SFC module to Vue HMR. @private */
+export async function resolveLegacyHotUpdate<T extends { default?: ComponentConfig }>(module: T): Promise<T> {
+    const resolve = module.default?.__swResolveComponent;
+    return resolve ? { ...module, default: await resolve() } : module;
 }

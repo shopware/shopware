@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { createServer as createHttpServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import fs from 'node:fs';
@@ -86,15 +87,19 @@ Object.entries(probes).forEach(
     },
 );
 
-const server = await createServer({
-    configFile: path.join(here, 'vite.config.ts'),
-    server: { middlewareMode: true, hmr: false, watch: null },
-});
+const hotServer = createHttpServer();
+await new Promise<void>((resolve) => hotServer.listen(0, '127.0.0.1', resolve));
+let server: Awaited<ReturnType<typeof createServer>> | undefined;
 let developmentCode = '';
 try {
+    server = await createServer({
+        configFile: path.join(here, 'vite.config.ts'),
+        server: { middlewareMode: true, hmr: { server: hotServer }, watch: null },
+    });
     developmentCode = (await server.transformRequest('/src/sw-slot-component.vue'))?.code ?? '';
 } finally {
-    await server.close();
+    await server?.close();
+    await new Promise<void>((resolve) => hotServer.close(() => resolve()));
 }
 
 process.stdout.write(
@@ -103,6 +108,7 @@ process.stdout.write(
         correctComponentName: /createLegacyComponent\([^]*?, ["']sw-slot-component["']\)/.test(code),
         wrappedNativeOverride: /createLegacyComponent\([^]*?, ["']sw-nested-component\.override(?:\.vue)?["']\)/.test(code),
         productionSlotBridge: code.includes('Shopware.Component.applyLegacySlotBlocks('),
+        developmentHotUpdateBridge: developmentCode.includes('await Shopware.Component.resolveLegacyHotUpdate('),
         developmentDefinitionBridge: developmentCode.includes('Shopware.Component.createLegacyComponent('),
         developmentSlotBridge: developmentCode.includes('Shopware.Component.applyLegacySlotBlocks('),
         sources: map.sources,

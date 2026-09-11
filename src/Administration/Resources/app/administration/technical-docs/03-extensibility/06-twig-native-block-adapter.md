@@ -57,7 +57,7 @@ Ordinary adjacent `v-if` / `v-else` content remains ordinary Vue template syntax
 
 ## Build integration
 
-Both Administration and extension Vite builds run the shared SFC transform before Vue compilation. Post transforms prepare direct-import component definitions and merge structural slot VNodes. The Jest transformer uses the same slot transform and composes its source map.
+Both Administration and extension Vite builds run the shared SFC transform before Vue compilation. Post transforms prepare direct-import component definitions and merge structural slot VNodes. The Jest transformer uses the same slot transform and composes its source map. Vue hot updates resolve the prepared definition before reload or rerender, retaining legacy options and custom rendering.
 
 The integration fixture builds production assets, reads their written source maps, and transforms an SFC through the development server. Source locations resolve to authored files.
 

@@ -32,6 +32,7 @@ export default function legacyComponentPlugin(): Plugin {
                 .replace(/\.vue$/, '');
             const name = componentName === 'index' ? id.replace(/\\/g, '/').split('/').at(-2)! : componentName;
             const source = new MagicString(code);
+            prepareHotUpdate(source, code, ast.program);
             source.prependLeft(declaration.start!, 'Shopware.Component.createLegacyComponent(');
             source.appendRight(declaration.end!, `, ${JSON.stringify(name)})`);
             return { code: source.toString(), map: source.generateMap({ hires: true, source: id, includeContent: true }) };
@@ -42,4 +43,31 @@ export default function legacyComponentPlugin(): Plugin {
 /** @private */
 export function legacySlotBlocksPlugin(): Plugin {
     return { name: 'shopware-legacy-slot-blocks', enforce: 'post', transform: (code, id) => wrapLegacySlotVNodes(code, id) };
+}
+
+/** Vue's HMR receiver needs the resolved definition, not the direct-import async wrapper. */
+function prepareHotUpdate(source: MagicString, code: string, program: ReturnType<typeof parse>['program']): void {
+    for (const statement of program.body) {
+        if (statement.type !== 'ExpressionStatement' || statement.expression.type !== 'CallExpression') continue;
+        const call = statement.expression;
+        if (code.slice(call.callee.start!, call.callee.end!).replace(/\s/g, '') !== 'import.meta.hot.accept') continue;
+        const callback = call.arguments[0];
+        if (callback?.type !== 'ArrowFunctionExpression' || callback.body.type !== 'BlockStatement') continue;
+        const declaration = callback.body.body
+            .flatMap((entry) => (entry.type === 'VariableDeclaration' ? entry.declarations : []))
+            .find(
+                (entry) =>
+                    entry.id.type === 'ObjectPattern' &&
+                    entry.id.properties.some(
+                        (property) =>
+                            property.type === 'ObjectProperty' &&
+                            property.key.type === 'Identifier' &&
+                            property.key.name === 'default',
+                    ),
+            );
+        if (!declaration?.init) continue;
+        if (!callback.async) source.prependLeft(callback.start!, 'async ');
+        source.prependLeft(declaration.init.start!, 'await Shopware.Component.resolveLegacyHotUpdate(');
+        source.appendRight(declaration.init.end!, ')');
+    }
 }

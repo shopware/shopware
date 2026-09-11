@@ -7,7 +7,12 @@ describe('src/module/sw-order/state/order-detail.store', () => {
 
     beforeEach(() => {
         state.$reset();
+        state.resetCustomer();
     });
+
+    function mockCustomerRepository(get) {
+        return jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ get });
+    }
 
     it('should be able to setOrder', () => {
         const newOrder = { id: 1, name: 'Test Order' };
@@ -121,5 +126,90 @@ describe('src/module/sw-order/state/order-detail.store', () => {
 
         Shopware.Store.get('swOrderDetail').setOrderAddressIds(removalAddressIdInfo);
         expect(state.orderAddressIds).toEqual([]);
+    });
+
+    describe('loadCustomer', () => {
+        const customerId = '0190d9275a6a72ae8b536849a4a02d85';
+
+        it('should load the customer including the addresses of the address selections', async () => {
+            const customer = { id: customerId };
+            const get = jest.fn(() => Promise.resolve(customer));
+            mockCustomerRepository(get);
+
+            await expect(state.loadCustomer(customerId)).resolves.toBe(customer);
+
+            expect(state.customer).toEqual(customer);
+            expect(get).toHaveBeenCalledWith(customerId, Shopware.Context.api, expect.any(Shopware.Data.Criteria));
+
+            const { associations } = get.mock.calls[0][2].parse();
+            expect(Object.keys(associations)).toEqual(['addresses']);
+            expect(Object.keys(associations.addresses.associations)).toEqual(['country']);
+        });
+
+        it('should share one customer between concurrent callers instead of requesting it per address selection', async () => {
+            const customer = { id: customerId };
+            const get = jest.fn(() => Promise.resolve(customer));
+            mockCustomerRepository(get);
+
+            const [
+                billing,
+                shipping,
+            ] = await Promise.all([
+                state.loadCustomer(customerId),
+                state.loadCustomer(customerId),
+            ]);
+
+            expect(get).toHaveBeenCalledTimes(1);
+            expect(billing).toBe(shipping);
+        });
+
+        it('should not request an already loaded customer again', async () => {
+            const get = jest.fn(() => Promise.resolve({ id: customerId }));
+            mockCustomerRepository(get);
+
+            await state.loadCustomer(customerId);
+            await state.loadCustomer(customerId);
+
+            expect(get).toHaveBeenCalledTimes(1);
+        });
+
+        it('should request the customer again when reloading it after an address was saved', async () => {
+            const initial = { id: customerId, addresses: [] };
+            const reloaded = { id: customerId, addresses: [{ id: 'newCustomerAddressId' }] };
+            const get = jest.fn().mockResolvedValueOnce(initial).mockResolvedValueOnce(reloaded);
+            mockCustomerRepository(get);
+
+            await state.loadCustomer(customerId);
+            await state.loadCustomer(customerId, true);
+
+            expect(get).toHaveBeenCalledTimes(2);
+            expect(state.customer).toEqual(reloaded);
+        });
+
+        it('should load another customer when the order belongs to a different one', async () => {
+            const otherCustomerId = '0190d926bb427e18aa3ceb00e23d090c';
+            const get = jest.fn().mockResolvedValueOnce({ id: customerId }).mockResolvedValueOnce({ id: otherCustomerId });
+            mockCustomerRepository(get);
+
+            await state.loadCustomer(customerId);
+            await state.loadCustomer(otherCustomerId);
+
+            expect(get).toHaveBeenCalledTimes(2);
+            expect(state.customer).toEqual({ id: otherCustomerId });
+        });
+
+        it('should load the customer again after it was reset when leaving the order', async () => {
+            const get = jest.fn(() => Promise.resolve({ id: customerId }));
+            mockCustomerRepository(get);
+
+            await state.loadCustomer(customerId);
+
+            state.resetCustomer();
+            expect(state.customer).toBeNull();
+
+            await state.loadCustomer(customerId);
+
+            expect(get).toHaveBeenCalledTimes(2);
+        });
     });
 });

@@ -1,0 +1,15 @@
+diff --git a/node_modules/@stryker-mutator/instrumenter/dist/src/parsers/js-parser.js b/node_modules/@stryker-mutator/instrumenter/dist/src/parsers/js-parser.js
+index d99e33d..a60d537 100644
+--- a/node_modules/@stryker-mutator/instrumenter/dist/src/parsers/js-parser.js
++++ b/node_modules/@stryker-mutator/instrumenter/dist/src/parsers/js-parser.js
+@@ -25,6 +25,10 @@ export function createParser({ plugins: pluginsOverride }) {
+             },
+             filename: fileName,
+             sourceType: 'module',
++            // Parse with Stryker's own Babel 8 only. The project `.babelrc` (Babel 7 presets) must not
++            // be loaded here, matching what `ts-parser.js` already does.
++            babelrc: false,
++            configFile: false,
+         });
+         if (types.isProgram(ast)) {
+             throw new Error(`Expected ${fileName} to contain a babel.types.file, but was a program`);

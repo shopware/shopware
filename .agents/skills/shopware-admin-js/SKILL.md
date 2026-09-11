@@ -20,6 +20,7 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 - Write Jest tests for new features and bug fixes.
 - Keep tests next to the code under test with `.spec.ts` when adding new TypeScript tests.
 - Split very large specs into a `.spec/` directory by behavior group.
+- Optional, after the specs are green: run `npm run mutation:changed` in the Administration root (`-- --list` only prints the targets). It mutation-tests only the JS/TS files changed against `trunk`. Cover surviving mutants with a real assertion or leave them with a short reason when the mutant is equivalent. Twig templates are not mutated, so template behaviour never shows up in the score; the script logic of components does. Files without a spec show up as "no coverage", which means write the spec first.
 
 ## Detailed Guidelines
 

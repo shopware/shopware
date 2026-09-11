@@ -155,23 +155,99 @@ function buildOverrideScript(
         generated('\n});\n'),
     );
 
-    const registrationTemplate: SourceEdit[] = block.template
-        ? []
-        : [
-              {
-                  start: 0,
-                  end: 0,
-                  replacement: '<template><!-- Shopware override registration component --></template>\n',
-              },
-          ];
+    // Only emitted when the override brings no template of its own; the extension-targets registration
+    // is emitted either way, so it cannot ride along on this branch.
+    const placeholderTemplate = block.template
+        ? ''
+        : '<template><!-- Shopware override registration component --></template>\n';
 
     return [
-        ...registrationTemplate,
+        ...buildNativeExtensionTargetsEdits(block, templateAnalysis, placeholderTemplate),
         ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
         {
             start: block.contentStart,
             end: block.contentEnd,
             replacement: chunks,
+        },
+    ];
+}
+
+/**
+ * Builds the statement that registers this override's extension targets.
+ *
+ * Deliberately not part of `<script setup>`: that body only runs when the hidden override component
+ * mounts, which is after `resolveComponentTemplates()`. Module-eval code runs during `loadPlugins()`,
+ * so the registry is complete while the Twig template pipeline can still act on it.
+ */
+function buildNativeExtensionTargetsCall(block: ShopwareSetupBlock, templateAnalysis: TemplateAnalysis): string {
+    const blockNames = Array.from(new Set(templateAnalysis.extendedBlockNames));
+    const blocksProperty =
+        blockNames.length > 0
+            ? [
+                  '    blocks: [',
+                  ...blockNames.map((blockName) => `        '${escapeSingleQuoted(blockName)}',`),
+                  '    ],',
+              ]
+            : [];
+
+    return [
+        // Optional call: this line is compiled into every shipped plugin bundle and runs at module
+        // eval, so a missing function would abort the whole entry and take the plugin down with it.
+        'Shopware.Component.registerNativeExtensionTargets?.({',
+        `    component: '${escapeSingleQuoted(block.componentName)}',`,
+        ...blocksProperty,
+        '});',
+        '',
+    ].join('\n');
+}
+
+/**
+ * Places the extension-targets registration, plus a generated template when the override has none.
+ *
+ * Vue allows exactly one plain `<script>` beside `<script setup>`, and the migration codemod already
+ * spends it on its `data-sfc-migration-module` prelude - so the registration is appended to that block
+ * where it exists, and only emitted as its own (with `lang` mirrored from the setup block) where it
+ * does not.
+ */
+function buildNativeExtensionTargetsEdits(
+    block: ShopwareSetupBlock,
+    templateAnalysis: TemplateAnalysis,
+    placeholderTemplate: string,
+): SourceEdit[] {
+    const registration = buildNativeExtensionTargetsCall(block, templateAnalysis);
+
+    if (!block.moduleScript) {
+        const langAttribute = block.lang ? ` lang="${block.lang}"` : '';
+
+        // A single edit rather than two inserts at offset 0: two edits sharing a position would make the
+        // emitted order depend on the sort stability of applySourceEdits.
+        return [
+            {
+                start: 0,
+                end: 0,
+                replacement: `<script${langAttribute}>\n${registration}</script>\n${placeholderTemplate}`,
+            },
+        ];
+    }
+
+    // The codemod ends its prelude with a newline, but a hand-written one need not - without this the
+    // call would land on the tail of the last statement.
+    const separator = block.moduleScript.content.endsWith('\n') ? '' : '\n';
+
+    return [
+        ...(placeholderTemplate.length > 0
+            ? [
+                  {
+                      start: 0,
+                      end: 0,
+                      replacement: placeholderTemplate,
+                  },
+              ]
+            : []),
+        {
+            start: block.moduleScript.contentEnd,
+            end: block.moduleScript.contentEnd,
+            replacement: `${separator}${registration}`,
         },
     ];
 }

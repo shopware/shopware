@@ -328,7 +328,11 @@ export default {
 
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(documentFileResponse.file);
-                    link.download = documentFileResponse.fileName;
+                    link.download = this.getDownloadFileName(
+                        documentType,
+                        documentIds.length,
+                        documentFileResponse.fileName,
+                    );
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
                 })
@@ -340,6 +344,16 @@ export default {
                 .finally(() => {
                     this.document[documentType].isDownloading = false;
                 });
+        },
+
+        getDownloadFileName(documentType, documentCount, fileName) {
+            const extension = fileName?.includes('.') ? fileName.split('.').pop() : null;
+
+            if (documentCount <= 1 || !extension) {
+                return fileName;
+            }
+
+            return `${documentType}s_bulk.${extension}`;
         },
 
         sortDocumentTypes(documentTypes) {

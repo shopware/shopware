@@ -491,6 +491,81 @@ describe('sw-bulk-edit-save-modal-success', () => {
         wrapper.vm.orderDocumentApiService.download.mockRestore();
     });
 
+    it('should save a multi-document download under a bulk name with the server file extension', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        window.URL.createObjectURL = jest.fn();
+
+        let downloadedFileName = null;
+        const dispatchEventSpy = jest
+            .spyOn(HTMLAnchorElement.prototype, 'dispatchEvent')
+            .mockImplementation(function captureDownloadName() {
+                downloadedFileName = this.download;
+
+                return true;
+            });
+
+        wrapper.vm.documentV2ApiService.getDocumentArchive = jest.fn(() =>
+            Promise.resolve({
+                file: 'archive content',
+                fileName: 'documents.zip',
+            }),
+        );
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: [
+                    'documentId1',
+                    'documentId2',
+                ],
+            },
+        });
+
+        await wrapper.vm.downloadDocument('invoice');
+
+        expect(downloadedFileName).toBe('invoices_bulk.zip');
+
+        dispatchEventSpy.mockRestore();
+        wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
+    });
+
+    it.each([
+        [
+            'delivery_note',
+            2,
+            'f3a9c1e07b2d.pdf',
+            'delivery_notes_bulk.pdf',
+        ],
+        [
+            'invoice',
+            3,
+            'documents.zip',
+            'invoices_bulk.zip',
+        ],
+        [
+            'invoice',
+            1,
+            'invoice_1000.pdf',
+            'invoice_1000.pdf',
+        ],
+        [
+            'invoice',
+            2,
+            null,
+            null,
+        ],
+        [
+            'invoice',
+            2,
+            'no-extension',
+            'no-extension',
+        ],
+    ])(
+        'should name a %s download of %i document(s) served as "%s" as "%s"',
+        (documentType, documentCount, fileName, expectedFileName) => {
+            expect(wrapper.vm.getDownloadFileName(documentType, documentCount, fileName)).toBe(expectedFileName);
+        },
+    );
+
     it('should call createNotificationError when the v2 archive download fails', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper.vm.createNotificationError = jest.fn();

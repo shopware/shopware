@@ -244,6 +244,10 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 ## API
 
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
 ### Store API currency headers validate sales channel availability
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
@@ -531,13 +535,6 @@ The new `shopware.app_system.enable_url_validation` option turns off app system 
 While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
 
 # 6.7.14.0
-## API
-
-### REST API indexing behavior header is honored
-
-The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
-
-# 6.7.14.0 (upcoming)
 
 ## Features
 

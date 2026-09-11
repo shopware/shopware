@@ -23,12 +23,15 @@
     }
 
     .sw-product-feature-set__toolbar {
-        display: grid;
-        grid-template-columns: 1fr max-content max-content;
-        gap: 0 var(--scale-size-10);
+        display: flex;
+        gap: var(--scale-size-10);
         padding: var(--scale-size-24) var(--scale-size-32);
         background-color: var(--color-elevation-surface-sunken);
         border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
+
+        .sw-simple-search-field {
+            flex: 1;
+        }
 
         .sw-product-feature-set__delete-button {
             border-color: var(--color-border-critical-default);

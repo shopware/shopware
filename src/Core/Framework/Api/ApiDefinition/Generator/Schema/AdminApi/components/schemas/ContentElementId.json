@@ -9,7 +9,7 @@
                 "type": "string",
                 "minLength": 1,
                 "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$",
-                "description": "Element identifier. Any non-empty string except the reserved literal `__page_context_root__` and strings PHP casts to integers (`0`, `12`, `-3`); both are rejected with `400`. The id is stored verbatim, so an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id. An integer-castable id is refused because it would turn the string-keyed per-element maps of a response into JSON lists.",
+                "description": "Element identifier. Any non-empty string except the reserved literal `__page_context_root__`, strings PHP casts to integers (`0`, `12`, `-3`), and strings carrying a line terminator (U+000A, U+000D, U+2028, U+2029); all are rejected with `400`. The id is stored verbatim, so an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id. An integer-castable id is refused because it would turn the string-keyed per-element maps of a response into JSON lists.",
                 "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
             }
         }

@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
-use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -170,11 +169,8 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * An element id outside the value domain the decode gate admits. Two values are excluded: the reserved
-     * literal {@see VirtualRootWrapper::VIRTUAL_ROOT_ID}, which an authored element carrying it would collide
-     * with on every wrapping render, and a string PHP casts to an integer array key, which puts an integer key
-     * into {@see ResolvedValueIndexFactory}'s string-keyed assignments map — encoding as a JSON list once those
-     * keys happen to run 0..n-1, and as a map with integer-looking members otherwise.
+     * An element id outside the value domain {@see ElementIdRule} states and the decode gate admits; that
+     * class carries each exclusion and its reason, and `$reason` here is the phrase it returned.
      *
      * A 500 while still in CLIENT_DEFECT_CODES, the same split {@see invalidFieldValueType()} and
      * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only

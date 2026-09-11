@@ -7,18 +7,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The element-id value domain is stated three times: {@see StoredElementCodec} admits it on decode,
- * {@see StoredTreeConstraints} refuses it on write, and the published OpenAPI schemas promise it to clients.
- * Only the third is inert — nothing executes a schema — so a pattern narrower than decode locks a
- * schema-validating client out of ids the server accepts, with no test going red. That is how
- * `^[0-9a-f]{32}$` came to sit on 24 element-id fields while decode admitted `el-1`. One table of ids, each
- * put through the pattern as published and through decode, pins the agreement rather than the instances of it
- * found so far.
+ * The element-id value domain is stated twice: {@see ElementIdRule} states it for the two PHP sites that
+ * enforce it, and the published OpenAPI schemas promise it to clients. Only the second is inert — nothing
+ * executes a schema — so a pattern narrower than the rule locks a schema-validating client out of ids the
+ * server accepts, with no test going red. That is how `^[0-9a-f]{32}$` came to sit on 24 element-id fields
+ * while decode admitted `el-1`. One table of ids, each put through the pattern as published and through
+ * decode, pins the agreement rather than the instances of it found so far.
  *
  * The pattern is read out of the schema, never restated here: a test carrying its own copy stays green
  * through exactly the drift it exists to catch.
@@ -115,6 +114,14 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
         yield 'a digit string carrying a decimal point' => ['1.5'];
 
         yield 'a single character' => ['a'];
+
+        yield 'an id carrying a space' => ['a b'];
+
+        yield 'an id carrying a tab, which is no line terminator' => ["hero\tfoot"];
+
+        yield 'an id carrying NEL, a Unicode newline ECMA-262 does not count' => ["hero\u{0085}foot"];
+
+        yield 'an id carrying a vertical tab, likewise' => ["hero\u{000B}foot"];
     }
 
     /**
@@ -129,17 +136,37 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
 
         yield 'the integer-castable string "0"' => [
             '0',
-            ContentSystemException::invalidElementId('0', 'PHP casts it to an integer array key'),
+            ContentSystemException::invalidElementId('0', 'it is a string PHP casts to an integer array key'),
         ];
 
         yield 'a positive integer-castable string' => [
             '12',
-            ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'),
+            ContentSystemException::invalidElementId('12', 'it is a string PHP casts to an integer array key'),
         ];
 
         yield 'a negative integer-castable string' => [
             '-3',
-            ContentSystemException::invalidElementId('-3', 'PHP casts it to an integer array key'),
+            ContentSystemException::invalidElementId('-3', 'it is a string PHP casts to an integer array key'),
+        ];
+
+        yield 'an id carrying a line feed' => [
+            "hero\nfoot",
+            ContentSystemException::invalidElementId("hero\nfoot", 'it contains the line terminator U+000A'),
+        ];
+
+        yield 'an id carrying a carriage return' => [
+            "hero\rfoot",
+            ContentSystemException::invalidElementId("hero\rfoot", 'it contains the line terminator U+000D'),
+        ];
+
+        yield 'an id carrying a line separator' => [
+            "hero\u{2028}foot",
+            ContentSystemException::invalidElementId("hero\u{2028}foot", 'it contains the line terminator U+2028'),
+        ];
+
+        yield 'an id carrying a paragraph separator' => [
+            "hero\u{2029}foot",
+            ContentSystemException::invalidElementId("hero\u{2029}foot", 'it contains the line terminator U+2029'),
         ];
     }
 
@@ -161,12 +188,33 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
     }
 
     /**
-     * `D` anchors `$` at the absolute end of the subject, matching what a JSON Schema consumer's ECMA regex
-     * does with the same expression.
+     * A JSON Schema `pattern` is ECMA-262, and PCRE is not it. Running the published expression through
+     * `preg_match` unchanged is what let `hero\r` read as agreed here while every client refuses it: ECMA's
+     * `.` excludes the four {@see ElementIdRule::LINE_TERMINATORS}, PCRE's excludes only `\n`. The two also
+     * part over `$`, which PCRE lets match before a trailing newline.
+     *
+     * Both are closed by translation rather than by a second engine, because the only ECMA engine in the
+     * repository is ajv, and reaching it from a PHP unit test costs a Node process per case. The translation
+     * is exact only for a restricted alphabet — no backslash escapes, and no `.` inside a character class —
+     * so the alphabet is asserted before the substitution rather than assumed. Widen the published pattern
+     * beyond it and this assertion fails, which is the intended way to find out.
      */
     private static function publishedPattern(): string
     {
-        return '/' . self::rawPublishedPattern() . '/D';
+        $pattern = self::rawPublishedPattern();
+
+        static::assertMatchesRegularExpression(
+            '/^[A-Za-z0-9_^$()?!|*+.\[\]-]+$/',
+            $pattern,
+            'the published pattern left the alphabet this ECMA translation is exact for'
+        );
+        static::assertSame(
+            0,
+            preg_match('/\[[^\]]*\.[^\]]*\]/', $pattern),
+            'the published pattern puts a literal "." inside a character class, which the translation would corrupt'
+        );
+
+        return '/' . str_replace('.', '[^\n\r\x{2028}\x{2029}]', $pattern) . '/uD';
     }
 
     private static function rawPublishedPattern(): string

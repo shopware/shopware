@@ -16,12 +16,18 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * The unit-level conformance test compares the pattern string against decode. This one puts real payloads
- * through the document the API actually publishes, using a spec-compliant JSON Schema validator, so what is
- * asserted is the verdict a schema-validating client reaches rather than the text the source file holds.
+ * through the document the API actually publishes, so what is asserted is composition in the generated
+ * document rather than the text the source file holds.
  *
  * It covers the three things the source file alone cannot show: that `$ref` resolves in the generated
  * document, that `allOf` composition keeps the referenced pattern in force alongside a sibling description,
  * and that the `anyOf` nullable form still admits `null`.
+ *
+ * What it deliberately does NOT establish is the ECMA-262 verdict a client reaches. `opis/json-schema`
+ * compiles a `pattern` to PCRE (`Helper::patternToRegex()` appends `uD` and hands it to `preg_match`), and
+ * PCRE's `.` excludes only `\n` where ECMA's excludes four code points. So this validator agrees with a
+ * browser on `hero\n` and parts from it on `hero\r`. The unit test owns that axis, by translating the
+ * pattern; rows here stay on inputs where the two engines cannot disagree.
  *
  * @internal
  */
@@ -56,6 +62,12 @@ class PublishedElementIdSchemaTest extends TestCase
             'StoredContentElement',
             ['id' => 'el-1', 'component' => 'core:text'],
             true,
+        ];
+
+        yield 'a stored element whose id carries a line feed is refused' => [
+            'StoredContentElement',
+            ['id' => "hero\nfoot", 'component' => 'core:text'],
+            false,
         ];
 
         yield 'a stored element with an integer-castable id is refused' => [

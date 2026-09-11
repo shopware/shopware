@@ -26,7 +26,7 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__` and strings PHP casts to integers (`0`, `12`, `-3`); an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__`, strings PHP casts to integers (`0`, `12`, `-3`), and strings carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
                         "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
@@ -70,7 +70,7 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__` and strings PHP casts to integers (`0`, `12`, `-3`); an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__`, strings PHP casts to integers (`0`, `12`, `-3`), and strings carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
                         "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
@@ -114,7 +114,7 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__` and strings PHP casts to integers (`0`, `12`, `-3`); an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__`, strings PHP casts to integers (`0`, `12`, `-3`), and strings carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
                         "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
@@ -158,7 +158,7 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__` and strings PHP casts to integers (`0`, `12`, `-3`); an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id except the reserved literal `__page_context_root__`, strings PHP casts to integers (`0`, `12`, `-3`), and strings carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
                         "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],

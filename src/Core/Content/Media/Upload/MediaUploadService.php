@@ -322,7 +322,6 @@ readonly class MediaUploadService
     {
         $this->assertValidExternalUrl($url);
 
-<<<<<<< HEAD
         $resolved = $this->trustedUrlResolver->resolve($url);
 
         $client = $this->httpClient;
@@ -340,14 +339,6 @@ readonly class MediaUploadService
         }
 
         $headers = $client->request('HEAD', $url, $options)->getHeaders();
-=======
-        $options = ['max_redirects' => 0];
-        if ($this->externalLinkTimeout > 0) {
-            $options['max_duration'] = $this->externalLinkTimeout;
-        }
-
-        $headers = $this->httpClient->request('HEAD', $url, $options)->getHeaders();
->>>>>>> fba1347b034 (perf(media): add configurable remote request timeouts)
         if (!\array_key_exists('content-length', $headers)) {
             throw MediaException::fileNotFound($url);
         }

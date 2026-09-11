@@ -64,7 +64,7 @@ function wrapMembers(config: ComponentConfig, members: Members): object {
             members.delete(`${name}.get`);
             members.delete(`${name}.set`);
             const originalGetter = typeof definition === 'function' ? definition : definition.get;
-            const getter = originalGetter ? wrap(name, originalGetter) : undefined;
+            const getter = originalGetter ? wrap(name, withComputedVm(originalGetter)) : undefined;
             if (getter) members.set(`${name}.get`, getter);
             result.computed[name] =
                 typeof definition === 'function'
@@ -77,6 +77,15 @@ function wrapMembers(config: ComponentConfig, members: Members): object {
         }
     }
     return result;
+}
+
+/** Vue supplies vm to computed getters; $super must supply the same receiver as this. */
+function withComputedVm(getter: Method): Method {
+    return function (...args) {
+        if (!args.length) args.push(this);
+        else if (args[0] === (this as Instance).$.proxy) args[0] = this;
+        return getter.apply(this, args);
+    };
 }
 
 /** A stable receiver also preserves the preceding layer when a method awaits before calling $super. */

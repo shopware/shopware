@@ -113,6 +113,30 @@ describe('Vue Options on an SFC state bridge', () => {
         ]);
     });
 
+    it('preserves the computed vm argument through native reads and $super', () => {
+        const definition = component(
+            () => ({ count: ref(2), label: ref('base') }),
+            [
+                {
+                    computed: {
+                        doubled(this: any, vm: any) {
+                            expect(vm).toBe(this);
+                            return vm.count * 2;
+                        },
+                    },
+                },
+                {
+                    computed: {
+                        doubled(this: any) {
+                            return this.$super('doubled.get') + 1;
+                        },
+                    },
+                },
+            ],
+        );
+        expect((render(definition).vm as any).doubled).toBe(5);
+    });
+
     it('shares original refs, supports replacement object shapes, and isolates component instances', async () => {
         const originals: ReturnType<typeof ref>[] = [];
         const definition = component(() => {

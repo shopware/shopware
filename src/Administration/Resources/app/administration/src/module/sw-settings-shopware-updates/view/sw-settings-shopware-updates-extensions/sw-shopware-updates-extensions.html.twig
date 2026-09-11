@@ -1,17 +1,31 @@
-{% block sw_shopware_updates_plugins %}
+{% block sw_shopware_updates_extensions %}
 <mt-card
-    position-identifier="sw-shopware-updates-plugins"
+    position-identifier="sw-shopware-updates-extensions"
     :title="$t('sw-settings-shopware-updates.cards.extensions')"
     :is-loading="isLoading"
 >
-    <template #grid>
+    {% block sw_shopware_updates_extensions_empty_state %}
+    <mt-empty-state
+        v-if="!isLoading && !hasExtensions"
+        class="sw-shopware-updates-extensions__empty-state"
+        :centered="true"
+        icon="regular-plug"
+        :headline="$t('sw-settings-shopware-updates.extensions.emptyStateHeadline')"
+        :description="$t('sw-settings-shopware-updates.extensions.emptyStateDescription')"
+    />
+    {% endblock %}
+
+    <template
+        v-if="hasExtensions"
+        #grid
+    >
         <sw-data-grid
             :show-selection="false"
-            :data-source="plugins"
+            :data-source="extensions"
             :columns="columns"
         >
 
-            {% block sw_shopware_updates_plugins_column_icon %}
+            {% block sw_shopware_updates_extensions_column_icon %}
             <template
                 #column-icon="{ item, isInlineEdit }"
             >
@@ -27,21 +41,21 @@
                 />&nbsp;
 
                 <template v-if="item.statusMessage === 'notCompatible'">
-                    {{ item.statusMessage }} {{ $t('sw-settings-shopware-updates.plugins.pluginWillBeDeactivatedHint') }}
+                    {{ item.statusMessage }} {{ $t('sw-settings-shopware-updates.extensions.extensionWillBeDeactivatedHint') }}
                 </template>
                 <template v-else-if="item.statusMessage">
                     {{ item.statusMessage }}
                 </template>
                 <template v-else>
-                    {{ $t('sw-settings-shopware-updates.plugins.pluginNotInStore') }}
+                    {{ $t('sw-settings-shopware-updates.extensions.extensionNotInStore') }}
                 </template>
             </template>
             {% endblock %}
 
-            {% block sw_shopware_updates_plugins_column_action %}
+            {% block sw_shopware_updates_extensions_column_action %}
             <template #actions="{item}">
                 <sw-context-menu-item @click="openMyExtensions()">
-                    {{ $t('sw-settings-shopware-updates.plugins.actions.openMyExtensions') }}
+                    {{ $t('sw-settings-shopware-updates.extensions.actions.openMyExtensions') }}
                 </sw-context-menu-item>
             </template>
             {% endblock %}

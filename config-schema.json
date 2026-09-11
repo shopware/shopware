@@ -644,6 +644,9 @@
             "properties": {
                 "enabled": {
                     "type": "boolean"
+                },
+                "hide_module": {
+                    "type": "boolean"
                 }
             },
             "title": "Auto update"

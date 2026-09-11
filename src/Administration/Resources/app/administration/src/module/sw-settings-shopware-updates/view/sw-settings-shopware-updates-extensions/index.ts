@@ -1,4 +1,4 @@
-import template from './sw-shopware-updates-plugins.html.twig';
+import template from './sw-shopware-updates-extensions.html.twig';
 
 /**
  * @sw-package framework
@@ -13,22 +13,26 @@ export default Shopware.Component.wrapComponentConfig({
         isLoading: {
             type: Boolean,
         },
-        plugins: {
+        extensions: {
             type: Array,
             default: () => [],
         },
     },
     computed: {
+        hasExtensions(): boolean {
+            return this.extensions.length > 0;
+        },
+
         columns() {
             return [
                 {
                     property: 'name',
-                    label: this.$t('sw-settings-shopware-updates.plugins.columns.name'),
+                    label: this.$t('sw-settings-shopware-updates.extensions.columns.name'),
                     rawData: true,
                 },
                 {
                     property: 'icon',
-                    label: this.$t('sw-settings-shopware-updates.plugins.columns.available'),
+                    label: this.$t('sw-settings-shopware-updates.extensions.columns.available'),
                     rawData: true,
                 },
             ];

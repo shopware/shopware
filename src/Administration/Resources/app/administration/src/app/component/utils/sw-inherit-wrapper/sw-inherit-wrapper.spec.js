@@ -64,7 +64,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         });
     });
 
-    it('should inherit on empty array', async () => {
+    it('should not inherit on empty array', async () => {
         const wrapper = await createWrapper({
             propsData: {
                 value: [],
@@ -75,7 +75,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         });
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.isInherited).toBe(true);
+        expect(wrapper.vm.isInherited).toBe(false);
     });
 
     it('should not re-inherit after the user clears a previously detached field with a truthy parent value', async () => {
@@ -126,8 +126,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
             global: createWrapperGlobalValue,
         });
 
-        // starts inherited: own value is empty and the parent holds a value
-        expect(wrapper.vm.isInherited).toBe(true);
+        expect(wrapper.vm.isInherited).toBe(false);
 
         // user clicks unlink -> the inherited value is copied down
         wrapper.vm.removeInheritance();
@@ -152,7 +151,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
             global: createWrapperGlobalValue,
         });
 
-        expect(wrapper.vm.isInherited).toBe(true);
+        expect(wrapper.vm.isInherited).toBe(false);
 
         // unlink from the parent
         wrapper.vm.removeInheritance();

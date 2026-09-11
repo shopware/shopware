@@ -226,6 +226,22 @@ class SystemConfigServiceTest extends TestCase
         static::assertTrue($actual);
     }
 
+    public function testEmptyArraySalesChannelValueOverridesGlobalValueInAllReadMethods(): void
+    {
+        $this->systemConfigService->set('foo.ids', ['global-id']);
+        $this->systemConfigService->set('foo.ids', [], TestDefaults::SALES_CHANNEL);
+
+        static::assertSame([], $this->systemConfigService->get('foo.ids', TestDefaults::SALES_CHANNEL));
+        static::assertSame(
+            ['foo.ids' => []],
+            $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL)
+        );
+        static::assertSame(
+            ['foo.ids' => []],
+            $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true)
+        );
+    }
+
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');
@@ -271,13 +287,13 @@ class SystemConfigServiceTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    public function testGetDomainInherit(): void
+    public function testGetDomainInheritWithEmptyStringOverride(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
         $this->systemConfigService->set('foo.bar', 'override', TestDefaults::SALES_CHANNEL);
         $this->systemConfigService->set('foo.bar', '', TestDefaults::SALES_CHANNEL);
 
-        $expected = ['foo.bar' => 'test'];
+        $expected = ['foo.bar' => ''];
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
 
         static::assertSame($expected, $actual);

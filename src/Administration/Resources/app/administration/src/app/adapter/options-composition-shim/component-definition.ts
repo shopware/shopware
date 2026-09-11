@@ -50,12 +50,24 @@ export function prepareLegacyComponent(
         mixins,
         setup: original.setup,
     };
+    retainRootExposure(definition, mixins.length ? mixins : [foundation]);
     retainLegacyRender(definition, original, mixins);
     exposeRouteGuards(definition, [
         foundation,
         ...mixins,
     ]);
     return definition;
+}
+
+/** Shopware hoists the last declared override option; Vue only accepts expose on the final root. */
+function retainRootExposure(definition: Definition, configs: ComponentConfig[]): void {
+    for (let index = configs.length - 1; index >= 0; index -= 1) {
+        const config = configs[index];
+        if (!Object.hasOwn(config, 'expose')) continue;
+        definition.expose = config.expose;
+        delete config.expose;
+        return;
+    }
 }
 
 /** Keep base state and its original Options declarations in one ancestor. */

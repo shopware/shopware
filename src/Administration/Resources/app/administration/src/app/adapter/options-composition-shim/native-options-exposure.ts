@@ -14,6 +14,12 @@ export function exposeNativeOptions(
     legacyNames: Iterable<string>,
     setupFallbacks: Map<string, PropertyDescriptor>,
 ): void {
+    if ('expose' in instance.type && Array.isArray(instance.type.expose)) {
+        // Vue fills this object from the explicit list after created. Discard generated SFC exposure
+        // first, so both an empty list and a selected list retain the legacy parent-ref contract.
+        instance.exposed = {};
+        return;
+    }
     if (!instance.exposed) return;
     const owner = instance as ComponentInternalInstance & { ctx: State };
     const aliases = new Set(legacyNames);

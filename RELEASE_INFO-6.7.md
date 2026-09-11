@@ -272,6 +272,7 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 ### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
 
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
+
 ### Remote media request timeouts are configurable
 
 Installations can configure `shopware.media.url_upload_timeout` and

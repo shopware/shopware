@@ -281,6 +281,7 @@
                             :disabled="!acl.can('document.editor') || undefined"
                             :label="formatLabels[format]"
                             :placeholder="$t('sw-settings-document.detail.placeholderFileNameInfix')"
+                            :error="filenameInfixError(format)"
                         />
                     </sw-container>
                 </template>

@@ -214,7 +214,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             draftValue: 'Hello again',
             isEditing: true,
         },
-        clearInlineEditSession: jest.fn(),
+        clearInlineEditSession: methods.clearInlineEditSession,
     });
 
     it('commits an inline edit of a translatable text property as an update-properties mutation carrying the anchor map', async () => {
@@ -236,6 +236,41 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                 },
             },
         });
+        expect(vm.inlineEditSession).toBeNull();
+    });
+
+    it('keeps the inline session with the typed draft when a translatable commit is rejected', async () => {
+        const element = translatableTextElement();
+        const requestDraftMutation = jest.fn().mockRejectedValue(new Error('mutation rejected'));
+        const vm = inlineEditVm(element, requestDraftMutation);
+
+        await methods.onInlineEditCommit.call(vm, {
+            elementId: 'element-1',
+            value: 'Hello again',
+        });
+
+        expect(vm.inlineEditSession).toEqual({
+            elementId: 'element-1',
+            originalValue: 'Hello',
+            draftValue: 'Hello again',
+            isEditing: true,
+        });
+    });
+
+    it('clears the inline session when the edited element no longer exists', async () => {
+        const requestDraftMutation = jest.fn();
+        const vm = {
+            ...inlineEditVm(translatableTextElement(), requestDraftMutation),
+            findElementById: () => null,
+        };
+
+        await methods.onInlineEditCommit.call(vm, {
+            elementId: 'element-1',
+            value: 'Hello again',
+        });
+
+        expect(requestDraftMutation).not.toHaveBeenCalled();
+        expect(vm.inlineEditSession).toBeNull();
     });
 
     const respondedTextElement = (): ContentElementNode => ({

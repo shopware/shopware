@@ -610,20 +610,25 @@ export default Shopware.Component.wrapComponentConfig({
 
             const normalizedValue = payload.value.trim();
             const session = this.inlineEditSession;
-            this.clearInlineEditSession();
 
             if (normalizedValue === session.originalValue) {
+                this.clearInlineEditSession();
+
                 return;
             }
 
             const element = this.findElementById(payload.elementId);
 
+            // A vanished edit target leaves nothing to retry against; a kept session would suspend the
+            // preview's auto-reload until the user re-enters and cancels an inline edit.
             if (!element) {
+                this.clearInlineEditSession();
+
                 return;
             }
 
             if (this.isTranslatableProperty(element.component, 'text')) {
-                await this.executeStructuralDraftMutation(
+                const succeeded = await this.executeStructuralDraftMutation(
                     'update-properties',
                     this.layout ? this.layout.layout : [],
                     {
@@ -639,12 +644,18 @@ export default Shopware.Component.wrapComponentConfig({
                     () => payload.elementId,
                 );
 
+                // A rejected commit keeps the session so the editor stays open with the typed text.
+                if (succeeded) {
+                    this.clearInlineEditSession();
+                }
+
                 return;
             }
 
             this.applyLayoutMutation((layout) => {
                 return updateElementPropertiesInLayout(layout, payload.elementId, { text: normalizedValue }) ? {} : false;
             });
+            this.clearInlineEditSession();
         },
 
         onInlineEditCancel(payload: { elementId: string }): void {
@@ -1041,9 +1052,9 @@ export default Shopware.Component.wrapComponentConfig({
             currentLayout: ContentElementNode[],
             operationPayload: Record<string, unknown>,
             resolveSelectedElementId: (response: ContentLayoutDraftMutationResponse) => string | null,
-        ): Promise<void> {
+        ): Promise<boolean> {
             if (!this.layout || !this.allowSave) {
-                return;
+                return false;
             }
 
             const requestId = this.mutationRequestSequence + 1;
@@ -1057,18 +1068,22 @@ export default Shopware.Component.wrapComponentConfig({
                 const response = await this.requestDraftMutation(operation, currentLayout, operationPayload);
 
                 if (requestId !== this.latestMutationRequestId) {
-                    return;
+                    return false;
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
                 this.layout.layout = response.layout;
                 this.selectedElementId = resolveSelectedElementId(response);
+
+                return true;
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
-                    return;
+                    return false;
                 }
 
                 this.notifyMutationError(this.extractMutationErrorCodes(error));
+
+                return false;
             } finally {
                 if (requestId === this.latestMutationRequestId) {
                     this.isLoading = false;

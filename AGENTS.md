@@ -97,6 +97,7 @@ German snippets differ in register between the two UIs. The Administration addre
 |------------------------|-------------------------------|----------------------------------------------|
 | **PHP** (.php)         | `composer cs`                 | `composer cs-fix`                            |
 | **PHP** (types)        | `composer phpstan`            | N/A - must fix manually                      |
+| **PHP** (types)        | `composer structarmed`        | `composer structarmed-fix` (some rules implements `Boundwize\StructArmed\Rule\FixableInterface` support it)  |
 | **JS/TS/Vue** (Admin)  | `composer eslint:admin`       | `composer eslint:admin:fix`                  |
 | **JS/TS** (Storefront) | `composer eslint:storefront`  | `composer eslint:storefront:fix`             |
 | **SCSS**               | `composer stylelint`          | `composer stylelint:[admin\|storefront]:fix` |

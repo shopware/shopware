@@ -520,6 +520,9 @@
         "structarmed": [
             "structarmed analyze"
         ],
+        "structarmed-fix": [
+            "structarmed analyze --fix"
+        ],
         "phpunit": [
             "phpunit"
         ],

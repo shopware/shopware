@@ -111,8 +111,10 @@ class DocumentController extends AbstractController
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
         }
 
+        $filename = $request->request->getString('filename');
+
         return $this->createResponse(
-            $combinedDocument->getName(),
+            $filename !== '' ? $filename . '.' . $combinedDocument->getFileExtension() : $combinedDocument->getName(),
             $combinedDocument->getContent(),
             $download,
             $combinedDocument->getContentType()

@@ -69,9 +69,26 @@ describe('orderDocumentApiService', () => {
             ];
             const additionalParams = {};
 
-            orderDocumentApiService.download(documentIds, additionalParams);
+            orderDocumentApiService.download(documentIds, null, additionalParams);
 
             expect(clientMock.history.post[0].url).toBe('/_action/order/document/download');
+            expect(clientMock.history.post[0].data).toBe(JSON.stringify({ documentIds, filename: null }));
+        });
+
+        it('passes the filename through when given', async () => {
+            const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
+
+            const documentIds = [
+                1,
+                2,
+                3,
+            ];
+
+            orderDocumentApiService.download(documentIds, 'my-custom-filename');
+
+            expect(clientMock.history.post[0].data).toBe(
+                JSON.stringify({ documentIds, filename: 'my-custom-filename' }),
+            );
         });
     });
 });

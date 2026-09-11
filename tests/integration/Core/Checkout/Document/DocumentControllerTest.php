@@ -426,6 +426,38 @@ class DocumentControllerTest extends TestCase
         static::assertSame('application/pdf', $response->headers->get('Content-Type'));
     }
 
+    public function testDownloadUsesCustomFilenameWhenGiven(): void
+    {
+        $order = $this->createOrder($this->customerId, $this->context);
+        $documentTypes = [
+            'invoice' => [
+                'documentType' => 'invoice',
+                'documentRangerType' => 'document_invoice',
+                'documentNumber' => '1100',
+                'custom' => [
+                    'invoiceNumber' => '1100',
+                ],
+            ],
+        ];
+
+        static::assertNotNull($document = $this->createDocuments($order->getId(), $documentTypes, $this->context)->first());
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document/download',
+            [
+                'documentIds' => [$document->getId()],
+                'filename' => 'my-custom-filename',
+            ]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertStringContainsString('my-custom-filename.pdf', (string) $response->headers->get('Content-Disposition'));
+    }
+
     public function testDownloadPermission(): void
     {
         TestUser::createNewTestUser(

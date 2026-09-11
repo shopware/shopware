@@ -196,11 +196,11 @@ export default class DocumentV2ApiService extends ApiService {
             });
     }
 
-    public getDocumentArchive(documentIds: string[]): Promise<DocumentFileResponse> {
+    public getDocumentArchive(documentIds: string[], filename: string | null = null): Promise<DocumentFileResponse> {
         return this.httpClient
             .post<Blob>(
                 '/_action/order/document-v2/download-archive',
-                { documentIds },
+                { documentIds, filename },
                 {
                     responseType: 'blob',
                     headers: this.getBasicHeaders(),

@@ -256,8 +256,10 @@ final class DocumentV2Controller extends AbstractController
             throw DocumentV2Exception::documentArchiveUnavailable($documentIds);
         }
 
+        $filename = $request->getPayload()->getString('filename');
+
         return $this->createResponse(
-            $archive->getName(),
+            $filename !== '' ? $filename . '.' . $archive->getFileExtension() : $archive->getName(),
             $archive->getContent(),
             $archive->getContentType(),
             HeaderUtils::DISPOSITION_ATTACHMENT,

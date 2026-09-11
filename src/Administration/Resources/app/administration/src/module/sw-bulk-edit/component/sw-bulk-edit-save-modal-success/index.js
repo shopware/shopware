@@ -307,9 +307,11 @@ export default {
 
             this.document[documentType].isDownloading = true;
 
+            const filename = documentIds.length > 1 ? `${documentType}s_bulk` : null;
+
             const request = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
-                ? this.documentV2ApiService.getDocumentArchive(documentIds)
-                : this.orderDocumentApiService.download(documentIds).then((response) => {
+                ? this.documentV2ApiService.getDocumentArchive(documentIds, filename)
+                : this.orderDocumentApiService.download(documentIds, filename).then((response) => {
                       if (!response.data) {
                           return null;
                       }

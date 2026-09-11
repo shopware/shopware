@@ -484,6 +484,8 @@ class ConfigurationServiceTest extends TestCase
                         'value' => null,
                     ],
                 ],
+                'subtitle' => null,
+                'flag' => 'FEATURE_NEXT_101',
             ],
         ];
     }

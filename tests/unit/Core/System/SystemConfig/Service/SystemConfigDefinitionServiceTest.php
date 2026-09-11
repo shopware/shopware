@@ -439,7 +439,10 @@ class SystemConfigDefinitionServiceTest extends TestCase
                         [
                             'en-GB' => 'Basic configuration',
                             'de-DE' => 'Grundeinstellungen',
-                        ]
+                        ],
+                        null,
+                        null,
+                        'FEATURE_NEXT_101',
                     ),
                 ]
             ),

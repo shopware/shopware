@@ -4,15 +4,13 @@ namespace Shopware\Core\Framework\Update\Services;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/**
- * @phpstan-import-type VersionFixedVulnerabilities from Version
- */
 /**
  * @phpstan-import-type VersionFixedVulnerabilities from Version
  */
@@ -27,7 +25,8 @@ class ApiClient
         private readonly bool $shopwareUpdateEnabled,
         private readonly string $shopwareVersion,
         private readonly string $projectDir,
-        private readonly ClockInterface $clock
+        private readonly ClockInterface $clock,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -44,7 +43,7 @@ class ApiClient
             ]);
         }
 
-        if (!$this->shopwareUpdateEnabled) {
+        if (!$this->shopwareUpdateEnabled || $this->airGappedMode->isEnabled()) {
             return new Version();
         }
 
@@ -72,6 +71,10 @@ class ApiClient
     public function downloadRecoveryTool(): void
     {
         if (\is_string(EnvironmentHelper::getVariable('SW_RECOVERY_NEXT_VERSION'))) {
+            return;
+        }
+
+        if ($this->airGappedMode->isEnabled()) {
             return;
         }
 

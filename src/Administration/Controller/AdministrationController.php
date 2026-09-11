@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -97,6 +98,7 @@ class AdministrationController extends AbstractController
         private readonly SymfonyBearerTokenValidator $tokenValidator,
         private readonly string $analyticsGatewayUrl,
         private readonly CustomerEmailUniqueChecker $customerEmailUniqueChecker,
+        private readonly AirGappedMode $airGappedMode,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -139,9 +141,9 @@ class AdministrationController extends AbstractController
             'adminEsEnable' => $this->esAdministrationEnabled,
             'storefrontEsEnable' => $this->esStorefrontEnabled,
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
-            'serviceRegistryUrl' => $this->serviceRegistryUrl,
+            'serviceRegistryUrl' => $this->airGappedMode->isEnabled() ? '' : $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
-            'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
+            'analyticsGatewayUrl' => $this->airGappedMode->isEnabled() ? '' : $this->analyticsGatewayUrl,
         ]);
 
         $response->setPublic();

@@ -1,3 +1,4 @@
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import template from './sw-settings-usage-data-general.html.twig';
 import SwSettingsUsageDataStoreDataConsent from '../../component/sw-settings-usage-data-store-data-consent';
 
@@ -13,5 +14,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     components: {
         SwSettingsUsageDataStoreDataConsent,
+    },
+
+    computed: {
+        airGapped() {
+            return isAirGapped();
+        },
     },
 });

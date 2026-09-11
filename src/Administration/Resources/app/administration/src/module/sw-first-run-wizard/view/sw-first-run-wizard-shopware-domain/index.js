@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import template from './sw-first-run-wizard-shopware-domain.html.twig';
 import './sw-first-run-wizard-shopware-domain.scss';
 
@@ -38,7 +39,7 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
+            if (isShopwareStoreUnavailable()) {
                 return 'sw.first.run.wizard.index.finish';
             }
 

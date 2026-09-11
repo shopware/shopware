@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import template from './sw-first-run-wizard-defaults.html.twig';
 import './sw-first-run-wizard-defaults.scss';
 
@@ -49,7 +50,7 @@ export default {
                 },
             ];
 
-            if (!Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
+            if (!isShopwareStoreUnavailable()) {
                 buttons.unshift({
                     key: 'back',
                     label: this.$t('global.default.back'),

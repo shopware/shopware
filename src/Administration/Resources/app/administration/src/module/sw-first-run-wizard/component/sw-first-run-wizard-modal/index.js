@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
 
@@ -93,7 +94,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            return isShopwareStoreUnavailable();
         },
 
         isClosable() {
@@ -101,7 +102,7 @@ export default {
         },
 
         stepper() {
-            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
+            if (isShopwareStoreUnavailable()) {
                 return {
                     welcome: {
                         name: 'sw.first.run.wizard.index.welcome',

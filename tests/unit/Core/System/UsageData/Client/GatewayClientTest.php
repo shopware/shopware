@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Client;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
@@ -28,6 +29,7 @@ class GatewayClientTest extends TestCase
         $gatewayClient = new GatewayClient(
             $client,
             static::createStub(ShopIdProvider::class),
+            new AirGappedMode(false),
         );
 
         static::assertTrue($gatewayClient->isGatewayAllowsPush());
@@ -44,8 +46,23 @@ class GatewayClientTest extends TestCase
         $gatewayClient = new GatewayClient(
             $client,
             static::createStub(ShopIdProvider::class),
+            new AirGappedMode(false),
         );
 
         static::assertFalse($gatewayClient->isGatewayAllowsPush());
+    }
+
+    public function testGatewayDoesNotAllowPushWhenAirGapped(): void
+    {
+        $httpClient = new MockHttpClient([]);
+
+        $gatewayClient = new GatewayClient(
+            $httpClient,
+            static::createStub(ShopIdProvider::class),
+            new AirGappedMode(true),
+        );
+
+        static::assertFalse($gatewayClient->isGatewayAllowsPush());
+        static::assertSame(0, $httpClient->getRequestsCount());
     }
 }

@@ -36,6 +36,7 @@ export interface ContextState {
                 appUrlReachable: boolean;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
+                airGapped: boolean;
                 firstMigrationDate?: string | null;
                 minSearchTermLength: number;
             };

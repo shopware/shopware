@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -169,6 +170,69 @@ class AdministrationControllerTest extends TestCase
         $response = $controller->index(new Request(), $this->context);
 
         static::assertNotFalse($response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testIndexBlanksShopwareOperatedUrlsWhenAirGapped(): void
+    {
+        $this->parameterBag->method('has')->willReturn(true);
+        $this->parameterBag->method('get')->willReturn(true);
+
+        $currencyRepository = $this->createMock(EntityRepository::class);
+
+        $controller = $this->createAdministrationController(
+            currencyRepository: $currencyRepository,
+            airGappedMode: new AirGappedMode(true),
+        );
+
+        $container = new Container();
+        $twig = $this->createMock(Environment::class);
+
+        $twig->expects($this->once())->method('render')
+            ->willReturnArgument(0)
+            ->with(
+                '',
+                [
+                    'features' => [],
+                    'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
+                    'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
+                    'systemCurrencyId' => Defaults::CURRENCY,
+                    'systemCurrencyISOCode' => 'fakeIsoCode',
+                    'liveVersionId' => Defaults::LIVE_VERSION,
+                    'firstRunWizard' => false,
+                    'apiVersion' => null,
+                    'cspNonce' => null,
+                    'adminEsEnable' => true,
+                    'storefrontEsEnable' => true,
+                    'serviceRegistryUrl' => '',
+                    'refreshTokenTtl' => 7 * 86400 * 1000,
+                    'productStreamIndexingEnabled' => true,
+                    'analyticsGatewayUrl' => '',
+                ]
+            );
+
+        $container->set('twig', $twig);
+        $controller->setContainer($container);
+
+        $currencyCollection = new CurrencyCollection();
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setIsoCode('fakeIsoCode');
+        $currencyCollection->add($currency);
+
+        $currencyRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult(
+                'currency',
+                1,
+                $currencyCollection,
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $response = $controller->index(new Request(), $this->context);
+
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
@@ -720,6 +784,7 @@ class AdministrationControllerTest extends TestCase
         ?HtmlSanitizer $htmlSanitizer = null,
         ?DefinitionInstanceRegistry $definitionRegistry = null,
         ?PrefixFilesystem $fileSystemOperator = null,
+        ?AirGappedMode $airGappedMode = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
@@ -749,6 +814,7 @@ class AdministrationControllerTest extends TestCase
             $tokenValidator ?? static::createStub(SymfonyBearerTokenValidator::class),
             $this->analyticsGatewayUrl,
             $customerEmailUniqueChecker,
+            $airGappedMode ?? new AirGappedMode(false),
             $this->refreshTokenTtl,
         );
     }

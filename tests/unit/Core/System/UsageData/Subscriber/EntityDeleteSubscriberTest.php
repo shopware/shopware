@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -120,6 +121,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock('2023-09-01 12:00:00'),
             $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
+            new AirGappedMode(false),
         );
 
         $deleteCommand = new DeleteCommand(
@@ -172,6 +174,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock('2023-09-01 12:00:00'),
             $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
+            new AirGappedMode(false),
         );
 
         $deleteCommand = new DeleteCommand(
@@ -234,6 +237,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock('2023-09-01 12:00:00'),
             $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
+            new AirGappedMode(false),
         );
 
         $deleteCommand = new DeleteCommand(
@@ -286,6 +290,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock('2023-09-01 12:00:00'),
             $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
+            new AirGappedMode(false),
         );
 
         $event = DeletedEvent::create(
@@ -320,6 +325,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock(),
             $this->createConsentService(ConsentStatus::ACCEPTED),
             true,
+            new AirGappedMode(false),
         );
 
         $event = DeletedEvent::create(
@@ -356,6 +362,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock('2023-09-01 12:00:00'),
             $consentService,
             true,
+            new AirGappedMode(false),
         );
 
         $event = DeletedEvent::create(
@@ -392,6 +399,7 @@ class EntityDeleteSubscriberTest extends TestCase
             new MockClock('2023-09-01 12:00:00'),
             $this->createConsentService(ConsentStatus::ACCEPTED),
             false,
+            new AirGappedMode(false),
         );
 
         $event = DeletedEvent::create(

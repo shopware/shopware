@@ -14,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -539,6 +540,7 @@ class SnippetServiceTest extends TestCase
             client: static::createStub(ClientInterface::class),
             config: $config,
             eventDispatcher: new EventDispatcher(),
+            airGappedMode: new AirGappedMode(false),
         );
     }
 }

@@ -144,7 +144,9 @@
       "activationDescriptionTitleFirst": "Erweiterungen einfach entdecken und kaufen -",
       "activationDescriptionTitleSecond": "direkt aus Ihrem eigenen Shopware-Shop heraus.",
       "activationDescriptionTitleDescription": "Aktiviere den Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die Du nahtlos in Deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse.",
-      "activate": "Aktivieren"
+      "activate": "Aktivieren",
+      "airGappedTitle": "Diese Installation ist air-gapped",
+      "airGappedDescription": "Der Shopware Store ist deaktiviert, weil dieser Shop Shopware-Cloud-Dienste nicht erreichen kann."
     },
     "title": "Store",
     "descriptionTextModule": "Verwalte Deine Erweiterungen",
@@ -348,6 +350,10 @@
         "alertExtensionManagement": {
           "title": "Erweiterungsverwaltung eingeschränkt",
           "description": "Die Verwaltung der Erweiterungen ist bei dieser Installation deaktiviert. Es ist nur möglich die Einstellungen der Erweiterungen zu verändern."
+        },
+        "alertAirGapped": {
+          "title": "Diese Installation ist air-gapped",
+          "description": "Der Shopware Store, In-App-Updates und Shopware-Cloud-Dienste sind deaktiviert. Lokal bereitgestellte Erweiterungen kannst Du weiterhin aktivieren, deaktivieren und per ZIP installieren."
         }
       },
       "sw-extension-removal-modal": {

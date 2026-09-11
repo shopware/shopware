@@ -46,6 +46,15 @@
             />
 
             <mt-empty-state
+                v-else-if="airGapped"
+                class="sw-extension-store-landing-page__wrapper-content"
+                :centered="true"
+                icon="regular-lock"
+                :headline="$t('sw-extension-store.landing-page.airGappedTitle')"
+                :description="$t('sw-extension-store.landing-page.airGappedDescription')"
+            />
+
+            <mt-empty-state
                 v-else
                 class="sw-extension-store-landing-page__wrapper-content"
                 :centered="true"

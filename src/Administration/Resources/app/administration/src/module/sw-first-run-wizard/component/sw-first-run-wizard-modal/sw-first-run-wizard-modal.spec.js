@@ -134,6 +134,20 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
     });
 
+    it('stepper has less steps when the installation is air-gapped', async () => {
+        const wrapper = await createWrapper();
+
+        expect(Object.keys(wrapper.vm.stepper)).toHaveLength(13);
+
+        Shopware.Store.get('context').app.config.settings.airGapped = true;
+
+        await wrapper.vm.$nextTick();
+
+        expect(Object.keys(wrapper.vm.stepper)).toHaveLength(8);
+
+        Shopware.Store.get('context').app.config.settings.airGapped = false;
+    });
+
     it('the default button config should be the config of the sw-first-run-wizard-welcome component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

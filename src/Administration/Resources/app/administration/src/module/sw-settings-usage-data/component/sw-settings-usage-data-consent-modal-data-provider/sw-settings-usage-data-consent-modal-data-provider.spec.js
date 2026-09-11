@@ -88,6 +88,16 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(true);
         });
 
+        it('doesnt show modal when the installation is air-gapped', async () => {
+            Shopware.Store.get('context').app.config.settings.airGapped = true;
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
+
+            Shopware.Store.get('context').app.config.settings.airGapped = false;
+        });
+
         it('doesnt show modal when admin user is too new', async () => {
             setConsentEligibilityContext({
                 adminUserCreatedAt: getDateStringDaysAgo(5),

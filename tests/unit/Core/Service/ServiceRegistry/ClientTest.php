@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
@@ -65,7 +67,7 @@ class ClientTest extends TestCase
             $response = new MockResponse($response),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client, new AirGappedMode(false));
 
         static::assertSame([], $registryClient->getAll());
         static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
@@ -77,7 +79,7 @@ class ClientTest extends TestCase
             $response = new MockResponse('', ['http_code' => Response::HTTP_SERVICE_UNAVAILABLE]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client, new AirGappedMode(false));
 
         static::assertSame([], $registryClient->getAll());
         static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
@@ -96,7 +98,7 @@ class ClientTest extends TestCase
             $response = new MockResponse((string) json_encode($service, \JSON_THROW_ON_ERROR)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $entries = $registryClient->getAll();
 
@@ -113,6 +115,75 @@ class ClientTest extends TestCase
         static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
     }
 
+    public function testGetAllReturnsEmptyListWhenAirGapped(): void
+    {
+        $httpClient = new MockHttpClient([]);
+
+        $registryClient = new ServiceRegistryClient(
+            'https://www.shopware.com',
+            'https://example.com',
+            $httpClient,
+            new AirGappedMode(true),
+        );
+
+        static::assertSame([], $registryClient->getAll());
+        static::assertSame(0, $httpClient->getRequestsCount());
+    }
+
+    public function testSaveConsentIsNoOpWhenAirGapped(): void
+    {
+        $httpClient = new MockHttpClient([]);
+
+        $registryClient = new ServiceRegistryClient(
+            'https://example.com',
+            'https://example.com',
+            $httpClient,
+            new AirGappedMode(true),
+        );
+
+        $registryClient->saveConsent(new SaveConsentRequest(
+            'service-123',
+            'user-456',
+            'shop-789',
+            '2023-07-01T10:00:00Z',
+            'v1.0',
+        ));
+
+        static::assertSame(0, $httpClient->getRequestsCount());
+    }
+
+    public function testRevokeConsentIsNoOpWhenAirGapped(): void
+    {
+        $httpClient = new MockHttpClient([]);
+
+        $registryClient = new ServiceRegistryClient(
+            'https://example.com',
+            'https://example.com',
+            $httpClient,
+            new AirGappedMode(true),
+        );
+
+        $registryClient->revokeConsent('service-123');
+
+        static::assertSame(0, $httpClient->getRequestsCount());
+    }
+
+    public function testFetchServiceZipThrowsWhenAirGapped(): void
+    {
+        $httpClient = new MockHttpClient([]);
+
+        $registryClient = new ServiceRegistryClient(
+            'https://example.com',
+            'https://example.com',
+            $httpClient,
+            new AirGappedMode(true),
+        );
+
+        $this->expectExceptionObject(FrameworkException::airGapped());
+
+        iterator_to_array($registryClient->fetchServiceZip('https://example.com/service.zip'));
+    }
+
     public function testServicesAreFetchedAndCached(): void
     {
         $service = [
@@ -126,7 +197,7 @@ class ClientTest extends TestCase
             new MockResponse((string) json_encode($service, \JSON_THROW_ON_ERROR)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $entries1 = $registryClient->getAll();
         static::assertCount(2, $entries1);
@@ -161,7 +232,7 @@ class ClientTest extends TestCase
             new MockResponse((string) json_encode($services2, \JSON_THROW_ON_ERROR)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $entries1 = $registryClient->getAll();
         static::assertCount(2, $entries1);
@@ -189,7 +260,7 @@ class ClientTest extends TestCase
             $response2 = new MockResponse((string) json_encode($servicesPage2, \JSON_THROW_ON_ERROR)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com/', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com/', 'https://example.com', $client, new AirGappedMode(false));
         $entries = $registryClient->getAll();
 
         static::assertCount(2, $entries);
@@ -213,7 +284,7 @@ class ClientTest extends TestCase
             },
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         static::assertSame([], $registryClient->getAll());
     }
@@ -224,7 +295,7 @@ class ClientTest extends TestCase
             $response = new MockResponse('', ['http_code' => Response::HTTP_ACCEPTED]), // Changed from 200 to 202 (HTTP_ACCEPTED)
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $saveConsentRequest = new SaveConsentRequest(
             'service-123',
@@ -247,7 +318,7 @@ class ClientTest extends TestCase
             new MockResponse('', ['http_code' => Response::HTTP_INTERNAL_SERVER_ERROR]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $saveConsentRequest = new SaveConsentRequest(
             'service-123',
@@ -267,7 +338,7 @@ class ClientTest extends TestCase
             new MockResponse('', ['http_code' => Response::HTTP_OK]), // 200 is not HTTP_ACCEPTED (202)
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $saveConsentRequest = new SaveConsentRequest(
             'service-123',
@@ -287,7 +358,7 @@ class ClientTest extends TestCase
             $response = new MockResponse('', ['http_code' => Response::HTTP_ACCEPTED]), // Changed from 200 to 202 (HTTP_ACCEPTED)
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $registryClient->revokeConsent('service-123');
 
@@ -301,7 +372,7 @@ class ClientTest extends TestCase
             new MockResponse('', ['http_code' => Response::HTTP_INTERNAL_SERVER_ERROR]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 500'));
         $registryClient->revokeConsent('service-123');
@@ -313,7 +384,7 @@ class ClientTest extends TestCase
             new MockResponse('', ['http_code' => Response::HTTP_OK]), // 200 is not HTTP_ACCEPTED (202)
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 200'));
         $registryClient->revokeConsent('service-123');
@@ -329,13 +400,13 @@ class ClientTest extends TestCase
         $servicePayload = (string) json_encode($service, \JSON_THROW_ON_ERROR);
         $expectedUrl = 'https://www.shopware.com/api/service/?page=1&limit=10';
         $clientWithSlash = new MockHttpClient([$responseWithSlash = new MockResponse($servicePayload)]);
-        $registryClientWithSlash = new ServiceRegistryClient('https://www.shopware.com/', 'https://example.com', $clientWithSlash);
+        $registryClientWithSlash = new ServiceRegistryClient('https://www.shopware.com/', 'https://example.com', $clientWithSlash, new AirGappedMode(false));
         $entriesWithSlash = $registryClientWithSlash->getAll();
         static::assertCount(1, $entriesWithSlash);
         static::assertSame($expectedUrl, $responseWithSlash->getRequestUrl());
 
         $clientWithoutSlash = new MockHttpClient([$responseWithoutSlash = new MockResponse($servicePayload)]);
-        $registryClientWithoutSlash = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $clientWithoutSlash);
+        $registryClientWithoutSlash = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $clientWithoutSlash, new AirGappedMode(false));
         $entriesWithoutSlash = $registryClientWithoutSlash->getAll();
         static::assertCount(1, $entriesWithoutSlash);
         static::assertSame($expectedUrl, $responseWithoutSlash->getRequestUrl());
@@ -352,7 +423,7 @@ class ClientTest extends TestCase
             ]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $collected = '';
         foreach ($registryClient->fetchServiceZip($zipUrl) as $chunk) {
@@ -372,7 +443,7 @@ class ClientTest extends TestCase
             new MockResponse('', ['http_code' => Response::HTTP_NOT_FOUND]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $this->expectException(ServiceException::class);
         // Force execution so checkResponse() runs and throws
@@ -397,7 +468,7 @@ class ClientTest extends TestCase
             ]),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client, new AirGappedMode(false));
         $this->expectException(ServiceException::class);
         // Force execution so checkResponse() runs and throws
         \iterator_to_array($registryClient->fetchServiceZip($zipUrl));
@@ -413,7 +484,7 @@ class ClientTest extends TestCase
             $response = new MockResponse((string) json_encode($service, \JSON_THROW_ON_ERROR)),
         ]);
 
-        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client);
+        $registryClient = new ServiceRegistryClient('https://www.shopware.com', 'https://example.com', $client, new AirGappedMode(false));
 
         $registryClient->getAll();
 

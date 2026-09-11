@@ -271,6 +271,46 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['']);
     }
 
+    public function testDeploymentSectionContainsAirGappedNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('deployment', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['deployment']);
+
+        $children = $nodes['deployment']->getChildNodeDefinitions();
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['air_gapped']);
+    }
+
+    public function testDeploymentAirGappedDefaultsToFalse(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'deployment' => [],
+            ],
+        ]);
+
+        static::assertFalse($config['deployment']['air_gapped']);
+    }
+
+    public function testDeploymentAirGappedCanBeEnabled(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'deployment' => [
+                    'air_gapped' => true,
+                ],
+            ],
+        ]);
+
+        static::assertTrue($config['deployment']['air_gapped']);
+    }
+
     public function testUsageDataSection(): void
     {
         $configuration = new Configuration();

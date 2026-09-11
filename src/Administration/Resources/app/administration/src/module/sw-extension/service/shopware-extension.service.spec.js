@@ -53,6 +53,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                     config: {
                         settings: {
                             disableExtensionManagement: false,
+                            airGapped: false,
                         },
                     },
                 },
@@ -166,6 +167,17 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
             expect(mockedExtensionStoreActionService[lifecycleMethod]).toHaveBeenCalledWith(...parameters);
 
             expectUpdateExtensionDataCalled();
+        });
+
+        it('skips store refresh when the installation is air-gapped', async () => {
+            Shopware.Store.get('context').app.config.settings.airGapped = true;
+
+            await mockedShopwareExtensionService.updateExtensionData();
+
+            expect(mockedExtensionStoreActionService.refresh).not.toHaveBeenCalled();
+            expect(mockedExtensionStoreActionService.getMyExtensions).toHaveBeenCalledTimes(1);
+
+            Shopware.Store.get('context').app.config.settings.airGapped = false;
         });
 
         it('delegates cancelLicense correctly', async () => {

@@ -21,6 +21,16 @@ class InstallServicesTaskTest extends TestCase
         static::assertSame(86_400, InstallServicesTask::getDefaultInterval());
 
         static::assertTrue(InstallServicesTask::shouldRun(new ParameterBag()));
+        static::assertTrue(InstallServicesTask::shouldRun(new ParameterBag([
+            'shopware.deployment.air_gapped' => false,
+        ])));
         static::assertTrue(InstallServicesTask::shouldRescheduleOnFailure());
+    }
+
+    public function testShouldNotRunWhenAirGapped(): void
+    {
+        static::assertFalse(InstallServicesTask::shouldRun(new ParameterBag([
+            'shopware.deployment.air_gapped' => true,
+        ])));
     }
 }

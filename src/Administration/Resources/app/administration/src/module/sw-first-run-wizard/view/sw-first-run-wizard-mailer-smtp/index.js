@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import './sw-first-run-wizard-mailer-smtp.scss';
 import template from './sw-first-run-wizard-mailer-smtp.html.twig';
 
@@ -35,7 +36,7 @@ export default {
 
     computed: {
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (isShopwareStoreUnavailable()) {
                 return 'sw.first.run.wizard.index.shopware.account';
             }
 

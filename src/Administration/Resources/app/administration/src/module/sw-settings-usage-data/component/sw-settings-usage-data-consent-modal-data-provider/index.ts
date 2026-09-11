@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import useConsentStore from 'src/core/consent/consent.store';
 import template from './sw-settings-usage-data-consent-modal-data-provider.html.twig';
 
@@ -122,7 +123,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showConsentModal() {
-            if (!this.areConsentsLoaded) {
+            if (isAirGapped() || !this.areConsentsLoaded) {
                 return false;
             }
 

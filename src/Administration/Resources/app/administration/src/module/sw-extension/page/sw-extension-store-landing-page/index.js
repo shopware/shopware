@@ -1,3 +1,4 @@
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
 
@@ -42,6 +43,10 @@ export default {
         /** @deprecated tag:v6.9.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        airGapped() {
+            return isAirGapped();
         },
     },
 

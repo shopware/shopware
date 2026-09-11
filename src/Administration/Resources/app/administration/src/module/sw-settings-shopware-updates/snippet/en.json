@@ -5,6 +5,8 @@
       "title": "Shopware update ({version})",
       "emptyTitle": "Shopware updates",
       "emptyState": "You are running the latest version.",
+      "airGappedTitle": "This installation is air-gapped",
+      "airGappedDescription": "In-app Shopware updates are disabled because this shop cannot reach Shopware-operated update hosts.",
       "checkForUpdates": "Check for updates",
       "currentVersion": "Current version:"
     },

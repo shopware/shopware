@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -52,6 +53,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -80,6 +82,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -111,6 +114,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -139,6 +143,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -183,6 +188,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -217,6 +223,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -248,6 +255,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -279,6 +287,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -312,6 +321,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatcher->dispatch(
@@ -343,6 +353,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -376,6 +387,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -409,6 +421,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -435,6 +448,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -463,6 +477,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -491,6 +506,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -517,6 +533,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'dev',
             false,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();
@@ -542,6 +559,7 @@ class EntityDispatcherTest extends TestCase
             $this->clock,
             'prod',
             true,
+            new AirGappedMode(false),
         );
 
         $runDate = new \DateTimeImmutable();

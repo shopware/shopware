@@ -28,4 +28,20 @@ class UpdateTranslationsTaskTest extends TestCase
             'shopware.translation.scheduled_task.enabled' => false,
         ])));
     }
+
+    public function testTaskRunsWhenEnabledAndNotAirGapped(): void
+    {
+        static::assertTrue(UpdateTranslationsTask::shouldRun(new ParameterBag([
+            'shopware.translation.scheduled_task.enabled' => true,
+            'shopware.deployment.air_gapped' => false,
+        ])));
+    }
+
+    public function testTaskDoesNotRunWhenAirGapped(): void
+    {
+        static::assertFalse(UpdateTranslationsTask::shouldRun(new ParameterBag([
+            'shopware.translation.scheduled_task.enabled' => true,
+            'shopware.deployment.air_gapped' => true,
+        ])));
+    }
 }

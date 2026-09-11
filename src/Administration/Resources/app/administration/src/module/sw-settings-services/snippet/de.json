@@ -29,7 +29,9 @@
       "label-documentation-link": "Dokumentation",
       "label-tos-link": "AGB",
       "installing-services-title": "Shopware Services werden installiert",
-      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen."
+      "installing-services-description": "Dies kann eine Weile dauern. Du wirst benachrichtigt, sobald die Installationen abgeschlossen sind. In der Zwischenzeit kannst Du Deine Shopware Administration frei nutzen.",
+      "air-gapped-title": "Diese Installation ist air-gapped",
+      "air-gapped-description": "Shopware Services können nicht aus der Registry installiert oder aktualisiert werden, weil dieser Shop Shopware-Cloud-Dienste nicht erreichen kann."
     },
     "service-card": {
       "status-active": "Aktiv",

@@ -59,7 +59,7 @@
                 {{ $t('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
             </span>
 
-            <span v-if="!extensionManagementDisabled && isUpdateable">
+            <span v-if="!shopwareStoreUnavailable && isUpdateable">
                 <a
                     href="#"
                     @click.prevent="updateExtension(false)"
@@ -152,7 +152,7 @@
         </sw-context-menu-item>
 
         <sw-context-menu-item
-            v-if="!extensionManagementDisabled && isUpdateable"
+            v-if="!shopwareStoreUnavailable && isUpdateable"
             @click="updateExtension(false)"
         >
             {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', { version: extension.latestVersion }, 0) }}
@@ -161,7 +161,7 @@
         {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}
 
         <sw-context-menu-item
-            v-if="!extensionManagementDisabled && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
+            v-if="!shopwareStoreUnavailable && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
             class="sw-extension-card-base__cancel-and-remove-link"
             variant="danger"
             @click="openRemovalModal"

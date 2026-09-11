@@ -9,6 +9,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\Command\DownloadTranslationCommand;
@@ -155,6 +156,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.translation.client'),
             service(TranslationConfig::class),
             service('event_dispatcher'),
+            service(AirGappedMode::class),
         ]);
 
     $services->alias(AbstractTranslationLoader::class, TranslationLoader::class);
@@ -165,6 +167,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.translation.client'),
             service('shopware.filesystem.translation'),
             service('cache.object'),
+            service(AirGappedMode::class),
         ]);
 
     $services->set(TranslationUpdater::class)

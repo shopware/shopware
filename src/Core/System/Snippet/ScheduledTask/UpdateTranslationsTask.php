@@ -21,7 +21,8 @@ class UpdateTranslationsTask extends ScheduledTask
 
     public static function shouldRun(ParameterBagInterface $bag): bool
     {
-        return (bool) $bag->get('shopware.translation.scheduled_task.enabled');
+        return (bool) $bag->get('shopware.translation.scheduled_task.enabled')
+            && !($bag->has('shopware.deployment.air_gapped') && $bag->get('shopware.deployment.air_gapped'));
     }
 
     public static function shouldRescheduleOnFailure(): bool

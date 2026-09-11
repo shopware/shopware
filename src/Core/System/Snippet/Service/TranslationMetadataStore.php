@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
@@ -36,6 +37,7 @@ class TranslationMetadataStore
         private readonly ClientInterface $client,
         private readonly FilesystemOperator $filesystem,
         private readonly CacheInterface $cache,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -205,6 +207,10 @@ class TranslationMetadataStore
      */
     private function fetchRemoteMetadataArray(): array
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return [];
+        }
+
         $response = $this->downloadFile();
         $content = $response->getBody()->getContents();
 

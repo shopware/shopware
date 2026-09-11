@@ -17,6 +17,7 @@ use Psr\Log\NullLogger;
 use Shopware\Administration\Administration;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -573,6 +574,7 @@ class SnippetFinderTest extends TestCase
             client: static::createStub(ClientInterface::class),
             config: $translationConfig,
             eventDispatcher: new EventDispatcher(),
+            airGappedMode: new AirGappedMode(false),
         );
     }
 }

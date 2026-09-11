@@ -29,7 +29,9 @@
       "label-documentation-link": "Documentation",
       "label-tos-link": "Terms & Conditions",
       "installing-services-title": "Installing Shopware Services",
-      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration."
+      "installing-services-description": "This might take a while. You will be notified as soon as the installations are complete. In the meantime you can freely use your Shopware administration.",
+      "air-gapped-title": "This installation is air-gapped",
+      "air-gapped-description": "Shopware Services cannot be installed or updated from the registry because this shop cannot reach Shopware-operated cloud services."
     },
     "service-card": {
       "status-active": "Active",

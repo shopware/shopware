@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
@@ -390,9 +391,29 @@ class LifecycleManagerTest extends TestCase
             static::createStub(PermissionsService::class),
             static::createStub(Client::class),
             static::createStub(RequirementsValidator::class),
+            new AirGappedMode(false),
         );
 
         static::assertSame($expectedEnabled, $manager->enabled());
+    }
+
+    public function testEnabledIsFalseWhenAirGapped(): void
+    {
+        $manager = new LifecycleManager(
+            'true',
+            'prod',
+            static::createStub(Privileges::class),
+            new StaticSystemConfigService(),
+            new ServiceStorage($this->createAppRepository()),
+            static::createStub(ServiceLifecycle::class),
+            static::createStub(AllServiceInstaller::class),
+            static::createStub(PermissionsService::class),
+            static::createStub(Client::class),
+            static::createStub(RequirementsValidator::class),
+            new AirGappedMode(true),
+        );
+
+        static::assertFalse($manager->enabled());
     }
 
     public static function enabledProvider(): \Generator
@@ -467,6 +488,7 @@ class LifecycleManagerTest extends TestCase
             $this->permissionsService,
             $this->client,
             $requirements,
+            new AirGappedMode(false),
         );
     }
 

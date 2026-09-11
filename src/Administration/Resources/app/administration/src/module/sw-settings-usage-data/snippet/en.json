@@ -3,7 +3,9 @@
     "general": {
       "mainMenuItemGeneral": "Privacy",
       "textHeadline": "Privacy",
-      "description": "Set your privacy preferences."
+      "description": "Set your privacy preferences.",
+      "airGappedTitle": "This installation is air-gapped",
+      "airGappedDescription": "Usage-data and product-analytics consent are unavailable because this shop cannot reach Shopware-operated cloud services."
     },
     "errors": {
       "consent-update-error": "The consent “{consent}” could not be updated"

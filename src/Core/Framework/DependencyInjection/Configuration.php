@@ -333,6 +333,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('blue_green')->end()
                 ->booleanNode('cluster_setup')->end()
                 ->booleanNode('runtime_extension_management')->defaultTrue()->end()
+                ->booleanNode('air_gapped')->defaultFalse()->end()
             ->end();
 
         return $rootNode;

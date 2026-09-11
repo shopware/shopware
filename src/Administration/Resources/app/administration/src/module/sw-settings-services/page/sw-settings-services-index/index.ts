@@ -1,4 +1,5 @@
 import { mapState } from 'pinia';
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import useSession from 'src/app/composables/use-session';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
@@ -64,9 +65,18 @@ export default Shopware.Component.wrapComponentConfig({
         servicesWithAccountRequirement(): ServiceWithShopwareAccountRequirement[] {
             return getServicesWithShopwareAccountRequirement(this.services);
         },
+
+        airGapped() {
+            return isAirGapped();
+        },
     },
 
     created() {
+        if (this.airGapped) {
+            this.suspended = false;
+            return;
+        }
+
         const shopwareServicesService = Shopware.Service('shopwareServicesService');
         const serviceRegistryClient = Shopware.Service('serviceRegistryClient');
         const shopwareServicesStore = useShopwareServicesStore();

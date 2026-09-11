@@ -4,6 +4,7 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Permission\PermissionsService;
@@ -42,6 +43,7 @@ class LifecycleManager
         private readonly PermissionsService $permissionsService,
         private readonly Client $client,
         private readonly RequirementsValidator $requirementsValidator,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -114,6 +116,10 @@ class LifecycleManager
 
     public function enabled(): bool
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return false;
+        }
+
         return !$this->areDisabledFromEnv();
     }
 

@@ -128,6 +128,8 @@ class InfoControllerTest extends TestCase
         static::assertTrue($settings['enableHtmlSanitizer']);
         static::assertArrayHasKey('minSearchTermLength', $settings);
         static::assertSame(2, $settings['minSearchTermLength']);
+        static::assertArrayHasKey('airGapped', $settings);
+        static::assertFalse($settings['airGapped']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -306,6 +308,7 @@ class InfoControllerTest extends TestCase
             'shopware.media.enable_url_upload_feature' => true,
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
+            'shopware.deployment.air_gapped' => false,
         ]);
 
         return new InfoController(

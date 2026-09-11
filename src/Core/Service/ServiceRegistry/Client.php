@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Service\ServiceRegistry;
 
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,7 @@ class Client implements ResetInterface
         string $registryUrl,
         private readonly string $appUrl,
         private readonly HttpClientInterface $client,
+        private readonly AirGappedMode $airGappedMode,
     ) {
         $this->registryUrl = rtrim($registryUrl, '/');
     }
@@ -51,6 +53,8 @@ class Client implements ResetInterface
      */
     public function fetchServiceZip(string $zipUrl): \Generator
     {
+        $this->airGappedMode->denyShopwareOperatedHttp();
+
         $client = $this->client->withOptions([
             'max_duration' => 10,
         ]);
@@ -77,6 +81,10 @@ class Client implements ResetInterface
      */
     public function getAll(): array
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return [];
+        }
+
         if ($this->services !== null) {
             return $this->services;
         }
@@ -115,6 +123,10 @@ class Client implements ResetInterface
 
     public function saveConsent(SaveConsentRequest $saveConsentRequest): void
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return;
+        }
+
         try {
             $response = $this->client->request('POST', \sprintf('%s/api/consent/', $this->registryUrl), [
                 'headers' => [
@@ -134,6 +146,10 @@ class Client implements ResetInterface
 
     public function revokeConsent(string $identifier): void
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return;
+        }
+
         try {
             $response = $this->client->request('DELETE', \sprintf('%s/api/consent/revoke/%s', $this->registryUrl, $identifier), [
                 'headers' => [

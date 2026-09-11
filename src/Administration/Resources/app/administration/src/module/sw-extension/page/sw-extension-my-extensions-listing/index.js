@@ -1,3 +1,4 @@
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
 
@@ -177,6 +178,10 @@ export default {
 
         extensionManagementDisabled() {
             return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+        },
+
+        airGapped() {
+            return isAirGapped();
         },
 
         selectedExtensions() {

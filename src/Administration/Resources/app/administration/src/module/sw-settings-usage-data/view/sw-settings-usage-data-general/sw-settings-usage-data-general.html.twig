@@ -1,7 +1,18 @@
 {% block sw_settings_usage_data_general %}
-<sw-settings-usage-data-store-data-consent />
-
-<sw-extension-component-section
-    position-identifier="sw-settings-usage-data-general"
+<mt-empty-state
+    v-if="airGapped"
+    class="sw-settings-usage-data-general__air-gapped"
+    :centered="true"
+    icon="regular-lock"
+    :headline="$t('sw-settings-usage-data.general.airGappedTitle')"
+    :description="$t('sw-settings-usage-data.general.airGappedDescription')"
 />
+
+<template v-else>
+    <sw-settings-usage-data-store-data-consent />
+
+    <sw-extension-component-section
+        position-identifier="sw-settings-usage-data-general"
+    />
+</template>
 {% endblock %}

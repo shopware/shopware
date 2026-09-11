@@ -38,6 +38,9 @@ function transformRanges(
         ...replacements,
     ].sort((a, b) => {
         if (a.start === b.start) {
+            // Boundary insertions (for example a generated macro wrapper) precede a replacement at that boundary.
+            if (a.end === a.start && b.end !== b.start) return -1;
+            if (b.end === b.start && a.end !== a.start) return 1;
             return b.end - a.end;
         }
 

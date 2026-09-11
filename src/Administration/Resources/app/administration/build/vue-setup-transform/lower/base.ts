@@ -14,6 +14,7 @@
  * the public bindings to a parent holding a template ref.
  */
 
+import { buildLegacyAssets } from './legacy-assets';
 import { generated } from '../source-edits/chunks';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import { transformRanges } from '../source-edits/transform-ranges';
@@ -42,7 +43,12 @@ function toAuthorAlias(localName: string): string {
  * the name that must survive shares its source range with the occurrence being replaced.
  */
 function toRenameReplacement(target: BaseSetupScriptAnalysis['renameTargets'][number]): string {
-    const alias = toAuthorAlias(target.localName);
+    const original = toAuthorAlias(target.localName);
+    const alias = target.write
+        ? `__swSetupDispatch.binding('${escapeSingleQuoted(target.localName)}', () => ${original}, value => { ${original} = value; }).value`
+        : target.dispatch
+          ? `(__swSetupDispatch.read('${escapeSingleQuoted(target.localName)}', () => ${original}))`
+          : original;
 
     if (target.expansion === 'shorthand-property') {
         return `${target.localName}: ${alias}`;
@@ -68,12 +74,27 @@ function formatStateMap(names: string[], spaces: number): string {
  * `$dataScope` resolves against the scope `attachOverrides()` registers for the instance; authoring the
  * attribute is rejected, so the transform owns the whole binding.
  */
-function toDataScopeEdit(at: number): SourceEdit {
+function toDataScopeEdit({ at, locals }: TemplateAnalysis['dataScopeInsertions'][number]): SourceEdit {
     return {
         start: at,
         end: at,
-        replacement: ' :data="$dataScope"',
+        replacement: locals.length
+            ? ` :data="__swSetupBlockScope($dataScope, { ${locals.join(', ')} })"`
+            : ' :data="$dataScope"',
     };
+}
+
+function toSlotDefinitionEdit(receiver: TemplateAnalysis['slotDefinitionReceivers'][number]): SourceEdit {
+    const scope = receiver.locals.length
+        ? `__swSetupBlockScope($dataScope, { ${receiver.locals.join(', ')} })`
+        : '$dataScope';
+    const groups = receiver.groups.map(
+        (group) =>
+            `{ name: ${JSON.stringify(group.name)}, names: [${group.names.join(', ')}], children: ${JSON.stringify(group.children)} }`,
+    );
+    const expression = `{ scope: ${scope}, groups: [${groups.join(', ')}] }`;
+    const attribute = expression.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    return { start: receiver.at, end: receiver.at, replacement: ` :__swSlotBlocks="${attribute}"` };
 }
 
 /**
@@ -87,6 +108,7 @@ function buildBaseScript(
     analysis: BaseSetupScriptAnalysis,
     templateAnalysis: TemplateAnalysis,
 ): SourceEdit[] {
+    const assets = buildLegacyAssets(block, analysis);
     const publicLocalNames = new Set(analysis.publicEntries);
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
@@ -98,15 +120,26 @@ function buildBaseScript(
 
     // Base mode drops the compile-time markers and rewrites every author binding to its alias; the body
     // itself stays exactly where it was written.
-    const body = transformRanges(
-        block,
-        analysis.markerStatements,
-        analysis.renameTargets.map((target) => ({ ...target, replacement: toRenameReplacement(target) })),
-    );
+    const body = transformRanges(block, analysis.markerStatements, [
+        ...analysis.renameTargets.map((target) => ({ ...target, replacement: toRenameReplacement(target) })),
+        ...(analysis.optionsArgument
+            ? [
+                  {
+                      start: analysis.optionsArgument.start,
+                      end: analysis.optionsArgument.start,
+                      replacement: `({ __swExtendable: true, name: '${escapeSingleQuoted(block.componentName)}', ...(`,
+                  },
+                  { start: analysis.optionsArgument.end, end: analysis.optionsArgument.end, replacement: ') })' },
+              ]
+            : []),
+    ]);
 
     // attachOverrides() reads props from the current instance, so the footer never threads a props
     // binding through — which also lets destructured defineProps() work (there is no props binding).
     const footer = [
+        ...(!analysis.optionsArgument
+            ? [`defineOptions({ name: '${escapeSingleQuoted(block.componentName)}', __swExtendable: true });`]
+            : []),
         'const {',
         ...destructureEntries.map((entry) => `    ${entry},`),
         '} = Shopware.Component.attachOverrides({',
@@ -114,6 +147,8 @@ function buildBaseScript(
         `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
         `    private: ${formatStateMap(privateNames, 8)},`,
         '});',
+        `__swSetupDispatch.attach({ ${destructureEntries.join(', ')} });`,
+        ...assets.declarations,
         '',
         // swDefinePublic() is the parent-facing surface too, so the call is generated here and authoring
         // one is rejected. Props join it because exposing anything closes a component to everything
@@ -130,11 +165,23 @@ function buildBaseScript(
     ].join('\n');
 
     return [
+        ...assets.edits,
+        ...templateAnalysis.slotDefinitionRemovals.map((range) => ({ ...range, replacement: '' })),
+        ...templateAnalysis.slotDefinitionReceivers.map(toSlotDefinitionEdit),
         ...templateAnalysis.dataScopeInsertions.map(toDataScopeEdit),
         {
             start: block.contentStart,
             end: block.contentEnd,
             replacement: [
+                ...(templateAnalysis.dataScopeInsertions.some((entry) => entry.locals.length) ||
+                templateAnalysis.slotDefinitionReceivers.length
+                    ? [
+                          generated(
+                              '\nconst __swSetupBlockScope = Shopware.Component.createBlockDataScope;\nconst __swSetupSlotNames = Shopware.Component.mapSlotNames;\n',
+                          ),
+                      ]
+                    : []),
+                generated('\nconst __swSetupDispatch = Shopware.Component.createSetupDispatch();\n'),
                 ...body,
                 generated(`\n\n${footer}\n`),
             ],

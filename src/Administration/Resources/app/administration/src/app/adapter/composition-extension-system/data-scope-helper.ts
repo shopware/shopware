@@ -81,6 +81,13 @@ type ReactiveSetupStateWithOverrideLocalState<TState extends object> = Reactive<
     [OVERRIDE_LOCAL_STATE_KEY]: Reactive<OverrideLocalState>;
 };
 
+const ownerByDataScope = new WeakMap<object, ComponentInternalInstance>();
+
+/** @private */
+export function getDataScopeOwner(scope: object): ComponentInternalInstance | null {
+    return ownerByDataScope.get(scope) ?? null;
+}
+
 const scriptSetupDataScopeByInstance = new WeakMap<ComponentInternalInstance, ScriptSetupDataScope>();
 
 /**
@@ -221,11 +228,36 @@ export const createDataScope = <TState extends object>(
     const source = reactiveSetupState as Record<string, unknown>;
     const state = {} as ExtendableSetupState<TState>;
 
-    // Enumerating the reactive proxy never reads a value, so the keys are collected the same way
-    // `toRefs(...)` collected them - lazily built refs just replace the eagerly read ones.
-    for (const key in reactiveSetupState) {
-        (state as Record<string, unknown>)[key] = createPropertyRef(source, key);
-    }
+    // Create refs lazily so fields introduced after setup stay visible without evaluating computeds.
+    const liveState: ExtendableSetupState<TState> = new Proxy(state, {
+        get(target, key, receiver) {
+            if (typeof key === 'string' && key in source && !Object.hasOwn(target, key)) {
+                Object.defineProperty(target, key, {
+                    value: createPropertyRef(source, key),
+                    configurable: true,
+                    enumerable: true,
+                });
+            }
+            return Reflect.get(target, key, receiver) as unknown;
+        },
+        has(target, key) {
+            return key in target || key in source;
+        },
+        ownKeys(target) {
+            return [
+                ...new Set([
+                    ...Reflect.ownKeys(target),
+                    ...Object.keys(source),
+                ]),
+            ];
+        },
+        getOwnPropertyDescriptor(target, key): PropertyDescriptor | undefined {
+            const existing = Reflect.getOwnPropertyDescriptor(target, key);
+            if (existing) return existing;
+            if (typeof key !== 'string' || !(key in source)) return undefined;
+            return { configurable: true, enumerable: true, value: liveState[key as keyof typeof liveState] };
+        },
+    });
 
     Object.defineProperty(state, OVERRIDE_LOCAL_STATE_KEY, {
         value: createOverrideLocalStateRef(reactiveSetupState as ReactiveSetupStateWithOverrideLocalState<TState>),
@@ -233,7 +265,7 @@ export const createDataScope = <TState extends object>(
         configurable: true,
     });
 
-    return state;
+    return liveState;
 };
 
 /**
@@ -250,5 +282,49 @@ export const setDataScopeForInstance = <TState extends object>(
     instance: ComponentInternalInstance,
     state: ExtendableSetupState<TState>,
 ): void => {
-    scriptSetupDataScopeByInstance.set(instance, proxyRefs(state) as ScriptSetupDataScope);
+    const scope = proxyRefs(state) as ScriptSetupDataScope;
+    scriptSetupDataScopeByInstance.set(instance, scope);
+    ownerByDataScope.set(scope, instance);
+    if (instance.proxy) {
+        for (const key of Object.keys(state)) {
+            if (key in instance.props) continue;
+            Object.defineProperty(instance.proxy, key, {
+                configurable: true,
+                enumerable: true,
+                get: () => Reflect.get(scope, key) as unknown,
+                set: (value: unknown) => {
+                    Reflect.set(scope, key, value);
+                },
+            });
+        }
+    }
 };
+
+/**
+ * Overlay lexical loop/slot bindings without enumerating Vue's host proxy. Local bindings shadow
+ * host fields and cannot be rebound, matching Vue's slot/loop alias rules; their objects remain writable.
+ * @private
+ */
+export function createBlockDataScope(host: Record<PropertyKey, unknown>, locals: Record<string, unknown>): object {
+    const scope = new Proxy(
+        {},
+        {
+            get(_target, key) {
+                return Object.hasOwn(locals, key) ? locals[key as string] : host[key];
+            },
+            has(_target, key) {
+                return Object.hasOwn(locals, key) || key in host;
+            },
+            set(_target, key, value) {
+                if (Object.hasOwn(locals, key)) {
+                    console.warn(`[sw-block] Cannot reassign template-local binding "${String(key)}".`);
+                    return false;
+                }
+                return Reflect.set(host, key, value);
+            },
+        },
+    );
+    const owner = getDataScopeOwner(host) ?? (host.$ as ComponentInternalInstance | undefined);
+    if (owner) ownerByDataScope.set(scope, owner);
+    return scope;
+}

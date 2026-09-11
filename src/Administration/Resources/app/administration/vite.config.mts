@@ -1,3 +1,4 @@
+import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './build/vite-plugins/shopware-setup/legacy-component-plugin';
 /**
  * @package framework
  */
@@ -101,6 +102,8 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
+                LegacyComponentPlugin(),
+                legacySlotBlocksPlugin(),
                 ShopwareSetupPlugin({
                     administrationRoot: __dirname,
                 }),

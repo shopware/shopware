@@ -5,8 +5,9 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import { hasNamedInheritance, resolveLegacyInheritance } from './resolve-legacy-inheritance';
 import TemplateFactory from 'src/core/factory/template.factory';
-import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
+import { createTwigBlockRegistration } from 'src/core/factory/twig-block-index';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -47,6 +48,7 @@ export default {
     getComponentTemplate,
     getComponentRegistry,
     getOverrideRegistry,
+    subscribeToOverrides,
     getComponentHelper,
     _clearComponentHelper,
     registerComponentHelper,
@@ -62,6 +64,8 @@ export interface ComponentConfig extends ComponentOptions {
     extends?: ComponentConfig | string;
     _isOverride?: boolean;
     _renderedBySfcTemplate?: boolean;
+    __swExtendable?: boolean;
+    __swResolveComponent?: () => Promise<ComponentConfig>;
     component?: Promise<ComponentConfig | boolean>;
     loading?: ComponentConfig;
     delay?: number;
@@ -79,11 +83,25 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
  * Registry which holds all component overrides
  * @private
  */
-type IndexedAwaitedComponentConfig = {
+export type IndexedAwaitedComponentConfig = {
     index: number;
     config: AwaitedComponentConfig;
+    readonly resolvedConfig?: ComponentConfig;
 };
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
+
+const overrideSubscribers = new Map<string, Set<() => void>>();
+
+/** @private */
+function subscribeToOverrides(name: string, listener: () => void): () => void {
+    const listeners = overrideSubscribers.get(name) ?? new Set<() => void>();
+    listeners.add(listener);
+    overrideSubscribers.set(name, listeners);
+    return () => {
+        listeners.delete(listener);
+        if (!listeners.size) overrideSubscribers.delete(name);
+    };
+}
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.ts
@@ -524,7 +542,12 @@ function register(componentName: string, componentConfiguration: unknown): unkno
              * The complete rendered template including all overrides will be added later.
              */
             delete config.template;
-        } else if (!config.functional && typeof config.render !== 'function' && !config._renderedBySfcTemplate) {
+        } else if (
+            !config.functional &&
+            typeof config.render !== 'function' &&
+            !config._renderedBySfcTemplate &&
+            !config.__swExtendable
+        ) {
             warn(
                 'ComponentFactory',
                 `The component "${config.name}" needs a template to be functional.`,
@@ -612,6 +635,13 @@ function override(
     overrideIndex: number | null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+    let pending: Promise<ComponentConfig> | undefined;
+    const indexTwigTemplate = createTwigBlockRegistration(componentName, overrideIndex ?? 0);
+    const synchronousConfig =
+        typeof componentConfiguration === 'function' || hasNamedInheritance(componentConfiguration)
+            ? undefined
+            : { ...componentConfiguration };
+    if (synchronousConfig) delete synchronousConfig.template;
 
     /**
      * For sync object configs the block index is populated here, before any
@@ -626,10 +656,10 @@ function override(
         typeof componentConfiguration.template === 'string';
 
     if (isSyncWithTemplate) {
-        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
+        indexTwigTemplate(componentConfiguration.template as string);
     }
 
-    const configResolveMethod = async (): Promise<ComponentConfig> => {
+    const resolveConfiguration = async (): Promise<ComponentConfig> => {
         if (config) {
             return config;
         }
@@ -639,44 +669,60 @@ function override(
                 ? componentConfiguration
                 : (): Promise<ComponentConfig> => Promise.resolve(componentConfiguration);
 
-        config = await awaitedConfig();
+        const loaded = await awaitedConfig();
+        const source = (loaded.default ?? loaded) as ComponentConfig;
+        const resolved = hasNamedInheritance(source)
+            ? await resolveLegacyInheritance(source, async (name) => {
+                  const load = componentRegistry.get(name);
+                  if (!load) throw new Error(`[Options API Shim] Unknown ancestor "${name}".`);
+                  return load();
+              })
+            : { ...source };
 
         /**
          * Check if the resulted config is a ES module. Then we need to use the default
          * value of it.
          */
-        if (config?.default) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            config = config.default;
-        }
+        resolved.name = componentName;
 
-        config.name = componentName;
-
-        if (config.template) {
+        if (resolved.template) {
             // Async-only path: direct-object configs were already indexed synchronously
             // above so the block index is ready before any <sw-block> setup() runs.
             if (!isSyncWithTemplate) {
-                indexTwigBlocksFromTemplate(componentName, config.template as string);
+                indexTwigTemplate(resolved.template as string);
             }
 
-            TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
+            TemplateFactory.registerTemplateOverride(componentName, resolved.template as string, overrideIndex);
 
             // The merged template (default + all overrides) is compiled later by
             // TemplateFactory, so the raw string on the config object is no longer needed.
-            delete config.template;
+            delete resolved.template;
         }
 
+        config = resolved;
+        overrideSubscribers.get(componentName)?.forEach((listener) => listener());
         return config;
+    };
+    const configResolveMethod = (): Promise<ComponentConfig> => {
+        pending ??= resolveConfiguration().catch((error: unknown) => {
+            pending = undefined;
+            throw error;
+        });
+        return pending;
     };
 
     const overrides = overrideRegistry.get(componentName) || [];
     overrides.push({
         index: overrideIndex !== null ? overrideIndex : 0,
         config: configResolveMethod,
+        get resolvedConfig() {
+            return config ?? synchronousConfig;
+        },
     });
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
 
+    overrideSubscribers.get(componentName)?.forEach((listener) => listener());
     return configResolveMethod;
 }
 
@@ -721,13 +767,14 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
 
     // let config: ComponentConfig = Object.create(resultConfig) as ComponentConfig;
     let config: ComponentConfig = { ...resultConfig } as ComponentConfig;
+    if (config.__swResolveComponent) config = await config.__swResolveComponent();
 
     if (!config) {
         throw new Error(`The config of the component "${componentName}" is invalid.`);
     }
 
     if (config.extends) {
-        let extendComp: ComponentConfig | undefined;
+        let extendComp: ComponentConfig | undefined = typeof config.extends === 'object' ? config.extends : undefined;
 
         if (typeof config.extends === 'string') {
             const buildedComp = await build(config.extends, true);
@@ -737,13 +784,28 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
             }
         }
 
-        if (extendComp) {
+        if (extendComp?.__swExtendable) {
+            const ownOptions = { ...config };
+            delete ownOptions.extends;
+            const ownLayer: IndexedAwaitedComponentConfig = {
+                index: 0,
+                config: () => Promise.resolve(ownOptions),
+                resolvedConfig: ownOptions,
+            };
+            config = Shopware.Component.prepareLegacyComponent(componentName, extendComp, [ownLayer]);
+        } else if (extendComp) {
             enrichSuperChain(extendComp, config);
 
             config.extends = extendComp;
         } else {
             delete config.extends;
         }
+    }
+
+    if (config.__swExtendable) {
+        const registrations = overrideRegistry.get(componentName) ?? [];
+        await Promise.all(registrations.map((registration) => registration.config()));
+        return Shopware.Component.prepareLegacyComponent(componentName, config, registrations);
     }
 
     if (overrideRegistry.has(componentName)) {

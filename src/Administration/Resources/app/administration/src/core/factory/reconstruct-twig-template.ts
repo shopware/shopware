@@ -8,9 +8,9 @@
  * survive verbatim inside raw tokens.
  *
  * Known limitation: Twig control-flow tags ({% if %}, {% for %}, …) are not
- * supported as block content and collapse to an empty string. This matches the
- * existing Shopware admin contract where only {% block %} and {% parent %} are
- * valid inside component templates.
+ * supported as block content. The index reports these tags during registration.
+ * The old template factory evaluated Twig against an empty context; migrating
+ * compile-time Twig logic requires a component-specific review.
  */
 
 /**
@@ -63,7 +63,7 @@ export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
 
                 if (token.token?.blockName !== undefined) {
                     const innerContent = reconstructInnerTemplate(token.token.output ?? []);
-                    return `<sw-block name="${token.token.blockName}">${innerContent}</sw-block>`;
+                    return `<sw-block name="${token.token.blockName}" :data="$dataScope">${innerContent}</sw-block>`;
                 }
             }
 

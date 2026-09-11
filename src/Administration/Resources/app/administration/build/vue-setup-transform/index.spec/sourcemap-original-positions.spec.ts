@@ -163,7 +163,7 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
 
         const result = transformOrFail(source, 'teleported-macros.vue');
 
-        expectOriginalLine(result, source, 'defineOptions({', 'defineOptions({');
+        expectOriginalLine(result, source, 'defineOptions(', 'defineOptions(');
         expectOriginalLine(result, source, 'withDefaults(defineProps<{', 'withDefaults(defineProps<{');
         expectOriginalLine(result, source, 'defineEmits<{', 'defineEmits<{');
         expectOriginalLine(result, source, 'defineSlots<{', 'defineSlots<{');

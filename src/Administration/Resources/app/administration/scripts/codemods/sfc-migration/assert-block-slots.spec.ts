@@ -20,7 +20,7 @@ function inspect(template: string): { errors: string[]; blockers: string[] } {
 const ACCEPTED = { errors: [], blockers: [] };
 
 describe('scripts/codemods/sfc-migration/assert-block-slots', () => {
-    describe('blocked: the named slot is a direct child of a converted block', () => {
+    describe('blocked: slot definitions have no receiving component', () => {
         it.each([
             [
                 'shorthand',
@@ -29,10 +29,6 @@ describe('scripts/codemods/sfc-migration/assert-block-slots', () => {
             [
                 'v-slot longhand',
                 '<sw-block name="a"><template v-slot:footer>x</template></sw-block>',
-            ],
-            [
-                'on a non-template element',
-                '<sw-block name="a"><mt-button v-slot:footer="x">{{ x }}</mt-button></sw-block>',
             ],
             [
                 'dynamic slot argument',
@@ -71,14 +67,12 @@ describe('scripts/codemods/sfc-migration/assert-block-slots', () => {
             );
         });
 
-        // The build transform rejects an authored default slot on <sw-block>; reporting it here too
-        // would produce two report entries for one cause.
         it.each([
             '<sw-block name="a"><template #default>x</template></sw-block>',
             '<sw-block name="a"><template v-slot>x</template></sw-block>',
             '<sw-block name="a"><template v-slot="{ item }">{{ item }}</template></sw-block>',
-        ])('leaves the default slot to the build transform: %s', (template) => {
-            expect(assertBlockSlots(template)).toEqual([]);
+        ])('rejects an orphaned default slot: %s', (template) => {
+            expect(assertBlockSlots(template)).toEqual([SLOT_IN_BLOCK]);
         });
 
         it('ignores a block whose name is bound dynamically', () => {
@@ -88,5 +82,23 @@ describe('scripts/codemods/sfc-migration/assert-block-slots', () => {
         it('returns no blocker for markup Vue cannot parse', () => {
             expect(assertBlockSlots('<sw-block name="a"><template #footer>x</sw-block>')).toEqual([]);
         });
+    });
+});
+
+describe('structural slot blocks', () => {
+    it.each([
+        '<template #footer>X</template>',
+        '<template #[name]>X</template>',
+        '<template #default="{ item }">{{ item }}</template>',
+        '<template #footer />',
+        '<p>default</p><template #footer>X</template>',
+        '<sw-block name="inner"><template #footer>X</template></sw-block>',
+    ])('accepts receiver-owned content without moving the block: %s', (content) => {
+        expect(assertBlockSlots(`<sw-modal><sw-block name="outer">${content}</sw-block></sw-modal>`)).toEqual([]);
+    });
+    it('keeps a slot declared on a child component owned by that child', () => {
+        expect(assertBlockSlots('<sw-block name="a"><mt-button v-slot:footer="x">{{ x }}</mt-button></sw-block>')).toEqual(
+            [],
+        );
     });
 });

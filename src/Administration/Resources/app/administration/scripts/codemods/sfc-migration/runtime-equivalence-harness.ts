@@ -18,6 +18,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import * as Vue from 'vue';
 import { createRequire } from 'node:module';
 import { Script, createContext } from 'node:vm';
+import { createSetupDispatch } from '../../../src/app/adapter/composition-extension-system/setup-dispatch';
 import { attachOverrides, getExposedProps, _overridesMap } from '../../../src/app/adapter/composition-extension-system';
 import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform/index.ts';
 import { convertComponent, type ConvertResult } from './convert-component';
@@ -36,6 +37,7 @@ type RuntimeProbe = {
 
 type RuntimeShopware = {
     Component: {
+        createSetupDispatch: typeof createSetupDispatch;
         attachOverrides: typeof attachOverrides;
         getExposedProps: typeof getExposedProps;
     };
@@ -43,6 +45,7 @@ type RuntimeShopware = {
 
 const runtimeShopware: RuntimeShopware = {
     Component: {
+        createSetupDispatch,
         attachOverrides,
         getExposedProps,
     },

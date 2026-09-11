@@ -29,6 +29,7 @@ type ShopwareSetupBlock = ScriptBlock & {
     componentName: string;
     lang: string | null;
     template: ShopwareSetupTemplate | null;
+    moduleBindings?: string[];
 };
 
 type InferredShopwareSetup = {

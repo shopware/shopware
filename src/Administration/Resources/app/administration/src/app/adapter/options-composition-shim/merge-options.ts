@@ -1,154 +1,93 @@
 /**
  * @sw-package framework
  * @private
+ *
+ * Normalizes the Options inheritance tree once, in Vue's ancestor-first order.
+ * Scalar definitions use the last declaration; watchers and lifecycle hooks accumulate.
  */
-
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
-import type {
-    InjectConfig,
-    MergedConfig,
-    LifecycleHookName,
-    LifecycleHookFn,
-    AnyFn,
-    ComputedDefinition,
-    WatchDefinition,
-    ExtendedComponentConfig,
-} from './types';
+import type { AnyFn, MergedConfig, WatchDefinition } from './types';
 import { LIFECYCLE_HOOKS } from './effects';
-
-function flattenMixins(mixin: ComponentConfig): ComponentConfig[] {
-    const nested = mixin.mixins ? mixin.mixins.flatMap((m) => flattenMixins(m as ComponentConfig)) : [];
-    return [
-        ...nested,
-        mixin,
-    ];
-}
-
-function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): InjectConfig {
-    const normalized: Record<string, unknown> = {};
-
-    if (Array.isArray(existing)) {
-        existing.forEach((key: string) => {
-            normalized[key] = key;
-        });
-    } else if (existing && typeof existing === 'object') {
-        Object.assign(normalized, existing);
-    }
-
-    if (Array.isArray(incoming)) {
-        incoming.forEach((key: string) => {
-            if (!Object.hasOwn(normalized, key)) {
-                normalized[key] = key;
-            }
-        });
-    } else if (incoming && typeof incoming === 'object') {
-        const incomingObj = incoming as Record<string, unknown>;
-        Object.entries(incomingObj).forEach(
-            ([
-                key,
-                val,
-            ]) => {
-                if (!Object.hasOwn(normalized, key)) {
-                    normalized[key] = val;
-                }
-            },
-        );
-    }
-
-    return normalized as InjectConfig;
-}
 
 /** @private */
 export function mergeMixins(config: ComponentConfig): MergedConfig {
-    const lifecycleHooks: Partial<Record<LifecycleHookName, LifecycleHookFn[]>> = {};
-    // Collect data factories in merge order so each is called exactly once.
-    // Mixin factories are pushed first (deepest ancestor first via flattenMixins),
-    // then the component's own factory last — so component keys win on conflict.
-    const allDataFns: Array<() => Record<string, unknown>> = [];
+    const merged: MergedConfig = { methods: {}, computed: {}, watch: {}, inject: {}, _lifecycleHooks: {} };
+    const dataFactories: NonNullable<MergedConfig['data']>[] = [];
+    const providers: NonNullable<MergedConfig['provide']>[] = [];
 
-    // Vue's ComponentOptions types methods/computed/watch as `any` internally,
-    // so we cast once here at the boundary and let MergedConfig carry the correct types.
-    const merged: MergedConfig = {
-        methods: { ...(config.methods as Record<string, AnyFn>) },
-        computed: { ...(config.computed as Record<string, ComputedDefinition>) },
-        watch: { ...(config.watch as Record<string, WatchDefinition>) },
-        inject: config.inject,
-    };
+    for (const options of inheritanceOrder(config)) {
+        Object.assign(merged.methods!, options.methods);
+        Object.assign(merged.computed!, options.computed);
+        Object.assign(merged.inject!, normalizeInject(options.inject));
 
-    if (config.mixins && config.mixins.length > 0) {
-        const allMixins = config.mixins.flatMap((m) => flattenMixins(m as ComponentConfig));
-        allMixins.forEach((mixin: ComponentConfig) => {
-            const extendedMixin = mixin as ExtendedComponentConfig;
+        if (options.data) dataFactories.push(options.data as NonNullable<MergedConfig['data']>);
+        if (options.provide) providers.push(options.provide as NonNullable<MergedConfig['provide']>);
 
-            // Collect lifecycle hooks from mixin (mixin hooks fire before component hooks)
-            LIFECYCLE_HOOKS.forEach((hook) => {
-                const hookFn = extendedMixin[hook];
-                if (hookFn) {
-                    if (!lifecycleHooks[hook]) {
-                        lifecycleHooks[hook] = [];
-                    }
-                    lifecycleHooks[hook].push(hookFn);
-                }
-            });
-
-            // Collect the mixin's data factory without calling it yet
-            if (mixin.data) {
-                const mixinData = mixin.data;
-                allDataFns.push(
-                    typeof mixinData === 'function'
-                        ? () => (mixinData as unknown as () => Record<string, unknown>)()
-                        : () => mixinData as unknown as Record<string, unknown>,
-                );
-            }
-
-            if (mixin.methods) {
-                merged.methods = { ...(mixin.methods as Record<string, AnyFn>), ...merged.methods };
-            }
-
-            if (mixin.computed) {
-                merged.computed = { ...(mixin.computed as Record<string, ComputedDefinition>), ...merged.computed };
-            }
-
-            if (mixin.watch) {
-                merged.watch = { ...(mixin.watch as Record<string, WatchDefinition>), ...merged.watch };
-            }
-
-            if (mixin.inject) {
-                merged.inject = mergeInjectConfigs(merged.inject, mixin.inject);
-            }
-        });
-    }
-
-    // Add the component's own data factory last so its keys win over mixin keys
-    if (config.data) {
-        const configData = config.data;
-        allDataFns.push(
-            typeof configData === 'function'
-                ? () => (configData as unknown as () => Record<string, unknown>)()
-                : () => configData as unknown as Record<string, unknown>,
-        );
-    }
-
-    // Produce a single merged factory that calls each original factory exactly once
-    if (allDataFns.length > 0) {
-        merged.data = () => allDataFns.reduce<Record<string, unknown>>((acc, fn) => ({ ...acc, ...fn() }), {});
-    }
-
-    // Component's own hooks go last (after mixin hooks), matching Vue's merge strategy
-    const extendedConfig = config as ExtendedComponentConfig;
-    LIFECYCLE_HOOKS.forEach((hook) => {
-        const hookFn = extendedConfig[hook];
-        if (hookFn) {
-            if (!lifecycleHooks[hook]) {
-                lifecycleHooks[hook] = [];
-            }
-            lifecycleHooks[hook].push(hookFn);
+        for (const [
+            name,
+            handler,
+        ] of Object.entries(options.watch ?? {})) {
+            merged.watch![name] = [
+                ...new Set([
+                    ...asArray(merged.watch![name]),
+                    ...asArray(handler as WatchDefinition),
+                ]),
+            ];
         }
-    });
 
-    if (Object.keys(lifecycleHooks).length > 0) {
-        merged._lifecycleHooks = lifecycleHooks;
+        for (const hook of LIFECYCLE_HOOKS) {
+            const handlers = options[hook] as AnyFn | AnyFn[] | undefined;
+            merged._lifecycleHooks![hook] = [
+                ...new Set([
+                    ...(merged._lifecycleHooks![hook] ?? []),
+                    ...asArray(handlers),
+                ]),
+            ];
+        }
     }
 
+    if (dataFactories.length) {
+        merged.data = function (vm) {
+            return Object.assign(
+                {} as Record<string, unknown>,
+                ...dataFactories.map((factory) => factory.call(this, vm)),
+            ) as Record<string, unknown>;
+        };
+    }
+    if (providers.length) {
+        merged.provide = function () {
+            return Object.assign(
+                {} as Record<PropertyKey, unknown>,
+                ...providers.map((provider) => (typeof provider === 'function' ? provider.call(this) : provider)),
+            ) as Record<PropertyKey, unknown>;
+        };
+    }
     return merged;
+}
+
+/** @private */
+export function inheritanceOrder(config: ComponentConfig, ancestors = new Set<ComponentConfig>()): ComponentConfig[] {
+    if (ancestors.has(config)) throw new Error('[Options API Shim] Circular mixin or extends configuration.');
+    const nextAncestors = new Set(ancestors).add(config);
+    const parent = typeof config.extends === 'object' && config.extends ? config.extends : null;
+    return [
+        ...(parent ? inheritanceOrder(parent, nextAncestors) : []),
+        ...(config.mixins ?? []).flatMap((mixin) => inheritanceOrder(mixin as ComponentConfig, nextAncestors)),
+        config,
+    ];
+}
+
+function normalizeInject(config: ComponentConfig['inject']): Record<string, unknown> {
+    return Array.isArray(config)
+        ? Object.fromEntries(
+              config.map((name: string) => [
+                  name,
+                  name,
+              ]),
+          )
+        : ((config as Record<string, unknown>) ?? {});
+}
+
+function asArray<T>(value: T | T[] | undefined): T[] {
+    return value === undefined ? [] : Array.isArray(value) ? value : [value];
 }

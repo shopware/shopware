@@ -38,10 +38,10 @@ export function convertComputed(
         ]) => {
             if (typeof computedDef === 'function') {
                 // Simple getter
-                converted[name] = computed(() => computedDef.call(thisProxy));
+                converted[name] = computed(() => computedDef.call(thisProxy, thisProxy));
             } else if (computedDef && typeof computedDef === 'object' && (computedDef.get || computedDef.set)) {
                 // Getter/setter
-                const getter = computedDef.get ? () => computedDef.get!.call(thisProxy) : undefined;
+                const getter = computedDef.get ? () => computedDef.get!.call(thisProxy, thisProxy) : undefined;
                 const setter = computedDef.set ? (val: unknown) => computedDef.set!.call(thisProxy, val) : undefined;
 
                 if (getter && setter) {
@@ -65,8 +65,11 @@ export function convertComputed(
 }
 
 /** @private */
-export function convertData(dataFn: (() => Record<string, unknown>) | Record<string, unknown>): Record<string, Ref> {
-    const data = typeof dataFn === 'function' ? dataFn() : dataFn;
+export function convertData(
+    dataFn: ((this: object, vm: object) => Record<string, unknown>) | Record<string, unknown>,
+    thisProxy: object = {},
+): Record<string, Ref> {
+    const data = typeof dataFn === 'function' ? dataFn.call(thisProxy, thisProxy) : dataFn;
     const converted: Record<string, Ref> = {};
 
     if (!data || typeof data !== 'object') {

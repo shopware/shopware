@@ -3,7 +3,9 @@
  */
 
 const vueJest = require('@vue/vue3-jest');
-const { transformShopwareSetupSfc } = require('../../build/vue-setup-transform');
+const { createRequire } = require('node:module');
+const remapping = createRequire(__filename)('@jridgewell/remapping');
+const { transformShopwareSetupSfc, wrapLegacySlotVNodes } = require('../../build/vue-setup-transform');
 
 /**
  * @typedef {object} JestTransformerConfig
@@ -50,7 +52,20 @@ module.exports = {
      * @returns {unknown}
      */
     process(source, filename, config, transformOptions) {
-        return vueJest.process(transformSource(source, filename), filename, config, transformOptions);
+        const result = vueJest.process(transformSource(source, filename), filename, config, transformOptions);
+        const wrapped = wrapLegacySlotVNodes(typeof result === 'string' ? result : result.code, filename);
+        if (!wrapped) return result;
+        if (typeof result === 'string') return wrapped.code;
+        const map = result.map
+            ? remapping(
+                  [
+                      wrapped.map,
+                      result.map,
+                  ],
+                  () => null,
+              )
+            : wrapped.map;
+        return { ...result, code: wrapped.code, map };
     },
 
     /**

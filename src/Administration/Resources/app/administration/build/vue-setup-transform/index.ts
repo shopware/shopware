@@ -108,3 +108,6 @@ export {
     transformShopwareSetupSfc,
     validateShopwareSetupSfc,
 };
+
+/** @private */
+export { wrapLegacySlotVNodes } from './wrap-slot-vnodes';

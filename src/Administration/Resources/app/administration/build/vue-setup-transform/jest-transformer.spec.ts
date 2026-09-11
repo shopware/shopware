@@ -65,4 +65,16 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
         expect(code).toContain('exports.default');
         expect(code).not.toContain('swDefinePublic');
     });
+    it('wraps slot receiver VNodes and composes their source map', () => {
+        const source = `<template><SlotReceiver><sw-block name="slots"><template #content>content</template></sw-block></SlotReceiver></template>
+            <script setup>swDefinePublic({});</script>`;
+        const result = shopwareSetupVueTransformer.process(
+            source,
+            '/administration/src/sw-slot-receiver.vue',
+            { config: {} },
+            { instrument: false },
+        ) as { code: string; map: { mappings: string } };
+        expect(result.code).toContain('Shopware.Component.applyLegacySlotBlocks(');
+        expect(result.map.mappings.length).toBeGreaterThan(0);
+    });
 });

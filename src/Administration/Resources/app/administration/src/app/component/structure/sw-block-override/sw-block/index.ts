@@ -1,3 +1,4 @@
+import { getLegacyComponentNames } from '../shim/component-lineage';
 /**
  * @sw-package framework
  *
@@ -7,15 +8,18 @@ import {
     getCurrentInstance,
     onBeforeUnmount,
     provide,
-    ref,
-    watch,
+    defineComponent,
+    h,
+    cloneVNode,
+    isVNode,
+    type VNode,
+    shallowRef,
     type ComponentInternalInstance,
-    type Slot,
 } from 'vue';
-import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-index';
+import { subscribeToBlockIndex, getBlockEntries, type BlockEntry } from 'src/core/factory/twig-block-index';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
-import { createShimSlot } from '../shim/create-shim-slot';
+import { createShimSlot, getShimOwner, type ShimSlot } from '../shim/create-shim-slot';
 import reduceToSingleRoot from '../reduce-to-single-root';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
 
@@ -109,43 +113,39 @@ export default Shopware.Component.wrapComponentConfig({
             clearLegacyConditionChainsForBlock(props.name, ownerUid);
         });
 
-        // Shim slots are created once in setup() to guarantee a stable VNode type
-        // reference across renders. A new object on every render call would cause
-        // Vue to unmount + remount ShimContent on every reactive update, destroying
-        // input focus. They are NOT registered in the global blockContext so that
-        // multiple simultaneous instances of <sw-block name="foo"> each maintain
-        // their own isolated shim slots and cannot double-render each other's content.
-        const shimSlots: Slot[] =
-            props.name && hasBlockEntries(props.name)
-                ? getBlockEntries(props.name).map((entry) => {
-                      // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
-                      const shimSlot = createShimSlot(entry, props.name!);
+        const indexVersion = shallowRef(0);
+        const unsubscribe = subscribeToBlockIndex(() => {
+            indexVersion.value += 1;
+        });
+        const renderers = new Map<BlockEntry, ShimSlot>();
+        const shimSlots = computed(() => {
+            void indexVersion.value;
+            const owner = getShimOwner(props.data) ?? instance?.parent;
+            const entries = props.name ? getBlockEntries(props.name, getLegacyComponentNames(owner)) : [];
+            for (const [
+                entry,
+                renderer,
+            ] of renderers) {
+                if (!entries.includes(entry)) {
+                    renderer.dispose();
+                    renderers.delete(entry);
+                }
+            }
+            return entries.map((entry) => {
+                let renderer = renderers.get(entry);
+                if (!renderer) {
+                    renderer = createShimSlot(entry, props.name!);
+                    renderers.set(entry, renderer);
+                }
+                return renderer;
+            });
+        });
+        onBeforeUnmount(() => {
+            unsubscribe();
+            renderers.forEach((renderer) => renderer.dispose());
+        });
 
-                      return shimSlot;
-                  })
-                : [];
-
-        if (process.env.NODE_ENV !== 'production') {
-            // `name` is assumed to be static after mount. Dynamically changing it would
-            // require re-creating shim slots and re-binding the block context, which is
-            // not supported. This watch fires only in development to surface the mistake early.
-            watch(
-                () => props.name,
-                (newVal, oldVal) => {
-                    if (oldVal !== undefined && newVal !== oldVal) {
-                        console.warn(
-                            `[sw-block] The "name" prop changed from "${oldVal}" to "${newVal}" after mount. ` +
-                                `This is not supported and will result in stale shim slots and incorrect rendering.`,
-                        );
-                    }
-                },
-            );
-        }
-
-        const providedParents = ref<ReturnType<Slot>[]>([]);
-        provide(parentsInjectionKey, providedParents);
-
-        const template = computed(() => {
+        const blockNodes = computed(() => {
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }
@@ -157,19 +157,23 @@ export default Shopware.Component.wrapComponentConfig({
             const nativeBlocks = getBlocks(props.name);
             const blocksAndParent = [
                 slots.default ?? (() => []),
-                ...shimSlots,
+                ...shimSlots.value,
                 ...nativeBlocks,
             ];
-            const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
-
-            const lastNode = blocksNodes.pop();
-            // Each <sw-block-parent /> calls .pop() exactly once in its own setup()
-            // to claim its parent slot. The array must be reset to the current render's
-            // ordered list so that each parent instance pops the correct slot — not a
-            // stale or accumulated list from a previous render cycle.
-            providedParents.value = blocksNodes;
-            return lastNode;
+            return blocksAndParent.map((block) => block?.(props.data) ?? []);
         });
+        // Each layer supplies its predecessor without mutating a shared stack.
+        const Layer = defineComponent({
+            props: { index: { type: Number, required: true } },
+            setup(layerProps) {
+                provide(parentsInjectionKey, () => [h(Layer, { index: layerProps.index - 1 })]);
+                return () => reduceToSingleRoot(blockNodes.value[layerProps.index]?.map(cloneBlockNode));
+            },
+        });
+
+        const template = computed(() =>
+            blockNodes.value.length === 1 ? blockNodes.value[0] : [h(Layer, { index: blockNodes.value.length - 1 })],
+        );
 
         return {
             template,
@@ -179,3 +183,11 @@ export default Shopware.Component.wrapComponentConfig({
         return reduceToSingleRoot(this.template);
     },
 });
+
+function cloneBlockNode(node: VNode): VNode {
+    const copy = cloneVNode(node);
+    if (Array.isArray(node.children)) {
+        copy.children = node.children.map((child) => (isVNode(child) ? cloneBlockNode(child) : child));
+    }
+    return copy;
+}

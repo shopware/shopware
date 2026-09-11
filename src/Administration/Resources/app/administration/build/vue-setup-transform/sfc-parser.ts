@@ -10,6 +10,8 @@
  * a `ShopwareSetupTransformError` diagnostic with a source offset.
  */
 
+import { getBindingIdentifiers } from '@babel/types';
+import { parseScript } from './script-analyzer/utils';
 import { parse as parseWithVue } from '@vue/compiler-sfc';
 import {
     inferShopwareSetupFromFilename,
@@ -42,6 +44,27 @@ function missingScriptSetupMessage(mode: ShopwareSetupMode): string {
         'swDefinePublic({ ... }) and pass an empty object if no binding is public. The Options API ' +
         '(a plain <script> block) cannot declare one.'
     );
+}
+
+/** Module bindings remain outside instance setup, but Vue templates can still use their assets. */
+function moduleBindings(source: string, lang: string, offset: number): string[] {
+    return parseScript(source, lang, offset).program.body.flatMap((statement) => {
+        if (statement.type === 'ImportDeclaration') {
+            return statement.importKind === 'type'
+                ? []
+                : statement.specifiers
+                      .filter((specifier) => specifier.type !== 'ImportSpecifier' || specifier.importKind !== 'type')
+                      .map((specifier) => specifier.local.name);
+        }
+        if (
+            statement.type === 'VariableDeclaration' ||
+            statement.type === 'FunctionDeclaration' ||
+            statement.type === 'ClassDeclaration'
+        ) {
+            return statement.declare ? [] : Object.keys(getBindingIdentifiers(statement));
+        }
+        return [];
+    });
 }
 
 /**
@@ -83,6 +106,15 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
 
     return {
         ...shopwareSetupBlock,
+        ...(parsed.descriptor.script
+            ? {
+                  moduleBindings: moduleBindings(
+                      parsed.descriptor.script.content,
+                      parsed.descriptor.script.lang ?? 'js',
+                      parsed.descriptor.script.loc.start.offset,
+                  ),
+              }
+            : {}),
         template: parsed.descriptor.template
             ? {
                   content: parsed.descriptor.template.content,

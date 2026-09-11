@@ -254,7 +254,14 @@ function renderScript(
         importBlock || null,
         helperBlock || null,
         injectBlock || null,
-        collected.inheritAttrs !== null ? `defineOptions({ inheritAttrs: ${collected.inheritAttrs} });` : null,
+        collected.inheritAttrs !== null || ctx.renamedBindings.size
+            ? `defineOptions({ ${[
+                  ...(collected.inheritAttrs !== null ? [`inheritAttrs: ${collected.inheritAttrs}`] : []),
+                  ...(ctx.renamedBindings.size
+                      ? [`legacyOptionsBindings: ${JSON.stringify(Object.fromEntries(ctx.renamedBindings))}`]
+                      : []),
+              ].join(', ')} });`
+            : null,
         propsText !== null
             ? usesProps
                 ? `const props = defineProps(${propsText});`

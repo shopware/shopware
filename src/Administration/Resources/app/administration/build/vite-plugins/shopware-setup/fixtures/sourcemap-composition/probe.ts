@@ -21,7 +21,10 @@ const adminRoot = process.env.SHOPWARE_ADMIN_ROOT as string;
 const here = path.dirname(fileURLToPath(import.meta.url));
 const requireFromAdmin = createRequire(path.join(adminRoot, 'package.json'));
 
-const { build } = (await import(pathToFileURL(requireFromAdmin.resolve('vite')).href)) as {
+const { build, createServer } = (await import(pathToFileURL(requireFromAdmin.resolve('vite')).href)) as {
+    createServer: (
+        config: object,
+    ) => Promise<{ transformRequest: (url: string) => Promise<{ code: string } | null>; close: () => Promise<void> }>;
     build: (config: { configFile: string }) => Promise<unknown>;
 };
 const { SourceMapConsumer } = requireFromAdmin('source-map-js') as {
@@ -56,6 +59,7 @@ const probes: Record<string, ProbeSpec> = {
         marker: 'Hello from source',
         file: 'src/sw-nested-component.vue',
     },
+    slots: { marker: 'Slot source marker', file: 'src/sw-slot-component.vue' },
     override: {
         marker: 'and the override',
         file: 'src/sw-nested-component.override.vue',
@@ -82,8 +86,25 @@ Object.entries(probes).forEach(
     },
 );
 
+const server = await createServer({
+    configFile: path.join(here, 'vite.config.ts'),
+    server: { middlewareMode: true, hmr: false, watch: null },
+});
+let developmentCode = '';
+try {
+    developmentCode = (await server.transformRequest('/src/sw-slot-component.vue'))?.code ?? '';
+} finally {
+    await server.close();
+}
+
 process.stdout.write(
     JSON.stringify({
+        productionDefinitionBridge: code.includes('Shopware.Component.createLegacyComponent('),
+        correctComponentName: /createLegacyComponent\([^]*?, ["']sw-slot-component["']\)/.test(code),
+        wrappedNativeOverride: /createLegacyComponent\([^]*?, ["']sw-nested-component\.override(?:\.vue)?["']\)/.test(code),
+        productionSlotBridge: code.includes('Shopware.Component.applyLegacySlotBlocks('),
+        developmentDefinitionBridge: developmentCode.includes('Shopware.Component.createLegacyComponent('),
+        developmentSlotBridge: developmentCode.includes('Shopware.Component.applyLegacySlotBlocks('),
         sources: map.sources,
         loweredSourceCount: (map.sourcesContent ?? []).filter((content: string | null) =>
             (content ?? '').includes('__swSetupAuthor_'),

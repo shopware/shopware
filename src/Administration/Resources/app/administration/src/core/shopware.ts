@@ -1,3 +1,13 @@
+import { resolveLegacyAsset } from 'src/app/adapter/options-composition-shim/legacy-assets';
+import {
+    applyLegacySlotBlocks,
+    mapSlotNames,
+} from 'src/app/component/structure/sw-block-override/shim/slot-definition-blocks';
+import {
+    prepareLegacyComponent,
+    createLegacyComponent,
+} from 'src/app/adapter/options-composition-shim/component-definition';
+import { createSetupDispatch } from 'src/app/adapter/composition-extension-system/setup-dispatch';
 /**
  * @sw-package framework
  *
@@ -47,6 +57,7 @@ import {
     attachOverrides,
     createExtendableSetup,
     getExposedProps,
+    createBlockDataScope,
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
@@ -144,9 +155,17 @@ class ShopwareClass implements CustomShopwareProperties {
         markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
+        subscribeToOverrides: AsyncComponentFactory.subscribeToOverrides,
         createExtendableSetup: createExtendableSetup,
         attachOverrides: attachOverrides,
         getExposedProps: getExposedProps,
+        createBlockDataScope,
+        createSetupDispatch,
+        resolveLegacyAsset,
+        prepareLegacyComponent,
+        createLegacyComponent,
+        applyLegacySlotBlocks,
+        mapSlotNames,
         overrideComponentSetup: overrideComponentSetup,
 
         /**

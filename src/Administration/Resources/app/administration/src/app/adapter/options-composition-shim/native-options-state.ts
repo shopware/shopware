@@ -9,6 +9,7 @@ type Bridge = {
     original: State;
     names: Map<string, string>;
     legacyNames: Map<string, string>;
+    declaredMembers: Set<string>;
     fallback: Map<string, PropertyDescriptor>;
     overlay: State;
     optionsStarted: boolean;
@@ -41,6 +42,7 @@ export function createNativeOptionsState(instance: ComponentInternalInstance, or
         original,
         names,
         legacyNames,
+        declaredMembers: new Set(Object.keys((instance.proxy?.$options.legacyOptionsMembers ?? {}) as object)),
         fallback: new Map(),
         overlay: reactive({}),
         optionsStarted: false,
@@ -98,6 +100,9 @@ function readBinding(bridge: Bridge, source: State, key: string): unknown {
     if (Object.hasOwn(bridge.owner.data, name)) return bridge.owner.data[name];
     if (hasNativeContext(bridge, name)) return bridge.owner.ctx[name];
     if (Object.hasOwn(bridge.owner.props, name)) return bridge.owner.props[name];
+    // Setup has already run, but Options data and computed must remain unavailable until Vue installs them.
+    // This also prevents an early read from caching a base computed before override data exists.
+    if (bridge.declaredMembers.has(name)) return undefined;
     return unref(source[key]);
 }
 
@@ -139,6 +144,8 @@ function installSetupFallbacks(bridge: Bridge, state: State): void {
         name,
         binding,
     ] of names) {
+        // Native members need no temporary ctx entry: Vue could cache it before reactive data is installed.
+        if (bridge.declaredMembers.has(name)) continue;
         const descriptor: PropertyDescriptor = {
             configurable: true,
             enumerable: true,

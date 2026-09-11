@@ -45,7 +45,9 @@ class DraftLayoutStyleParityTest extends TestCase
         ]];
 
         // One normalizer instance feeds both paths, so a path that stops calling it is what the comparison
-        // catches. Which instance the container hands each service is a wiring question this test does not make.
+        // catches. Which instance the container hands each service is a wiring question this test does not
+        // make; the integration test of the same name pins that the container-wired paths normalize
+        // identically (observable behavior, not instance identity).
         $normalizer = new StoredTreeStyleNormalizer($this->styleNormalizer());
         $elementCodec = new StoredElementCodec(static::createStub(DataLoaderConfigSerializerProvider::class));
 

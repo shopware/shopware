@@ -688,6 +688,24 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutFinishPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCheckoutFinishPageLinksTheJustOrderedProduct(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $order = $this->performOrder('', true, null, $contextToken);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $request = $this->createRequest($salesChannelContext);
+        $request->query->set('orderId', $order->getId());
+        $requestDataBag = $this->createRequestDataBag('');
+
+        $response = static::getContainer()->get(CheckoutController::class)->finishPage($request, $salesChannelContext, $requestDataBag);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        // the label link carries a `title` attribute only when the product is still available (see label.html.twig)
+        static::assertStringContainsString('title="Test product"', (string) $response->getContent());
+    }
+
     public function testCheckoutInfoWidget(): void
     {
         $contextToken = Uuid::randomHex();

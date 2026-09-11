@@ -28,7 +28,7 @@ export default Component.wrapComponentConfig({
          * Either the id of the unit when in edit mode or null when in create mode.
          */
         unitId: {
-            type: String,
+            type: String as unknown as PropType<EntityKey<'unit'> | null>,
             required: false,
             default: null,
         },
@@ -112,6 +112,10 @@ export default Component.wrapComponentConfig({
 
     methods: {
         loadUnit(): void {
+            if (this.unitId === null) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.unitRepository

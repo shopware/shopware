@@ -275,16 +275,24 @@ class AccountOrderController extends StorefrontController
     )]
     public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $this->contextSwitchRoute->switchContext(
-            new RequestDataBag(
-                [
-                    SalesChannelContextService::PAYMENT_METHOD_ID => RequestParamHelper::get($request, 'paymentMethodId'),
-                ]
-            ),
-            $context
-        );
+        $paymentMethodId = RequestParamHelper::get($request, 'paymentMethodId');
 
-        return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        // @deprecated tag:v6.8.0 - remove this if block, the edit order page selects the payment method of the order
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->contextSwitchRoute->switchContext(
+                new RequestDataBag(
+                    [
+                        SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                    ]
+                ),
+                $context
+            );
+        }
+
+        return $this->redirectToRoute('frontend.account.edit-order.page', [
+            'orderId' => $orderId,
+            'paymentMethodId' => $paymentMethodId,
+        ]);
     }
 
     #[Route(

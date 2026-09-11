@@ -362,7 +362,6 @@ class EntitySearcherTest extends TestCase
         );
 
         $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));

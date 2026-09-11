@@ -185,6 +185,7 @@ async function createWrapper(user) {
                         can: () => {
                             return true;
                         },
+                        isAdmin: () => !!Shopware.Store.get('session').currentUser?.admin,
                     },
                     integrationService: {
                         generateKey: () => {

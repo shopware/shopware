@@ -110,7 +110,21 @@ class ProductStreamIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE product_stream SET api_filter = :serialized, invalid = :invalid WHERE id = :id')
         );
 
-        foreach ($filters as $id => $filter) {
+        foreach ($ids as $id) {
+            $filter = $filters[strtolower($id)] ?? [];
+
+            // A stream without filters cannot match anything, so it is stored as unusable with no
+            // compiled filter: the state a stream sits in until it gets its first filter.
+            if ($filter === []) {
+                $update->execute([
+                    'serialized' => null,
+                    'invalid' => 1,
+                    'id' => Uuid::fromHexToBytes($id),
+                ]);
+
+                continue;
+            }
+
             $invalid = false;
 
             $serialized = null;

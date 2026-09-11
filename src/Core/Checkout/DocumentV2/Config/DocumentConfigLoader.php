@@ -26,7 +26,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * Loads the merged document configuration (global + sales-channel override)
  * for a document type. Reads typed columns directly; falls back to the JSON
  * `config` blob only for fields not yet migrated to columns.
- * Sales-channel non-null values override global.
+ * Sales-channel configured values override global. For the filename prefix,
+ * suffix, and infixes, '' counts as unconfigured.
  *
  * @internal
  */
@@ -67,8 +68,6 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     private array $bundles = [];
 
     /**
-     * @internal
-     *
      * @param EntityRepository<DocumentBaseConfigCollection> $documentConfigRepository
      * @param EntityRepository<CountryCollection> $countryRepository
      * @param EntityRepository<MediaCollection> $mediaRepository
@@ -153,6 +152,34 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     }
 
     /**
+     * @param array<string, mixed> $global
+     * @param array<string, mixed> $salesChannel
+     *
+     * @return array<string, string>
+     */
+    public static function mergeFilenameInfixes(array $global, array $salesChannel): array
+    {
+        return array_merge(self::configuredFilenameInfixes($global), self::configuredFilenameInfixes($salesChannel));
+    }
+
+    /**
+     * @param array<string, mixed> $infixes
+     *
+     * @return array<string, string>
+     */
+    public static function configuredFilenameInfixes(array $infixes): array
+    {
+        $configured = [];
+        foreach ($infixes as $format => $infix) {
+            if (\is_scalar($infix) && (string) $infix !== '') {
+                $configured[(string) $format] = (string) $infix;
+            }
+        }
+
+        return $configured;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     private function resolveCompanyInfoFromSystemConfig(string $salesChannelId): ?array
@@ -219,9 +246,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             pageSize: $pageSize,
             pageOrientation: $pageOrientation,
             itemsPerPage: $itemsPerPage,
-            filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
-            filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
-            filenameInfixes: array_merge(
+            filenamePrefix: self::firstConfiguredValue($salesChannelRow?->getFilenamePrefix(), $globalRow?->getFilenamePrefix()),
+            filenameSuffix: self::firstConfiguredValue($salesChannelRow?->getFilenameSuffix(), $globalRow?->getFilenameSuffix()),
+            filenameInfixes: self::mergeFilenameInfixes(
                 $globalRow?->getFilenameInfixes() ?? [],
                 $salesChannelRow?->getFilenameInfixes() ?? [],
             ),
@@ -350,6 +377,23 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         return $merged;
+    }
+
+    /**
+     * '' counts as unconfigured: the prefix/suffix columns default to '', so
+     * admin-created rows carry '' even when the merchant never entered a value.
+     */
+    private static function firstConfiguredValue(?string $salesChannelValue, ?string $globalValue): ?string
+    {
+        if ($salesChannelValue !== null && $salesChannelValue !== '') {
+            return $salesChannelValue;
+        }
+
+        if ($globalValue !== null && $globalValue !== '') {
+            return $globalValue;
+        }
+
+        return null;
     }
 
     /**

@@ -116,27 +116,57 @@ describe('extension-tooling eslint factory host options', () => {
         );
     });
 
-    it('disables the type-aware rules on .vue files (vue-tsc type-checks them instead)', () => {
+    it('turns off only the no-unsafe rules on .vue while keeping the rest of the type-aware set', () => {
         const blocks = variants.defaults;
 
-        // The project service cannot type SFCs, so the type-aware rules would
-        // only ever fire false positives on .vue; a dedicated last block turns
-        // them off there while leaving them on for .ts.
-        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-untyped', '@typescript-eslint/no-unsafe-assignment')).toBe(
-            'off',
+        // Without the Vue language service the project service types some Vue
+        // surfaces as `any`, so the no-unsafe family reports false positives on
+        // idiomatic Vue; a dedicated block placed after the type-aware one turns
+        // just those five off (the `allowComponentTypeUnsafety` trade-off).
+        for (const rule of [
+            '@typescript-eslint/no-unsafe-argument',
+            '@typescript-eslint/no-unsafe-assignment',
+            '@typescript-eslint/no-unsafe-call',
+            '@typescript-eslint/no-unsafe-member-access',
+            '@typescript-eslint/no-unsafe-return',
+        ]) {
+            expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-component-type-unsafety', rule)).toBe('off');
+        }
+
+        // Every other type-aware rule stays on: the resolvable ones keep working
+        // on .vue (no-floating-promises via the type-aware block, no-deprecated
+        // via the api-boundary block). No block disables the whole set on `.vue`.
+        expect(
+            ruleSeverity(blocks, 'shopware/admin-extension/vue-typescript', '@typescript-eslint/no-floating-promises'),
+        ).toBe('error');
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/api-boundary', '@typescript-eslint/no-deprecated')).toBe(
+            'error',
         );
-        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-untyped', '@typescript-eslint/no-unsafe-call')).toBe(
-            'off',
-        );
+        expect(blocks.map((block) => block.name)).not.toContain('shopware/admin-extension/vue-untyped');
     });
 
-    it('disables no-unused-vars on .vue (the parser misses interpolation usage; vue-tsc covers it)', () => {
+    it('keeps no-unused-vars on for .vue (the v10 parser links interpolation usage)', () => {
         const blocks = variants.defaults;
 
-        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-template-usage', 'no-unused-vars')).toBe('off');
+        // vue-eslint-parser 10 links `{{ }}` interpolations back to their
+        // `<script setup>` bindings, so no `.vue`-scoped block disables
+        // no-unused-vars: the only one (vue-component-type-unsafety) touches just
+        // the no-unsafe family, leaving no-unused-vars from the type-aware block
+        // in force.
+        expect(blocks.map((block) => block.name)).not.toContain('shopware/admin-extension/vue-template-usage');
         expect(
-            ruleSeverity(blocks, 'shopware/admin-extension/vue-template-usage', '@typescript-eslint/no-unused-vars'),
-        ).toBe('off');
+            ruleSeverity(blocks, 'shopware/admin-extension/vue-typescript', '@typescript-eslint/no-unused-vars'),
+        ).not.toBe('off');
+        expect(
+            ruleSeverity(blocks, 'shopware/admin-extension/vue-component-type-unsafety', 'no-unused-vars'),
+        ).toBeUndefined();
+        expect(
+            ruleSeverity(
+                blocks,
+                'shopware/admin-extension/vue-component-type-unsafety',
+                '@typescript-eslint/no-unused-vars',
+            ),
+        ).toBeUndefined();
     });
 
     it("omits the spec-files block entirely for specFiles: 'typed'", () => {

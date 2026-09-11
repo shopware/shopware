@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -374,6 +376,56 @@ class AccountOrderControllerTest extends TestCase
         static::assertStringNotContainsString('cancelOrderModal-' . $completedOrderId, $content);
     }
 
+    public function testOrderOverviewHidesLinksForUnavailableProducts(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        static::getContainer()->get(SystemConfigService::class)->set('core.cart.wishlistEnabled', true);
+
+        $availableProductId = $this->createProduct($context, 'Available product');
+        $deactivatedProductId = $this->createProduct($context, 'Deactivated product');
+        $deletedProductId = $this->createProduct($context, 'Deleted product');
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+        $orderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+        $orderData[0]['deliveries'] = [];
+        $orderData[0]['lineItems'] = [
+            $this->buildProductLineItem($availableProductId, 'Available product'),
+            $this->buildProductLineItem($deactivatedProductId, 'Deactivated product'),
+            $this->buildProductLineItem($deletedProductId, 'Deleted product'),
+        ];
+
+        static::getContainer()->get('order.repository')->create([$orderData[0]], $context);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $deactivatedProductId, 'active' => false],
+        ], $context);
+        static::getContainer()->get('product.repository')->delete([
+            ['id' => $deletedProductId],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account/order');
+
+        $response = $browser->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+        // the label link carries a `title` attribute only when the product is still available (see label.html.twig)
+        static::assertStringContainsString('title="Available product"', $content);
+        static::assertStringNotContainsString('title="Deactivated product"', $content);
+        static::assertStringNotContainsString('title="Deleted product"', $content);
+
+        static::assertStringContainsString('product-wishlist-' . $availableProductId, $content);
+        static::assertStringNotContainsString('product-wishlist-' . $deactivatedProductId, $content);
+        static::assertStringNotContainsString('product-wishlist-' . $deletedProductId, $content);
+    }
+
     public function testEditOrderPageShowsCancelActionOnlyForOpenOrders(): void
     {
         $context = Context::createDefaultContext();
@@ -567,6 +619,27 @@ class AccountOrderControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildProductLineItem(string $productId, string $label): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'identifier' => $productId,
+            'referencedId' => $productId,
+            'productId' => $productId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'label' => $label,
+            'payload' => ['productNumber' => $productId],
+            'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
+            'priority' => 100,
+            'good' => true,
+        ];
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -626,7 +699,7 @@ class AccountOrderControllerTest extends TestCase
         return $customer;
     }
 
-    private function createProduct(Context $context): string
+    private function createProduct(Context $context, string $name = 'Test Product'): string
     {
         $productId = Uuid::randomHex();
 
@@ -635,7 +708,7 @@ class AccountOrderControllerTest extends TestCase
             'id' => $productId,
             'productNumber' => $productNumber,
             'stock' => 1,
-            'name' => 'Test Product',
+            'name' => $name,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.99, 'net' => 11.99, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'taxId' => $this->getValidTaxId(),

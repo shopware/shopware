@@ -13,6 +13,9 @@
     {% set showSubtotal = true %}
 {% endif %}
 
+{# order line items keep referencing deleted/deactivated products, so availability must be checked explicitly #}
+{% set isProductAvailable = displayMode !== 'order' or sw_product_available(lineItem.referencedId, context.context) %}
+
 {% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}
 
 {% if displayMode === 'offcanvas' %}
@@ -46,7 +49,7 @@
                                                     <div class="line-item-img-container">
                                                         {% block component_line_item_type_product_image_inner %}
                                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
-                                                                lineItemLink: displayMode !== 'order' or lineItem.productId ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
+                                                                lineItemLink: isProductAvailable ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
                                                                 lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { productId: lineItem.referencedId }) : false,
                                                             } %}
                                                         {% endblock %}
@@ -61,7 +64,7 @@
                                                     <div class="line-item-details-container">
                                                     {% block component_line_item_type_product_label %}
                                                         {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' with {
-                                                            lineItemLink: displayMode !== 'order' or lineItem.productId ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
+                                                            lineItemLink: isProductAvailable ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
                                                             lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { productId: lineItem.referencedId }) : false,
                                                         } %}
                                                     {% endblock %}
@@ -94,7 +97,7 @@
                                                         {% endblock %}
                                                     {% endif %}
 
-                                                    {% if config('core.cart.wishlistEnabled') %}
+                                                    {% if config('core.cart.wishlistEnabled') and isProductAvailable %}
                                                         {% block component_line_item_type_product_wishlist %}
                                                             {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                                 showText: true,

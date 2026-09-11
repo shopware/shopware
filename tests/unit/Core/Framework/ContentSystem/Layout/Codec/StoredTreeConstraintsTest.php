@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
@@ -198,6 +200,50 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         ]);
 
         static::assertGreaterThanOrEqual(1, $violations->count());
+    }
+
+    /**
+     * The message, not just the fact of a violation. Each one is framed from the phrase
+     * {@see ElementIdRule::rejection()} returns and travels to the client verbatim: the DAL wraps these into
+     * a `WriteConstraintViolationException`, so a reworded phrase is an API response change. The sibling
+     * framing — `it …`, for the decode throw — is pinned by `ElementIdSchemaConformanceTest`.
+     *
+     * Which ids fall into which clause is not re-tabulated here; that is `ElementIdRuleTest`'s table. One id
+     * per clause is enough to show the descriptor reaches the rule and frames what it gets back.
+     */
+    #[DataProvider('rejectsElementIdProvider')]
+    #[TestDox('reports $expectedMessage for $_dataName')]
+    public function testRejectsAnIdOutsideTheValueDomain(string $id, string $expectedMessage): void
+    {
+        $violations = $this->validate([$this->element(['id' => $id])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function rejectsElementIdProvider(): iterable
+    {
+        yield 'the reserved virtual-root literal' => [
+            VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            'This value is the reserved virtual-root id.',
+        ];
+
+        yield 'an integer-reading id' => ['12', 'This value reads as an integer.'];
+
+        yield 'a negative zero' => ['-0', 'This value reads as an integer.'];
+
+        yield 'an id carrying a line feed' => [
+            "hero\nfoot",
+            'This value contains the line terminator U+000A.',
+        ];
+
+        yield 'an id carrying a paragraph separator' => [
+            "hero\u{2029}foot",
+            'This value contains the line terminator U+2029.',
+        ];
     }
 
     #[TestDox('reports a violation naming the offending key for a numeric key in a wiring map')]

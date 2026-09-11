@@ -12,7 +12,7 @@ const componentWithBlock = {
     name: 'block-consumer',
     template: `
         <div class="block-consumer">
-            <sw-block name="block_consumer_content">
+            <sw-block name="block_consumer_content" sw-internal-component-name="global-registration-spec">
                 <p class="block-consumer__content">Content</p>
             </sw-block>
         </div>
@@ -41,10 +41,10 @@ describe('sw-block global registration', () => {
             name: 'block-siblings',
             template: `
                 <div class="block-siblings">
-                    <sw-block name="block_siblings_first">
+                    <sw-block name="block_siblings_first" sw-internal-component-name="global-registration-spec">
                         <p class="block-siblings__item">First</p>
                     </sw-block>
-                    <sw-block name="block_siblings_second">
+                    <sw-block name="block_siblings_second" sw-internal-component-name="global-registration-spec">
                         <p class="block-siblings__item">Second</p>
                     </sw-block>
                 </div>

@@ -298,7 +298,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->merge($additionalValidations);
         }
 
-        if ($validateStorefrontUrl) {
+        if ($validateStorefrontUrl && $this->doubleOptInService->isDoubleOptInEnabled($isGuest, $context)) {
             $definition
                 ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }

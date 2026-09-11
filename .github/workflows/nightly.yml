@@ -57,6 +57,8 @@ jobs:
       pull-requests: read
     uses: ./.github/workflows/admin.yml
     secrets: inherit
+    with:
+      extension-tooling-e2e: true
   integration:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     permissions:

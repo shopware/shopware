@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -323,6 +324,12 @@ class RegisterRouteTest extends TestCase
             ],
         ]);
 
+        $this->systemConfigService->set(
+            'core.loginRegistration.doubleOptInRegistration',
+            true,
+            $this->ids->get('sales-channel-3')
+        );
+
         $browser->request(
             'POST',
             '/store-api/account/register',
@@ -338,24 +345,6 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertArrayNotHasKey('errors', $response);
-        static::assertNotEmpty($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-
-        $browser->request(
-            'POST',
-            '/store-api/account/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'teg-reg@example.com',
-                'password' => '12345678',
-            ], \JSON_THROW_ON_ERROR)
-        );
-
-        $response = $browser->getResponse();
-
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
     }
 
     /**
@@ -372,6 +361,71 @@ class RegisterRouteTest extends TestCase
         yield 'domain with double trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
+    }
+
+    public function testRegistrationOnSalesChannelWithoutDomains(): void
+    {
+        $browser = $this->createSalesChannelBrowserWithoutDomains();
+
+        $browser->request(
+            'POST',
+            '/store-api/account/register',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($this->getRegistrationData('https://headless.example.com'), \JSON_THROW_ON_ERROR)
+        );
+
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertNotEmpty($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testRegistrationAcceptsForeignStorefrontUrlWithoutDoubleOptIn(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData('http://my-evil-page'), \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertSame('customer', $response['apiAlias']);
+    }
+
+    public function testRegistrationRejectsForeignStorefrontUrlWithDoubleOptIn(): void
+    {
+        $this->systemConfigService->set(
+            'core.loginRegistration.doubleOptInRegistration',
+            true,
+            $this->ids->get('sales-channel')
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData('http://my-evil-page'), \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/storefrontUrl', $response['errors'][0]['source']['pointer']);
     }
 
     public function testDoubleOptin(): void
@@ -1704,6 +1758,30 @@ class RegisterRouteTest extends TestCase
         $this->addCountriesToSalesChannel([$countryId], $this->ids->get('sales-channel'));
 
         return $countryId;
+    }
+
+    private function createSalesChannelBrowserWithoutDomains(): KernelBrowser
+    {
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('headless-sales-channel'),
+            'domains' => [
+                [
+                    'id' => $this->ids->create('headless-domain'),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://headless.example.com',
+                ],
+            ],
+        ]);
+
+        $this->addCountriesToSalesChannel([], $this->ids->get('headless-sales-channel'));
+
+        /** @var EntityRepository<SalesChannelDomainCollection> $domainRepository */
+        $domainRepository = static::getContainer()->get('sales_channel_domain.repository');
+        $domainRepository->delete([['id' => $this->ids->get('headless-domain')]], Context::createDefaultContext());
+
+        return $browser;
     }
 
     /**

@@ -1,5 +1,6 @@
 /** @sw-package framework */
 import { isRef, reactive, unref, type ComponentInternalInstance } from 'vue';
+import { exposeNativeOptions } from './native-options-exposure';
 
 type State = Record<string, unknown>;
 type Owner = ComponentInternalInstance & { ctx: State };
@@ -193,4 +194,5 @@ export function initializeNativeOptions(instance: ComponentInternalInstance): vo
     ] of bridge.fallback)
         Object.defineProperty(bridge.owner.ctx, name, descriptor);
     bridge.optionsStarted = true;
+    exposeNativeOptions(instance, bridge.names.keys(), bridge.fallback);
 }

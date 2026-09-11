@@ -273,7 +273,7 @@ describe('compiled legacy SFC compatibility', () => {
         ]);
     });
 
-    it('bridges renamed legacy members while keeping the native public surface unchanged', () => {
+    it('exposes legacy aliases while keeping renamed setup bindings private', () => {
         ComponentFactory.override('sw-runtime-compatibility', {
             methods: {
                 oldValue(this: { $super: (name: string) => string }) {
@@ -294,7 +294,7 @@ describe('compiled legacy SFC compatibility', () => {
         wrappers.push(wrapper);
         expect(wrapper.text()).toBe('base:plugin');
         expect(wrapper.vm.$.exposed).not.toHaveProperty('internalValue');
-        expect(wrapper.vm.$.exposed).not.toHaveProperty('oldValue');
+        expect(wrapper.vm.$.exposed).toHaveProperty('oldValue', expect.any(Function));
     });
 
     it('keeps reassigned setup variables connected to the rendered state', async () => {

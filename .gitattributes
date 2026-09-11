@@ -31,6 +31,7 @@
 /phpstan-baseline.php export-ignore
 /phpunit.xml.dist export-ignore
 /rector.php export-ignore
+/structarmed.php export-ignore
 /sonar-project.properties export-ignore
 
 # Use union merge strategy for these files to avoid merge conflicts

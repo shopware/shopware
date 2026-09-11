@@ -259,6 +259,7 @@ All commands below should be run inside the Docker container prefixed with `dock
 | `composer rector`                 | Check with Rector for automated PHP refactoring possibilities |
 | `composer rector-fix`             | Run Rector for automated PHP refactoring                      |
 | `composer phpstan-errors-by-area` | Print PHPStan baseline errors grouped by area                 |
+| `composer structarmed`            | Check with StructArmed for Architecture analysis              |
 
 ### Testing
 

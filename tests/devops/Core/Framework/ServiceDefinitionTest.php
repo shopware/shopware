@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Devops\Core\Framework;
+namespace Shopware\Tests\DevOps\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;

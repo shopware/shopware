@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Devops\Core\Framework\Api;
+namespace Shopware\Tests\DevOps\Core\Framework\Api;
 
 use Composer\ClassMapGenerator\ClassMapGenerator;
 use PHPUnit\Framework\TestCase;

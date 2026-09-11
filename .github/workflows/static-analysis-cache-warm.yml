@@ -83,3 +83,33 @@ jobs:
         with:
           path: var/cache/rector
           key: "rector-result-cache-${{ github.run_id }}"
+
+  structarmed:
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    name: "StructArmed cache warm"
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          keep-composer-tools: "true"
+
+      - name: "Restore result cache"
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: var/cache/structarmed
+          key: "structarmed-result-cache-${{ github.run_id }}"
+          restore-keys: |
+            structarmed-result-cache-
+
+      - name: StructArmed
+        run: composer structarmed
+
+      - name: "Save result cache"
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always()
+        with:
+          path: var/cache/structarmed
+          key: "structarmed-result-cache-${{ github.run_id }}"

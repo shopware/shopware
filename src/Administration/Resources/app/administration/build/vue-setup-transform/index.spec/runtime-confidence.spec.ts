@@ -200,6 +200,72 @@ describe('adversarial public legacy contract comparison', () => {
         expect(child.$data.extra).toBe(5);
     });
 
+    it('preserves native identity between hooks, ordinary methods and computed vm arguments', () => {
+        const values = new WeakMap<object, string>();
+        const createdReceivers: object[] = [];
+        const extension: ComponentConfig = {
+            created(this: object) {
+                createdReceivers.push(this);
+                values.set(this, 'registered');
+            },
+            methods: {
+                readReceiver(this: object) {
+                    return values.get(this);
+                },
+                returnReceiver(this: object) {
+                    return this;
+                },
+            },
+            computed: {
+                computedReceiver(vm: object) {
+                    return values.get(vm);
+                },
+            },
+        };
+        const migrated = render(compile(script, [extension]));
+        const vm = migrated.vm.$.proxy as any;
+        expect(vm.readReceiver()).toBe('registered');
+        expect(vm.computedReceiver).toBe('registered');
+        expect(vm.returnReceiver()).toBe(createdReceivers[0]);
+    });
+
+    it('calls ordinary $super predecessors with the same receiver as lifecycle hooks', async () => {
+        const values = new WeakMap<object, string>();
+        const migrated = render(compile(script, [
+            {
+                    created(this: object) {
+                    values.set(this, 'registered');
+                },
+                methods: {
+                        read(this: object) {
+                        return values.get(this);
+                    },
+                },
+                computed: {
+                    receiver(vm: object) {
+                        return values.get(vm);
+                    },
+                },
+            },
+            {
+                methods: {
+                    async read() {
+                        await Promise.resolve();
+                        return this.$super('read');
+                    },
+                },
+                computed: {
+                    receiver() {
+                        return this.$super('receiver');
+                    },
+                },
+            },
+        ]));
+        const vm = migrated.vm.$.proxy as any;
+        expect(await vm.read()).toBe('registered');
+        expect(vm.receiver).toBe('registered');
+    });
+
     it('keeps private setup bindings hidden while exposing Options additions', () => {
         const migrated = compile(
             `

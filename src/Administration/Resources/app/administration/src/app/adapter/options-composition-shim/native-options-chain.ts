@@ -39,10 +39,14 @@ function resolveMixin(mixin: unknown): ComponentConfig {
 /** Each layer closes over its own predecessors; later registrations cannot change a $super target. */
 function wrapMembers(config: ComponentConfig, members: Members): object {
     const receiver = createSuperReceiver(new Map(members));
-    const wrap = (name: string, method: Method): Method => {
-        const wrapped: Method = function (...args) {
-            return method.apply(receiver(this), args);
-        };
+    const wrap = (name: string, method: Method, invoke: Method = method): Method => {
+        // Ordinary Options members must keep Vue's receiver, including identity shared with hooks.
+        // Only methods using $super need a layer-specific receiver that survives an await.
+        const wrapped: Method = method.toString().includes('$super')
+            ? function (...args) {
+                  return invoke.apply(receiver(this), args);
+              }
+            : invoke;
         members.set(name, wrapped);
         return wrapped;
     };
@@ -64,7 +68,7 @@ function wrapMembers(config: ComponentConfig, members: Members): object {
             members.delete(`${name}.get`);
             members.delete(`${name}.set`);
             const originalGetter = typeof definition === 'function' ? definition : definition.get;
-            const getter = originalGetter ? wrap(name, withComputedVm(originalGetter)) : undefined;
+            const getter = originalGetter ? wrap(name, originalGetter, withComputedVm(originalGetter)) : undefined;
             if (getter) members.set(`${name}.get`, getter);
             result.computed[name] =
                 typeof definition === 'function'

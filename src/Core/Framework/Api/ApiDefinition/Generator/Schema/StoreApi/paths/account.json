@@ -32,7 +32,20 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/AccountNewsletterRecipient"
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "$ref": "#/components/schemas/NewsletterStatus"
+                                        },
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "const": "account_newsletter_recipient"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "apiAlias"
+                                    ]
                                 }
                             }
                         }
@@ -73,6 +86,57 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ]
+            }
+        },
+        "/v2/account/newsletter-recipient": {
+            "get": {
+                "tags": [
+                    "Profile",
+                    "Newsletter",
+                    "Endpoints supporting Criteria"
+                ],
+                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\NewsletterRecipient",
+                "x-dto-package": "checkout",
+                "summary": "Fetch newsletter recipients",
+                "description": "Perform a filtered search for newsletter recipients.",
+                "operationId": "readNewsletterRecipient",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "$ref": "#/components/schemas/NewsletterStatus"
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-context-token",
+                        "in": "header",
+                        "required": true,
+                        "description": "Standard Store API context token identifying the customer session. Needed to resolve customer entity.",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ]
             }
@@ -577,7 +641,7 @@
             "post": {
                 "tags": [
                     "Profile",
-                    "Endpoints supporting Criteria "
+                    "Endpoints supporting Criteria"
                 ],
                 "summary": "Get information about current customer",
                 "description": "Returns information about the current customer.\n\n**Available Associations:**\n- `group` - Customer group determining pricing and permissions\n- `language` - Preferred language for customer communication\n- `lastPaymentMethod` - Last used payment method by the customer\n- `defaultBillingAddress` - Default billing address for the customer\n- `activeBillingAddress` - Currently active billing address in the session\n- `defaultShippingAddress` - Default shipping address for the customer\n- `activeShippingAddress` - Currently active shipping address in the session\n- `salutation` - Customer salutation (e.g., Mr., Mrs., Ms.)\n- `addresses` - All addresses saved for the customer\n- `tags` - Tags assigned to the customer for organization and segmentation",
@@ -789,7 +853,7 @@
             "post": {
                 "tags": [
                     "Address",
-                    "Endpoints supporting Criteria "
+                    "Endpoints supporting Criteria"
                 ],
                 "summary": "Fetch addresses of a customer",
                 "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",

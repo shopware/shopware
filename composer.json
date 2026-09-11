@@ -143,6 +143,7 @@
         "symfony/http-foundation": "~7.4.0",
         "symfony/http-kernel": "~7.4.12",
         "symfony/intl": "~7.4.0",
+        "symfony/json-streamer": "~7.4.16",
         "symfony/lock": "~7.4.0",
         "symfony/mailer": "~7.4.12",
         "symfony/mcp-bundle": "~0.11.0",

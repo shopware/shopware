@@ -5,6 +5,8 @@
     "components": {
         "schemas": {
             "Criteria": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "description": "Search parameters. For more information, see our documentation on [Search Queries](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#structure)",
                 "properties": {
@@ -115,6 +117,8 @@
                 }
             },
             "NoneFieldsCriteria": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "description": "Search parameters. For more information, see our documentation on [Search Queries](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#structure)",
                 "properties": {
@@ -241,6 +245,8 @@
                 }
             },
             "Aggregation": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "anyOf": [
                     {
                         "$ref": "#/components/schemas/AggregationMetrics"
@@ -303,6 +309,7 @@
                 ]
             },
             "SubAggregations": {
+                "x-dto-inline": true,
                 "type": "object",
                 "properties": {
                     "aggregation": {
@@ -330,12 +337,16 @@
                 }
             },
             "TotalCountMode": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
                 "type": "string",
                 "default": "none",
                 "enum": ["none", "exact", "next-pages"]
             },
             "Sort": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "field": {
@@ -374,6 +385,8 @@
                 }
             },
             "SimpleFilter": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": {
@@ -390,6 +403,8 @@
                 "required": ["type", "field", "value"]
             },
             "EqualsFilter": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": {
@@ -419,6 +434,8 @@
                 "required": ["type", "field", "value"]
             },
             "MultiNotFilter": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": {
@@ -436,6 +453,8 @@
                 "required": ["type", "operator", "queries"]
             },
             "RangeFilter": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "type": "object",
                 "properties": {
                     "type": {

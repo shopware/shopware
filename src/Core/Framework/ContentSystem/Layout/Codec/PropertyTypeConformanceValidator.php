@@ -61,8 +61,10 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
 
             $type = $specification->type();
 
-            // fromDecoded() throws only for a PHP value no JSON payload can carry; the element's own `Type`
-            // and value-nesting constraints have already run against this same map.
+            // fromDecoded() throws for a non-finite float (a JSON 1e400 decodes to INF) and nothing catches
+            // it here; that 500 is the accepted limitation in Api/docs/mutation-errors.md. A list-shaped
+            // payload never carries one this far: the write's first decode already admitted its values
+            // (see Layout/Field/README.md).
             if (!$type->admits(StoredValue::fromDecoded($raw))) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter('{{ key }}', (string) $key)

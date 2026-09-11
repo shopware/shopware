@@ -396,6 +396,11 @@ export default {
                     this.hasOrderDeepEdit = false;
                     this.promotionsToDelete = [];
                     this.deliveryDiscountsToDelete = [];
+
+                    // Release the version before merging, so unloading the page cannot discard a version being merged.
+                    Store.get('swOrderDetail').versionContext = Shopware.Context.api;
+                    this.hasNewVersionId = false;
+
                     return this.orderRepository.mergeVersion(this.order.versionId);
                 })
                 .then(() => this.createNewVersionId())

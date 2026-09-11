@@ -10,13 +10,17 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
@@ -29,6 +33,7 @@ class ProductListingReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use EventDispatcherBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -80,6 +85,40 @@ class ProductListingReadinessCheckTest extends TestCase
         static::assertSame(Status::OK, $result->status);
     }
 
+    public function testCheckIsHealthyWhenAllListingCategoriesAreRestrictedByAnExtension(): void
+    {
+        $categoryIds = [
+            $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-1'), true),
+            $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-2'), false),
+        ];
+
+        // simulates an extension that restricts category visibility by rules, e.g. Dynamic Access:
+        // for an anonymous visitor the rule does not match, so the categories are filtered out
+        $this->restrictCategories(array_merge(...$categoryIds));
+
+        $check = $this->createCheck();
+        $result = $check->run();
+
+        static::assertTrue($result->healthy);
+        static::assertSame(Status::SKIPPED, $result->status);
+    }
+
+    /**
+     * @param list<string> $categoryIds
+     */
+    private function restrictCategories(array $categoryIds): void
+    {
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            'sales_channel.category.process.criteria',
+            static function (SalesChannelProcessCriteriaEvent $event) use ($categoryIds): void {
+                $event->getCriteria()->addFilter(
+                    new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('category.id', $categoryIds)])
+                );
+            }
+        );
+    }
+
     private function createCheck(): ProductListingReadinessCheck
     {
         return $this->getContainer()->get(ProductListingReadinessCheck::class);
@@ -112,7 +151,10 @@ class ProductListingReadinessCheckTest extends TestCase
         ]);
     }
 
-    private function createMainNavigationWithSalesChannelAssignment(string $salesChannelId, bool $toChild): void
+    /**
+     * @return list<string>
+     */
+    private function createMainNavigationWithSalesChannelAssignment(string $salesChannelId, bool $toChild): array
     {
         $context = Context::createDefaultContext();
 
@@ -134,6 +176,8 @@ class ProductListingReadinessCheckTest extends TestCase
                 'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
             ],
         ], $context);
+
+        return [(string) $parent['id'], (string) $child['id']];
     }
 
     private function createMainNavigationWithoutProducts(): void

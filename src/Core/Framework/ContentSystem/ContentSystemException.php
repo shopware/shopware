@@ -197,7 +197,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ELEMENT_ID,
-            'Element id "{{ id }}" is not accepted: {{ reason }}.',
+            'Element id "{{ id }}" is not accepted: it {{ reason }}.',
             ['id' => $id, 'reason' => $reason]
         );
     }

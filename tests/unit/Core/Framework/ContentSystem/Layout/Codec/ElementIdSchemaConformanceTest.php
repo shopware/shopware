@@ -131,52 +131,52 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
     {
         yield 'the reserved virtual-root literal' => [
             VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            ContentSystemException::invalidElementId(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'it is the reserved virtual-root id'),
+            ContentSystemException::invalidElementId(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'is the reserved virtual-root id'),
         ];
 
         yield 'the integer-castable string "0"' => [
             '0',
-            ContentSystemException::invalidElementId('0', 'it reads as an integer'),
+            ContentSystemException::invalidElementId('0', 'reads as an integer'),
         ];
 
         yield 'a positive integer-castable string' => [
             '12',
-            ContentSystemException::invalidElementId('12', 'it reads as an integer'),
+            ContentSystemException::invalidElementId('12', 'reads as an integer'),
         ];
 
         yield 'a negative integer-castable string' => [
             '-3',
-            ContentSystemException::invalidElementId('-3', 'it reads as an integer'),
+            ContentSystemException::invalidElementId('-3', 'reads as an integer'),
         ];
 
         yield 'a negative zero, which PHP alone would have kept as a string key' => [
             '-0',
-            ContentSystemException::invalidElementId('-0', 'it reads as an integer'),
+            ContentSystemException::invalidElementId('-0', 'reads as an integer'),
         ];
 
         yield 'a digit string past PHP_INT_MAX, likewise' => [
             '9223372036854775808',
-            ContentSystemException::invalidElementId('9223372036854775808', 'it reads as an integer'),
+            ContentSystemException::invalidElementId('9223372036854775808', 'reads as an integer'),
         ];
 
         yield 'an id carrying a line feed' => [
             "hero\nfoot",
-            ContentSystemException::invalidElementId("hero\nfoot", 'it contains the line terminator U+000A'),
+            ContentSystemException::invalidElementId("hero\nfoot", 'contains the line terminator U+000A'),
         ];
 
         yield 'an id carrying a carriage return' => [
             "hero\rfoot",
-            ContentSystemException::invalidElementId("hero\rfoot", 'it contains the line terminator U+000D'),
+            ContentSystemException::invalidElementId("hero\rfoot", 'contains the line terminator U+000D'),
         ];
 
         yield 'an id carrying a line separator' => [
             "hero\u{2028}foot",
-            ContentSystemException::invalidElementId("hero\u{2028}foot", 'it contains the line terminator U+2028'),
+            ContentSystemException::invalidElementId("hero\u{2028}foot", 'contains the line terminator U+2028'),
         ];
 
         yield 'an id carrying a paragraph separator' => [
             "hero\u{2029}foot",
-            ContentSystemException::invalidElementId("hero\u{2029}foot", 'it contains the line terminator U+2029'),
+            ContentSystemException::invalidElementId("hero\u{2029}foot", 'contains the line terminator U+2029'),
         ];
     }
 
@@ -195,7 +195,7 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
     /**
      * A JSON Schema `pattern` is ECMA-262, and PCRE is not it. Running the published expression through
      * `preg_match` unchanged is what let `hero\r` read as agreed here while every client refuses it: ECMA's
-     * `.` excludes the four {@see ElementIdRule::LINE_TERMINATORS}, PCRE's excludes only `\n`. The two also
+     * `.` excludes four code points where PCRE's excludes only `\n`. The two also
      * part over `$`, which PCRE lets match before a trailing newline.
      *
      * Both are closed by translation rather than by a second engine, because the only ECMA engine in the

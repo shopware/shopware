@@ -268,7 +268,9 @@ final class StoredTreeConstraints
         $rejection = ElementIdRule::rejection($value);
 
         if ($rejection !== null) {
-            $context->buildViolation('This value ' . $rejection . '.')->addViolation();
+            $context->buildViolation('This value {{ reason }}.')
+                ->setParameter('{{ reason }}', $rejection)
+                ->addViolation();
         }
     }
 

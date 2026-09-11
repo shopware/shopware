@@ -41,7 +41,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ElementIdRule
 {
-    public const LINE_TERMINATORS = [
+    private const LINE_TERMINATORS = [
         "\n" => 'U+000A',
         "\r" => 'U+000D',
         "\u{2028}" => 'U+2028',
@@ -74,7 +74,7 @@ final class ElementIdRule
 
         foreach (self::LINE_TERMINATORS as $terminator => $codePoint) {
             if (\str_contains($id, $terminator)) {
-                return 'contains the line terminator ' . $codePoint;
+                return \sprintf('contains the line terminator %s', $codePoint);
             }
         }
 

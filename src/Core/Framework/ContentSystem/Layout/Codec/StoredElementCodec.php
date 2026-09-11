@@ -174,7 +174,7 @@ final class StoredElementCodec
         $rejection = ElementIdRule::rejection($id);
 
         if ($rejection !== null) {
-            throw ContentSystemException::invalidElementId($id, 'it ' . $rejection);
+            throw ContentSystemException::invalidElementId($id, $rejection);
         }
     }
 

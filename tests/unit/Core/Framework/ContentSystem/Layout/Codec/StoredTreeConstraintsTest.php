@@ -219,6 +219,11 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
 
         static::assertCount(1, $violations);
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
+
+        // One template for every clause, the reason carried as a parameter — the shape every other
+        // violation in the descriptor has. Building the sentence by concatenation instead would render
+        // identically here while leaving the module with an unstable translation key per clause.
+        static::assertSame('This value {{ reason }}.', $violations->get(0)->getMessageTemplate());
     }
 
     /**

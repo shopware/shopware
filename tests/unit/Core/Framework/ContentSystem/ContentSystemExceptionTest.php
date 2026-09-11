@@ -124,7 +124,7 @@ class ContentSystemExceptionTest extends TestCase
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
-        yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'it reads as an integer'), true];
+        yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
     }
 
     /**
@@ -143,7 +143,7 @@ class ContentSystemExceptionTest extends TestCase
         // DAL write wraps it into an unconditional 400 and the draft routes answer 400 or 200 by catalogue
         // membership, so the one path where this status IS the response is the stored-column read.
         yield 'invalid element id' => [
-            ContentSystemException::invalidElementId('12', 'it reads as an integer'),
+            ContentSystemException::invalidElementId('12', 'reads as an integer'),
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
             '12',

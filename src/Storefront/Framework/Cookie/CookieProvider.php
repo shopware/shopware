@@ -38,6 +38,11 @@ class CookieProvider implements CookieProviderInterface
                 'cookie' => 'cookie-config-hash',
                 'hidden' => true,
             ],
+            [
+                'snippet_name' => 'cookie.groupRequiredConsentId',
+                'cookie' => 'cookie-consent-id',
+                'expiration' => '30',
+            ],
         ],
     ];
 

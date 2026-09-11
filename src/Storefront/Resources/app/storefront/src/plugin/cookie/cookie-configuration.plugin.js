@@ -55,6 +55,7 @@ export default class CookieConfiguration extends Plugin {
         submitEvent: 'click',
         cookiePreference: 'cookie-preference',
         cookieConfigHash: 'cookie-config-hash',
+        cookieConsentId: 'cookie-consent-id',
         cookieSelector: '[data-cookie]',
         buttonOpenSelector: '.js-cookie-configuration-button button',
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
@@ -67,7 +68,6 @@ export default class CookieConfiguration extends Plugin {
         entriesActiveClass: 'offcanvas-cookie-entries--active',
         entriesClass: 'offcanvas-cookie-entries',
         groupClass: 'offcanvas-cookie-group',
-        renderedConfigHashSelector: '[data-cookie-config-hash]',
         parentInputClass: 'offcanvas-cookie-parent-input',
         // Consent offcanvas selectors
         consentAcceptButtonSelector: '.js-wishlist-cookie-accept',
@@ -561,13 +561,11 @@ export default class CookieConfiguration extends Plugin {
             return;
         }
 
-        const body = { consentAction, acceptedCookies };
-        const renderedConfigHash = this._getRenderedConfigHash();
-        if (renderedConfigHash) {
-            body.renderedConfigHash = renderedConfigHash;
-        }
-
-        const payload = JSON.stringify(body);
+        const payload = JSON.stringify({
+            consentId: this._getConsentId(),
+            consentAction,
+            acceptedCookies,
+        });
 
         try {
             if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))) {
@@ -586,17 +584,45 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Hash of the cookie configuration that was rendered into the off-canvas.
-     * Null when no configuration was on screen, e.g. when the visitor only used
-     * the cookie bar buttons - there is nothing the client could attest to then.
+     * Opaque token that links the consent decisions of this browser in the server-side
+     * log, so a visitor can retrieve their own records. Generated on the first decision
+     * and kept in its own cookie; every decision refreshes the expiration, so it lives as
+     * long as the preference it belongs to.
      *
-     * @returns {string|null}
+     * @returns {string}
      * @private
      */
-    _getRenderedConfigHash() {
-        const element = document.querySelector(this.options.renderedConfigHashSelector);
+    _getConsentId() {
+        const { cookieConsentId } = this.options;
+        const consentId = CookieStorage.getItem(cookieConsentId) || this._generateConsentId();
 
-        return element ? element.dataset.cookieConfigHash || null : null;
+        CookieStorage.setItem(cookieConsentId, consentId, this._getDefaultCookieExpiration());
+
+        return consentId;
+    }
+
+    /**
+     * A UUID where the browser offers one, otherwise random hex. The token is a lookup
+     * handle, not a secret, so the fallback only needs to be unique.
+     *
+     * @returns {string}
+     * @private
+     */
+    _generateConsentId() {
+        if (window.crypto?.randomUUID) {
+            return window.crypto.randomUUID();
+        }
+
+        const bytes = new Uint8Array(16);
+        if (window.crypto?.getRandomValues) {
+            window.crypto.getRandomValues(bytes);
+        } else {
+            for (let i = 0; i < bytes.length; i++) {
+                bytes[i] = Math.floor(Math.random() * 256);
+            }
+        }
+
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
     }
 
     _handleUpdateListener(active, inactive) {

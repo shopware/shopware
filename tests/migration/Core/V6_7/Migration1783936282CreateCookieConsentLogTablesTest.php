@@ -33,7 +33,7 @@ class Migration1783936282CreateCookieConsentLogTablesTest extends TestCase
     public function testMigration(): void
     {
         $this->connection->executeStatement('DROP TABLE IF EXISTS `cookie_consent_log`;');
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `cookie_consent_config_version`;');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `cookie_consent_config_snapshot`;');
 
         $migration = new Migration1783936282CreateCookieConsentLogTables();
 
@@ -41,18 +41,18 @@ class Migration1783936282CreateCookieConsentLogTablesTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'cookie_consent_log'));
-        static::assertTrue(TableHelper::tableExists($this->connection, 'cookie_consent_config_version'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'cookie_consent_config_snapshot'));
 
         $logColumns = array_column(TableHelper::getTable($this->connection, 'cookie_consent_log')->columns, 'name');
         static::assertEqualsCanonicalizing(
-            ['id', 'sales_channel_id', 'language_id', 'consent_action', 'group_decisions', 'accepted_cookies', 'server_config_hash', 'rendered_config_hash', 'created_at', 'updated_at'],
+            ['id', 'consent_id', 'consent_action', 'source', 'group_decisions', 'accepted_cookies', 'config_hash', 'sales_channel_id', 'language_id', 'created_at'],
             $logColumns
         );
 
-        $configVersionColumns = array_column(TableHelper::getTable($this->connection, 'cookie_consent_config_version')->columns, 'name');
+        $snapshotColumns = array_column(TableHelper::getTable($this->connection, 'cookie_consent_config_snapshot')->columns, 'name');
         static::assertEqualsCanonicalizing(
-            ['id', 'config_hash', 'sales_channel_id', 'language_id', 'cookie_groups', 'created_at', 'updated_at'],
-            $configVersionColumns
+            ['id', 'config_hash', 'cookie_groups', 'created_at'],
+            $snapshotColumns
         );
     }
 }

@@ -35,4 +35,22 @@ class CookieExceptionTest extends TestCase
         static::assertSame('Invalid legacy cookie entry provided: {"value":"1"}. The key "cookie" is required.', $exception->getMessage());
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
+
+    public function testInvalidConsentLogPayload(): void
+    {
+        $exception = CookieException::invalidConsentLogPayload('body must be a JSON object');
+
+        static::assertSame('CONTENT__COOKIE_INVALID_CONSENT_LOG_PAYLOAD', $exception->getErrorCode());
+        static::assertSame('Invalid cookie consent log payload: body must be a JSON object', $exception->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
+
+    public function testConsentLogStorageNotFound(): void
+    {
+        $exception = CookieException::consentLogStorageNotFound('s3', ['database', 'none']);
+
+        static::assertSame('CONTENT__COOKIE_CONSENT_LOG_STORAGE_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('The cookie consent log storage "s3" is not available. Available storages are: "database", "none".', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
 }

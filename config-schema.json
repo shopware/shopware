@@ -912,6 +912,35 @@
             },
             "title": "Order"
         },
+        "cookie_consent": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "log_storage": {
+                    "description": "Where the built-in cookie banner records consent decisions: `database` (default), `none` to switch the log off, or the name of a custom storage tagged with `shopware.cookie_consent.log_storage`.",
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": [
+                                "database",
+                                "none"
+                            ]
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "default": "database"
+                },
+                "retention_days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 120,
+                    "description": "Days a recorded consent decision is kept before the daily `cookie_consent_log.cleanup` task deletes it."
+                }
+            },
+            "title": "Cookie consent"
+        },
         "number_range": {
             "type": "object",
             "additionalProperties": false,

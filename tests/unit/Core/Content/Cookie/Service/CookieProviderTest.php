@@ -70,7 +70,7 @@ class CookieProviderTest extends TestCase
         $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(4, $requiredGroup->getEntries());
+        static::assertCount(5, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);
@@ -78,6 +78,13 @@ class CookieProviderTest extends TestCase
         $cookiePreferenceCookie = $requiredGroup->getEntries()->get('cookie-preference');
         static::assertNotNull($cookiePreferenceCookie);
         static::assertTrue($cookiePreferenceCookie->hidden);
+
+        // Visible, so a visitor can find the token they need for a consent log request
+        $consentIdCookie = $requiredGroup->getEntries()->get(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
+        static::assertNotNull($consentIdCookie);
+        static::assertFalse($consentIdCookie->hidden);
+        static::assertSame(30, $consentIdCookie->expiration);
+        static::assertFalse(isset($consentIdCookie->value));
 
         $comfortFeaturesGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         static::assertInstanceOf(CookieGroup::class, $comfortFeaturesGroup);
@@ -176,7 +183,7 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertTrue($requiredGroup->isRequired);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(4, $requiredGroup->getEntries());
+        static::assertCount(5, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);

@@ -14,6 +14,7 @@ class CookieException extends HttpException
     final public const NOT_ALLOWED_PROPERTY_ASSIGNMENT = 'CONTENT__COOKIE_NOT_ALLOWED_PROPERTY_ASSIGNMENT';
     final public const HASH_GENERATION_FAILED = 'CONTENT__COOKIE_HASH_GENERATION_FAILED';
     final public const INVALID_CONSENT_LOG_PAYLOAD = 'CONTENT__COOKIE_INVALID_CONSENT_LOG_PAYLOAD';
+    final public const CONSENT_LOG_STORAGE_NOT_FOUND = 'CONTENT__COOKIE_CONSENT_LOG_STORAGE_NOT_FOUND';
 
     public static function notAllowedPropertyAssignment(string $propertyToBeAssigned, string $alreadyAssignedProperty): self
     {
@@ -84,6 +85,19 @@ class CookieException extends HttpException
             self::INVALID_CONSENT_LOG_PAYLOAD,
             'Invalid cookie consent log payload: {{ reason }}',
             ['reason' => $reason],
+        );
+    }
+
+    /**
+     * @param list<string> $availableStorages
+     */
+    public static function consentLogStorageNotFound(string $storage, array $availableStorages): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONSENT_LOG_STORAGE_NOT_FOUND,
+            'The cookie consent log storage "{{ storage }}" is not available. Available storages are: "{{ availableStorages }}".',
+            ['storage' => $storage, 'availableStorages' => implode('", "', $availableStorages)],
         );
     }
 }

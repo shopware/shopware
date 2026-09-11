@@ -1,0 +1,44 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Content\Cookie\ConsentLog;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
+use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(NullCookieConsentLogStorage::class)]
+class NullCookieConsentLogStorageTest extends TestCase
+{
+    public function testItDiscardsEverythingAndFindsNothing(): void
+    {
+        $storage = new NullCookieConsentLogStorage();
+        $now = new \DateTimeImmutable('2026-07-13 12:00:00');
+
+        $storage->snapshot(new CookieConsentConfigSnapshot('hash', [], $now));
+        $storage->log(new CookieConsentRecord(
+            consentId: 'consent-id',
+            consentAction: CookieConsentAction::ACCEPT_ALL,
+            source: CookieConsentSource::BANNER,
+            groupDecisions: [],
+            acceptedCookies: [],
+            configHash: 'hash',
+            salesChannelId: 'sales-channel-id',
+            languageId: 'language-id',
+            createdAt: $now,
+        ));
+        $storage->cleanup($now);
+
+        static::assertSame([], $storage->findByConsentId('consent-id'));
+        static::assertNull($storage->findSnapshot('hash'));
+        static::assertSame([], [...$storage->iterate($now, $now)]);
+    }
+}

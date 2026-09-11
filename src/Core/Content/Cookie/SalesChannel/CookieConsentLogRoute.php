@@ -2,41 +2,37 @@
 
 namespace Shopware\Core\Content\Cookie\SalesChannel;
 
-use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Content\Cookie\CookieConsentLog\CookieConsentLogEntity;
+use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Persists anonymous cookie consent decisions of storefront visitors so shop
- * operators can demonstrate that consent was obtained (GDPR Recital 42).
+ * Records cookie consent decisions of visitors so shop operators can demonstrate
+ * that consent was obtained (GDPR Art. 7(1), Recital 42).
  *
- * The client only reports raw facts: which action the visitor performed, which
- * cookies were ticked, and which configuration was on screen. Everything else,
- * especially the per-group verdict, is derived here against the configuration
- * the server holds, so the stored evidence cannot be shaped by the client and
- * the rules stay in one testable place.
- *
- * Alongside every log entry, a snapshot of the current cookie banner
- * configuration is stored once per configuration hash, preserving what the
- * banner looked like when the consent was given.
+ * The client only reports raw facts: its consent id, which action the visitor
+ * performed and which cookies were ticked. Everything else, especially the
+ * per-group verdict, is derived here against the configuration the server holds,
+ * so the stored evidence cannot be shaped by the client and the rules stay in
+ * one testable place.
  *
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
@@ -44,31 +40,24 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 {
-    public const CONFIG_KEY_LOG_ENABLED = 'core.cookieConsent.logEnabled';
-
-    final public const ACTION_ACCEPT_ALL = 'accept_all';
-    final public const ACTION_ACCEPT_REQUIRED = 'accept_required';
-    final public const ACTION_ACCEPT_SELECTED = 'accept_selected';
-
-    private const VALID_ACTIONS = [
-        self::ACTION_ACCEPT_ALL,
-        self::ACTION_ACCEPT_REQUIRED,
-        self::ACTION_ACCEPT_SELECTED,
-    ];
-
     private const MAX_ACCEPTED_COOKIES = 500;
     private const MAX_STRING_LENGTH = 255;
+
+    /**
+     * A lookup handle, not a secret: it has to be safe to pass around as a CLI argument,
+     * and long enough for a UUID or similar client-generated token.
+     */
+    private const CONSENT_ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/';
 
     /**
      * @internal
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
-        private readonly Connection $connection,
+        private readonly AbstractCookieConsentLogStorage $storage,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
-        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -80,102 +69,38 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
     #[Route(path: '/store-api/cookie-consent-log', name: 'store-api.cookie.consent-log', methods: [Request::METHOD_POST])]
     public function log(Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
     {
-        // Checked before the rate limiter: limiting a request that does no work would cost
-        // more than answering it, and the setting is read from the cached system config.
-        if (!$this->isLoggingEnabled($salesChannelContext->getSalesChannelId())) {
-            return new NoContentResponse();
-        }
-
         $this->ensureNotRateLimited($request);
 
         $payload = $this->validatePayload($request);
 
-        $currentConfig = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
-        $cookieGroups = $currentConfig->getCookieGroups();
-
-        // The snapshot is always written for the configuration the server holds, so a log
-        // entry can never reference a snapshot that does not exist. The hash the client
-        // reports is stored next to it, unverified, as evidence of what was on screen.
-        $serverConfigHash = $currentConfig->getHash();
-        $renderedConfigHash = $payload['renderedConfigHash'] ?? null;
-
+        $configuration = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
+        $cookieGroups = $configuration->getCookieGroups();
         $decisions = $this->deriveDecisions($cookieGroups, $payload['consentAction'], $payload['acceptedCookies']);
+        $now = $this->clock->now();
 
-        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-        $languageId = $salesChannelContext->getLanguageId();
-
-        // One transaction, so a log entry always resolves to a snapshot. The snapshot insert
-        // is a no-op once the configuration is known, and the cleanup task deletes snapshots
-        // no log entry references any more, so both statements have to commit together: the
-        // duplicate insert holds a lock on the snapshot row until then, making the cleanup wait.
-        // Retried on deadlock, because the consent beacon is fire-and-forget: a rolled back
-        // transaction would drop the evidence with nobody left to send it again.
-        RetryableTransaction::retryable($this->connection, function () use ($payload, $cookieGroups, $decisions, $serverConfigHash, $renderedConfigHash, $now, $salesChannelId, $languageId): void {
-            $this->connection->executeStatement(
-                'INSERT IGNORE INTO `cookie_consent_config_version`
-                    (`id`, `config_hash`, `sales_channel_id`, `language_id`, `cookie_groups`, `created_at`)
-                VALUES
-                    (:id, :configHash, :salesChannelId, :languageId, :cookieGroups, :createdAt)',
-                [
-                    'id' => Uuid::randomBytes(),
-                    'configHash' => $serverConfigHash,
-                    'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
-                    'languageId' => Uuid::fromHexToBytes($languageId),
-                    'cookieGroups' => json_encode($cookieGroups, \JSON_THROW_ON_ERROR),
-                    'createdAt' => $now,
-                ],
-            );
-
-            $this->connection->executeStatement(
-                'INSERT INTO `cookie_consent_log`
-                    (`id`, `sales_channel_id`, `language_id`, `consent_action`, `group_decisions`, `accepted_cookies`, `server_config_hash`, `rendered_config_hash`, `created_at`)
-                VALUES
-                    (:id, :salesChannelId, :languageId, :consentAction, :groupDecisions, :acceptedCookies, :serverConfigHash, :renderedConfigHash, :createdAt)',
-                [
-                    'id' => Uuid::randomBytes(),
-                    'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
-                    'languageId' => Uuid::fromHexToBytes($languageId),
-                    'consentAction' => $payload['consentAction'],
-                    'groupDecisions' => json_encode($decisions['groupDecisions'], \JSON_THROW_ON_ERROR | \JSON_FORCE_OBJECT),
-                    'acceptedCookies' => json_encode($decisions['acceptedCookies'], \JSON_THROW_ON_ERROR),
-                    'serverConfigHash' => $serverConfigHash,
-                    'renderedConfigHash' => $renderedConfigHash,
-                    'createdAt' => $now,
-                ],
-            );
-        });
-
-        $this->eventDispatcher->dispatch(new CookieConsentLoggedEvent(
+        $record = new CookieConsentRecord(
+            consentId: $payload['consentId'],
             consentAction: $payload['consentAction'],
+            source: CookieConsentSource::BANNER,
             groupDecisions: $decisions['groupDecisions'],
             acceptedCookies: $decisions['acceptedCookies'],
-            serverConfigHash: $serverConfigHash,
-            renderedConfigHash: $renderedConfigHash,
-            salesChannelId: $salesChannelId,
-            languageId: $languageId,
+            configHash: $configuration->getHash(),
+            salesChannelId: $salesChannelContext->getSalesChannelId(),
+            languageId: $salesChannelContext->getLanguageId(),
+            createdAt: $now,
+        );
+
+        // The snapshot goes first, so a stored decision always resolves to the banner it was given on
+        $this->storage->snapshot(new CookieConsentConfigSnapshot(
+            configHash: $configuration->getHash(),
+            cookieGroups: array_values($cookieGroups->getElements()),
+            createdAt: $now,
         ));
+        $this->storage->log($record);
+
+        $this->eventDispatcher->dispatch(new CookieConsentLoggedEvent($record));
 
         return new NoContentResponse();
-    }
-
-    /**
-     * Operators can switch the log off, e.g. when a third-party consent manager keeps the
-     * record instead. An unset value counts as enabled: the setting is seeded by migration,
-     * and a missing row must not silently stop collecting evidence.
-     *
-     * Not getBool(), which casts: `system:config:set` without `--json` stores the string
-     * "false", and casting that to a bool would keep logging against the operator's intent.
-     */
-    private function isLoggingEnabled(string $salesChannelId): bool
-    {
-        $configured = $this->systemConfigService->get(self::CONFIG_KEY_LOG_ENABLED, $salesChannelId);
-
-        if ($configured === null) {
-            return true;
-        }
-
-        return filter_var($configured, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE) ?? true;
     }
 
     /**
@@ -201,9 +126,9 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
      *
      * @param list<string> $requestedCookies
      *
-     * @return array{groupDecisions: array<string, CookieConsentLogEntity::DECISION_*>, acceptedCookies: list<string>}
+     * @return array{groupDecisions: array<string, CookieConsentDecision>, acceptedCookies: list<string>}
      */
-    private function deriveDecisions(CookieGroupCollection $cookieGroups, string $consentAction, array $requestedCookies): array
+    private function deriveDecisions(CookieGroupCollection $cookieGroups, CookieConsentAction $consentAction, array $requestedCookies): array
     {
         $groupDecisions = [];
         $acceptedCookies = [];
@@ -213,7 +138,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 
             // Required groups offer no choice, they are always active and are not consented to.
             if ($group->isRequired) {
-                $groupDecisions[$technicalName] = CookieConsentLogEntity::DECISION_ACCEPTED;
+                $groupDecisions[$technicalName] = CookieConsentDecision::ACCEPTED;
 
                 continue;
             }
@@ -221,17 +146,17 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
             $selectable = $this->selectableCookies($group);
 
             $accepted = match ($consentAction) {
-                self::ACTION_ACCEPT_ALL => $selectable,
-                self::ACTION_ACCEPT_REQUIRED => [],
-                default => array_values(array_intersect($selectable, $requestedCookies)),
+                CookieConsentAction::ACCEPT_ALL => $selectable,
+                CookieConsentAction::ACCEPT_REQUIRED => [],
+                CookieConsentAction::ACCEPT_SELECTED => array_values(array_intersect($selectable, $requestedCookies)),
             };
 
             // A group without selectable cookies presented nothing to consent to. It is recorded
             // as rejected, understating consent is the safe direction for an evidence log.
             $groupDecisions[$technicalName] = match (true) {
-                $accepted === [] => CookieConsentLogEntity::DECISION_REJECTED,
-                \count($accepted) === \count($selectable) => CookieConsentLogEntity::DECISION_ACCEPTED,
-                default => CookieConsentLogEntity::DECISION_PARTIAL,
+                $accepted === [] => CookieConsentDecision::REJECTED,
+                \count($accepted) === \count($selectable) => CookieConsentDecision::ACCEPTED,
+                default => CookieConsentDecision::PARTIAL,
             };
 
             foreach ($accepted as $cookie) {
@@ -271,7 +196,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
      * The request body is parsed manually because the storefront sends it via
      * navigator.sendBeacon, which cannot guarantee a JSON content type header.
      *
-     * @return array{consentAction: string, acceptedCookies: list<string>, renderedConfigHash?: string}
+     * @return array{consentId: string, consentAction: CookieConsentAction, acceptedCookies: list<string>}
      */
     private function validatePayload(Request $request): array
     {
@@ -285,28 +210,23 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
             throw CookieException::invalidConsentLogPayload('body must be a JSON object');
         }
 
-        $consentAction = $data['consentAction'] ?? null;
-        if (!\is_string($consentAction) || !\in_array($consentAction, self::VALID_ACTIONS, true)) {
+        $consentId = $data['consentId'] ?? null;
+        if (!\is_string($consentId) || preg_match(self::CONSENT_ID_PATTERN, $consentId) !== 1) {
+            throw CookieException::invalidConsentLogPayload('consentId must be a string of 1 to 64 letters, digits, dashes or underscores');
+        }
+
+        $consentAction = \is_string($data['consentAction'] ?? null) ? CookieConsentAction::tryFrom($data['consentAction']) : null;
+        if ($consentAction === null) {
             throw CookieException::invalidConsentLogPayload(
-                \sprintf('consentAction must be one of: %s', implode(', ', self::VALID_ACTIONS)),
+                \sprintf('consentAction must be one of: %s', implode(', ', array_column(CookieConsentAction::cases(), 'value'))),
             );
         }
 
-        $payload = [
+        return [
+            'consentId' => $consentId,
             'consentAction' => $consentAction,
             'acceptedCookies' => $this->validateAcceptedCookies($data['acceptedCookies'] ?? []),
         ];
-
-        $renderedConfigHash = $data['renderedConfigHash'] ?? null;
-        if ($renderedConfigHash !== null) {
-            if (!\is_string($renderedConfigHash) || $renderedConfigHash === '' || mb_strlen($renderedConfigHash) > self::MAX_STRING_LENGTH) {
-                throw CookieException::invalidConsentLogPayload('renderedConfigHash must be a non-empty string');
-            }
-
-            $payload['renderedConfigHash'] = $renderedConfigHash;
-        }
-
-        return $payload;
     }
 
     /**

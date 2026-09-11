@@ -49,7 +49,7 @@
           "Cookies"
         ],
         "summary": "Log a cookie consent decision",
-        "description": "Persists an anonymous record of a visitor's cookie consent decision together with a snapshot of the current cookie configuration, so shop operators can demonstrate that consent was obtained (GDPR Recital 42). The per-group verdict (`accepted`, `partial`, `rejected`) is derived server-side from the reported cookie names. No visitor identifiers are stored. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+        "description": "Records a visitor's cookie consent decision together with a snapshot of the current cookie configuration, so shop operators can demonstrate that consent was obtained (GDPR Art. 7(1)). The per-group verdict (`accepted`, `partial`, `rejected`) is derived server-side from the reported cookie names. The record is pseudonymous: apart from the client-generated `consentId` no visitor identifier is stored. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
         "operationId": "logCookieConsent",
         "requestBody": {
           "required": true,
@@ -58,9 +58,15 @@
               "schema": {
                 "type": "object",
                 "required": [
+                  "consentId",
                   "consentAction"
                 ],
                 "properties": {
+                  "consentId": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                    "description": "Opaque token the client generates once (e.g. a UUID) and keeps in its own cookie storage, so it can be reused for later decisions of the same visitor. It links a visitor's decisions and lets a data subject retrieve their own records with `bin/console cookie:consent:show`. Must not contain personal data."
+                  },
                   "consentAction": {
                     "type": "string",
                     "enum": [
@@ -76,10 +82,6 @@
                       "type": "string"
                     },
                     "description": "Names of the cookies the visitor accepted. Only evaluated for `accept_selected`; the other actions are fully determined by the action itself. Cookie names unknown to the current configuration are ignored. An empty or absent list means nothing beyond the technically required cookies was accepted."
-                  },
-                  "renderedConfigHash": {
-                    "type": "string",
-                    "description": "Hash of the cookie configuration the client displayed, as returned by the cookie-groups endpoint. Stored unverified as evidence of what was on screen. Omit it when no configuration was displayed."
                   }
                 }
               }

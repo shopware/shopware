@@ -57,31 +57,20 @@ class ConsentService implements ResetInterface
     {
         $states = $this->fetchStates($context);
 
-        $list = [];
-        foreach ($this->consentDefinitionRegistry->all() as $consent) {
-            $scope = $this->getScope($consent);
+        return array_map(function (ConsentDefinition $consent) use ($context, $states) {
+            $key = $this->key($consent, $context);
 
-            // Not an error: e.g. storefront visitor consents do not apply to admin API callers.
-            if (!$scope->appliesTo($context)) {
-                continue;
-            }
-
-            $identifier = $scope->resolveIdentifier($context);
-            $key = $this->buildKey($consent->getName(), $consent->getScopeName(), $identifier);
-
-            $list[$consent->getName()] = $states[$key] ?? new ConsentState(
+            return $states[$key] ?? new ConsentState(
                 name: $consent->getName(),
                 scopeName: $consent->getScopeName(),
-                identifier: $identifier,
+                identifier: $this->getScope($consent)->resolveIdentifier($context),
                 status: ConsentStatus::UNSET,
                 actor: null,
                 updatedAt: null,
                 acceptedRevision: null,
                 latestRevision: $consent->getLatestRevision(),
             );
-        }
-
-        return $list;
+        }, $this->consentDefinitionRegistry->all());
     }
 
     public function getConsentState(string $name, Context $context): ConsentState
@@ -235,16 +224,11 @@ class ConsentService implements ResetInterface
         if ($consent instanceof ConsentDefinition) {
             $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
 
-            return $this->buildKey($consent->getName(), $consent->getScopeName(), $scopeIdentifier);
+            return $consent->getName() . ':' . $consent->getScopeName() . ':' . $scopeIdentifier;
         }
 
         // $consent is instance of ConsentState
-        return $this->buildKey($consent->name, $consent->scopeName, $consent->identifier);
-    }
-
-    private function buildKey(string $name, string $scopeName, string $identifier): string
-    {
-        return $name . ':' . $scopeName . ':' . $identifier;
+        return $consent->name . ':' . $consent->scopeName . ':' . $consent->identifier;
     }
 
     private function invalidateState(): void

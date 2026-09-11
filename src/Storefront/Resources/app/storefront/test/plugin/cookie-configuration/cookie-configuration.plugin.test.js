@@ -1711,11 +1711,12 @@ describe('CookieConfiguration plugin tests', () => {
 
         beforeEach(() => {
             window.router['frontend.cookie.consent.log'] = 'https://shop.example.com/cookie/consent-log';
+            CookieStorage.setItem(plugin.options.cookieConsentId, 'existing-consent-id', 30);
         });
 
         afterEach(() => {
             delete navigator.sendBeacon;
-            document.querySelectorAll('[data-cookie-config-hash]').forEach(el => delete el.dataset.cookieConfigHash);
+            CookieStorage.removeItem(plugin.options.cookieConsentId);
         });
 
         test('_logConsent sends the payload via sendBeacon', () => {
@@ -1732,7 +1733,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(global.fetch).not.toHaveBeenCalled();
         });
 
-        test('_logConsent sends the ticked cookies and no group conclusion', () => {
+        test('_logConsent sends the consent id and the ticked cookies, no group conclusion', () => {
             global.fetch = jest.fn(() => Promise.resolve());
 
             plugin._logConsent('accept_selected', ['lorem']);
@@ -1740,33 +1741,13 @@ describe('CookieConfiguration plugin tests', () => {
             expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/cookie/consent-log', {
                 method: 'POST',
                 body: JSON.stringify({
+                    consentId: 'existing-consent-id',
                     consentAction: 'accept_selected',
                     acceptedCookies: ['lorem'],
                 }),
                 keepalive: true,
                 headers: { 'Content-Type': 'application/json' },
             });
-        });
-
-        test('_logConsent reports the hash the off-canvas was rendered with', () => {
-            document.querySelector('.offcanvas-cookie').dataset.cookieConfigHash = 'rendered-hash';
-            global.fetch = jest.fn(() => Promise.resolve());
-
-            plugin._logConsent('accept_selected', ['ipsum']);
-
-            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
-                consentAction: 'accept_selected',
-                acceptedCookies: ['ipsum'],
-                renderedConfigHash: 'rendered-hash',
-            });
-        });
-
-        test('_logConsent omits the rendered hash when no configuration was displayed', () => {
-            global.fetch = jest.fn(() => Promise.resolve());
-
-            plugin._logConsent('accept_all');
-
-            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).not.toHaveProperty('renderedConfigHash');
         });
 
         test('_logConsent does nothing when the route is not registered', () => {
@@ -1778,6 +1759,33 @@ describe('CookieConfiguration plugin tests', () => {
 
             expect(navigator.sendBeacon).not.toHaveBeenCalled();
             expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test('_getConsentId generates a token once and reuses it afterwards', () => {
+            CookieStorage.removeItem(plugin.options.cookieConsentId);
+
+            const first = plugin._getConsentId();
+            const second = plugin._getConsentId();
+
+            expect(first).toMatch(/^[A-Za-z0-9_-]{1,64}$/);
+            expect(second).toBe(first);
+            expect(CookieStorage.getItem(plugin.options.cookieConsentId)).toBe(first);
+        });
+
+        test('_getConsentId keeps the token of an earlier decision', () => {
+            expect(plugin._getConsentId()).toBe('existing-consent-id');
+        });
+
+        test('_generateConsentId prefers the browser UUID and falls back to random hex', () => {
+            const originalCrypto = window.crypto;
+
+            Object.defineProperty(window, 'crypto', { value: { randomUUID: () => 'browser-uuid' }, configurable: true });
+            expect(plugin._generateConsentId()).toBe('browser-uuid');
+
+            Object.defineProperty(window, 'crypto', { value: undefined, configurable: true });
+            expect(plugin._generateConsentId()).toMatch(/^[0-9a-f]{32}$/);
+
+            Object.defineProperty(window, 'crypto', { value: originalCrypto, configurable: true });
         });
 
         test('acceptAllCookies logs an accept_all consent', async () => {

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The verdict for one cookie group, derived by the server from the cookies the visitor ticked.
  *
+ * @codeCoverageIgnore
+ *
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
 #[Package('framework')]

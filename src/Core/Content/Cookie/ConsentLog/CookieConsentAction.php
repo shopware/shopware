@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The interaction a visitor performed on the cookie banner.
  *
+ * @codeCoverageIgnore
+ *
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
 #[Package('framework')]

@@ -618,16 +618,27 @@ declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
+        /**
+         * Opt-in flag to use axios v1 instead of v0 for this request
+         *
+         * @deprecated tag:v6.8.0 - Will be removed together with axios 0.x support.
+         */
         useAxiosV1?: boolean;
     }
 }
 
+/**
+ * @deprecated tag:v6.8.0 - The `axios-v1` package alias will be removed; axios 1.x is installed as `axios`.
+ */
 declare module 'axios-v1' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
+        /**
+         * Opt-in flag to use axios v1 instead of v0 for this request
+         *
+         * @deprecated tag:v6.8.0 - Will be removed together with axios 0.x support.
+         */
         useAxiosV1?: boolean;
     }
 }

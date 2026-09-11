@@ -456,6 +456,30 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
+### Axios 0.x support in the Administration is deprecated
+
+Axios 0.x and its compatibility layer are deprecated and will be removed with Shopware 6.8. Axios 1.x then becomes the only transport.
+
+Deprecated for removal in 6.8:
+
+- The `useAxiosV1` request-configuration flag on `httpClient` requests.
+- The `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` properties on the HTTP client. Use `httpClient` itself instead of `axiosV0` and `axiosV1`, and `httpClient.interceptors` and `httpClient.defaults` instead of the four version-specific properties; both already apply to the active transport.
+- The `axios-v1` package alias. Axios 1.x will be installed as `axios`, so `import ... from 'axios-v1'` becomes `import ... from 'axios'`.
+- The `src/core/factory/http-client-adapter` module with `HttpClientAdapter`, `createAxiosV0Adapter` and `createAxiosV1Adapter`.
+
+What to do now, while you are still on 6.7:
+
+- Move your direct requests onto axios 1.x one at a time with `useAxiosV1: true`, and check that cancellation and error handling still behave. The flag exists for exactly this dry run.
+- Replace `CancelToken` based cancellation with `AbortController`, and read `error.code === 'ERR_CANCELED'` or `httpClient.isCancel(error)` instead of axios 0.x error shapes.
+
+What to do before you upgrade to 6.8:
+
+- Remove the `useAxiosV1: true` flags again, including the ones you added for the dry run. With the `V6_8_0_0` feature flag active, axios 1.x is the default and the flag has no effect.
+- Replace every `useAxiosV1: false` with axios 1.x compatible code. After the removal the flag stops selecting a transport without any warning, because axios ignores unknown request options.
+- Import `axios` instead of `axios-v1` once the alias is gone. Until then, keep importing `axios-v1` if you need the 1.x types directly; new code should use `HttpClient`, `HttpRequestConfig` and `HttpResponse` from `src/core/factory/http-client.types` instead.
+
+Verify the whole extension with `FEATURE_ALL=major`. It makes axios 1.x the default, so every request that does not set `useAxiosV1` runs on it. A request that sets `useAxiosV1: false` still runs on axios 0.x even with the flag active, so those requests have to be migrated and verified separately. The full migration path is described in the [Axios migration guide](src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md).
+
 ## Storefront
 
 ### `robots.txt` allows crawling thumbnails

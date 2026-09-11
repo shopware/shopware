@@ -23,7 +23,11 @@ import {
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
-import { resolveTranslatableEntry, withLanguageEntry } from 'src/module/sw-experience-studio/util/element-settings.util';
+import {
+    editingLanguageChain,
+    resolveTranslatableEntry,
+    withLanguageEntry,
+} from 'src/module/sw-experience-studio/util/element-settings.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
@@ -83,6 +87,10 @@ type InlineEditSession = {
 } | null;
 
 type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'update-properties';
+
+// What a write did: 'committed' went through the server, 'applied' changed only the local draft,
+// 'rejected' is a server refusal the caller may retry, 'skipped' wrote nothing and nothing is pending.
+type DraftMutationOutcome = 'committed' | 'applied' | 'skipped' | 'rejected';
 
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
@@ -627,35 +635,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            if (this.isTranslatableProperty(element.component, 'text')) {
-                const succeeded = await this.executeStructuralDraftMutation(
-                    'update-properties',
-                    this.layout ? this.layout.layout : [],
-                    {
-                        elementId: payload.elementId,
-                        values: {
-                            text: withLanguageEntry(
-                                element.properties?.text,
-                                Shopware.Defaults.systemLanguageId,
-                                normalizedValue,
-                            ),
-                        },
-                    },
-                    () => payload.elementId,
-                );
+            const outcome = await this.writeElementPropertyValue(element, 'text', normalizedValue);
 
-                // A rejected commit keeps the session so the editor stays open with the typed text.
-                if (succeeded) {
-                    this.clearInlineEditSession();
-                }
-
-                return;
+            // Only a server refusal leaves something to retry; every other outcome ends the edit.
+            if (outcome !== 'rejected') {
+                this.clearInlineEditSession();
             }
-
-            this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, { text: normalizedValue }) ? {} : false;
-            });
-            this.clearInlineEditSession();
         },
 
         onInlineEditCancel(payload: { elementId: string }): void {
@@ -729,9 +714,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.onCloseElementPicker();
         },
 
-        applyLayoutMutation(mutator: (layout: ContentElementNode[]) => LayoutMutationResult): void {
+        applyLayoutMutation(mutator: (layout: ContentElementNode[]) => LayoutMutationResult): boolean {
             if (!this.layout || !this.allowSave) {
-                return;
+                return false;
             }
 
             const layoutElements = this.layout.layout;
@@ -739,7 +724,7 @@ export default Shopware.Component.wrapComponentConfig({
             const result = mutator(workingLayout);
 
             if (result === false) {
-                return;
+                return false;
             }
 
             this.editorStore.pushToHistory(layoutElements, this.selectedElementId);
@@ -748,6 +733,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (result.selectedElementId !== undefined) {
                 this.selectedElementId = result.selectedElementId;
             }
+
+            return true;
         },
 
         async onDuplicateElement(elementId: string): Promise<void> {
@@ -912,37 +899,39 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            if (this.isTranslatableProperty(element.component, payload.propertyKey)) {
-                // A non-string control value cannot be a language-map entry; it travels raw so the write route rejects it.
-                const value =
-                    typeof payload.value === 'string'
-                        ? withLanguageEntry(
-                              element.properties?.[payload.propertyKey],
-                              Shopware.Defaults.systemLanguageId,
-                              payload.value,
-                          )
-                        : payload.value;
+            await this.writeElementPropertyValue(element, payload.propertyKey, payload.value);
+        },
 
-                await this.executeStructuralDraftMutation(
+        async writeElementPropertyValue(
+            element: ContentElementNode,
+            propertyKey: string,
+            value: unknown,
+        ): Promise<DraftMutationOutcome> {
+            if (this.isTranslatableProperty(element.component, propertyKey)) {
+                // A non-string control value cannot be a language-map entry; it travels raw so the write route rejects it.
+                const entryValue =
+                    typeof value === 'string'
+                        ? withLanguageEntry(element.properties?.[propertyKey], editingLanguageChain()[0], value)
+                        : value;
+
+                return this.executeStructuralDraftMutation(
                     'update-properties',
                     this.layout ? this.layout.layout : [],
                     {
-                        elementId: payload.elementId,
+                        elementId: element.id,
                         values: {
-                            [payload.propertyKey]: value,
+                            [propertyKey]: entryValue,
                         },
                     },
-                    () => payload.elementId,
+                    () => element.id,
                 );
-
-                return;
             }
 
-            this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, { [payload.propertyKey]: payload.value })
-                    ? {}
-                    : false;
-            });
+            return this.applyLayoutMutation((layout) => {
+                return updateElementPropertiesInLayout(layout, element.id, { [propertyKey]: value }) ? {} : false;
+            })
+                ? 'applied'
+                : 'skipped';
         },
 
         onElementStyleChange(payload: { elementId: string; style: Record<string, unknown> }): void {
@@ -1052,9 +1041,9 @@ export default Shopware.Component.wrapComponentConfig({
             currentLayout: ContentElementNode[],
             operationPayload: Record<string, unknown>,
             resolveSelectedElementId: (response: ContentLayoutDraftMutationResponse) => string | null,
-        ): Promise<boolean> {
+        ): Promise<DraftMutationOutcome> {
             if (!this.layout || !this.allowSave) {
-                return false;
+                return 'skipped';
             }
 
             const requestId = this.mutationRequestSequence + 1;
@@ -1068,22 +1057,22 @@ export default Shopware.Component.wrapComponentConfig({
                 const response = await this.requestDraftMutation(operation, currentLayout, operationPayload);
 
                 if (requestId !== this.latestMutationRequestId) {
-                    return false;
+                    return 'skipped';
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
                 this.layout.layout = response.layout;
                 this.selectedElementId = resolveSelectedElementId(response);
 
-                return true;
+                return 'committed';
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
-                    return false;
+                    return 'skipped';
                 }
 
                 this.notifyMutationError(this.extractMutationErrorCodes(error));
 
-                return false;
+                return 'rejected';
             } finally {
                 if (requestId === this.latestMutationRequestId) {
                     this.isLoading = false;
@@ -1230,9 +1219,7 @@ export default Shopware.Component.wrapComponentConfig({
             const storedValue = element.properties?.text;
 
             if (this.isTranslatableProperty(element.component, 'text')) {
-                const entry = resolveTranslatableEntry(storedValue, [Shopware.Defaults.systemLanguageId]);
-
-                return entry.state === 'missing' ? '' : entry.value;
+                return resolveTranslatableEntry(storedValue, editingLanguageChain()) ?? '';
             }
 
             return typeof storedValue === 'string' ? storedValue : '';

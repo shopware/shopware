@@ -1,4 +1,5 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
+import { editingLanguageChain } from '../../util/element-settings.util';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
@@ -97,7 +98,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         label(): string {
-            return getContentElementLabel(this.contentElement, [Shopware.Defaults.systemLanguageId]);
+            return getContentElementLabel(this.contentElement, editingLanguageChain());
         },
 
         typeIcon(): string {

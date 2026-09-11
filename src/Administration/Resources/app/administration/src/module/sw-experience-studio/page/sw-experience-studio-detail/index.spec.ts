@@ -50,6 +50,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         elementTypeStore: elementTypeStoreFor(true, propertyKey),
         isTranslatableProperty: methods.isTranslatableProperty,
         findElementById: () => element,
+        writeElementPropertyValue: methods.writeElementPropertyValue,
         executeStructuralDraftMutation: methods.executeStructuralDraftMutation,
         requestDraftMutation,
         notifyMutationError: jest.fn(),
@@ -96,6 +97,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             applyLayoutMutation,
             elementTypeStore: elementTypeStoreFor(false),
             isTranslatableProperty: methods.isTranslatableProperty,
+            writeElementPropertyValue: methods.writeElementPropertyValue,
             findElementById: () => ({
                 id: 'element-1',
                 component: 'Sw:Content:Text',
@@ -408,6 +410,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             elementTypeStore: elementTypeStoreFor(false, 'headline'),
             isTranslatableProperty: methods.isTranslatableProperty,
             findElementById: () => workingLayout[0],
+            writeElementPropertyValue: methods.writeElementPropertyValue,
             applyLayoutMutation: (mutator: (layout: ContentElementNode[]) => unknown) => mutator(workingLayout),
         };
 
@@ -491,6 +494,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             applyLayoutMutation: (mutator: (layout: ContentElementNode[]) => unknown) => mutator(workingLayout),
             elementTypeStore: elementTypeStoreFor(false),
             isTranslatableProperty: methods.isTranslatableProperty,
+            writeElementPropertyValue: methods.writeElementPropertyValue,
             findElementById: () => workingLayout[0],
         };
 

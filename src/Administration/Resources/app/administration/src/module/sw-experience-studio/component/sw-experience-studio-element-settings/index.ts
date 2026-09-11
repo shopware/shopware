@@ -3,6 +3,7 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
+    editingLanguageChain,
     getElementPropertyStorageKey,
     getInitialPropertyValue,
     getPropertyControlType,
@@ -14,9 +15,7 @@ import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
 
 function projectTranslatableValue(value: unknown): string | undefined {
-    const entry = resolveTranslatableEntry(value, [Shopware.Defaults.systemLanguageId]);
-
-    return entry.state === 'missing' ? undefined : entry.value;
+    return resolveTranslatableEntry(value, editingLanguageChain());
 }
 
 /**

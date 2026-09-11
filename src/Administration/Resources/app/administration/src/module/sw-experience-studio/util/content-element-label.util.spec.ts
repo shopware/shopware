@@ -17,7 +17,7 @@ function makeElement(properties: Record<string, unknown>): ContentElementNode {
 }
 
 describe('module/sw-experience-studio/util/content-element-label.util', () => {
-    it('returns the own entry of a translatable property as the label', () => {
+    it('returns the chain-head entry of a translatable property as the label', () => {
         expect(
             getContentElementLabel(
                 makeElement({
@@ -31,7 +31,7 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
         ).toBe('Hello');
     });
 
-    it('returns the inherited entry of a translatable property as the label', () => {
+    it('returns the earliest chain-language entry of a translatable property as the label', () => {
         expect(
             getContentElementLabel(
                 makeElement({

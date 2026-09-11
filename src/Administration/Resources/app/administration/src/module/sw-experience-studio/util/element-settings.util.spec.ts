@@ -1,5 +1,7 @@
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import {
+    anchorLanguageId,
+    editingLanguageChain,
     getAdminUiHelpText,
     getAdminUiProps,
     getElementPropertyStorageKey,
@@ -594,7 +596,7 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toBe(true);
     });
 
-    it('resolves the entry of the chain head as an own translation', () => {
+    it('returns the entry of the chain head', () => {
         expect(
             resolveTranslatableEntry(
                 {
@@ -603,21 +605,10 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 },
                 LANGUAGE_CHAIN,
             ),
-        ).toEqual({
-            state: 'own',
-            value: 'Bonjour',
-        });
+        ).toBe('Bonjour');
     });
 
-    it('resolves an entry the chain head lacks as inherited from the language carrying it', () => {
-        expect(resolveTranslatableEntry({ [ANCHOR_LANGUAGE_ID]: 'Hello' }, LANGUAGE_CHAIN)).toEqual({
-            state: 'inherited',
-            value: 'Hello',
-            fromLanguageId: ANCHOR_LANGUAGE_ID,
-        });
-    });
-
-    it('inherits from the earliest chain language carrying an entry', () => {
+    it('returns the earliest chain language entry instead of a later one', () => {
         expect(
             resolveTranslatableEntry(
                 {
@@ -627,21 +618,23 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 },
                 LANGUAGE_CHAIN,
             ),
-        ).toEqual({
-            state: 'inherited',
-            value: 'Hallo',
-            fromLanguageId: GERMAN_LANGUAGE_ID,
-        });
+        ).toBe('Hallo');
     });
 
-    it('resolves a map carrying no chain language as missing', () => {
-        expect(resolveTranslatableEntry({ [ITALIAN_LANGUAGE_ID]: 'Ciao' }, LANGUAGE_CHAIN)).toEqual({
-            state: 'missing',
-        });
+    it('returns undefined when no chain language carries an entry', () => {
+        expect(resolveTranslatableEntry({ [ITALIAN_LANGUAGE_ID]: 'Ciao' }, LANGUAGE_CHAIN)).toBeUndefined();
     });
 
-    it('resolves an undefined value as missing', () => {
-        expect(resolveTranslatableEntry(undefined, LANGUAGE_CHAIN)).toEqual({ state: 'missing' });
+    it('returns undefined for an undefined value', () => {
+        expect(resolveTranslatableEntry(undefined, LANGUAGE_CHAIN)).toBeUndefined();
+    });
+
+    it('exposes the anchor language id as the language a write targets', () => {
+        expect(anchorLanguageId()).toBe(ANCHOR_LANGUAGE_ID);
+    });
+
+    it('builds the editing language chain from the anchor language', () => {
+        expect(editingLanguageChain()).toEqual([ANCHOR_LANGUAGE_ID]);
     });
 
     it.each([

@@ -95,6 +95,8 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
                 $payload['id'] = $existing->getId();
                 $payload['appPaymentMethod']['id'] = $existingAppPaymentMethod->getId();
 
+                $payload = $this->removeAlreadyTranslatedTexts($payload, $existing);
+
                 $media = $existing->getMedia();
                 $originalMedia = $existingAppPaymentMethod->getOriginalMedia();
                 if (($media === null && $originalMedia === null)
@@ -149,11 +151,43 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
         $this->paymentMethodRepository->update($updates, $context);
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private function removeAlreadyTranslatedTexts(array $payload, PaymentMethodEntity $existing): array
+    {
+        $translated = [];
+        foreach ($existing->getTranslations() ?? [] as $translation) {
+            // DAL resolves translation payload keys through the translation code, not the formatting locale
+            $translationCode = $translation->getLanguage()?->getTranslationCode()?->getCode();
+            if ($translationCode !== null) {
+                $translated[$translationCode] = true;
+            }
+        }
+
+        foreach (['name', 'description'] as $field) {
+            $texts = \is_array($payload[$field] ?? null) ? array_diff_key($payload[$field], $translated) : [];
+
+            if ($texts === []) {
+                unset($payload[$field]);
+
+                continue;
+            }
+
+            $payload[$field] = $texts;
+        }
+
+        return $payload;
+    }
+
     private function getExistingPaymentMethods(string $appName, string $appId, Context $context): PaymentMethodCollection
     {
         $criteria = new Criteria();
         $criteria->addAssociation('media');
         $criteria->addAssociation('appPaymentMethod.originalMedia');
+        $criteria->addAssociation('translations.language.translationCode');
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('appPaymentMethod.appName', $appName),
             new EqualsFilter('appPaymentMethod.appId', $appId),

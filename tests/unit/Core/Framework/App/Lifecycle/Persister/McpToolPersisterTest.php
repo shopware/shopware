@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\AbstractMcpCapabilityPersister;
@@ -57,7 +58,7 @@ class McpToolPersisterTest extends TestCase
 
         $collection = new AppMcpToolCollection([$existingEntity]);
         $searchResult = new EntitySearchResult(
-            AppMcpToolEntity::class,
+            AppMcpToolDefinition::ENTITY_NAME,
             1,
             $collection,
             null,
@@ -90,7 +91,7 @@ class McpToolPersisterTest extends TestCase
 
         $collection = new AppMcpToolCollection([$existingEntity]);
         $searchResult = new EntitySearchResult(
-            AppMcpToolEntity::class,
+            AppMcpToolDefinition::ENTITY_NAME,
             1,
             $collection,
             null,
@@ -135,7 +136,7 @@ class McpToolPersisterTest extends TestCase
     public function testUpdateToolsWithNewToolCallsUpsertWithoutId(): void
     {
         $searchResult = new EntitySearchResult(
-            AppMcpToolEntity::class,
+            AppMcpToolDefinition::ENTITY_NAME,
             0,
             new AppMcpToolCollection([]),
             null,

@@ -12,8 +12,7 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   set_milestone_label:
@@ -116,6 +115,10 @@ jobs:
 
   fix_milestone_label_on_base_change:
     name: Fix milestone label after a base branch change
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
     # GitHub's own retargeting emits no event, so only manual base changes arrive
     # here; milestone-check.yml gates the rest.
     if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'edited' && github.event.changes.base != null }}
@@ -143,6 +146,10 @@ jobs:
 
   reconcile_milestone_labels:
     name: Reconcile milestone labels on open PRs
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
     # Manual repair of many PRs at once, e.g. when a branch-off left labels behind.
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
@@ -169,6 +176,10 @@ jobs:
 
   set_milestone:
     name: Set milestone
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
     if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
     steps:

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class SalutationEntity extends Entity
 {

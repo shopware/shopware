@@ -38,6 +38,7 @@ function classificationCtx(source: string, componentName: string): Ctx {
         bindings: new Map(),
         renamedBindings: new Map(),
         templateIdentifiers: new Set(),
+        templateComponentTags: new Set(),
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],

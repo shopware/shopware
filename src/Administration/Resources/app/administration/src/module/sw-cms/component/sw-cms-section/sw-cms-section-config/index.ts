@@ -115,7 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.backgroundMedia = undefined;
         },
 
-        onSectionDelete(sectionId: string) {
+        onSectionDelete(sectionId: EntityKey<'cms_section'>) {
             if (this.quickactionsDisabled) {
                 return;
             }

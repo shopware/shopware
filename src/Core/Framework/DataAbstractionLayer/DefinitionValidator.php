@@ -216,6 +216,16 @@ class DefinitionValidator
 
             $violations[$definitionClass] = [];
 
+            if (!$schema->hasTable($definition->getEntityName())) {
+                $violations[$definitionClass][] = \sprintf(
+                    'Table "%s" referenced by definition but not found in schema',
+                    $definition->getEntityName()
+                );
+                $violations = array_merge_recursive($violations, $this->checkEntityNameConstant($definition));
+
+                continue;
+            }
+
             $violations = array_merge_recursive($violations, $this->validateSchema($definition, $schema));
 
             $violations = array_merge_recursive($violations, $this->validatePrimaryKeyConsistency($definition, $schema));
@@ -1295,10 +1305,7 @@ class DefinitionValidator
         $definitionClass = $definition->getClass();
         // Definition has constant ENTITY_NAME and is not empty
         if (!\defined($definitionClass . '::ENTITY_NAME') || \constant($definitionClass . '::ENTITY_NAME') === '') {
-            $violations = array_merge_recursive(
-                $violations,
-                [$definitionClass => [\sprintf('ENTITY_NAME constant Missing in %s', $definitionClass)]]
-            );
+            return [$definitionClass => [\sprintf('ENTITY_NAME constant Missing in %s', $definitionClass)]];
         }
 
         // GetEntityName returns same Value as ENTITY_NAME
@@ -1353,6 +1360,10 @@ class DefinitionValidator
             && !$association->getFlag(RestrictDelete::class)
             && !$association->getFlag(SetNullOnDelete::class)
         ) {
+            return $associationViolations;
+        }
+
+        if (!$schema->hasTable($reference->getEntityName())) {
             return $associationViolations;
         }
 

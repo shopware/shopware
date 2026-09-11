@@ -94,6 +94,11 @@ export default {
             return Shopware.Store.get('swShippingDetail').defaultCurrency;
         },
 
+        // Only a "fixed" tax type has a known rate; "auto" and "highest" depend on the cart.
+        taxRateId() {
+            return this.shippingMethod.taxType === 'fixed' ? this.shippingMethod.taxId : null;
+        },
+
         ruleRepository() {
             return this.repositoryFactory.create('rule');
         },
@@ -151,7 +156,7 @@ export default {
                     allowResize: true,
                     primary: !!currency.isSystemDefault,
                     rawData: false,
-                    width: '200px',
+                    width: '250px',
                 };
             });
         },
@@ -435,7 +440,7 @@ export default {
                 {
                     currencyId: this.defaultCurrency.id,
                     gross: 0,
-                    linked: false,
+                    linked: true,
                     net: 0,
                 },
             ];
@@ -461,7 +466,7 @@ export default {
             const price = {
                 currencyId: currency.id,
                 gross: value.gross,
-                linked: false,
+                linked: value.linked ?? false,
                 net: value.net,
             };
             shippingPrice.currencyPrice.push(price);
@@ -482,7 +487,7 @@ export default {
                 net: value.net * currency.factor,
                 gross: value.gross * currency.factor,
                 currencyId: currency.id,
-                linked: false,
+                linked: value.linked ?? false,
             };
         },
 

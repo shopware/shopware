@@ -9,8 +9,9 @@
  * reads, and on what happens to markup Vue cannot parse.
  */
 
-import { NodeTypes, parse } from '@vue/compiler-dom';
+import { ElementTypes, NodeTypes, isCoreComponent, parse, parserOptions } from '@vue/compiler-dom';
 import type { ElementNode, ExpressionNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
+import { camelize, capitalize } from 'vue';
 
 /**
  * Parses generated template markup, or returns `null` when Vue rejects it. Markup Vue cannot parse
@@ -97,4 +98,64 @@ function collectTemplateIdentifiers(template: string): Set<string> {
     return names;
 }
 
-export { parseTemplate, isConvertedBlock, elementChildren, collectTemplateIdentifiers };
+/**
+ * A tag `resolveComponentType()` settles before it ever reaches the setup bindings: `<component>`
+ * and `<Component>` resolve through their `is`, and the built-ins are matched by name. Vue's own
+ * predicates are used rather than a copied list, so the set cannot drift from the compiler in this
+ * repo.
+ */
+function resolvesBeforeSetupBindings(tag: string): boolean {
+    return (
+        tag === 'component' ||
+        tag === 'Component' ||
+        Boolean(isCoreComponent(tag)) ||
+        Boolean(parserOptions.isBuiltInComponent?.(tag))
+    );
+}
+
+function collectComponentTags(node: RootNode | TemplateChildNode, names: Set<string>): void {
+    if (node.type === NodeTypes.ELEMENT) {
+        // Vue only resolves a tag against setup bindings when it is not a plain HTML element, which
+        // the parser has already decided for us.
+        if (node.tagType === ElementTypes.COMPONENT && !resolvesBeforeSetupBindings(node.tag)) {
+            // `resolveSetupReference()` tries the tag as written, then camelized, then capitalized,
+            // and takes the first binding that matches — so all three names shadow the component.
+            const camelName = camelize(node.tag);
+
+            names.add(node.tag);
+            names.add(camelName);
+            names.add(capitalize(camelName));
+        }
+    }
+
+    if (node.type === NodeTypes.ROOT || node.type === NodeTypes.ELEMENT) {
+        for (const child of node.children) {
+            collectComponentTags(child, names);
+        }
+    }
+}
+
+/**
+ * Every name a component tag the converted template renders could be shadowed by.
+ *
+ * A `<script setup>` template resolves a tag through `resolveSetupReference()`, which prefers a
+ * setup binding named after the tag over the registered component. So a binding of that name makes
+ * the tag render the binding's value — `<router-link>` next to a `routerLink` prop renders nothing
+ * at all. A generated binding is renamed around the collision; a name the component itself chose
+ * cannot be, so that case is refused.
+ *
+ * The tags `<sw-block>` and `<sw-block-parent>` the conversion emits are included like any other:
+ * they resolve through the same lookup, so a component member named `swBlock` takes them over too.
+ */
+function collectTemplateComponentTags(template: string): Set<string> {
+    const names = new Set<string>();
+    const root = parseTemplate(template);
+
+    if (root !== null) {
+        collectComponentTags(root, names);
+    }
+
+    return names;
+}
+
+export { parseTemplate, isConvertedBlock, elementChildren, collectTemplateIdentifiers, collectTemplateComponentTags };

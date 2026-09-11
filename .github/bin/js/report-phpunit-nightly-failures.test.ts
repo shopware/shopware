@@ -9,8 +9,10 @@ import {
   groupByDomain,
   jestAppRoot,
   parseJestJUnitReport,
+  isNightlyBranch,
   parseJUnitReport,
   resolvePackageKey,
+  scanReports,
 } from './report-phpunit-nightly-failures.ts';
 
 const JUNIT_FIXTURE = `<?xml version="1.0" encoding="UTF-8"?>
@@ -135,6 +137,9 @@ describe('groupByDomain / buildIssuePayload', () => {
     assert.equal(issue.label, null);
     assert.ok(issue.issueBody.includes('`Integration\\Core\\FooTest::testCase00`: boom'));
     assert.ok(issue.issueBody.includes('…and 5 more'));
+    assert.ok(issue.issueBody.includes('<summary>Failing tests: 45</summary>'));
+    assert.ok(issue.issueBody.includes('</details>'));
+    assert.ok(issue.commentBody.includes('<summary>Failing tests: 45</summary>'));
     assert.ok(!issue.issueBody.includes('testCase44'));
     assert.ok(!issue.issueBody.includes('—'));
     assert.ok(issue.issueBody.includes('deep-triage pass'));
@@ -152,6 +157,36 @@ describe('groupByDomain / buildIssuePayload', () => {
     assert.equal(payload.issues[0].label, 'domain/checkout');
     assert.equal(payload.issues[0].issueTitle, '[nightly] Nightly PHPUnit failures: domain/checkout');
     assert.equal(payload.issues[0].issueMarker, '<!-- nightly-phpunit-failures:domain/checkout -->');
+  });
+
+  it('appends a silent-lane issue for red lanes whose reports carry no failing test', () => {
+    const group = {
+      label: 'domain/checkout',
+      packageKeys: new Set(['checkout']),
+      tests: [failedTest('Shopware\\Tests\\Integration\\Core\\Checkout\\CartTest', 'testFails')],
+    };
+    const payload = buildIssuePayload('[nightly] Nightly PHPUnit failures', [group], 'https://example.invalid/run/1', [
+      'junit-phpunit-blue-green-66-67',
+    ]);
+
+    assert.equal(payload.issues.length, 2);
+    const silent = payload.issues[1];
+    assert.equal(silent.issueTitle, '[nightly] Nightly PHPUnit failures: failed lane without test failures');
+    assert.equal(silent.issueMarker, '<!-- nightly-phpunit-failures:failed-lane-without-test-failures -->');
+    assert.equal(silent.label, null);
+    assert.ok(silent.issueBody.includes('`junit-phpunit-blue-green-66-67`'));
+    assert.ok(silent.issueBody.includes('runner-level error'));
+    assert.ok(silent.commentBody.startsWith(silent.issueMarker));
+  });
+
+  it('reports only the silent lanes when every parsed report is clean', () => {
+    const payload = buildIssuePayload('[nightly] Nightly PHPUnit failures', [], 'https://example.invalid/run/1', [
+      'junit-phpunit-blue-green-66-67',
+    ]);
+
+    assert.equal(payload.issues.length, 1);
+    assert.equal(payload.issues[0].issueTitle, '[nightly] Nightly PHPUnit failures: failed lane without test failures');
+    assert.ok(!payload.issues[0].issueBody.includes('No junit reports were produced'));
   });
 
   it('falls back to a single no-reports issue when no failures were parsed', () => {
@@ -248,5 +283,80 @@ describe('resolvePackageKey for jest component directories', () => {
 
     assert.equal(groups.length, 1);
     assert.equal(groups[0].label, 'needs manual routing');
+  });
+});
+
+describe('scanReports', () => {
+  let reportDir: string;
+
+  const CLEAN_JUNIT = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="blue-green" tests="2" failures="0" errors="0">
+    <testcase name="testPasses" class="Shopware\\Tests\\Integration\\Core\\Checkout\\CartTest"/>
+    <testcase name="testAlsoPasses" class="Shopware\\Tests\\Integration\\Core\\Checkout\\CartTest"/>
+  </testsuite>
+</testsuites>
+`;
+
+  const CLEAN_JEST = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Shopware 6 Unit Tests" tests="1" failures="0" errors="0">
+  <testsuite name="src/app/component/form/sw-field" errors="0" failures="0" tests="1">
+    <testcase classname="src/app/component/form/sw-field renders" name="src/app/component/form/sw-field renders" time="0.1">
+    </testcase>
+  </testsuite>
+</testsuites>
+`;
+
+  before(() => {
+    reportDir = mkdtempSync(join(tmpdir(), 'nightly-scan-'));
+
+    mkdirSync(join(reportDir, 'junit-phpunit-blue-green-66-67'));
+    writeFileSync(join(reportDir, 'junit-phpunit-blue-green-66-67/junit.xml'), CLEAN_JUNIT);
+
+    mkdirSync(join(reportDir, 'junit-phpunit-died-before-reporting'));
+
+    mkdirSync(join(reportDir, 'junit-phpunit-0'));
+    writeFileSync(join(reportDir, 'junit-phpunit-0/junit.xml'), JUNIT_FIXTURE);
+
+    // the same failures again: deduplicated globally, but the lane is not silent
+    mkdirSync(join(reportDir, 'junit-phpunit-1'));
+    writeFileSync(join(reportDir, 'junit-phpunit-1/junit.xml'), JUNIT_FIXTURE);
+
+    // clean jest artifacts are uploaded regardless of lane status and stay unflagged
+    mkdirSync(join(reportDir, 'jest-admin-results'));
+    writeFileSync(join(reportDir, 'jest-admin-results/admin.junit.xml'), CLEAN_JEST);
+  });
+
+  after(() => {
+    rmSync(reportDir, { recursive: true, force: true });
+  });
+
+  it('deduplicates failures across artifacts and counts every report', () => {
+    const scan = scanReports(reportDir);
+
+    assert.equal(scan.failures.length, 2);
+    assert.equal(scan.reports, 4);
+  });
+
+  it('flags only junit-phpunit lanes without a failing testcase, reportless ones included', () => {
+    const scan = scanReports(reportDir);
+
+    assert.deepEqual(scan.silentLanes, ['junit-phpunit-blue-green-66-67', 'junit-phpunit-died-before-reporting']);
+  });
+});
+
+describe('isNightlyBranch', () => {
+  it('accepts trunk and the maintenance branch shapes of release-gate.yml', () => {
+    assert.equal(isNightlyBranch('trunk'), true);
+    assert.equal(isNightlyBranch('6.6.x'), true);
+    assert.equal(isNightlyBranch('6.7.11.x'), true);
+  });
+
+  it('rejects every other branch, .x-suffixed backport branches included', () => {
+    assert.equal(isNightlyBranch('12753/allow-vtt-files-backport-6.6.x'), false);
+    assert.equal(isNightlyBranch('fix-backport-6.6.x'), false);
+    assert.equal(isNightlyBranch('6.7.0.0'), false);
+    assert.equal(isNightlyBranch('trunk-test'), false);
+    assert.equal(isNightlyBranch(''), false);
   });
 });

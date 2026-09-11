@@ -57,7 +57,7 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
     }
 
     function initBaseConfig(): void {
-        const { merge, get, set, has } = Shopware.Utils.object;
+        const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
         const element = options.element();
 
         if (!element.type) {
@@ -81,7 +81,7 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
                     return;
                 }
 
-                const newValue: unknown = get(element, `translated.${path}`, value);
+                const newValue: unknown = cloneDeep(get(element, `translated.${path}`, value));
 
                 set(element, path, newValue);
             },

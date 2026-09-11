@@ -202,7 +202,7 @@ class AppContextGatewayTest extends TestCase
     /**
      * @param array<array{command: string, payload: array<string,mixed>}> $commands
      */
-    private function executeCommands(array $commands): string
+    private function executeCommands(array $commands, bool $expectContextToken = true): string
     {
         $this->loadAppsFromDir(__DIR__ . '/../_fixtures/testGateway');
 
@@ -225,12 +225,15 @@ class AppContextGatewayTest extends TestCase
         $response = $this->browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($expectContextToken, $response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
-        static::assertNotNull($token);
+        if (!$expectContextToken) {
+            return '';
+        }
 
+        static::assertNotNull($token);
         $this->browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
 
         return $token;

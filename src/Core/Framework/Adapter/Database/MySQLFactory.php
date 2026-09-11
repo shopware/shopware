@@ -96,6 +96,18 @@ class MySQLFactory
                 $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
             }
 
+            // Keep the replica connection distinct from the primary one, so
+            // ReplicaConnectionResetter can switch back to the replica between
+            // requests. Without this option DBAL aliases the replica to the
+            // primary once the primary was used, which pins long running
+            // workers to the primary for their whole lifetime.
+            // See https://symfony.com/doc/current/doctrine/dbal.html#using-primary-replica-connections-read-replicas
+            if (!\array_key_exists('keepReplica', $parameters)) {
+                $parameters['keepReplica'] = true;
+            } else {
+                $parameters['keepReplica'] = (bool) self::castValue($parameters['keepReplica']);
+            }
+
             // Primary connection should use parameters from the main url
             $parameters['primary'] = array_merge([
                 'charset' => $parameters['charset'],

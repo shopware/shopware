@@ -112,6 +112,14 @@ describe('app/component/utils/sw-shortcut-overview', () => {
                     content: 'sw-shortcut-overview.keyboardShortcutSpecialShortcutOpenFilters',
                 }),
                 expect.objectContaining({
+                    title: 'sw-shortcut-overview.functionSpecialShortcutToggleNavigation',
+                    content: 'sw-shortcut-overview.keyboardShortcutSpecialShortcutToggleNavigation',
+                }),
+                expect.objectContaining({
+                    title: 'sw-shortcut-overview.functionSpecialShortcutCycleTheme',
+                    content: 'sw-shortcut-overview.keyboardShortcutSpecialShortcutCycleTheme',
+                }),
+                expect.objectContaining({
                     title: 'sw-shortcut-overview.functionAccessibilityCloseDialog',
                     content: 'sw-shortcut-overview.keyboardShortcutAccessibilityCloseDialog',
                 }),

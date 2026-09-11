@@ -9,16 +9,25 @@
  * owned by the Shopware setup transform and must never be authored here.
  *
  * Turning transparent twig blocks into real elements breaks `v-if` chains that span a block
- * boundary, so the twig-free markup goes through `normalize-cross-block-conditionals.ts` last.
+ * boundary, so root Twig comments leave the render tree through `move-root-comments.ts`, then
+ * `normalize-cross-block-conditionals.ts` runs, and `assert-single-root.ts` reads the finished markup
+ * last — the guards that normalization inserts are roots of their own, so the root tally is only
+ * correct once they exist.
  */
 
 import { assertBlockSlots } from './assert-block-slots';
+import { assertSingleRoot } from './assert-single-root';
 import { hoistBlockSlots } from './hoist-block-slots';
+import { moveRootTwigCommentsOutOfTemplate, TWIG_COMMENT_MARKER } from './move-root-comments';
 import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
 type TemplateResult = {
     template: string | null;
     blockers: string[];
+    /** Reasons the template still converts but the draft needs a look; they downgrade it to partial. */
+    warnings?: string[];
+    /** Root Twig comments preserved outside `<template>`, where they do not become rendered roots. */
+    sfcComments?: string[];
 };
 
 const ESLINT_BLOCK_DISABLE =
@@ -50,17 +59,14 @@ function transformTemplate(twig: string): TemplateResult {
 
     const template = twig
         .replace(ESLINT_BLOCK_DISABLE, '')
-        .replace(TWIG_COMMENT, (_match, body: string) => `<!--${commentText(body)}-->`)
+        .replace(TWIG_COMMENT, (_match, body: string) => `<!--${TWIG_COMMENT_MARKER}${commentText(body)}-->`)
         .replace(TWIG_BLOCK_START, '<sw-block name="$1">')
         .replace(TWIG_BLOCK_END, '</sw-block>');
 
     const leftoverTwig = template.match(/\{[%#][^\n]*/);
 
     if (leftoverTwig) {
-        return {
-            template: null,
-            blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`],
-        };
+        return { template: null, blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`] };
     }
 
     // Runs before the gate below, so a slot the conversion re-parented is repaired rather than refused.
@@ -77,7 +83,32 @@ function transformTemplate(twig: string): TemplateResult {
         return { template: null, blockers: slotBlockers };
     }
 
-    return normalizeCrossBlockConditionals(hoisted.template);
+    // A Twig comment rendered nothing. Preserve root comments as SFC comments outside `<template>`,
+    // otherwise Vue keeps them as rendered roots in development and changes `$el` into an anchor.
+    const rooted = moveRootTwigCommentsOutOfTemplate(hoisted.template);
+    const normalized = normalizeCrossBlockConditionals(rooted.template);
+
+    if (normalized.template === null) {
+        return normalized;
+    }
+
+    // Last, so the guards the normalization inserts count towards the root tally like any other node.
+    const warnings = assertSingleRoot(rooted.template, normalized.template);
+
+    return {
+        template: [
+            ...warnings.map(templateTodo),
+            normalized.template,
+        ].join('\n'),
+        blockers: normalized.blockers,
+        warnings,
+        sfcComments: rooted.sfcComments,
+    };
+}
+
+/** A template-level note, in the same shape the script transform uses for its own TODOs. */
+function templateTodo(warning: string): string {
+    return `<!-- TODO(sfc-migration) VERIFY: ${warning}. Give the twig a single top-level block to restore it. -->`;
 }
 
 export { transformTemplate, TWIG_PARENT_BLOCKER, type TemplateResult };

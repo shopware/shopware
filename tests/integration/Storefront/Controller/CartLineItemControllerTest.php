@@ -167,6 +167,8 @@ class CartLineItemControllerTest extends TestCase
             [Uuid::randomHex(), 'test_123'],
             [Uuid::randomHex(), 'testäüö123'],
             [Uuid::randomHex(), 'test/123'],
+            [Uuid::randomHex(), ' test.123 '],
+            [Uuid::randomHex(), '0'],
             [Uuid::randomHex(), 'test/unavailableProduct', false],
             ['', 'nonExisting'],
             ['', 'with<br>HTML'],
@@ -192,6 +194,39 @@ class CartLineItemControllerTest extends TestCase
         static::assertArrayHasKey('danger', $flashBagEntries);
         static::assertSame(static::getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags('testCode')]), $flashBagEntries['danger'][0]);
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+    }
+
+    #[DataProvider('blankHelperInputs')]
+    public function testBlankHelperInputAddsValidationFlash(string $field, ?string $input): void
+    {
+        $contextToken = Uuid::randomHex();
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest($input === null ? [] : [$field => $input]);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $controller = static::getContainer()->get(CartLineItemController::class);
+
+        if ($field === 'code') {
+            $response = $controller->addPromotion($cartService->getCart($contextToken, $salesChannelContext), $request, $salesChannelContext);
+        } else {
+            $response = $controller->addProductByNumber($request, $salesChannelContext);
+        }
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame([
+            'danger' => [static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR')],
+        ], $this->getFlashBag()->all());
+        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+    }
+
+    public static function blankHelperInputs(): \Generator
+    {
+        foreach (['number', 'code'] as $field) {
+            yield $field . ' missing' => [$field, null];
+            yield $field . ' empty' => [$field, ''];
+            yield $field . ' spaces' => [$field, '   '];
+            yield $field . ' tabs and newlines' => [$field, "\t\n\r"];
+            yield $field . ' unicode whitespace' => [$field, "\u{00A0}\u{2003}\u{3000}"];
+        }
     }
 
     private function getFlashBag(): FlashBag

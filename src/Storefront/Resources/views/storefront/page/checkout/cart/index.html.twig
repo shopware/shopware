@@ -98,7 +98,7 @@
                             {% endblock %}
 
                             {% block page_checkout_cart_add_product_label %}
-                                <label class="visually-hidden" for="addProductInput">
+                                <label class="mb-1" for="addProductInput">
                                     {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
                                 </label>
                             {% endblock %}
@@ -110,10 +110,7 @@
                                                name="number"
                                                class="form-control"
                                                id="addProductInput"
-                                               placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
-                                               aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
-                                               aria-describedby="addProductButton"
-                                               required="required">
+                                               placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}">
                                     {% endblock %}
 
                                     {% block page_checkout_cart_add_product_submit %}
@@ -253,9 +250,6 @@
                                    class="form-control"
                                    placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
                                    id="addPromotionInput"
-                                   aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
-                                   aria-describedby="addPromotion"
-                                   required="required"
                                    aria-invalid="false">
                         {% endblock %}
 

@@ -446,6 +446,44 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    #[DataProvider('checkoutHelperForms')]
+    public function testCheckoutHelperFormsHaveVisibleLabelsAndOptionalInputs(string $path, string $inputId, string $buttonId): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $this->createProductOnDatabase(Uuid::randomHex(), 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $crawler = $browser->request('GET', $path);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $label = $crawler->filter(\sprintf('label[for="%s"].mb-1:not(.visually-hidden)', $inputId));
+        static::assertCount(1, $label);
+        static::assertNotSame('', $label->text());
+
+        $input = $crawler->filter(\sprintf('input#%s', $inputId));
+        static::assertCount(1, $input);
+        static::assertNull($input->attr('required'));
+        static::assertNull($input->attr('aria-label'));
+        static::assertNull($input->attr('aria-describedby'));
+        static::assertCount(1, $crawler->filter(\sprintf('button#%s[type="submit"]', $buttonId)));
+    }
+
+    /**
+     * @return array<string, array{string, string, string}>
+     */
+    public static function checkoutHelperForms(): array
+    {
+        return [
+            'cart product' => ['/checkout/cart', 'addProductInput', 'addProductButton'],
+            'cart promotion' => ['/checkout/cart', 'addPromotionInput', 'addPromotion'],
+            'offcanvas promotion' => ['/checkout/offcanvas', 'addPromotionOffcanvasCartInput', 'addPromotionOffcanvasCart'],
+        ];
+    }
+
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();

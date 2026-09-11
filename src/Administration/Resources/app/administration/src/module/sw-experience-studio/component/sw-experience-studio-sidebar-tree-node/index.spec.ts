@@ -39,6 +39,9 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
                         mounted(el: HTMLElement) {
                             el.addEventListener('mousedown', dragListener);
                         },
+                        unmounted(el: HTMLElement) {
+                            el.removeEventListener('mousedown', dragListener);
+                        },
                     },
                     droppable: {},
                 },

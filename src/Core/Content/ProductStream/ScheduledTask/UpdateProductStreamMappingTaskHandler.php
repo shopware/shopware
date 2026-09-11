@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\ProductStream\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -30,7 +33,8 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
-        private readonly EntityRepository $productStreamRepository
+        private readonly EntityRepository $productStreamRepository,
+        private readonly MessageBusInterface $messageBus,
     ) {
         parent::__construct($repository, $logger);
     }
@@ -45,8 +49,20 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
         ]));
 
         $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getIds();
-        $data = array_map(static fn (string $id) => ['id' => $id], $streamIds);
+        if ($streamIds === []) {
+            return;
+        }
 
+        // Touch the streams so cache invalidation subscribers (e.g. stream HTTP cache tags) fire.
+        // ProductStreamUpdater::update() skips re-indexing when no filter property changed, so the
+        // mapping update has to be triggered explicitly below.
+        $data = array_map(static fn (string $id) => ['id' => $id], $streamIds);
         $this->productStreamRepository->update($data, $context);
+
+        foreach ($streamIds as $streamId) {
+            $message = new ProductStreamMappingIndexingMessage($streamId);
+            $message->setIndexer(ProductStreamUpdater::INDEXER_NAME);
+            $this->messageBus->dispatch($message);
+        }
     }
 }

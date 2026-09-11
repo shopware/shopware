@@ -27,11 +27,11 @@ class SalesChannelFavoritesService extends UserConfigClass {
         return this.state.favorites;
     }
 
-    public isFavorite(salesChannelId: string): boolean {
+    public isFavorite(salesChannelId: EntityKey<'sales_channel'>): boolean {
         return this.state.favorites.includes(salesChannelId);
     }
 
-    public update(state: boolean, salesChannelId: string): Promise<void> {
+    public update(state: boolean, salesChannelId: EntityKey<'sales_channel'>): Promise<void> {
         if (state && !this.isFavorite(salesChannelId)) {
             this.state.favorites.push(salesChannelId);
         } else if (!state && this.isFavorite(salesChannelId)) {

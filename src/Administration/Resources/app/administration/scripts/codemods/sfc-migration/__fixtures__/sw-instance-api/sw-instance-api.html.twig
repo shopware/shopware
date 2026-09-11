@@ -1,0 +1,6 @@
+{% block sw_instance_api %}
+    <div v-if="active" ref="modalContent" class="sw-instance-api" tabindex="-1">
+        <p>{{ successMessage() }}</p>
+        <button @click="closeModal">{{ $t('global.default.close') }}</button>
+    </div>
+{% endblock %}

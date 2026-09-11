@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterface;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Type\AbstractDocumentType;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AbstractCheckoutGatewayCommandHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
@@ -89,6 +91,9 @@ return [
             'shopware.cms.product_slider.processor' => AbstractProductSliderProcessor::class,
             'shopware.dal.exception_handler' => ExceptionHandlerInterface::class,
             'shopware.demodata_generator' => DemodataGeneratorInterface::class,
+            'shopware.document_v2.provider' => AbstractDocumentDataProvider::class,
+            'shopware.document_v2.renderer' => Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer::class,
+            'shopware.document_v2.type' => AbstractDocumentType::class,
             'shopware.elastic.admin-searcher-index' => AbstractAdminIndexer::class,
             'shopware.entity.definition' => EntityDefinition::class,
             'shopware.entity.hookable' => [EntityDefinition::class, Entity::class],

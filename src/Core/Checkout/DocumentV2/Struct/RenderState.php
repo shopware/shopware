@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * reuse already rendered formats without persisting every intermediate artifact.
  * Renderers must declare every format they read from this state as a dependency.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 final class RenderState

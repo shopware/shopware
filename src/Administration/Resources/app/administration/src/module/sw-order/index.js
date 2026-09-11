@@ -63,25 +63,40 @@ Shopware.Component.register('sw-order-inline-field', () => import('./component/s
  */
 Shopware.Component.register('sw-order-user-card', () => import('./component/sw-order-user-card'));
 Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.register(
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-invoice-modal',
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-invoice-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-storno-modal',
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-storno-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-delivery-note-modal',
     'sw-order-document-settings-modal',
     () => import('./component/sw-order-document-settings-delivery-note-modal'),
 );
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.extend(
     'sw-order-document-settings-credit-note-modal',
     'sw-order-document-settings-modal',
@@ -104,6 +119,9 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-order-create-promotion-modal', () => import('./component/sw-order-create-promotion-modal'));
 Shopware.Component.register('sw-order-create-general-info', () => import('./component/sw-order-create-general-info'));
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 Shopware.Component.register(
     'sw-order-select-document-type-modal',
     () => import('./component/sw-order-select-document-type-modal'),
@@ -129,9 +147,9 @@ Module.register('sw-order', {
     description: 'sw-order.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-purple-500)',
+    color: 'var(--sw-color-module-purple-default)',
     icon: 'regular-shopping-bag',
-    favicon: 'icon-module-orders.png',
+    favicon: 'icon-module-orders.svg',
     entity: 'order',
 
     routes: {
@@ -185,7 +203,7 @@ Module.register('sw-order', {
         {
             id: 'sw-order',
             label: 'sw-order.general.mainMenuItemGeneral',
-            color: 'var(--color-purple-500)',
+            color: 'var(--sw-color-module-purple-default)',
             icon: 'regular-shopping-bag',
             position: 30,
             privilege: 'order.viewer',
@@ -259,6 +277,6 @@ function orderCreateChildren() {
     };
 }
 
-Application.addServiceProvider('documentV2Service', () => {
-    return new DocumentV2Service();
+Application.addServiceProvider('documentV2Service', (container) => {
+    return new DocumentV2Service(container.documentV2ApiService);
 });

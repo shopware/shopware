@@ -73,11 +73,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
 
     public function load(string $locale, Context $context, bool $activate = true): void
     {
-        $language = $this->config->languages->get($locale);
-
-        if (!$language instanceof Language) {
-            throw SnippetException::languageDoesNotExist($locale);
-        }
+        $language = $this->resolveLanguage($locale);
 
         $this->download($locale);
 
@@ -85,6 +81,46 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         $this->createSnippetSet($language, $context);
 
         $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
+    }
+
+    /**
+     * Creates the language and snippet set for translation files that are already on the
+     * filesystem, without contacting the translation repository.
+     */
+    public function link(string $locale, Context $context, bool $activate = true): void
+    {
+        $language = $this->resolveLanguage($locale);
+
+        if (!$this->hasTranslationFiles($locale)) {
+            throw SnippetException::translationsUnavailable([$locale]);
+        }
+
+        $this->createLanguage($language, $context, $activate);
+        $this->createSnippetSet($language, $context);
+
+        $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
+    }
+
+    /**
+     * A directory on its own proves nothing: fetchFile() creates it before downloading and files the
+     * repository does not offer are skipped, so an empty or aborted download leaves the tree behind.
+     * Any file counts, because a legitimate load() can produce a partial set.
+     */
+    public function hasTranslationFiles(string $locale): bool
+    {
+        $localePath = $this->getLocalePath($locale);
+
+        if ($localePath === '') {
+            return false;
+        }
+
+        foreach ($this->translationWriter->listContents($localePath, FilesystemOperator::LIST_DEEP) as $fsNode) {
+            if ($fsNode->isFile()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function download(string $locale): void
@@ -144,6 +180,17 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         }
 
         return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);
+    }
+
+    private function resolveLanguage(string $locale): Language
+    {
+        $language = $this->config->languages->get($locale);
+
+        if (!$language instanceof Language) {
+            throw SnippetException::languageDoesNotExist($locale);
+        }
+
+        return $language;
     }
 
     private function memoizePluginLocaleTranslations(): void

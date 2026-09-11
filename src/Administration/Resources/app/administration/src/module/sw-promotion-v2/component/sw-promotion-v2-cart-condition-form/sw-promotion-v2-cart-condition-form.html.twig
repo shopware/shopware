@@ -10,6 +10,7 @@
         :rule-filter="ruleFilter"
         :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
         :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
+        :help-text="$t('sw-promotion-v2.detail.conditions.preConditions.helpTextCartConditionSelect')"
         :rule-scope="['checkout', 'global', 'lineItem']"
         rule-aware-group-key="cartPromotions"
         :disabled="isEditingDisabled"

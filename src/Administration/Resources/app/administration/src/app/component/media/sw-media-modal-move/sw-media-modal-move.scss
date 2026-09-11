@@ -16,11 +16,12 @@
         padding: 8px 6px 8px 0;
         color: var(--color-text-primary-default);
         max-width: 400px;
+        cursor: pointer;
 
         @include truncate;
 
         &:hover {
-            background-color: var(--color-background-brand-default);
+            text-decoration: underline;
         }
 
         &.--target {
@@ -39,7 +40,7 @@
     }
 
     .sw-media-modal-move__folder-icon {
-        width: 16px;
+        width: var(--scale-size-20);
         margin-right: 10px;
         margin-top: 2px;
     }

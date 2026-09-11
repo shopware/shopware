@@ -139,7 +139,7 @@ class CategoryRouteTest extends TestCase
                 ],
                 new EntityResolverContext($salesChannelContext, $request, new CategoryDefinition(), $category),
             )->willReturn(new EntitySearchResult(
-                'cms-page',
+                'cms_page',
                 1,
                 new CmsPageCollection([$cmsPage]),
                 null,
@@ -230,7 +230,7 @@ class CategoryRouteTest extends TestCase
 
         $cmsPageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
         $cmsPageLoader->method('load')->willReturn(new EntitySearchResult(
-            'cms-page',
+            'cms_page',
             1,
             new CmsPageCollection([$cmsPage]),
             null,

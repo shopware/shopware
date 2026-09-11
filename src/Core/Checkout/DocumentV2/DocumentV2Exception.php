@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */
@@ -72,6 +72,8 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_ARCHIVE_UNAVAILABLE = 'DOCUMENT_V2__ARCHIVE_UNAVAILABLE';
 
+    public const DOCUMENT_ARCHIVE_LIMIT_EXCEEDED = 'DOCUMENT_V2__ARCHIVE_LIMIT_EXCEEDED';
+
     public const DOCUMENT_ARCHIVE_FAILED = 'DOCUMENT_V2__ARCHIVE_FAILED';
 
     public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
@@ -87,6 +89,15 @@ class DocumentV2Exception extends HttpException
     public const NO_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_CREDIT_LINE_ITEMS';
 
     public const NO_UNPROCESSED_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS';
+
+    public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'DOCUMENT_V2__DOCUMENT_TYPE_ALREADY_REGISTERED';
+
+    public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
+
+    /**
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -181,6 +192,39 @@ class DocumentV2Exception extends HttpException
         );
     }
 
+    public static function documentTypeAlreadyRegistered(string $identifier, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_ALREADY_REGISTERED,
+            'The document type "{{ identifier }}" is already registered by app "{{ owningApp }}".',
+            ['identifier' => $identifier, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function documentTypeShadowsCoreType(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_SHADOWS_CORE_TYPE,
+            'The document type "{{ identifier }}" shadows a core document type and cannot be registered by an app.',
+            ['identifier' => $identifier],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public static function documentTypeReservedIdentifier(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_RESERVED_IDENTIFIER,
+            'The document type "{{ identifier }}" is a reserved technical name and cannot be registered by an app.',
+            ['identifier' => $identifier],
+        );
+    }
+
     public static function invalidRequestParameter(string $parameter): self
     {
         return new self(
@@ -211,13 +255,26 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentArchiveUnavailable(string $documentId): self
+    /**
+     * @param list<string> $documentIds
+     */
+    public static function documentArchiveUnavailable(array $documentIds): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_ARCHIVE_UNAVAILABLE,
-            'Document with id "{{ documentId }}" has no generated files to archive.',
-            ['documentId' => $documentId],
+            'None of the requested documents have generated files to archive: "{{ documentIds }}".',
+            ['documentIds' => implode(', ', $documentIds)],
+        );
+    }
+
+    public static function documentArchiveLimitExceeded(int $requested, int $limit): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_ARCHIVE_LIMIT_EXCEEDED,
+            'Cannot archive {{ requested }} documents at once, the limit is {{ limit }}.',
+            ['requested' => $requested, 'limit' => $limit],
         );
     }
 

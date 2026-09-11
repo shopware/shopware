@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCovera
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\ParserFactory;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\UseMap;
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(UseMap::class)]
+#[CoversNothing]
 class UseMapTest extends TestCase
 {
     #[TestDox('fromStmts returns alias to FQCN for regular use statements')]

@@ -87,10 +87,6 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             return '';
         }
 
-        if (\is_string($element->value)) {
-            return $element->value;
-        }
-
-        return null;
+        return \is_string($element->value) ? $element->value : null;
     }
 }

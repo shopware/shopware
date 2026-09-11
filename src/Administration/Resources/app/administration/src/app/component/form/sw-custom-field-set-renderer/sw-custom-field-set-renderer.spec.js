@@ -127,7 +127,9 @@ async function createWrapper(props, options = {}) {
                     'sw-ai-copilot-badge': true,
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
-                    'mt-floating-ui': true,
+                    'mt-floating-ui': {
+                        template: '<div><slot /></div>',
+                    },
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,
                     'sw-pagination': true,
@@ -1721,6 +1723,29 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         expect(wrapper.find('.sw-tab--name-custom_sports').text()).toContain('Sports');
         expect(wrapper.find('.sw-tab--name-custom_clothing').text()).toContain('Clothing');
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should load custom fields for the initial deprecated tab', async () => {
+        const sportsId = uuid.get('custom_sports');
+
+        wrapper = await createWrapper({
+            entity: {},
+            parentEntity: {},
+            sets: [
+                {
+                    id: sportsId,
+                    name: 'custom_sports',
+                    position: 1,
+                    config: { label: { 'en-GB': 'Sports' } },
+                    customFields: [],
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.sets[0].customFields).toHaveLength(2);
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs and switch active custom field set', async () => {

@@ -809,7 +809,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         return new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
-            true
+            true,
         );
     }
 }

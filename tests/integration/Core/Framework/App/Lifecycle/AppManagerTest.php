@@ -331,12 +331,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -490,12 +490,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],

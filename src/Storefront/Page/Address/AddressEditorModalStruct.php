@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class AddressEditorModalStruct extends Struct
 {

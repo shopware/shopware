@@ -7,6 +7,8 @@
     @prop mediaItems - Array of Shopware\Core\Content\Media
     @prop thumbnailSize - Number - The size of the thumbnail in pixels
     @prop thumbnailNavigationPosition - String 'left' | 'underneath'
+    @prop thumbnailNavShowsMediaOnHover - Boolean - Show the media belonging to a thumbnail on hover, without clicking it
+    @prop showThumbnailNav - Boolean - Show the thumbnail navigation
     @prop showNavigationArrows - Boolean - Show the navigation arrows
     @prop showMagnifier - Boolean - Show the magnifier
     @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
@@ -21,7 +23,8 @@
     maxHeight = null,
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
-    thumbnailNavShowsMediaOnHover = true,
+    thumbnailNavShowsMediaOnHover = false,
+    showThumbnailNav = true,
     showNavigationArrows = true,
     showMagnifier = true,
     useSchemaMarkup = false,
@@ -32,6 +35,10 @@
 
 {% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
 {% set singleMedia = mediaItems|length == 1 %}
+{% set renderThumbnailNav = showThumbnailNav and not singleMedia %}
+{% set renderNavigationArrows = showNavigationArrows and not singleMedia %}
+{% set autoColumns = not renderThumbnailNav %}
+{% set previewItemTag = showFullScreenGallery ? 'button' : 'div' %}
 
 {% set mediaGalleryCVA = cva({
     base: 'sw-media-gallery',
@@ -44,8 +51,8 @@
             auto: 'sw-media-gallery--display-mode-auto',
             fixedHeight: 'sw-media-gallery--display-mode-fixed-height',
         },
-        singleMedia: {
-            true: 'sw-media-gallery--single-media',
+        autoColumns: {
+            true: 'sw-media-gallery--auto-columns',
         },
         isLightbox: {
             true: 'sw-media-gallery--is-lightbox',
@@ -56,7 +63,7 @@
 {% set mediaGalleryOptions = {
     showMagnifier,
     thumbnailNavigationPosition,
-    showNavigationArrows,
+    showNavigationArrows: renderNavigationArrows,
     showFullScreenGallery,
     isLightbox,
     thumbnailNavShowsMediaOnHover,
@@ -64,10 +71,11 @@
 } %}
 
 {% set defaultAttributes = {
-    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia, isLightbox }),
+    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, autoColumns, isLightbox }),
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
     'aria-label': 'component.cms.mediaGallery.ariaLabel'|trans({'%total%': mediaItems|length})|striptags,
+    'aria-roledescription': 'carousel',
     style: "--sw-media-gallery-thumbnail-size: #{thumbnailSize}px;",
 } %}
 
@@ -79,7 +87,7 @@
 
 {% if mediaItems is not null and mediaItems|length > 0 %}
     <section {{ attributes.defaults(defaultAttributes) }}>
-        {% if mediaItems|length > 1 %}
+        {% if renderThumbnailNav %}
             <twig:Sw:Media:ThumbnailNav
                 class="sw-media-gallery__thumbnail-nav"
                 :mediaItems="mediaItems" 
@@ -91,16 +99,20 @@
         <div class="sw-media-gallery__previews-wrapper">
             <div class="sw-media-gallery__previews">
                 {% for mediaItem in mediaItems %}
-                    <div 
+                    {% set previewLabel = 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags %}
+                    {% if mediaItem.translated.alt %}
+                        {% set previewLabel = previewLabel ~ ', ' ~ mediaItem.translated.alt|striptags %}
+                    {% endif %}
+
+                    <{{ previewItemTag }} 
                         class="sw-media-gallery__preview-item" 
                         id="sw-media-gallery-preview-{{ loop.index }}"
                         data-media-id="{{ loop.index }}"
                         {% if showFullScreenGallery %}
                             data-bs-toggle="modal"
                             data-bs-target="#{{ lightboxId }}"
-                            role="button"
                             tabindex="0"
-                            aria-label="{{ 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags }}"
+                            aria-label="{{ previewLabel }}"
                             aria-haspopup="dialog"
                             aria-controls="{{ lightboxId }}"
                         {% endif %}
@@ -112,11 +124,11 @@
                             :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
                             :autoplay="autoplayVideos"
                         />
-                    </div>
+                    </{{ previewItemTag }}>
                 {% endfor %}
             </div>
 
-            {% if showNavigationArrows and not singleMedia %}
+            {% if renderNavigationArrows %}
                 <twig:Sw:Button
                     class="sw-media-gallery__nav-button is--backward"
                     variant="light"
@@ -137,7 +149,11 @@
             {% endif %}
 
             {% if not singleMedia %}
-                <span class="sw-media-gallery__preview-item-badge badge" aria-live="polite">
+                <span 
+                    class="sw-media-gallery__preview-item-badge badge" 
+                    aria-live="polite"
+                    aria-atomic="true"
+                >
                     <span class="visually-hidden">{{ 'component.cms.mediaGallery.counterLabel'|trans|striptags }} </span> 
                     <span class="sw-media-galley__counter-info">1 {{ mediaGalleryOptions.counterDeviderLabel }} {{ mediaItems|length }}</span>
                 </span>

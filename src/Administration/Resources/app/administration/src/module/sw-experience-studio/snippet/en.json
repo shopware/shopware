@@ -18,6 +18,13 @@
           "shadow": "Shadow",
           "background": "Background"
         }
+      },
+      "sw-media-gallery": {
+        "panels": {
+          "general": "General",
+          "thumbnails": "Thumbnail navigation",
+          "behaviour": "Behaviour"
+        }
       }
     },
     "list": {

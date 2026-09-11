@@ -2,7 +2,7 @@ export default class MediaGallery extends ShopwareComponent {
     static options = {
         showMagnifier: true,
         thumbnailNavigationPosition: 'left',
-        thumbnailNavShowsMediaOnHover: true,
+        thumbnailNavShowsMediaOnHover: false,
         showNavigationArrows: true,
         showFullScreenGallery: true,
         zoomScale: 2.5,

@@ -235,4 +235,35 @@ class EntityTemplateLoaderTest extends TestCase
 
         static::assertFalse($loader->exists('@TestApp/storefront/page/index.html.twig'));
     }
+
+    public function testDisablingAnAppHidesItsTemplatesUntilRestoredOrReset(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['namespace' => 'TestApp', 'path' => 'storefront/page.html.twig', 'template' => 'page', 'hash' => 'page', 'updatedAt' => null],
+            ['namespace' => 'TestApp', 'path' => 'storefront/fragment.html.twig', 'template' => 'fragment', 'hash' => 'fragment', 'updatedAt' => null],
+            ['namespace' => 'OtherApp', 'path' => 'storefront/page.html.twig', 'template' => 'other', 'hash' => 'other', 'updatedAt' => null],
+        ]);
+        $loader = new EntityTemplateLoader($connection, 'prod');
+
+        static::assertTrue($loader->disableApp('@TestApp/storefront/page.html.twig'));
+        static::assertSame(['TestApp'], $loader->getDisabledApps());
+        static::assertFalse($loader->exists('@TestApp/storefront/page.html.twig'));
+        static::assertFalse($loader->exists('@TestApp/storefront/fragment.html.twig'));
+        static::assertTrue($loader->isTemplateDisabled('@TestApp/storefront/fragment.html.twig'));
+        static::assertFalse($loader->isTemplateDisabled('@TestApp/storefront/missing.html.twig'));
+        static::assertTrue($loader->exists('@OtherApp/storefront/page.html.twig'));
+        static::assertFalse($loader->disableApp('@TestApp/storefront/page.html.twig'));
+        static::assertFalse($loader->disableApp('@Missing/storefront/page.html.twig'));
+
+        $loader->setDisabledApps([]);
+
+        static::assertTrue($loader->exists('@TestApp/storefront/page.html.twig'));
+        static::assertTrue($loader->disableApp('@TestApp/storefront/page.html.twig'));
+
+        $loader->reset();
+
+        static::assertSame([], $loader->getDisabledApps());
+        static::assertTrue($loader->exists('@TestApp/storefront/fragment.html.twig'));
+    }
 }

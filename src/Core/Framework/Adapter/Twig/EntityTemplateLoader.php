@@ -24,6 +24,11 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
     private ?array $databaseTemplateCache = null;
 
     /**
+     * @var list<string>
+     */
+    private array $disabledApps = [];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -40,6 +45,44 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
     public function reset(): void
     {
         $this->databaseTemplateCache = null;
+        $this->disabledApps = [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getDisabledApps(): array
+    {
+        return $this->disabledApps;
+    }
+
+    /**
+     * @param list<string> $apps
+     */
+    public function setDisabledApps(array $apps): void
+    {
+        $this->disabledApps = $apps;
+    }
+
+    public function isAppDisabled(string $name): bool
+    {
+        return $this->disabledApps !== [] && \in_array($this->splitTemplateName($name)['namespace'], $this->disabledApps, true);
+    }
+
+    public function isTemplateDisabled(string $name): bool
+    {
+        return $this->isAppDisabled($name) && $this->findDatabaseTemplate($name) !== null;
+    }
+
+    public function disableApp(string $name): bool
+    {
+        if (!$this->exists($name)) {
+            return false;
+        }
+
+        $this->disabledApps[] = $this->splitTemplateName($name)['namespace'];
+
+        return true;
     }
 
     public function getSourceContext(string $name): Source
@@ -80,7 +123,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     public function exists(string $name)
     {
-        return $this->findDatabaseTemplate($name) !== null;
+        return !$this->isAppDisabled($name) && $this->findDatabaseTemplate($name) !== null;
     }
 
     /**

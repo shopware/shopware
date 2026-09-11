@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 #[Package('framework')]
 class TwigEnvironmentCompilerPass implements CompilerPassInterface
@@ -16,6 +18,11 @@ class TwigEnvironmentCompilerPass implements CompilerPassInterface
         // Symfony service subscriber somehow doesn't work. Therefore, the service has to be public
         $twigEnvironment->setPublic(true);
         $twigEnvironment->setClass(TwigEnvironment::class);
+        $twigEnvironment->addMethodCall('configureAppTemplateFailureHandling', [
+            new Reference(EntityTemplateLoader::class),
+            new Reference('logger'),
+            new Reference('request_stack'),
+        ]);
 
         $twigEnvironment->addTag('kernel.reset', ['method' => 'reset']);
 

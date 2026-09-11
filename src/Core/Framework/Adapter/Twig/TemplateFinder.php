@@ -54,6 +54,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
         $sourcePath = $source ? $this->getTemplateName($source) : null;
         $sourceBundleName = $source ? $this->getSourceBundleName($source) : null;
         $originalTemplate = $source ? null : $template;
+        $disabledTemplate = null;
 
         $queue = $this->getNamespaceHierarchy();
         $modifiedQueue = $queue;
@@ -80,6 +81,10 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
             }
 
             if (!$this->loader->exists($name)) {
+                if ($source === null && $this->twig instanceof TwigEnvironment && $this->twig->isAppTemplateDisabled($name)) {
+                    $disabledTemplate ??= $name;
+                }
+
                 continue;
             }
 
@@ -97,6 +102,16 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
         // if no other bundle extends the requested template, load the original template
         if ($this->loader->exists($originalTemplate)) {
+            return $originalTemplate;
+        }
+
+        // Let the environment render an omitted app fragment as empty when there is no
+        // replacement. Never reintroduce it while resolving an inheritance parent.
+        if ($disabledTemplate !== null) {
+            return $disabledTemplate;
+        }
+
+        if ($this->twig instanceof TwigEnvironment && $this->twig->isAppTemplateDisabled($originalTemplate)) {
             return $originalTemplate;
         }
 

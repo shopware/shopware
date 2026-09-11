@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Twig\ConfigurableFilesystemCache;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
@@ -88,6 +89,35 @@ class TemplateFinderTest extends TestCase
         $foundTemplate = $this->finder->find($template, $ignoreMissing, $source);
 
         static::assertSame($expectedTemplate, $foundTemplate);
+    }
+
+    #[DataProvider('disabledAppFragmentProvider')]
+    public function testFindOmittedAppFragments(string $template, ?string $source, ?string $expected): void
+    {
+        $twig = static::createStub(TwigEnvironment::class);
+        $twig->method('isAppTemplateDisabled')->willReturnCallback(static fn (string $name): bool => $name === '@App/storefront/fragment.html.twig');
+        $this->loader->method('exists')->willReturn(false);
+        $this->hierarchyBuilder->expects($this->once())->method('buildHierarchy')->willReturn(['App' => 1, 'Storefront' => 0]);
+        $this->templateScopeDetector->expects($this->never())->method('getScopes');
+        $this->twig->expects($this->never())->method('getCache');
+        $finder = new TemplateFinder($twig, $this->loader, '', $this->hierarchyBuilder, $this->templateScopeDetector);
+
+        if ($expected === null) {
+            $this->expectException(LoaderError::class);
+        }
+
+        static::assertSame($expected, $finder->find($template, false, $source));
+    }
+
+    /**
+     * @return iterable<string, array{string, string|null, string|null}>
+     */
+    public static function disabledAppFragmentProvider(): iterable
+    {
+        yield 'resolve omitted app fragment through storefront namespace' => ['@Storefront/storefront/fragment.html.twig', null, '@App/storefront/fragment.html.twig'];
+        yield 'resolve explicit omitted app fragment' => ['@App/storefront/fragment.html.twig', null, '@App/storefront/fragment.html.twig'];
+        yield 'never reintroduce omitted app as an inheritance parent' => ['@Storefront/storefront/fragment.html.twig', '@App/storefront/fragment.html.twig', null];
+        yield 'unrelated missing templates still fail' => ['@Storefront/storefront/missing.html.twig', null, null];
     }
 
     public function testFindModifiesCache(): void

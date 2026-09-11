@@ -17,12 +17,8 @@ export default class Form extends ShopwareComponent {
         ajax: false,
         replaceSelectors: [],
         submitOnChange: false,
-        pagination: false,
         validate: true,
         debounceTime: 200,
-        paginationItemSelector: '.pagination .page-link',
-        pageInputSelector: 'input[name="p"]',
-        focusHandlerKey: 'sw-form-pagination',
     };
 
     init() {
@@ -45,7 +41,6 @@ export default class Form extends ShopwareComponent {
 
         this.onSubmit = this.onSubmit.bind(this);
         this.onFieldChange = this.onFieldChange.bind(this);
-        this.onPaginationClick = this.onPaginationClick.bind(this);
         this.onPageShow = this.onPageShow.bind(this);
         this.onFieldInput = this.debounce((event) => this.validateField(event.target), this.options.debounceTime);
 
@@ -56,17 +51,12 @@ export default class Form extends ShopwareComponent {
         if (this.options.validate) {
             this.initValidation();
         }
-
-        if (this.options.pagination) {
-            this.el.addEventListener('click', this.onPaginationClick);
-        }
     }
 
     destroy() {
         this.el.removeEventListener('submit', this.onSubmit);
         this.el.removeEventListener('change', this.onFieldChange);
         this.el.removeEventListener('input', this.onFieldInput);
-        this.el.removeEventListener('click', this.onPaginationClick);
         window.removeEventListener('pageshow', this.onPageShow);
 
         if (this.nativeCheckValidity) {
@@ -151,31 +141,6 @@ export default class Form extends ShopwareComponent {
             && !this.options.submitOnChange.some(selector => event.target.matches(selector))) {
             return;
         }
-
-        this.requestSubmit();
-    }
-
-    onPaginationClick(event) {
-        // Resolved from the form rather than via `closest()` so a click on the icon inside counts.
-        const link = Array.from(this.el.querySelectorAll(this.options.paginationItemSelector))
-            .find(item => item === event.target || item.contains(event.target));
-
-        if (!link) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const pageInput = this.el.querySelector(this.options.pageInputSelector);
-        const page = link.getAttribute('data-page');
-
-        if (!pageInput || !page) {
-            return;
-        }
-
-        pageInput.value = page;
-
-        window.focusHandler?.saveFocusState(this.options.focusHandlerKey, `[data-focus-id="${page}"]`);
 
         this.requestSubmit();
     }
@@ -323,14 +288,6 @@ export default class Form extends ShopwareComponent {
 
         if (this.options.replaceSelectors.length > 0) {
             this.replaceContent(payload);
-
-            // The component system re-initializes itself through its observer. Legacy plugins
-            // inside the replaced markup do not, so they are given their entry point back.
-            window.PluginManager?.initializePlugins();
-        }
-
-        if (this.options.pagination) {
-            window.focusHandler?.resumeFocusState(this.options.focusHandlerKey);
         }
 
         Shopware.emit('Form:Response', { form: this.el, html: payload });

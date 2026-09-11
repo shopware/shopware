@@ -786,7 +786,6 @@ class FormComponentsTest extends TestCase
             'ajax' => false,
             'replaceSelectors' => [],
             'submitOnChange' => false,
-            'pagination' => false,
             'validate' => true,
         ], $this->componentOptions($html));
     }
@@ -808,14 +807,13 @@ class FormComponentsTest extends TestCase
     {
         $html = $this->renderTemplate(
             '<twig:Sw:Form :ajax="true" :replaceSelectors="[\'.js-review-container\']"'
-            . ' :submitOnChange="true" :pagination="true" :validate="false">x</twig:Sw:Form>'
+            . ' :submitOnChange="true" :validate="false">x</twig:Sw:Form>'
         );
 
         static::assertSame([
             'ajax' => true,
             'replaceSelectors' => ['.js-review-container'],
             'submitOnChange' => true,
-            'pagination' => true,
             'validate' => false,
         ], $this->componentOptions($html));
     }
@@ -889,36 +887,6 @@ class FormComponentsTest extends TestCase
         // its own props, so here it is handed over explicitly.
         static::assertStringContainsString('aria-invalid="true"', $html);
         static::assertSame(1, substr_count($html, 'is-invalid'));
-    }
-
-    /**
-     * The language, sorting and pagination forms of `storefront/component/review/review.html.twig`
-     * are the submit-on-change and pagination side of the same component.
-     */
-    public function testTheReviewListFormsAreBuildableFromTheComponents(): void
-    {
-        $sorting = $this->renderTemplate(
-            '<twig:Sw:Form action="/product/1/reviews" method="post" :ajax="true"'
-            . ' replaceSelectors=".js-review-container" :submitOnChange="true">'
-            . '<twig:Sw:Form:Select name="sort" label="Sort by" :options="[{ value: \'points\', label: \'Top rated\' }]" />'
-            . '</twig:Sw:Form>'
-        );
-
-        $pagination = $this->renderTemplate(
-            '<twig:Sw:Form action="/product/1/reviews" method="post" :ajax="true"'
-            . ' replaceSelectors=".js-review-container" :pagination="true">'
-            . '<twig:Sw:Form:Input type="hidden" name="p" value="1" />'
-            . '<twig:Sw:Content:Pagination :page="1" :total="30" :limit="10" />'
-            . '</twig:Sw:Form>'
-        );
-
-        static::assertTrue($this->componentOptions($sorting)['submitOnChange']);
-        static::assertStringContainsString('name="sort"', $sorting);
-
-        static::assertTrue($this->componentOptions($pagination)['pagination']);
-        static::assertStringContainsString('name="p"', $pagination);
-        // The page the JS writes into the `p` field is read from the link.
-        static::assertStringContainsString('data-page="2"', $pagination);
     }
 
     /**

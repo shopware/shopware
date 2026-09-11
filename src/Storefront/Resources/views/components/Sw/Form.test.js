@@ -93,8 +93,6 @@ describe('Sw:Form', () => {
     afterEach(() => {
         document.body.innerHTML = '';
         delete window.formValidation;
-        delete window.PluginManager;
-        delete window.focusHandler;
         vi.restoreAllMocks();
     });
 
@@ -264,13 +262,12 @@ describe('Sw:Form', () => {
         expect(Shopware.emit).toHaveBeenCalledWith('Form:Error', expect.objectContaining({ form: el }));
     });
 
-    it('replaces the configured fragments of the response and hands the legacy plugins their entry point back', async () => {
+    it('replaces the configured fragments of the response', async () => {
         const container = document.createElement('div');
         container.className = 'js-review-container';
         container.innerHTML = '<p>old</p>';
         document.body.appendChild(container);
 
-        window.PluginManager = { initializePlugins: vi.fn() };
         window.fetch = vi.fn(() => Promise.resolve(htmlResponse(
             '<html><body><div class="js-review-container"><p>new</p></div></body></html>',
         )));
@@ -280,7 +277,6 @@ describe('Sw:Form', () => {
         submit(el);
 
         await vi.waitFor(() => expect(container.innerHTML).toBe('<p>new</p>'));
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalled();
         expect(container.classList.contains('has-element-loader')).toBe(false);
         expect(Shopware.emit).toHaveBeenCalledWith('Form:Response', expect.objectContaining({ form: el }));
     });
@@ -317,25 +313,6 @@ describe('Sw:Form', () => {
 
         el.querySelector('[name="language"]').dispatchEvent(new Event('change', { bubbles: true }));
         expect(window.fetch).toHaveBeenCalled();
-    });
-
-    it('turns a pagination click into a submission of the requested page', async () => {
-        window.focusHandler = { saveFocusState: vi.fn(), resumeFocusState: vi.fn() };
-
-        const { el } = createForm(
-            '<input type="hidden" name="p" value="1">'
-            + '<nav class="pagination"><a class="page-link" data-page="3" data-focus-id="3" href="#">3</a></nav>',
-            { ajax: true, pagination: true, replaceSelectors: ['.js-review-container'] },
-        );
-
-        el.querySelector('.page-link').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-
-        expect(el.querySelector('[name="p"]').value).toBe('3');
-        expect(window.focusHandler.saveFocusState).toHaveBeenCalledWith('sw-form-pagination', '[data-focus-id="3"]');
-
-        await vi.waitFor(() => expect(window.fetch).toHaveBeenCalled());
-        expect(window.fetch.mock.calls[0][1].body.get('p')).toBe('3');
-        await vi.waitFor(() => expect(window.focusHandler.resumeFocusState).toHaveBeenCalledWith('sw-form-pagination'));
     });
 
     it('maps the violations of an error response onto the fields that answer for them', async () => {

@@ -768,7 +768,6 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
         return {
             headers,
-            useAxiosV1: true,
         };
     }
 

@@ -243,6 +243,10 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
 ## Administration
 
+### Administration HTTP client runs on a single Axios 1.x transport
+
+The Administration `httpClient` is now one Axios 1.x instance (1.20.0). The legacy Axios 0.x transport, the `axios-v1` package alias, and the per-request transport switch were removed, which also drops the second Axios copy from the Administration bundle. Extensions keep using `httpClient` unchanged. The `useAxiosV1` request option is accepted as a no-op, `httpClient.CancelToken` keeps working, and `axiosV1`, `interceptorsV1` and `defaultsV1` remain as aliases; all of them are deprecated for 6.8.0.0 and log a development-mode warning on first use. The `axiosV0`, `interceptorsV0` and `defaultsV0` escape hatches were removed. Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations. Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+
 ### Optional order confirmation mail for Administration-created orders
 
 When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.

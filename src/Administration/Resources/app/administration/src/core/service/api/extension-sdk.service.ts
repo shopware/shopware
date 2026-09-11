@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosResponse } from 'axios';
-import type { HttpClient } from 'src/core/factory/http-client.types';
+import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
@@ -39,7 +38,7 @@ export default class ExtensionSdkService extends ApiService {
                     headers: this.getBasicHeaders(),
                 },
             )
-            .then((response: AxiosResponse<unknown>) => {
+            .then((response: HttpResponse<unknown>) => {
                 ApiService.handleResponse(response);
             });
     }
@@ -57,7 +56,7 @@ export default class ExtensionSdkService extends ApiService {
                     headers: this.getBasicHeaders(),
                 },
             )
-            .then((response: AxiosResponse<unknown>) => {
+            .then((response: HttpResponse<unknown>) => {
                 return ApiService.handleResponse(response);
             });
     }

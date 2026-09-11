@@ -28,6 +28,11 @@ $sw-media-upload-v2-caption-icon-color: var(--color-icon-secondary-default);
         color: var(--color-text-primary-default);
         font-weight: normal;
         user-select: none;
+
+        // Label, help text and mode switch are optional; Vue's v-if placeholders defeat `:empty`.
+        &:not(:has(> *)) {
+            display: none;
+        }
     }
 
     .sw-media-upload-v2__switch-mode {

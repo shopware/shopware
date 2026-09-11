@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -456,6 +457,35 @@ class DocumentControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertStringContainsString('my-custom-filename.pdf', (string) $response->headers->get('Content-Disposition'));
+    }
+
+    #[DataProvider('unsafeFilenameProvider')]
+    public function testDownloadRejectsUnsafeFilename(string $filename, string $expectedErrorCode): void
+    {
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document/download',
+            [
+                'documentIds' => [Uuid::randomHex()],
+                'filename' => $filename,
+            ]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertIsString($response->getContent());
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame($expectedErrorCode, $content['errors'][0]['code']);
+    }
+
+    public static function unsafeFilenameProvider(): \Generator
+    {
+        yield 'forward slash would act as a path separator' => ['invoices/2026', MediaException::MEDIA_ILLEGAL_FILE_NAME];
+        yield 'backslash would act as a path separator' => ['invoices\\2026', MediaException::MEDIA_ILLEGAL_FILE_NAME];
+        yield 'percent sign is not allowed in the ASCII filename fallback' => ['50%_off', MediaException::MEDIA_ILLEGAL_FILE_NAME];
+        yield 'line break is a control character' => ["delivery\nnotes", MediaException::MEDIA_ILLEGAL_FILE_NAME];
+        yield 'names longer than 255 characters are rejected' => [str_repeat('a', 256), MediaException::MEDIA_FILE_NAME_IS_TOO_LONG];
     }
 
     public function testDownloadPermission(): void

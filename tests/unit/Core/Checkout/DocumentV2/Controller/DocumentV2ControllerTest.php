@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
@@ -39,6 +40,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
@@ -858,6 +860,57 @@ class DocumentV2ControllerTest extends TestCase
             ),
             Context::createDefaultContext(),
         );
+    }
+
+    #[DataProvider('unsafeFilenameProvider')]
+    public function testDownloadArchiveThrowsWhenFilenameIsUnsafe(string $filename, MediaException $expectedException): void
+    {
+        $controller = new DocumentV2Controller(
+            $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
+            $this->createDocumentReader(new DocumentRendererRegistry([])),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->createDocumentPersister(),
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+        );
+
+        static::expectExceptionObject($expectedException);
+
+        $controller->downloadArchive(
+            Request::create(
+                '/api/_action/order/document-v2/download-archive',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode(['documentIds' => [Uuid::randomHex()], 'filename' => $filename], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public static function unsafeFilenameProvider(): \Generator
+    {
+        yield 'forward slash would act as a path separator' => [
+            'invoices/2026',
+            MediaException::illegalFileName('invoices/2026', 'Filename must not contain "/"'),
+        ];
+        yield 'backslash would act as a path separator' => [
+            'invoices\\2026',
+            MediaException::illegalFileName('invoices\\2026', 'Filename must not contain "\\"'),
+        ];
+        yield 'percent sign is not allowed in the ASCII filename fallback' => [
+            '50%_off',
+            MediaException::illegalFileName('50%_off', 'Filename must not contain "%"'),
+        ];
+        yield 'line break is a control character' => [
+            "delivery\nnotes",
+            MediaException::illegalFileName("delivery\nnotes", 'Filename must not contain character "a"'),
+        ];
+        yield 'names longer than 255 characters are rejected' => [
+            str_repeat('a', 256),
+            MediaException::fileNameTooLong(255),
+        ];
     }
 
     public function testDownloadArchiveThrowsWhenNoDocumentsAreFound(): void

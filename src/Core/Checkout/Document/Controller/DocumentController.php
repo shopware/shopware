@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
+use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -104,14 +105,18 @@ class DocumentController extends AbstractController
             throw DocumentException::invalidRequestParameter('documentIds');
         }
 
+        $filename = $request->request->getString('filename');
+
+        if ($filename !== '') {
+            (new FileNameValidator())->validateFileName($filename);
+        }
+
         $download = $request->query->getBoolean('download', true);
         $combinedDocument = $this->documentMerger->merge($documentIds, $context);
 
         if ($combinedDocument === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
         }
-
-        $filename = $request->request->getString('filename');
 
         return $this->createResponse(
             $filename !== '' ? $filename . '.' . $combinedDocument->getFileExtension() : $combinedDocument->getName(),

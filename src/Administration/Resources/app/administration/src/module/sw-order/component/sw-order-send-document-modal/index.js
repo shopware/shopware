@@ -1,6 +1,7 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
+import orderCustomerName from '../../helper/order-customer-name.helper';
 
 const { Filter } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
@@ -231,7 +232,7 @@ export default {
                 await this.mailService.getDataAndSendMailTemplate(
                     {
                         recipients: {
-                            [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                            [this.recipient]: orderCustomerName(this.order.orderCustomer),
                         },
                         salesChannelId: this.order.salesChannelId,
                         mediaIds: Array.from(mediaCollection.getIds()),

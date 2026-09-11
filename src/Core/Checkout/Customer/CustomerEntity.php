@@ -173,9 +173,60 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?UserEntity $updatedBy = null;
 
+    /**
+     * Resolved by CustomerDisplayNameSubscriber on customer.loaded, so only an entity that came
+     * through the data abstraction layer carries the company fallback.
+     */
+    protected ?string $displayName = null;
+
     public function __toString(): string
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getDisplayName();
+    }
+
+    public function isBusinessAccount(): bool
+    {
+        return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
+    }
+
+    /**
+     * Resolved from the live fields, so a setter is reflected straight away and the value never goes
+     * stale. What the subscriber stored stands in only when a partial read left every source field
+     * behind.
+     */
+    public function getDisplayName(): string
+    {
+        if (!isset($this->firstName) && !isset($this->lastName) && !isset($this->company)) {
+            return $this->displayName ?? '';
+        }
+
+        return self::resolveDisplayName(
+            $this->firstName ?? '',
+            $this->lastName ?? '',
+            $this->company,
+            $this->isBusinessAccount()
+        );
+    }
+
+    /**
+     * The one place the rule lives, so the subscriber that fills the runtime field and this entity
+     * cannot drift apart. The company stands in only when there is no contact person, so a
+     * commercial account that has one keeps showing that person.
+     */
+    public static function resolveDisplayName(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
+    {
+        $personName = trim($firstName . ' ' . $lastName);
+
+        if ($personName !== '' || !$isBusinessAccount) {
+            return $personName;
+        }
+
+        return trim($company ?? '');
+    }
+
+    public function setDisplayName(?string $displayName): void
+    {
+        $this->displayName = $displayName;
     }
 
     public function getGroupId(): string

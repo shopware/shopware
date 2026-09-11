@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -137,6 +138,16 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
+        if ($this->namesAreOptional($data, $context)) {
+            CompanyAccountNameFields::normalize($data);
+
+            foreach ([$billing, $shipping] as $address) {
+                if ($address instanceof DataBag) {
+                    CompanyAccountNameFields::normalize($address);
+                }
+            }
+        }
+
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);
@@ -171,7 +182,9 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $companyName = $billingAddress['company'] ?? $shippingAddress['company'] ?? null;
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $companyName) {
+        // Compared against the empty string and not by truthiness, because a company literally named
+        // "0" passes the validation above and would otherwise leave the account without a name.
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && \is_string($companyName) && $companyName !== '') {
             $customer['company'] = $companyName;
             if ($data->get('vatIds')) {
                 $customer['vatIds'] = $data->get('vatIds');
@@ -317,12 +330,11 @@ class RegisterRoute extends AbstractRegisterRoute
         // The billing address validation must not be added if the data is neither a data bag nor valid because the validation building will fail.
         // Using a null value must be possible to allow the event based modification (see BuildValidationEvent).
         if ($billingAddress instanceof DataBag || (!$shippingAddress instanceof DataBag && $billingAddress === null)) {
-            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context));
+            $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($data, $accountType, $billingAddress ?? new RequestDataBag(), $context, true));
         }
 
         if ($shippingAddress instanceof DataBag) {
-            $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, $context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, self::addressAccountType($shippingAddress), $shippingAddress, $context, false));
         }
 
         if ($data->get('vatIds') instanceof DataBag) {
@@ -434,13 +446,24 @@ class RegisterRoute extends AbstractRegisterRoute
         DataBag $data,
         ?string $accountType,
         DataBag $address,
-        SalesChannelContext $context
+        SalesChannelContext $context,
+        bool $isBillingAddress
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
-            $validation->add('company', new NotBlank());
+        // The top level names are copied from the billing address, so only that one follows the
+        // optional contact person. A separate shipping address names whoever receives the parcel and
+        // keeps its own rules, company included.
+        $namesAreOptional = $isBillingAddress && $this->namesAreOptional($data, $context);
+
+        if ($namesAreOptional
+            || ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+                && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId()))) {
+            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
+        }
+
+        if ($namesAreOptional) {
+            CompanyAccountNameFields::makeOptional($validation);
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
@@ -450,6 +473,26 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
+    }
+
+    private static function addressAccountType(DataBag $address): string
+    {
+        $accountType = $address->get('accountType');
+
+        return \is_string($accountType) && $accountType !== ''
+            ? $accountType
+            : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+    }
+
+    private function nameFieldsRequiredForCompanyAccounts(SalesChannelContext $context): bool
+    {
+        return CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
+    }
+
+    private function namesAreOptional(DataBag $data, SalesChannelContext $context): bool
+    {
+        return $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && !$this->nameFieldsRequiredForCompanyAccounts($context);
     }
 
     private function getCustomerCreateValidationDefinition(bool $isGuest, DataBag $data, SalesChannelContext $context): DataValidationDefinition
@@ -470,6 +513,10 @@ class RegisterRoute extends AbstractRegisterRoute
                 $this->passwordValidationFactory->create($context)
             );
             $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
+        }
+
+        if ($this->namesAreOptional($data, $context)) {
+            CompanyAccountNameFields::makeOptional($validation);
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

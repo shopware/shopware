@@ -87,9 +87,19 @@
                 {% endif %}
             </div>
         {% elseif not hideCustomerTypeSelect %}
-            {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
-            {# The registration is always of type "commercial" then. #}
-            <input type="hidden" name="{{ accountTypeFieldName }}">
+            {% if hasSelectedBusiness|default(false) %}
+                {# A customer group signup form with "Company signup form" enabled. The registration is
+                   always commercial then, so the value has to say so: the routes read the account type
+                   off the request and would otherwise treat the whole registration as private. #}
+                <input type="hidden"
+                       name="{{ accountTypeFieldName }}"
+                       value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+            {% else %}
+                {# The account type selection is switched off for the whole shop. Nothing here decides
+                   the type, so the field stays empty and the routes keep whatever the account already
+                   is. #}
+                <input type="hidden" name="{{ accountTypeFieldName }}">
+            {% endif %}
         {% endif %}
     {% endblock %}
 
@@ -149,7 +159,56 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        <div class="row g-2">
+        {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+
+        {# Mirrors CompanyAccountNameFields::areVisible() and areRequired(), including what an unsaved
+           value means: the two settings default to on, while showAccountTypeSelection has no default
+           value of its own and therefore counts as off. Both sides have to agree, or the form hides a
+           field the backend still demands. #}
+        {# `is null` and not `??`, because Twig's null coalescing treats a stored false as absent and
+           would hand back the default of on. #}
+        {% set showSetting = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
+        {% set requiredSetting = config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+
+        {% set accountTypeSelectable = config('core.loginRegistration.showAccountTypeSelection') %}
+        {% set companyNameFieldsShown = not accountTypeSelectable
+            or (showSetting is null ? true : showSetting) %}
+        {% set companyNameFieldsRequired = not accountTypeSelectable
+            or (companyNameFieldsShown and (requiredSetting is null ? true : requiredSetting)) %}
+
+        {# Without the selector the form cannot switch type, so it is fixed to whatever the customer
+           already is. Treating that as private would keep the names required while the backend has
+           already accepted them empty. #}
+        {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == businessType %}
+        {% set customerIsCompany = accountType|default('') == businessType or loggedInCustomerIsCompany %}
+
+        {% set companyOnlyForm = onlyCompanyRegistration|default(false)
+            or hasSelectedBusiness|default(false)
+            or (not accountTypeSelectable and customerIsCompany) %}
+
+        {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
+        {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
+
+        {# Only the top level account type decides whether the backend relaxes the names, on every route that can
+           do so, so only the fields next to that selection may follow it. An address block carries its own
+           account type but is judged by the customer or by the top level one, so it keeps the names required. #}
+        {# The standalone address form uses the 'address' prefix but its controller unwraps that bag, so
+           its selector is the value the route reads. The nested registration addresses are the ones
+           that must keep their names required. That form also needs a commercial customer behind it,
+           because UpsertAddressRoute relaxes the names for one of those only. #}
+        {% set accountTypeSwitchable = (prefix|default('') == '' or (prefix|default('') == 'address' and loggedInCustomerIsCompany))
+            and accountTypeSelectable
+            and not hideCustomerTypeSelect|default(false)
+            and not hasSelectedBusiness|default(false)
+            and not onlyCompanyRegistration %}
+
+        <div class="row g-2"{% if accountTypeSwitchable %} data-company-name-fields="true" data-company-name-fields-options="{{ {
+            accountTypeSelector: '#' ~ idPrefix ~ prefix ~ '-accountType',
+            businessValue: constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
+            shown: companyNameFieldsShown,
+            required: companyNameFieldsRequired,
+        }|json_encode }}"{% endif %}>
+            {% if personNameShown %}
             {% block component_address_personal_fields_first_name %}
                 {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
@@ -170,7 +229,7 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
                         autocomplete: 'section-personal given-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
@@ -195,11 +254,12 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
                         autocomplete: 'section-personal family-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
             {% endblock %}
+            {% endif %}
         </div>
     {% endblock %}
 

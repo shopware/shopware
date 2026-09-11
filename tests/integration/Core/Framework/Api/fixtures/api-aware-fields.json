@@ -1130,6 +1130,7 @@
     "customer.salutationId",
     "customer.firstName",
     "customer.lastName",
+    "customer.displayName",
     "customer.company",
     "customer.email",
     "customer.title",

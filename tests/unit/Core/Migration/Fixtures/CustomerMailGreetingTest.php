@@ -1,0 +1,176 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Migration\Fixtures;
+
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Salutation\SalutationEntity;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
+
+/**
+ * @internal
+ *
+ * Renders the shipped templates rather than asserting on the entity, because a greeting can read
+ * "Hello ," while every getter involved still returns what it promised.
+ */
+#[Package('checkout')]
+#[CoversNothing]
+class CustomerMailGreetingTest extends TestCase
+{
+    private const FIXTURES = __DIR__ . '/../../../../../src/Core/Migration/Fixtures/mails';
+
+    private const TYPES = [
+        'customer.group.registration.accepted',
+        'customer.group.registration.declined',
+        'customer.password.changed',
+        'customer.recovery.request',
+        'customer_register.double_opt_in',
+        'guest_order.double_opt_in',
+        'password_change',
+    ];
+
+    private const FILES = [
+        'en-plain.html.twig',
+        'en-html.html.twig',
+        'de-plain.html.twig',
+        'de-html.html.twig',
+    ];
+
+    #[DataProvider('templateProvider')]
+    public function testACompanyAccountWithoutAContactPersonIsGreetedByItsCompany(string $type, string $file): void
+    {
+        $rendered = $this->render($type, $file, $this->customer('Acme GmbH'));
+
+        static::assertStringContainsString('Acme GmbH', $rendered);
+        static::assertStringNotContainsString('  ', $this->greeting($rendered));
+        static::assertStringNotContainsString(' ,', $this->greeting($rendered));
+    }
+
+    /**
+     * Four of these greet by surname alone and three by the full name, so the assertion is the part
+     * they share. What matters is that a contact person is still greeted as one, and never as the
+     * company.
+     */
+    #[DataProvider('templateProvider')]
+    public function testAContactPersonIsStillGreetedByName(string $type, string $file): void
+    {
+        $rendered = $this->render($type, $file, $this->customer('Ada Lovelace', 'Ada', 'Lovelace'));
+
+        static::assertStringContainsString('Lovelace', $rendered);
+        static::assertStringNotContainsString('Acme GmbH', $rendered);
+    }
+
+    /**
+     * The templates that greeted by surname before this change still do, so an upgraded shop does not
+     * suddenly read "Mr Ada Lovelace".
+     */
+    #[DataProvider('surnameTemplateProvider')]
+    public function testASurnameGreetingStaysASurnameGreeting(string $type, string $file): void
+    {
+        $rendered = $this->render($type, $file, $this->customer('Ada Lovelace', 'Ada', 'Lovelace'));
+
+        static::assertStringContainsString('Lovelace', $this->greeting($rendered));
+        static::assertStringNotContainsString('Ada', $this->greeting($rendered));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function surnameTemplateProvider(): iterable
+    {
+        $surnameOnly = [
+            'customer.group.registration.accepted',
+            'customer.group.registration.declined',
+            'customer_register.double_opt_in',
+            'guest_order.double_opt_in',
+        ];
+
+        foreach ($surnameOnly as $type) {
+            foreach (self::FILES as $file) {
+                yield $type . ' ' . $file => [$type, $file];
+            }
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function templateProvider(): iterable
+    {
+        foreach (self::TYPES as $type) {
+            foreach (self::FILES as $file) {
+                yield $type . ' ' . $file => [$type, $file];
+            }
+        }
+    }
+
+    private function render(string $type, string $file, CustomerEntity $customer): string
+    {
+        $path = \sprintf('%s/%s/%s', self::FIXTURES, $type, $file);
+        $template = file_get_contents($path);
+
+        static::assertIsString($template, $path);
+
+        $twig = new Environment(new ArrayLoader(['mail' => $template]));
+
+        return $twig->render('mail', [
+            'customer' => $customer,
+            'customerRecovery' => $this->recovery($customer),
+            'shopName' => 'Demostore',
+            'salesChannel' => ['translated' => ['name' => 'Demostore']],
+            'customerGroup' => ['translated' => ['name' => 'Wholesale']],
+            'resetUrl' => 'https://example.com/reset',
+            'confirmUrl' => 'https://example.com/confirm',
+        ]);
+    }
+
+    /**
+     * Every shipped greeting is the first line that carries the name, and the assertions above are
+     * about that line alone.
+     */
+    private function greeting(string $rendered): string
+    {
+        foreach (explode("\n", $rendered) as $line) {
+            if (str_contains($line, 'Acme GmbH') || str_contains($line, 'Lovelace')) {
+                return trim(strip_tags($line));
+            }
+        }
+
+        static::fail('the rendered mail carries no greeting');
+    }
+
+    private function recovery(CustomerEntity $customer): CustomerRecoveryEntity
+    {
+        $recovery = new CustomerRecoveryEntity();
+        $recovery->setId('recovery-id');
+        $recovery->setUniqueIdentifier('recovery-id');
+        $recovery->setCustomer($customer);
+
+        return $recovery;
+    }
+
+    private function customer(string $displayName, string $firstName = '', string $lastName = ''): CustomerEntity
+    {
+        $salutation = new SalutationEntity();
+        $salutation->setId('salutation-id');
+        $salutation->setUniqueIdentifier('salutation-id');
+        $salutation->setTranslated(['letterName' => 'Dear Sir or Madam', 'displayName' => 'Mr']);
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer-id');
+        $customer->setUniqueIdentifier('customer-id');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setFirstName($firstName);
+        $customer->setLastName($lastName);
+        $customer->setCompany('Acme GmbH');
+        $customer->setDisplayName($displayName);
+        $customer->setSalutation($salutation);
+
+        return $customer;
+    }
+}

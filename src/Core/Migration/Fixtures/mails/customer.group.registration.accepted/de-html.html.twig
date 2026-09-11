@@ -1,7 +1,7 @@
 <div style="font-family:arial; font-size:12px;">
     <br/>
     <p>
-        {{ customer.salutation.translated.letterName }} {{ customer.lastName }},<br/>
+        {{ customer.salutation.translated.letterName }} {{ customer.lastName ?: customer.displayName }},<br/>
         <br/>
         Ihr Account wurde für die Kundengruppe {{ customerGroup.translated.name }} freigeschaltet.<br/>
         Ab sofort kaufen Sie zu den neuen Konditionen dieser Kundengruppe ein.<br/>

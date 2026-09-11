@@ -13,12 +13,17 @@ const customer = {
     ],
 };
 
-async function createWrapper() {
+async function createWrapper(systemConfig = {}) {
     return mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
         props: {
             customer,
         },
         global: {
+            provide: {
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve(systemConfig),
+                },
+            },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-entity-single-select': true,
@@ -88,5 +93,107 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
         const criteria = wrapper.vm.languageCriteria;
 
         expect(criteria.filters).toHaveLength(0);
+    });
+
+    it('should keep the contact person required for a private account', async () => {
+        const wrapper = await createWrapper({
+            'core.loginRegistration.showAccountTypeSelection': true,
+            'core.loginRegistration.showNameFieldsForCompanyAccounts': false,
+            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should make the contact person optional for a company account when the settings allow it', async () => {
+        const wrapper = await createWrapper({
+            'core.loginRegistration.showAccountTypeSelection': true,
+            'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+        });
+        await flushPromises();
+
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+            },
+        });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(false);
+    });
+
+    it('should keep the contact person required for a company account without the account type selection', async () => {
+        const wrapper = await createWrapper({
+            'core.loginRegistration.showAccountTypeSelection': false,
+            'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
+            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
+        });
+        await flushPromises();
+
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+            },
+        });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should keep the contact person required when no config service is provided', async () => {
+        const wrapper = mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
+            props: {
+                customer: {
+                    ...customer,
+                    accountType: 'business',
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-entity-single-select': true,
+                    'sw-text-field': true,
+                    'sw-email-field': true,
+                    'sw-datepicker': true,
+                    'sw-entity-tag-select': true,
+                    'sw-single-select': true,
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should keep the contact person required when the settings cannot be read', async () => {
+        const wrapper = mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
+            props: {
+                customer: {
+                    ...customer,
+                    accountType: 'business',
+                },
+            },
+            global: {
+                provide: {
+                    systemConfigApiService: {
+                        getValues: () => Promise.reject(new Error('forbidden')),
+                    },
+                },
+                stubs: {
+                    'sw-container': await wrapTestComponent('sw-container'),
+                    'sw-entity-single-select': true,
+                    'sw-text-field': true,
+                    'sw-email-field': true,
+                    'sw-datepicker': true,
+                    'sw-entity-tag-select': true,
+                    'sw-single-select': true,
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 });

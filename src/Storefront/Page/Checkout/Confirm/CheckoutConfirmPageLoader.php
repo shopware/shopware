@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
@@ -16,9 +17,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +42,8 @@ class CheckoutConfirmPageLoader
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -108,6 +112,19 @@ class CheckoutConfirmPageLoader
         $this->validateShippingAddress($shippingAddress, $billingAddress, $cart, $context);
     }
 
+    private function makeNameOptionalForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
+    {
+        if ($context->getCustomer()?->isBusinessAccount() !== true) {
+            return;
+        }
+
+        if (CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
+            return;
+        }
+
+        CompanyAccountNameFields::makeOptional($validation);
+    }
+
     private function validateBillingAddress(
         ?CustomerAddressEntity $billingAddress,
         Cart $cart,
@@ -117,6 +134,8 @@ class CheckoutConfirmPageLoader
         if ($billingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
+
+        $this->makeNameOptionalForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -142,6 +161,8 @@ class CheckoutConfirmPageLoader
         if ($shippingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
+
+        $this->makeNameOptionalForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

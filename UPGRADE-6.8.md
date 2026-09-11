@@ -234,6 +234,18 @@ Price-based shipping method price matrix ranges are now compared in the default 
 
 Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
+## Customer and address names accept an empty string
+
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag. The columns stayed `NOT NULL` and the getters kept returning `string`, but the data abstraction layer stopped rejecting an empty string. This applies to every write path, the Admin API, the Sync API and direct repository writes included, and to private accounts as well as commercial ones.
+
+Only the store API routes judge whether a name is required, from the two settings a shop configures. Code that relied on the layer to reject an empty name has to validate it itself:
+
+```php
+$definition->add('firstName', new NotBlank());
+```
+
+Read a customer name through `CustomerEntity::getDisplayName()` rather than joining `firstName` and `lastName`. It falls back to the company name when a commercial account has no contact person. The getter resolves this from the live `firstName`, `lastName`, `company` and `accountType`, so it is right on any entity, including one you build or change in code. A subscriber fills the runtime field itself on `customer.loaded` and `customer.partial_loaded`, which is what carries the value into the API responses, and the stored value is only read back when a partial read left every source field behind. Being a runtime field it cannot be sorted or filtered in a `Criteria`.
+
 </details>
 
 # API

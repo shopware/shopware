@@ -1,6 +1,8 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
+import companyNamesRequired from '../../helper/company-name-fields.helper';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout
@@ -16,13 +18,17 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'customerGroupRegistrationService',
-        'acl',
-        'customerValidationService',
-        'feature',
-    ],
+    inject: {
+        repositoryFactory: {},
+        customerGroupRegistrationService: {},
+        acl: {},
+        customerValidationService: {},
+        feature: {},
+        // Defaults to null so an extending component that does not provide it still mounts.
+        systemConfigApiService: {
+            default: null,
+        },
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -50,6 +56,9 @@ export default {
 
     data() {
         return {
+            // Required until the settings resolve, so a slow request rejects a blank name rather
+            // than letting one through that the store api would refuse.
+            companyNamesRequired: true,
             isLoading: false,
             isSaveSuccessful: false,
             customer: null,
@@ -183,6 +192,21 @@ export default {
                 : true;
         },
 
+        contactPersonRequired() {
+            return this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || this.companyNamesRequired;
+        },
+
+        validContactPersonFields() {
+            if (!this.contactPersonRequired) {
+                return true;
+            }
+
+            // Private accounts included: a name the user types and then clears is an empty string,
+            // which the data abstraction layer accepts once the field allows one, so nothing below
+            // this page would reject it any more.
+            return Boolean(this.customer.firstName?.trim().length && this.customer.lastName?.trim().length);
+        },
+
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
         },
@@ -199,6 +223,11 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            // The three settings are switchable per sales channel, so moving the customer to another
+            // one can change whether the contact person is required.
+            this.loadCompanyNamesRequired();
+        },
         customerId() {
             this.createdComponent();
         },
@@ -213,6 +242,22 @@ export default {
     },
 
     methods: {
+        backfillCompanyFromAddress() {
+            if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return;
+            }
+
+            if (this.customer.company?.trim().length) {
+                return;
+            }
+
+            const company = this.customer.defaultBillingAddress?.company;
+
+            if (company?.trim().length) {
+                this.customer.company = company;
+            }
+        },
+
         async loadCustomer() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
@@ -260,10 +305,27 @@ export default {
             }
         },
 
+        async loadCompanyNamesRequired() {
+            const salesChannelId = this.customer?.salesChannelId;
+            const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
+
+            // A slower request for the channel the user has already left must not decide the rule
+            // for the one they are on now.
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
+        },
+
         async createdComponent() {
             Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
 
             await this.loadCustomer();
+
+            // Loaded last so the page is built before the settings request, which only decides
+            // whether a blank contact person may be saved.
+            await this.loadCompanyNamesRequired();
         },
 
         saveFinish() {
@@ -317,8 +379,17 @@ export default {
                 }
             }
 
+            this.backfillCompanyFromAddress();
+
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            // The data abstraction layer accepts an empty name now, so the page has to hold the line
+            // the two settings draw.
+            if (!this.validContactPersonFields) {
+                this.createErrorMessageForContactPerson();
                 hasError = true;
             }
 
@@ -356,7 +427,7 @@ export default {
                         message: this.$t(
                             'sw-customer.detail.messageSaveSuccess',
                             {
-                                name: `${this.customer.firstName} ${this.customer.lastName}`,
+                                name: customerDisplayName(this.customer),
                             },
                             0,
                         ),
@@ -448,6 +519,26 @@ export default {
                 .finally(() => {
                     this.createdComponent();
                 });
+        },
+
+        createErrorMessageForContactPerson() {
+            this.isLoading = false;
+
+            [
+                'firstName',
+                'lastName',
+            ].forEach((field) => {
+                if (this.customer[field]?.trim().length) {
+                    return;
+                }
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `customer.${this.customer.id}.${field}`,
+                    error: new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }),
+                });
+            });
         },
 
         createErrorMessageForCompanyField() {

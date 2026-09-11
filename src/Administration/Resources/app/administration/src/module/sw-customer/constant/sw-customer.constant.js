@@ -2,11 +2,7 @@
  * @sw-package checkout
  */
 
-const ACCOUNT_TYPE_PRIVATE = 'private';
-const ACCOUNT_TYPE_BUSINESS = 'business';
-
+// Re-exported from core so nothing in core has to reach into this module for it, and so an
+// extension that already imports this path keeps working.
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Object.freeze({
-    ACCOUNT_TYPE_PRIVATE,
-    ACCOUNT_TYPE_BUSINESS,
-});
+export { default } from 'src/core/constant/customer.constant';

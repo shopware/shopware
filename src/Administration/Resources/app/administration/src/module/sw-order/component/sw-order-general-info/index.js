@@ -1,5 +1,6 @@
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
+import orderCustomerName from '../../helper/order-customer-name.helper';
 
 /**
  * @sw-package checkout
@@ -208,6 +209,8 @@ export default {
     },
 
     methods: {
+        orderCustomerName,
+
         createdComponent() {
             this.syncTagCollection();
             this.getLiveOrder();

@@ -1,4 +1,6 @@
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
+import orderCustomerName from 'src/module/sw-order/helper/order-customer-name.helper';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
@@ -208,6 +210,9 @@ export default {
     },
 
     methods: {
+        customerDisplayName,
+        orderCustomerName,
+
         createdComponent() {
             this.registerEvents();
 

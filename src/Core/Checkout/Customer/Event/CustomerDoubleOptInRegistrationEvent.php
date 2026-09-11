@@ -49,7 +49,7 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+                $this->customer->getEmail() => $this->customer->getDisplayName(),
             ]);
         }
 

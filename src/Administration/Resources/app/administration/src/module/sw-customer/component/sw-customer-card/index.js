@@ -2,6 +2,8 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
+import customerDisplayName from 'src/core/helper/customer-display-name.helper';
+import companyNamesRequired from '../../helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout
@@ -16,11 +18,15 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'contextStoreService',
-        'repositoryFactory',
-    ],
+    inject: {
+        acl: {},
+        contextStoreService: {},
+        repositoryFactory: {},
+        // Defaults to null so an extending component that does not provide it still mounts.
+        systemConfigApiService: {
+            default: null,
+        },
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -52,10 +58,33 @@ export default {
         return {
             showImitateCustomerModal: false,
             showConvertCustomerModal: false,
+            // Required until the settings resolve, so a slow request leaves the form strict rather
+            // than claiming a field is optional that the routes still reject.
+            companyNamesRequired: true,
         };
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     computed: {
+        avatarName() {
+            const firstName = (this.customer.firstName ?? '').trim();
+            const lastName = (this.customer.lastName ?? '').trim();
+
+            if (firstName !== '' || lastName !== '') {
+                return { firstName, lastName };
+            }
+
+            const parts = customerDisplayName(this.customer).split(' ');
+
+            return {
+                firstName: parts[0] ?? '',
+                lastName: parts.length > 1 ? parts[parts.length - 1] : '',
+            };
+        },
+
         hasActionSlot() {
             return !!this.$slots.actions?.[0];
         },
@@ -76,15 +105,22 @@ export default {
         },
 
         fullName() {
-            const name = {
-                name: this.salutation(this.customer),
-                company: this.customer.company,
-            };
+            const company = (this.customer.company ?? '').trim();
 
-            return Object.values(name)
-                .filter((item) => item !== null)
-                .join(' - ')
-                .trim();
+            // Read from the raw names and not from salutation(), which returns the salutation on its
+            // own when both are empty and would pair that with the company as "Mr - Acme GmbH".
+            const hasContactPerson = `${this.customer.firstName ?? ''}${this.customer.lastName ?? ''}`.trim() !== '';
+
+            if (!hasContactPerson) {
+                return this.isBusinessAccountType && company !== '' ? company : this.salutation(this.customer);
+            }
+
+            return [
+                this.salutation(this.customer),
+                company,
+            ]
+                .filter((part) => part !== '')
+                .join(' - ');
         },
 
         salutationCriteria() {
@@ -118,6 +154,10 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        contactPersonRequired() {
+            return !this.isBusinessAccountType || this.companyNamesRequired;
         },
 
         canUseCustomerImitation() {
@@ -190,6 +230,11 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            // The three settings are switchable per sales channel, so moving the customer to another
+            // one can change whether the contact person is required.
+            this.createdComponent();
+        },
         'customer.accountType'(value) {
             if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
                 return;
@@ -200,6 +245,19 @@ export default {
     },
 
     methods: {
+        async createdComponent() {
+            const salesChannelId = this.customer?.salesChannelId;
+            const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
+
+            // A slower request for the channel the user has already left must not decide the rule
+            // for the one they are on now.
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
+        },
+
         getMailTo(mail) {
             return `mailto:${mail}`;
         },

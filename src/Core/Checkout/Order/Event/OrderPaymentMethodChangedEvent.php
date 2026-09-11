@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -68,7 +69,7 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
             }
 
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $orderCustomer->getEmail() => $orderCustomer->getFirstName() . ' ' . $orderCustomer->getLastName(),
+                $orderCustomer->getEmail() => OrderCustomerNameFormatter::displayName($orderCustomer),
             ]);
         }
 

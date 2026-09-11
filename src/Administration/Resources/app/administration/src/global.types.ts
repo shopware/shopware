@@ -145,7 +145,7 @@ import type createTextEditorDataMappingButton from './app/component/meteor-wrapp
 import type SsoSettingsService from './core/service/api/sso-settings.service';
 import type SsoInvitationService from './core/service/api/sso-invitation.service';
 import type CMSConstant from './module/sw-cms/constant/sw-cms.constant';
-import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.constant';
+import type CUSTOMERConstant from './core/constant/customer.constant';
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 import type SnippetApiService from './core/service/api/snippet.api.service';
 import type ConsentApiService from './core/consent/consent.api.service';

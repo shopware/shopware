@@ -1,4 +1,4 @@
-{{ customer.salutation.translated.letterName }} {{ customer.lastName }},
+{{ customer.salutation.translated.letterName }} {{ customer.lastName ?: customer.displayName }},
 Vielen Dank für Ihr Interesse an den Konditionen für Kundengruppe  {{ customerGroup.translated.name }}.
 Leider können wir sie nicht für diese Kundengruppe freischalten.
 

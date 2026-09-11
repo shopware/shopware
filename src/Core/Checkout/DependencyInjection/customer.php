@@ -66,6 +66,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerDisplayNameSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
@@ -226,6 +227,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AddressHashSubscriber::class)
         ->tag('kernel.event_subscriber');
 
+    $services->set(CustomerDisplayNameSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
     $services->set(CustomerMetaFieldSubscriber::class)
         ->args([
             service(Connection::class),
@@ -345,6 +349,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerProfileValidationFactory::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(SystemConfigService::class),
         ]);
 
     $services->set(ChangePasswordRoute::class)

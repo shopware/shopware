@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -28,6 +29,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -56,6 +58,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -81,8 +84,39 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->remove('accountType');
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $validation->add('company', new NotBlank());
+        $isBusinessAccount = $data->has('accountType')
+            ? $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            : $customer->isBusinessAccount();
+
+        if ($isBusinessAccount) {
+            // The route writes the vat ids unconditionally further down, so a form that hides them
+            // along with the company would drop the stored ones. has() and not a null check, because a
+            // submitted null is a deliberate clear.
+            if (!$data->has('vatIds') && $customer->getVatIds() !== null) {
+                $data->set('vatIds', $customer->getVatIds());
+            }
+
+            if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
+                CompanyAccountNameFields::makeOptional($validation);
+
+                CompanyAccountNameFields::normalizeSubmitted($data);
+
+                // The company carries the identity once the contact person is optional, so it has to
+                // be there even when the form does not post it. Filling in the stored one first keeps
+                // the check on the value the account ends up with.
+                if (!$data->has('company')) {
+                    $data->set('company', $customer->getCompany() ?? '');
+                }
+            }
+
+            // Required on an explicit switch to business, as before, and on the stored value the
+            // branch above fills in. Only a request that leaves an existing business account alone
+            // without touching the company skips it.
+            if ($data->has('company') || $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+                $data->set('company', $data->get('company') ?? '');
+                $validation->add('company', CompanyAccountNameFields::companyNotBlank());
+            }
+
             $billingAddress = $customer->getDefaultBillingAddress();
             if ($billingAddress) {
                 $this->addVatIdsValidation($validation, $billingAddress);

@@ -228,13 +228,13 @@ describe('scripts/codemods/sfc-migration', () => {
         });
 
         // The block keeps its name and its position around the slot content, so an override still
-        // targets exactly what it targeted before the inversion.
-        it('hoists a named slot out of the twig block that wrapped it', async () => {
+        // targets the same slot definitions after migration.
+        it('preserves the Twig block around its named-slot definitions', async () => {
             const result = await convertFixture('sw-block-named-slot');
 
             expect(result.outcome).toBe('full');
             expect(result.sfc).toContain('<template #modal-footer>');
-            expect(result.sfc?.indexOf('<template #modal-footer>')).toBeLessThan(
+            expect(result.sfc?.indexOf('<template #modal-footer>')).toBeGreaterThan(
                 result.sfc!.indexOf('<sw-block name="sw_block_named_slot_footer">'),
             );
         });

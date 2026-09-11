@@ -16,6 +16,7 @@ import Twig from 'twig';
 import reconstructInnerTemplate, { type TwigToken } from './reconstruct-twig-template';
 import {
     indexLegacyTwigBlockConditionEntries,
+    reserveLegacyBlockRegistration,
     type LegacyTwigBlockSequenceEntry,
 } from './transform-legacy-block-conditionals';
 
@@ -24,6 +25,7 @@ import {
  */
 export {
     getLegacyTwigBlockEntries as getBlockEntries,
+    subscribeToLegacyBlockIndex as subscribeToBlockIndex,
     hasLegacyTwigBlockEntries as hasBlockEntries,
     resetLegacyTwigBlockConditionIndex as resetBlockIndex,
 } from './transform-legacy-block-conditionals';
@@ -100,10 +102,27 @@ function parseTwigBlockEntries(componentName: string, rawTemplate: string): Lega
 
     const parsedTokens = parsed.tokens as ParsedTwigToken[];
 
-    return parsedTokens.filter(isBlockToken).map((token) => ({
-        blockName: token.token.blockName,
-        innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
-    }));
+    return parsedTokens.filter(isBlockToken).map((token) => {
+        const output = (token.token.output ?? []) as TwigToken[];
+        const unsupported = unsupportedTwigTags(output);
+        if (unsupported.size) {
+            console.warn(
+                `[sw-block] Component "${componentName}", block "${token.token.blockName}" contains unsupported Twig logic: ` +
+                    `${[...unsupported].join(', ')}. Review compile-time Twig logic during SFC migration; use Vue directives for live state.`,
+            );
+        }
+        return { blockName: token.token.blockName, innerTemplate: reconstructInnerTemplate(output) };
+    });
+}
+
+function unsupportedTwigTags(tokens: TwigToken[], tags = new Set<string>()): Set<string> {
+    for (const entry of tokens) {
+        if (entry.type !== 'logic') continue;
+        const token = entry.token;
+        if (token?.type !== 'parent' && token?.blockName === undefined) tags.add(token?.type ?? 'unknown');
+        unsupportedTwigTags(token?.output ?? [], tags);
+    }
+    return tags;
 }
 
 /**
@@ -121,12 +140,21 @@ function parseTwigBlockEntries(componentName: string, rawTemplate: string): Lega
  *
  * @private
  */
-export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: string): void {
+export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: string, order?: number, priority = 0): void {
     const entries = parseTwigBlockEntries(componentName, rawTemplate);
 
     if (!entries) {
         return;
     }
 
-    indexLegacyTwigBlockConditionEntries(componentName, entries);
+    indexLegacyTwigBlockConditionEntries(componentName, entries, order, priority);
+}
+
+/**
+ * Allocate precedence when an override registers, before an asynchronous loader can resolve out of order.
+ * @private
+ */
+export function createTwigBlockRegistration(componentName: string, priority: number): (template: string) => void {
+    const order = reserveLegacyBlockRegistration();
+    return (template) => indexTwigBlocksFromTemplate(componentName, template, order, priority);
 }

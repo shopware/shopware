@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 /**
  * This file is the entry point for the Vite build process for plugins.
  * Depending on the environment variable VITE_MODE, it will either start a dev server
@@ -9,7 +8,7 @@
  *
  * @sw-package framework
  */
-
+import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './vite-plugins/shopware-setup/legacy-component-plugin';
 import { createServer, build, defineConfig, createLogger } from 'vite';
 import path from 'path';
 import fs from 'fs';
@@ -78,6 +77,8 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
             }),
+            LegacyComponentPlugin(),
+            legacySlotBlocksPlugin(),
             ShopwareSetupPlugin({
                 administrationRoot: path.dirname(__dirname),
             }),

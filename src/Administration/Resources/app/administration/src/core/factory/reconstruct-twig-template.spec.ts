@@ -84,7 +84,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
             ];
 
             expect(reconstructInnerTemplate(tokens)).toBe(
-                '<sw-block name="outer_block"><sw-block name="inner_block"><div class="inner"></div></sw-block></sw-block>',
+                '<sw-block name="outer_block" :data="$dataScope"><sw-block name="inner_block" :data="$dataScope"><div class="inner"></div></sw-block></sw-block>',
             );
         });
 
@@ -97,7 +97,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
             ];
 
             expect(reconstructInnerTemplate(tokens)).toBe(
-                '<sw-block name="nested_with_parent"><sw-block-parent /><div class="extra"></div></sw-block>',
+                '<sw-block name="nested_with_parent" :data="$dataScope"><sw-block-parent /><div class="extra"></div></sw-block>',
             );
         });
 
@@ -168,7 +168,7 @@ describe('integration: reconstructInnerTemplate with real TwigJS parser output',
         });
 
         expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
-            '<sw-block name="inner"><sw-block-parent /><div class="extra"></div></sw-block>',
+            '<sw-block name="inner" :data="$dataScope"><sw-block-parent /><div class="extra"></div></sw-block>',
         );
     });
 });

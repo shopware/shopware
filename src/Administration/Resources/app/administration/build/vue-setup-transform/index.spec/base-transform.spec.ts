@@ -121,6 +121,8 @@ describe('build/vue-setup-transform base transforms', () => {
                 </sw-block>
             </template>
             <script setup lang="ts">
+const __swSetupDispatch = Shopware.Component.createSetupDispatch();
+
             import { ref, computed } from 'vue';
 
             declare global {
@@ -133,11 +135,12 @@ describe('build/vue-setup-transform base transforms', () => {
                 initialCount?: number;
             }>();
             const __swSetupAuthor_title = ref('Hello');
-            const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);
-            const __swSetupAuthor_doubled = computed(() => __swSetupAuthor_count.value * 2);
+            const __swSetupAuthor_count = ref((__swSetupDispatch.read('props', () => __swSetupAuthor_props)).initialCount ?? 0);
+            const __swSetupAuthor_doubled = computed(() => (__swSetupDispatch.read('count', () => __swSetupAuthor_count)).value * 2);
             const __swSetupAuthor_internalNote = ref('secret');
 
-            const {
+            defineOptions({ legacyOptionsMembers: {"title":"data","count":"data","doubled":"computed"}, name: 'sw-example', __swExtendable: true });
+const {
                 props,
                 title,
                 count,
@@ -155,6 +158,8 @@ describe('build/vue-setup-transform base transforms', () => {
                     internalNote: __swSetupAuthor_internalNote,
                 },
             });
+__swSetupDispatch.attach({ props, title, count, doubled, internalNote });
+
 
             defineExpose({
                 ...Shopware.Component.getExposedProps(),
@@ -235,7 +240,9 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'macro-only.vue').code;
 
-        expect(result).toContain('defineOptions({ inheritAttrs: false });');
+        expect(result).toContain(
+            "defineOptions(({ __swExtendable: true, name: 'macro-only', ...({ inheritAttrs: false }) }));",
+        );
         expect(result).toContain("defineEmits(['save']);");
         expect(result).toContain('public: {},');
         expect(result).toContain('private: {},');
@@ -304,13 +311,15 @@ describe('build/vue-setup-transform base transforms', () => {
                 const {
                     title: __swSetupAuthor_publicTitle,
                     nested: {
-                        label: __swSetupAuthor_localLabel = __swSetupAuthor_fallbackLabel,
+                        label: __swSetupAuthor_localLabel = (__swSetupDispatch.read('fallbackLabel', () => __swSetupAuthor_fallbackLabel)),
                     },
                     ...__swSetupAuthor_rest
-                } = __swSetupAuthor_source;
+                } = (__swSetupDispatch.read('source', () => __swSetupAuthor_source));
             `,
         );
-        expect(collapsed).toContain('const [__swSetupAuthor_firstItem] = __swSetupAuthor_items;');
+        expect(collapsed).toContain(
+            "const [__swSetupAuthor_firstItem] = (__swSetupDispatch.read('items', () => __swSetupAuthor_items));",
+        );
         expect(collapsed).toContain('publicTitle: __swSetupAuthor_publicTitle');
         expect(collapsed).toContain(
             stripWhitespace`

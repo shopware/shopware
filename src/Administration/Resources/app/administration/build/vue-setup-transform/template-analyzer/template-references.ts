@@ -341,6 +341,8 @@ export {
     type ElementNode,
     type TemplateReferences,
     collectTemplateReferences,
+    collectBindingPatternNames,
+    getForDirective,
     getDefaultSlotDirective,
     getStaticSwBlockExtends,
     getStaticSwBlockName,

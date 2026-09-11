@@ -1307,7 +1307,7 @@ Due to inappropriate block names, the following deprecated blocks have been remo
 
 ## Migrating Options API overrides to the Composition API Extension System
 
-Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.
+Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a compatibility bridge retains your existing `Shopware.Component.override()` Options definitions and lets Vue initialize them normally. The compatibility adapter also supports retained Twig blocks and Options definitions on native SFC components. Review each component migration for removed or renamed extension points.
 
 This guide shows how to migrate your plugin override to `Shopware.Component.overrideComponentSetup()` so it works natively against Composition API components.
 
@@ -1422,16 +1422,13 @@ Shopware.Component.overrideComponentSetup<typeof SwProductList>()(
 );
 ```
 
-### Unsupported Options API patterns
+### Legacy compatibility
 
-The following patterns have no direct equivalent in `overrideComponentSetup()` and must be restructured:
+Existing overrides retain native Vue Options behavior, including watchers, mixins, injections, providers, custom metadata, route guards, shortcuts, and title metadata. The bridge shares migrated setup bindings and adapts `$super` calls. Register component-definition options during application bootstrap, before Vue initializes the component.
 
-| Pattern | Alternative |
-|---|---|
-| `provide` | Not supported in overrides; move `provide` into the component itself |
-| `components` / `directives` | Register globally via `Shopware.Component.register()` / `Shopware.Directive.register()` |
-| `render()` function | Not supported in overrides |
-| Dot-notation watch paths (`'a.b.c'`) | Use a `computed` to extract the nested value, then `watch` the computed ref |
+Compatibility migrations retain every mapped member, including members unused by the base component. Incomplete composable mappings and initialization-sensitive base effects leave the component on Options API. Intentional contract changes require a separate major-release migration.
+
+Migrated components must retain existing block and member names. A component that renamed a member can retain a public alias to preserve the old Options instance name. The build transform generates bridge metadata from recognized public declarations without adding compatibility options to SFC source. See the [compatibility documentation](src/Administration/Resources/app/administration/technical-docs/03-extensibility/04-composition-extension-system.md#options-api-shim).
 
 ## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
 

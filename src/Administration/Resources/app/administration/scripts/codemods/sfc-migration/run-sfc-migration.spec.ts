@@ -358,27 +358,24 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         const root = makeRoot('sfc-migration-replace-');
 
         try {
-            fs.cpSync(path.join(FIXTURES, 'sw-created-pattern'), path.join(root, 'sw-created-pattern'), {
-                recursive: true,
-            });
-            writeModuleIndex(root, "Component.register('sw-created-pattern', () => import('./sw-created-pattern'));");
+            writeComponent(root, 'sw-compatible-base');
+            const originalTwig = fs.readFileSync(path.join(root, 'sw-compatible-base/sw-compatible-base.html.twig'));
+            writeModuleIndex(root, "Component.register('sw-compatible-base', () => import('./sw-compatible-base'));");
 
             const result = await runMigration(root, { write: true, replaceOriginals: true });
-            const dir = path.join(root, 'sw-created-pattern');
+            const dir = path.join(root, 'sw-compatible-base');
 
-            expect(reportOf(result, 'sw-created-pattern')).toMatchObject({ outcome: 'full', registration: 'register' });
+            expect(reportOf(result, 'sw-compatible-base')).toMatchObject({ outcome: 'full', registration: 'register' });
             expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain(
-                "export { default } from './sw-created-pattern.vue';",
+                "export { default } from './sw-compatible-base.vue';",
             );
             expect(Object.keys(manifest(root)).sort()).toEqual([
                 'index.js',
-                'sw-created-pattern/index.js',
-                'sw-created-pattern/sw-created-pattern.html.twig',
-                'sw-created-pattern/sw-created-pattern.vue',
+                'sw-compatible-base/index.js',
+                'sw-compatible-base/sw-compatible-base.html.twig',
+                'sw-compatible-base/sw-compatible-base.vue',
             ]);
-            expect(manifest(root)['sw-created-pattern/sw-created-pattern.html.twig']).toEqual(
-                fs.readFileSync(path.join(FIXTURES, 'sw-created-pattern', 'sw-created-pattern.html.twig')),
-            );
+            expect(manifest(root)['sw-compatible-base/sw-compatible-base.html.twig']).toEqual(originalTwig);
         } finally {
             fs.rmSync(root, { recursive: true, force: true });
         }

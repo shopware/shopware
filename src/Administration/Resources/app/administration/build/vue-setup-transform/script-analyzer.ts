@@ -34,6 +34,7 @@ import {
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
+import { inferLegacyOptions, type LegacyOptionsMetadata } from './script-analyzer/legacy-options';
 import { type SetupRenameTarget, collectSetupRenameTargets } from './flow-analysis';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
@@ -74,7 +75,9 @@ type SharedScriptAnalysis = {
  */
 type BaseScriptAnalysis = {
     mode: 'base';
-    renameTargets: (SourceRange & Pick<SetupRenameTarget, 'localName' | 'expansion'>)[];
+    legacyOptions: LegacyOptionsMetadata;
+    optionsArgument?: SourceRange;
+    renameTargets: (SourceRange & Pick<SetupRenameTarget, 'localName' | 'expansion' | 'dispatch' | 'write'>)[];
     publicEntries: string[];
 };
 
@@ -342,14 +345,21 @@ function buildBaseAnalysis(
     return {
         ...shared,
         mode: 'base',
+        legacyOptions: inferLegacyOptions(ast, publicEntries),
+        optionsArgument: (() => {
+            const argument = getMacroEntry(classified.macroEntries, 'defineOptions', 'statement')?.call.arguments[0];
+            return argument ? getNodeRange(argument) : undefined;
+        })(),
         // Only base mode renames: the body stays where the author wrote it, so every top-level runtime
         // binding moves to an alias and the footer re-declares the original name. Computing this for
         // override mode would be a wasted AST walk - nothing there reads it.
         renameTargets: collectSetupRenameTargets(ast.program, classified.bindings.names).map(
-            ({ node, localName, expansion }) => ({
+            ({ node, localName, expansion, dispatch, write }) => ({
                 ...getNodeRange(node),
                 localName,
                 expansion,
+                dispatch,
+                write,
             }),
         ),
         publicEntries,

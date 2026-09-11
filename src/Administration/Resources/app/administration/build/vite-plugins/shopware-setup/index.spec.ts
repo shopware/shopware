@@ -26,6 +26,14 @@ type ProbeSide = {
     mappedPosition: { source: string; line: number };
 };
 type ProbeResult = {
+    correctComponentName: boolean;
+    wrappedNativeOverride: boolean;
+    productionDefinitionBridge: boolean;
+    productionSlotBridge: boolean;
+    developmentHotUpdateBridge: boolean;
+    developmentDefinitionBridge: boolean;
+    developmentSlotBridge: boolean;
+    slots: ProbeSide;
     sources: string[];
     loweredSourceCount: number;
     base: ProbeSide;
@@ -392,7 +400,15 @@ swDefinePublic({ count });
                 },
             },
         );
-        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
+        const result = JSON.parse(stdout) as ProbeResult;
+        const { sources, loweredSourceCount, base, override, slots } = result;
+        expect(result.productionDefinitionBridge).toBe(true);
+        expect(result.correctComponentName).toBe(true);
+        expect(result.wrappedNativeOverride).toBe(false);
+        expect(result.productionSlotBridge).toBe(true);
+        expect(result.developmentDefinitionBridge).toBe(true);
+        expect(result.developmentHotUpdateBridge).toBe(true);
+        expect(result.developmentSlotBridge).toBe(true);
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is
         // serialized from the emitted asset, so asserting on the chunk object hid a bug where every
@@ -408,6 +424,7 @@ swDefinePublic({ count });
         // only the override proves the transform's own map is composed rather than merely renamed.
         const sides: { probe: ProbeSide; file: string }[] = [
             { probe: base, file: 'src/sw-nested-component.vue' },
+            { probe: slots, file: 'src/sw-slot-component.vue' },
             { probe: override, file: 'src/sw-nested-component.override.vue' },
         ];
 

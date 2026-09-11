@@ -6,8 +6,8 @@
 The Composition API Extension System is the next-generation mechanism for extending Vue components in the Shopware 6 Administration. It replaces the legacy Component Factory override system with a type-safe, reactive, non-invasive approach based on Vue 3 Composition API.
 
 **Source files:**
-- `src/app/adapter/composition-extension-system.ts` — `createExtendableSetup`, `overrideComponentSetup`, `_overridesMap`
-- `src/app/adapter/options-composition-shim.ts` — backward-compatibility layer for Options API overrides
+- `src/app/adapter/composition-extension-system/index.ts` — `createExtendableSetup`, `overrideComponentSetup`, `_overridesMap`
+- `src/app/adapter/options-composition-shim/component-definition.ts` — backward-compatibility layer for Options API overrides
 
 ---
 
@@ -15,33 +15,16 @@ The Composition API Extension System is the next-generation mechanism for extend
 
 ```mermaid
 flowchart TD
-    pluginOptions["Plugin: Shopware.Component.override()"]
-    pluginComposition["Plugin: Shopware.Component.overrideComponentSetup()"]
-    overrideRegistry["Component Override Registry (Shopware.Component.getOverrideRegistry())"]
-    overridesMap["_overridesMap (reactive map: componentName → override fns)"]
-    shimCheck{"shouldActivateShim?"}
-    shimConvert["convertOptionsApiOverrideToCompositionApi()"]
-    compositionFn["Composition API override function"]
-    createExtendable["createExtendableSetup()"]
-    originalSetup["originalSetup()"]
-    reactiveState["reactiveWrappedState (merged public + private)"]
-    applyOverrides["applyOverrides() — watch(_overridesMap)"]
-    templateOutput["Component template bindings (toRefs result)"]
-
-    pluginOptions --> overrideRegistry
-    pluginComposition --> overridesMap
-    createExtendable --> originalSetup
-    originalSetup --> reactiveState
-    createExtendable --> overrideRegistry
-    overrideRegistry --> shimCheck
-    shimCheck -- "yes (Options API patterns detected)" --> shimConvert
-    shimCheck -- "no" --> compositionFn
-    shimConvert --> compositionFn
-    compositionFn --> overridesMap
-    overridesMap --> applyOverrides
-    reactiveState --> applyOverrides
-    applyOverrides --> reactiveState
-    reactiveState --> templateOutput
+    legacy["Component.override(): unchanged Options"] --> registry["Resolve registrations before mount"]
+    registry --> definition["Prepare extends / mixins chain"]
+    definition --> setup["Execute SFC setup once"]
+    setup --> bridge["Share binding accessors"]
+    bridge --> options["Vue initializes Options"]
+    options --> state["Vue data / computed / methods"]
+    state --> bridge
+    bridge --> render["SFC and retained Twig blocks"]
+    native["Experimental setup overrides"] --> overlay["Composition state overlay"]
+    overlay --> bridge
 ```
 
 ### Key data structures
@@ -55,7 +38,7 @@ flowchart TD
 
 ## `createExtendableSetup`
 
-**Location:** `composition-extension-system.ts`
+**Location:** `composition-extension-system/index.ts`
 
 Wraps a component's setup function to make it extendable at runtime. Components must call this instead of returning their setup result directly.
 
@@ -143,18 +126,20 @@ Components not registered in this interface fall back to `{ [key: string]: any }
 
 ### Override application lifecycle
 
-1. `originalSetup` runs and produces the initial state.
-2. An async IIFE reads all pending overrides from `Shopware.Component.getOverrideRegistry()` for this component name. Each pending override that contains Options API patterns is converted via the shim (see below); the resulting Composition API function is pushed into `_overridesMap[name]`.
-3. A `watch` on `_overridesMap[name]` (with `{ deep: true, immediate: true }`) calls `applyOverrides` whenever the array changes.
-4. `applyOverrides` iterates overrides in registration order. Already-applied overrides are skipped (tracked in `appliedOverrides`).
-5. Each override result is merged into `reactiveWrappedState` according to the return-type rules.
-6. `toRefs(reactiveWrappedState)` is returned to Vue so all state is reactive in the template.
+1. The factory resolves legacy registrations before it prepares the Vue definition. Direct SFC imports use the same preparation through an async component.
+2. The base setup runs. Its compiler-generated footer attaches the override state.
+3. Each instance applies resolved legacy registrations in order, followed by native setup overrides. Conversion is cached per registration; state and effects belong to each instance.
+4. Synchronous overrides run before the first render. Pending configurations resolve in registration order, regardless of network completion order.
+5. New registrations notify mounted instances. Future lifecycle hooks and watchers use the retained owner and effect scope.
+6. The data scope exposes added bindings lazily, so creating it does not evaluate every computed getter.
+
+Register extensions during application bootstrap. Props, emits, local assets, and custom rendering must be known before Vue initializes the component. Late state and template updates cannot repeat initialization that has already happened.
 
 ---
 
 ## `overrideComponentSetup`
 
-**Location:** `composition-extension-system.ts`
+**Location:** `composition-extension-system/index.ts`
 
 Plugin authors use this function to register a Composition API override for a specific component. It is exposed on `Shopware.Component`.
 
@@ -205,148 +190,85 @@ Multiple overrides are applied in registration order. Each receives a shallow co
 
 ## Options API Shim
 
-**Location:** `options-composition-shim.ts`
+Existing `Shopware.Component.override()` registrations remain Options definitions when their base becomes an SFC.
+Vue initializes those definitions. The adapter does not convert data, watchers, injections, or lifecycle hooks into composables.
 
-The shim is a backward-compatibility layer that allows existing plugins using the Options API `Shopware.Component.override()` pattern to continue working when the target component has been migrated to Composition API with `createExtendableSetup`.
+### Responsibilities
 
-### Activation
+| Module | Responsibility |
+| --- | --- |
+| `options-composition-shim/component-definition.ts` | Resolves the definition before mount and retains its Options inheritance chain. |
+| `options-composition-shim/native-options-state.ts` | Connects SFC bindings to Vue's data and context without reading setup accessors recursively. |
+| `options-composition-shim/native-options-chain.ts` | Resolves named mixins and adapts Shopware's `$super` calls. |
+| `options-composition-shim/legacy-assets.ts` | Shares local component and directive registrations with Twig. |
+| `composition-extension-system/setup-dispatch.ts` | Keeps internal SFC calls and captured callbacks connected to effective bindings. |
 
-The shim is **automatically activated** by `createExtendableSetup` when it processes a pending override from the component factory registry. It is never called directly by plugin authors.
+### Initialization and inheritance
 
-`shouldActivateShim(overrideConfig)` returns `true` when the override config contains any of:
+The factory and direct-import wrapper resolve registrations before Vue normalizes props and emits.
+The SFC setup runs once. Vue then applies the unchanged `extends` and `mixins` chain.
+Named mixins resolve through `Shopware.Mixin.getByName()`.
 
-- `data`
-- `methods`
-- `computed`
-- `watch`
-- `mixins` (non-empty array)
-- `inject`
-- `extends`
-- Any lifecycle hook key (`beforeCreate`, `created`, `beforeMount`, `mounted`, `beforeUpdate`, `updated`, `beforeUnmount`, `unmounted`, `activated`, `deactivated`, `errorCaptured`)
+Vue controls injection, methods, data, computed values, watchers, providers, and lifecycle hooks.
+Immediate legacy watchers see the initialized Options state. They run before `created`.
+Vue also owns custom option merge strategies, hook deduplication, error handling, and effect disposal.
+`Component.extend()` retains the base setup and override lineage without changing the base definition.
 
-A deprecation warning is logged to the console every time the shim activates, directing developers to migrate to `overrideComponentSetup`.
+### State and instance access
 
-### Conversion pipeline
+Shared binding accessors read Vue's data and context directly. They avoid `setupState`, which contains those same accessors.
+Vue development builds add context accessors after setup; the bridge replaces those before Options initialization.
 
-`convertOptionsApiOverrideToCompositionApi(componentName, optionsConfig)` returns a Composition API override function. The conversion follows this sequence inside the returned function:
+Ordinary legacy methods use Vue's instance. Methods that reference `$super` use a receiver for their preceding layer.
+Other reads and writes forward to the instance. The receiver remains valid across `await`.
+Computed parents support `$super('field')`, `$super('field.get')`, and `$super('field.set', value)`.
 
-1. **Merge mixins** — `mergeMixins` flattens the mixin tree depth-first (deepest ancestor first, matching Vue's own strategy) then merges `data`, `methods`, `computed`, `watch`, `inject`, and lifecycle hooks. Component-level keys win over mixin keys on conflict.
-2. **Convert `data`** — `convertData` calls `data()` and wraps each key in a `ref`.
-3. **Resolve `inject`** — `resolveInject` calls Vue's `inject()` for each key while still inside `setup()`.
-4. **Create `this` proxy** — `createThisProxy` creates a `Proxy` that intercepts property access and mutation (see below).
-5. **Convert `computed`** — `convertComputed` wraps each definition in `computed()`.
-6. **Convert `methods`** — `convertMethods` binds each function to the `this` proxy.
-7. **Setup watchers** — `setupWatchers` registers each watch entry via `watch()`.
-8. **Setup lifecycle hooks** — `setupLifecycleHooks` registers each hook via its Composition API equivalent.
-9. Returns the merged result object.
+`$data`, `$options`, `$watch`, `$emit`, `$attrs`, `$slots`, `$refs`, injections, and lifecycle cleanup use Vue's native implementation.
+The shared Vite and Jest transform infers base data, computed, and method categories from public SFC declarations.
+Bridge metadata appears only in compiled output; authored SFCs need no compatibility options.
+Legacy `data()` replacements follow Vue's normal rules, including replacement objects with different keys.
 
-### `this` proxy
+### Definition options and plugins
 
-The `this` proxy makes Options API code work transparently inside Composition API context. Property reads resolve in this order:
+Props, emits, local assets, `inheritAttrs`, custom options, and custom render functions remain Options declarations.
+A custom legacy render can replace the base's inline render without executing setup twice.
+Route guards are also exposed on the definition because Vue Router reads them before an instance exists.
+The title plugin reads merged `$options.metaInfo`; shortcuts continue to read `$options.shortcuts`.
 
-1. **`$super`** — calls the method or unwraps the computed ref from `previousState`
-2. **Vue instance properties** (`$emit`, `$t`, `$tc`, `$route`, `$router`, `$refs`, `$nextTick`, …) — forwarded from `getCurrentInstance().proxy`
-3. **Local state** — `data` refs, `computed` refs, and `methods` from the override itself (refs auto-unwrapped)
-4. **Injected values** — resolved via `inject`
-5. **Props** — current prop values
-6. **`previousState`** — the component's Composition API state (refs auto-unwrapped)
-7. If not found, a `console.warn` is logged.
+### Migration eligibility
 
-Property **writes** resolve in this order:
+Compatibility migrations only use composable mappings audited for the complete legacy member surface and override behavior.
+All mapped members are retained, including members unused by the base component.
+The runtime consumes the generated member metadata; it does not run the original mixin again or duplicate composable effects.
 
-1. Local state — sets `.value` if it is a ref, otherwise assigns directly
-2. `previousState` — sets `.value` if it is a ref; logs `console.error` if not writable
-3. Props — always logs `console.error` (props are read-only)
-4. Unknown key — logs `console.error`
+Mappings with missing members, closed-over overridable calls, or scaffold-only behavior leave the base on Options API.
+The first verified mapping is `placeholder`. Other mappings require their own audit before opting in.
+Base `created()` and watcher declarations are also deferred: moving them into setup would change their order relative to legacy overrides.
 
-### `inject` support
+A renamed binding can retain its original instance name through a public alias. The transform generates the bridge mapping:
 
-All three Vue Options API inject forms are supported:
-
-```javascript
-// Array form
-inject: ['myService']
-
-// Object with provider key alias
-inject: { localName: 'provideKey' }
-
-// Object with default value
-inject: { localName: { from: 'provideKey', default: null } }
+```vue
+<script setup>
+function internalValue() { return 'base'; }
+const oldValue = internalValue;
+function value() { return internalValue(); }
+swDefinePublic({ oldValue, value });
+</script>
 ```
 
-When merging mixins, existing (component-level) inject entries win over mixin inject entries on key conflict.
+### Boundaries
 
-### Lifecycle hook mapping
+Register definition overrides during application bootstrap, before the component is initialized.
+This bridge does not replay newly registered Options declarations on an existing instance.
 
-| Options API hook | Composition API equivalent | Notes |
-|---|---|---|
-| `beforeCreate` | — (called immediately) | Runs synchronously during `setup()` |
-| `created` | — (called immediately) | Runs synchronously during `setup()` |
-| `beforeMount` | `onBeforeMount` | |
-| `mounted` | `onMounted` | |
-| `beforeUpdate` | `onBeforeUpdate` | |
-| `updated` | `onUpdated` | |
-| `beforeUnmount` | `onBeforeUnmount` | |
-| `unmounted` | `onUnmounted` | |
-| `activated` | `onActivated` | |
-| `deactivated` | `onDeactivated` | |
-| `errorCaptured` | `onErrorCaptured` | |
+A migration must retain public blocks, props, events, members, routes, and behavior.
+Incomplete mappings remain unmigrated; a major-release migration must handle intentional contract changes separately.
+SFC setup runs before Options. Eager setup side effects cannot observe Options that Vue has not initialized yet.
+Captured callbacks and later binding reads use the bridge.
 
-**Mixin hooks** are registered before component-level hooks, matching Vue's native merge strategy.
-
-### Late-applied overrides
-
-Because `createExtendableSetup` processes the component override registry asynchronously (via an async IIFE), overrides may be applied after the component's `setup()` has already returned. In this case `getCurrentInstance()` returns `null` inside the shim.
-
-Behavior for late-applied overrides:
-- `beforeCreate`, `created` — called immediately (they are setup-phase hooks anyway)
-- `beforeMount`, `mounted` — called immediately (the component is already mounted)
-- `beforeUnmount`, `unmounted`, and other future hooks — **cannot be registered**; a `console.warn` is logged and those handlers are skipped
-
-### Supported features summary
-
-| Feature | Supported | Notes |
-|---|---|---|
-| `data` | Yes | Keys become refs |
-| `methods` | Yes | Bound to `this` proxy |
-| `computed` (getter) | Yes | |
-| `computed` (getter + setter) | Yes | |
-| `watch` (function handler) | Yes | |
-| `watch` (object with options) | Yes | `immediate`, `deep`, `flush` respected |
-| `watch` (string method name) | Yes | Method resolved from `this` proxy |
-| `watch` (dot-notation path) | No | Warning logged, watcher skipped |
-| `inject` (array) | Yes | |
-| `inject` (object) | Yes | |
-| `mixins` | Yes | Depth-first merge |
-| All lifecycle hooks | Yes | See mapping table above |
-| `$super` (methods) | Yes | |
-| `$super` (computed) | Yes | Returns `.value` of the ref |
-| Vue instance props (`$emit`, `$t`, …) | Yes | Forwarded via `getCurrentInstance` |
-
-### Unsupported options
-
-| Option | Level | Behavior |
-|---|---|---|
-| `components` | `console.warn` | Ignored |
-| `directives` | `console.warn` | Ignored |
-| `provide` | `console.warn` | Ignored |
-| `template` | `console.warn` | Ignored |
-| `extends` | `console.warn` | Ignored |
-| `inheritAttrs` | `console.warn` | Ignored |
-| `emits` | `console.warn` | Ignored |
-| `render` (custom render function) | `console.error` | Component will not work correctly |
-
----
-
-## Known Limitations
-
-1. **Dot-notation watch paths** — `watch: { 'a.b.c': handler }` is not supported by the shim. The watcher is silently skipped with a console warning. Migrate to a computed + simple watch.
-2. **Custom `render()` functions** — not supported. The shim logs an error.
-3. **`provide`** — not forwarded from overrides. Components that need `provide` must be fully migrated.
-4. **`components` / `directives`** — local component or directive registrations in an override are ignored.
-5. **`emits` declaration** — ignored; Vue's runtime emits validation will not see override-declared emits.
-6. **Late lifecycle hooks** — `beforeUnmount` and later hooks cannot be registered if the override is applied asynchronously after `setup()` returns (see Late-applied overrides above).
-7. **Reactive object structure** — when overriding a reactive object, the new value must contain all keys that were present in the original. Missing keys cause a console error and the override is rejected.
+Register retained Twig blocks through `Shopware.Component.override()`.
+See the [Twig adapter](./06-twig-native-block-adapter.md) for template behavior.
+The experimental native setup override API remains separate from the legacy Options contract.
 
 ---
 

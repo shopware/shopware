@@ -15,6 +15,8 @@
 import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform/index.ts';
 import { parse, compileScript, compileTemplate } from '@vue/compiler-sfc';
 import { camelize, capitalize } from 'vue';
+import { parse as parseTemplate, NodeTypes, ElementTypes, type TemplateChildNode } from '@vue/compiler-dom';
+import { isBuiltInDirective } from '@vue/shared';
 // The standalone API with explicitly imported plugins is required: prettier's main entry loads its
 // implementation through dynamic import(), which Jest's CJS sandbox rejects.
 import { format } from 'prettier/standalone';
@@ -144,6 +146,30 @@ function directiveBindingCollision(
     return null;
 }
 
+/** Check authored names before the compiler replaces lexical assets with generated bridge bindings. */
+function authoredAssetCollision(sfc: string, vuePath: string): string | null {
+    const { descriptor } = parse(sfc, { filename: vuePath });
+    if (!descriptor.template) return null;
+    const script = compileScript(descriptor, { id: vuePath });
+    const components: string[] = [];
+    const directives: string[] = [];
+    function visit(nodes: TemplateChildNode[]): void {
+        for (const node of nodes) {
+            if (node.type !== NodeTypes.ELEMENT) continue;
+            if (node.tagType === ElementTypes.COMPONENT) components.push(node.tag);
+            for (const prop of node.props) {
+                if (prop.type === NodeTypes.DIRECTIVE && !isBuiltInDirective(prop.name)) directives.push(prop.name);
+            }
+            visit(node.children);
+        }
+    }
+    visit(parseTemplate(descriptor.template.content).children);
+    return (
+        componentBindingCollision(components, [], script.bindings ?? {}, script.imports ?? {}) ??
+        directiveBindingCollision(directives, [], script.bindings ?? {}, script.imports ?? {})
+    );
+}
+
 /**
  * Returns `null` when the SFC survives the full toolchain, otherwise the first error message.
  * The filename must be the real target path — the transform infers mode and component name from it.
@@ -170,6 +196,8 @@ function validateSfc(sfc: string, vuePath: string): string | null {
     let script;
 
     try {
+        const collision = authoredAssetCollision(sfc, vuePath);
+        if (collision) return collision;
         script = compileScript(descriptor, { id: vuePath });
     } catch (error) {
         return errorMessage(error);
@@ -199,28 +227,6 @@ function validateSfc(sfc: string, vuePath: string): string | null {
 
         if (!unbound.ast || !bound.ast) {
             return 'Vue did not return a template AST for the generated SFC';
-        }
-
-        const collision = componentBindingCollision(
-            unbound.ast.components,
-            bound.ast.components,
-            script.bindings ?? {},
-            script.imports ?? {},
-        );
-
-        if (collision !== null) {
-            return collision;
-        }
-
-        const directiveCollision = directiveBindingCollision(
-            unbound.ast.directives,
-            bound.ast.directives,
-            script.bindings ?? {},
-            script.imports ?? {},
-        );
-
-        if (directiveCollision !== null) {
-            return directiveCollision;
         }
     }
 

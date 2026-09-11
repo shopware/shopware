@@ -131,6 +131,8 @@ type SetupRenameTarget = {
     node: Identifier | JSXIdentifier;
     localName: string;
     expansion: SetupRenameExpansion;
+    dispatch?: boolean;
+    write?: boolean;
 };
 
 /**
@@ -193,6 +195,9 @@ function collectSetupRenameTargets(root: BabelNode | null | undefined, names: Se
         shadowedBindings: Set<string>,
         parent: BabelNode | null,
         inTypePosition: boolean,
+        inPattern = false,
+        inMacro = false,
+        inAssignment = false,
     ): void {
         if (!node) {
             return;
@@ -208,12 +213,21 @@ function collectSetupRenameTargets(root: BabelNode | null | undefined, names: Se
                 (parent as { id?: BabelNode }).id === node &&
                 (parent.type === 'VariableDeclarator' ||
                     parent.type === 'FunctionDeclaration' ||
-                    parent.type === 'ClassDeclaration');
+                    parent.type === 'ClassDeclaration' ||
+                    parent.type === 'TSEnumDeclaration');
 
             if (isDeclarationId || isValueReadPosition(node, parent)) {
                 targets.push({
                     node,
                     localName: node.name,
+                    write: inAssignment || parent?.type === 'UpdateExpression',
+                    dispatch:
+                        !isDeclarationId &&
+                        !inPattern &&
+                        !inMacro &&
+                        parent?.type !== 'ExportSpecifier' &&
+                        !(parent?.type === 'AssignmentExpression' && parent.left === node) &&
+                        parent?.type !== 'UpdateExpression',
                     expansion: (() => {
                         if (isShorthandPropertyValue(node, parent)) {
                             return 'shorthand-property';
@@ -327,17 +341,53 @@ function collectSetupRenameTargets(root: BabelNode | null | undefined, names: Se
                     node: declared,
                     localName: declared.name,
                     expansion: 'shorthand-property',
+                    write: inAssignment,
                 });
             }
 
-            visit(node.value.right, childShadowedBindings, node.value, childInTypePosition);
+            visit(node.value.right, childShadowedBindings, node.value, childInTypePosition, false, inMacro);
 
             return;
         }
 
-        childBabelEntries(node).forEach(({ node: child, key }) =>
-            visit(child, childShadowedBindings, node, childInTypePosition || isTypeKey(key)),
-        );
+        const isMacroCall =
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            [
+                'defineProps',
+                'defineEmits',
+                'defineOptions',
+                'defineSlots',
+                'withDefaults',
+            ].includes(node.callee.name);
+        childBabelEntries(node).forEach(({ node: child, key }) => {
+            const pattern =
+                (node.type === 'VariableDeclarator' && key === 'id') ||
+                (node.type === 'AssignmentExpression' && key === 'left') ||
+                (node.type === 'AssignmentPattern' && key === 'left') ||
+                (inPattern &&
+                    node.type !== 'MemberExpression' &&
+                    node.type !== 'OptionalMemberExpression' &&
+                    !(node.type === 'AssignmentPattern' && key === 'right'));
+            const assignment =
+                (node.type === 'AssignmentExpression' && key === 'left') ||
+                ((node.type === 'ForOfStatement' || node.type === 'ForInStatement') &&
+                    key === 'left' &&
+                    child.type !== 'VariableDeclaration') ||
+                (inAssignment &&
+                    node.type !== 'MemberExpression' &&
+                    node.type !== 'OptionalMemberExpression' &&
+                    !(node.type === 'AssignmentPattern' && key === 'right'));
+            visit(
+                child,
+                childShadowedBindings,
+                node,
+                childInTypePosition || isTypeKey(key),
+                pattern,
+                inMacro || isMacroCall,
+                assignment,
+            );
+        });
     }
 
     visit(root, new Set<string>(), null, false);

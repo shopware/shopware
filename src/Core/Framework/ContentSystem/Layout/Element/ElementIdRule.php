@@ -18,9 +18,15 @@ use Shopware\Core\Framework\Log\Package;
  *
  * - {@see VirtualRootWrapper::VIRTUAL_ROOT_ID} is minted by the wrap step, so an authored element carrying it
  *   collides on every wrapping render.
- * - An id PHP casts to an integer array key puts an integer into {@see ResolvedValueIndexFactory}'s
- *   string-keyed assignments map, which then encodes as a JSON list once those keys run 0..n-1, and as a map
- *   with integer-looking members otherwise.
+ * - An id that reads as an integer is refused on the JSON number grammar's integer part, not on PHP's
+ *   array-key cast. The cast is what actually breaks: it puts an integer into
+ *   {@see ResolvedValueIndexFactory}'s string-keyed assignments map, which then encodes as a JSON list once
+ *   those keys run 0..n-1. But its bound is `PHP_INT_MAX`, which no regular expression can express, so a
+ *   published pattern could only ever be *almost* this rule. The syntactic form is marginally wider — it
+ *   also refuses `-0` and digit strings past `PHP_INT_MAX`, which PHP happens to keep as strings — and
+ *   nothing is lost by refusing them: a bare integer is not a name, which is the whole purpose of a
+ *   free-form id. `012` and `1.5` are not integer literals and stay admitted, which is also why no minted
+ *   id can collide: a hex id runs 32 characters and begins with `0`, so even an all-digit one is not one.
  * - A line terminator is excluded because the published pattern must mean the same thing as this method, and
  *   a JSON Schema `pattern` is ECMA-262, where `.` matches everything except exactly these four code points.
  *   An id spanning two lines also serves no part of the naming purpose a free-form id exists for.
@@ -35,17 +41,22 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ElementIdRule
 {
-    /**
-     * ECMA-262's `LineTerminator` production, keyed by the code point each one publishes in a message. This
-     * is deliberately narrower than Unicode's newline set: NEL (U+0085), vertical tab and form feed are not
-     * line terminators in ECMA-262, so `.` matches them and both sides admit them.
-     */
     public const LINE_TERMINATORS = [
         "\n" => 'U+000A',
         "\r" => 'U+000D',
         "\u{2028}" => 'U+2028',
         "\u{2029}" => 'U+2029',
     ];
+    /**
+     * ECMA-262's `LineTerminator` production, keyed by the code point each one publishes in a message. This
+     * is deliberately narrower than Unicode's newline set: NEL (U+0085), vertical tab and form feed are not
+     * line terminators in ECMA-262, so `.` matches them and both sides admit them.
+     */
+    /**
+     * The JSON number grammar's integer part, anchored at both ends. Deliberately ASCII-only and without the
+     * `u` modifier, so `preg_match` can answer only 0 or 1 here.
+     */
+    private const INTEGER_LITERAL = '/^-?(0|[1-9][0-9]*)\z/';
 
     /**
      * The predicate an enforcement site frames for its own audience — `it …` for the decode throw, `This
@@ -57,8 +68,8 @@ final class ElementIdRule
             return 'is the reserved virtual-root id';
         }
 
-        if (!\is_string(array_key_first([$id => null]))) {
-            return 'is a string PHP casts to an integer array key';
+        if (preg_match(self::INTEGER_LITERAL, $id) === 1) {
+            return 'reads as an integer';
         }
 
         foreach (self::LINE_TERMINATORS as $terminator => $codePoint) {

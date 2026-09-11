@@ -22,9 +22,9 @@ use Shopware\Core\Framework\Log\Package;
  * The pattern is read out of the schema, never restated here: a test carrying its own copy stays green
  * through exactly the drift it exists to catch.
  *
- * Where the two do not agree, they diverge in one direction only, and {@see divergentIdProvider} names every
- * input and its reason. That direction is the safe one — a client withholds a write the server would have
- * taken, rather than sending one the server strands.
+ * The two agree on every input but the empty string, which {@see divergentIdProvider} carries with its
+ * reason. That one diverges in the safe direction — a client withholds a write the server would have taken,
+ * rather than sending one the server strands — and the write descriptor refuses it anyway.
  *
  * @internal
  */
@@ -136,17 +136,27 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
 
         yield 'the integer-castable string "0"' => [
             '0',
-            ContentSystemException::invalidElementId('0', 'it is a string PHP casts to an integer array key'),
+            ContentSystemException::invalidElementId('0', 'it reads as an integer'),
         ];
 
         yield 'a positive integer-castable string' => [
             '12',
-            ContentSystemException::invalidElementId('12', 'it is a string PHP casts to an integer array key'),
+            ContentSystemException::invalidElementId('12', 'it reads as an integer'),
         ];
 
         yield 'a negative integer-castable string' => [
             '-3',
-            ContentSystemException::invalidElementId('-3', 'it is a string PHP casts to an integer array key'),
+            ContentSystemException::invalidElementId('-3', 'it reads as an integer'),
+        ];
+
+        yield 'a negative zero, which PHP alone would have kept as a string key' => [
+            '-0',
+            ContentSystemException::invalidElementId('-0', 'it reads as an integer'),
+        ];
+
+        yield 'a digit string past PHP_INT_MAX, likewise' => [
+            '9223372036854775808',
+            ContentSystemException::invalidElementId('9223372036854775808', 'it reads as an integer'),
         ];
 
         yield 'an id carrying a line feed' => [
@@ -171,20 +181,15 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
     }
 
     /**
-     * Every input the pattern refuses that decode on its own would take, each with the reason it stays that
-     * way. The empty string is not a real divergence at the API boundary: the write descriptor's `NotBlank`
-     * refuses it, so the schema agrees with the path a request actually travels. The other two cannot be
-     * closed, because a regular expression cannot express PHP's platform-dependent integer bound.
+     * The one input the pattern refuses that decode on its own would take. It is not a divergence at the API
+     * boundary: the write descriptor's `NotBlank` refuses it, so the schema agrees with the path a request
+     * actually travels. Decode admits it because an already-stored blank id must stay readable.
      *
      * @return iterable<string, array{string}>
      */
     public static function divergentIdProvider(): iterable
     {
         yield 'the empty string, which the write descriptor refuses through NotBlank' => [''];
-
-        yield 'a negative zero, which PHP does not cast to an integer key' => ['-0'];
-
-        yield 'a digit string past PHP_INT_MAX, which PHP therefore keeps as a string key' => ['9223372036854775808'];
     }
 
     /**

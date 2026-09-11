@@ -51,8 +51,20 @@ class ElementIdRuleTest extends TestCase
 
         yield 'refuses an integer-castable id' => [
             '12',
-            'is a string PHP casts to an integer array key',
+            'reads as an integer',
         ];
+
+        yield 'refuses a negative zero, which PHP alone would have kept as a string key' => [
+            '-0',
+            'reads as an integer',
+        ];
+
+        yield 'refuses a digit string past PHP_INT_MAX, likewise' => [
+            '9223372036854775808',
+            'reads as an integer',
+        ];
+
+        yield 'admits a non-canonical digit string, so no minted hex id can collide' => ['00', null];
 
         yield 'refuses a line feed' => ['hero' . "\n", 'contains the line terminator U+000A'];
 

@@ -1,7 +1,7 @@
 # ReplaceElement
 
 The one operation that changes an element's type in place, and the only one whose contract is a set of carry-over
-rules rather than a placement. The other eight are in [operations.md](operations.md).
+rules rather than a placement. The other operations are in [operations.md](operations.md).
 
 `__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, string $newType, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator)`.
 
@@ -11,7 +11,16 @@ Swaps an element's component to `$newType`, keeping the same id. `requireRegiste
 exist (`mutationTargetNotFound`); carries over primitive properties whose key and type match, wiring (data
 requirements, providers, consumers) keyed to a non-primitive new-type property, and children of slots present in the
 new type, then seeds the new type's primitive defaults for any key it does not carry (a carried or authored value
-wins). The element's `style` carries over unconditionally, being universal and type-independent, and
+wins).
+
+"Type match" is `Layout/Type/Specification/PropertyType::admits()`, the one conformance predicate the write path and
+the diagnostics also read, behind an `isPrimitive()` pre-gate on the new type's declaration. Two consequences follow
+from the predicate rather than from any rule of this operation's own. A translatable property carries its whole
+language map across, provided both the old and the new type declare that key translatable — a bare string under a
+translatable key is not carryable, because `admits()` rejects it. And an authored present `null` under a
+non-translatable primitive carries rather than being dropped: `admits()` admits the null variant for every such
+declaration, since whether a key may be null is the required-rule's business. The default overlay then leaves that
+null in place, because `+` fills only an absent key. The element's `style` carries over unconditionally, being universal and type-independent, and
 `attributedSpecifications` survives only for keys whose carried data requirement survives.
 
 A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable: `carryProperties()`

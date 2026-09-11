@@ -26,8 +26,6 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -38,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,9 +73,15 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class ContentRouteRenderingTest extends TestCase
 {
+    use ContentLayoutFixtureBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * The string every fixture stores under {@see Defaults::LANGUAGE_SYSTEM} on the translatable
+     * `Sw:Content:Text.text` property. The browser requests the system language, so language reduction picks
+     * that entry and the served value is this string bare.
+     */
     private const TEXT_VALUE = 'Alpha copy';
 
     private const LAYOUT_NAME = 'content-route-rendering';
@@ -241,12 +246,12 @@ class ContentRouteRenderingTest extends TestCase
     {
         $this->createNestedLayout();
 
+        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
         // The page-level requirement the ambient run resolves really is declared by the root source, and the
         // stored root really consumes it, root-scoped.
         static::assertContains('category', $this->pageDataRequirementKeys());
         $this->assertStoredPageContextConsumer();
-
-        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
 
         static::assertArrayHasKey('properties', $root);
         static::assertIsArray($root['properties']);
@@ -434,9 +439,10 @@ class ContentRouteRenderingTest extends TestCase
     public function testFullFormatCarriesElementStyle(): void
     {
         $this->createNestedLayout();
-        $this->assertStoredStyleIsPresent();
 
         $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        $this->assertStoredStyleIsPresent();
 
         static::assertArrayHasKey('style', $root);
         static::assertIsArray($root['style']);
@@ -502,12 +508,15 @@ class ContentRouteRenderingTest extends TestCase
     public function testFullFormatOmitsAuthoringOnlyKeys(): void
     {
         $this->createNestedLayout();
+
+        $elements = $this->flatten($this->rootElements($this->requestJson($this->uri('content'))));
+
         // The fixture authors both of the keys asserted away below: `acceptsContext` on the root and a
         // `dataRequirements` entry on the image, so their absence is a change and not an empty case.
         $this->assertStoredPageContextConsumer();
         static::assertNotSame([], $this->storedImageDataRequirements());
 
-        foreach ($this->flatten($this->rootElements($this->requestJson($this->uri('content')))) as $element) {
+        foreach ($elements as $element) {
             static::assertArrayNotHasKey('dataRequirements', $element);
             static::assertArrayNotHasKey('acceptsContext', $element);
             static::assertArrayNotHasKey('providesContext', $element);
@@ -1456,7 +1465,7 @@ class ContentRouteRenderingTest extends TestCase
                     [
                         'id' => $this->ids->get('text'),
                         'component' => 'Sw:Content:Text',
-                        'properties' => ['text' => self::TEXT_VALUE],
+                        'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                     ],
                     [
                         'id' => $this->ids->get('inner-grid'),
@@ -1513,7 +1522,7 @@ class ContentRouteRenderingTest extends TestCase
                         'content' => [[
                             'id' => $this->ids->get('text'),
                             'component' => 'Sw:Content:Text',
-                            'properties' => ['text' => self::TEXT_VALUE],
+                            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                         ]],
                     ],
                 ]],
@@ -1649,7 +1658,7 @@ class ContentRouteRenderingTest extends TestCase
         return [
             'id' => $this->ids->get('text'),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => self::TEXT_VALUE],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
             'acceptsContext' => [
                 'categoryPlaceholder' => [
                     'type' => 'single',
@@ -1684,31 +1693,24 @@ class ContentRouteRenderingTest extends TestCase
      */
     private function persistLayout(array $tree): void
     {
-        $context = Context::createDefaultContext();
+        $this->persistContentLayout(
+            $this->ids->get('layout'),
+            self::LAYOUT_NAME,
+            self::LAYOUT_VERSION,
+            'category',
+            $tree,
+        );
 
-        $this->layoutRepository()->create([[
-            'id' => $this->ids->get('layout'),
-            'name' => self::LAYOUT_NAME,
-            'version' => self::LAYOUT_VERSION,
-            'rootSource' => 'category',
-            'layout' => $tree,
-        ]], $context);
-
-        $this->repository('category_content_layout.repository')->create([[
-            'id' => $this->ids->get('assignment'),
-            'categoryId' => $this->ids->get('category'),
-            'salesChannelId' => null,
-            'contentLayoutId' => $this->ids->get('layout'),
-        ]], $context);
+        $this->assignLayoutToCategory(
+            $this->ids->get('assignment'),
+            $this->ids->get('category'),
+            $this->ids->get('layout'),
+        );
     }
 
     private function createCategory(): void
     {
-        $this->repository('category.repository')->create([[
-            'id' => $this->ids->create('category'),
-            'name' => 'Content route category',
-            'active' => true,
-        ]], Context::createDefaultContext());
+        $this->createTestCategory($this->ids->create('category'), 'Content route category');
     }
 
     private function createMedia(): void
@@ -1845,17 +1847,6 @@ class ContentRouteRenderingTest extends TestCase
     private function layoutRepository(): EntityRepository
     {
         $repository = static::getContainer()->get('content_layout.repository');
-        static::assertInstanceOf(EntityRepository::class, $repository);
-
-        return $repository;
-    }
-
-    /**
-     * @return EntityRepository<EntityCollection<Entity>>
-     */
-    private function repository(string $serviceId): EntityRepository
-    {
-        $repository = static::getContainer()->get($serviceId);
         static::assertInstanceOf(EntityRepository::class, $repository);
 
         return $repository;

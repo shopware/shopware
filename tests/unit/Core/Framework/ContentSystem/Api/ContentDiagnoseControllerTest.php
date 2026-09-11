@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -295,6 +296,7 @@ class ContentDiagnoseControllerTest extends TestCase
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             new ContextPathResolver(),
+            static::createStub(Connection::class),
         );
     }
 

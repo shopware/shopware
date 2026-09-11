@@ -138,6 +138,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(VirtualRootWrapper::class);
     $services->set(StoredTreePreparer::class)
         ->args([
+            service(ContentSystemElementTypeRegistry::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
         ]);
@@ -589,6 +590,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BindingApplicator::class)
         ->args([
             service(DataLoaderConfigSerializerProvider::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     // What an element type stores (as opposed to its hydrated properties): the storageSchema introspection fold
@@ -648,6 +650,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
             service(ContextPathResolver::class),
+            service(Connection::class),
         ]);
 
     $services->set(LayoutGate::class)

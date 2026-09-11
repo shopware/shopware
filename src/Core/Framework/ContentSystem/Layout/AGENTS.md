@@ -8,4 +8,5 @@
 - `Scaffolding/VirtualRootWrapper` carries the page-level placeholder values and the wrap/unwrap prune scaffolding, and nothing else: no providers, no consumers, no data requirements. It distributes nothing to the roots in its slot
 - Element IDs unique across all roots (partial rendering searches all)
 - Placeholders (`{{key}}`) resolved in single pass on the stored tree, in FULL mode only (`Scaffolding/StoredTreePreparer`) — no recursive resolution, and no descent into a list or map property value
+- Placeholders resolve after language reduction because substitution never descends into a map, so a placeholder inside a translatable property resolves only once that property holds a plain string. The reduction order itself is owned by [../docs/pipeline-steps.md](../docs/pipeline-steps.md)
 - Field/ serializers are infrastructure — only interact in EntityDefinition classes

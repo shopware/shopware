@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\Property
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableTypeValidator;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -73,29 +74,47 @@ class TranslatableTypeValidatorTest extends TestCase
             new PropertySpecificationDto('label', ['string', 'integer'], false, true, 'Label', 'A label.', null, null, null),
             'translatable',
         ];
+
+        // The lone scalar declaration only: a single-member list still declares a union, which the stored
+        // language map is not a shape of.
+        yield 'translatable on a single-member list of string' => [
+            new PropertySpecificationDto('text', ['string'], false, true, 'Text', 'Text content.', null, null, null),
+            'translatable',
+        ];
     }
 
-    #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]
-    public function testThrowsOnWrongConstraintType(): void
+    /**
+     * @param class-string $expectedType
+     */
+    #[DataProvider('throwsUnexpectedTypeProvider')]
+    #[TestDox('throws UnexpectedTypeException when $_dataName')]
+    public function testThrowsUnexpectedType(mixed $value, Constraint $constraint, mixed $expectedInvalidValue, string $expectedType): void
     {
         $validator = new TranslatableTypeValidator();
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
-        $this->expectExceptionObject(new UnexpectedTypeException(new NotBlank(), TranslatableType::class));
-        $validator->validate(
+        $this->expectExceptionObject(new UnexpectedTypeException($expectedInvalidValue, $expectedType));
+        $validator->validate($value, $constraint);
+    }
+
+    /**
+     * @return iterable<string, array{mixed, Constraint, mixed, class-string}>
+     */
+    public static function throwsUnexpectedTypeProvider(): iterable
+    {
+        yield 'the constraint is not a TranslatableType' => [
             new PropertySpecificationDto('x', 'string', false, false, 'X', 'X.', null, null, null),
             new NotBlank(),
-        );
-    }
+            new NotBlank(),
+            TranslatableType::class,
+        ];
 
-    #[TestDox('throws UnexpectedTypeException when value type is wrong')]
-    public function testThrowsOnWrongValueType(): void
-    {
-        $validator = new TranslatableTypeValidator();
-        $validator->initialize(static::createStub(ExecutionContextInterface::class));
-
-        $this->expectExceptionObject(new UnexpectedTypeException('not-a-dto', PropertySpecificationDto::class));
-        $validator->validate('not-a-dto', new TranslatableType());
+        yield 'the value is not a PropertySpecificationDto' => [
+            'not-a-dto',
+            new TranslatableType(),
+            'not-a-dto',
+            PropertySpecificationDto::class,
+        ];
     }
 
     private function validate(PropertySpecificationDto $dto): ConstraintViolationListInterface

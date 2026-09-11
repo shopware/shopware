@@ -452,6 +452,55 @@
                     "400": { "$ref": "#/components/responses/400" }
                 }
             }
+        },
+        "/_action/content-system/layout/update-element-properties": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Update an element's property values in a draft layout",
+                "operationId": "contentSystemLayoutUpdateElementProperties",
+                "description": "Applies a single property edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Writes every entry of `values` onto `elementId` and drops every key in `removeKeys`. Values are written as supplied, in their stored shape, with no normalization and no type-default overlay: a removed key with a type default stays absent in the draft and the write-boundary seeder refills it on save. Every property key the request does not name is carried verbatim, and wiring, style, attribution and children are untouched. Requires the `content_layout:read` privilege. A request whose `values` and `removeKeys` are both empty is rejected with `400`. Rejected with `400` in this order: an element id that is not in the layout (`mutationTargetNotFound`), an element whose component is not a registered type (`mutationUnknownType`), a key that is not a primitive property the type declares — a reference property and a `resolvedBy` storage key included (`mutationPropertyUnknown`), a key present in both lists (`mutationPropertyConflict`), a value that does not match its declared type (`mutationPropertyValueRejected`), and a translatable property's language map carrying a key that is not a language id in lowercase UUID hex (`mutationPropertyLanguageKeyInvalid`). The first failing rule reports. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutUpdateElementPropertiesRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Write a translatable property's language map",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "Sw:Content:Text", "properties": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale" } } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "values": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale", "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41": "Herbstschlussverkauf" } }
+                                    }
+                                },
+                                "withRemoval": {
+                                    "summary": "Drop a property key",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "removeKeys": ["tag"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics, with the property edit applied. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
         }
     }
 }

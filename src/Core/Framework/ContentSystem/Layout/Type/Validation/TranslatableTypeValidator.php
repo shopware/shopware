@@ -24,24 +24,12 @@ final class TranslatableTypeValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
-        if ($value->translatable && $this->normalizeTypes($value->type) !== ['string']) {
+        // The lone scalar declaration only: a union carrying `string` as its single member declares a union, and
+        // the stored language map is not a shape a union admits.
+        if ($value->translatable && $value->type !== 'string') {
             $this->context->buildViolation($constraint->message)
                 ->atPath('translatable')
                 ->addViolation();
         }
-    }
-
-    /**
-     * @param string|list<string> $type
-     *
-     * @return list<string>
-     */
-    private function normalizeTypes(string|array $type): array
-    {
-        if (\is_string($type)) {
-            return [$type];
-        }
-
-        return array_values($type);
     }
 }

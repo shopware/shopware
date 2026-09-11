@@ -5,7 +5,9 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Validation;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -209,6 +211,63 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
     }
 
+    /**
+     * The anchor rule at the strict write. `unresolved_required` is a binding-scope error, so the resolvability
+     * predicate rejects the row before it is stored. The authored map carries an entry under a key that is not
+     * the anchor, so a satisfaction rule reading "the key is present and non-null" would let this write through.
+     *
+     * {@see TestElementTypeLoader::TRANSLATABLE_REQUIRED} is the subject because every shipped translatable
+     * property is optional, and its `label` declares no default, so the write-boundary seeder fills nothing.
+     */
+    #[TestDox('rejects a layout whose required translatable property carries a map with no anchor entry')]
+    public function testRejectsARequiredTranslatablePropertyWithoutTheAnchorEntry(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        $payload = $this->layout('category', TestElementTypeLoader::TRANSLATABLE_REQUIRED, $layoutId);
+        $payload['layout'] = $this->translatableTree([$this->ids->get('other-language') => 'Label copy']);
+
+        try {
+            $this->repository()->create([$payload], $context);
+            static::fail('Expected the resolvability gate to reject the missing anchor entry.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "label" has no value.', $exception->getMessage());
+        }
+
+        static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+    }
+
+    /**
+     * The stored map is read back rather than only the row id, so a write that admitted the layout and then
+     * dropped the property would fail here instead of reading as an accepted write.
+     */
+    #[TestDox('persists a layout whose required translatable property carries the anchor entry')]
+    public function testAcceptsARequiredTranslatablePropertyCarryingTheAnchorEntry(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        $payload = $this->layout('category', TestElementTypeLoader::TRANSLATABLE_REQUIRED, $layoutId);
+        $payload['layout'] = $this->translatableTree([Defaults::LANGUAGE_SYSTEM => 'Label copy']);
+
+        $this->repository()->create([$payload], $context);
+
+        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
+
+        $stored = $persisted->getLayout()[0] ?? null;
+        static::assertInstanceOf(StoredElement::class, $stored);
+
+        $label = $stored->property('label');
+        static::assertNotNull($label);
+
+        $raw = $label->jsonSerialize();
+        static::assertIsArray($raw);
+        // The anchor key alone, not the whole map: MySQL reorders stored JSON object keys, MariaDB does not.
+        static::assertSame('Label copy', $raw[Defaults::LANGUAGE_SYSTEM] ?? null);
+    }
+
     #[TestDox('rejects an update that changes the immutable root source and leaves the stored value unchanged')]
     public function testRejectsRootSourceChange(): void
     {
@@ -282,6 +341,22 @@ class ContentLayoutWriteValidatorTest extends TestCase
     {
         return [
             ['id' => $this->ids->get('element'), 'component' => $component, 'properties' => []],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $labelMap
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function translatableTree(array $labelMap): array
+    {
+        return [
+            [
+                'id' => $this->ids->get('element'),
+                'component' => TestElementTypeLoader::TRANSLATABLE_REQUIRED,
+                'properties' => ['label' => $labelMap],
+            ],
         ];
     }
 

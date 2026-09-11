@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
@@ -533,6 +536,274 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         // nothing was written: the attach never landed
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects a persisted update-element-properties request that writes nothing and removes nothing with a 400 without writing')]
+    public function testUpdatePropertiesRejectsAnEmptyRequest(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'expectedVersion' => null,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('updateElementPropertiesEmpty', (string) $response->getContent());
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects a non-array values map on the persisted update-element-properties with a 400 without writing')]
+    public function testUpdatePropertiesRejectsNonArrayValues(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => 'not-a-map',
+            'expectedVersion' => null,
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('rejects an unknown request field on the persisted update-element-properties with a 400 and the unknownRequestField code without writing')]
+    public function testUpdatePropertiesRejectsUnknownRequestField(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+            'expectedVersion' => null,
+            'entityType' => 'product',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('commits a two-language map that a repository re-read returns')]
+    public function testUpdatePropertiesCommitsALanguageMap(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->secondLanguageId() => 'Herbstschlussverkauf'];
+
+        $this->mutate('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => $map],
+            'expectedVersion' => null,
+        ]);
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('rejects a second property update carrying the now-stale version token with a 409 and leaves the committed map in place')]
+    public function testUpdatePropertiesStaleVersionLeavesTheMapUnchanged(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+
+        // the first write bumps updatedAt, so the null token the second call still holds no longer matches
+        $this->mutate('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedVersion' => null,
+        ]);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Spring sale']],
+            'expectedVersion' => null,
+        ]);
+
+        static::assertSame(Response::HTTP_CONFLICT, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => 'Winter sale'], $stored->jsonSerialize());
+    }
+
+    #[TestDox('reports a map entry for a language id no language row carries as a dangling-language warning')]
+    public function testUpdatePropertiesReportsADanglingLanguage(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+
+        $body = $this->mutate('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->ids->get('no-such-language') => 'Ghost']],
+            'expectedVersion' => null,
+        ]);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === ViolationCode::DanglingLanguage->value,
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame('block-a', $violations[0]['elementId']);
+        static::assertSame('label', $violations[0]['key']);
+        static::assertSame('warning', $violations[0]['severity']);
+        static::assertStringContainsString($this->ids->get('no-such-language'), $violations[0]['message']);
+    }
+
+    #[TestDox('rejects a language map carrying a non-language key with the same mutationPropertyLanguageKeyInvalid code as the draft route, without writing')]
+    public function testUpdatePropertiesRejectsANonLanguageMapKey(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+
+        // The op inside PersistedLayoutMutator raises this before the DAL constraint pass can answer with a
+        // generic write-constraint violation, which is what keeps the two routes' codes shared.
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale', 'de-DE' => 'Winterschlussverkauf']],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID, array_column($body['errors'], 'code'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('commits the reseeded type default when a persisted update removes a defaulted key')]
+    public function testUpdatePropertiesCommitsTheReseededDefault(): void
+    {
+        $layoutId = $this->createLayout([[
+            'id' => 'block-a',
+            'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE,
+            'properties' => ['headline' => 'Authored headline'],
+        ]]);
+
+        // the operation drops the key and overlays no default; the write-boundary seeder is what puts it back
+        $this->mutate('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+            'expectedVersion' => null,
+        ]);
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('headline');
+        static::assertNotNull($stored);
+        static::assertSame('Seeded headline', $stored->asString());
+    }
+
+    #[TestDox('commits the reseeded type default of a translatable key as a one-entry language map under the anchor language, not as a bare scalar')]
+    public function testUpdatePropertiesCommitsTheReseededTranslatableDefaultAsALanguageMap(): void
+    {
+        $layoutId = $this->createLayout([[
+            'id' => 'block-a',
+            'component' => TestElementTypeLoader::DEFAULTED_TRANSLATABLE,
+            'properties' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Authored tagline']],
+        ]]);
+
+        // same removal as the non-translatable case above; what differs is the shape the seeder puts back, which
+        // PropertyType::storedDefault() decides: a translatable declaration seeds its default under the anchor
+        // language rather than storing the bare scalar
+        $this->mutate('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'removeKeys' => ['tagline'],
+            'expectedVersion' => null,
+        ]);
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('tagline');
+        static::assertNotNull($stored);
+        static::assertEquals([Defaults::LANGUAGE_SYSTEM => 'Seeded tagline'], $stored->jsonSerialize());
+    }
+
+    #[TestDox('rejects a persisted update that removes the anchor entry of a required translatable property without writing')]
+    public function testUpdatePropertiesRejectsRemovingTheAnchorEntryOfARequiredTranslatableProperty(): void
+    {
+        $secondLanguageId = $this->secondLanguageId();
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $secondLanguageId => 'Herbstschlussverkauf'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->bindCategory($layoutId);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [$secondLanguageId => 'Herbstschlussverkauf']],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('rejects a persisted update that removes a required translatable property key outright — the whole key, not the anchor entry of a map it keeps — without writing')]
+    public function testUpdatePropertiesRejectsRemovingARequiredTranslatablePropertyKey(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->secondLanguageId() => 'Herbstschlussverkauf'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->bindCategory($layoutId);
+
+        // UpdateElementProperties is requiredness-blind: `label` is declared and primitive, so removeKeys drops it
+        // and the op returns cleanly. The refusal comes one layer down, from ContentLayoutWriteValidator's
+        // resolvability gate on the update() commit, where LayoutDiagnostics::hasStoredValue() reports the now
+        // absent key as unresolved. Sw:Test:TranslatableRequired declares no default for `label`, so the
+        // write-boundary LayoutDefaultSeeder refills nothing and the removal is a refusal, not a no-op.
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'removeKeys' => ['label'],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    /**
+     * @param array<string, string> $label
+     *
+     * @return array<string, mixed>
+     */
+    private function translatableElement(string $id, array $label): array
+    {
+        return [
+            'id' => $id,
+            'component' => TestElementTypeLoader::TRANSLATABLE_REQUIRED,
+            'properties' => ['label' => $label],
+        ];
+    }
+
+    private function secondLanguageId(): string
+    {
+        $repository = $this->getContainer()->get('language.repository');
+        static::assertInstanceOf(EntityRepository::class, $repository);
+
+        $criteria = (new Criteria())
+            ->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM)]))
+            ->setLimit(1);
+
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertIsString($id, 'the base data carries a second language row beside the system language');
+
+        return $id;
     }
 
     /**

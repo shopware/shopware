@@ -77,8 +77,8 @@ moved:
 
 ## Reference
 
-- [docs/operations.md](docs/operations.md) - the nine operations one by one: insert, remove, move, replace,
-  duplicate, wrap, unwrap, attach, bind
+- [docs/operations.md](docs/operations.md) - the operations one by one: insert, remove, move, replace,
+  duplicate, wrap, unwrap, attach, bind, update properties
 - [docs/replace-element.md](docs/replace-element.md) - what a type swap carries over, and what it drops
 - [docs/runners.md](docs/runners.md) - `MutationPipeline`, `PersistedLayoutMutator`, and result assembly
 - [docs/consumer-mirroring.md](docs/consumer-mirroring.md) - which resolutions become consumers on a created element
@@ -87,4 +87,4 @@ moved:
 
 ## Subdirectories
 
-- **Op/** - The nine concrete operations, each one structural edit.
+- **Op/** - The concrete operations, each one structural edit.

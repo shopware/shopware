@@ -6,6 +6,7 @@ import type {
     ContentLayoutDraftMovePayload,
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
+    ContentLayoutDraftUpdatePropertiesPayload,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
@@ -22,6 +23,7 @@ import {
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
+import { resolveTranslatableEntry, withLanguageEntry } from 'src/module/sw-experience-studio/util/element-settings.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
@@ -80,13 +82,16 @@ type InlineEditSession = {
     isEditing: boolean;
 } | null;
 
-type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move';
+type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'update-properties';
 
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
     removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
     moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
+    updateElementProperties: (
+        payload: ContentLayoutDraftUpdatePropertiesPayload,
+    ) => Promise<ContentLayoutDraftMutationResponse>;
 };
 
 type ContentSystemEntityTypeService = {
@@ -598,7 +603,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        onInlineEditCommit(payload: { elementId: string; value: string }): void {
+        async onInlineEditCommit(payload: { elementId: string; value: string }): Promise<void> {
             if (!this.inlineEditSession || this.inlineEditSession.elementId !== payload.elementId) {
                 return;
             }
@@ -608,6 +613,32 @@ export default Shopware.Component.wrapComponentConfig({
             this.clearInlineEditSession();
 
             if (normalizedValue === session.originalValue) {
+                return;
+            }
+
+            const element = this.findElementById(payload.elementId);
+
+            if (!element) {
+                return;
+            }
+
+            if (this.isTranslatableProperty(element.component, 'text')) {
+                await this.executeStructuralDraftMutation(
+                    'update-properties',
+                    this.layout ? this.layout.layout : [],
+                    {
+                        elementId: payload.elementId,
+                        values: {
+                            text: withLanguageEntry(
+                                element.properties?.text,
+                                Shopware.Defaults.systemLanguageId,
+                                normalizedValue,
+                            ),
+                        },
+                    },
+                    () => payload.elementId,
+                );
+
                 return;
             }
 
@@ -863,9 +894,43 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
-        onElementSettingsChange(payload: { elementId: string; properties: Record<string, unknown> }): void {
+        async onElementSettingsChange(payload: { elementId: string; propertyKey: string; value: unknown }): Promise<void> {
+            const element = this.findElementById(payload.elementId);
+
+            if (!element) {
+                return;
+            }
+
+            if (this.isTranslatableProperty(element.component, payload.propertyKey)) {
+                // A non-string control value cannot be a language-map entry; it travels raw so the write route rejects it.
+                const value =
+                    typeof payload.value === 'string'
+                        ? withLanguageEntry(
+                              element.properties?.[payload.propertyKey],
+                              Shopware.Defaults.systemLanguageId,
+                              payload.value,
+                          )
+                        : payload.value;
+
+                await this.executeStructuralDraftMutation(
+                    'update-properties',
+                    this.layout ? this.layout.layout : [],
+                    {
+                        elementId: payload.elementId,
+                        values: {
+                            [payload.propertyKey]: value,
+                        },
+                    },
+                    () => payload.elementId,
+                );
+
+                return;
+            }
+
             this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, payload.properties) ? {} : false;
+                return updateElementPropertiesInLayout(layout, payload.elementId, { [payload.propertyKey]: payload.value })
+                    ? {}
+                    : false;
             });
         },
 
@@ -912,6 +977,10 @@ export default Shopware.Component.wrapComponentConfig({
                 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE',
                 'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
                 'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
+                'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN',
+                'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT',
+                'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED',
+                'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
             ]);
 
             if (codes.some((code) => structuralErrorCodes.has(code))) {
@@ -958,6 +1027,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (operation === 'move') {
                 return service.moveElement(payload as ContentLayoutDraftMovePayload);
+            }
+
+            if (operation === 'update-properties') {
+                return service.updateElementProperties(payload as ContentLayoutDraftUpdatePropertiesPayload);
             }
 
             return service.duplicateElement(payload as ContentLayoutDraftDuplicatePayload);
@@ -1128,12 +1201,26 @@ export default Shopware.Component.wrapComponentConfig({
             return typeSpecification.properties.text?.adminUI?.component === 'text-editor';
         },
 
+        isTranslatableProperty(component: string, propertyKey: string): boolean {
+            const typeSpecification = this.elementTypeStore.getByName(component);
+
+            return typeSpecification?.properties[propertyKey]?.translatable === true;
+        },
+
         getElementTextValue(element: ContentElementNode | null): string {
             if (!element) {
                 return '';
             }
 
-            return typeof element.properties?.text === 'string' ? element.properties.text : '';
+            const storedValue = element.properties?.text;
+
+            if (this.isTranslatableProperty(element.component, 'text')) {
+                const entry = resolveTranslatableEntry(storedValue, [Shopware.Defaults.systemLanguageId]);
+
+                return entry.state === 'missing' ? '' : entry.value;
+            }
+
+            return typeof storedValue === 'string' ? storedValue : '';
         },
 
         onUndo(): void {

@@ -32,13 +32,13 @@ Each section supports four response formats: full, decomposed, skeleton, and dat
 
 The pipeline is source-independent — specification sources translate entity IDs into a `ResolvedContentLayout` (layout ID plus `RenderingSpecification`), and `ContentPipeline` renders without knowing the original data source.
 
-1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the `ResolvedContentLayout`. See Adapter/.
-2. **Layout Loading** — `ContentRoute` retrieves the `ContentLayoutEntity` from the content-layout repository and wraps it in a `RenderableLayout` passed into the pipeline.
-3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` brings the stored forest into shape: placeholder resolution (FULL mode only), then the virtual-root wrap, then the partial prune, and it records the outcome as a `Layout/Scaffolding/TreePreparationResult` (the pruned tree, the pre-prune forest, and the `RenderScaffolding`). `ContentPipeline` then checks for a repeated element id and hands both forests to `Rendering/WiringPlanner::plan()`, which validates the context wiring and derives the redistribute providers. Everything up to and including the derivation runs on stored elements. `ContentTreePreparationEvent` is dispatched before all of them, over the stored tree, so a listener sees raw author content. See Rendering/ and Event/Listener/.
-4. **Rendering** — `Rendering/ElementLowering` turns the derived stored forest into the rendered forest: it resolves each element's data requirements across the whole forest, then resolves what context every element received, then mints the `RenderedElement` tree. FULL mode runs all three; SKELETON resolves no data, computes no deliveries, and mints structure only. See Rendering/.
-5. **Finishing** — `ContentPipeline` finishes the rendered tree itself: virtual root cleanup, partial extraction, both driven by the `RenderScaffolding` recorded during preparation. `RenderedTreeFinalizationEvent` is then dispatched over that finished rendered tree, in both modes, so a listener sees and replaces the rendered model. Last, the pipeline checks element ids once more, over the forest the event handed back, because a listener's replacement arrives after the first check. See Event/Listener/.
+1. **Specification Resolution** — the route picks a source through `RenderingSpecificationResolver` and assembles the `ResolvedContentLayout`. See Adapter/.
+2. **Layout Loading** — the route loads the `ContentLayoutEntity` and wraps it in a `RenderableLayout` for the pipeline.
+3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` brings the stored forest into renderable shape, then `Rendering/WiringPlanner::plan()` validates the context wiring and derives the redistribute providers. Everything here runs on stored elements, and `ContentTreePreparationEvent` is dispatched ahead of all of it, so a listener sees raw author content. See Rendering/ and Event/Listener/.
+4. **Rendering** — `Rendering/ElementLowering` turns the derived stored forest into the rendered forest. FULL resolves data and context and mints from both; SKELETON mints structure only. See Rendering/.
+5. **Finishing** — `ContentPipeline` unwraps the virtual root and extracts the partial target, then dispatches `RenderedTreeFinalizationEvent` over the finished rendered tree in both modes, so a listener sees and replaces the rendered model. See Event/Listener/.
 
-See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data flow.
+The step order, the passes inside preparation, and the checks between them are owned by [docs/pipeline-steps.md](docs/pipeline-steps.md); [docs/data-flow.md](docs/data-flow.md) diagrams the data flow.
 
 ## Key Classes
 
@@ -74,12 +74,12 @@ The reasoning behind how classes in this module are named starts at [`NAMING.md`
 
 ## Administration API
 
-Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mutation actions, and the nine persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the four type-introspection endpoints the Administration consumes.
+Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the four type-introspection endpoints the Administration consumes.
 
 ## Subdirectories
 
 - **Adapter/** - [Adapter/README.md](Adapter/README.md) - Specification sources, layout assignment entities, resolution helpers
-- **Api/** - [Api/README.md](Api/README.md) - Admin API controllers (layout preview, resolve-and-diagnose, the nine draft mutation actions, and the nine persisted mutation actions)
+- **Api/** - [Api/README.md](Api/README.md) - Admin API controllers (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions)
 - **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
 - **Cache/** - [Cache/README.md](Cache/README.md) - HTTP cache integration and invalidation
 - **Diagnostics/** - [Diagnostics/README.md](Diagnostics/README.md) - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
@@ -94,11 +94,10 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 - **SalesChannel/** - [SalesChannel/README.md](SalesChannel/README.md) - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation
 - **Validation/** - [Validation/README.md](Validation/README.md) - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)
-- [NAMING.md](NAMING.md) - How classes in this module are named, routing on to [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which of the two element models a class is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what each role suffix promises)
-- [docs/product-detail-page.md](docs/product-detail-page.md) - A worked layout combining entity rendering, data loading, and context distribution
-- [docs/service-tags-and-types.md](docs/service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
-- [docs/extending.md](docs/extending.md) - The six extension mechanisms and where each one is authored
-- [docs/data-flow.md](docs/data-flow.md) - A diagram of the rendering pipeline's data flow
 - **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
 
 `Helper/` and `Schema/` carry no documentation surface of their own.
+
+## Reference Documents
+
+- [docs/README.md](docs/README.md) - Index of the module's reference documents, one subject per file

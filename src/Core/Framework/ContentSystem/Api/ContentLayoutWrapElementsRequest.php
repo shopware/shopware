@@ -18,7 +18,6 @@ final class ContentLayoutWrapElementsRequest
      * @param list<string> $elementIds
      */
     public function __construct(
-        #[Assert\Type('array')]
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
         #[Assert\Unique]
         public readonly array $elementIds,

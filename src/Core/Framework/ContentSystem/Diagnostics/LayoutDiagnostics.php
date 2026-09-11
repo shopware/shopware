@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
@@ -47,6 +49,7 @@ class LayoutDiagnostics
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly ContextPathResolver $contextPathResolver,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -66,12 +69,20 @@ class LayoutDiagnostics
         // constraint descriptor reads, so the two cannot disagree about which options exist.
         $styleOptions = $this->styleOptionRegistry->all();
 
+        // Queried at most once per analysis, and only when a tree carries a translatable property: the memo
+        // keeps the per-analyze() freshness existingLanguageIds() promises while a tree with no translatable
+        // property pays no language scan.
+        $languageIdsMemo = null;
+        $languageIds = function () use (&$languageIdsMemo): array {
+            return $languageIdsMemo ??= $this->existingLanguageIds();
+        };
+
         foreach ($this->duplicateIdViolations($elements) as $violation) {
             $violations[] = $violation;
         }
 
         foreach ($elements as $element) {
-            foreach ($this->intrinsicElementViolations($element, $styleOptions) as $violation) {
+            foreach ($this->intrinsicElementViolations($element, $styleOptions, $languageIds) as $violation) {
                 $violations[] = $violation;
             }
 
@@ -171,11 +182,31 @@ class LayoutDiagnostics
     }
 
     /**
+     * The set of language ids that exist, read at most once for the whole analysis and only when a tree
+     * carries a translatable property. Every id is lowercase hex, which is the shape a stored language map is
+     * keyed by, so an entry key matches by string identity.
+     *
+     * Deliberately re-read per `analyze()` and never cached on the instance: a diagnose run must judge the
+     * languages that exist now, and a long-lived instance caching the set would report a freshly created
+     * language as dangling.
+     *
+     * @return array<string, true>
+     */
+    private function existingLanguageIds(): array
+    {
+        /** @var list<string> $ids */
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM `language`');
+
+        return array_fill_keys($ids, true);
+    }
+
+    /**
      * @param array<string, StyleOptionSpecification> $styleOptions
+     * @param \Closure(): array<string, true> $languageIds
      *
      * @return list<Violation>
      */
-    private function intrinsicElementViolations(StoredElement $element, array $styleOptions): array
+    private function intrinsicElementViolations(StoredElement $element, array $styleOptions, \Closure $languageIds): array
     {
         $violations = [];
 
@@ -208,17 +239,21 @@ class LayoutDiagnostics
             $violations[] = $violation;
         }
 
+        foreach ($this->danglingLanguageViolations($element, $languageIds) as $violation) {
+            $violations[] = $violation;
+        }
+
         return $violations;
     }
 
     /**
-     * A stored property value that disagrees with the primitive type its component declares for that key,
-     * reported per key so a client can name and correct the one that broke. It is the diagnosis counterpart of
-     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary: only a key declared with
-     * one of {@see PropertyType::PRIMITIVE_TYPES}, or a union whose members are all primitive, is judged, and a
-     * stored null is admissible under every one of them (whether a key may be null is the required-input rule's
-     * business). Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
-     * refuses the tree inside `encode()`, before the gate that reaches this class.
+     * A stored property value the type its component declares for that key does not admit, reported per key so
+     * a client can name and correct the one that broke. It is the diagnosis counterpart of the write-path
+     * {@see PropertyTypeConformance} rule and shares its one predicate, {@see PropertyType::admits()}: an
+     * unconstraining declaration (a bare `object`, an FQCN, a union carrying either) admits whatever the client
+     * authored, a non-translatable declaration admits the null variant, and a translatable declaration admits
+     * only a non-empty language map. Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL
+     * write: the constraint pass refuses the tree inside `encode()`, before the gate that reaches this class.
      *
      * @return list<Violation>
      */
@@ -234,19 +269,13 @@ class LayoutDiagnostics
         foreach ($element->properties() as $key => $value) {
             $specification = $declared[$key] ?? null;
 
-            if ($specification === null || $value->isNull()) {
+            if ($specification === null) {
                 continue;
             }
 
-            $types = $this->enforceablePrimitiveTypes($specification->type());
+            $type = $specification->type();
 
-            if ($types === null) {
-                continue;
-            }
-
-            $raw = $value->jsonSerialize();
-
-            if ($this->matchesAnyPrimitiveType($raw, $types)) {
+            if ($type->admits($value)) {
                 continue;
             }
 
@@ -254,7 +283,12 @@ class LayoutDiagnostics
                 ViolationCode::MismatchedPropertyType,
                 $element->id,
                 (string) $key,
-                \sprintf('Property "%s" is declared as "%s" but carries a value of type "%s".', $key, implode('|', $types), get_debug_type($raw)),
+                \sprintf(
+                    'Property "%s" is declared as "%s" but carries a value of type "%s".',
+                    $key,
+                    $this->renderDeclaredType($type),
+                    get_debug_type($value->jsonSerialize()),
+                ),
             );
         }
 
@@ -262,54 +296,71 @@ class LayoutDiagnostics
     }
 
     /**
-     * The primitive types a stored value must satisfy at least one of, or `null` when the declaration constrains
-     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
-     * either. A union's declared type is an array, for which {@see PropertyType::isPrimitive()} always answers
-     * false, so the members are tested against {@see PropertyType::PRIMITIVE_TYPES} directly.
-     *
-     * @return list<string>|null
+     * The declared type as the message names it. The translatable flag is spelled out because the same `string`
+     * declaration admits a bare string without it and only a language map with it, so the flag is what a client
+     * needs to read the report.
      */
-    private function enforceablePrimitiveTypes(PropertyType $type): ?array
+    private function renderDeclaredType(PropertyType $type): string
     {
-        $declared = $type->type();
+        $declared = implode('|', (array) $type->type());
 
-        if (\is_string($declared)) {
-            return \in_array($declared, PropertyType::PRIMITIVE_TYPES, true) ? [$declared] : null;
+        if (!$type->translatable()) {
+            return $declared;
         }
 
-        if ($declared === []) {
-            return null;
-        }
-
-        foreach ($declared as $member) {
-            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
-                return null;
-            }
-        }
-
-        return $declared;
+        return $declared . ' (translatable)';
     }
 
     /**
-     * @param list<string> $types
+     * A language map entry keyed by an id no `language` row carries. It is a warning rather than an error:
+     * key existence is not a write constraint, reduction never selects a key outside the request's language
+     * chain, and the layout serves correctly with the entry sitting unread.
+     *
+     * Only a map variant is walked. A bare string, a list (the wire shape of an empty map included) and the
+     * null variant are wrong shapes for a translatable property, already reported as
+     * {@see ViolationCode::MismatchedPropertyType}, and carry no language keys.
+     *
+     * @param \Closure(): array<string, true> $languageIds
+     *
+     * @return list<Violation>
      */
-    private function matchesAnyPrimitiveType(mixed $value, array $types): bool
+    private function danglingLanguageViolations(StoredElement $element, \Closure $languageIds): array
     {
-        foreach ($types as $type) {
-            $matches = match ($type) {
-                'string' => \is_string($value),
-                'integer' => \is_int($value),
-                'number' => \is_int($value) || \is_float($value),
-                'boolean' => \is_bool($value),
-                default => false,
-            };
+        if (!$this->registry->has($element->component)) {
+            return [];
+        }
 
-            if ($matches) {
-                return true;
+        $declared = $this->registry->get($element->component)->properties();
+        $violations = [];
+
+        foreach ($element->properties() as $key => $value) {
+            $specification = $declared[$key] ?? null;
+
+            if ($specification === null || !$specification->type()->translatable()) {
+                continue;
+            }
+
+            if (!$value->isMap()) {
+                continue;
+            }
+
+            foreach (array_keys($value->asMap()) as $rawKey) {
+                $languageId = (string) $rawKey;
+
+                if (\array_key_exists($languageId, $languageIds())) {
+                    continue;
+                }
+
+                $violations[] = new Violation(
+                    ViolationCode::DanglingLanguage,
+                    $element->id,
+                    (string) $key,
+                    \sprintf('Property "%s" carries a translation for language "%s", which does not exist.', $key, $languageId),
+                );
             }
         }
 
-        return false;
+        return $violations;
     }
 
     /**
@@ -470,10 +521,12 @@ class LayoutDiagnostics
     private function propertyBindingViolation(StoredElement $element, PropertyResolution $resolution): ?Violation
     {
         if ($resolution->kind === PropertyKind::Primitive) {
-            // Satisfied iff a value is stored on the element: serving applies no type default, so only a stored
-            // value renders. The type default is a creation-time seed (scaffold + the write-boundary seeder),
-            // not a render-time fallback, and so is not consulted here. A stored explicit null counts as no value
-            // (it renders empty), so a required primitive authored as null is reported unresolved.
+            // Satisfied iff the element holds a value for the key under the rule {@see hasStoredValue()} states
+            // — for a translatable property, its language map carrying the anchor entry. Serving applies no
+            // type default, so only a stored value renders. The type default is a creation-time seed (scaffold
+            // + the write-boundary seeder), not a render-time fallback, and so is not consulted here. A stored
+            // explicit null counts as no value (it renders empty), so a required primitive authored as null is
+            // reported unresolved.
             if ($resolution->required && !$this->hasStoredValue($element, $resolution->key)) {
                 return new Violation(
                     ViolationCode::UnresolvedRequired,
@@ -582,7 +635,9 @@ class LayoutDiagnostics
      * validated) keyed on the reference property that does exist, naming the empty storage key in the message.
      * A resolvedBy reference's storage key is undeclared by design, so an empty value there is the normal
      * pre-fill state before the value is set and saved; a typo'd key is indistinguishable and reads the same
-     * way. A stored explicit null counts as no value, mirroring the strict primitive rule above.
+     * way. Emptiness is the same rule the strict primitive check above uses ({@see hasStoredValue()}): a stored
+     * explicit null counts as no value, and a translatable property counts as filled only through its anchor
+     * entry.
      */
     private function unfilledInputViolation(StoredElement $element, string $referenceKey, string $configuredProperty): ?Violation
     {
@@ -609,16 +664,54 @@ class LayoutDiagnostics
 
     /**
      * The one statement of "the element holds a value for this key", called from both satisfaction rules above.
+     * The rule is type-aware, so the key's declaration is read through the element-type registry; an
+     * unregistered component and an undeclared key both take the untranslated rule.
+     *
+     * Untranslated, a value counts when the key is present AND its variant is not null.
      * {@see StoredElement::property()} separates the two empty cases the older model conflated: `null` means the
      * key is absent, while an authored explicit null comes back as a present stored value answering true to
-     * `isNull()`. Both are "no value" for satisfaction, so a value counts only when the key is present AND its
-     * variant is not null — a single-term `property($key) === null` test would silently credit an authored null.
+     * `isNull()`. Both are "no value", so a single-term `property($key) === null` test would silently credit an
+     * authored null.
+     *
+     * Translatable, a value counts when its language map carries the anchor entry `Defaults::LANGUAGE_SYSTEM`
+     * and that entry's value is a string variant. The anchor terminates every language chain a
+     * `SalesChannelContext` is built with, so an anchor entry resolves on every request while any other entry
+     * may not. An empty string satisfies, as it does for any other primitive. An anchor entry holding the null
+     * variant does not satisfy and an absent anchor key does not satisfy; the two are distinct stored states
+     * that this rule maps to the same answer.
      */
     private function hasStoredValue(StoredElement $element, string $key): bool
     {
         $value = $element->property($key);
 
-        return $value !== null && !$value->isNull();
+        if ($value === null) {
+            return false;
+        }
+
+        if (!$this->isTranslatableProperty($element->component, $key)) {
+            return !$value->isNull();
+        }
+
+        $raw = $value->jsonSerialize();
+
+        // A list variant cannot carry the anchor key, so recognising the map variant separately would add a
+        // term this lookup already decides.
+        return \is_array($raw) && \is_string($raw[Defaults::LANGUAGE_SYSTEM] ?? null);
+    }
+
+    private function isTranslatableProperty(string $component, string $key): bool
+    {
+        if (!$this->registry->has($component)) {
+            return false;
+        }
+
+        $property = $this->registry->get($component)->properties()[$key] ?? null;
+
+        if (!$property instanceof PropertySpecification) {
+            return false;
+        }
+
+        return $property->type()->translatable();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -417,6 +418,113 @@ class LayoutMutationControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('rejects an update-element-properties request that writes nothing and removes nothing with a 400')]
+    public function testUpdatePropertiesRejectsAnEmptyRequest(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('updateElementPropertiesEmpty', (string) $response->getContent());
+    }
+
+    #[TestDox('rejects a non-array values map on update-element-properties with a 400 at denormalization')]
+    public function testUpdatePropertiesRejectsNonArrayValues(): void
+    {
+        // removeKeys names a primitive key the element type declares, so the request is non-empty and
+        // the UpdateElementPropertiesNotEmpty constraint cannot supply the 400: only the non-array
+        // values can.
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+            'values' => 'not-a-map',
+            'removeKeys' => ['headline'],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    #[TestDox('rejects an unknown request field on update-element-properties with a 400 and the unknownRequestField code')]
+    public function testUpdatePropertiesRejectsUnknownRequestField(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+            'entityType' => 'product',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        // the reported field name, not just the code: a rejection naming the wrong field must fail here
+        static::assertStringContainsString('entityType', (string) $response->getContent());
+    }
+
+    #[TestDox('leaves a removed key carrying a type default absent in the draft response tree')]
+    public function testUpdatePropertiesLeavesRemovedDefaultedKeyAbsent(): void
+    {
+        $element = $this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE);
+        // carriedNote is undeclared on purpose: DEFAULTED_PRIMITIVE declares headline alone, so an undeclared
+        // property is the only second key this element can carry past the route's declared-key gate.
+        $element['properties'] = ['headline' => 'Authored headline', 'carriedNote' => 'Carried through untouched'];
+
+        // the draft route runs no write boundary, so nothing reseeds the type default the removal dropped
+        $body = $this->mutate('update-element-properties', [
+            'layout' => [$element],
+            'elementId' => 'block-a',
+            'removeKeys' => ['headline'],
+        ]);
+
+        // the exact surviving map, not merely an empty one: a route that dropped every property would fail here
+        static::assertSame(['carriedNote' => 'Carried through untouched'], $body['layout'][0]['properties']);
+    }
+
+    #[TestDox('writes a supplied primitive value onto the target element and returns it in the draft response tree')]
+    public function testUpdatePropertiesWritesSuppliedPrimitiveValue(): void
+    {
+        $body = $this->mutate('update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+            'values' => ['headline' => 'Authored headline'],
+        ]);
+
+        static::assertSame(['headline' => 'Authored headline'], $body['layout'][0]['properties']);
+        static::assertSame(['block-a'], $body['affectedElementIds']);
+    }
+
+    #[TestDox('rejects a language map carrying a non-language key with a 400 and the mutationPropertyLanguageKeyInvalid code')]
+    public function testUpdatePropertiesRejectsANonLanguageMapKey(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_TRANSLATABLE)],
+            'elementId' => 'block-a',
+            'values' => ['tagline' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo']],
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $errors = array_values(array_filter(
+            $body['errors'],
+            static fn (array $error): bool => $error['code'] === ContentSystemException::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+        ));
+
+        static::assertCount(1, $errors);
+        // the reported map key on the error entry itself, not a whole-body substring: a rejection naming the
+        // wrong key, or one merely echoing the payload back, must fail here
+        static::assertSame('de-DE', $errors[0]['meta']['parameters']['languageKey'] ?? null);
     }
 
     /**

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutAttachRequest;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutBindRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDuplicateRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutInsertRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMoveRequest;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -128,6 +130,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         yield 'wrap' => [static fn (ContentLayoutMutationController $c): Response => $c->wrap('l', new ContentLayoutWrapElementsRequest(['a'], 'Sw:Container', null), $context), WrapElements::class];
         yield 'unwrap' => [static fn (ContentLayoutMutationController $c): Response => $c->unwrap('l', new ContentLayoutUnwrapRequest('el', null), $context), UnwrapElement::class];
         yield 'attach' => [static fn (ContentLayoutMutationController $c): Response => $c->attach('l', new ContentLayoutAttachRequest(['id' => 'incoming', 'component' => 'Sw:Card'], null), $context), AttachElement::class];
+        yield 'bind' => [static fn (ContentLayoutMutationController $c): Response => $c->bind('l', new ContentLayoutBindRequest('el', 'core:hero', null), $context), BindElement::class];
     }
 
     /**
@@ -183,34 +186,47 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertStringContainsString('"resolutions":{}', $content);
     }
 
-    #[TestDox('propagates contentLayoutNotFound from the mutator for an unknown layout id')]
-    public function testMutateThrowsWhenLayoutNotFound(): void
-    {
+    #[DataProvider('propagatesMutatorExceptionProvider')]
+    #[TestDox('propagates the mutator exception unchanged: $_dataName')]
+    public function testMutatePropagatesMutatorException(
+        ContentSystemException $thrown,
+        string $layoutId,
+        ?string $expectedVersion,
+        string $expectedErrorCode,
+        int $expectedStatus,
+    ): void {
         $mutator = static::createStub(PersistedLayoutMutator::class);
-        $mutator->method('mutate')->willThrowException(ContentSystemException::contentLayoutNotFound('layout-404'));
+        $mutator->method('mutate')->willThrowException($thrown);
 
         try {
-            $this->controller($mutator)->remove('layout-404', new ContentLayoutRemoveRequest('el', null), Context::createDefaultContext());
-            static::fail('Expected a ' . ContentSystemException::CONTENT_LAYOUT_NOT_FOUND . ' exception, but none was thrown.');
+            $this->controller($mutator)->remove($layoutId, new ContentLayoutRemoveRequest('el', $expectedVersion), Context::createDefaultContext());
+            static::fail('Expected a ' . $expectedErrorCode . ' exception, but none was thrown.');
         } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::CONTENT_LAYOUT_NOT_FOUND, $exception->getErrorCode());
-            static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+            static::assertSame($expectedErrorCode, $exception->getErrorCode());
+            static::assertSame($expectedStatus, $exception->getStatusCode());
         }
     }
 
-    #[TestDox('propagates layoutVersionConflict from the mutator for a stale expected version token')]
-    public function testMutateThrowsOnStaleVersionToken(): void
+    /**
+     * @return iterable<string, array{ContentSystemException, string, string|null, string, int}>
+     */
+    public static function propagatesMutatorExceptionProvider(): iterable
     {
-        $mutator = static::createStub(PersistedLayoutMutator::class);
-        $mutator->method('mutate')->willThrowException(ContentSystemException::layoutVersionConflict('layout-1'));
+        yield 'contentLayoutNotFound for an unknown layout id' => [
+            ContentSystemException::contentLayoutNotFound('layout-404'),
+            'layout-404',
+            null,
+            ContentSystemException::CONTENT_LAYOUT_NOT_FOUND,
+            Response::HTTP_NOT_FOUND,
+        ];
 
-        try {
-            $this->controller($mutator)->remove('layout-1', new ContentLayoutRemoveRequest('el', '2020-01-01T00:00:00.000+00:00'), Context::createDefaultContext());
-            static::fail('Expected a ' . ContentSystemException::LAYOUT_VERSION_CONFLICT . ' exception, but none was thrown.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::LAYOUT_VERSION_CONFLICT, $exception->getErrorCode());
-            static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
-        }
+        yield 'layoutVersionConflict for a stale expected version token' => [
+            ContentSystemException::layoutVersionConflict('layout-1'),
+            'layout-1',
+            '2020-01-01T00:00:00.000+00:00',
+            ContentSystemException::LAYOUT_VERSION_CONFLICT,
+            Response::HTTP_CONFLICT,
+        ];
     }
 
     #[TestDox('rejects a malformed attach element with invalidLayoutStructure before the mutator is invoked')]
@@ -236,7 +252,7 @@ class ContentLayoutMutationControllerTest extends TestCase
             $this->decoder(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
         );
     }
 

@@ -24,7 +24,7 @@
                         "items": { "$ref": "#/components/schemas/ContentDecomposedElement" }
                     },
                     "data": {
-                        "description": "Every value the page serves, held once: a response-local reference id mapped to the value it holds. A value may be any JSON type, including an encoded entity payload. The reference ids are minted while walking this one response and carry no meaning outside it — nothing may store one or assume a particular literal. An empty map is serialized as `[]` rather than `{}` (consistent with Shopware's JSON-map fields).",
+                        "description": "Every value the page serves, held once: a response-local reference id mapped to the value it holds. A value may be any JSON type, including an encoded entity payload. The reference ids are minted while walking this one response and carry no meaning outside it — nothing may store one or assume a particular literal. An empty map is serialized as `[]` rather than `{}` (consistent with Shopware's JSON-map fields).\n\nA translatable property's value is the plain string selected for the request language, never a language map: storage keys one string per language, and preparation collapses that map to the value of the first entry along the request's language chain, verbatim. The map shape reaches the Admin API only. A translatable property whose map carries no entry for any language in the chain contributes no value here and no `assignments` entry, exactly like a property that was never authored.",
                         "oneOf": [
                             {
                                 "type": "array",

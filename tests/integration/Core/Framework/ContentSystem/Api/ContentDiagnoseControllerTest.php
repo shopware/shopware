@@ -5,10 +5,12 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -113,15 +115,93 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame($expectedMessage, $violations[0]['message']);
     }
 
-    #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
-    public function testDiagnoseWithRootSource(): void
+    /**
+     * `Sw:Content:Text` rather than `registeredComponent()`: the rule keys off a property whose declared type
+     * carries `translatable: true`, and `text` is the shipped one. The map also carries the anchor entry, so
+     * the reported key is the dangling one rather than the only one there is.
+     */
+    #[TestDox('reports a translatable entry keyed by a non-existent language as a dangling_language warning')]
+    public function testDiagnoseReportsADanglingLanguageEntry(): void
     {
+        $elementId = $this->ids->get('element');
+        $danglingLanguageId = $this->ids->get('dangling-language');
+
+        $body = $this->diagnose(['layout' => [[
+            'id' => $elementId,
+            'component' => 'Sw:Content:Text',
+            'properties' => ['text' => [
+                Defaults::LANGUAGE_SYSTEM => 'Anchor copy',
+                $danglingLanguageId => 'Copy for a language that does not exist',
+            ]],
+        ]]]);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'dangling_language',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame($elementId, $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('intrinsic', $violations[0]['scope']);
+        static::assertSame('warning', $violations[0]['severity']);
+        static::assertStringContainsString($danglingLanguageId, $violations[0]['message']);
+        // A warning gates nothing: the layout stays well-formed with the entry sitting unread.
+        static::assertTrue($body['diagnostics']['wellFormed']);
+    }
+
+    /**
+     * The anchor rule on a REQUIRED translatable property, which no shipped type declares — every shipped
+     * translatable property is optional, so the subject is {@see TestElementTypeLoader::TRANSLATABLE_REQUIRED}.
+     * The map carries an entry, so a satisfaction rule reading "the key is present and non-null" would report
+     * nothing; only the anchor key satisfies. `unresolved_required` is binding scope, so the `rootSource` is
+     * what makes the route run the check at all.
+     *
+     * The entry's key names no `language` row, which also earns a `dangling_language` warning. Nothing here
+     * reads it: a warning gates nothing, and this filter selects on the code.
+     */
+    #[TestDox('reports a required translatable property whose map carries no anchor entry as unresolved_required')]
+    public function testDiagnoseReportsAMissingAnchorOnARequiredTranslatableProperty(): void
+    {
+        $elementId = $this->ids->get('element');
+
         $body = $this->diagnose([
-            'layout' => [$this->element($this->registeredComponent())],
             'rootSource' => 'product',
+            'layout' => [[
+                'id' => $elementId,
+                'component' => TestElementTypeLoader::TRANSLATABLE_REQUIRED,
+                'properties' => ['label' => [$this->ids->get('other-language') => 'Label copy']],
+            ]],
         ]);
 
-        static::assertArrayHasKey('resolvable', $body['diagnostics']);
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'unresolved_required',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame($elementId, $violations[0]['elementId']);
+        static::assertSame('label', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame('error', $violations[0]['severity']);
+        static::assertSame('Required property "label" has no value.', $violations[0]['message']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    #[TestDox('reports no unresolved_required for a required translatable property whose map carries the anchor entry')]
+    public function testDiagnoseAcceptsAnAnchorEntryOnARequiredTranslatableProperty(): void
+    {
+        $body = $this->diagnose([
+            'rootSource' => 'product',
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => TestElementTypeLoader::TRANSLATABLE_REQUIRED,
+                'properties' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Label copy']],
+            ]],
+        ]);
+
+        static::assertSame([], array_column($body['diagnostics']['violations'], 'code'));
+        static::assertTrue($body['diagnostics']['resolvable']);
     }
 
     #[TestDox('serves a root-ambient candidate as origin root with a null provider element id at every depth, beside the ancestor-provided parent candidate')]

@@ -5,10 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -68,6 +71,21 @@ class StoredTreeTest extends TestCase
     public function testLocateReturnsNullForAnUnknownId(): void
     {
         static::assertNull($this->tree()->locate('absent'));
+    }
+
+    #[TestDox('locate reports an element nested two levels down with its parent, slot and sibling index')]
+    public function testLocateReportsADeeplyNestedElement(): void
+    {
+        // 'grandchild-1' is not a direct child of a root, so this only resolves through locateUnder()'s second,
+        // recursive loop at StoredTree.php:180-188; deleting that loop would leave this locate() call returning
+        // null even though the fixture carries the id two levels down.
+        $location = $this->tree()->locate('grandchild-1');
+
+        static::assertNotNull($location);
+        static::assertSame('grandchild-1', $location['element']->id);
+        static::assertSame(0, $location['index']);
+        static::assertSame('child-a', $location['parentId']);
+        static::assertSame('inner', $location['slot']);
     }
 
     #[TestDox('ids lists every element in the forest depth first')]
@@ -137,6 +155,33 @@ class StoredTreeTest extends TestCase
         static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
     }
 
+    #[TestDox('insertAtRoot appends when the index is negative')]
+    public function testInsertAtRootAppendsWhenTheIndexIsNegative(): void
+    {
+        // splice()'s compound guard at StoredTree.php:306 ORs in `$index < 0`; every other insertAtRoot test uses
+        // null or an out-of-range positive index, so this operand alone discriminates it. Deleting it would send a
+        // negative index down the array_slice branch instead, inserting before the last element rather than
+        // appending.
+        $inserted = $this->tree()->insertAtRoot(-1, [$this->element('root-3')]);
+
+        static::assertSame(['root-1', 'root-2', 'root-3'], $this->rootIds($inserted));
+    }
+
+    #[TestDox('insertIntoSlot places the nodes inside a slot of a nested parent')]
+    public function testInsertIntoSlotPlacesNodesUnderANestedParent(): void
+    {
+        // Every other insertIntoSlot test targets a root-level parent ('root-1', 'root-2'), so the recursive
+        // descent in insertInto() at StoredTree.php:254 never runs against a matching subtree. Targeting 'child-a',
+        // which is nested under root-1, forces that recursive branch; replacing it with a plain pass-through would
+        // leave 'child-a' unmodified and this insert would silently not happen.
+        $inserted = $this->tree()->insertIntoSlot('child-a', 'inner', null, [$this->element('grandchild-2')]);
+
+        static::assertSame(
+            ['root-1', 'child-a', 'grandchild-1', 'grandchild-2', 'child-b', 'root-2'],
+            $inserted->ids()
+        );
+    }
+
     #[TestDox('insertIntoSlot places the nodes inside an existing slot at the given index')]
     public function testInsertIntoSlotPlacesNodesInAnExistingSlot(): void
     {
@@ -161,6 +206,21 @@ class StoredTreeTest extends TestCase
             static fn (StoredElement $child): string => $child->id,
             $parent->slots['aside']
         ));
+    }
+
+    #[TestDox('insertIntoSlot leaves a sibling language-map property value unchanged while rebuilding the slot')]
+    public function testInsertIntoSlotLeavesASiblingLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $sibling = StoredElementBuilder::create('core:text', 'child-a')->withProperty('text', $translations)->build();
+        $tree = new StoredTree([StoredElementBuilder::create('core:section', 'root-1')->withSlot('main', [$sibling])->build()]);
+
+        $inserted = $tree->insertIntoSlot('root-1', 'main', null, [$this->element('child-new')]);
+
+        $carried = $inserted->find('child-a')?->property('text');
+        static::assertNotNull($carried);
+        static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
     }
 
     #[TestDox('insertIntoSlot returns a structurally unchanged forest for a parent id the forest does not carry')]
@@ -195,6 +255,21 @@ class StoredTreeTest extends TestCase
         $tree = $this->tree();
 
         static::assertSame($this->serialize($tree), $this->serialize($tree->replace('absent', $this->element('replacement'))));
+    }
+
+    #[TestDox('replace returns a root it did not target as a new instance carrying an equal value')]
+    public function testReplaceRebuildsAnUntargetedRoot(): void
+    {
+        // replaceIn() at StoredTree.php:269-277 rebuilds every non-matching node through
+        // StoredElement::withSlots() unconditionally, whether or not anything below it changed, and
+        // StoredElement::copy() always constructs a fresh instance.
+        $untargeted = $this->element('root-2');
+        $tree = new StoredTree([$this->element('root-1'), $untargeted]);
+
+        $replaced = $tree->replace('root-1', $this->element('root-z'));
+
+        static::assertEquals($untargeted, $replaced->roots[1]);
+        static::assertNotSame($untargeted, $replaced->roots[1]);
     }
 
     #[TestDox('validate reports nothing for a forest whose ids are all unique')]

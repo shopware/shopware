@@ -3,14 +3,20 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
+ * Two rules per declared property. The value rule is {@see PropertyType::admits()}, the one conformance
+ * predicate, so this pass keeps no match table of its own. The key rule applies to a translatable property
+ * alone: its value is a language map, and every key must be a language id in lowercase UUID hex.
+ *
  * The registry lookup is `has()`-guarded and silent on a miss: an unregistered component is
  * {@see LayoutDiagnostics}' to report, and an unguarded
  * `get()` would throw `elementTypeNotFound` — a structured 404, but the wrong status and error code for the
@@ -49,84 +55,77 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
         foreach ($properties as $key => $raw) {
             $specification = $declared[$key] ?? null;
 
-            // A null value is admissible under every primitive: whether a key may be absent or null is the
-            // required-input rule's business, not this one's.
-            if ($specification === null || $raw === null) {
+            if ($specification === null) {
                 continue;
             }
 
-            $types = $this->enforceableTypes($specification->type());
+            $type = $specification->type();
 
-            if ($types === null || $this->matchesAny($raw, $types)) {
+            // fromDecoded() throws only for a PHP value no JSON payload can carry; the element's own `Type`
+            // and value-nesting constraints have already run against this same map.
+            if (!$type->admits(StoredValue::fromDecoded($raw))) {
+                $this->context->buildViolation($constraint->message)
+                    ->setParameter('{{ key }}', (string) $key)
+                    ->setParameter('{{ declaredType }}', $this->renderDeclaredType($type))
+                    ->setParameter('{{ actualType }}', get_debug_type($raw))
+                    ->atPath('[properties][' . $key . ']')
+                    ->addViolation();
+
                 continue;
             }
 
-            $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ key }}', (string) $key)
-                ->setParameter('{{ declaredType }}', implode('|', $types))
-                ->setParameter('{{ actualType }}', get_debug_type($raw))
+            if (!$type->translatable()) {
+                continue;
+            }
+
+            if (!\is_array($raw)) {
+                // Unreachable: admits() already established a translatable value is a map before this point.
+                // The check exists only so PHPStan narrows $raw for reportNonLanguageKeys().
+                continue;
+            }
+
+            $this->reportNonLanguageKeys($constraint, (string) $key, $raw);
+        }
+    }
+
+    /**
+     * One violation per key that is not a language id, so a client can name and correct each. Only the key
+     * format is judged: whether the id names an existing language is a diagnostics warning, never a write
+     * rejection. No separate case check accompanies the domain test — {@see Uuid::VALID_PATTERN} is anchored
+     * lowercase-only hex, so an upper-case key already fails it.
+     *
+     * @param array<array-key, mixed> $map
+     */
+    private function reportNonLanguageKeys(PropertyTypeConformance $constraint, string $key, array $map): void
+    {
+        foreach (array_keys($map) as $rawKey) {
+            $languageKey = (string) $rawKey;
+
+            if (Uuid::isValid($languageKey)) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->languageKeyMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ languageKey }}', $languageKey)
                 ->atPath('[properties][' . $key . ']')
                 ->addViolation();
         }
     }
 
     /**
-     * The primitive types a value must satisfy at least one of, or `null` when the declaration constrains
-     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
-     * either, because that member alone accepts every value.
-     *
-     * A union's declared type is an array, so {@see PropertyType::isPrimitive()} answers false for every one of
-     * them; the members are tested against {@see PropertyType::PRIMITIVE_TYPES} here instead.
-     *
-     * @return list<string>|null
+     * The declared type as the message names it. The translatable flag is spelled out because the same
+     * `string` declaration admits a bare string without it and only a language map with it, so the flag is
+     * what a client needs to read the rejection.
      */
-    private function enforceableTypes(PropertyType $type): ?array
+    private function renderDeclaredType(PropertyType $type): string
     {
-        $declared = $type->type();
+        $declared = implode('|', (array) $type->type());
 
-        if (\is_string($declared)) {
-            return \in_array($declared, PropertyType::PRIMITIVE_TYPES, true) ? [$declared] : null;
+        if (!$type->translatable()) {
+            return $declared;
         }
 
-        if ($declared === []) {
-            return null;
-        }
-
-        foreach ($declared as $member) {
-            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
-                return null;
-            }
-        }
-
-        return $declared;
-    }
-
-    /**
-     * @param list<string> $types
-     */
-    private function matchesAny(mixed $value, array $types): bool
-    {
-        foreach ($types as $type) {
-            if ($this->matches($value, $type)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * `number` admits an integer as well as a float — JSON carries no distinction a client can be held to —
-     * while `integer` admits only an integer.
-     */
-    private function matches(mixed $value, string $type): bool
-    {
-        return match ($type) {
-            'string' => \is_string($value),
-            'integer' => \is_int($value),
-            'number' => \is_int($value) || \is_float($value),
-            'boolean' => \is_bool($value),
-            default => false,
-        };
+        return $declared . ' (translatable)';
     }
 }

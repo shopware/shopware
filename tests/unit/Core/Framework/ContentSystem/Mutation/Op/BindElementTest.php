@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
@@ -16,9 +17,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
 
 /**
  * @internal
@@ -49,6 +54,18 @@ class BindElementTest extends TestCase
         $result = (new BindElement($this->registryWithoutInputDefault(), 'spec-1', 'el', $this->applicator($config)))->apply($tree);
 
         static::assertNull($result->roots[0]->property('mediaId'));
+    }
+
+    #[TestDox('seeds a translatable input default under the anchor language key on the bound element')]
+    public function testBindSeedsTranslatableInputDefaultAsAnchorMap(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Content:Text')]);
+
+        $bind = new BindElement($this->textBindingRegistry(), 'spec-text', 'el', $this->applicator($config, $this->textTypeRegistry()));
+        $result = $bind->apply($tree);
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->roots[0]->property('text')?->jsonSerialize());
     }
 
     #[TestDox('does not overwrite an authored non-null value on the input key with the default')]
@@ -170,11 +187,50 @@ class BindElementTest extends TestCase
         return $registry;
     }
 
-    private function applicator(AbstractContentDataLoaderConfig $config): BindingApplicator
+    private function textBindingRegistry(): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $specification = new BindingSpecification(
+            'spec-text',
+            'Sw:Content:Text',
+            'Text binding',
+            [],
+            ['text' => new BindingInput(true, 'Autumn sale', false)],
+            'core',
+        );
+
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['spec-text' => $specification]);
+
+        return $registry;
+    }
+
+    private function applicator(AbstractContentDataLoaderConfig $config, ?AbstractContentSystemElementTypeRegistry $typeRegistry = null): BindingApplicator
     {
         $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $serializers->method('decode')->willReturn($config);
 
-        return new BindingApplicator($serializers);
+        return new BindingApplicator($serializers, $typeRegistry ?? $this->productTypeRegistry());
+    }
+
+    private function productTypeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return $this->typeRegistry([
+            'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')->primitive('mediaId', 'string')->build(),
+        ]);
+    }
+
+    private function textTypeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return $this->typeRegistry([
+            'Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')->primitive('text', 'string', translatable: true)->build(),
+        ]);
+    }
+
+    /**
+     * @param array<string, ContentSystemElementTypeSpecification> $specs
+     */
+    private function typeRegistry(array $specs): AbstractContentSystemElementTypeRegistry
+    {
+        return TestElementTypeRegistry::of($specs);
     }
 }

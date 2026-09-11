@@ -1,0 +1,74 @@
+# Listener API
+
+What a rendering-lifecycle listener works with once it is wired: the element members it edits, a
+worked listener, cache-tag control, and priority. Which event to choose and where each one sits in
+the pipeline is in [custom-listeners.md](custom-listeners.md).
+
+## Working with RenderedElement
+
+`RenderedElement` is the tree node a `RenderedTreeFinalizationEvent` listener works against (a `ContentTreePreparationEvent` listener works against `StoredElement` instead). It is `final readonly`, so every edit returns a new instance:
+
+| Member                                            | Purpose                                                       |
+|---------------------------------------------------|---------------------------------------------------------------|
+| `$id`                                             | Element ID, readonly                                          |
+| `$component`                                      | Component type identifier, readonly                           |
+| `$properties`                                     | The flat property map, readonly `array<string, mixed>`        |
+| `$slots`                                          | Named child slots, readonly `array<string, list<RenderedElement>>` |
+| `$style`                                          | `ElementStyle`, readonly                                      |
+| `withProperty(string $key, mixed $value): self`   | Copy with one property set                                    |
+| `withProperties(array $properties): self`         | Copy with the whole property map replaced                     |
+| `withSlots(array $slots): self`                   | Copy with the slot map replaced                               |
+
+A `null` property value is a present property holding null, which is how a lookup that ran and found nothing differs from one that never wrote at all. Use `array_key_exists()` on `$properties` when that distinction matters.
+
+`RenderedTreeEditor::mapNodes(array $tree, callable $mapper): array` applies one mapper to every node of a whole forest, rebuilding the copies down each branch, and is the idiom for anything beyond a single node.
+
+## Example: Reading Time Listener
+
+```php
+#[AsEventListener(event: RenderedTreeFinalizationEvent::class)]
+class ReadingTimeSubscriber
+{
+    private const WORDS_PER_MINUTE = 200;
+
+    public function __construct(private readonly RenderedTreeEditor $editor)
+    {
+    }
+
+    public function __invoke(RenderedTreeFinalizationEvent $event): void
+    {
+        $event->replaceTree($this->editor->mapNodes($event->tree(), function (RenderedElement $element): RenderedElement {
+            $content = $element->properties['content'] ?? null;
+            if (!\is_string($content)) {
+                return $element;
+            }
+
+            $wordCount = str_word_count(strip_tags($content));
+
+            return $element->withProperty('readingTimeMinutes', (int) ceil($wordCount / self::WORDS_PER_MINUTE));
+        }));
+    }
+}
+```
+
+The listener writes a property and returns each node, so it changes no structure and stays mode-independent: in SKELETON the `content` property is absent, the mapper returns the node untouched, and the skeleton tree is identical to the full one.
+
+Symfony reads `#[AsEventListener]` only on an **autoconfigured** service definition, so the attribute above registers nothing unless your `services.xml` carries `<defaults autoconfigure="true"/>` (or the definition sets `autoconfigure` itself). Without it the class is registered as an ordinary service and never called — and `priority` on it is inert for the same reason.
+
+## Cache Context in Subscribers
+
+Subscribers can add cache tags or disable caching via `$event->cacheContext`:
+
+```php
+// Add invalidation tags for external data
+$event->cacheContext->addTags(['my-plugin-weather-' . $location]);
+
+// Disable caching entirely (use sparingly)
+$event->cacheContext->disable();
+```
+
+## Priorities
+
+Core reserves no priority band. Priority only orders your listener against other extensions' listeners on the same event; every core step already runs after the preparation event and before the finalization one. Omit `priority` unless you are sequencing against another plugin.
+
+> **If you wrote a listener against the old bands, re-check it.** The `>= 6000` / `< 6000 and >= 1000` / `< 1000 and >= 0` contract documented here never worked, and it was *inverted*: core's listeners were all registered at priority 0, because their `#[AsEventListener(priority: …)]` attributes were never processed — those services were not autoconfigured. An autoconfigured plugin service's attribute, on the other hand, is processed, so a plugin listener at `6000`, meaning "before core", did run before core — but so did one at `1`, and so did one at `500` that meant "after core". Only a negative priority ran after core. Core no longer occupies either event at all, so both bands are meaningless now; a priority chosen to sit before or after a core step should be removed.

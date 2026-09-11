@@ -110,44 +110,47 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame($expected, $accessor($this->decode($response)[$field]));
     }
 
-    #[TestDox('threads the root source context resolved from the registry into the mutation pipeline')]
-    public function testResolvesRootSource(): void
-    {
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: StoredElement::class,
-            contextType: ContextType::Single,
-            providerElementId: null,
-            distribution: DistributionStrategy::Broadcast,
-        )];
-
-        $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturnCallback(function (?string $rootSource, Context $context) use ($rootContext): array {
-            static::assertSame('product', $rootSource);
-
-            return $rootContext;
-        });
-
-        $threadedRootContext = false;
-        $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
-
-        $controller->insert(new InsertElementRequest('Sw:Card', rootSource: 'product'), Context::createDefaultContext());
-
-        static::assertSame($rootContext, $threadedRootContext);
-    }
-
-    #[TestDox('threads a null context into the pipeline when the registry resolves no bound source')]
-    public function testWithoutRootSourceThreadsNullContext(): void
+    /**
+     * @param list<ProvidedContext>|null $resolved
+     */
+    #[DataProvider('threadsResolvedRootContextProvider')]
+    #[TestDox('threads what the registry resolves for the request root source into the mutation pipeline: $_dataName')]
+    public function testThreadsResolvedRootContext(?string $rootSource, ?array $resolved): void
     {
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturn(null);
+        $registry->method('resolveGated')->willReturnCallback(
+            function (?string $passedRootSource, Context $context) use ($rootSource, $resolved): ?array {
+                static::assertSame($rootSource, $passedRootSource);
+
+                return $resolved;
+            }
+        );
 
         $threadedRootContext = 'unset';
         $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
 
-        $controller->insert(new InsertElementRequest('Sw:Card'), Context::createDefaultContext());
+        $controller->insert(new InsertElementRequest('Sw:Card', rootSource: $rootSource), Context::createDefaultContext());
 
-        static::assertNull($threadedRootContext);
+        static::assertSame($resolved, $threadedRootContext);
+    }
+
+    /**
+     * @return iterable<string, array{string|null, list<ProvidedContext>|null}>
+     */
+    public static function threadsResolvedRootContextProvider(): iterable
+    {
+        yield 'a named root source resolves to a bound context' => [
+            'product',
+            [new ProvidedContext(
+                contextKey: 'product',
+                fqcn: StoredElement::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+            )],
+        ];
+
+        yield 'an absent root source resolves to no bound context' => [null, null];
     }
 
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
@@ -238,7 +241,7 @@ class LayoutMutationControllerTest extends TestCase
             $this->elementCodec(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), static::createStub(AbstractContentSystemElementTypeRegistry::class)),
         );
     }
 

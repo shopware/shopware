@@ -128,6 +128,10 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    // Filled by the bundle that owns the section assignment tables; the Storefront sets header and footer.
+    $containerConfigurator->parameters()
+        ->set('shopware.content_system.section_assignment_entities', []);
+
     $services = $containerConfigurator->services();
 
     // Entity Definitions
@@ -269,6 +273,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(EntityCacheTagResolver::class),
             service(DefinitionInstanceRegistry::class),
+            param('shopware.content_system.section_assignment_entities'),
         ])
         ->tag('kernel.event_listener');
 

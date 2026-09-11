@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Dto\StyleOptionSpecificationDtoCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
@@ -11,10 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
- * hand-edited): a row whose schema fails to decode or validate is skipped and logged at warning
- * level rather than aborting the whole load, unlike YamlStyleOptionLoader, which fails hard on an
- * authored file.
+ * Persisted active-app rows follow the same fail-fast contract as definitions loaded by
+ * {@see YamlStyleOptionLoader}.
+ * Every row must have a name, and its schema must decode to a map, deserialize, and validate
+ * successfully; otherwise, the whole load aborts.
  *
  * @internal
  *
@@ -28,7 +28,6 @@ class DatabaseStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
         private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -52,57 +51,43 @@ class DatabaseStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
         $resolved = [];
 
         foreach ($rows as $row) {
-            $name = $row['name'] ?: '<unknown>';
             $source = 'app:' . $row['app_name'];
-            $identifier = $source . ':' . $name;
+            $name = $row['name'];
+            $identifier = $source . ':' . ($name === '' ? '<unknown>' : $name);
+
+            if ($name === '') {
+                throw ContentSystemException::styleOptionLoadFailed($identifier, 'persisted row has no name and cannot be registered');
+            }
 
             try {
                 $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {
-                $this->logger->warning(\sprintf('Skipping style option "%s": invalid JSON schema: %s', $identifier, $e->getMessage()), [
-                    'identifier' => $identifier,
-                    'reason' => $e->getMessage(),
-                ]);
-
-                continue;
+                throw ContentSystemException::styleOptionLoadFailed($identifier, 'Invalid JSON schema: ' . $e->getMessage(), $e);
             }
 
             if (!\is_array($schema)) {
-                $this->logger->warning(\sprintf('Skipping style option "%s": persisted schema must decode to an array/map, got %s', $identifier, get_debug_type($schema)), [
-                    'identifier' => $identifier,
-                    'type' => get_debug_type($schema),
-                ]);
-
-                continue;
+                throw ContentSystemException::styleOptionLoadFailed($identifier, 'Persisted schema must decode to an array/map, got ' . get_debug_type($schema));
             }
 
             try {
                 $dto = $this->serializer->denormalize($schema);
             } catch (\Throwable $e) {
-                $this->logger->warning(\sprintf('Skipping style option "%s": invalid schema: %s', $identifier, $e->getMessage()), [
-                    'identifier' => $identifier,
-                    'reason' => $e->getMessage(),
-                ]);
-
-                continue;
-            }
-
-            $violations = $this->validator->validate(new StyleOptionSpecificationDtoCollection([$name => $dto]));
-            if ($violations->count() > 0) {
-                $messages = [];
-                foreach ($violations as $violation) {
-                    $messages[] = $violation->getMessage();
-                }
-
-                $this->logger->warning(\sprintf('Skipping style option "%s": validation failed: %s', $identifier, implode('; ', $messages)), [
-                    'identifier' => $identifier,
-                    'reason' => implode('; ', $messages),
-                ]);
-
-                continue;
+                throw ContentSystemException::styleOptionLoadFailed($identifier, 'Invalid schema: ' . $e->getMessage(), $e);
             }
 
             $resolved[] = new ResolvedStyleOptionSpecificationDto($name, $source, $dto);
+        }
+
+        $dtos = [];
+        foreach ($resolved as $resolvedDto) {
+            // Style option names are globally unique across persisted app rows, so the bare name keeps every
+            // row distinct in the collection and ensures that all rows are validated.
+            $dtos[$resolvedDto->name] = $resolvedDto->dto;
+        }
+
+        $violations = $this->validator->validate(new StyleOptionSpecificationDtoCollection($dtos));
+        if ($violations->count() > 0) {
+            throw ContentSystemException::styleOptionsInvalid($violations);
         }
 
         return array_map(

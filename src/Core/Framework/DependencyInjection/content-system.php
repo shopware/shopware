@@ -458,7 +458,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.type_loader');
 
@@ -498,7 +497,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.style_option_loader');
 
@@ -550,7 +548,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('kernel.environment'),
             service(Connection::class),
-            service('logger'),
             service(BindingSpecificationSerializer::class),
             service('validator'),
         ])

@@ -244,36 +244,13 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
     }
 
-    public function testContextUsesQueueIndexingWhenRequested(): void
+    #[DataProvider('indexingBehaviorProvider')]
+    public function testContextHonorsIndexingBehaviorHeader(?string $behavior, bool $usesQueueIndexing, bool $disablesIndexing): void
     {
-        $context = $this->resolveContextWithIndexingBehavior(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+        $context = $this->resolveContextWithIndexingBehavior($behavior);
 
-        static::assertTrue($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
-        static::assertFalse($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
-    }
-
-    public function testContextDisablesIndexingWhenRequested(): void
-    {
-        $context = $this->resolveContextWithIndexingBehavior(EntityIndexerRegistry::DISABLE_INDEXING);
-
-        static::assertTrue($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
-        static::assertFalse($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
-    }
-
-    public function testContextKeepsSynchronousIndexingWhenBehaviorIsNotProvided(): void
-    {
-        $context = $this->resolveContextWithIndexingBehavior();
-
-        static::assertFalse($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
-        static::assertFalse($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
-    }
-
-    public function testContextIgnoresUnsupportedIndexingBehavior(): void
-    {
-        $context = $this->resolveContextWithIndexingBehavior('unsupported');
-
-        static::assertFalse($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
-        static::assertFalse($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
+        static::assertSame($usesQueueIndexing, $context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
+        static::assertSame($disablesIndexing, $context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
     }
 
     public function testResolveAdminSourceAddsDefaultUserPrivileges(): void
@@ -338,6 +315,33 @@ class ApiRequestContextResolverTest extends TestCase
                 'product:delete' => false,
             ],
             [],
+            false,
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{0: ?string, 1: bool, 2: bool}>
+     */
+    public static function indexingBehaviorProvider(): iterable
+    {
+        yield 'queue indexing is enabled' => [
+            EntityIndexerRegistry::USE_INDEXING_QUEUE,
+            true,
+            false,
+        ];
+        yield 'indexing is disabled' => [
+            EntityIndexerRegistry::DISABLE_INDEXING,
+            false,
+            true,
+        ];
+        yield 'no header keeps synchronous indexing' => [
+            null,
+            false,
+            false,
+        ];
+        yield 'unsupported header is ignored' => [
+            'unsupported',
+            false,
             false,
         ];
     }

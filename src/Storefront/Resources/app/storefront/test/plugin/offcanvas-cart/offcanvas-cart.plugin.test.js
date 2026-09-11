@@ -1,4 +1,5 @@
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
+import FocusHandler from 'src/helper/focus-handler.helper';
 
 /**
  * @package checkout
@@ -15,7 +16,7 @@ jest.mock('src/service/http-client.service', () => {
                 <a class="cart-item-label" href="#">Kek product</a>
 
                 <form action="/checkout/line-item/change-quantity/uuid12345">
-                    <select name="quantity" class="js-offcanvas-cart-change-quantity">
+                    <select name="quantity" class="js-offcanvas-cart-change-quantity" data-focus-id="line-item-offcanvas-quantity-uuid12345">
                         <option value="1" selected="selected">1</option>
                         <option value="2" >2</option>
                     </select>
@@ -26,7 +27,7 @@ jest.mock('src/service/http-client.service', () => {
                 <a class="cart-item-label" href="#">Weird product with huge quantity</a>
 
                 <form action="/checkout/line-item/change-quantity/uuid555">
-                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1">
+                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1" data-focus-id="line-item-offcanvas-quantity-uuid555">
                 </form>
             </div>
         </div>
@@ -58,18 +59,28 @@ describe('OffCanvasCartPlugin tests', () => {
 
     let plugin;
 
+    function createPlugin(options) {
+        document.body.innerHTML = '<div class="header-cart" data-off-canvas-cart="true"><a class="header-cart-btn">€ 0,00</a></div>';
+
+        const el = document.querySelector('.header-cart');
+
+        if (options) {
+            el.setAttribute('data-off-canvas-cart-options', JSON.stringify(options));
+        }
+
+        const instance = new OffCanvasCartPlugin(el, {}, 'OffCanvasCart');
+        instance.$emitter.publish = jest.fn();
+
+        return instance;
+    }
+
     beforeEach(() => {
 
         window.router = {
             'frontend.cart.offcanvas': '/checkout/offcanvas',
         };
 
-        window.focusHandler = {
-            saveFocusState: jest.fn(),
-            resumeFocusState: jest.fn(),
-        };
-
-        document.body.innerHTML = '<div class="header-cart"><a class="header-cart-btn">€ 0,00</a></div>';
+        window.focusHandler = new FocusHandler();
 
         window.PluginManager = {
             initializePlugins: jest.fn(),
@@ -89,18 +100,17 @@ describe('OffCanvasCartPlugin tests', () => {
             },
         };
 
-        const el = document.querySelector('.header-cart');
-
         fireRequestSpy = jest.spyOn(OffCanvasCartPlugin.prototype, '_fireRequest');
 
-        plugin = new OffCanvasCartPlugin(el);
-        plugin.$emitter.publish = jest.fn();
+        plugin = createPlugin();
 
         jest.useFakeTimers();
     });
 
     afterEach(() => {
         fireRequestSpy.mockClear();
+        jest.clearAllTimers();
+        jest.useRealTimers();
     });
 
     test('creates plugin instance', () => {
@@ -157,6 +167,38 @@ describe('OffCanvasCartPlugin tests', () => {
 
         // Verify updated content after quantity change
         expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
+    });
+
+    test.each([
+        ['enabled', { autoFocus: true }, true],
+        ['disabled', { autoFocus: false }, false],
+        ['omitted', undefined, false],
+    ])('restores quantity focus only when the header autoFocus option is enabled: %s', (description, options, shouldRestoreFocus) => {
+        plugin = createPlugin(options);
+        plugin.el.dispatchEvent(new Event('click', { bubbles: true }));
+        jest.runOnlyPendingTimers();
+
+        const quantitySelector = '[data-focus-id="line-item-offcanvas-quantity-uuid555"]';
+        const quantityInput = document.querySelector(quantitySelector);
+        const response = document.querySelector('.offcanvas').cloneNode(true);
+        response.querySelector(quantitySelector).setAttribute('value', '2');
+
+        jest.spyOn(plugin.client, 'post').mockImplementation((url, data, callback) => callback(response.innerHTML));
+
+        quantityInput.focus();
+        expect(document.activeElement).toBe(quantityInput);
+
+        quantityInput.value = '2';
+        quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        jest.advanceTimersByTime(800);
+
+        const updatedQuantityInput = document.querySelector(quantitySelector);
+
+        expect(plugin.client.post).toHaveBeenCalledTimes(1);
+        expect(updatedQuantityInput).not.toBe(quantityInput);
+        expect(updatedQuantityInput.value).toBe('2');
+        expect(document.activeElement).toBe(shouldRestoreFocus ? updatedQuantityInput : document.body);
     });
 
     test('change product quantity should not send too many requests when spamming the number input', () => {

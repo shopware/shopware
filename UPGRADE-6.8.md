@@ -1428,7 +1428,7 @@ Existing overrides retain native Vue Options behavior, including watchers, mixin
 
 Compatibility migrations retain every mapped member, including members unused by the base component. Incomplete composable mappings and initialization-sensitive base effects leave the component on Options API. Intentional contract changes require a separate major-release migration.
 
-Migrated components must retain existing block and member names. A component that renamed a member can provide `legacyOptionsBindings` to preserve the old Options instance name. See the [compatibility documentation](src/Administration/Resources/app/administration/technical-docs/03-extensibility/04-composition-extension-system.md#options-api-shim).
+Migrated components must retain existing block and member names. A component that renamed a member can retain a public alias to preserve the old Options instance name. The build transform generates bridge metadata from recognized public declarations without adding compatibility options to SFC source. See the [compatibility documentation](src/Administration/Resources/app/administration/technical-docs/03-extensibility/04-composition-extension-system.md#options-api-shim).
 
 ## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
 

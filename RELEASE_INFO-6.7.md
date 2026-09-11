@@ -6,6 +6,8 @@
 
 Existing Options API overrides remain native Vue Options when their base component migrates to an SFC. A state bridge retains shared bindings and Shopware `$super` calls. Vue initializes mixins, watchers, providers, lifecycle hooks, and custom metadata. Route guards, shortcuts, and title metadata remain available. Retained Twig blocks share host state, refs, events, scopes, and named slots.
 
+The shared Vite and Jest transform generates bridge metadata from public SFC declarations. SFC source needs no compatibility options.
+
 The migration codemod only replaces components whose mappings preserve the legacy contract. It retains unused mapped members and leaves incomplete mappings and initialization-sensitive base effects on Options API.
 
 Register extensions during application bootstrap. Component migrations must still preserve their extension points. See the [compatibility guide](src/Administration/Resources/app/administration/technical-docs/03-extensibility/04-composition-extension-system.md#options-api-shim).

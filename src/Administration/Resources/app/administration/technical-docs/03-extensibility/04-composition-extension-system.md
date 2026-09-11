@@ -219,12 +219,13 @@ Vue also owns custom option merge strategies, hook deduplication, error handling
 Shared binding accessors read Vue's data and context directly. They avoid `setupState`, which contains those same accessors.
 Vue development builds add context accessors after setup; the bridge replaces those before Options initialization.
 
-Legacy methods use the real Vue instance through a receiver that supplies their preceding `$super` layer.
-Other reads and writes forward to that instance. The receiver remains valid across `await`.
+Ordinary legacy methods use Vue's instance. Methods that reference `$super` use a receiver for their preceding layer.
+Other reads and writes forward to the instance. The receiver remains valid across `await`.
 Computed parents support `$super('field')`, `$super('field.get')`, and `$super('field.set', value)`.
 
 `$data`, `$options`, `$watch`, `$emit`, `$attrs`, `$slots`, `$refs`, injections, and lifecycle cleanup use Vue's native implementation.
-The migration emits `legacyOptionsMembers` to retain base data, computed, and method categories.
+The shared Vite and Jest transform infers base data, computed, and method categories from public SFC declarations.
+Bridge metadata appears only in compiled output; authored SFCs need no compatibility options.
 Legacy `data()` replacements follow Vue's normal rules, including replacement objects with different keys.
 
 ### Definition options and plugins
@@ -244,14 +245,14 @@ Mappings with missing members, closed-over overridable calls, or scaffold-only b
 The first verified mapping is `placeholder`. Other mappings require their own audit before opting in.
 Base `created()` and watcher declarations are also deferred: moving them into setup would change their order relative to legacy overrides.
 
-A renamed binding can retain its original instance name with `legacyOptionsBindings`:
+A renamed binding can retain its original instance name through a public alias. The transform generates the bridge mapping:
 
 ```vue
 <script setup>
-defineOptions({ legacyOptionsBindings: { oldValue: 'internalValue' } });
 function internalValue() { return 'base'; }
+const oldValue = internalValue;
 function value() { return internalValue(); }
-swDefinePublic({ value });
+swDefinePublic({ oldValue, value });
 </script>
 ```
 

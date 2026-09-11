@@ -4,9 +4,9 @@ This guide is for maintainers who migrate an Options component to an SFC.
 Existing extensions can keep their Options API definitions and Twig block overrides.
 The shim gives Vue the original Options definitions and bridges the SFC state to that instance.
 
-The earlier “missing 3%” described two checklist conditions, not a percentage of affected extensions.
-Both conditions belong to the base migration: retain public names and retain their Options categories.
-Further fixes preserve ordinary method identity and native initialization for metadata-declared members. Some combinations still need review; see the release checks below.
+A compatible migration retains public names, member categories, and observable behavior.
+The build transform derives bridge metadata from ordinary SFC declarations.
+Some combinations still need review; see the release checks below.
 
 ## 1. Retain the public names and Options categories
 
@@ -21,15 +21,6 @@ For a base with `count` in `data`, `doubled` in `computed`, and `read` in `metho
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-// The bridge uses these categories when it builds $data and $options.
-defineOptions({
-    legacyOptionsMembers: {
-        count: 'data',
-        doubled: 'computed',
-        read: 'method',
-    },
-});
-
 const count = ref(1);
 const doubled = computed(() => count.value * 2);
 function read() {
@@ -40,20 +31,17 @@ swDefinePublic({ count, doubled, read });
 </script>
 ```
 
-Use `'writable-computed'` for a computed property that previously had a getter and setter.
-Keep the setter in `computed({ get, set })` as well.
-The metadata also keeps base state unavailable until Vue initializes its Options representation.
-It prevents early computed reads and renamed data watchers from retaining stale values.
-The metadata describes behavior; it does not create a missing setter or method.
+Use `computed({ get, set })` for a computed property that previously had a getter and setter.
+The shared Vite and Jest transform derives data, computed, and method categories from public declarations.
+It adds bridge metadata to compiled output; neither the codemod nor handwritten SFCs need compatibility options.
+A function stored inside a ref remains data.
+The bridge uses the generated categories to preserve Vue's Options initialization order and introspection.
 Do not use a plain copied value where a reactive binding is required.
 
-Prefer the original names. If a local rename is unavoidable, `legacyOptionsBindings` maps the old instance name to the new setup binding:
+Prefer the original names. If a local rename is unavoidable, retain a public alias.
+The transform resolves aliases that share the original ref, object, or function:
 
 ```ts
-defineOptions({
-    legacyOptionsBindings: { oldCount: 'count' },
-    legacyOptionsMembers: { oldCount: 'data' },
-});
 const count = ref(1);
 const oldCount = count;
 swDefinePublic({ oldCount });
@@ -64,9 +52,14 @@ Test the alias from an override, a parent template ref, and the component templa
 
 ## 2. Use only complete composable mappings
 
-The codemod writes the compatibility metadata and retains unused mapped members in compatibility mode.
+The codemod emits ordinary declarations and retains unused mapped members in compatibility mode.
+The build transform also recognizes methods from the verified composable mapping.
 Its descriptor must have `legacyCompatible: true` before a mapping can pass the gate.
 Currently, only `placeholder` has this verification.
+
+An arbitrary imported value or factory result does not reveal its original Options category.
+The transform leaves unknown expressions on the runtime fallback instead of guessing their category.
+Such bases need a reviewed mapping or must remain on Options; automatic inference is not a compatibility guarantee.
 
 For another mapping, verify every inherited member, prop, event, callback, and lifecycle effect.
 A composable must call the overrideable host member when the old mixin did so.
@@ -92,7 +85,7 @@ The deeper checks leave these migration conditions:
 | Pattern | Current behavior | Action for a compatible release |
 | --- | --- | --- |
 | Component identity used across hooks and ordinary methods/computed | Members without `$super` keep Vue's receiver. Members that reference `$super` still use a layer-specific receiver to preserve calls after `await`. | Check identity-dependent code in `$super` members. Keep the base on Options if identity must stay equal. |
-| Base state read before Options initialization | Complete `legacyOptionsMembers` metadata preserves native publication order, including renamed bindings. | Supply the metadata for handwritten migrations too. |
+| Base state read before Options initialization | Categories inferred from recognized public declarations preserve native publication order, including shared aliases. | Check imported values and custom factories whose original category cannot be inferred. Keep the base on Options until its mapping is verified. |
 | Calling `$options.data()` to restore defaults | The generated data factory returns current setup refs, so this does not recreate the original defaults. Ordinary `Object.assign(this.$data, freshValues)` works. | Retain the original data factory in a dedicated migration or keep the base on Options. A snapshot cannot reproduce dynamic defaults. |
 | Assigning a future data key in `beforeCreate`, then reading it in `data()` | This edge can retain Vue context access that exposes the underlying ref. | Keep the base on Options if this sequence is required. Do not move extension code merely to make the test pass. |
 

@@ -139,7 +139,7 @@ const __swSetupDispatch = Shopware.Component.createSetupDispatch();
             const __swSetupAuthor_doubled = computed(() => (__swSetupDispatch.read('count', () => __swSetupAuthor_count)).value * 2);
             const __swSetupAuthor_internalNote = ref('secret');
 
-            defineOptions({ name: 'sw-example', __swExtendable: true });
+            defineOptions({ legacyOptionsMembers: {"title":"data","count":"data","doubled":"computed"}, name: 'sw-example', __swExtendable: true });
 const {
                 props,
                 title,

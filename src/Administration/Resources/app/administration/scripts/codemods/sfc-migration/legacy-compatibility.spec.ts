@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils';
 import { convertComponent } from './convert-component';
 import { templateImportRange, makeRoot, writeFile, manifest } from './spec-helpers';
 import { compileGeneratedComponent } from './runtime-equivalence-harness';
+import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform';
 import { prepareLegacyComponent } from '../../../src/app/adapter/options-composition-shim/component-definition';
 import type { ComponentConfig, IndexedAwaitedComponentConfig } from '../../../src/core/factory/async-component.factory';
 import { runMigration } from './run-sfc-migration';
@@ -26,8 +27,10 @@ describe('migration with existing legacy overrides', () => {
         const result = await convert("mixins: ['placeholder'], data() { return { count: 1 }; }");
         expect(result.outcome).toBe('full');
         expect(result.sfc).toContain('const { placeholder } = usePlaceholder();');
-        expect(result.sfc).toContain("placeholder: 'method'");
+        expect(result.sfc).not.toContain('legacyOptions');
         expect(result.sfc).toMatch(/swDefinePublic\(\{\s*placeholder,/);
+        const compiled = transformShopwareSetupSfc(result.sfc!, `${name}.vue`);
+        expect(compiled?.code).toContain('"placeholder":"method"');
     });
 
     it.each([
@@ -50,10 +53,18 @@ describe('migration with existing legacy overrides', () => {
     });
 
     it('preserves data, computed, methods, $super, and immediate plugin watchers after actual migration and compilation', async () => {
-        const result = await convert(`data() { return { count: 1 }; },
-            computed: { doubled() { return this.count * 2; } },
+        const result = await convert(`data() { return { count: 1, callback: () => 'data callback' }; },
+            computed: {
+                doubled() { return this.count * 2; },
+                amount: {
+                    get() { return this.count; },
+                    set(value) { this.count = value; }
+                }
+            },
             methods: { read() { return this.doubled; } }`);
         expect(result.outcome).toBe('full');
+        expect(result.sfc).not.toContain('legacyOptions');
+        expect(result.sfc).toContain('const count = ref(1);');
         const seen = jest.fn();
         const override: ComponentConfig = {
             data: () => ({ count: 4 }),
@@ -83,6 +94,10 @@ describe('migration with existing legacy overrides', () => {
         expect(wrapper.vm.$data).not.toHaveProperty('read');
         expect(wrapper.vm.$options.methods).toHaveProperty('read');
         expect(wrapper.vm.$options.computed).toHaveProperty('doubled');
+        expect(wrapper.vm.$data).toHaveProperty('callback', expect.any(Function));
+        expect(wrapper.vm.$options.methods).not.toHaveProperty('callback');
+        expect(wrapper.vm.$options.computed).toHaveProperty('amount.set', expect.any(Function));
+        expect(wrapper.vm.$data).not.toHaveProperty('amount');
         wrapper.unmount();
     });
 

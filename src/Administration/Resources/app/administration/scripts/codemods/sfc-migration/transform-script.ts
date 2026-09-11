@@ -254,40 +254,7 @@ function renderScript(
         importBlock || null,
         helperBlock || null,
         injectBlock || null,
-        collected.inheritAttrs !== null || ctx.renamedBindings.size || ctx.preserveLegacyApi
-            ? `defineOptions({ ${[
-                  ...(ctx.preserveLegacyApi
-                      ? [
-                            `legacyOptionsMembers: ${JSON.stringify(
-                                Object.fromEntries([
-                                    ...collected.dataEntries.map(({ name }) => [
-                                        name,
-                                        'data',
-                                    ]),
-                                    ...collected.computeds.map(({ name, kind }) => [
-                                        name,
-                                        kind,
-                                    ]),
-                                    ...collected.methods.map(({ name }) => [
-                                        name,
-                                        'method',
-                                    ]),
-                                    ...composables.flatMap(({ entries }) =>
-                                        entries.map(({ member }) => [
-                                            member,
-                                            ctx.bindings.get(member),
-                                        ]),
-                                    ),
-                                ]),
-                            )}`,
-                        ]
-                      : []),
-                  ...(collected.inheritAttrs !== null ? [`inheritAttrs: ${collected.inheritAttrs}`] : []),
-                  ...(ctx.renamedBindings.size
-                      ? [`legacyOptionsBindings: ${JSON.stringify(Object.fromEntries(ctx.renamedBindings))}`]
-                      : []),
-              ].join(', ')} });`
-            : null,
+        collected.inheritAttrs !== null ? `defineOptions({ inheritAttrs: ${collected.inheritAttrs} });` : null,
         propsText !== null
             ? usesProps
                 ? `const props = defineProps(${propsText});`
@@ -473,11 +440,9 @@ function transformScript(
 
     // --- prelude (module-level code outside the component options) ------------------------------
 
-    const end = ctx.source.indexOf('\n', transformOptions.templateImportRange.end);
-    ctx.ms.remove(
-        transformOptions.templateImportRange.start,
-        end === -1 ? transformOptions.templateImportRange.end : end + 1,
-    );
+    // The import can share its line with component options. Remove only its AST range,
+    // otherwise data initializers on that line disappear before renderScript reads them.
+    ctx.ms.remove(transformOptions.templateImportRange.start, transformOptions.templateImportRange.end);
 
     // Keep the module prelude in a normal `<script>` block. `<script setup>` runs once per
     // component instance, so even a getter, regex, live import, or apparently pure member read can

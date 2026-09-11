@@ -109,6 +109,20 @@ function buildBaseScript(
     templateAnalysis: TemplateAnalysis,
 ): SourceEdit[] {
     const assets = buildLegacyAssets(block, analysis);
+    const legacyOptions = [
+        ...(Object.keys(analysis.legacyOptions.members).length
+            ? [
+                  `legacyOptionsMembers: ${JSON.stringify(analysis.legacyOptions.members)}`,
+              ]
+            : []),
+        ...(Object.keys(analysis.legacyOptions.bindings).length
+            ? [
+                  `legacyOptionsBindings: ${JSON.stringify(analysis.legacyOptions.bindings)}`,
+              ]
+            : []),
+    ]
+        .map((option) => `${option}, `)
+        .join('');
     const publicLocalNames = new Set(analysis.publicEntries);
     const privateNames = analysis.runtimeBindings
         .filter((binding) => !publicLocalNames.has(binding.name))
@@ -127,7 +141,7 @@ function buildBaseScript(
                   {
                       start: analysis.optionsArgument.start,
                       end: analysis.optionsArgument.start,
-                      replacement: `({ __swExtendable: true, name: '${escapeSingleQuoted(block.componentName)}', ...(`,
+                      replacement: `({ ${legacyOptions}__swExtendable: true, name: '${escapeSingleQuoted(block.componentName)}', ...(`,
                   },
                   { start: analysis.optionsArgument.end, end: analysis.optionsArgument.end, replacement: ') })' },
               ]
@@ -138,7 +152,9 @@ function buildBaseScript(
     // binding through — which also lets destructured defineProps() work (there is no props binding).
     const footer = [
         ...(!analysis.optionsArgument
-            ? [`defineOptions({ name: '${escapeSingleQuoted(block.componentName)}', __swExtendable: true });`]
+            ? [
+                  `defineOptions({ ${legacyOptions}name: '${escapeSingleQuoted(block.componentName)}', __swExtendable: true });`,
+              ]
             : []),
         'const {',
         ...destructureEntries.map((entry) => `    ${entry},`),

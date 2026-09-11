@@ -34,6 +34,7 @@ import {
     assertReservedMacroNames,
     assertStaticObjectEntries,
 } from './script-analyzer/validation';
+import { inferLegacyOptions, type LegacyOptionsMetadata } from './script-analyzer/legacy-options';
 import { type SetupRenameTarget, collectSetupRenameTargets } from './flow-analysis';
 
 const SUPPORTED_SCRIPT_LANGS = new Set([
@@ -74,6 +75,7 @@ type SharedScriptAnalysis = {
  */
 type BaseScriptAnalysis = {
     mode: 'base';
+    legacyOptions: LegacyOptionsMetadata;
     optionsArgument?: SourceRange;
     renameTargets: (SourceRange & Pick<SetupRenameTarget, 'localName' | 'expansion' | 'dispatch' | 'write'>)[];
     publicEntries: string[];
@@ -343,6 +345,7 @@ function buildBaseAnalysis(
     return {
         ...shared,
         mode: 'base',
+        legacyOptions: inferLegacyOptions(ast, publicEntries),
         optionsArgument: (() => {
             const argument = getMacroEntry(classified.macroEntries, 'defineOptions', 'statement')?.call.arguments[0];
             return argument ? getNodeRange(argument) : undefined;

@@ -645,8 +645,6 @@ import { salutation } from './salutation.helper';
 <script setup>
 import useSalutation from 'src/app/composables/use-salutation';
 
-defineOptions({ legacyOptionsBindings: { salutation: 'salutation$1' } });
-
 const props = defineProps({
     customer: {
         type: Object,

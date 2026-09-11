@@ -30,7 +30,7 @@ describe('build/vue-setup-transform base non-props macros', () => {
         // Macros are untouched; Vue's own compiler handles them downstream. Only the emit binding is
         // aliased and re-exposed from the footer.
         expect(result).toContain(
-            "defineOptions(({ __swExtendable: true, name: 'base-macros', ...({ inheritAttrs: false }) }));",
+            'defineOptions(({ legacyOptionsMembers: {"count":"data"}, __swExtendable: true, name: \'base-macros\', ...({ inheritAttrs: false }) }));',
         );
         expect(result).toContain('defineSlots<{ default(): unknown }>();');
         expect(result).toContain('const __swSetupAuthor_emit = defineEmits<{ save: [] }>();');
@@ -69,7 +69,7 @@ describe('build/vue-setup-transform base non-props macros', () => {
         const result = transformOrFail(source, 'base-options-local.vue').code;
 
         expect(result).toContain(
-            "defineOptions(({ __swExtendable: true, name: 'base-options-local', ...({ inheritAttrs: __swSetupAuthor_inheritAttrs }) }))",
+            'defineOptions(({ legacyOptionsMembers: {"count":"data"}, __swExtendable: true, name: \'base-options-local\', ...({ inheritAttrs: __swSetupAuthor_inheritAttrs }) }))',
         );
         expectVueCompilerScriptToCompile(result, 'base-options-local.vue');
     });

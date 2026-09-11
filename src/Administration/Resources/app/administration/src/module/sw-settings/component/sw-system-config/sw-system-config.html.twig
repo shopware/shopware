@@ -43,7 +43,10 @@
         {% block sw_system_config_content_tab %}
         <template v-if="activeTab === getTabName(tab)">
             {# @deprecated tag:v6.8.0 - The following template wrapper will be removed together with config data prop. Scopes `config` to the active tab's cards so block overrides relying on the deprecated flat "config" data prop still render the correct cards. #}
-            <template v-for="config in [tab.cards]">
+            <template
+                v-for="config in [tab.cards]"
+                :key="config"
+            >
                 {% block sw_system_config_content_card %}
                 <mt-card
                     v-for="(card, index) in tab.cards"

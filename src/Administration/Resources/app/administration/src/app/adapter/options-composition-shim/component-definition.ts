@@ -31,25 +31,7 @@ export function prepareLegacyComponent(
         return registration.resolvedConfig;
     });
     const mixins = nativeOptionsChain(configs);
-    const originalData = original.data;
-    const foundation: ComponentConfig = {
-        ...original,
-        ...baseMemberOptions(original),
-        mixins: [
-            {
-                beforeCreate(this: { $: ComponentInternalInstance }) {
-                    initializeNativeOptions(this.$);
-                },
-            },
-            ...((original.mixins ?? []) as ComponentConfig[]),
-        ],
-        data(this: { $: ComponentInternalInstance }, vm: object) {
-            return {
-                ...baseOptionsData(this.$),
-                ...(originalData as ((this: object, vm: object) => object) | undefined)?.call(this, vm),
-            };
-        },
-    };
+    const foundation = createBaseOptions(original);
     const definition: Definition = {
         name,
         __hmrId: original.__hmrId,
@@ -68,8 +50,40 @@ export function prepareLegacyComponent(
         mixins,
         setup: original.setup,
     };
+    retainLegacyRender(definition, original, mixins);
+    exposeRouteGuards(definition, [
+        foundation,
+        ...mixins,
+    ]);
+    return definition;
+}
+
+/** Keep base state and its original Options declarations in one ancestor. */
+function createBaseOptions(original: ComponentConfig): ComponentConfig {
+    const originalData = original.data;
+    return {
+        ...original,
+        ...baseMemberOptions(original),
+        mixins: [
+            {
+                beforeCreate(this: { $: ComponentInternalInstance }) {
+                    initializeNativeOptions(this.$);
+                },
+            },
+            ...((original.mixins ?? []) as ComponentConfig[]),
+        ],
+        data(this: { $: ComponentInternalInstance }, vm: object) {
+            return {
+                ...baseOptionsData(this.$),
+                ...(originalData as ((this: object, vm: object) => object) | undefined)?.call(this, vm),
+            };
+        },
+    };
+}
+
+function retainLegacyRender(definition: Definition, original: ComponentConfig, mixins: ComponentConfig[]): void {
     // Vue cannot replace a render function returned by setup with an Options render declaration.
-    const customRender = lastRender(mixins);
+    const customRender = lastDefinitionOption(mixins, 'render') as ComponentConfig['render'];
     definition.render = customRender ?? original.render;
     if (customRender && original.setup) {
         const setup = original.setup;
@@ -79,21 +93,17 @@ export function prepareLegacyComponent(
             return result instanceof Promise ? result.then(stateOnly) : stateOnly(result);
         } as ComponentConfig['setup'];
     }
+}
+
+function exposeRouteGuards(definition: Definition, configs: ComponentConfig[]): void {
     for (const guard of [
         'beforeRouteEnter',
         'beforeRouteUpdate',
         'beforeRouteLeave',
     ] as const) {
-        const handler = lastDefinitionOption(
-            [
-                foundation,
-                ...mixins,
-            ],
-            guard,
-        );
+        const handler = lastDefinitionOption(configs, guard);
         if (handler) definition[guard] = handler;
     }
-    return definition;
 }
 
 /** Preserve the original Options categories for $data and $options consumers. */
@@ -139,15 +149,6 @@ function lastDefinitionOption(configs: ComponentConfig[], key: string): unknown 
         value = config[key] ?? lastDefinitionOption((config.mixins ?? []) as ComponentConfig[], key) ?? parent ?? value;
     }
     return value;
-}
-
-function lastRender(configs: ComponentConfig[]): ComponentConfig['render'] {
-    let render: ComponentConfig['render'];
-    for (const config of configs) {
-        const parent = typeof config.extends === 'object' ? lastRender([config.extends]) : undefined;
-        render = config.render ?? lastRender((config.mixins ?? []) as ComponentConfig[]) ?? parent ?? render;
-    }
-    return render;
 }
 
 /**

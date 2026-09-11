@@ -6,9 +6,10 @@ import { readOriginalBinding } from './native-options-state';
 type Method = (this: object, ...args: unknown[]) => unknown;
 type Members = Map<string, Method>;
 type Instance = { $: ComponentInternalInstance };
+type Computed = Method | { get?: Method; set?: Method };
 
 /**
- * Keep Options declarations in Vue's inheritance tree. Only Shopware's $super call needs an adapter;
+ * Retain the Vue Options inheritance tree. Only Shopware's $super call needs an adapter;
  * ordinary reads, writes, watchers, injections, hooks and custom options remain Vue's responsibility.
  * @private
  */
@@ -18,103 +19,100 @@ export function nativeOptionsChain(configs: ComponentConfig[]): ComponentConfig[
     function wrap(config: ComponentConfig): ComponentConfig {
         if (ancestors.has(config)) throw new Error('[Options API Bridge] Circular Options inheritance.');
         ancestors.add(config);
-        const parent = config.extends;
         const result: ComponentConfig = { ...config };
         delete result.template;
-        if (parent && typeof parent !== 'string') result.extends = wrap(parent);
-        if (config.mixins)
-            result.mixins = config.mixins.map((mixin) =>
-                wrap(
-                    typeof mixin === 'string'
-                        ? (Shopware.Mixin.getByName(mixin as keyof MixinContainer) as ComponentConfig)
-                        : (mixin as ComponentConfig),
-                ),
-            );
-        const previous = new Map(members);
-        const receivers = new WeakMap<object, object>();
-        function receiver(vm: object): object {
-            const instance = (vm as Instance).$;
-            const host = instance.proxy!;
-            let proxy = receivers.get(host);
-            if (!proxy) {
-                proxy = new Proxy(host, {
-                    get(target, key) {
-                        if (key !== '$super') return Reflect.get(target, key, target) as unknown;
-                        return (name: string, ...args: unknown[]) => {
-                            const predecessor = previous.get(name) ?? previous.get(`${name}.get`);
-                            if (predecessor) return predecessor.apply(host, args);
-                            const [
-                                binding,
-                                accessor,
-                            ] = name.split('.');
-                            const original = readOriginalBinding(instance, binding);
-                            if (accessor === 'set' && isRef(original)) {
-                                original.value = args[0];
-                                return undefined;
-                            }
-                            if (typeof original === 'function') return (original as Method).apply(host, args);
-                            if (original !== undefined) return unref(original);
-                            throw new Error(`$super: "${name}" not found in the preceding component state.`);
-                        };
-                    },
-                    set: (target, key, value) => Reflect.set(target, key, value, target),
-                });
-                receivers.set(host, proxy);
-            }
-            return proxy;
-        }
-        function method(name: string, fn: Method): Method {
-            const wrapped: Method = function (...args) {
-                return fn.apply(receiver(this), args);
-            };
-            members.set(name, wrapped);
-            return wrapped;
-        }
-        if (config.methods)
-            result.methods = Object.fromEntries(
-                Object.entries(config.methods as Record<string, Method>).map(
-                    ([
-                        name,
-                        fn,
-                    ]) => [
-                        name,
-                        method(name, fn),
-                    ],
-                ),
-            );
-        if (config.computed)
-            result.computed = Object.fromEntries<Method | { get?: Method; set?: Method }>(
-                Object.entries(config.computed as Record<string, Method | { get?: Method; set?: Method }>).map(
-                    ([
-                        name,
-                        definition,
-                    ]) => {
-                        members.delete(`${name}.get`);
-                        members.delete(`${name}.set`);
-                        if (typeof definition === 'function') {
-                            const getter = method(name, definition);
-                            members.set(`${name}.get`, getter);
-                            return [
-                                name,
-                                getter,
-                            ] as const;
-                        }
-                        const accessor = definition as { get?: Method; set?: Method };
-                        const getter = accessor.get ? method(name, accessor.get) : undefined;
-                        if (getter) members.set(`${name}.get`, getter);
-                        return [
-                            name,
-                            {
-                                ...accessor,
-                                ...(getter ? { get: getter } : {}),
-                                ...(accessor.set ? { set: method(`${name}.set`, accessor.set) } : {}),
-                            },
-                        ] as const;
-                    },
-                ),
-            );
+        if (config.extends && typeof config.extends !== 'string') result.extends = wrap(config.extends);
+        if (config.mixins) result.mixins = config.mixins.map((mixin) => wrap(resolveMixin(mixin)));
+        Object.assign(result, wrapMembers(config, members));
         ancestors.delete(config);
         return result;
     }
     return configs.map(wrap);
+}
+
+function resolveMixin(mixin: unknown): ComponentConfig {
+    return typeof mixin === 'string'
+        ? (Shopware.Mixin.getByName(mixin as keyof MixinContainer) as ComponentConfig)
+        : (mixin as ComponentConfig);
+}
+
+/** Each layer closes over its own predecessors; later registrations cannot change a $super target. */
+function wrapMembers(config: ComponentConfig, members: Members): object {
+    const receiver = createSuperReceiver(new Map(members));
+    const wrap = (name: string, method: Method): Method => {
+        const wrapped: Method = function (...args) {
+            return method.apply(receiver(this), args);
+        };
+        members.set(name, wrapped);
+        return wrapped;
+    };
+    const result: { methods?: Record<string, Method>; computed?: Record<string, Computed> } = {};
+    if (config.methods) {
+        result.methods = {};
+        for (const [
+            name,
+            method,
+        ] of Object.entries(config.methods as Record<string, Method>))
+            result.methods[name] = wrap(name, method);
+    }
+    if (config.computed) {
+        result.computed = {};
+        for (const [
+            name,
+            definition,
+        ] of Object.entries(config.computed as Record<string, Computed>)) {
+            members.delete(`${name}.get`);
+            members.delete(`${name}.set`);
+            const originalGetter = typeof definition === 'function' ? definition : definition.get;
+            const getter = originalGetter ? wrap(name, originalGetter) : undefined;
+            if (getter) members.set(`${name}.get`, getter);
+            result.computed[name] =
+                typeof definition === 'function'
+                    ? getter!
+                    : {
+                          ...definition,
+                          ...(getter ? { get: getter } : {}),
+                          ...(definition.set ? { set: wrap(`${name}.set`, definition.set) } : {}),
+                      };
+        }
+    }
+    return result;
+}
+
+/** A stable receiver also preserves the preceding layer when a method awaits before calling $super. */
+function createSuperReceiver(previous: Members): (vm: object) => object {
+    const receivers = new WeakMap<object, object>();
+    return (vm) => {
+        const instance = (vm as Instance).$;
+        const host = instance.proxy!;
+        let receiver = receivers.get(host);
+        if (!receiver) {
+            receiver = new Proxy(host, {
+                get(target, key) {
+                    if (key !== '$super') return Reflect.get(target, key, target) as unknown;
+                    return (name: string, ...args: unknown[]) => callSuper(previous, instance, name, args);
+                },
+                set: (target, key, value) => Reflect.set(target, key, value, target),
+            });
+            receivers.set(host, receiver);
+        }
+        return receiver;
+    };
+}
+
+function callSuper(previous: Members, instance: ComponentInternalInstance, name: string, args: unknown[]): unknown {
+    const predecessor = previous.get(name) ?? previous.get(`${name}.get`);
+    if (predecessor) return predecessor.apply(instance.proxy!, args);
+    const [
+        binding,
+        accessor,
+    ] = name.split('.');
+    const original = readOriginalBinding(instance, binding);
+    if (accessor === 'set' && isRef(original)) {
+        original.value = args[0];
+        return undefined;
+    }
+    if (typeof original === 'function') return (original as Method).apply(instance.proxy!, args);
+    if (original !== undefined) return unref(original);
+    throw new Error(`$super: "${name}" not found in the preceding component state.`);
 }

@@ -4,181 +4,175 @@ import { isRef, reactive, unref, type ComponentInternalInstance } from 'vue';
 type State = Record<string, unknown>;
 type Owner = ComponentInternalInstance & { ctx: State };
 type Bridge = {
+    owner: Owner;
     original: State;
-    state: State;
     names: Map<string, string>;
+    legacyNames: Map<string, string>;
     fallback: Map<string, PropertyDescriptor>;
-    initialize: () => void;
+    overlay: State;
+    optionsStarted: boolean;
 };
 const bridges = new WeakMap<ComponentInternalInstance, Bridge>();
 
 /**
- * Share the SFC's bindings with Vue's real Options instance. Reads deliberately skip setupState:
- * setupState contains the accessors returned by this bridge and reading it would recurse.
+ * Share SFC bindings with Vue's real Options instance. The proxy reads data and ctx directly:
+ * setupState contains the bridge's own accessors, so reading it here would recurse.
  * @private
  */
 export function createNativeOptionsState(instance: ComponentInternalInstance, original: State, publicKeys: string[]): State {
-    const owner = instance as Owner;
+    const names = new Map<string, string>();
+    for (const key of publicKeys) names.set(key, key);
     const aliases = (instance.type as { legacyOptionsBindings?: Record<string, string> }).legacyOptionsBindings ?? {};
-    const names = new Map(
-        publicKeys.map((key) => [
-            key,
-            key,
-        ]),
-    );
-    Object.entries(aliases).forEach(
-        ([
-            name,
-            binding,
-        ]) => names.set(name, binding),
-    );
-    const legacyNames = new Map(
-        [...names].map(
-            ([
-                name,
-                binding,
-            ]) => [
-                binding,
-                name,
-            ],
-        ),
-    );
-    const fallback = new Map<string, PropertyDescriptor>();
-    const overlay = reactive({}) as State;
-    let optionsStarted = false;
-    const hasNativeContext = (key: string) => {
-        if (!optionsStarted) return false;
-        const descriptor = Object.getOwnPropertyDescriptor(owner.ctx, key);
-        return descriptor && (!fallback.has(key) || descriptor.get !== fallback.get(key)?.get);
+    for (const [
+        name,
+        binding,
+    ] of Object.entries(aliases))
+        names.set(name, binding);
+    const legacyNames = new Map<string, string>();
+    for (const [
+        name,
+        binding,
+    ] of names)
+        legacyNames.set(binding, name);
+
+    const bridge: Bridge = {
+        owner: instance as Owner,
+        original,
+        names,
+        legacyNames,
+        fallback: new Map(),
+        overlay: reactive({}),
+        optionsStarted: false,
     };
-    const state = new Proxy(reactive(original), {
+    const state = createStateProxy(bridge);
+    installSetupFallbacks(bridge, state);
+    bridges.set(instance, bridge);
+    return state;
+}
+
+function createStateProxy(bridge: Bridge): State {
+    return new Proxy(reactive(bridge.original), {
         get(target, key, receiver) {
-            if (typeof key !== 'string') return Reflect.get(target, key, receiver) as unknown;
-            if (Object.hasOwn(overlay, key)) return overlay[key];
-            const name = legacyNames.get(key) ?? key;
-            if (Object.hasOwn(owner.data, name)) return owner.data[name];
-            if (hasNativeContext(name)) return owner.ctx[name];
-            if (Object.hasOwn(owner.props, name)) return owner.props[name];
-            return unref(target[key]);
+            return typeof key === 'string'
+                ? readBinding(bridge, target, key)
+                : (Reflect.get(target, key, receiver) as unknown);
         },
         set(target, key, value) {
             if (typeof key !== 'string') return Reflect.set(target, key, value);
-            if (isRef(value) || typeof value === 'function') {
-                overlay[key] = value;
-                return true;
-            }
-            if (Object.hasOwn(overlay, key)) {
-                overlay[key] = value;
-                return true;
-            }
-            const name = legacyNames.get(key) ?? key;
-            if (Object.hasOwn(owner.data, name)) {
-                owner.data[name] = value;
-                return true;
-            }
-            if (hasNativeContext(name)) {
-                owner.ctx[name] = value;
-                return true;
-            }
-            const current = target[key];
-            if (isRef(current)) current.value = value;
-            else target[key] = value;
+            writeBinding(bridge, target, key, value);
             return true;
         },
         has(target, key) {
             return (
                 Reflect.has(target, key) ||
-                Reflect.has(overlay, key) ||
+                Reflect.has(bridge.overlay, key) ||
                 (typeof key === 'string' &&
-                    (Object.hasOwn(owner.data, key) || hasNativeContext(key) || Object.hasOwn(owner.props, key)))
+                    (Object.hasOwn(bridge.owner.data, key) ||
+                        hasNativeContext(bridge, key) ||
+                        Object.hasOwn(bridge.owner.props, key)))
             );
         },
         ownKeys(target) {
-            return [
-                ...new Set([
-                    ...Reflect.ownKeys(target),
-                    ...Object.keys(overlay),
-                    ...Object.keys(owner.data),
-                    ...(optionsStarted
-                        ? Object.keys(owner.ctx).filter((key) => !key.startsWith('$') && !key.startsWith('_'))
-                        : []),
-                ]),
-            ];
+            const keys = new Set([
+                ...Reflect.ownKeys(target),
+                ...Object.keys(bridge.overlay),
+                ...Object.keys(bridge.owner.data),
+            ]);
+            if (bridge.optionsStarted) {
+                for (const key of Object.keys(bridge.owner.ctx)) {
+                    if (!key.startsWith('$') && !key.startsWith('_')) keys.add(key);
+                }
+            }
+            return [...keys];
         },
         getOwnPropertyDescriptor(target, key) {
             return Reflect.getOwnPropertyDescriptor(target, key) ?? { configurable: true, enumerable: true };
         },
     });
+}
+
+function readBinding(bridge: Bridge, source: State, key: string): unknown {
+    if (Object.hasOwn(bridge.overlay, key)) return bridge.overlay[key];
+    const name = bridge.legacyNames.get(key) ?? key;
+    if (Object.hasOwn(bridge.owner.data, name)) return bridge.owner.data[name];
+    if (hasNativeContext(bridge, name)) return bridge.owner.ctx[name];
+    if (Object.hasOwn(bridge.owner.props, name)) return bridge.owner.props[name];
+    return unref(source[key]);
+}
+
+function writeBinding(bridge: Bridge, source: State, key: string, value: unknown): void {
+    if (isRef(value) || typeof value === 'function' || Object.hasOwn(bridge.overlay, key)) {
+        bridge.overlay[key] = value;
+        return;
+    }
+    const name = bridge.legacyNames.get(key) ?? key;
+    if (Object.hasOwn(bridge.owner.data, name)) {
+        bridge.owner.data[name] = value;
+        return;
+    }
+    if (hasNativeContext(bridge, name)) {
+        bridge.owner.ctx[name] = value;
+        return;
+    }
+    const current = source[key];
+    if (isRef(current)) current.value = value;
+    else source[key] = value;
+}
+
+function hasNativeContext(bridge: Bridge, key: string): boolean {
+    if (!bridge.optionsStarted) return false;
+    const descriptor = Object.getOwnPropertyDescriptor(bridge.owner.ctx, key);
+    return !!descriptor && (!bridge.fallback.has(key) || descriptor.get !== bridge.fallback.get(key)?.get);
+}
+
+/** Context fallbacks expose base bindings until Vue installs a legacy method, computed or injection. */
+function installSetupFallbacks(bridge: Bridge, state: State): void {
+    const names = new Map<string, string>();
+    for (const key of Object.keys(bridge.original)) names.set(key, key);
     for (const [
         name,
         binding,
-    ] of new Map([
-        ...Object.keys(original).map(
-            (key) =>
-                [
-                    key,
-                    key,
-                ] as const,
-        ),
-        ...names,
-    ])) {
+    ] of bridge.names)
+        names.set(name, binding);
+    for (const [
+        name,
+        binding,
+    ] of names) {
         const descriptor: PropertyDescriptor = {
             configurable: true,
             enumerable: true,
             get: () => state[binding],
             set: (value: unknown) => {
-                // Vue installs bound methods on ctx during Options initialization (assignment in production).
-                Object.defineProperty(owner.ctx, name, { configurable: true, enumerable: true, writable: true, value });
+                // Production Vue installs bound Options methods by assignment instead of defineProperty.
+                Object.defineProperty(bridge.owner.ctx, name, {
+                    configurable: true,
+                    enumerable: true,
+                    writable: true,
+                    value,
+                });
             },
         };
-        fallback.set(name, descriptor);
-        Object.defineProperty(owner.ctx, name, descriptor);
+        bridge.fallback.set(name, descriptor);
+        Object.defineProperty(bridge.owner.ctx, name, descriptor);
     }
-    bridges.set(instance, {
-        original,
-        state,
-        names,
-        fallback,
-        initialize: () => {
-            // Vue development builds expose setup accessors on ctx after setup returns. Replace those
-            // before Options initialization so ctx only supplies values installed by Vue itself.
-            for (const [
-                name,
-                descriptor,
-            ] of fallback)
-                Object.defineProperty(owner.ctx, name, descriptor);
-            optionsStarted = true;
-        },
-    });
-    return state;
 }
 
-/** Vue merges this data factory with the unchanged legacy data factories. @private */
+/** Vue merges this data factory with unchanged legacy data factories. @private */
 export function baseOptionsData(instance: ComponentInternalInstance): State {
     const bridge = bridges.get(instance);
     if (!bridge) return {};
     const options = instance.proxy?.$options;
-    return Object.fromEntries(
-        [...bridge.names]
-            .filter(
-                ([
-                    name,
-                    binding,
-                ]) =>
-                    typeof bridge.original[binding] !== 'function' &&
-                    !Object.hasOwn((options?.computed ?? {}) as object, name) &&
-                    !Object.hasOwn((options?.methods ?? {}) as object, name),
-            )
-            .map(
-                ([
-                    name,
-                    binding,
-                ]) => [
-                    name,
-                    bridge.original[binding],
-                ],
-            ),
-    );
+    const data: State = {};
+    for (const [
+        name,
+        binding,
+    ] of bridge.names) {
+        if (typeof bridge.original[binding] === 'function') continue;
+        if (Object.hasOwn((options?.computed ?? {}) as object, name)) continue;
+        if (Object.hasOwn((options?.methods ?? {}) as object, name)) continue;
+        data[name] = bridge.original[binding];
+    }
+    return data;
 }
 
 /** Read the unmodified SFC binding for a legacy $super call. @private */
@@ -189,5 +183,14 @@ export function readOriginalBinding(instance: ComponentInternalInstance, name: s
 
 /** Enter Vue Options initialization after setup has been exposed on the instance. @private */
 export function initializeNativeOptions(instance: ComponentInternalInstance): void {
-    bridges.get(instance)?.initialize();
+    const bridge = bridges.get(instance);
+    if (!bridge) return;
+    // Development Vue adds ctx accessors after setup. Restore our fallbacks before Options applies,
+    // so hasNativeContext only accepts fields subsequently installed by Vue's Options initialization.
+    for (const [
+        name,
+        descriptor,
+    ] of bridge.fallback)
+        Object.defineProperty(bridge.owner.ctx, name, descriptor);
+    bridge.optionsStarted = true;
 }

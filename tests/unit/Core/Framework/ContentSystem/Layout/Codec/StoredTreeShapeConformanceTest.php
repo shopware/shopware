@@ -623,6 +623,12 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        yield 'an element id carrying a line terminator' => [
+            [['id' => "hero\nfoot", 'component' => 'core:text']],
+            self::REJECTED,
+            '',
+        ];
+
         yield 'a blank element id' => [
             [['id' => '', 'component' => 'core:text']],
             self::DESCRIPTOR_ONLY,

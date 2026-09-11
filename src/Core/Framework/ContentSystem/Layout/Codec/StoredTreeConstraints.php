@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRejection;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\All;
@@ -254,9 +255,10 @@ final class StoredTreeConstraints
      * nesting to bound.
      */
     /**
-     * The write-side expression of the id value domain {@see StoredElementCodec::decodeElement()} admits. Both
-     * sides must state it: `NotBlank` exempts `'0'` and `Type` admits the reserved literal, so without this the
-     * descriptor would accept a payload decode refuses — a row persisted once and unreadable ever after.
+     * The write-side expression of the id value domain {@see ElementIdRule} states, which
+     * {@see StoredElementCodec::decodeElement()} enforces on the read side. Both sides must state it:
+     * `NotBlank` exempts `'0'` and `Type` admits the reserved literal, so without this the descriptor would
+     * accept a payload decode refuses — a row persisted once and unreadable ever after.
      */
     private function validateElementIdDomain(mixed $value, ExecutionContextInterface $context): void
     {
@@ -264,15 +266,17 @@ final class StoredTreeConstraints
             return;
         }
 
-        if ($value === VirtualRootWrapper::VIRTUAL_ROOT_ID) {
-            $context->buildViolation('This value is the reserved virtual-root id.')->addViolation();
+        $rejection = ElementIdRule::rejection($value);
 
+        if ($rejection === null) {
             return;
         }
 
-        if (!\is_string(array_key_first([$value => null]))) {
-            $context->buildViolation('This value is a string PHP casts to an integer array key.')->addViolation();
-        }
+        $context->buildViolation(match ($rejection) {
+            ElementIdRejection::ReservedLiteral => 'This value is the reserved virtual-root id.',
+            ElementIdRejection::IntegerLiteral => 'This value reads as an integer.',
+            ElementIdRejection::LineTerminator => 'This value contains a line terminator.',
+        })->addViolation();
     }
 
     private function validatePropertyValueDepth(mixed $value, ExecutionContextInterface $context): void

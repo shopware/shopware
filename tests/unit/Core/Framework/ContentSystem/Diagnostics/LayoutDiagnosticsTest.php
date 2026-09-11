@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Diagnostics;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -51,8 +50,10 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
 
 /**
  * @internal
@@ -1041,7 +1042,7 @@ class LayoutDiagnosticsTest extends TestCase
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
-            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
         )->analyze([$element], [])->report;
 
         static::assertSame([], $report->bindingErrors());
@@ -1056,7 +1057,7 @@ class LayoutDiagnosticsTest extends TestCase
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
-            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
         )->analyze([$element], [])->report;
 
         // Pins the state this case turns on, and separates it from the absent-anchor case below: the anchor key
@@ -1077,7 +1078,7 @@ class LayoutDiagnosticsTest extends TestCase
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
-            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
         )->analyze([$element], [])->report;
 
         // Pins the state this case turns on: a present, non-empty map whose anchor key is ABSENT — the state a
@@ -1107,7 +1108,7 @@ class LayoutDiagnosticsTest extends TestCase
             ])),
             $this->encodingSerializers(['property' => 'productId']),
             $this->storedLoaderProvider(SalesChannelProductEntity::class),
-            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
         )->analyze([$element], [])->report;
 
         $error = $this->onlyBindingError($report->bindingErrors());
@@ -1149,10 +1150,10 @@ class LayoutDiagnosticsTest extends TestCase
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
-            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
         )->analyze([$element], null)->report;
 
-        // single() also discriminates the anchor entry, whose language the connection reports as existing.
+        // single() also discriminates the anchor entry, whose language the loader reports as existing.
         $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::DanglingLanguage));
         static::assertSame('el-1', $warning->elementId);
         static::assertSame('text', $warning->key);
@@ -1171,7 +1172,7 @@ class LayoutDiagnosticsTest extends TestCase
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
-            connection: $this->languageConnection(Defaults::LANGUAGE_SYSTEM),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
         )->analyze([$element], null)->report;
 
         static::assertCount(1, $report->violations);
@@ -1180,26 +1181,26 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->intrinsicErrors());
     }
 
-    #[TestDox('never queries the language table for a tree carrying no translatable property')]
-    public function testLanguageTableIsNotQueriedWithoutTranslatableProperties(): void
+    #[TestDox('never reads the language set for a tree carrying no translatable property')]
+    public function testLanguageSetIsNotReadWithoutTranslatableProperties(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withProperty('headline', 'Hallo')
             ->build();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchFirstColumn');
+        $languageLoader = $this->createMock(LanguageLoaderInterface::class);
+        $languageLoader->expects($this->never())->method('loadLanguages');
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string')->build()],
-            connection: $connection,
+            languageLoader: $languageLoader,
         )->analyze([$element], null)->report;
 
         static::assertTrue($report->isWellFormed());
     }
 
-    #[TestDox('queries the language table once per analysis and judges every element against that one set')]
-    public function testLanguageTableIsQueriedOncePerAnalysis(): void
+    #[TestDox('reads the language set once per analysis and judges every element against that one set')]
+    public function testLanguageSetIsReadOncePerAnalysis(): void
     {
         $danglingLanguageId = Uuid::randomHex();
         $first = StoredElementBuilder::create('Sw:Block', 'el-1')
@@ -1211,12 +1212,12 @@ class LayoutDiagnosticsTest extends TestCase
             ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Ciao', $danglingLanguageId => 'Hola'])
             ->build();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('fetchFirstColumn')->willReturn([Defaults::LANGUAGE_SYSTEM]);
+        $languageLoader = $this->createMock(LanguageLoaderInterface::class);
+        $languageLoader->expects($this->once())->method('loadLanguages')->willReturn($this->languageData(Defaults::LANGUAGE_SYSTEM));
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
-            connection: $connection,
+            languageLoader: $languageLoader,
         )->analyze([$first, $second], null)->report;
 
         static::assertCount(1, $report->violations);
@@ -1232,13 +1233,13 @@ class LayoutDiagnosticsTest extends TestCase
             ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => 'Hallo'])
             ->build();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(2))->method('fetchFirstColumn')
-            ->willReturnOnConsecutiveCalls([], [Defaults::LANGUAGE_SYSTEM]);
+        $languageLoader = $this->createMock(LanguageLoaderInterface::class);
+        $languageLoader->expects($this->exactly(2))->method('loadLanguages')
+            ->willReturnOnConsecutiveCalls([], $this->languageData(Defaults::LANGUAGE_SYSTEM));
 
         $diagnostics = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', translatable: true)->build()],
-            connection: $connection,
+            languageLoader: $languageLoader,
         );
 
         $before = $diagnostics->analyze([$element], null)->report;
@@ -1347,7 +1348,7 @@ class LayoutDiagnosticsTest extends TestCase
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
-        ?Connection $connection = null,
+        ?LanguageLoaderInterface $languageLoader = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
@@ -1375,21 +1376,31 @@ class LayoutDiagnosticsTest extends TestCase
             $serializers,
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
             new ContextPathResolver(),
-            $connection ?? $this->languageConnection(),
+            $languageLoader ?? $this->languageLoader(),
         );
     }
 
     /**
-     * The `language` table read `analyze()` makes, answering with exactly the ids given. The default is an
+     * A language loader answering with exactly the ids given, each an empty entry. The default is an
      * installation with no languages at all, which no test asserting on errors depends on: a dangling entry is
      * a warning and reaches neither `intrinsicErrors()` nor `bindingErrors()`.
      */
-    private function languageConnection(string ...$languageIds): Connection
+    private function languageLoader(string ...$languageIds): LanguageLoaderInterface
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchFirstColumn')->willReturn(array_values($languageIds));
+        return new StaticLanguageLoader($this->languageData(...$languageIds));
+    }
 
-        return $connection;
+    /**
+     * @return array<string, array{id: string, code: string}>
+     */
+    private function languageData(string ...$languageIds): array
+    {
+        $data = [];
+        foreach ($languageIds as $id) {
+            $data[$id] = ['id' => $id, 'code' => $id];
+        }
+
+        return $data;
     }
 
     /**

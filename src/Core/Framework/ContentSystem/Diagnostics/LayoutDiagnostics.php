@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
@@ -28,6 +27,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
@@ -49,7 +49,7 @@ class LayoutDiagnostics
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly ContextPathResolver $contextPathResolver,
-        private readonly Connection $connection,
+        private readonly LanguageLoaderInterface $languageLoader,
     ) {
     }
 
@@ -69,9 +69,10 @@ class LayoutDiagnostics
         // constraint descriptor reads, so the two cannot disagree about which options exist.
         $styleOptions = $this->styleOptionRegistry->all();
 
-        // Queried at most once per analysis, and only when a tree carries a translatable property: the memo
-        // keeps the per-analyze() freshness existingLanguageIds() promises while a tree with no translatable
-        // property pays no language scan.
+        // Read at most once per analysis, and only when a tree carries a translatable property: the memo keeps
+        // the per-analyze() freshness the loader read promises while a tree with no translatable property pays
+        // no language read. The loader caches internally and invalidates on LANGUAGE_WRITTEN/LANGUAGE_DELETED,
+        // so that invalidation defines freshness.
         $languageIdsMemo = null;
         $languageIds = function () use (&$languageIdsMemo): array {
             return $languageIdsMemo ??= $this->existingLanguageIds();
@@ -182,22 +183,20 @@ class LayoutDiagnostics
     }
 
     /**
-     * The set of language ids that exist, read at most once for the whole analysis and only when a tree
-     * carries a translatable property. Every id is lowercase hex, which is the shape a stored language map is
-     * keyed by, so an entry key matches by string identity.
+     * The set of language ids that exist, backed by the platform's cached language loader. The loader keys its
+     * result by language id in the same lowercase-hex shape a stored language map is keyed by, so an entry key
+     * matches by string identity.
      *
-     * Deliberately re-read per `analyze()` and never cached on the instance: a diagnose run must judge the
-     * languages that exist now, and a long-lived instance caching the set would report a freshly created
-     * language as dangling.
+     * Read lazily per `analyze()` and never cached on the instance: a long-lived instance caching the set would
+     * report a freshly created language as dangling. Freshness itself follows the loader, which invalidates its
+     * cache on LANGUAGE_WRITTEN_EVENT and LANGUAGE_DELETED_EVENT; a language row written without the DAL fires
+     * no event and leaves the cached set stale until the next invalidation.
      *
      * @return array<string, true>
      */
     private function existingLanguageIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM `language`');
-
-        return array_fill_keys($ids, true);
+        return array_fill_keys(array_keys($this->languageLoader->loadLanguages()), true);
     }
 
     /**

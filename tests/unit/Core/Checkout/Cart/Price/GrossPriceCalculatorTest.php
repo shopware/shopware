@@ -99,14 +99,24 @@ class GrossPriceCalculatorTest extends TestCase
 
     public static function regulationPriceCalculationProvider(): \Generator
     {
-        yield 'test calculation without reference price' => [
+        yield 'test calculation without regulation price' => [
             null,
             null,
         ];
 
-        yield 'test calculation with reference price' => [
-            100,
-            new RegulationPrice(100),
+        yield 'test calculation with zero regulation price' => [
+            0.0,
+            null,
+        ];
+
+        yield 'test calculation with negative regulation price' => [
+            -100.0,
+            null,
+        ];
+
+        yield 'test calculation with valid regulation price' => [
+            200.0,
+            RegulationPrice::createFromUnitPrice(100, 200),
         ];
     }
 

@@ -6,6 +6,9 @@ Converts Options API Administration components (`index.js` + `*.html.twig`) into
 
 ## Legacy compatibility gate
 
+Use the [legacy Options migration guide](../../../technical-docs/03-extensibility/08-legacy-options-migration.md) to review public names, Options metadata, and runtime behavior.
+The gate identifies migration candidates; it does not prove compatibility with every extension.
+
 The batch runner preserves existing Options overrides by default. A mapping must declare `legacyCompatible: true` after its complete member surface and override behavior have been verified.
 The gate also rejects mappings with missing members, internal calls that bypass overrides, or scaffold-only behavior.
 The first verified mapping is `placeholder`.

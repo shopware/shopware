@@ -59,4 +59,26 @@ class Migration1788950275ExtendLengthOfCountryAdvancedPostalCodePatternTest exte
         static::assertSame(1024, $column->length);
         static::assertFalse($column->isNotNull);
     }
+
+    public function testMigrationDoesNotChangeAlreadyCustomizedColumnLength(): void
+    {
+        $migration = new Migration1788950275ExtendLengthOfCountryAdvancedPostalCodePattern();
+
+        $this->connection->executeStatement('
+            ALTER TABLE `country`
+            MODIFY COLUMN `advanced_postal_code_pattern` VARCHAR(2048) NULL
+        ');
+
+        $migration->update($this->connection);
+
+        $column = TableHelper::getColumnOfTable($this->connection, 'country', 'advanced_postal_code_pattern');
+        static::assertSame(Types::STRING, $column->type);
+        static::assertSame(2048, $column->length);
+        static::assertFalse($column->isNotNull);
+
+        $this->connection->executeStatement('
+            ALTER TABLE `country`
+            MODIFY COLUMN `advanced_postal_code_pattern` VARCHAR(1024) NULL
+        ');
+    }
 }

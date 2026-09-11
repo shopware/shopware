@@ -8,15 +8,15 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Storefront\ContentSystem\FooterContentLayout\FooterContentLayoutDefinition;
+use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -62,7 +62,7 @@ class SectionAssignmentWiringTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function collectInvalidatedKeys(callable $write): array
     {
@@ -71,7 +71,7 @@ class SectionAssignmentWiringTest extends TestCase
         static::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
 
         $listener = static function (InvalidateCacheEvent $event) use (&$keys): void {
-            $keys = [...$keys, ...$event->getKeys()];
+            $keys = [...$keys, ...array_values($event->getKeys())];
         };
 
         $dispatcher->addListener(InvalidateCacheEvent::class, $listener);
@@ -107,7 +107,7 @@ class SectionAssignmentWiringTest extends TestCase
     }
 
     /**
-     * @return EntityRepository<EntityCollection<Entity>>
+     * @return EntityRepository<HeaderContentLayoutCollection>
      */
     private function headerRepository(): EntityRepository
     {
@@ -118,7 +118,7 @@ class SectionAssignmentWiringTest extends TestCase
     }
 
     /**
-     * @return EntityRepository<EntityCollection<Entity>>
+     * @return EntityRepository<ContentLayoutCollection>
      */
     private function layoutRepository(): EntityRepository
     {

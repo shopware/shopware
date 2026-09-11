@@ -84,6 +84,29 @@ describe('compiled legacy SFC compatibility', () => {
         expect(readExposed(wrapper, 'mountedValue')).toBe(9);
     });
 
+    it('dispatches mapped composable methods through legacy overrides without rerunning the mixin', () => {
+        ComponentFactory.override('sw-runtime-compatibility', {
+            methods: {
+                placeholder(this: { $super: (name: string, ...args: unknown[]) => string }, ...args: unknown[]) {
+                    return `${this.$super('placeholder', ...args)}:plugin`;
+                },
+            },
+        });
+        const wrapper = mount(
+            compileComponent(
+                `
+            import usePlaceholder from 'src/app/composables/use-placeholder';
+            const { placeholder } = usePlaceholder();
+            function read() { return placeholder(null, 'name', 'base'); }
+            swDefinePublic({ placeholder, read });
+        `,
+                '<div>{{ read() }}</div>',
+            ),
+        );
+        wrappers.push(wrapper);
+        expect(wrapper.text()).toBe('base:plugin');
+    });
+
     it('uses an overridden method when a callback was captured before attachment', () => {
         ComponentFactory.override('sw-runtime-compatibility', {
             methods: {

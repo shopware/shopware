@@ -127,7 +127,8 @@ describe('Vue Options on an SFC state bridge', () => {
                 },
                 {
                     computed: {
-                        doubled(this: any) {
+                        doubled(this: any, vm: any) {
+                            expect(vm).toBe(this);
                             return this.$super('doubled.get') + 1;
                         },
                     },

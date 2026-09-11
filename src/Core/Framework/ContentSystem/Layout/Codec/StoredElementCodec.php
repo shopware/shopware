@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRejection;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -173,9 +174,15 @@ final class StoredElementCodec
     {
         $rejection = ElementIdRule::rejection($id);
 
-        if ($rejection !== null) {
-            throw ContentSystemException::invalidElementId($id, $rejection);
+        if ($rejection === null) {
+            return;
         }
+
+        throw ContentSystemException::invalidElementId($id, match ($rejection) {
+            ElementIdRejection::ReservedLiteral => 'is the reserved virtual-root id',
+            ElementIdRejection::IntegerLiteral => 'reads as an integer',
+            ElementIdRejection::LineTerminator => 'contains a line terminator',
+        });
     }
 
     /**

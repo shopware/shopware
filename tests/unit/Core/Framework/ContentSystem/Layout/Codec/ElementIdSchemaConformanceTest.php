@@ -151,22 +151,22 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
 
         yield 'an id carrying a line feed' => [
             "hero\nfoot",
-            ContentSystemException::invalidElementId("hero\nfoot", 'contains the line terminator U+000A'),
+            ContentSystemException::invalidElementId("hero\nfoot", 'contains a line terminator'),
         ];
 
         yield 'an id carrying a carriage return' => [
             "hero\rfoot",
-            ContentSystemException::invalidElementId("hero\rfoot", 'contains the line terminator U+000D'),
+            ContentSystemException::invalidElementId("hero\rfoot", 'contains a line terminator'),
         ];
 
         yield 'an id carrying a line separator' => [
             "hero\u{2028}foot",
-            ContentSystemException::invalidElementId("hero\u{2028}foot", 'contains the line terminator U+2028'),
+            ContentSystemException::invalidElementId("hero\u{2028}foot", 'contains a line terminator'),
         ];
 
         yield 'an id carrying a paragraph separator' => [
             "hero\u{2029}foot",
-            ContentSystemException::invalidElementId("hero\u{2029}foot", 'contains the line terminator U+2029'),
+            ContentSystemException::invalidElementId("hero\u{2029}foot", 'contains a line terminator'),
         ];
     }
 

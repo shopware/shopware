@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRejection;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
@@ -267,11 +268,15 @@ final class StoredTreeConstraints
 
         $rejection = ElementIdRule::rejection($value);
 
-        if ($rejection !== null) {
-            $context->buildViolation('This value {{ reason }}.')
-                ->setParameter('{{ reason }}', $rejection)
-                ->addViolation();
+        if ($rejection === null) {
+            return;
         }
+
+        $context->buildViolation(match ($rejection) {
+            ElementIdRejection::ReservedLiteral => 'This value is the reserved virtual-root id.',
+            ElementIdRejection::IntegerLiteral => 'This value reads as an integer.',
+            ElementIdRejection::LineTerminator => 'This value contains a line terminator.',
+        })->addViolation();
     }
 
     private function validatePropertyValueDepth(mixed $value, ExecutionContextInterface $context): void

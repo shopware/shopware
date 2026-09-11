@@ -215,9 +215,9 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(1, $violations);
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
 
-        // Concatenating the sentence instead would render identically here, so the template is asserted
-        // too: it is the translation key.
-        static::assertSame('This value {{ reason }}.', $violations->get(0)->getMessageTemplate());
+        // A sentence assembled at runtime would render identically here, so the template is asserted too:
+        // it is the translation key.
+        static::assertSame($expectedMessage, $violations->get(0)->getMessageTemplate());
     }
 
     /**
@@ -234,15 +234,9 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
 
         yield 'a negative zero' => ['-0', 'This value reads as an integer.'];
 
-        yield 'an id carrying a line feed' => [
-            "hero\nfoot",
-            'This value contains the line terminator U+000A.',
-        ];
+        yield 'an id carrying a line feed' => ["hero\nfoot", 'This value contains a line terminator.'];
 
-        yield 'an id carrying a paragraph separator' => [
-            "hero\u{2029}foot",
-            'This value contains the line terminator U+2029.',
-        ];
+        yield 'an id carrying a paragraph separator' => ["hero\u{2029}foot", 'This value contains a line terminator.'];
     }
 
     #[TestDox('reports a violation naming the offending key for a numeric key in a wiring map')]

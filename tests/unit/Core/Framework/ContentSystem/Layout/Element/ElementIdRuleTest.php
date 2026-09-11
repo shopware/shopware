@@ -6,13 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRejection;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The phrases are asserted verbatim: both enforcement sites frame them into user-facing text, so a
- * rewording changes an API response. Agreement with the published pattern is `ElementIdSchemaConformanceTest`'s job.
+ * The verdict only — each enforcement site words it and pins its own text. Agreement with the published
+ * pattern is `ElementIdSchemaConformanceTest`'s job.
  *
  * @internal
  */
@@ -22,13 +23,13 @@ class ElementIdRuleTest extends TestCase
 {
     #[DataProvider('rejectionProvider')]
     #[TestDox('$_dataName')]
-    public function testRejection(string $id, ?string $expected): void
+    public function testRejection(string $id, ?ElementIdRejection $expected): void
     {
         static::assertSame($expected, ElementIdRule::rejection($id));
     }
 
     /**
-     * @return iterable<string, array{string, string|null}>
+     * @return iterable<string, array{string, ElementIdRejection|null}>
      */
     public static function rejectionProvider(): iterable
     {
@@ -42,33 +43,33 @@ class ElementIdRuleTest extends TestCase
 
         yield 'refuses the reserved virtual-root literal' => [
             VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            'is the reserved virtual-root id',
+            ElementIdRejection::ReservedLiteral,
         ];
 
         yield 'refuses an integer-castable id' => [
             '12',
-            'reads as an integer',
+            ElementIdRejection::IntegerLiteral,
         ];
 
         yield 'refuses a negative zero, which PHP alone would have kept as a string key' => [
             '-0',
-            'reads as an integer',
+            ElementIdRejection::IntegerLiteral,
         ];
 
         yield 'refuses a digit string past PHP_INT_MAX, likewise' => [
             '9223372036854775808',
-            'reads as an integer',
+            ElementIdRejection::IntegerLiteral,
         ];
 
         yield 'admits a non-canonical digit string, so no minted hex id can collide' => ['00', null];
 
-        yield 'refuses a line feed' => ['hero' . "\n", 'contains the line terminator U+000A'];
+        yield 'refuses a line feed' => ['hero' . "\n", ElementIdRejection::LineTerminator];
 
-        yield 'refuses a carriage return' => ['hero' . "\r", 'contains the line terminator U+000D'];
+        yield 'refuses a carriage return' => ['hero' . "\r", ElementIdRejection::LineTerminator];
 
-        yield 'refuses a line separator' => ['hero' . "\u{2028}", 'contains the line terminator U+2028'];
+        yield 'refuses a line separator' => ['hero' . "\u{2028}", ElementIdRejection::LineTerminator];
 
-        yield 'refuses a paragraph separator' => ['hero' . "\u{2029}", 'contains the line terminator U+2029'];
+        yield 'refuses a paragraph separator' => ['hero' . "\u{2029}", ElementIdRejection::LineTerminator];
 
         // Pins that the rule means ECMA-262's LineTerminator set and not Unicode's wider one, so nobody
         // widens it to `\s` while tidying.

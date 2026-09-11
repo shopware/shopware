@@ -21,12 +21,7 @@ final class ElementIdRule
      * ECMA-262's `LineTerminator` set, which is what a JSON Schema `pattern` excludes from `.` — narrower
      * than Unicode's newlines, so NEL, vertical tab and form feed stay admitted.
      */
-    private const LINE_TERMINATORS = [
-        "\n" => 'U+000A',
-        "\r" => 'U+000D',
-        "\u{2028}" => 'U+2028',
-        "\u{2029}" => 'U+2029',
-    ];
+    private const LINE_TERMINATORS = ["\n", "\r", "\u{2028}", "\u{2029}"];
 
     /**
      * Canonical integer literals only. `012` therefore stays admitted, which is what keeps a minted hex id —
@@ -35,24 +30,24 @@ final class ElementIdRule
     private const INTEGER_LITERAL = '/^-?(0|[1-9][0-9]*)\z/';
 
     /**
-     * The predicate each site frames for its own audience (`it …`, `This value …`), or null when admitted.
+     * Why the id is refused, or null when it is admitted.
      *
      * Line terminators are found with `str_contains` rather than a `preg_match` needing the `u` modifier,
      * whose `false` return on malformed UTF-8 would read as "admitted".
      */
-    public static function rejection(string $id): ?string
+    public static function rejection(string $id): ?ElementIdRejection
     {
         if ($id === VirtualRootWrapper::VIRTUAL_ROOT_ID) {
-            return 'is the reserved virtual-root id';
+            return ElementIdRejection::ReservedLiteral;
         }
 
         if (preg_match(self::INTEGER_LITERAL, $id) === 1) {
-            return 'reads as an integer';
+            return ElementIdRejection::IntegerLiteral;
         }
 
-        foreach (self::LINE_TERMINATORS as $terminator => $codePoint) {
+        foreach (self::LINE_TERMINATORS as $terminator) {
             if (\str_contains($id, $terminator)) {
-                return \sprintf('contains the line terminator %s', $codePoint);
+                return ElementIdRejection::LineTerminator;
             }
         }
 

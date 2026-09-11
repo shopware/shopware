@@ -101,7 +101,9 @@ class SystemConfigDefinitionService
                 $cards[] = new SystemConfigCard(
                     $elements,
                     $card['title'] ?? [],
-                    $card['name'] ?? null
+                    $card['subtitle'] ?? null,
+                    $card['name'] ?? null,
+                    $card['flag'] ?? null
                 );
             }
 

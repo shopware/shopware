@@ -199,6 +199,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentGenerator::class),
             service('pdf.merger'),
             service(Filesystem::class),
+            service(ClockInterface::class),
         ]);
 
     $services->set(DocumentController::class)

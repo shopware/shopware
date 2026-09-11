@@ -1,8 +1,8 @@
-import { getLegacyComponentNames } from '../shim/component-lineage';
 /**
  * @sw-package framework
  *
  */
+import { getLegacyComponentNames } from '../shim/component-lineage';
 import {
     computed,
     getCurrentInstance,

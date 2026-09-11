@@ -174,13 +174,6 @@ export function createThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiM
                     return false;
                 }
 
-                if (Object.hasOwn(props, prop)) {
-                    console.error(
-                        `[Options API Shim] Cannot set property "${prop}" - it is a component prop and is read-only.`,
-                    );
-                    return false;
-                }
-
                 (localState as Record<string, unknown>)[prop] = value;
                 if (owner) owner.state[prop] = value;
                 return true;

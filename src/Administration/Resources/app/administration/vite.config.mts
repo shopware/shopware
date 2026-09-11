@@ -1,8 +1,7 @@
-import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './build/vite-plugins/shopware-setup/legacy-component-plugin';
 /**
  * @package framework
  */
-
+import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './build/vite-plugins/shopware-setup/legacy-component-plugin';
 import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';

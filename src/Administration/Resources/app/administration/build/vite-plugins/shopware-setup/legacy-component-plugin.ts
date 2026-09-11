@@ -1,5 +1,5 @@
-import { wrapLegacySlotVNodes } from '../../vue-setup-transform/wrap-slot-vnodes';
 /** @sw-package framework */
+import { wrapLegacySlotVNodes } from '../../vue-setup-transform/wrap-slot-vnodes';
 import type { Plugin } from 'vite';
 import { parse } from '@babel/parser';
 import MagicString from 'magic-string';

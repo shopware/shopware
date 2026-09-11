@@ -1,7 +1,7 @@
+/** @sw-package framework */
 import { defineAsyncComponent, getCurrentInstance, type ComponentInternalInstance, type RenderFunction } from 'vue';
 import { getScriptSetupDataScope } from '../composition-extension-system/data-scope-helper';
 import { createThisProxy } from './instance';
-/** @sw-package framework */
 import type { ComponentConfig, IndexedAwaitedComponentConfig } from 'src/core/factory/async-component.factory';
 import { inheritanceOrder } from './merge-options';
 

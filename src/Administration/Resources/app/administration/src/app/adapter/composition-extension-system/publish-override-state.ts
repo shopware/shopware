@@ -8,76 +8,13 @@ import {
     type OverrideLocalState,
 } from './data-scope-helper';
 
-/**
- * @private
- * Function to check if the new structure contains at least all keys of the old structure (nested)
- */
-const checkNestedStructure = <
-    TOld extends Record<string, unknown>,
-    TNew extends Partial<Record<keyof TOld, unknown>> & Record<string, unknown>,
->({
-    oldObj,
-    newObj,
-    path = '',
-    componentName,
-    visited = new WeakMap<object, WeakSet<object>>(),
-}: {
-    visited?: WeakMap<object, WeakSet<object>>;
-    oldObj: TOld;
-    newObj: TNew;
-    path?: string;
+type StatePublication = {
     componentName: string;
-}): {
-    isValid: boolean;
-    error: string | null;
-} => {
-    let result: {
-        isValid: boolean;
-        error: string | null;
-    } = { isValid: true, error: null };
-
-    let replacements = visited.get(oldObj);
-    if (replacements?.has(newObj)) return result;
-    if (!replacements) {
-        replacements = new WeakSet();
-        visited.set(oldObj, replacements);
-    }
-    replacements.add(newObj);
-
-    for (const key of Object.keys(oldObj)) {
-        const currentPath = path ? `${path}.${key}` : key;
-
-        if (!Object.prototype.hasOwnProperty.call(newObj, key)) {
-            result = {
-                isValid: false,
-                error: `[${componentName}] Override value not working. New structure does not contain key: ${currentPath}`,
-            };
-            break;
-        }
-
-        if (
-            typeof oldObj[key] === 'object' &&
-            oldObj[key] !== null &&
-            typeof newObj[key] === 'object' &&
-            newObj[key] !== null
-        ) {
-            // Recursively check nested objects
-            const nestedResult = checkNestedStructure({
-                oldObj: oldObj[key] as Record<string, unknown>,
-                newObj: newObj[key] as Record<string, unknown>,
-                path: currentPath,
-                componentName,
-                visited,
-            });
-
-            if (!nestedResult.isValid) {
-                result = nestedResult;
-                break;
-            }
-        }
-    }
-
-    return result;
+    props: Record<string, unknown>;
+    result: Record<string, unknown>;
+    rawState: Record<string, unknown>;
+    state: Record<string, unknown>;
+    instance: ComponentInternalInstance | null;
 };
 
 /**
@@ -85,99 +22,112 @@ const checkNestedStructure = <
  * New bindings also need Vue proxy accessors when an override arrives after the first render.
  * @private
  */
-export function publishOverrideState({
-    componentName,
-    props,
-    result,
-    rawState,
-    state,
-    instance,
-}: {
-    componentName: string;
-    props: Record<string, unknown>;
-    result: Record<string, unknown>;
-    rawState: Record<string, unknown>;
-    state: Record<string, unknown>;
-    instance: ComponentInternalInstance | null;
-}): void {
-    Object.keys(result).forEach((key) => {
+export function publishOverrideState(publication: StatePublication): void {
+    const { componentName, props, result, rawState, state, instance } = publication;
+    for (const key of Object.keys(result)) {
         if (isOverrideLocalStateKey(key)) {
             mergeOverrideState(getOverrideLocalState(state), result[key] as OverrideLocalState);
-            return;
+            continue;
         }
-
-        // Skip if the key is a prop, as props should not be overridden
         if (Object.keys(props).includes(key)) {
             console.error(
                 `[${componentName}] Override result value not working. Cannot override props. Following prop should be changed: "${key}"`,
             );
-            return;
+            continue;
         }
         const isNewField = !Object.hasOwn(rawState, key);
-        const resultValue = result[key];
+        if (!publishBinding(publication, key, isNewField)) continue;
+        if (isNewField && instance?.proxy && instance.isMounted) exposeLateBinding(instance.proxy, state, key);
+    }
+}
 
-        if (
-            !isReadonly(resultValue) &&
-            isRef(resultValue) &&
-            // @ts-expect-error - "effect" is not part of the Ref type
-            !resultValue?.effect
-        ) {
-            if (rawState[key] !== undefined && isRef(rawState[key])) {
-                // Handle normal ref values with 2-Way sync
-                syncRef(resultValue, rawState[key] as Ref);
-            } else {
-                // Vue caches missing instance bindings on first render. Late additions also need
-                // a context accessor so that cache does not hide the newly available setup field.
-                state[key] = resultValue;
-            }
-        } else if (isReadonly(resultValue) && isRef(resultValue)) {
-            // Handle readonly computed values
-            state[key] = resultValue;
-            // @ts-expect-error - "effect" is part of a writable computed value
-        } else if (!isReadonly(resultValue) && isRef(resultValue) && resultValue?.effect) {
-            // Handle writable computed values, create a new computed property with getter and setter
-            state[key] = computed({
-                get: () => resultValue.value,
-                set: (value) => {
-                    resultValue.value = value;
-                },
-            });
-        } else if (isReactive(resultValue)) {
-            if (isNewField || state[key] === null || typeof state[key] !== 'object') {
-                state[key] = resultValue;
-            } else {
-                // Check if new structure contains at least all keys of the old structure (nested)
-                const validationResult = checkNestedStructure({
-                    oldObj: state[key] as Record<string, unknown>,
-                    newObj: resultValue as Record<string, unknown>,
-                    componentName: componentName,
-                    path: key,
-                });
-
-                if (!validationResult.isValid) {
-                    console.error(validationResult.error);
-                    return;
-                }
-
-                // Assign reactive objects directly
-                Object.assign(state[key], resultValue);
-            }
-        } else if (typeof resultValue === 'function') {
-            // Handle functions, assign directly
-            state[key] = resultValue;
+function publishBinding(publication: StatePublication, key: string, isNewField: boolean): boolean {
+    const { componentName, result, rawState, state } = publication;
+    const value = result[key];
+    if (isRef(value)) {
+        publishRef(state, rawState, key, value);
+    } else if (isReactive(value)) {
+        const previous = state[key];
+        if (isNewField || previous === null || typeof previous !== 'object') {
+            state[key] = value;
         } else {
-            // Log an error for unhandled types
-            console.error(`[${componentName}] Override value not working. No handling declared for:`, key, resultValue);
+            const missing = findMissingPath(previous as Record<string, unknown>, value as Record<string, unknown>, key);
+            if (missing) {
+                console.error(
+                    `[${componentName}] Override value not working. New structure does not contain key: ${missing}`,
+                );
+                return false;
+            }
+            Object.assign(previous, value);
         }
-        if (isNewField && instance?.proxy && instance.isMounted) {
-            Object.defineProperty(instance.proxy, key, {
-                configurable: true,
-                enumerable: true,
-                get: (): unknown => state[key],
-                set: (value: unknown) => {
-                    state[key] = value;
-                },
-            });
-        }
+    } else if (typeof value === 'function') {
+        state[key] = value;
+    } else {
+        console.error(`[${componentName}] Override value not working. No handling declared for:`, key, value);
+    }
+    return true;
+}
+
+function publishRef(
+    state: Record<string, unknown>,
+    rawState: Record<string, unknown>,
+    key: string,
+    value: Ref<unknown>,
+): void {
+    // Vue's writable computed refs carry an effect; ordinary refs must retain the existing two-way link.
+    if (!isReadonly(value) && !(value as Ref<unknown> & { effect?: unknown }).effect) {
+        const previous = rawState[key];
+        if (isRef(previous)) syncRef(value, previous);
+        else state[key] = value;
+    } else if (isReadonly(value)) {
+        state[key] = value;
+    } else {
+        state[key] = computed({
+            get: () => value.value,
+            set: (next) => {
+                value.value = next;
+            },
+        });
+    }
+}
+
+function exposeLateBinding(proxy: object, state: Record<string, unknown>, key: string): void {
+    // Vue caches missing bindings on first render. An explicit accessor makes late additions visible.
+    Object.defineProperty(proxy, key, {
+        configurable: true,
+        enumerable: true,
+        get: () => state[key],
+        set: (value: unknown) => {
+            state[key] = value;
+        },
     });
+}
+
+function findMissingPath(
+    previous: Record<string, unknown>,
+    replacement: Record<string, unknown>,
+    path: string,
+    visited = new WeakMap<object, WeakSet<object>>(),
+): string | null {
+    const replacements = visited.get(previous) ?? new WeakSet<object>();
+    if (replacements.has(replacement)) return null;
+    replacements.add(replacement);
+    visited.set(previous, replacements);
+
+    for (const key of Object.keys(previous)) {
+        const currentPath = path ? `${path}.${key}` : key;
+        if (!Object.hasOwn(replacement, key)) return currentPath;
+        const before = previous[key];
+        const after = replacement[key];
+        if (before !== null && typeof before === 'object' && after !== null && typeof after === 'object') {
+            const missing = findMissingPath(
+                before as Record<string, unknown>,
+                after as Record<string, unknown>,
+                currentPath,
+                visited,
+            );
+            if (missing) return missing;
+        }
+    }
+    return null;
 }

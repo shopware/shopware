@@ -1,3 +1,10 @@
+/**
+ * @sw-package framework
+ *
+ * Shopware End Developer API
+ * @module Shopware
+ * @ignore
+ */
 import { resolveLegacyAsset } from 'src/app/adapter/options-composition-shim/legacy-assets';
 import {
     applyLegacySlotBlocks,
@@ -8,13 +15,6 @@ import {
     createLegacyComponent,
 } from 'src/app/adapter/options-composition-shim/component-definition';
 import { createSetupDispatch } from 'src/app/adapter/composition-extension-system/setup-dispatch';
-/**
- * @sw-package framework
- *
- * Shopware End Developer API
- * @module Shopware
- * @ignore
- */
 import Bottle from 'bottlejs';
 
 import ModuleFactory from 'src/core/factory/module.factory';

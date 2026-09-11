@@ -1,5 +1,3 @@
-import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './vite-plugins/shopware-setup/legacy-component-plugin';
-
 /**
  * This file is the entry point for the Vite build process for plugins.
  * Depending on the environment variable VITE_MODE, it will either start a dev server
@@ -10,7 +8,7 @@ import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './vite-plugins/sh
  *
  * @sw-package framework
  */
-
+import LegacyComponentPlugin, { legacySlotBlocksPlugin } from './vite-plugins/shopware-setup/legacy-component-plugin';
 import { createServer, build, defineConfig, createLogger } from 'vite';
 import path from 'path';
 import fs from 'fs';

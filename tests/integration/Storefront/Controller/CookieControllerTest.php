@@ -123,55 +123,13 @@ class CookieControllerTest extends TestCase
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
     }
 
-    public function testLogConsentPersistsDecisionAndConfigSnapshot(): void
+    public function testLogConsentStoresNothingWhileLoggingIsOff(): void
     {
-        $connection = static::getContainer()->get(Connection::class);
+        // The default storage is "none", the route still answers so a beacon never fails
+        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], '{"consentId": "visitor-a", "consentAction": "accept_all"}');
 
-        $this->logConsent(['consentId' => 'visitor-a', 'consentAction' => 'accept_all']);
-
-        $logs = $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log`');
-        static::assertCount(1, $logs);
-        static::assertSame('visitor-a', $logs[0]['consent_id']);
-        static::assertSame('accept_all', $logs[0]['consent_action']);
-        static::assertSame('banner', $logs[0]['source']);
-
-        $groupDecisions = json_decode((string) $logs[0]['group_decisions'], true);
-        static::assertIsArray($groupDecisions);
-        static::assertNotEmpty($groupDecisions);
-        static::assertSame(['accepted'], array_values(array_unique($groupDecisions)));
-
-        // The banner snapshot exists for the hash the log entry references
-        $snapshots = $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_config_snapshot`');
-        static::assertCount(1, $snapshots);
-        static::assertSame($logs[0]['config_hash'], $snapshots[0]['config_hash']);
-        static::assertJson((string) $snapshots[0]['cookie_groups']);
-
-        // A second consent adds a log entry but no duplicate snapshot
-        $this->logConsent(['consentId' => 'visitor-b', 'consentAction' => 'accept_all']);
-
-        static::assertCount(2, $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log`'));
-        static::assertCount(1, $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_config_snapshot`'));
-    }
-
-    public function testAWithdrawalIsRecordedAsASecondDecisionOfTheSameVisitor(): void
-    {
-        $connection = static::getContainer()->get(Connection::class);
-
-        $this->logConsent(['consentId' => 'visitor-a', 'consentAction' => 'accept_all']);
-        // The visitor re-opens the banner and keeps only one of the two comfort cookies
-        $this->logConsent(['consentId' => 'visitor-a', 'consentAction' => 'accept_selected', 'acceptedCookies' => ['youtube-video']]);
-
-        $logs = $connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log` ORDER BY `created_at`, `id`');
-        static::assertCount(2, $logs);
-        static::assertSame(['visitor-a', 'visitor-a'], array_column($logs, 'consent_id'));
-
-        $consent = json_decode((string) $logs[0]['group_decisions'], true);
-        $withdrawal = json_decode((string) $logs[1]['group_decisions'], true);
-        static::assertIsArray($consent);
-        static::assertIsArray($withdrawal);
-        static::assertSame('accepted', $consent['cookie.groupComfortFeatures']);
-        static::assertSame('partial', $withdrawal['cookie.groupComfortFeatures']);
-        static::assertSame('["youtube-video"]', $logs[1]['accepted_cookies']);
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(0, (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM `cookie_consent_log`'));
     }
 
     public function testLogConsentRejectsInvalidPayload(): void
@@ -179,6 +137,14 @@ class CookieControllerTest extends TestCase
         $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], '{"consentId": "visitor-a", "consentAction": "invalid"}');
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testConsentLogRouteIsNotExposedToTheStorefrontWhileLoggingIsOff(): void
+    {
+        $this->browser->request('GET', $_SERVER['APP_URL'] . '/');
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        static::assertStringNotContainsString('frontend.cookie.consent.log', (string) $this->browser->getResponse()->getContent());
     }
 
     public function testConsentOffcanvasRouteRendersWithParameters(): void
@@ -196,15 +162,5 @@ class CookieControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertStringContainsString('cookie.feature.title', $content);
         static::assertStringContainsString('js-wishlist-cookie-accept', $content);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function logConsent(array $payload): void
-    {
-        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], (string) json_encode($payload));
-
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->browser->getResponse()->getStatusCode());
     }
 }

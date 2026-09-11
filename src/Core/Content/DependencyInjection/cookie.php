@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\Command\ExportCookieConsentLogComman
 use Shopware\Core\Content\Cookie\ConsentLog\Command\ShowCookieConsentCommand;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageRegistry;
 use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\ConsentLog\FilesystemCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
@@ -35,6 +36,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ScriptExecutor::class),
             param('session.storage.options'),
             service(CookieProviderInterface::class)->nullOnInvalid(),
+            param('shopware.cookie_consent.log_storage'),
         ]);
 
     $services->set(CookieRoute::class)
@@ -48,10 +50,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
         ])
-        ->tag('shopware.cookie_consent.log_storage', ['storage' => 'database']);
+        ->tag('shopware.cookie_consent.log_storage', ['storage' => DatabaseCookieConsentLogStorage::NAME]);
+
+    $services->set(FilesystemCookieConsentLogStorage::class)
+        ->args([
+            service('shopware.filesystem.private'),
+            param('shopware.cookie_consent.filesystem_path'),
+        ])
+        ->tag('shopware.cookie_consent.log_storage', ['storage' => FilesystemCookieConsentLogStorage::NAME]);
 
     $services->set(NullCookieConsentLogStorage::class)
-        ->tag('shopware.cookie_consent.log_storage', ['storage' => 'none']);
+        ->tag('shopware.cookie_consent.log_storage', ['storage' => NullCookieConsentLogStorage::NAME]);
 
     $services->set(CookieConsentLogStorageRegistry::class)
         ->args([

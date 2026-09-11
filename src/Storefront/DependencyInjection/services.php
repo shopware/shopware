@@ -312,6 +312,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('request_stack'),
             param('shopware.staging.storefront.show_banner'),
             service(Connection::class),
+            param('shopware.cookie_consent.log_storage'),
         ])
         ->tag('twig.extension');
 
@@ -726,6 +727,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->set(CookieProviderInterface::class, CookieProvider::class)
+        ->args([
+            '$consentLogStorage' => param('shopware.cookie_consent.log_storage'),
+        ])
         ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.');
 
     // @deprecated tag:v6.8.0 Will be removed

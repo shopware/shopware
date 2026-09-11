@@ -22,6 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStorage
 {
+    public const NAME = 'database';
+
     private const DELETE_BATCH_SIZE = 10000;
 
     private const READ_BATCH_SIZE = 1000;

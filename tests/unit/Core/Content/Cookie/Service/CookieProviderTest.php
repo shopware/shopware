@@ -6,6 +6,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Hook\CookieGroupCollectHook;
@@ -32,6 +33,33 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[CoversClass(CookieProvider::class)]
 class CookieProviderTest extends TestCase
 {
+    public function testConsentIdCookieIsListedWhileConsentLoggingIsOn(): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $cookieGroups = (new CookieProvider(
+            new EventDispatcher(),
+            $translator,
+            static::createStub(ScriptExecutor::class),
+            ['name' => 'test-session-name-'],
+            null,
+            DatabaseCookieConsentLogStorage::NAME,
+        ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+
+        $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        static::assertInstanceOf(CookieGroup::class, $requiredGroup);
+        static::assertNotNull($requiredGroup->getEntries());
+        static::assertCount(5, $requiredGroup->getEntries());
+
+        // Visible, so a visitor can find the token they need for a consent log request
+        $consentIdCookie = $requiredGroup->getEntries()->get(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
+        static::assertNotNull($consentIdCookie);
+        static::assertFalse($consentIdCookie->hidden);
+        static::assertSame(30, $consentIdCookie->expiration);
+        static::assertFalse(isset($consentIdCookie->value));
+    }
+
     public function testGetCookieGroups(): void
     {
         $eventDispatcher = new CollectingEventDispatcher();
@@ -70,7 +98,7 @@ class CookieProviderTest extends TestCase
         $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(5, $requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);
@@ -79,12 +107,8 @@ class CookieProviderTest extends TestCase
         static::assertNotNull($cookiePreferenceCookie);
         static::assertTrue($cookiePreferenceCookie->hidden);
 
-        // Visible, so a visitor can find the token they need for a consent log request
-        $consentIdCookie = $requiredGroup->getEntries()->get(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
-        static::assertNotNull($consentIdCookie);
-        static::assertFalse($consentIdCookie->hidden);
-        static::assertSame(30, $consentIdCookie->expiration);
-        static::assertFalse(isset($consentIdCookie->value));
+        // Consent logging is off by default, so the consent id cookie is not listed
+        static::assertNull($requiredGroup->getEntries()->get(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE));
 
         $comfortFeaturesGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
         static::assertInstanceOf(CookieGroup::class, $comfortFeaturesGroup);
@@ -183,7 +207,7 @@ class CookieProviderTest extends TestCase
         static::assertInstanceOf(CookieGroup::class, $requiredGroup);
         static::assertTrue($requiredGroup->isRequired);
         static::assertNotNull($requiredGroup->getEntries());
-        static::assertCount(5, $requiredGroup->getEntries());
+        static::assertCount(4, $requiredGroup->getEntries());
 
         $sessionCookie = $requiredGroup->getEntries()->get('test-session-name-');
         static::assertNotNull($sessionCookie);

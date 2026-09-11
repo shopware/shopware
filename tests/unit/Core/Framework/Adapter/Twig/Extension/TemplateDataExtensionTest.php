@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -97,6 +98,8 @@ class TemplateDataExtensionTest extends TestCase
         static::assertSame($expectedMinSearchLength, $globals['shopware']['minSearchLength']);
         static::assertArrayHasKey('showStagingBanner', $globals['shopware']);
         static::assertTrue($globals['shopware']['showStagingBanner']);
+        // Consent logging is off by default, so the storefront does not send the beacon
+        static::assertFalse($globals['shopware']['cookieConsentLogEnabled']);
 
         static::assertArrayHasKey('themeId', $globals);
         static::assertSame($themeId, $globals['themeId']);
@@ -156,6 +159,29 @@ class TemplateDataExtensionTest extends TestCase
         $navigationInfo = $globals['shopware']['navigation'];
         static::assertInstanceOf(NavigationInfo::class, $navigationInfo);
         static::assertSame($linkedCategoryId, $navigationInfo->id);
+    }
+
+    public function testCookieConsentLogIsEnabledForEveryStorageButNone(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+            '_route' => 'frontend.home.page',
+        ]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturnCallback(static fn (string $query) => str_contains($query, 'min_search_length')
+            ? 3
+            : $salesChannelContext->getSalesChannel()->getNavigationCategoryId() . '|');
+
+        $globals = (new TemplateDataExtension(
+            new RequestStack([$request]),
+            false,
+            $connection,
+            DatabaseCookieConsentLogStorage::NAME,
+        ))->getGlobals();
+
+        static::assertTrue($globals['shopware']['cookieConsentLogEnabled']);
     }
 
     public function testLandingPageFallsBackToRootCategoryWhenNoCategoryLinked(): void

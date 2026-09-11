@@ -18,6 +18,12 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class CookieConsentRecord implements \JsonSerializable
 {
     /**
+     * A lookup handle, not a secret. Restricted so it is safe as a CLI argument and as
+     * part of a file name, and long enough for a UUID or a similar client-generated token.
+     */
+    public const CONSENT_ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/';
+
+    /**
      * @param array<string, CookieConsentDecision> $groupDecisions verdict per cookie group, keyed by technical name
      * @param list<string> $acceptedCookies names of the accepted cookies that required consent
      * @param string $configHash identifies the banner configuration snapshot the decision was made on

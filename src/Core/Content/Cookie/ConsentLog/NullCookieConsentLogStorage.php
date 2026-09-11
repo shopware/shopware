@@ -5,14 +5,16 @@ namespace Shopware\Core\Content\Cookie\ConsentLog;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Discards every decision. Selected with `shopware.cookie_consent.log_storage: none`,
- * e.g. when a third-party consent manager keeps the record instead.
+ * Discards every decision. The default: consent logging is opt-in, and a shop with a
+ * third-party consent manager keeps it off.
  *
  * @internal
  */
 #[Package('framework')]
 final class NullCookieConsentLogStorage extends AbstractCookieConsentLogStorage
 {
+    public const NAME = 'none';
+
     public function log(CookieConsentRecord $record): void
     {
     }

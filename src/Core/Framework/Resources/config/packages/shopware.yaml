@@ -478,11 +478,13 @@ shopware:
         increment_storage: "mysql"
 
     cookie_consent:
-        # Where the built-in cookie banner records consent decisions: database, none, or the
-        # name of a custom storage tagged with shopware.cookie_consent.log_storage
-        log_storage: 'database'
+        # Where the built-in cookie banner records consent decisions. Off by default.
+        # none | database | filesystem | name of a custom storage tagged with shopware.cookie_consent.log_storage
+        log_storage: 'none'
         # Days a recorded decision is kept before the daily cleanup task deletes it
         retention_days: 120
+        # Directory inside shopware.filesystem.private used by the filesystem storage
+        filesystem_path: 'cookie-consent'
 
     sales_channel_context:
         expire_days: 120

@@ -53,4 +53,13 @@ class CookieExceptionTest extends TestCase
         static::assertSame('The cookie consent log storage "s3" is not available. Available storages are: "database", "none".', $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
+
+    public function testInvalidConsentId(): void
+    {
+        $exception = CookieException::invalidConsentId('../etc/passwd');
+
+        static::assertSame('CONTENT__COOKIE_INVALID_CONSENT_ID', $exception->getErrorCode());
+        static::assertSame('The cookie consent id "../etc/passwd" does not match the pattern /^[A-Za-z0-9_-]{1,64}$/', $exception->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
 }

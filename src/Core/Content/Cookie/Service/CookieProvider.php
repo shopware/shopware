@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cookie\Service;
 
+use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Hook\CookieGroupCollectHook;
@@ -48,6 +49,7 @@ class CookieProvider
          * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! This will be fixed with the next major version as it is not used anymore)
          */
         private readonly ?CookieProviderInterface $legacyCookieProvider = null,
+        private readonly string $consentLogStorage = NullCookieConsentLogStorage::NAME,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -87,9 +89,13 @@ class CookieProvider
             $this->getRequiredTimezoneEntry(),
             $this->getRequiredAcceptedEntry(),
             $this->getRequiredCookieConfigHashEntry(),
-            $this->getRequiredConsentIdEntry(),
         ]));
         $cookieGroupRequired->isRequired = true;
+
+        // Only listed while decisions are recorded, the cookie is not set otherwise
+        if ($this->consentLogStorage !== NullCookieConsentLogStorage::NAME) {
+            $cookieGroupRequired->getEntries()?->add($this->getRequiredConsentIdEntry());
+        }
 
         return $cookieGroupRequired;
     }

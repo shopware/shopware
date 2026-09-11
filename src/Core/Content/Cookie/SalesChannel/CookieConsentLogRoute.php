@@ -44,12 +44,6 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
     private const MAX_STRING_LENGTH = 255;
 
     /**
-     * A lookup handle, not a secret: it has to be safe to pass around as a CLI argument,
-     * and long enough for a UUID or similar client-generated token.
-     */
-    private const CONSENT_ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/';
-
-    /**
      * @internal
      */
     public function __construct(
@@ -211,7 +205,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         }
 
         $consentId = $data['consentId'] ?? null;
-        if (!\is_string($consentId) || preg_match(self::CONSENT_ID_PATTERN, $consentId) !== 1) {
+        if (!\is_string($consentId) || preg_match(CookieConsentRecord::CONSENT_ID_PATTERN, $consentId) !== 1) {
             throw CookieException::invalidConsentLogPayload('consentId must be a string of 1 to 64 letters, digits, dashes or underscores');
         }
 

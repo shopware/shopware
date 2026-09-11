@@ -61,7 +61,7 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
      */
     private const CARD_XPATH = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-product-card ")]';
 
-    private const GRID_XPATH = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-product-listing__grid ")]';
+    private const GRID_XPATH = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-grid-container-inner ")]';
 
     private IdsCollection $ids;
 
@@ -141,7 +141,7 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
     }
 
     /**
-     * The column classes of the one grid container, sorted so the assertion does not pin the CVA emission order.
+     * The column classes of the one inner grid, sorted so the assertion does not pin the CVA emission order.
      *
      * @return list<string>
      */

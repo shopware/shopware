@@ -241,10 +241,6 @@ export default {
             return this.isUploadUrlFeatureEnabled;
         },
 
-        hasHeaderContent() {
-            return !!this.label || !!this.helpText || (!this.source && this.uploadUrlFeatureEnabled);
-        },
-
         swFieldLabelClasses() {
             return {
                 'is--required': this.required,

@@ -167,16 +167,16 @@ class FileFetcher
             'resolve' => [$resolved->host => $resolved->ip],
         ];
 
+        if ($this->urlUploadTimeout > 0) {
+            $options['max_duration'] = $this->urlUploadTimeout;
+        }
+
         if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 
         $destStream = $this->openDestinationStream($fileName);
         $writtenBytes = 0;
-
-        if ($this->urlUploadTimeout > 0) {
-            stream_context_set_option($streamContext, 'http', 'timeout', $this->urlUploadTimeout);
-        }
 
         try {
             $response = $client->request('GET', $url, $options);

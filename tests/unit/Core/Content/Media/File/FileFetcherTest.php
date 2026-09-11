@@ -150,50 +150,34 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromURLAppliesConfiguredTimeout(): void
     {
-        stream_wrapper_register('shopware-test-timeout', TimeoutCapturingStreamWrapper::class);
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
 
-        try {
-            $fileValidator = static::createStub(FileUrlValidatorInterface::class);
-            $fileValidator->method('isValid')->willReturn(true);
+            return new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION));
+        });
 
-            $fileService = static::createStub(FileService::class);
-            $fileService->method('isUrl')->willReturn(true);
+        $fileFetcher = $this->createFileFetcher(httpClient: $httpClient, urlUploadTimeout: 1.5);
 
-            $fileFetcher = new FileFetcher(
-                $fileValidator,
-                $fileService,
-                true,
-                true,
-                0,
-                1.5,
-            );
+        $fileFetcher->fetchFromURL('https://example.com/image.jpg', self::TEMP_FILE, self::IMAGE_EXTENSION);
 
-            $fileFetcher->fetchFromURL('shopware-test-timeout://image.jpg', self::TEMP_FILE, self::IMAGE_EXTENSION);
-
-            static::assertSame(1.5, TimeoutCapturingStreamWrapper::$options['http']['timeout']);
-        } finally {
-            stream_wrapper_unregister('shopware-test-timeout');
-        }
+        static::assertSame(1.5, $capturedOptions['max_duration']);
     }
 
     public function testFetchFileFromURLDoesNotApplyTimeoutByDefault(): void
     {
-        stream_wrapper_register('shopware-test-timeout', TimeoutCapturingStreamWrapper::class);
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
 
-        try {
-            $fileValidator = static::createStub(FileUrlValidatorInterface::class);
-            $fileValidator->method('isValid')->willReturn(true);
+            return new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION));
+        });
 
-            $fileService = static::createStub(FileService::class);
-            $fileService->method('isUrl')->willReturn(true);
+        $fileFetcher = $this->createFileFetcher(httpClient: $httpClient);
 
-            $fileFetcher = new FileFetcher($fileValidator, $fileService);
-            $fileFetcher->fetchFromURL('shopware-test-timeout://image.jpg', self::TEMP_FILE, self::IMAGE_EXTENSION);
+        $fileFetcher->fetchFromURL('https://example.com/image.jpg', self::TEMP_FILE, self::IMAGE_EXTENSION);
 
-            static::assertArrayNotHasKey('timeout', TimeoutCapturingStreamWrapper::$options['http']);
-        } finally {
-            stream_wrapper_unregister('shopware-test-timeout');
-        }
+        static::assertTrue(!isset($capturedOptions['max_duration']) || $capturedOptions['max_duration'] <= 0);
     }
 
     public static function fetchFileFromUrlDataProvider(): \Generator
@@ -465,6 +449,7 @@ class FileFetcherTest extends TestCase
         bool $enableUploadFeature = true,
         bool $enableValidation = true,
         int $maxFileSize = 0,
+        float $urlUploadTimeout = 0.0,
     ): FileFetcher {
         if ($validator === null) {
             $validator = static::createStub(FileUrlValidatorInterface::class);
@@ -484,6 +469,7 @@ class FileFetcherTest extends TestCase
             $enableUploadFeature,
             $enableValidation,
             $maxFileSize,
+            $urlUploadTimeout,
         );
     }
 
@@ -509,49 +495,5 @@ class FileFetcherTest extends TestCase
         if (\is_dir(self::TEMP_DIR)) {
             static::assertTrue(rmdir(self::TEMP_DIR));
         }
-    }
-}
-
-/**
- * @internal
- */
-final class TimeoutCapturingStreamWrapper
-{
-    /**
-     * @var array<string, mixed>
-     */
-    public static array $options = [];
-
-    /**
-     * @var resource|null
-     */
-    public $context;
-
-    private int $position = 0;
-
-    public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
-    {
-        if (!\is_resource($this->context)) {
-            return false;
-        }
-
-        static::$options = stream_context_get_options($this->context);
-
-        return true;
-    }
-
-    public function stream_read(int $count): string
-    {
-        $content = file_get_contents(__DIR__ . '/_fixtures/image1x1.png');
-        $content = $content === false ? '' : $content;
-        $result = substr($content, $this->position, $count);
-        $this->position += \strlen($result);
-
-        return $result;
-    }
-
-    public function stream_eof(): bool
-    {
-        return $this->position >= filesize(__DIR__ . '/_fixtures/image1x1.png');
     }
 }

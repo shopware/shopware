@@ -134,6 +134,119 @@ class PromotionCalculatorTest extends TestCase
         static::assertSame('Promotion second-promotion was excluded for cart.', $error->getMessage());
     }
 
+    /**
+     * Same-priority promotions are processed in loading order to avoid mutually excluding each other.
+     */
+    public function testSamePriorityExclusionsRespectLoadingOrder(): void
+    {
+        $firstDiscountItem = $this->getDiscountItem('first-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('exclusions', ['second-promotion']);
+        $secondDiscountItem = $this->getDiscountItem('second-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('exclusions', ['first-promotion']);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$firstDiscountItem, $secondDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertSame($firstDiscountItem, $cart->getLineItems()->get($firstDiscountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($secondDiscountItem->getId()));
+    }
+
+    /**
+     * A higher-priority promotion configured to prevent combinations excludes every other promotion.
+     */
+    public function testHigherPriorityPreventCombinationExcludesOtherPromotion(): void
+    {
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 2);
+        $otherDiscountItem = $this->getDiscountItem('other-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$otherDiscountItem, $preventCombinationDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertSame($preventCombinationDiscountItem, $cart->getLineItems()->get($preventCombinationDiscountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($otherDiscountItem->getId()));
+    }
+
+    /**
+     * Reverse exclusions ensure a lower-priority prevent-combination promotion cannot override a higher-priority one.
+     */
+    public function testLowerPriorityPreventCombinationIsExcludedByHigherPriorityPromotion(): void
+    {
+        $higherPriorityDiscountItem = $this->getDiscountItem('higher-priority-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('priority', 2);
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 1);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$preventCombinationDiscountItem, $higherPriorityDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertSame($higherPriorityDiscountItem, $cart->getLineItems()->get($higherPriorityDiscountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($preventCombinationDiscountItem->getId()));
+    }
+
+    /**
+     * A valid higher-priority delivery promotion can exclude a cart-scope promotion before delivery processing runs.
+     */
+    public function testHigherPriorityDeliveryPromotionExcludesCartPromotion(): void
+    {
+        $deliveryDiscountItem = $this->getDiscountItem('delivery-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_DELIVERY)
+            ->setPayloadValue('exclusions', ['cart-promotion'])
+            ->setPayloadValue('priority', 2);
+        $cartDiscountItem = $this->getDiscountItem('cart-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$cartDiscountItem, $deliveryDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertNull($cart->getLineItems()->get($cartDiscountItem->getId()));
+        static::assertCount(0, $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE));
+    }
+
     public function testAddDiscountWithPackages(): void
     {
         $lineItem1 = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('line-item-1'));

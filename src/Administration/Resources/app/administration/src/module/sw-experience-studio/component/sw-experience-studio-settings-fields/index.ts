@@ -737,7 +737,7 @@ export default Shopware.Component.wrapComponentConfig({
                     return normalizeBoxSpacingCSSValue(initialValue);
                 }
 
-                return '';
+                return normalizeBoxSpacingCSSValue(null);
             }
 
             if (this.getControlType(property) === 'responsive-number' || this.getControlType(property) === 'number') {

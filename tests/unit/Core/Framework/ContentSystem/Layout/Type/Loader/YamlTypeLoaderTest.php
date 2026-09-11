@@ -122,6 +122,14 @@ class YamlTypeLoaderTest extends TestCase
             static::assertSame('0 0 24px 0', $breakpoint['default']);
         }
 
+        foreach (['align', 'alignContent', 'justify', 'justifyContent'] as $alignmentProperty) {
+            static::assertContains('normal', $containerProperties[$alignmentProperty]['enum']);
+            $options = self::adminUi($containerProperties[$alignmentProperty])['props']['options'];
+            static::assertContains('normal', array_column($options, 'value'));
+        }
+        static::assertSame('select', self::adminUi($containerProperties['alignContent'])['component']);
+        static::assertSame('select', self::adminUi($containerProperties['justifyContent'])['component']);
+
         $expectedPanels = [
             'mode' => 'general',
             'itemMinWidth' => 'general',

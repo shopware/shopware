@@ -57,7 +57,6 @@
                 margin="0"
                 padding="0"
                 justifyContent="end"
-                :centered="false"
             >
 
                 <twig:Sw:Header:WishlistWidget />
@@ -75,13 +74,13 @@
     </twig:Sw:Grid:Container>
 
     <twig:Sw:Grid:Container
-        :centered="false"
         columns="100%"
         gap="0"
         margin="0"
         justify="center"
         border="bottom"
         borderVariant="secondarySubtle"
+        :borderFullWidth="true"
     >
         {# :display="{ xs: false, sm: false, md: false, lg: true, xl: true, xxl: true }" #}
         <twig:Sw:Header:Navbar

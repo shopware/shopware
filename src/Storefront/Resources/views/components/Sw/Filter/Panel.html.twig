@@ -19,7 +19,7 @@
 } %}
 
 {% set panelCVA = cva({
-    base: 'sw-filter-panel container',
+    base: 'sw-filter-panel',
     variants: {
         displayType: {
             dropdown: 'is--dropdown',
@@ -45,8 +45,8 @@
         {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
         {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item 
-            :filterName="manufacturerFilterName" 
+        <twig:Sw:Filter:Item
+            :filterName="manufacturerFilterName"
             :displayType="displayType"
         >
             <twig:Sw:Filter:Type:MultiSelectFilter
@@ -62,8 +62,8 @@
     {% if ratingAggregation is defined %}
         {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item 
-            :filterName="ratingFilterName" 
+        <twig:Sw:Filter:Item
+            :filterName="ratingFilterName"
             :displayType="displayType"
         >
             <twig:Sw:Filter:Type:RatingFilter name="rating"></twig:Sw:Filter:Type:RatingFilter>
@@ -75,8 +75,8 @@
     {% if priceAggregation is defined %}
         {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item 
-            :filterName="priceFilterName" 
+        <twig:Sw:Filter:Item
+            :filterName="priceFilterName"
             :displayType="displayType"
         >
             <twig:Sw:Filter:Type:RangeFilter
@@ -93,8 +93,8 @@
 {% set propertiesFilter %}
     {% if propertiesAggregation.entities|length > 0 %}
         {% for property in propertiesAggregation.entities %}
-            <twig:Sw:Filter:Item 
-                :filterName="property.translated.name" 
+            <twig:Sw:Filter:Item
+                :filterName="property.translated.name"
                 :displayType="displayType"
             >
                 <twig:Sw:Filter:Type:MultiSelectFilter
@@ -150,8 +150,8 @@
 
             {# Expand or collapse hidden filters #}
             {% if filterAggregations|length > visibleFilterCount %}
-                <twig:Sw:Button 
-                    variant="filter" 
+                <twig:Sw:Button
+                    variant="filter"
                     class="sw-filter-panel__expand d-none d-md-block"
                 >
                     <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>

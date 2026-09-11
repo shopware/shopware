@@ -19,7 +19,8 @@ export default class ProductListing extends ShopwareComponent {
 
         // Create the debounced load function.
         this.debouncedLoad = this.debounce(async () => {
-            const productGrid = this.el.querySelector('.sw-product-listing__grid');
+            const productGridContainer = this.el.querySelector('.sw-product-listing__grid');
+            const productGrid = productGridContainer.querySelector('.sw-grid-container-inner');
             const pagination = this.el.querySelector('.sw-product-listing__pagination');
             productGrid.classList.add('is--loading');
 
@@ -154,7 +155,8 @@ export default class ProductListing extends ShopwareComponent {
     }
 
     changeLayout(layout) {
-        const grid = this.el.querySelector('.sw-product-listing__grid');
+        const gridContainer = this.el.querySelector('.sw-product-listing__grid');
+        const grid = gridContainer.querySelector('.sw-grid-container-inner');
         const productCards = grid.querySelectorAll('.sw-product-card');
         const gridClasses = this.options.layoutGridClasses;
         const layoutClasses = Object.keys(this.options.layoutGridClasses).map(layout => `is--layout-${layout}`);

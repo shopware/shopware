@@ -136,11 +136,11 @@ properties:
         description: "Row count on extra large breakpoint."
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
-  centered:
+  fullWidth:
     type: boolean
-    title: "Centered"
-    description: "Center container in available width."
-    default: true
+    title: "Full Width"
+    description: "Make the container fill the available width of the viewport."
+    default: false
     adminUI:
       panel: "general"
 
@@ -152,6 +152,18 @@ properties:
     adminUI:
       component: "number"
       panel: "spacing"
+
+  maxWidth:
+    type: string
+    title: "Max Width"
+    description: "Maximum width of the container."
+    default: "1400px"
+    adminUI:
+      component: "text"
+      panel: "spacing"
+      visibleWhen:
+        field: "fullWidth"
+        equals: false
 
   padding:
     type:
@@ -168,32 +180,32 @@ properties:
         type: string
         title: "Padding (XS)"
         description: "Inner spacing on extra small breakpoint."
-        default: "0 20px 0 20px"
+        default: null
       sm:
         type: string
         title: "Padding (SM)"
         description: "Inner spacing on small breakpoint."
-        default: "0 20px 0 20px"
+        default: null
       md:
         type: string
         title: "Padding (MD)"
         description: "Inner spacing on medium breakpoint."
-        default: "0 20px 0 20px"
+        default: null
       lg:
         type: string
         title: "Padding (LG)"
         description: "Inner spacing on large breakpoint."
-        default: "0 20px 0 20px"
+        default: null
       xl:
         type: string
         title: "Padding (XL)"
         description: "Inner spacing on extra large breakpoint."
-        default: "0 20px 0 20px"
+        default: null
       xxl:
         type: string
         title: "Padding (XXL)"
         description: "Inner spacing on extra extra large breakpoint."
-        default: "0 20px 0 20px"
+        default: null
 
   margin:
     type:
@@ -241,8 +253,9 @@ properties:
     type: string
     title: "Align Items"
     description: "Align items on cross-axis."
-    default: "start"
+    default: "normal"
     enum:
+      - "normal"
       - "start"
       - "end"
       - "center"
@@ -252,6 +265,9 @@ properties:
       panel: "alignment"
       props:
         options:
+          - value: "normal"
+            label: "Normal"
+            icon: "regular-circle"
           - value: "start"
             label: "Start"
             icon: "regular-align-left"
@@ -269,8 +285,9 @@ properties:
     type: string
     title: "Align Content"
     description: "Align content distribution."
-    default: "start"
+    default: "normal"
     enum:
+      - "normal"
       - "start"
       - "end"
       - "center"
@@ -279,10 +296,13 @@ properties:
       - "spaceBetween"
       - "spaceEvenly"
     adminUI:
-      component: "radio-panel"
+      component: "select"
       panel: "alignment"
       props:
         options:
+          - value: "normal"
+            label: "Normal"
+            icon: "regular-circle"
           - value: "start"
             label: "Start"
             icon: "regular-align-left"
@@ -309,8 +329,9 @@ properties:
     type: string
     title: "Justify Items"
     description: "Justify items on main axis."
-    default: "start"
+    default: "normal"
     enum:
+      - "normal"
       - "start"
       - "end"
       - "center"
@@ -320,6 +341,9 @@ properties:
       panel: "alignment"
       props:
         options:
+          - value: "normal"
+            label: "Normal"
+            icon: "regular-circle"
           - value: "start"
             label: "Start"
             icon: "regular-align-left"
@@ -337,8 +361,9 @@ properties:
     type: string
     title: "Justify Content"
     description: "Justify content distribution."
-    default: "start"
+    default: "normal"
     enum:
+      - "normal"
       - "start"
       - "end"
       - "center"
@@ -347,10 +372,13 @@ properties:
       - "spaceBetween"
       - "spaceEvenly"
     adminUI:
-      component: "radio-panel"
+      component: "select"
       panel: "alignment"
       props:
         options:
+          - value: "normal"
+            label: "Normal"
+            icon: "regular-circle"
           - value: "start"
             label: "Start"
             icon: "regular-align-left"
@@ -399,6 +427,14 @@ properties:
       - "secondarySubtle"
     adminUI:
       component: "select"
+      panel: "border"
+
+  borderFullWidth:
+    type: boolean
+    title: "Full Width Border"
+    description: "Make the border fill the available width of the viewport."
+    default: false
+    adminUI:
       panel: "border"
 
   borderRadius:
@@ -481,6 +517,14 @@ properties:
       visibleWhen:
         field: "backgroundImage"
         isNotEmpty: true
+
+  backgroundFullWidth:
+    type: boolean
+    title: "Full Width Background"
+    description: "Make the background fill the available width of the viewport."
+    default: false
+    adminUI:
+      panel: "background"
 
   shadowOffsetX:
     type: integer

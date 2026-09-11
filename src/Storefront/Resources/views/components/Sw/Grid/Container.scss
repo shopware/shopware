@@ -14,14 +14,61 @@
     }
 }
 
-.grid-container {
-    width: 100%;
-    display: grid;
+@property --sw-grid-container-max-width {
+    syntax: '*';
+    inherits: true;
+    initial-value: 1400px;
+}
 
-    &.centered {
-        max-width: 1400px;
-        margin-left: auto !important;
-        margin-right: auto !important;
+@property --sw-grid-container-outer-spacing {
+    syntax: '*';
+    inherits: true;
+    initial-value: 1.5rem;
+}
+
+.sw-grid-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding-left: var(--sw-grid-container-outer-spacing);
+    padding-right: var(--sw-grid-container-outer-spacing);
+
+    &.full-width {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    &:not(.border-full-width) {
+        border: none !important;
+    }
+
+    &.border-full-width {
+        .sw-grid-container-inner {
+            border: none !important;
+        }
+    }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            margin: var(--sw-grid-container-margin-#{$breakpoint});
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+    }
+}
+
+.sw-grid-container .sw-grid-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sw-grid-container-inner {
+    display: grid;
+    width: 100%;
+    max-width: var(--sw-grid-container-max-width, 1400px);
+
+    &.full-width {
+        max-width: none;
     }
 
     &.max-content {
@@ -179,6 +226,8 @@
         @include media-breakpoint-only($breakpoint) {
             padding: var(--sw-grid-container-padding-#{$breakpoint});
             margin: var(--sw-grid-container-margin-#{$breakpoint});
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
         }
     }
 }

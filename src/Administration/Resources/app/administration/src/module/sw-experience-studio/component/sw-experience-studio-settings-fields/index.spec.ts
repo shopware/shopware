@@ -409,4 +409,32 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
 
         expect(value).toBe('0 20px 0 20px');
     });
+
+    it('uses explicit zero spacing when a breakpoint-aware box-spacing property has null defaults', () => {
+        const value = methods.getResponsiveFallbackValue.call(
+            {
+                getControlType: methods.getControlType,
+            },
+            {
+                type: [
+                    'string',
+                    'object',
+                ],
+                default: null,
+                adminUI: {
+                    component: 'box-spacing',
+                },
+                properties: {
+                    xs: {
+                        default: null,
+                    },
+                    sm: {
+                        default: null,
+                    },
+                },
+            },
+        );
+
+        expect(value).toBe('0 0 0 0');
+    });
 });

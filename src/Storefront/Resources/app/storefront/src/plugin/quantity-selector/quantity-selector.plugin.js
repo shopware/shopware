@@ -19,12 +19,21 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveUpdateMode: 'live',
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
+
+        /**
+         * Mark a change the user finished, by leaving the input or confirming with `Enter`,
+         * with `detail.submitImmediately` so the form handler applies it without its delay.
+         * Used where the form applies the quantity itself.
+         */
+        submitOnFinish: false,
     };
 
     init() {
         this._input = DomAccess.querySelector(this.el, 'input.js-quantity-selector');
         this._btnPlus = DomAccess.querySelector(this.el, '.js-btn-plus');
         this._btnMinus = DomAccess.querySelector(this.el, '.js-btn-minus');
+        this._committedValue = this._input.value;
+        this._pointerTarget = null;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
@@ -68,35 +77,140 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._btnPlus.addEventListener('click', this._stepUp.bind(this));
         this._btnMinus.addEventListener('click', this._stepDown.bind(this));
 
-        // prevent default submit on
-        this._input.addEventListener('keydown', (event) => {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                this._triggerChange();
-                return false;
+        this._input.addEventListener('keydown', this._onKeyDown.bind(this));
+        this._input.addEventListener('change', this._onChange.bind(this));
+        this._input.addEventListener('blur', this._onBlur.bind(this));
+        this._input.form?.addEventListener('submit', this._onSubmit.bind(this));
+
+        // In 6.6 the auto-submit plugin uses form.submit(), which does not emit `submit`.
+        this._input.form?.addEventListener('beforeChange', this._onSubmit.bind(this));
+        this._input.form?.addEventListener('beforeSubmit', this._onSubmit.bind(this));
+
+        this.el.addEventListener('pointerdown', this._onPointerDown.bind(this));
+    }
+
+    /**
+     * withhold a value the user is still editing, it is applied on blur or `Enter`
+     *
+     * @param {Event} event
+     * @private
+     */
+    _onChange(event) {
+        if (event.detail) {
+            this._committedValue = this._input.value;
+        } else {
+            event.stopPropagation();
+
+            if (this._pointerTarget === this._input) {
+                this._commit();
             }
-        });
+        }
+    }
+
+    /**
+     * remember the control under the pointer, a clicked button is not focused in every browser
+     * and the blur it causes then has no `relatedTarget`
+     *
+     * @param {PointerEvent} event
+     * @private
+     */
+    _onPointerDown(event) {
+        this._pointerTarget = event.target.closest('input, button');
+    }
+
+    /**
+     * the form sent the current value, it is the one to compare against from now on
+     *
+     * @private
+     */
+    _onSubmit() {
+        this._committedValue = this._input.value;
+    }
+
+    /**
+     * apply the current value on `Enter`
+     *
+     * @param {KeyboardEvent} event
+     * @private
+     */
+    _onKeyDown(event) {
+        this._pointerTarget = null;
+
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        event.preventDefault();
+        this._commit(undefined, this.options.submitOnFinish);
+    }
+
+    /**
+     * @private
+     */
+    _onBlur(event) {
+        const pointerTarget = this._pointerTarget;
+        this._pointerTarget = null;
+
+        // Tabbing or clicking on to the `[+]` and `[-]` buttons still applies the value, but lets
+        // a step the user makes next bundle into the same request.
+        if (this.el.contains(event.relatedTarget) || (pointerTarget && pointerTarget !== this._input)) {
+            this._commit();
+            return;
+        }
+
+        this._commit(undefined, this.options.submitOnFinish);
+    }
+
+    /**
+     * pass on a value as a change event
+     *
+     * @param {'up'|'down'|undefined} btn
+     * @param {boolean} submitImmediately
+     * @private
+     */
+    _commit(btn, submitImmediately = false) {
+        if (this._input.value === this._committedValue) {
+            return;
+        }
+
+        this._triggerChange(btn, submitImmediately);
     }
 
     /**
      * trigger change event on input element
      *
+     * @param {'up'|'down'|undefined} btn
+     * @param {boolean} submitImmediately
      * @private
      */
-    _triggerChange(btn) {
-        const event = new Event('change', { bubbles: true, cancelable: false });
+    _triggerChange(btn, submitImmediately = false) {
+        // Keep form submission with its owner, including AJAX, redirects and extension hooks.
+        const event = new CustomEvent('change', {
+            bubbles: true,
+            cancelable: false,
+            detail: { submitImmediately },
+        });
         this._input.dispatchEvent(event);
 
-        if (this.options.ariaLiveUpdateMode === 'live') {
-            this._updateAriaLive();
-        } else if (this.options.ariaLiveUpdateMode === 'onload') {
-            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
-        }
+        this._announceChange();
 
         if (btn === 'up') {
             this._btnPlus.dispatchEvent(event);
         } else if (btn === 'down') {
             this._btnMinus.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * announce the new quantity, now or after the next page load
+     *
+     * @private
+     */
+    _announceChange() {
+        if (this.options.ariaLiveUpdateMode === 'live') {
+            this._updateAriaLive();
+        } else if (this.options.ariaLiveUpdateMode === 'onload') {
+            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
         }
     }
 

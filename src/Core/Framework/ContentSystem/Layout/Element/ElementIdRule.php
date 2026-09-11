@@ -5,62 +5,40 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
-use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * The element-id value domain, stated once for the two sites that enforce it — {@see StoredElementCodec} on
- * decode and {@see StoredTreeConstraints} on write — and for the `ContentElementId` OpenAPI component that
- * publishes it. A third statement in a third dialect is how the published schemas came to claim
- * `^[0-9a-f]{32}$` while decode admitted `el-1`.
- *
- * Three values are excluded, for three unrelated reasons:
- *
- * - {@see VirtualRootWrapper::VIRTUAL_ROOT_ID} is minted by the wrap step, so an authored element carrying it
- *   collides on every wrapping render.
- * - An id that reads as an integer is refused on the JSON number grammar's integer part, not on PHP's
- *   array-key cast. The cast is what actually breaks: it puts an integer into
- *   {@see ResolvedValueIndexFactory}'s string-keyed assignments map, which then encodes as a JSON list once
- *   those keys run 0..n-1. But its bound is `PHP_INT_MAX`, which no regular expression can express, so a
- *   published pattern could only ever be *almost* this rule. The syntactic form is marginally wider — it
- *   also refuses `-0` and digit strings past `PHP_INT_MAX`, which PHP happens to keep as strings — and
- *   nothing is lost by refusing them: a bare integer is not a name, which is the whole purpose of a
- *   free-form id. `012` and `1.5` are not integer literals and stay admitted, which is also why no minted
- *   id can collide: a hex id runs 32 characters and begins with `0`, so even an all-digit one is not one.
- * - A line terminator is excluded because the published pattern must mean the same thing as this method, and
- *   a JSON Schema `pattern` is ECMA-262, where `.` matches everything except exactly these four code points.
- *   An id spanning two lines also serves no part of the naming purpose a free-form id exists for.
- *
- * Invalid UTF-8 cannot reach here and is therefore not handled: an HTTP payload fails `json_decode` first,
- * the stored column is MySQL `JSON`, and a PHP caller would fail at the encode before the write. That is why
- * the scan is {@see \str_contains} over whole code points rather than a `preg_match` needing the `u`
- * modifier, whose `false` return on malformed input would read as "admitted".
+ * decode, {@see StoredTreeConstraints} on write. It must stay equal to the published `ContentElementId`
+ * pattern, which `ElementIdSchemaConformanceTest` pins against this class.
  *
  * @internal
  */
 #[Package('framework')]
 final class ElementIdRule
 {
+    /**
+     * ECMA-262's `LineTerminator` set, which is what a JSON Schema `pattern` excludes from `.` — narrower
+     * than Unicode's newlines, so NEL, vertical tab and form feed stay admitted.
+     */
     private const LINE_TERMINATORS = [
         "\n" => 'U+000A',
         "\r" => 'U+000D',
         "\u{2028}" => 'U+2028',
         "\u{2029}" => 'U+2029',
     ];
+
     /**
-     * ECMA-262's `LineTerminator` production, keyed by the code point each one publishes in a message. This
-     * is deliberately narrower than Unicode's newline set: NEL (U+0085), vertical tab and form feed are not
-     * line terminators in ECMA-262, so `.` matches them and both sides admit them.
-     */
-    /**
-     * The JSON number grammar's integer part, anchored at both ends. Deliberately ASCII-only and without the
-     * `u` modifier, so `preg_match` can answer only 0 or 1 here.
+     * Canonical integer literals only. `012` therefore stays admitted, which is what keeps a minted hex id —
+     * 32 characters, leading `0` — outside the rule even when every character happens to be a digit.
      */
     private const INTEGER_LITERAL = '/^-?(0|[1-9][0-9]*)\z/';
 
     /**
-     * The predicate an enforcement site frames for its own audience — `it …` for the decode throw, `This
-     * value …` for the write violation — or null when the id is admitted.
+     * The predicate each site frames for its own audience (`it …`, `This value …`), or null when admitted.
+     *
+     * Line terminators are found with `str_contains` rather than a `preg_match` needing the `u` modifier,
+     * whose `false` return on malformed UTF-8 would read as "admitted".
      */
     public static function rejection(string $id): ?string
     {

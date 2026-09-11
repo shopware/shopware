@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -203,13 +202,9 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
     }
 
     /**
-     * The message, not just the fact of a violation. Each one is framed from the phrase
-     * {@see ElementIdRule::rejection()} returns and travels to the client verbatim: the DAL wraps these into
-     * a `WriteConstraintViolationException`, so a reworded phrase is an API response change. The sibling
-     * framing — `it …`, for the decode throw — is pinned by `ElementIdSchemaConformanceTest`.
-     *
-     * Which ids fall into which clause is not re-tabulated here; that is `ElementIdRuleTest`'s table. One id
-     * per clause is enough to show the descriptor reaches the rule and frames what it gets back.
+     * The message, not just the fact of a violation: the DAL wraps these into a
+     * `WriteConstraintViolationException`, so the text reaches the client verbatim. One id per clause —
+     * which id falls into which is `ElementIdRuleTest`'s table.
      */
     #[DataProvider('rejectsElementIdProvider')]
     #[TestDox('reports $expectedMessage for $_dataName')]
@@ -220,9 +215,8 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(1, $violations);
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
 
-        // One template for every clause, the reason carried as a parameter — the shape every other
-        // violation in the descriptor has. Building the sentence by concatenation instead would render
-        // identically here while leaving the module with an unstable translation key per clause.
+        // Concatenating the sentence instead would render identically here, so the template is asserted
+        // too: it is the translation key.
         static::assertSame('This value {{ reason }}.', $violations->get(0)->getMessageTemplate());
     }
 

@@ -11,12 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The phrases are asserted verbatim because both enforcement sites frame them into user-facing text — the
- * decode throw as `it …`, the write violation as `This value ….` — so a reworded phrase changes an API
- * response, not just an internal string.
- *
- * Whether the rule agrees with the published OpenAPI pattern is a separate question, answered by
- * `Layout/Codec/ElementIdSchemaConformanceTest` against the schema file.
+ * The phrases are asserted verbatim: both enforcement sites frame them into user-facing text, so a
+ * rewording changes an API response. Agreement with the published pattern is `ElementIdSchemaConformanceTest`'s job.
  *
  * @internal
  */
@@ -74,9 +70,8 @@ class ElementIdRuleTest extends TestCase
 
         yield 'refuses a paragraph separator' => ['hero' . "\u{2029}", 'contains the line terminator U+2029'];
 
-        // ECMA-262's LineTerminator production, which is what a JSON Schema `.` excludes, is narrower than
-        // Unicode's newline set. These three stay admitted on both sides, and pin that the rule was not
-        // widened to `\s` or to Unicode's definition by someone tidying up.
+        // Pins that the rule means ECMA-262's LineTerminator set and not Unicode's wider one, so nobody
+        // widens it to `\s` while tidying.
         yield 'admits NEL, which ECMA-262 does not count as a line terminator' => ['hero' . "\u{0085}", null];
 
         yield 'admits a vertical tab' => ['hero' . "\u{000B}", null];

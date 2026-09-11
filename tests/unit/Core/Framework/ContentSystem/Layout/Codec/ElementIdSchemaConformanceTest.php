@@ -12,19 +12,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The element-id value domain is stated twice: {@see ElementIdRule} states it for the two PHP sites that
- * enforce it, and the published OpenAPI schemas promise it to clients. Only the second is inert — nothing
- * executes a schema — so a pattern narrower than the rule locks a schema-validating client out of ids the
- * server accepts, with no test going red. That is how `^[0-9a-f]{32}$` came to sit on 24 element-id fields
- * while decode admitted `el-1`. One table of ids, each put through the pattern as published and through
- * decode, pins the agreement rather than the instances of it found so far.
- *
- * The pattern is read out of the schema, never restated here: a test carrying its own copy stays green
- * through exactly the drift it exists to catch.
- *
- * The two agree on every input but the empty string, which {@see divergentIdProvider} carries with its
- * reason. That one diverges in the safe direction — a client withholds a write the server would have taken,
- * rather than sending one the server strands — and the write descriptor refuses it anyway.
+ * Nothing executes a schema, so a published pattern narrower than {@see ElementIdRule} locks a
+ * schema-validating client out of ids the server accepts, with no test going red. The pattern is read out
+ * of the schema rather than restated here: a copy stays green through exactly the drift this test catches.
  *
  * @internal
  */
@@ -181,9 +171,8 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
     }
 
     /**
-     * The one input the pattern refuses that decode on its own would take. It is not a divergence at the API
-     * boundary: the write descriptor's `NotBlank` refuses it, so the schema agrees with the path a request
-     * actually travels. Decode admits it because an already-stored blank id must stay readable.
+     * The one input the pattern refuses that decode takes. Not a divergence at the API boundary — the write
+     * descriptor's `NotBlank` refuses it — and decode admits it so an already-stored blank id stays readable.
      *
      * @return iterable<string, array{string}>
      */
@@ -193,16 +182,12 @@ class ElementIdSchemaConformanceTest extends StoredElementCodecTestCase
     }
 
     /**
-     * A JSON Schema `pattern` is ECMA-262, and PCRE is not it. Running the published expression through
-     * `preg_match` unchanged is what let `hero\r` read as agreed here while every client refuses it: ECMA's
-     * `.` excludes four code points where PCRE's excludes only `\n`. The two also
-     * part over `$`, which PCRE lets match before a trailing newline.
+     * A JSON Schema `pattern` is ECMA-262: `.` excludes four code points where PCRE's excludes only `\n`,
+     * and `$` may match before a trailing newline. Running the pattern through `preg_match` unchanged is
+     * what let `hero\r` read as agreed here while every client refuses it.
      *
-     * Both are closed by translation rather than by a second engine, because the only ECMA engine in the
-     * repository is ajv, and reaching it from a PHP unit test costs a Node process per case. The translation
-     * is exact only for a restricted alphabet — no backslash escapes, and no `.` inside a character class —
-     * so the alphabet is asserted before the substitution rather than assumed. Widen the published pattern
-     * beyond it and this assertion fails, which is the intended way to find out.
+     * The translation is exact only for the alphabet asserted below; widen the pattern past it and this
+     * fails, which is the intended way to find out.
      */
     private static function publishedPattern(): string
     {

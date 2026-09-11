@@ -23,11 +23,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  * document, that `allOf` composition keeps the referenced pattern in force alongside a sibling description,
  * and that the `anyOf` nullable form still admits `null`.
  *
- * What it deliberately does NOT establish is the ECMA-262 verdict a client reaches. `opis/json-schema`
- * compiles a `pattern` to PCRE (`Helper::patternToRegex()` appends `uD` and hands it to `preg_match`), and
- * PCRE's `.` excludes only `\n` where ECMA's excludes four code points. So this validator agrees with a
- * browser on `hero\n` and parts from it on `hero\r`. The unit test owns that axis, by translating the
- * pattern; rows here stay on inputs where the two engines cannot disagree.
+ * It does NOT establish the ECMA-262 verdict: `opis/json-schema` compiles `pattern` to PCRE
+ * (`Helper::patternToRegex()`), which parts from ECMA on `hero\r`. Rows here stay on inputs where the two
+ * engines cannot disagree; the unit test owns that axis.
  *
  * @internal
  */

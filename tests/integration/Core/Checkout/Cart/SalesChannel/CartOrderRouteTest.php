@@ -148,6 +148,70 @@ class CartOrderRouteTest extends TestCase
         static::assertCount(1, $response['lineItems']);
     }
 
+    /**
+     * An admin repointing the customer's default shipping address while the
+     * confirm page is open must not silently end up on the order.
+     */
+    public function testOrderIsRejectedWhenTheShippingAddressChangedAfterTheCartWasRead(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $customerId = $this->createCustomer('shopware', $email, false, $this->validSalutationId, $this->validCountryId);
+        $this->login($email, 'shopware');
+        $this->addProductToCart();
+
+        // the hash the confirm page renders into the order form
+        $staleHash = $this->fetchCartHash();
+
+        $orderRepository = static::getContainer()->get('order.repository');
+        $ordersBefore = $orderRepository->searchIds(new Criteria(), Context::createDefaultContext())->getTotal();
+
+        // an administrator points the customer at one of their other addresses
+        $otherAddressId = Uuid::randomHex();
+        static::getContainer()->get('customer_address.repository')->create([
+            [
+                'id' => $otherAddressId,
+                'customerId' => $customerId,
+                'firstName' => 'Erika',
+                'lastName' => 'Musterfrau',
+                'street' => 'Andere Straße 2',
+                'city' => 'Bruxelles',
+                'zipcode' => '1000',
+                'salutationId' => $this->validSalutationId,
+                'countryId' => $this->validCountryId,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->customerRepository->update([
+            ['id' => $customerId, 'defaultShippingAddressId' => $otherAddressId],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/checkout/order', ['hash' => $staleHash]);
+
+        static::assertSame(Response::HTTP_CONFLICT, $this->browser->getResponse()->getStatusCode());
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(CartException::CART_HASH_MISMATCH, $response['errors'][0]['code']);
+
+        static::assertSame(
+            $ordersBefore,
+            $orderRepository->searchIds(new Criteria(), Context::createDefaultContext())->getTotal(),
+            'No order may be created when the cart context changed since the cart was read.'
+        );
+
+        // after the customer confirmed the new address, the very same request succeeds
+        $this->browser->request('POST', '/store-api/checkout/order', ['hash' => $this->fetchCartHash()]);
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('order', $response['apiAlias']);
+    }
+
     public function testOrderRouteDoesNotExposePurchasePricesInLineItemPayload(): void
     {
         $this->productRepository->update([
@@ -685,6 +749,19 @@ class CartOrderRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function fetchCartHash(): string
+    {
+        $this->browser->request('GET', '/store-api/checkout/cart');
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $hash = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['hash'] ?? null;
+        static::assertIsString($hash);
+
+        return $hash;
     }
 
     private function addProductToCart(string $id = 'p1'): Response

@@ -289,6 +289,14 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
 
+### The cart hash covers the checkout addresses
+
+The hash returned by `GET /store-api/checkout/cart` and verified by `POST /store-api/checkout/order` now also covers the active billing and shipping address of the context: id, country, country state, zip code and city, as well as the customer's account type, company and VAT IDs.
+
+When any of those change between reading the cart and placing the order, the order route answers `409 CHECKOUT__CART_HASH_MISMATCH` instead of creating an order with data the customer never confirmed. This happens for example when an administrator edits the customer's addresses while the checkout confirm page is open. The Storefront returns the customer to the confirm page with a notice and the updated values; a Store API client that sends `hash` should read the cart again and let the customer confirm before retrying. Clients that do not send `hash` are unaffected.
+
+Purely cosmetic address fields such as name, street or phone number are not part of the hash, so correcting a typo does not interrupt a checkout. Extensions that need additional data covered can add it to the struct provided by `Shopware\Core\Checkout\Cart\Event\CartContextHashEvent`.
+
 ## API
 
 ### Store API currency headers validate sales channel availability

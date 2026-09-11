@@ -37,6 +37,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('session.storage.options'),
             service(CookieProviderInterface::class)->nullOnInvalid(),
             param('shopware.cookie_consent.log_storage'),
+            param('shopware.cookie_consent.retention_days'),
         ]);
 
     $services->set(CookieRoute::class)
@@ -76,7 +77,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CookieRoute::class),
             service(AbstractCookieConsentLogStorage::class),
-            service(EventDispatcherInterface::class),
             service(ClockInterface::class),
             service(RateLimiter::class),
         ]);

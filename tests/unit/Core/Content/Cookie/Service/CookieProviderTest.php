@@ -45,6 +45,7 @@ class CookieProviderTest extends TestCase
             ['name' => 'test-session-name-'],
             null,
             DatabaseCookieConsentLogStorage::NAME,
+            365,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
         $requiredGroup = $cookieGroups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
@@ -56,7 +57,8 @@ class CookieProviderTest extends TestCase
         $consentIdCookie = $requiredGroup->getEntries()->get(CookieProvider::COOKIE_ENTRY_CONSENT_ID_COOKIE);
         static::assertNotNull($consentIdCookie);
         static::assertFalse($consentIdCookie->hidden);
-        static::assertSame(30, $consentIdCookie->expiration);
+        // Lives as long as the records are kept
+        static::assertSame(365, $consentIdCookie->expiration);
         static::assertFalse(isset($consentIdCookie->value));
     }
 

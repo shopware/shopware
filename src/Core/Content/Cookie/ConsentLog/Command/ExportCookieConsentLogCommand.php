@@ -29,7 +29,7 @@ class ExportCookieConsentLogCommand extends Command
     private const FORMAT_JSON = 'json';
     private const FORMAT_CSV = 'csv';
 
-    private const CSV_COLUMNS = ['consentId', 'createdAt', 'consentAction', 'source', 'salesChannelId', 'languageId', 'configHash', 'groupDecisions', 'acceptedCookies'];
+    private const CSV_COLUMNS = ['consentId', 'createdAt', 'consentAction', 'salesChannelId', 'languageId', 'configHash', 'groupDecisions', 'acceptedCookies'];
 
     public function __construct(private readonly AbstractCookieConsentLogStorage $storage)
     {

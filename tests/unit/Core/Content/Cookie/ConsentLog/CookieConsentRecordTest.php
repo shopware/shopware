@@ -8,7 +8,6 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -24,7 +23,6 @@ class CookieConsentRecordTest extends TestCase
         $record = new CookieConsentRecord(
             consentId: 'consent-id',
             consentAction: CookieConsentAction::ACCEPT_SELECTED,
-            source: CookieConsentSource::BANNER,
             groupDecisions: ['cookie.groupStatistical' => CookieConsentDecision::PARTIAL],
             acceptedCookies: ['lorem'],
             configHash: 'hash',
@@ -36,7 +34,6 @@ class CookieConsentRecordTest extends TestCase
         static::assertSame([
             'consentId' => 'consent-id',
             'consentAction' => 'accept_selected',
-            'source' => 'banner',
             'groupDecisions' => ['cookie.groupStatistical' => 'partial'],
             'acceptedCookies' => ['lorem'],
             'configHash' => 'hash',

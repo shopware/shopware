@@ -8,7 +8,6 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
@@ -130,7 +129,7 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         $rows = [];
         for ($i = 0; $i < 1001; ++$i) {
             $rows[] = \sprintf(
-                '(%s, \'visitor-%04d\', \'accept_all\', \'banner\', \'{}\', \'[]\', \'hash\', %s, %s, \'%s\')',
+                '(%s, \'visitor-%04d\', \'accept_all\', \'{}\', \'[]\', \'hash\', %s, %s, \'%s\')',
                 $this->connection->quote(Uuid::randomBytes()),
                 $i,
                 $this->connection->quote(Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)),
@@ -139,7 +138,7 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
             );
         }
         $this->connection->executeStatement(
-            'INSERT INTO `cookie_consent_log` (`id`, `consent_id`, `consent_action`, `source`, `group_decisions`, `accepted_cookies`, `config_hash`, `sales_channel_id`, `language_id`, `created_at`) VALUES '
+            'INSERT INTO `cookie_consent_log` (`id`, `consent_id`, `consent_action`, `group_decisions`, `accepted_cookies`, `config_hash`, `sales_channel_id`, `language_id`, `created_at`) VALUES '
             . implode(', ', $rows),
         );
 
@@ -172,7 +171,6 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         return new CookieConsentRecord(
             consentId: $consentId,
             consentAction: $overrides['consentAction'] ?? CookieConsentAction::ACCEPT_ALL,
-            source: CookieConsentSource::BANNER,
             groupDecisions: $overrides['groupDecisions'] ?? ['cookie.groupRequired' => CookieConsentDecision::ACCEPTED],
             acceptedCookies: $overrides['acceptedCookies'] ?? [],
             configHash: 'hash',

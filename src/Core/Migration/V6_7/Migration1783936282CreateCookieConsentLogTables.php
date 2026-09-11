@@ -31,7 +31,6 @@ class Migration1783936282CreateCookieConsentLogTables extends MigrationStep
                 `id` BINARY(16) NOT NULL,
                 `consent_id` VARCHAR(64) NOT NULL,
                 `consent_action` VARCHAR(32) NOT NULL,
-                `source` VARCHAR(32) NOT NULL,
                 `group_decisions` JSON NOT NULL,
                 `accepted_cookies` JSON NOT NULL,
                 `config_hash` VARCHAR(255) NOT NULL,

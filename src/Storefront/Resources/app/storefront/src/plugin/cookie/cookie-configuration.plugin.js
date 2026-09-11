@@ -431,7 +431,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
-        this._logConsent('accept_required');
+        this._logConsent('accept_required', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
         this._hideCookieBar();
@@ -553,16 +553,17 @@ export default class CookieConfiguration extends Plugin {
      *
      * @param {string} consentAction - 'accept_all' | 'accept_required' | 'accept_selected'
      * @param {Array} acceptedCookies - Names of the ticked cookies, only relevant for 'accept_selected'
+     * @param {Array} cookieGroups - Cookie groups from the API, source of the consent id cookie lifetime
      * @private
      */
-    _logConsent(consentAction, acceptedCookies = []) {
+    _logConsent(consentAction, acceptedCookies = [], cookieGroups = []) {
         const url = window.router['frontend.cookie.consent.log'];
         if (!url) {
             return;
         }
 
         const payload = JSON.stringify({
-            consentId: this._getConsentId(),
+            consentId: this._getConsentId(cookieGroups),
             consentAction,
             acceptedCookies,
         });
@@ -586,17 +587,19 @@ export default class CookieConfiguration extends Plugin {
     /**
      * Opaque token that links the consent decisions of this browser in the server-side
      * log, so a visitor can retrieve their own records. Generated on the first decision
-     * and kept in its own cookie; every decision refreshes the expiration, so it lives as
-     * long as the preference it belongs to.
+     * and kept in its own cookie. The lifetime comes from the cookie configuration, where
+     * the server sets it to the retention period of the log, and every decision refreshes it.
      *
+     * @param {Array} cookieGroups - Cookie groups from the API
      * @returns {string}
      * @private
      */
-    _getConsentId() {
+    _getConsentId(cookieGroups = []) {
         const { cookieConsentId } = this.options;
         const consentId = CookieStorage.getItem(cookieConsentId) || this._generateConsentId();
+        const entry = this._extractAllCookiesFromGroups(cookieGroups).find(({ cookie }) => cookie === cookieConsentId);
 
-        CookieStorage.setItem(cookieConsentId, consentId, this._getDefaultCookieExpiration());
+        CookieStorage.setItem(cookieConsentId, consentId, Number(entry?.expiration) || this._getDefaultCookieExpiration());
 
         return consentId;
     }
@@ -1017,7 +1020,7 @@ export default class CookieConfiguration extends Plugin {
             data.languageId,
         );
 
-        this._logConsent('accept_selected', selectedCookiesFromDOM);
+        this._logConsent('accept_selected', selectedCookiesFromDOM, cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
@@ -1039,7 +1042,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
-        this._logConsent('accept_all');
+        this._logConsent('accept_all', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
         this.closeOffCanvas();
@@ -1060,7 +1063,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
-        this._logConsent('accept_all');
+        this._logConsent('accept_all', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
     }
@@ -1080,7 +1083,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
-        this._logConsent('accept_all');
+        this._logConsent('accept_all', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }

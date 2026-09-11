@@ -275,7 +275,6 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
         return new CookieConsentRecord(
             consentId: (string) $data['consentId'],
             consentAction: CookieConsentAction::from((string) $data['consentAction']),
-            source: CookieConsentSource::from((string) $data['source']),
             groupDecisions: array_map(CookieConsentDecision::from(...), $groupDecisions),
             acceptedCookies: $acceptedCookies,
             configHash: (string) $data['configHash'],

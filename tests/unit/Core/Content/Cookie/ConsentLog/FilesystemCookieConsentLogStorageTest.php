@@ -10,7 +10,6 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Content\Cookie\ConsentLog\FilesystemCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Framework\Log\Package;
@@ -156,7 +155,6 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
         return new CookieConsentRecord(
             consentId: $consentId,
             consentAction: $action,
-            source: CookieConsentSource::BANNER,
             groupDecisions: ['cookie.groupRequired' => CookieConsentDecision::ACCEPTED, 'cookie.groupStatistical' => CookieConsentDecision::PARTIAL],
             acceptedCookies: ['lorem'],
             configHash: 'hash',

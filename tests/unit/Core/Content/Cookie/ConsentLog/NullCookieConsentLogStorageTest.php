@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
 use Shopware\Core\Framework\Log\Package;
 
@@ -27,7 +26,6 @@ class NullCookieConsentLogStorageTest extends TestCase
         $storage->log(new CookieConsentRecord(
             consentId: 'consent-id',
             consentAction: CookieConsentAction::ACCEPT_ALL,
-            source: CookieConsentSource::BANNER,
             groupDecisions: [],
             acceptedCookies: [],
             configHash: 'hash',

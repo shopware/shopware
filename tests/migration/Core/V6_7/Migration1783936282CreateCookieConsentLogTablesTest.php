@@ -45,7 +45,7 @@ class Migration1783936282CreateCookieConsentLogTablesTest extends TestCase
 
         $logColumns = array_column(TableHelper::getTable($this->connection, 'cookie_consent_log')->columns, 'name');
         static::assertEqualsCanonicalizing(
-            ['id', 'consent_id', 'consent_action', 'source', 'group_decisions', 'accepted_cookies', 'config_hash', 'sales_channel_id', 'language_id', 'created_at'],
+            ['id', 'consent_id', 'consent_action', 'group_decisions', 'accepted_cookies', 'config_hash', 'sales_channel_id', 'language_id', 'created_at'],
             $logColumns
         );
 

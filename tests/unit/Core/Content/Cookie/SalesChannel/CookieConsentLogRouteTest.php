@@ -11,9 +11,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Content\Cookie\CookieException;
-use Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
@@ -26,7 +24,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,8 +37,6 @@ class CookieConsentLogRouteTest extends TestCase
 {
     private const CONSENT_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
-    private CollectingEventDispatcher $eventDispatcher;
-
     private InMemoryCookieConsentLogStorage $storage;
 
     private RateLimiter&Stub $rateLimiter;
@@ -50,7 +45,6 @@ class CookieConsentLogRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = new CollectingEventDispatcher();
         $this->storage = new InMemoryCookieConsentLogStorage();
         $this->rateLimiter = static::createStub(RateLimiter::class);
 
@@ -159,7 +153,6 @@ class CookieConsentLogRouteTest extends TestCase
 
         $record = $this->storage->records[0];
         static::assertSame(self::CONSENT_ID, $record->consentId);
-        static::assertSame(CookieConsentSource::BANNER, $record->source);
         static::assertSame('server-hash', $record->configHash);
         static::assertSame($salesChannelContext->getSalesChannelId(), $record->salesChannelId);
         static::assertSame($salesChannelContext->getLanguageId(), $record->languageId);
@@ -196,16 +189,12 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertSame(['lorem'], $withdrawal->acceptedCookies);
     }
 
-    public function testLogReturnsNoContentAndDispatchesTheStoredRecord(): void
+    public function testLogReturnsNoContent(): void
     {
         $response = $this->route->log($this->request(['consentAction' => 'accept_all']), Generator::generateSalesChannelContext());
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        static::assertCount(1, $this->eventDispatcher->getEvents());
-
-        $event = $this->eventDispatcher->getEvents()[0];
-        static::assertInstanceOf(CookieConsentLoggedEvent::class, $event);
-        static::assertSame($this->storage->records[0], $event->record);
+        static::assertCount(1, $this->storage->records);
     }
 
     /**
@@ -284,7 +273,6 @@ class CookieConsentLogRouteTest extends TestCase
             $this->route->log($this->request(['consentAction' => 'accept_all'], '203.0.113.7'), Generator::generateSalesChannelContext());
         } finally {
             static::assertSame([], $this->storage->calls);
-            static::assertSame([], $this->eventDispatcher->getEvents());
         }
     }
 
@@ -321,7 +309,6 @@ class CookieConsentLogRouteTest extends TestCase
         return new CookieConsentLogRoute(
             $cookieRoute,
             $this->storage,
-            $this->eventDispatcher,
             new MockClock('2026-07-13 12:00:00'),
             $rateLimiter,
         );

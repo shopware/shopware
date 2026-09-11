@@ -10,7 +10,6 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -76,7 +75,6 @@ class ShowCookieConsentCommandTest extends TestCase
         return new CookieConsentRecord(
             consentId: 'consent-id',
             consentAction: $action,
-            source: CookieConsentSource::BANNER,
             groupDecisions: ['cookie.groupRequired' => CookieConsentDecision::ACCEPTED],
             acceptedCookies: [],
             configHash: $configHash,

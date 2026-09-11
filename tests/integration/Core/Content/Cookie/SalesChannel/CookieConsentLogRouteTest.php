@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +44,6 @@ class CookieConsentLogRouteTest extends TestCase
         $this->route = new CookieConsentLogRoute(
             static::getContainer()->get(CookieRoute::class),
             new DatabaseCookieConsentLogStorage($this->connection),
-            new CollectingEventDispatcher(),
             new NativeClock(),
             static::createStub(RateLimiter::class),
         );
@@ -62,7 +60,6 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertCount(1, $logs);
         static::assertSame('visitor-a', $logs[0]['consent_id']);
         static::assertSame('accept_all', $logs[0]['consent_action']);
-        static::assertSame('banner', $logs[0]['source']);
 
         $groupDecisions = json_decode((string) $logs[0]['group_decisions'], true);
         static::assertIsArray($groupDecisions);

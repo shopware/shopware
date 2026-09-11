@@ -1776,6 +1776,24 @@ describe('CookieConfiguration plugin tests', () => {
             expect(plugin._getConsentId()).toBe('existing-consent-id');
         });
 
+        test('_getConsentId takes the cookie lifetime from the cookie configuration', () => {
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+            const groupsWithConsentId = [{
+                technicalName: 'cookie.groupRequired',
+                isRequired: true,
+                entries: [{ cookie: 'session-' }, { cookie: 'cookie-consent-id', expiration: 120 }],
+            }];
+
+            plugin._getConsentId(groupsWithConsentId);
+            expect(setItemSpy).toHaveBeenLastCalledWith('cookie-consent-id', 'existing-consent-id', 120);
+
+            // Without the declared entry the default lifetime applies
+            plugin._getConsentId(cookieGroups);
+            expect(setItemSpy).toHaveBeenLastCalledWith('cookie-consent-id', 'existing-consent-id', 30);
+
+            setItemSpy.mockRestore();
+        });
+
         test('_generateConsentId prefers the browser UUID and falls back to random hex', () => {
             const originalCrypto = window.crypto;
 
@@ -1800,7 +1818,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin.acceptAllCookies();
 
-            expect(logConsentSpy).toHaveBeenCalledWith('accept_all');
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_all', [], cookieGroups);
         });
 
         test('_handlePermission logs an accept_required consent', async () => {
@@ -1815,7 +1833,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._handlePermission({ preventDefault: jest.fn() });
 
-            expect(logConsentSpy).toHaveBeenCalledWith('accept_required');
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_required', [], cookieGroups);
         });
 
         test('_handleSubmit logs the checked cookies, not a group verdict', async () => {
@@ -1833,7 +1851,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._handleSubmit();
 
-            expect(logConsentSpy).toHaveBeenCalledWith('accept_selected', ['lorem']);
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_selected', ['lorem'], cookieGroups);
         });
     });
 });

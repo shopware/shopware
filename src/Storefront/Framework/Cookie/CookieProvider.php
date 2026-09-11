@@ -45,7 +45,6 @@ class CookieProvider implements CookieProviderInterface
     private const CONSENT_ID_COOKIE = [
         'snippet_name' => 'cookie.groupRequiredConsentId',
         'cookie' => 'cookie-consent-id',
-        'expiration' => '30',
     ];
 
     private const STATISTICAL_COOKIES = [
@@ -88,6 +87,7 @@ class CookieProvider implements CookieProviderInterface
     public function __construct(
         array $sessionOptions = [],
         private readonly string $consentLogStorage = NullCookieConsentLogStorage::NAME,
+        private readonly int $consentLogRetentionDays = 120,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -107,7 +107,7 @@ class CookieProvider implements CookieProviderInterface
 
         // Only listed while decisions are recorded, the cookie is not set otherwise
         if ($this->consentLogStorage !== NullCookieConsentLogStorage::NAME) {
-            $requiredCookies['entries'][] = self::CONSENT_ID_COOKIE;
+            $requiredCookies['entries'][] = [...self::CONSENT_ID_COOKIE, 'expiration' => (string) $this->consentLogRetentionDays];
         }
 
         return [

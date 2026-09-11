@@ -31,7 +31,6 @@ final readonly class CookieConsentRecord implements \JsonSerializable
     public function __construct(
         public string $consentId,
         public CookieConsentAction $consentAction,
-        public CookieConsentSource $source,
         public array $groupDecisions,
         public array $acceptedCookies,
         public string $configHash,
@@ -49,7 +48,6 @@ final readonly class CookieConsentRecord implements \JsonSerializable
         return [
             'consentId' => $this->consentId,
             'consentAction' => $this->consentAction->value,
-            'source' => $this->source->value,
             'groupDecisions' => array_map(static fn (CookieConsentDecision $decision) => $decision->value, $this->groupDecisions),
             'acceptedCookies' => $this->acceptedCookies,
             'configHash' => $this->configHash,

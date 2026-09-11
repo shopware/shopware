@@ -8,9 +8,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Content\Cookie\CookieException;
-use Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +20,6 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Records cookie consent decisions of visitors so shop operators can demonstrate
@@ -49,7 +46,6 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
         private readonly AbstractCookieConsentLogStorage $storage,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
     ) {
@@ -75,7 +71,6 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         $record = new CookieConsentRecord(
             consentId: $payload['consentId'],
             consentAction: $payload['consentAction'],
-            source: CookieConsentSource::BANNER,
             groupDecisions: $decisions['groupDecisions'],
             acceptedCookies: $decisions['acceptedCookies'],
             configHash: $configuration->getHash(),
@@ -91,8 +86,6 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
             createdAt: $now,
         ));
         $this->storage->log($record);
-
-        $this->eventDispatcher->dispatch(new CookieConsentLoggedEvent($record));
 
         return new NoContentResponse();
     }

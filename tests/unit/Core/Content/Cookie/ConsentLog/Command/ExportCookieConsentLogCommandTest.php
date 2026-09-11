@@ -9,7 +9,6 @@ use Shopware\Core\Content\Cookie\ConsentLog\Command\ExportCookieConsentLogComman
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentSource;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Command\Command;
@@ -75,11 +74,11 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $lines = explode("\n", trim($tester->getDisplay()));
         static::assertCount(3, $lines);
         static::assertSame(
-            'consentId,createdAt,consentAction,source,salesChannelId,languageId,configHash,groupDecisions,acceptedCookies',
+            'consentId,createdAt,consentAction,salesChannelId,languageId,configHash,groupDecisions,acceptedCookies',
             $lines[0],
         );
         static::assertSame(
-            'visitor-a,2026-07-13T12:00:00.000+00:00,accept_all,banner,sales-channel-id,language-id,hash,"{""cookie.groupStatistical"":""accepted""}","[""lorem"",""ipsum""]"',
+            'visitor-a,2026-07-13T12:00:00.000+00:00,accept_all,sales-channel-id,language-id,hash,"{""cookie.groupStatistical"":""accepted""}","[""lorem"",""ipsum""]"',
             $lines[1],
         );
         static::assertStringStartsWith('visitor-b,', $lines[2]);
@@ -131,7 +130,6 @@ class ExportCookieConsentLogCommandTest extends TestCase
             new CookieConsentRecord(
                 consentId: 'visitor-a',
                 consentAction: CookieConsentAction::ACCEPT_ALL,
-                source: CookieConsentSource::BANNER,
                 groupDecisions: ['cookie.groupStatistical' => CookieConsentDecision::ACCEPTED],
                 acceptedCookies: ['lorem', 'ipsum'],
                 configHash: 'hash',
@@ -142,7 +140,6 @@ class ExportCookieConsentLogCommandTest extends TestCase
             new CookieConsentRecord(
                 consentId: 'visitor-b',
                 consentAction: CookieConsentAction::ACCEPT_REQUIRED,
-                source: CookieConsentSource::BANNER,
                 groupDecisions: ['cookie.groupStatistical' => CookieConsentDecision::REJECTED],
                 acceptedCookies: [],
                 configHash: 'hash',

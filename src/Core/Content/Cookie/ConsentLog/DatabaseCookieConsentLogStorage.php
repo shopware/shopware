@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  *
- * @phpstan-type LogRow array{id: string, consent_id: string, consent_action: string, source: string, group_decisions: string, accepted_cookies: string, config_hash: string, sales_channel_id: string, language_id: string, created_at: string}
+ * @phpstan-type LogRow array{id: string, consent_id: string, consent_action: string, group_decisions: string, accepted_cookies: string, config_hash: string, sales_channel_id: string, language_id: string, created_at: string}
  */
 #[Package('framework')]
 final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStorage
@@ -28,7 +28,7 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
 
     private const READ_BATCH_SIZE = 1000;
 
-    private const SELECT_LOG = 'SELECT `id`, `consent_id`, `consent_action`, `source`, `group_decisions`, `accepted_cookies`, `config_hash`,
+    private const SELECT_LOG = 'SELECT `id`, `consent_id`, `consent_action`, `group_decisions`, `accepted_cookies`, `config_hash`,
         LOWER(HEX(`sales_channel_id`)) AS `sales_channel_id`, LOWER(HEX(`language_id`)) AS `language_id`, `created_at`
         FROM `cookie_consent_log`';
 
@@ -42,7 +42,6 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
             'id' => Uuid::randomBytes(),
             'consent_id' => $record->consentId,
             'consent_action' => $record->consentAction->value,
-            'source' => $record->source->value,
             'group_decisions' => json_encode(
                 array_map(static fn (CookieConsentDecision $decision) => $decision->value, $record->groupDecisions),
                 \JSON_THROW_ON_ERROR | \JSON_FORCE_OBJECT,
@@ -166,7 +165,6 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
         return new CookieConsentRecord(
             consentId: $row['consent_id'],
             consentAction: CookieConsentAction::from($row['consent_action']),
-            source: CookieConsentSource::from($row['source']),
             groupDecisions: array_map(CookieConsentDecision::from(...), $groupDecisions),
             acceptedCookies: $acceptedCookies,
             configHash: $row['config_hash'],

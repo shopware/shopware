@@ -64,6 +64,25 @@ live in [`.github/aw/README.md`](aw/README.md).
 Locally: `composer lint:actions` runs the workflow linters,
 `cd .github/bin/js && node --test` runs the automation-script tests.
 
+## Every workflow also runs in shopware-private
+
+`sync.yml` force-pushes trunk and every maintenance branch to
+`shopware/shopware-private`, so every workflow file lands there and fires on that
+repository's own pushes, pull requests, issues and schedules. Decide which side a
+new or changed workflow belongs on, and make the decision explicit:
+
+- **Both repositories** — the octo-sts identity has to allow the mirror. The
+  policies live in
+  [`shopware/.github`](https://github.com/shopware/.github/tree/main/.github/chainguard);
+  `subject_pattern: repo:shopware/shopware(-private)?:.*` is the convention
+  (`ShopwareBackport`, `ShopwareDownstream`, `ShopwareNightly`).
+- **Public repository only** — guard the job with
+  `if: github.repository == 'shopware/shopware'`. Without it the mirrored run
+  fails at octo-sts with `Failed to get a token`, and any script that resolves an
+  issue or PR number against `shopware/shopware` acts on an unrelated item.
+
+No linter can decide this: the subject pattern lives in another repository.
+
 ## Fix it at the lowest layer that covers everyone
 
 A convention that only lives in prose is not enforced. Prefer, in this order:

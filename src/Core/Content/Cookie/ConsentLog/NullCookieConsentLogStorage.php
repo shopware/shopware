@@ -27,16 +27,6 @@ final class NullCookieConsentLogStorage extends AbstractCookieConsentLogStorage
     {
     }
 
-    public function findByConsentId(string $consentId): array
-    {
-        return [];
-    }
-
-    public function findSnapshot(string $configHash): ?CookieConsentConfigSnapshot
-    {
-        return null;
-    }
-
     public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
     {
         return [];

@@ -87,35 +87,6 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
         } while ($deleted === self::DELETE_BATCH_SIZE);
     }
 
-    public function findByConsentId(string $consentId): array
-    {
-        /** @var list<LogRow> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            self::SELECT_LOG . ' WHERE `consent_id` = :consentId ORDER BY `created_at`, `id`',
-            ['consentId' => $consentId],
-        );
-
-        return array_map($this->hydrate(...), $rows);
-    }
-
-    public function findSnapshot(string $configHash): ?CookieConsentConfigSnapshot
-    {
-        $row = $this->connection->fetchAssociative(
-            'SELECT `config_hash`, `cookie_groups`, `created_at` FROM `cookie_consent_config_snapshot` WHERE `config_hash` = :configHash',
-            ['configHash' => $configHash],
-        );
-
-        if ($row === false) {
-            return null;
-        }
-
-        return new CookieConsentConfigSnapshot(
-            configHash: (string) $row['config_hash'],
-            cookieGroups: json_decode((string) $row['cookie_groups'], true, 512, \JSON_THROW_ON_ERROR),
-            createdAt: new \DateTimeImmutable((string) $row['created_at']),
-        );
-    }
-
     /**
      * Pages by (created_at, id) instead of OFFSET, so an export of a large table does
      * not get slower with every batch.

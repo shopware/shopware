@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\Command\ExportCookieConsentLogCommand;
-use Shopware\Core\Content\Cookie\ConsentLog\Command\ShowCookieConsentCommand;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageRegistry;
 use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\FilesystemCookieConsentLogStorage;
@@ -93,12 +92,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.cookie_consent.retention_days'),
         ])
         ->tag('messenger.message_handler');
-
-    $services->set(ShowCookieConsentCommand::class)
-        ->args([
-            service(AbstractCookieConsentLogStorage::class),
-        ])
-        ->tag('console.command');
 
     $services->set(ExportCookieConsentLogCommand::class)
         ->args([

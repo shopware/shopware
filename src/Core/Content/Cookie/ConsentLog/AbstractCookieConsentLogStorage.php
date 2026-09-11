@@ -35,15 +35,6 @@ abstract class AbstractCookieConsentLogStorage
     abstract public function cleanup(\DateTimeImmutable $before): void;
 
     /**
-     * All decisions of one visitor, oldest first
-     *
-     * @return list<CookieConsentRecord>
-     */
-    abstract public function findByConsentId(string $consentId): array;
-
-    abstract public function findSnapshot(string $configHash): ?CookieConsentConfigSnapshot;
-
-    /**
      * Decisions recorded from `$from` (inclusive) to `$to` (exclusive), oldest first
      *
      * @return iterable<CookieConsentRecord>

@@ -53,22 +53,7 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
 
         $this->storage->log($record);
 
-        static::assertEquals([$record], $this->storage->findByConsentId('visitor-a'));
-        static::assertSame([], $this->storage->findByConsentId('visitor-b'));
-    }
-
-    public function testDecisionsOfAVisitorAreReturnedOldestFirst(): void
-    {
-        $this->storage->log($this->record('visitor-a', new \DateTimeImmutable('2026-07-13 12:00:00'), ['consentAction' => CookieConsentAction::ACCEPT_ALL]));
-        $this->storage->log($this->record('visitor-b', new \DateTimeImmutable('2026-07-13 12:00:00')));
-        $this->storage->log($this->record('visitor-a', new \DateTimeImmutable('2026-07-10 12:00:00'), ['consentAction' => CookieConsentAction::ACCEPT_REQUIRED]));
-
-        $records = $this->storage->findByConsentId('visitor-a');
-
-        static::assertSame(
-            [CookieConsentAction::ACCEPT_REQUIRED, CookieConsentAction::ACCEPT_ALL],
-            array_map(static fn (CookieConsentRecord $record) => $record->consentAction, $records),
-        );
+        static::assertEquals([$record], [...$this->storage->iterate(new \DateTimeImmutable('2026-07-13'), new \DateTimeImmutable('2026-07-14'))]);
     }
 
     public function testASnapshotIsStoredOncePerHash(): void
@@ -77,23 +62,21 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         $group->name = 'Statistics';
         $group->setEntries(new CookieEntryCollection([new CookieEntry('lorem')]));
 
-        $first = new CookieConsentConfigSnapshot('hash', [$group], new \DateTimeImmutable('2026-07-13 12:00:00'));
-        $this->storage->snapshot($first);
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [$group], new \DateTimeImmutable('2026-07-13 12:00:00')));
         // A later call with the same hash keeps the original row
         $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [], new \DateTimeImmutable('2026-07-14 12:00:00')));
 
-        static::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `cookie_consent_config_snapshot`'));
+        $rows = $this->connection->fetchAllAssociative('SELECT `config_hash`, `cookie_groups`, `created_at` FROM `cookie_consent_config_snapshot`');
+        static::assertCount(1, $rows);
+        static::assertSame('hash', $rows[0]['config_hash']);
+        static::assertSame('2026-07-13 12:00:00.000', $rows[0]['created_at']);
 
-        $snapshot = $this->storage->findSnapshot('hash');
-        static::assertNotNull($snapshot);
-        static::assertSame('hash', $snapshot->configHash);
-        static::assertSame('2026-07-13 12:00:00', $snapshot->createdAt->format('Y-m-d H:i:s'));
-        static::assertCount(1, $snapshot->cookieGroups);
-        static::assertSame('cookie.groupStatistical', $snapshot->cookieGroups[0]['technicalName']);
-        static::assertSame('Statistics', $snapshot->cookieGroups[0]['name']);
-        static::assertSame('lorem', $snapshot->cookieGroups[0]['entries'][0]['cookie']);
-
-        static::assertNull($this->storage->findSnapshot('unknown'));
+        $cookieGroups = json_decode((string) $rows[0]['cookie_groups'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($cookieGroups);
+        static::assertCount(1, $cookieGroups);
+        static::assertSame('cookie.groupStatistical', $cookieGroups[0]['technicalName']);
+        static::assertSame('Statistics', $cookieGroups[0]['name']);
+        static::assertSame('lorem', $cookieGroups[0]['entries'][0]['cookie']);
     }
 
     public function testCleanupDeletesOldDecisionsButKeepsSnapshots(): void
@@ -105,7 +88,7 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         $this->storage->cleanup(new \DateTimeImmutable('2026-03-14 12:00:00'));
 
         static::assertSame(['kept'], $this->connection->fetchFirstColumn('SELECT `consent_id` FROM `cookie_consent_log`'));
-        static::assertNotNull($this->storage->findSnapshot('old-hash'));
+        static::assertSame(['old-hash'], $this->connection->fetchFirstColumn('SELECT `config_hash` FROM `cookie_consent_config_snapshot`'));
     }
 
     public function testIterateFiltersByRangeAndSalesChannel(): void

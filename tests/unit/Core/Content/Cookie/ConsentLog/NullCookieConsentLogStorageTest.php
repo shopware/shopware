@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(NullCookieConsentLogStorage::class)]
 class NullCookieConsentLogStorageTest extends TestCase
 {
-    public function testItDiscardsEverythingAndFindsNothing(): void
+    public function testItDiscardsEverything(): void
     {
         $storage = new NullCookieConsentLogStorage();
         $now = new \DateTimeImmutable('2026-07-13 12:00:00');
@@ -35,8 +35,6 @@ class NullCookieConsentLogStorageTest extends TestCase
         ));
         $storage->cleanup($now);
 
-        static::assertSame([], $storage->findByConsentId('consent-id'));
-        static::assertNull($storage->findSnapshot('hash'));
-        static::assertSame([], [...$storage->iterate($now, $now)]);
+        static::assertSame([], [...$storage->iterate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2030-01-01'))]);
     }
 }

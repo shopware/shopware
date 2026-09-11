@@ -41,24 +41,7 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
         $files = $this->files('cookie-consent/2026/07/13/12');
         static::assertCount(1, $files);
         static::assertMatchesRegularExpression('#^cookie-consent/2026/07/13/12/20260713T120257270Z\.[0-9a-f]{8}\.visitor-a\.json$#', $files[0]);
-        static::assertEquals([$record], $this->storage->findByConsentId('visitor-a'));
-    }
-
-    public function testDecisionsOfAVisitorAreFoundAcrossHoursOldestFirst(): void
-    {
-        $this->storage->log($this->record('visitor-a', new \DateTimeImmutable('2026-07-13 12:00:00'), CookieConsentAction::ACCEPT_ALL));
-        $this->storage->log($this->record('visitor-b', new \DateTimeImmutable('2026-07-13 12:00:01')));
-        $this->storage->log($this->record('visitor-a', new \DateTimeImmutable('2026-06-30 23:59:59'), CookieConsentAction::ACCEPT_REQUIRED));
-        // Same prefix, different id: must not match
-        $this->storage->log($this->record('visitor-aa', new \DateTimeImmutable('2026-07-13 12:00:02')));
-
-        $records = $this->storage->findByConsentId('visitor-a');
-
-        static::assertSame(
-            [CookieConsentAction::ACCEPT_REQUIRED, CookieConsentAction::ACCEPT_ALL],
-            array_map(static fn (CookieConsentRecord $record) => $record->consentAction, $records),
-        );
-        static::assertSame([], $this->storage->findByConsentId('visitor-c'));
+        static::assertEquals([$record], [...$this->storage->iterate(new \DateTimeImmutable('2026-07-13'), new \DateTimeImmutable('2026-07-14'))]);
     }
 
     public function testAConsentIdThatIsNotFileSafeIsRejected(): void
@@ -76,13 +59,10 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
         $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [], $createdAt->modify('+1 day')));
 
         static::assertSame(['cookie-consent/snapshots/hash.json'], $this->files('cookie-consent/snapshots'));
-
-        $snapshot = $this->storage->findSnapshot('hash');
-        static::assertNotNull($snapshot);
-        static::assertSame([['technicalName' => 'cookie.groupRequired']], $snapshot->cookieGroups);
-        static::assertSame('2026-07-13T12:00:00.000+00:00', $snapshot->createdAt->format(\DateTimeInterface::RFC3339_EXTENDED));
-
-        static::assertNull($this->storage->findSnapshot('unknown'));
+        static::assertSame(
+            ['configHash' => 'hash', 'cookieGroups' => [['technicalName' => 'cookie.groupRequired']], 'createdAt' => '2026-07-13T12:00:00.000+00:00'],
+            json_decode($this->filesystem->read('cookie-consent/snapshots/hash.json'), true, 512, \JSON_THROW_ON_ERROR),
+        );
     }
 
     public function testCleanupDeletesExpiredHourDirectoriesAndEmptyParents(): void
@@ -100,7 +80,7 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
         static::assertFalse($this->filesystem->directoryExists('cookie-consent/2026/03/14/10'));
         static::assertTrue($this->filesystem->directoryExists('cookie-consent/2026/03/14/11'));
         static::assertTrue($this->filesystem->directoryExists('cookie-consent/2026/03/14/12'));
-        static::assertNotNull($this->storage->findSnapshot('hash'));
+        static::assertTrue($this->filesystem->fileExists('cookie-consent/snapshots/hash.json'));
         static::assertSame(['current-hour', 'future'], $this->consentIds($this->storage->iterate(new \DateTimeImmutable('2020-01-01'), new \DateTimeImmutable('2030-01-01'))));
     }
 

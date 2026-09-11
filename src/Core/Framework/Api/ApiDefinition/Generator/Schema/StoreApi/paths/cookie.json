@@ -65,7 +65,7 @@
                   "consentId": {
                     "type": "string",
                     "pattern": "^[A-Za-z0-9_-]{1,64}$",
-                    "description": "Opaque token the client generates once (e.g. a UUID) and keeps in its own cookie storage, so it can be reused for later decisions of the same visitor. It links a visitor's decisions and lets a data subject retrieve their own records with `bin/console cookie:consent:show`. Must not contain personal data."
+                    "description": "Opaque token the client generates once (e.g. a UUID) and keeps in its own cookie storage, so it can be reused for later decisions of the same visitor. It links a visitor's decisions, so the records of one data subject can be filtered out of an export. Must not contain personal data."
                   },
                   "consentAction": {
                     "type": "string",

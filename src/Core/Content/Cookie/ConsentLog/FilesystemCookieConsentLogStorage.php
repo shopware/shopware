@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  *   snapshots/<configHash>.json                                          one banner configuration
  *
  * One file per decision, so writes never append or lock. The consent id is part of the
- * file name, so a lookup only lists directories and reads the matching files. Hour
+ * file name, so the decisions of one visitor can be found with a plain file search. Hour
  * directories make the cleanup a directory delete, accurate to one hour.
  *
  * @internal
@@ -71,41 +71,6 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
     public function cleanup(\DateTimeImmutable $before): void
     {
         $this->prune($this->path, [], $before->setTimezone(new \DateTimeZone('UTC')));
-    }
-
-    public function findByConsentId(string $consentId): array
-    {
-        $this->ensureFileSafeConsentId($consentId);
-        $suffix = '.' . $consentId . self::FILE_EXTENSION;
-
-        $records = [];
-        foreach ($this->hourDirectories($this->path, []) as $hourDirectory) {
-            foreach ($this->filesystem->listContents($hourDirectory) as $item) {
-                if ($item->isFile() && str_ends_with($item->path(), $suffix)) {
-                    $records[] = $this->readRecord($item->path());
-                }
-            }
-        }
-
-        usort($records, static fn (CookieConsentRecord $a, CookieConsentRecord $b) => $a->createdAt <=> $b->createdAt);
-
-        return $records;
-    }
-
-    public function findSnapshot(string $configHash): ?CookieConsentConfigSnapshot
-    {
-        $location = $this->snapshotLocation($configHash);
-        if (!$this->filesystem->fileExists($location)) {
-            return null;
-        }
-
-        $data = $this->readJson($location);
-
-        return new CookieConsentConfigSnapshot(
-            configHash: (string) $data['configHash'],
-            cookieGroups: array_values((array) $data['cookieGroups']),
-            createdAt: new \DateTimeImmutable((string) $data['createdAt']),
-        );
     }
 
     public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable

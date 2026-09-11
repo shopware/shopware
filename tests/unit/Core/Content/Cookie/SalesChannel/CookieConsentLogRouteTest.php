@@ -398,22 +398,6 @@ class InMemoryCookieConsentLogStorage extends AbstractCookieConsentLogStorage
         $this->calls[] = 'cleanup';
     }
 
-    public function findByConsentId(string $consentId): array
-    {
-        return array_values(array_filter($this->records, static fn (CookieConsentRecord $record) => $record->consentId === $consentId));
-    }
-
-    public function findSnapshot(string $configHash): ?CookieConsentConfigSnapshot
-    {
-        foreach ($this->snapshots as $snapshot) {
-            if ($snapshot->configHash === $configHash) {
-                return $snapshot;
-            }
-        }
-
-        return null;
-    }
-
     public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
     {
         return $this->records;

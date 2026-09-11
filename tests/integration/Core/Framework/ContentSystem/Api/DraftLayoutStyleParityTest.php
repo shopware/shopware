@@ -8,22 +8,15 @@ use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
-use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * The container-wiring half of the style parity invariant, in two pins. The definition pin loads
- * `content-system.php` and asserts `DraftLayoutDecoder` and `LayoutWriteBoundary` reference one
- * `StoredTreeStyleNormalizer` service id (their two `service()` references sit far apart in that file),
- * which covers every style option without sampling. The behavioral pin resolves both services from DI and
- * compares their normalized output for one exercised option, so the wired instances demonstrably run. The
- * normalizer-behavior half — one hand-built instance feeding both paths — is the unit test of the same name.
+ * The container-wired behavioral half of the style parity invariant: resolves `DraftLayoutDecoder` and
+ * `LayoutWriteBoundary` from DI and compares their normalized output for one exercised option, so the wired
+ * instances demonstrably run. The definition pin and the normalizer-behavior half — one hand-built instance
+ * feeding both paths — are the unit test of the same name.
  *
  * @internal
  */
@@ -31,17 +24,6 @@ use Symfony\Component\DependencyInjection\Reference;
 class DraftLayoutStyleParityTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    #[TestDox('wires DraftLayoutDecoder and LayoutWriteBoundary to one StoredTreeStyleNormalizer service id')]
-    public function testBothServicesReferenceOneNormalizerServiceId(): void
-    {
-        $container = new ContainerBuilder();
-        (new PhpFileLoader($container, new FileLocator()))
-            ->load(\dirname(__DIR__, 6) . '/src/Core/Framework/DependencyInjection/content-system.php');
-
-        static::assertSame([StoredTreeStyleNormalizer::class], $this->normalizerReferences($container, LayoutWriteBoundary::class));
-        static::assertSame([StoredTreeStyleNormalizer::class], $this->normalizerReferences($container, DraftLayoutDecoder::class));
-    }
 
     #[TestDox('yields the same style shape from the container-wired draft decode path as the container-wired write boundary')]
     public function testContainerWiredDraftDecodeMatchesWriteBoundaryStyle(): void
@@ -69,27 +51,5 @@ class DraftLayoutStyleParityTest extends TestCase
         // a red HERE after a change to that YAML asks for a new expanding fixture option, not a wiring fix.
         static::assertIsArray($draftStyle['align-self']);
         static::assertSame(Breakpoint::values(), array_keys($draftStyle['align-self']));
-    }
-
-    /**
-     * Every constructor argument of the service that references the normalizer, by id. Matching by id
-     * rather than by argument index keeps the pin alive across a constructor reorder; a service handed a
-     * second normalizer under a NEW id answers `[]` here and fails the comparison.
-     *
-     * @param class-string $serviceId
-     *
-     * @return list<string>
-     */
-    private function normalizerReferences(ContainerBuilder $container, string $serviceId): array
-    {
-        $references = [];
-
-        foreach ($container->getDefinition($serviceId)->getArguments() as $argument) {
-            if ($argument instanceof Reference && (string) $argument === StoredTreeStyleNormalizer::class) {
-                $references[] = (string) $argument;
-            }
-        }
-
-        return $references;
     }
 }

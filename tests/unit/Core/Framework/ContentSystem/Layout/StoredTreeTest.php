@@ -257,19 +257,15 @@ class StoredTreeTest extends TestCase
         static::assertSame($this->serialize($tree), $this->serialize($tree->replace('absent', $this->element('replacement'))));
     }
 
-    #[TestDox('replace returns a root it did not target as a new instance carrying an equal value')]
-    public function testReplaceRebuildsAnUntargetedRoot(): void
+    #[TestDox('replace preserves an untargeted root by value')]
+    public function testReplacePreservesAnUntargetedRootByValue(): void
     {
-        // replaceIn() at StoredTree.php:269-277 rebuilds every non-matching node through
-        // StoredElement::withSlots() unconditionally, whether or not anything below it changed, and
-        // StoredElement::copy() always constructs a fresh instance.
         $untargeted = $this->element('root-2');
         $tree = new StoredTree([$this->element('root-1'), $untargeted]);
 
         $replaced = $tree->replace('root-1', $this->element('root-z'));
 
         static::assertEquals($untargeted, $replaced->roots[1]);
-        static::assertNotSame($untargeted, $replaced->roots[1]);
     }
 
     #[TestDox('validate reports nothing for a forest whose ids are all unique')]

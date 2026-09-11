@@ -53,6 +53,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyTypeTest;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
 
 /**

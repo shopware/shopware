@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyTypeTest;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;

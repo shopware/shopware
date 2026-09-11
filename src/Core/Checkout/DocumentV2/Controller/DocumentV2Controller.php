@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
+use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
@@ -244,6 +245,12 @@ final class DocumentV2Controller extends AbstractController
             );
         }
 
+        $filename = $request->getPayload()->getString('filename');
+
+        if ($filename !== '') {
+            (new FileNameValidator())->validateFileName($filename);
+        }
+
         $documents = $this->loadDocuments($documentIds, $context);
 
         if ($documents->count() === 0) {
@@ -257,7 +264,7 @@ final class DocumentV2Controller extends AbstractController
         }
 
         return $this->createResponse(
-            $archive->getName(),
+            $filename !== '' ? $filename . '.' . $archive->getFileExtension() : $archive->getName(),
             $archive->getContent(),
             $archive->getContentType(),
             HeaderUtils::DISPOSITION_ATTACHMENT,

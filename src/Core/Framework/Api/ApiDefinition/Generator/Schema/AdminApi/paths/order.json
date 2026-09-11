@@ -15,10 +15,21 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "pattern": "^[0-9a-f]{32}$"
+                "type": "object",
+                "required": ["documentIds"],
+                "properties": {
+                  "documentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$"
+                    }
+                  },
+                  "filename": {
+                    "description": "Optional file name without extension. The extension of the returned file is appended: `pdf` for merged documents, `zip` when the documents are archived, or the document's own extension for a single document. Falls back to the generated document name when omitted. Must follow the media file name rules: at most 255 characters, no leading or trailing dot, no trailing space, no control characters, and none of `\\ / ? * % & : | \" ' < > $ # { }`.",
+                    "type": "string",
+                    "nullable": true
+                  }
                 }
               }
             }
@@ -599,6 +610,11 @@
                       "pattern": "^[0-9a-f]{32}$"
                     },
                     "example": ["018f5972f9ea72a0be49f7c39f72a2a0"]
+                  },
+                  "filename": {
+                    "description": "Optional file name without extension. The extension of the returned file (`zip`) is appended. Falls back to the generated archive name when omitted. Must follow the media file name rules: at most 255 characters, no leading or trailing dot, no trailing space, no control characters, and none of `\\ / ? * % & : | \" ' < > $ # { }`.",
+                    "type": "string",
+                    "nullable": true
                   }
                 },
                 "example": {

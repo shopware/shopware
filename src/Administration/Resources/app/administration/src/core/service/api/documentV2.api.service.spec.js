@@ -248,7 +248,7 @@ describe('documentV2ApiService', () => {
         await documentV2ApiService.getDocumentArchive([documentId]);
 
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/download-archive');
-        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds: [documentId] });
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds: [documentId], filename: null });
     });
 
     it('downloads all document files as archive for multiple documents', async () => {
@@ -263,6 +263,20 @@ describe('documentV2ApiService', () => {
         await documentV2ApiService.getDocumentArchive(documentIds);
 
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/download-archive');
-        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds });
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds, filename: null });
+    });
+
+    it('passes the filename through when given', async () => {
+        const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
+        const documentIds = ['4a4a687257644d52bf481b4c20e59213'];
+
+        clientMock.onPost('/_action/order/document-v2/download-archive').reply(200, '');
+
+        await documentV2ApiService.getDocumentArchive(documentIds, 'my-custom-filename');
+
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
+            documentIds,
+            filename: 'my-custom-filename',
+        });
     });
 });

@@ -364,6 +364,36 @@ class DocumentV2ControllerTest extends TestCase
         (new Filesystem())->remove($tempFile);
     }
 
+    public function testDownloadArchiveUsesCustomFilenameWhenGiven(): void
+    {
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+        $orderId = $this->createDraftOrder();
+        $documentNumber = 'legacy-archive-' . Uuid::randomHex();
+        $config = $this->getDemoInvoiceLegacyConfig();
+        $config['documentNumber'] = $documentNumber;
+
+        $document = static::getContainer()->get(LegacyDocumentGenerator::class)->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config)],
+            $this->context,
+        )->getSuccess()->first();
+
+        static::assertNotNull($document);
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/order/document-v2/download-archive',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['documentIds' => [$document->getId()], 'filename' => 'my-custom-archive'], \JSON_THROW_ON_ERROR),
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('my-custom-archive.zip', (string) $response->headers->get('content-disposition'));
+    }
+
     private function createDraftOrder(): string
     {
         $cart = $this->generateDemoCartWithTaxes([19, 7]);

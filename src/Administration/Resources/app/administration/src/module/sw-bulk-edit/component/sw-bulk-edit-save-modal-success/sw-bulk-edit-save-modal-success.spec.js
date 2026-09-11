@@ -422,6 +422,47 @@ describe('sw-bulk-edit-save-modal-success', () => {
         wrapper.vm.orderDocumentApiService.download.mockRestore();
     });
 
+    it('should request a bulk filename based on the document type', async () => {
+        window.URL.createObjectURL = jest.fn();
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve({ data: null }));
+
+        await wrapper.setData({
+            latestDocuments: {
+                delivery_note: [
+                    'documentId1',
+                    'documentId2',
+                ],
+            },
+        });
+        await wrapper.vm.downloadDocument('delivery_note');
+
+        expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalledWith(
+            [
+                'documentId1',
+                'documentId2',
+            ],
+            'delivery_notes_bulk',
+        );
+
+        wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
+
+    it('should keep the server filename when downloading a single document', async () => {
+        window.URL.createObjectURL = jest.fn();
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve({ data: null }));
+
+        await wrapper.setData({
+            latestDocuments: {
+                delivery_note: ['documentId1'],
+            },
+        });
+        await wrapper.vm.downloadDocument('delivery_note');
+
+        expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalledWith(['documentId1'], null);
+
+        wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
+
     it('should not be able to download documents', async () => {
         wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
 
@@ -480,15 +521,42 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
         await wrapper.vm.downloadDocument('invoice');
 
-        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith([
-            'documentId1',
-            'documentId2',
-        ]);
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith(
+            [
+                'documentId1',
+                'documentId2',
+            ],
+            'invoices_bulk',
+        );
         expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
 
         wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
         wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
+
+    it('should keep the server archive name when downloading a single document via the v2 endpoint', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        window.URL.createObjectURL = jest.fn();
+
+        wrapper.vm.documentV2ApiService.getDocumentArchive = jest.fn(() =>
+            Promise.resolve({
+                file: 'archive content',
+                fileName: '1000.zip',
+            }),
+        );
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: ['documentId1'],
+            },
+        });
+
+        await wrapper.vm.downloadDocument('invoice');
+
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith(['documentId1'], null);
+
+        wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
     });
 
     it('should call createNotificationError when the v2 archive download fails', async () => {

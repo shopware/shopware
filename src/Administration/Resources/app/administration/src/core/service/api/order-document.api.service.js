@@ -21,10 +21,10 @@ export default class OrderDocumentApiService extends ApiService {
         });
     }
 
-    download(documentIds, additionalParams = {}, additionalHeaders = {}) {
+    download(documentIds, filename = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient.post(
             `/_action/${this.apiEndpoint}/download`,
-            { documentIds },
+            { documentIds, filename },
             {
                 additionalParams,
                 responseType: 'blob',

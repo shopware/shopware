@@ -88,6 +88,42 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    /**
+     * The id that reaches this factory is the one that failed the domain rule, so it can hold a control
+     * character — and the message is written to logs as plain text, where a raw `\r` hides everything
+     * before it. The reason is irrelevant here; only the rendering of the id is under test.
+     */
+    #[DataProvider('printableIdProvider')]
+    #[TestDox('renders $_dataName without corrupting the message')]
+    public function testInvalidElementIdRendersAPrintableId(string $id, string $expectedId): void
+    {
+        $exception = ContentSystemException::invalidElementId($id, 'reads as an integer');
+
+        static::assertSame(
+            \sprintf('Element id "%s" is not accepted: it reads as an integer.', $expectedId),
+            $exception->getMessage()
+        );
+        static::assertSame($expectedId, $exception->getParameters()['id']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function printableIdProvider(): iterable
+    {
+        yield 'an ordinary id, unchanged' => ['hero', 'hero'];
+
+        yield 'a non-ASCII id, left intact rather than escaped to \u00e9' => ['héro', 'héro'];
+
+        yield 'a carriage return, which would otherwise rewind the log line' => ["hero\rfoot", 'hero\\rfoot'];
+
+        yield 'a line feed' => ["hero\nfoot", 'hero\\nfoot'];
+
+        yield 'a line separator, which addcslashes would have missed' => ["hero\u{2028}", 'hero\\u2028'];
+
+        yield 'an embedded quote, kept balanced' => ['"hero"', '\\"hero\\"'];
+    }
+
     #[TestDox('propagates previous throwable when loading element type fails')]
     public function testPreservesPreviousThrowableOnLoadFailed(): void
     {

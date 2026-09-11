@@ -198,7 +198,7 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ELEMENT_ID,
             'Element id "{{ id }}" is not accepted: it {{ reason }}.',
-            ['id' => $id, 'reason' => $reason]
+            ['id' => self::printableId($id), 'reason' => $reason]
         );
     }
 
@@ -1148,5 +1148,18 @@ class ContentSystemException extends HttpException
         );
 
         return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
+    }
+
+    /**
+     * An id the domain rule refused is the one id this class renders that can hold a control character, and
+     * the message is written to logs as plain text — where a `\r` rewinds the line and hides the id it was
+     * meant to name. JSON's escaping is borrowed rather than `addcslashes`, which leaves U+2028 and U+2029
+     * untouched, and rather than plain `json_encode`, which would also mangle a legitimate `héro`.
+     */
+    private static function printableId(string $id): string
+    {
+        $encoded = json_encode($id, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+
+        return $encoded === false ? $id : substr($encoded, 1, -1);
     }
 }

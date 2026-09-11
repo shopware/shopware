@@ -217,6 +217,7 @@
         {% block sw_property_search_empty %}
         <mt-empty-state
             v-else
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-property-search.noPropertiesFound')"
             :description="$t('sw-property-search.noPropertiesFoundDescription')"

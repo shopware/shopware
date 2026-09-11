@@ -105,8 +105,10 @@
     <slot name="empty-state">
         <mt-empty-state
             v-if="!total && !isLoading"
+            centered
             icon="regular-products"
             :headline="emptyStateMessage"
+            description=""
         />
     </slot>
     {% endblock %}

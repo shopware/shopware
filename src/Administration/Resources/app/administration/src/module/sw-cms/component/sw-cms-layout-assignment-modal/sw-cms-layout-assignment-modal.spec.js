@@ -185,14 +185,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                         template: `
                         <div class="sw-cms-product-assignment">
                             <slot name="content"></slot>
-                            <slot
-                                name="empty-state">
-                                <img
-                                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                                    alt=""
-                                >
-                                <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
-                            </slot>
+                            <slot name="empty-state"></slot>
                         </div>
                     `,
                     },
@@ -748,7 +741,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         });
         await flushPromises();
 
-        expect(wrapper.find('.sw-cms-product-assignment__empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should remove shop pages but discard changes', async () => {

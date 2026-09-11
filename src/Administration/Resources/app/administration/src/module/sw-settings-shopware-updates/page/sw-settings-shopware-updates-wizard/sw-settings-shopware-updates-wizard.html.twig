@@ -54,9 +54,10 @@
 
             <mt-empty-state
                 v-if="!isLoading && !updateInfo.version"
-                :centered="true"
+                centered
                 :icon="$route.meta.$module.icon"
                 :headline="$t('sw-settings-shopware-updates.general.emptyState')"
+                description=""
             />
 
             <sw-modal

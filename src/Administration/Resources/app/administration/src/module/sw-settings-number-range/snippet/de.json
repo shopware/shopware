@@ -11,6 +11,7 @@
     },
     "list": {
       "textHeadline": "Nummernkreise",
+      "messageEmpty": "Noch keine Nummernkreise",
       "textDeleteConfirm": "Bist Du sicher, dass Du den Nummernkreis \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnUsedIn": "Typ",

@@ -196,43 +196,40 @@
 
     {% block sw_tax_rule_card_empty_state %}
     <template v-if="taxRulesEmpty || disabled">
-        <div class="sw-settings-tax-rule-card__empty-state">
-            {% block sw_tax_rule_card_empty_state_image %}
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                alt=""
-            >
-            {% endblock %}
-
-            {% block sw_tax_rule_card_empty_state_label %}
-            <div class="sw-settings-tax-rule-card__empty-state--label">
-                <p v-if="disabled">
-                    {{ $t('sw-settings-tax.taxRuleCard.createStateDescription') }}
-                </p>
-                <p v-else>
-                    {{ $t('sw-settings-tax.taxRuleCard.emptyStateDescription') }}
-                </p>
-            </div>
-            {% endblock %}
-
-            {% block sw_tax_rule_card_empty_state_button %}
-            <mt-button
-                v-tooltip.bottom="{
-                    message: $t('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('tax.editor'),
-                    showOnDisabledElements: true
-                }"
-                class="sw-settings-tax-rule-card__empty-state--button"
-                size="small"
-                :disabled="disabled || !acl.can('tax.editor') || undefined"
-                variant="secondary"
-                @click="showModal = true"
-            >
-                {{ $t('sw-settings-tax.taxRuleCard.labelCreateNew') }}
-            </mt-button>
-            {% endblock %}
-        </div>
+        <mt-empty-state
+            class="sw-settings-tax-rule-card__empty-state"
+            centered
+            icon="regular-chart-pie"
+            :headline="disabled
+                ? $t('sw-settings-tax.taxRuleCard.createStateDescription')
+                : $t('sw-settings-tax.taxRuleCard.emptyStateDescription')
+            "
+            description=""
+        >
+            <template #button>
+                {% block sw_tax_rule_card_empty_state_button %}
+                <mt-button
+                    v-tooltip.bottom="{
+                        message: $t('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('tax.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-settings-tax-rule-card__empty-state--button"
+                    size="small"
+                    :disabled="disabled || !acl.can('tax.editor') || undefined"
+                    variant="secondary"
+                    @click="showModal = true"
+                >
+                    {{ $t('sw-settings-tax.taxRuleCard.labelCreateNew') }}
+                </mt-button>
+                {% endblock %}
+            </template>
+        </mt-empty-state>
     </template>
     {% endblock %}
+
+    {# @deprecated tag:v6.8.0 - Kept as extension anchors, the image and the label became mt-empty-state props. #}
+    {% block sw_tax_rule_card_empty_state_image %}{% endblock %}
+    {% block sw_tax_rule_card_empty_state_label %}{% endblock %}
 </mt-card>
 {% endblock %}

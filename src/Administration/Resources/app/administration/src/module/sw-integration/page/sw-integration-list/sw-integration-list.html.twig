@@ -383,10 +383,26 @@
                 {% block sw_product_list_empty_state %}
                 <mt-empty-state
                     v-else
+                    centered
                     :icon="$route.meta.$module.icon"
                     :headline="$t('sw-integration.list.messageEmpty')"
                     :description="$t('sw-integration.list.sublineEmpty')"
-                />
+                >
+                    <template #button>
+                        <mt-button
+                            v-tooltip="{
+                                message: $t('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('integration.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="primary"
+                            :disabled="!acl.can('integration.creator')"
+                            @click="onCreateIntegration"
+                        >
+                            {{ $t('sw-integration.general.buttonCreateIntegration') }}
+                        </mt-button>
+                    </template>
+                </mt-empty-state>
                 {% endblock %}
                 {% endblock %}
             </mt-card>

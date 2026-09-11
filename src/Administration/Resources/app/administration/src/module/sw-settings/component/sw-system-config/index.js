@@ -4,6 +4,7 @@
 import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
+import utils from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -76,12 +77,24 @@ export default {
         return {
             currentSalesChannelId: this.salesChannelId,
             isLoading: false,
+            schema: [],
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, use schema instead.
+             */
             config: [],
             actualConfigData: {},
             initialConfigData: {},
             salesChannelModel: null,
             hasCssFields: false,
             activeTab: null,
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+             */
+            isSyncingFromSchema: false,
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+             */
+            isSyncingFromConfig: false,
         };
     },
 
@@ -104,15 +117,15 @@ export default {
         },
 
         showGlobalSection() {
-            return this.showTabs || this.config.at(0)?.cards.length > 1;
+            return this.showTabs || this.schema.at(0)?.cards.length > 1;
         },
 
         showTabs() {
-            return this.config?.length > 1;
+            return this.schema?.length > 1;
         },
 
         tabItems() {
-            return this.config?.map((tab) => {
+            return this.schema?.map((tab) => {
                 return {
                     name: this.getTabName(tab),
                     label:
@@ -124,7 +137,7 @@ export default {
         },
 
         defaultTabItem() {
-            return this.config?.at(0) ? this.getTabName(this.config.at(0)) : '';
+            return this.schema?.at(0) ? this.getTabName(this.schema.at(0)) : '';
         },
     },
 
@@ -144,6 +157,42 @@ export default {
 
         isLoading(value) {
             this.$emit('loading-changed', value);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        schema: {
+            handler(newSchema) {
+                if (this.isSyncingFromConfig) {
+                    return;
+                }
+
+                this.isSyncingFromSchema = true;
+                this.config = this.schemaToConfig(newSchema);
+                this.$nextTick(() => {
+                    this.isSyncingFromSchema = false;
+                });
+            },
+            deep: true,
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        config: {
+            handler(newConfig) {
+                if (this.isSyncingFromSchema) {
+                    return;
+                }
+
+                this.isSyncingFromConfig = true;
+                this.schema = this.configToSchema(newConfig, this.schema);
+                this.$nextTick(() => {
+                    this.isSyncingFromConfig = false;
+                });
+            },
+            deep: true,
         },
     },
 
@@ -166,7 +215,7 @@ export default {
                 await this.readConfig();
                 await this.readAll();
 
-                this.activeTab = this.getTabName(this.config.at(0));
+                this.activeTab = this.getTabName(this.schema.at(0));
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
@@ -181,9 +230,14 @@ export default {
         },
 
         async readConfig() {
-            this.config = await this.systemConfigApiService.getSchema(this.domain);
+            const schema = await this.systemConfigApiService.getSchema(this.domain);
 
-            this.config.every((tab) => {
+            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed together with config data prop.
+            this.assignConfigIds(schema);
+
+            this.schema = schema;
+
+            this.schema.every((tab) => {
                 return tab?.cards.every((card) => {
                     return card?.elements.every((field) => {
                         if (field?.config?.css) {
@@ -191,6 +245,26 @@ export default {
                             return false;
                         }
                         return true;
+                    });
+                });
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Tags cards and elements with an unofficial, internal id (`__configId`). It survives immutable
+         * updates (e.g. `card.map((c) => ({ ...c, title }))`) because object spread copies it along with
+         * the other properties, so it is used to reliably match cards back to their original tab in
+         * `configToSchema`, regardless of mutation style or reordering.
+         */
+        assignConfigIds(schema) {
+            (schema ?? []).forEach((tab) => {
+                (tab.cards ?? []).forEach((card) => {
+                    card.__configId = utils.createId();
+
+                    (card.elements ?? []).forEach((element) => {
+                        element.__configId = utils.createId();
                     });
                 });
             });
@@ -286,7 +360,7 @@ export default {
         getCacheRelevantFieldNames() {
             const fieldNames = new Set();
 
-            this.config.forEach((tab) => {
+            this.schema.forEach((tab) => {
                 tab.cards?.forEach((card) => {
                     card.elements?.forEach((element) => {
                         if (element.config?.cacheRelevant === true) {
@@ -529,7 +603,68 @@ export default {
         },
 
         getTabName(tab) {
-            return `tab-${tab.name ?? this.config.indexOf(tab)}`;
+            return `tab-${tab.name ?? this.schema.indexOf(tab)}`;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        schemaToConfig(schema) {
+            return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Keeps existing tabs instead of collapsing everything into a single tab. Cards are matched back to
+         * their original tab via the internal `__configId` (see assignConfigIds), which is reliable across
+         * reordering and immutable updates. Cards without a matching id (e.g. newly added ones, or ones that
+         * lost the id because they were rebuilt from scratch instead of spread) end up in the general tab
+         * (name === null) and are assigned a fresh id, so their tab is tracked correctly from then on.
+         */
+        configToSchema(config, previousSchema) {
+            const cards = config ?? [];
+            const previousTabs =
+                previousSchema && previousSchema.length > 0
+                    ? previousSchema
+                    : [
+                          {
+                              name: null,
+                              title: null,
+                              cards: [],
+                          },
+                      ];
+
+            const newSchema = previousTabs.map((tab) => ({ ...tab, cards: [] }));
+            const generalTabIndex = previousTabs.findIndex((tab) => tab.name === null);
+            const fallbackTabIndex = generalTabIndex !== -1 ? generalTabIndex : newSchema.length - 1;
+
+            const idToTabIndex = new Map();
+            previousTabs.forEach((tab, tabIndex) => {
+                (tab.cards ?? []).forEach((card) => {
+                    if (card.__configId !== undefined) {
+                        idToTabIndex.set(card.__configId, tabIndex);
+                    }
+                });
+            });
+
+            cards.forEach((card) => {
+                const tabIndex = idToTabIndex.has(card.__configId) ? idToTabIndex.get(card.__configId) : fallbackTabIndex;
+
+                if (card.__configId === undefined) {
+                    card.__configId = utils.createId();
+                }
+
+                (card.elements ?? []).forEach((element) => {
+                    if (element.__configId === undefined) {
+                        element.__configId = utils.createId();
+                    }
+                });
+
+                newSchema[tabIndex].cards.push(card);
+            });
+
+            return newSchema;
         },
     },
 };

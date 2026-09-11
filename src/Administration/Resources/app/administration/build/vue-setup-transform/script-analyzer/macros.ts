@@ -28,6 +28,14 @@ const SHOPWARE_SETUP_INTERNAL_PREFIX = '__swSetup';
 const OVERRIDE_NAMESPACE_BINDING = '__swSetupNamespace';
 
 /**
+ * The slot-scope binding that carries an override's own state into `<sw-block extends>` content.
+ *
+ * The content reads through this object rather than destructuring out of it, so a template write
+ * reaches the ref the object holds instead of a copy of its value.
+ */
+const OVERRIDE_STATE_BINDING = '__swSetupOverrideState';
+
+/**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
  */
 function assertSingleArgument(
@@ -126,6 +134,7 @@ export {
     type ShopwareSetupEntryType,
     type ShopwareSetupMacroName,
     OVERRIDE_NAMESPACE_BINDING,
+    OVERRIDE_STATE_BINDING,
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     extractStaticObjectMarker,

@@ -36,7 +36,7 @@ swDefineOverride({});
     it('uses the symbol as a computed key in both the slot scope and the returned state', () => {
         const result = transformShopwareSetupSfc(source, 'sw-thing.override.vue')?.code ?? '';
 
-        expect(result).toContain('#default="{ __swOverride: { [__swSetupNamespace]: { info } } }"');
+        expect(result).toContain('#default="{ __swOverride: { [__swSetupNamespace]: __swSetupOverrideState } }"');
         expect(result).toContain('[__swSetupNamespace]: {');
     });
 

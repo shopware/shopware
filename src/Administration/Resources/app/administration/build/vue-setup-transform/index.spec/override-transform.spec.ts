@@ -37,15 +37,16 @@ describe('build/vue-setup-transform override transforms', () => {
         // The one end-to-end assertion for override lowering, covering the three generated constructs that
         // only co-occur on the <sw-block extends> path: the module-root Symbol() namespace, the
         // `__swOverride` payload keyed by it, and the `#default` slot scope that forwards the
-        // override-local `suffix` into the block content. Imports are lifted out of the callback; the
+        // override-local `suffix` into the block content, where its references are rewritten to read
+        // through that object rather than a destructured copy. Imports are lifted out of the callback; the
         // author body is preserved inside it.
         //
         // Whitespace-insensitive on both sides - the transform does not beautify its output, so its
         // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
         const expected = stripWhitespace`
             <template>
-                <sw-block extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
-                    <h1>{{ headline }} - {{ suffix }}</h1>
+                <sw-block extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: __swSetupOverrideState }, headline }">
+                    <h1>{{ headline }} - {{ __swSetupOverrideState.suffix }}</h1>
                 </sw-block>
             </template>
             <script setup lang="ts">

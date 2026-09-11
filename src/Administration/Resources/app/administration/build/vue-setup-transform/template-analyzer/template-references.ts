@@ -19,6 +19,7 @@ import type {
 import {
     addPatternNames,
     collectExpressionReferences,
+    collectExpressionReferenceOccurrences,
     collectExpressionWriteTargets,
     collectPatternReferences,
     parseBindingPattern,
@@ -30,20 +31,40 @@ import {
 type TemplateReferences = {
     references: Set<string>;
     /**
+     * Every reference, with its range in the template, so the lowerer can rewrite it to go through the
+     * forwarded state object instead of a destructured copy.
+     */
+    occurrences: TemplateReferenceOccurrence[];
+    /**
      * Write targets mapped to the template offset of the expression that writes them, so a rejection can
      * point at the author's `@click="count = 1"` rather than at the enclosing block.
      */
     writeTargets: Map<string, number>;
 };
 
+/**
+ * One reference to a setup binding inside override block content.
+ *
+ * `shorthand` marks the `v-bind` same-name form (`:count`), where the reference is the attribute name
+ * and there is no expression to rewrite - the lowerer gives it one instead of replacing a range.
+ */
+type TemplateReferenceOccurrence = {
+    name: string;
+    start: number;
+    end: number;
+    shorthand: boolean;
+};
+
+type ExpressionNode = { content: string; loc: { start: { offset: number }; end: { offset: number } } };
+
 type DirectiveNode = CoreDirectiveNode & {
-    arg?: { content: string; isStatic?: boolean };
-    exp?: { content: string; loc: { start: { offset: number }; end: { offset: number } } };
+    arg?: ExpressionNode & { isStatic?: boolean };
+    exp?: ExpressionNode;
     forParseResult?: {
         value?: { content: string };
         key?: { content: string };
         index?: { content: string };
-        source?: { content: string };
+        source?: ExpressionNode;
     };
     // Optional to match `@vue/compiler-core` (declares `rawName?: string`); the consumer in
     // sw-block-bindings falls back to `v-${name}`, and that fallback must stay reachable per the type.
@@ -202,12 +223,37 @@ function collectDirectiveReferences(directive: DirectiveNode, templateScope: Set
 function collectTemplateReferences(children: TemplateChildNode[], initialScope: Set<string>): TemplateReferences {
     const references = new Set<string>();
     const writeTargets = new Map<string, number>();
+    const occurrences: TemplateReferenceOccurrence[] = [];
+
+    /**
+     * Records every reference of one expression at its position in the template.
+     *
+     * The expression's own offset is added to each range, so the result addresses the template rather
+     * than the expression string.
+     */
+    function recordOccurrences(expression: ExpressionNode | undefined, scope: Set<string>): void {
+        if (!expression?.content) {
+            return;
+        }
+
+        const expressionOffset = expression.loc.start.offset;
+
+        collectExpressionReferenceOccurrences(expression.content, scope).forEach((occurrence) => {
+            occurrences.push({
+                name: occurrence.name,
+                start: expressionOffset + occurrence.start,
+                end: expressionOffset + occurrence.end,
+                shorthand: false,
+            });
+        });
+    }
 
     function visit(node: TemplateChildNode, scope: Set<string>): void {
         if (node.type === NodeTypes.INTERPOLATION) {
-            collectExpressionReferences((node.content as { content: string }).content, scope).forEach((name) =>
-                references.add(name),
-            );
+            const content = node.content as ExpressionNode;
+
+            collectExpressionReferences(content.content, scope).forEach((name) => references.add(name));
+            recordOccurrences(content, scope);
             return;
         }
 
@@ -221,6 +267,7 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
         if (forDirective) {
             collectDirectiveReferences(forDirective, scope).forEach((name) => references.add(name));
+            recordOccurrences(forDirective.forParseResult?.source, scope);
             collectBindingPatternReferences(forDirective, scope).forEach((name) => references.add(name));
             collectBindingPatternNames(forDirective).forEach((name) => childScope.add(name));
         }
@@ -233,6 +280,7 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
             const directive = prop as DirectiveNode;
 
             collectDirectiveReferences(directive, childScope).forEach((name) => references.add(name));
+            recordDirectiveOccurrences(directive, childScope);
 
             // Assignment/update targets in a directive expression (e.g. `@click="count = count + 1"`).
             if (directive.exp?.content) {
@@ -262,10 +310,43 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
         node.children.forEach((child) => visit(child, scopedChildrenScope));
     }
 
+    /**
+     * Records the occurrences of one directive, mirroring what `collectDirectiveReferences` counts.
+     *
+     * `v-for` is recorded by the caller, before its aliases enter scope. A slot directive's pattern
+     * declares names rather than reading them, and its defaults resolve against the hidden override
+     * component, so nothing there is rewritten.
+     */
+    function recordDirectiveOccurrences(directive: DirectiveNode, scope: Set<string>): void {
+        if (directive.name === 'slot' || directive.name === 'for') {
+            return;
+        }
+
+        if (directive.arg && !directive.arg.isStatic) {
+            recordOccurrences(directive.arg, scope);
+        }
+
+        if (directive.exp?.content) {
+            recordOccurrences(directive.exp, scope);
+            return;
+        }
+
+        // `v-bind` same-name shorthand (`:count`): the attribute name is the reference.
+        if (directive.name === 'bind' && directive.arg?.isStatic && !scope.has(directive.arg.content)) {
+            occurrences.push({
+                name: directive.arg.content,
+                start: directive.arg.loc.start.offset,
+                end: directive.arg.loc.end.offset,
+                shorthand: true,
+            });
+        }
+    }
+
     children.forEach((child) => visit(child, new Set<string>(initialScope)));
 
     return {
         references,
+        occurrences,
         writeTargets,
     };
 }
@@ -339,6 +420,7 @@ function getStaticSwBlockExtends(node: ElementNode): string | null {
 export {
     type DirectiveNode,
     type ElementNode,
+    type TemplateReferenceOccurrence,
     type TemplateReferences,
     collectTemplateReferences,
     getDefaultSlotDirective,

@@ -242,6 +242,12 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
 
+### Storefront snippets of apps are served from a persisted snapshot
+
+Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an app are written to the translation filesystem on install and update, and removed on uninstall. A snippet catalogue build reads them from there instead of from the app's location, so a self-managed app's source is no longer downloaded during a storefront request.
+
+Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
+
 ## API
 
 ### Store API currency headers validate sales channel availability

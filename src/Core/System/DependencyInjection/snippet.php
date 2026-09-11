@@ -6,9 +6,11 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use League\Flysystem\FilesystemOperator;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\Command\DownloadTranslationCommand;
@@ -19,6 +21,8 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetLifecycleHandler;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\SalesChannel\SalesChannelSnippetLoader;
 use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
@@ -69,6 +73,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SnippetFileHandler::class),
             param('kernel.project_dir') . '/',
         ]);
+
+    $services->set(StorefrontSnippetStorage::class)
+        ->args([
+            service('shopware.filesystem.translation'),
+            service(SourceResolver::class),
+            service('logger'),
+            param('kernel.cache_dir') . '/app-snippets',
+        ]);
+
+    $services->set(StorefrontSnippetLifecycleHandler::class)
+        ->args([
+            service(StorefrontSnippetStorage::class),
+            service(CacheInvalidator::class),
+            service(Connection::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1400]);
 
     $services->set(SnippetFixer::class)
         ->args([

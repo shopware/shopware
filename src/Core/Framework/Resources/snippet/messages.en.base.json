@@ -32,7 +32,9 @@
         "salutation-missing-shipping-address": "There's no salutation configured for your active shipping address, please set one <a href=\"%url%\">here</a>.",
         "country-region-missing-billing-address": "There's no country region configured for your active billing address, please set one <a href=\"%url%\">here</a>.",
         "country-region-missing-shipping-address": "There's no country region configured for your active shipping address, please set one <a href=\"%url%\">here</a>.",
-        "checkout-gateway-error": "%reason%"
+        "checkout-gateway-error": "%reason%",
+        "billing-address-missing": "Your billing address is no longer available. Please add a new billing address to your account before you continue with the checkout.",
+        "shipping-address-missing": "Your shipping address is no longer available. Please add a new shipping address to your account before you continue with the checkout."
     },
     "document": {
         "invoiceNumber": "Invoice %invoiceNumber%",

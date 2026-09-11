@@ -3,9 +3,11 @@
 namespace Shopware\Core\Checkout\Cart\Address;
 
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressCountryRegionMissingError;
+use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressCountryRegionMissingError;
+use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
@@ -78,30 +80,42 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return;
         }
 
-        if ($customer->getActiveBillingAddress() === null || $customer->getActiveShippingAddress() === null) {
+        $activeBillingAddress = $customer->getActiveBillingAddress();
+        $activeShippingAddress = $customer->getActiveShippingAddress();
+
+        if ($activeBillingAddress === null) {
+            $errors->add(new BillingAddressMissingError());
+        }
+
+        // not gated by $validateShipping: a digital-only cart would otherwise be ordered against the fallback country
+        if ($activeShippingAddress === null) {
+            $errors->add(new ShippingAddressMissingError());
+        }
+
+        if ($activeBillingAddress === null || $activeShippingAddress === null) {
             // No need to add salutation-specific errors in this case
             return;
         }
 
-        if (!$customer->getActiveBillingAddress()->getSalutationId()) {
-            $errors->add(new BillingAddressSalutationMissingError($customer->getActiveBillingAddress()));
+        if (!$activeBillingAddress->getSalutationId()) {
+            $errors->add(new BillingAddressSalutationMissingError($activeBillingAddress));
 
             return;
         }
 
-        if (!$customer->getActiveShippingAddress()->getSalutationId() && $validateShipping) {
-            $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
+        if (!$activeShippingAddress->getSalutationId() && $validateShipping) {
+            $errors->add(new ShippingAddressSalutationMissingError($activeShippingAddress));
         }
 
-        if ($customer->getActiveBillingAddress()->getCountry()?->getForceStateInRegistration()) {
-            if (!$customer->getActiveBillingAddress()->getCountryState()) {
-                $errors->add(new BillingAddressCountryRegionMissingError($customer->getActiveBillingAddress()));
+        if ($activeBillingAddress->getCountry()?->getForceStateInRegistration()) {
+            if (!$activeBillingAddress->getCountryState()) {
+                $errors->add(new BillingAddressCountryRegionMissingError($activeBillingAddress));
             }
         }
 
-        if ($customer->getActiveShippingAddress()->getCountry()?->getForceStateInRegistration()) {
-            if (!$customer->getActiveShippingAddress()->getCountryState()) {
-                $errors->add(new ShippingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
+        if ($activeShippingAddress->getCountry()?->getForceStateInRegistration()) {
+            if (!$activeShippingAddress->getCountryState()) {
+                $errors->add(new ShippingAddressCountryRegionMissingError($activeShippingAddress));
             }
         }
     }

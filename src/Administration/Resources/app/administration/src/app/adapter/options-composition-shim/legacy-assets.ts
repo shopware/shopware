@@ -22,7 +22,7 @@ export function resolveLegacyAsset(
 ): ComputedRef<unknown> {
     const owner = getCurrentInstance() as AssetOwner | null;
     const value = computed(() => {
-        const options = owner && typeof owner.type !== 'function' ? owner.type[kind] : undefined;
+        const options = owner?.proxy?.$options[kind];
         const override = Object.keys(options ?? {}).find((key) => normalize(key) === normalize(name));
         if (override) return options![override] as unknown;
         const state = (owner ? getScriptSetupDataScope(owner) : undefined) as Record<string, unknown> | undefined;

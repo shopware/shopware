@@ -324,6 +324,7 @@ async function runEquivalentOrConservative(
 }
 
 export {
+    compileGeneratedComponent,
     type RuntimeMountOptions,
     convertFixture,
     flushPromises,

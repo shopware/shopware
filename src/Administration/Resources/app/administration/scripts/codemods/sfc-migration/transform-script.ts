@@ -254,8 +254,34 @@ function renderScript(
         importBlock || null,
         helperBlock || null,
         injectBlock || null,
-        collected.inheritAttrs !== null || ctx.renamedBindings.size
+        collected.inheritAttrs !== null || ctx.renamedBindings.size || ctx.preserveLegacyApi
             ? `defineOptions({ ${[
+                  ...(ctx.preserveLegacyApi
+                      ? [
+                            `legacyOptionsMembers: ${JSON.stringify(
+                                Object.fromEntries([
+                                    ...collected.dataEntries.map(({ name }) => [
+                                        name,
+                                        'data',
+                                    ]),
+                                    ...collected.computeds.map(({ name, kind }) => [
+                                        name,
+                                        kind,
+                                    ]),
+                                    ...collected.methods.map(({ name }) => [
+                                        name,
+                                        'method',
+                                    ]),
+                                    ...composables.flatMap(({ entries }) =>
+                                        entries.map(({ member }) => [
+                                            member,
+                                            ctx.bindings.get(member),
+                                        ]),
+                                    ),
+                                ]),
+                            )}`,
+                        ]
+                      : []),
                   ...(collected.inheritAttrs !== null ? [`inheritAttrs: ${collected.inheritAttrs}`] : []),
                   ...(ctx.renamedBindings.size
                       ? [`legacyOptionsBindings: ${JSON.stringify(Object.fromEntries(ctx.renamedBindings))}`]
@@ -296,6 +322,7 @@ function transformScript(
     componentName: string,
     transformOptions: {
         templateImportRange: { start: number; end: number };
+        preserveLegacyApi?: boolean;
         templateIdentifiers: ReadonlySet<string>;
         templateComponentTags: ReadonlySet<string>;
     },
@@ -305,6 +332,7 @@ function transformScript(
         ms: new MagicString(source),
         paths: new Map(),
         componentName,
+        preserveLegacyApi: transformOptions.preserveLegacyApi,
         bindings: new Map(),
         renamedBindings: new Map(),
         templateIdentifiers: transformOptions.templateIdentifiers,
@@ -346,6 +374,12 @@ function transformScript(
     const collected = classifyOptions(ctx, options);
     const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
     const watchers = collectWatchers(ctx, collected);
+    if (ctx.preserveLegacyApi && collected.createdFn) {
+        report(ctx, 'skip', 'created() would run during setup before legacy Options initialization');
+    }
+    if (ctx.preserveLegacyApi && collected.watchEntries.length) {
+        report(ctx, 'skip', 'base watchers need their original Options initialization order');
+    }
 
     // --- name safety checks --------------------------------------------------------------------
 

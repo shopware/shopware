@@ -1,16 +1,9 @@
 import type { ComputedRef, Ref } from 'vue';
-import {
-    computed,
-    getCurrentInstance as vueGetCurrentInstance,
-    getCurrentScope,
-    onScopeDispose,
-    reactive,
-    watch,
-} from 'vue';
+import { computed, getCurrentInstance as vueGetCurrentInstance, getCurrentScope, reactive, watch } from 'vue';
 import { publishOverrideState } from './publish-override-state';
+import { createNativeOptionsState } from '../options-composition-shim/native-options-state';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
-import { synchronizeLegacyOverrides, type Registration } from './legacy-overrides';
-import type { OverrideFn } from '../options-composition-shim';
+import type { OverrideFn } from '../options-composition-shim/types';
 import {
     createDataScope,
     createOverrideLocalState,
@@ -185,8 +178,8 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
  * this module for them. Reachable on the `Shopware.Component` global only because generated code has to
  * resolve it at runtime.
  *
- * The wrapper separates public and private setup state, applies all registered Composition API and
- * Options API shim overrides once, and returns a data scope that `sw-block` can read during slot
+ * The wrapper separates public and private setup state, applies registered Composition API overrides and
+ * bridges bindings to the native Vue Options instance, and returns a data scope that `sw-block` can read during slot
  * rendering.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -259,43 +252,17 @@ export function createExtendableSetup<
     }
 
     const instance = getCurrentInstance();
-    const definition = instance?.type as
-        | { __swLegacyRegistrations?: Registration[]; __swLegacyNames?: string[] }
-        | undefined;
-    const legacyOverrides = reactive<OverrideFn[]>([]);
+    const definition = instance?.type as { __swLegacyNames?: string[]; __swNativeOptions?: boolean } | undefined;
     const names = definition?.__swLegacyNames ?? [options.name as string];
-    const synchronize = () => {
-        const prepared = definition?.__swLegacyRegistrations;
-        const registrations = prepared ? [...prepared] : [];
-        names.forEach((name) => {
-            for (const entry of Shopware.Component.getOverrideRegistry?.().get(name) ?? []) {
-                if (!registrations.includes(entry)) registrations.push(entry);
-            }
-        });
-        synchronizeLegacyOverrides(options.name as string, legacyOverrides, registrations);
-    };
-    synchronize();
-    names.forEach((name) => {
-        const unsubscribe = Shopware.Component.subscribeToOverrides?.(name, synchronize);
-        if (unsubscribe && getCurrentScope()) onScopeDispose(unsubscribe);
-    });
     const nativeOverrides = names.map((name) => (_overridesMap[name] ??= reactive([])));
-    const registeredOverrides = computed(() => [
-        ...legacyOverrides,
-        ...nativeOverrides.flat(),
-    ]);
+    const registeredOverrides = computed(() => nativeOverrides.flat());
 
     // Create a reactive wrapper for the original setup result
-    const reactiveSetupState = reactive(setupState);
-
-    const owner = {
-        instance,
-        scope: getCurrentScope(),
-        state: reactiveSetupState,
-        privateKeys: new Set(Object.keys(privateSetupState)),
-        data: reactive({}),
-        options: { ...(instance?.proxy?.$options ?? {}) },
-    };
+    const usesNativeOptions = definition?.__swNativeOptions;
+    const reactiveSetupState =
+        usesNativeOptions && instance
+            ? (createNativeOptionsState(instance, setupState, Object.keys(publicSetupState)) as typeof setupState)
+            : reactive(setupState);
 
     // Keep track of applied overrides to avoid duplicates
     const appliedOverrides = reactive<OverrideFn[]>([]);
@@ -315,9 +282,8 @@ export function createExtendableSetup<
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;
-            const layerOwner = { ...owner, initializing: true };
             try {
-                overrideResult = override({ ...previousStateForOverride }, options.props, componentContext, layerOwner);
+                overrideResult = override({ ...previousStateForOverride }, options.props, componentContext);
             } catch (e) {
                 // Mark as applied to prevent infinite retry loops when subsequent overrides are added,
                 // then re-throw so Vue's error handling (onErrorCaptured / app.config.errorHandler) takes over.
@@ -334,8 +300,6 @@ export function createExtendableSetup<
                 instance,
             });
 
-            layerOwner.initializing = false;
-
             // Mark this override as applied
             appliedOverrides.push(override);
         });
@@ -351,7 +315,7 @@ export function createExtendableSetup<
     });
 
     const state = createDataScope<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>(
-        reactiveSetupState,
+        reactiveSetupState as ReturnType<typeof reactive<typeof setupState>>,
     );
 
     if (instance) {

@@ -20,6 +20,7 @@ type Ctx = {
     /** Every parsed node keyed to its @babel/traverse path, so the rewrite pass can ask for scope. */
     paths: Map<t.Node, NodePath>;
     componentName: string;
+    preserveLegacyApi?: boolean;
     bindings: Map<string, MemberKind>;
     /** Members whose setup binding is not named after the member (composable collision renames). */
     renamedBindings: Map<string, string>;

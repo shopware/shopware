@@ -285,7 +285,7 @@ export const setDataScopeForInstance = <TState extends object>(
     const scope = proxyRefs(state) as ScriptSetupDataScope;
     scriptSetupDataScopeByInstance.set(instance, scope);
     ownerByDataScope.set(scope, instance);
-    if (instance.proxy) {
+    if (instance.proxy && !(instance.type as { __swNativeOptions?: boolean }).__swNativeOptions) {
         for (const key of Object.keys(state)) {
             if (key in instance.props) continue;
             Object.defineProperty(instance.proxy, key, {

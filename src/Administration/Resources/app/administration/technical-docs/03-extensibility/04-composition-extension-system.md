@@ -7,7 +7,7 @@ The Composition API Extension System is the next-generation mechanism for extend
 
 **Source files:**
 - `src/app/adapter/composition-extension-system/index.ts` — `createExtendableSetup`, `overrideComponentSetup`, `_overridesMap`
-- `src/app/adapter/options-composition-shim.ts` — backward-compatibility layer for Options API overrides
+- `src/app/adapter/options-composition-shim/component-definition.ts` — backward-compatibility layer for Options API overrides
 
 ---
 
@@ -15,34 +15,16 @@ The Composition API Extension System is the next-generation mechanism for extend
 
 ```mermaid
 flowchart TD
-    pluginOptions["Plugin: Shopware.Component.override()"]
-    pluginComposition["Plugin: Shopware.Component.overrideComponentSetup()"]
-    overrideRegistry["Component Override Registry (Shopware.Component.getOverrideRegistry())"]
-    overridesMap["_overridesMap (reactive map: componentName → override fns)"]
-    shimCheck{"shouldActivateShim?"}
-    shimConvert["convertOptionsApiOverrideToCompositionApi()"]
-    compositionFn["Composition API override function"]
-    createExtendable["createExtendableSetup()"]
-    originalSetup["originalSetup()"]
-    reactiveState["reactiveWrappedState (merged public + private)"]
-    applyOverrides["applyOverrides() — watch(_overridesMap)"]
-    templateOutput["Component template bindings (toRefs result)"]
-
-    pluginOptions --> overrideRegistry
-    pluginComposition --> overridesMap
-    createExtendable --> originalSetup
-    originalSetup --> reactiveState
-    createExtendable --> overrideRegistry
-    overrideRegistry --> shimCheck
-    shimCheck -- "yes (Options API patterns detected)" --> shimConvert
-    shimCheck -- "no" --> compositionFn
-    shimConvert --> compositionFn
-    compositionFn --> instanceLegacy["Per-instance legacy overrides"]
-    instanceLegacy --> applyOverrides
-    overridesMap --> applyOverrides
-    reactiveState --> applyOverrides
-    applyOverrides --> reactiveState
-    reactiveState --> templateOutput
+    legacy["Component.override(): unchanged Options"] --> registry["Resolve registrations before mount"]
+    registry --> definition["Prepare extends / mixins chain"]
+    definition --> setup["Execute SFC setup once"]
+    setup --> bridge["Share binding accessors"]
+    bridge --> options["Vue initializes Options"]
+    options --> state["Vue data / computed / methods"]
+    state --> bridge
+    bridge --> render["SFC and retained Twig blocks"]
+    native["Experimental setup overrides"] --> overlay["Composition state overlay"]
+    overlay --> bridge
 ```
 
 ### Key data structures
@@ -208,54 +190,61 @@ Multiple overrides are applied in registration order. Each receives a shallow co
 
 ## Options API Shim
 
-The shim supports existing `Shopware.Component.override()` registrations on migrated SFC components. Extension authors do not call the adapter directly.
+Existing `Shopware.Component.override()` registrations remain Options definitions when their base becomes an SFC.
+Vue initializes those definitions. The adapter does not convert data, watchers, injections, or lifecycle hooks into composables.
 
 ### Responsibilities
 
 | Module | Responsibility |
 | --- | --- |
-| `options-composition-shim.ts` | Runs the Options initialization steps. |
-| `options-composition-shim/merge-options.ts` | Merges ancestor and mixin definitions in Vue order. |
-| `options-composition-shim/instance.ts` | Implements legacy `this`, `$super`, `$watch`, and instance storage. |
-| `options-composition-shim/state.ts` | Converts methods, data factories, and computed definitions. |
-| `options-composition-shim/effects.ts` | Registers watchers, lifecycle hooks, injections, and providers. |
-| `options-composition-shim/component-definition.ts` | Prepares props, emits, assets, inheritance, and custom rendering before mount. |
-| `composition-extension-system/legacy-overrides.ts` | Resolves and converts each registration once. |
-| `composition-extension-system/setup-dispatch.ts` | Keeps internal SFC calls and captured callbacks connected to effective overrides. |
+| `options-composition-shim/component-definition.ts` | Resolves the definition before mount and retains its Options inheritance chain. |
+| `options-composition-shim/native-options-state.ts` | Connects SFC bindings to Vue's data and context without reading setup accessors recursively. |
+| `options-composition-shim/native-options-chain.ts` | Resolves named mixins and adapts Shopware's `$super` calls. |
+| `options-composition-shim/legacy-assets.ts` | Shares local component and directive registrations with Twig. |
+| `composition-extension-system/setup-dispatch.ts` | Keeps internal SFC calls and captured callbacks connected to effective bindings. |
 
 ### Initialization and inheritance
 
-The shim runs `beforeCreate`, injections, methods, `data()`, computed definitions, watchers, providers, and remaining lifecycle registration in that order. Immediate watchers run before `created`.
+The factory and direct-import wrapper resolve registrations before Vue normalizes props and emits.
+The SFC setup runs once. Vue then applies the unchanged `extends` and `mixins` chain.
+Named mixins resolve through `Shopware.Mixin.getByName()`.
 
-`data()` receives the instance as both `this` and its `vm` argument. It can call methods or read injections and props. Data from later mixins replaces earlier values. Methods and computed definitions use the last declaration. Watchers and lifecycle hooks combine in ancestor-first order; identical handlers are deduplicated.
-
-Nested object ancestors and registered ancestor names are supported. `Component.extend()` retains the base SFC setup and its override lineage. Derived registrations do not affect the base component.
+Vue controls injection, methods, data, computed values, watchers, providers, and lifecycle hooks.
+Immediate legacy watchers see the initialized Options state. They run before `created`.
+Vue also owns custom option merge strategies, hook deduplication, error handling, and effect disposal.
+`Component.extend()` retains the base setup and override lineage without changing the base definition.
 
 ### State and instance access
 
-After initialization, ordinary `this` access reads the effective state, including later overrides. `$super` reads the preceding layer. Computed parents support `$super('field')`, `$super('field.get')`, and `$super('field.set', value)`.
+Shared binding accessors read Vue's data and context directly. They avoid `setupState`, which contains those same accessors.
+Vue development builds add context accessors after setup; the bridge replaces those before Options initialization.
 
-Refs unwrap on read. Writes reach their existing refs or computed setters. Props remain readonly. Fields assigned by lifecycle hooks, such as timer handles, remain available to later methods and cleanup hooks.
+Legacy methods use the real Vue instance through a receiver that supplies their preceding `$super` layer.
+Other reads and writes forward to that instance. The receiver remains valid across `await`.
+Computed parents support `$super('field')`, `$super('field.get')`, and `$super('field.set', value)`.
 
-`$emit`, `$attrs`, `$slots`, `$refs`, routing, translation helpers, and other Vue instance APIs use the owning component. `$watch` supports shim state and disposes with that component. `$data` contains shim data fields; `$options` includes merged legacy definitions.
+`$data`, `$options`, `$watch`, `$emit`, `$attrs`, `$slots`, `$refs`, injections, and lifecycle cleanup use Vue's native implementation.
+The migration emits `legacyOptionsMembers` to retain base data, computed, and method categories.
+Legacy `data()` replacements follow Vue's normal rules, including replacement objects with different keys.
 
-### Watchers and effects
+### Definition options and plugins
 
-Watchers accept functions, method-name strings, object handlers, and arrays. Object handlers can also name methods. Dotted paths tolerate missing intermediate objects and remain reactive when those objects are replaced. Vue watcher options and cleanup arguments pass through unchanged.
+Props, emits, local assets, `inheritAttrs`, custom options, and custom render functions remain Options declarations.
+A custom legacy render can replace the base's inline render without executing setup twice.
+Route guards are also exposed on the definition because Vue Router reads them before an instance exists.
+The title plugin reads merged `$options.metaInfo`; shortcuts continue to read `$options.shortcuts`.
 
-Injection supports arrays, aliases, symbol provider keys, ref values, and default factories. Default factories receive the legacy instance. A this-bound `provide()` runs after state initialization and provides to descendants without changing the parent's provider object.
+### Migration eligibility
 
-Lifecycle hooks retain arguments and return values, including `errorCaptured` returning `false`. Rejected asynchronous initialization hooks reach Vue's error handler. Late registrations retain their owner; watchers and future hooks still clean up on unmount.
+Compatibility migrations only use composable mappings audited for the complete legacy member surface and override behavior.
+All mapped members are retained, including members unused by the base component.
+The runtime consumes the generated member metadata; it does not run the original mixin again or duplicate composable effects.
 
-### Definition options and local assets
+Mappings with missing members, closed-over overridable calls, or scaffold-only behavior leave the base on Options API.
+The first verified mapping is `placeholder`. Other mappings require their own audit before opting in.
+Base `created()` and watcher declarations are also deferred: moving them into setup would change their order relative to legacy overrides.
 
-Factory-built components and direct SFC imports merge `props`, `emits`, `components`, `directives`, and `inheritAttrs` before Vue normalizes the definition. A custom legacy `render()` runs with shim state after the base setup.
-
-The compiler bridges template-used lexical SFC components and directives into the host's local registrations. Both base rendering and runtime-compiled Twig use the same effective asset.
-
-### Retaining renamed members
-
-A migrated component can retain an old Options name explicitly:
+A renamed binding can retain its original instance name with `legacyOptionsBindings`:
 
 ```vue
 <script setup>
@@ -266,17 +255,19 @@ swDefinePublic({ value });
 </script>
 ```
 
-An old override can call `this.oldValue()` or `$super('oldValue')`. Native consumers still see the declared public surface. The migration codemod emits this map for renamed mixin members. Review other renames against the old component contract.
-
 ### Boundaries
 
-The shim cannot recreate a removed block, prop, event, method, route, or behavior. Component migrations must retain those contracts or document their changes.
+Register definition overrides during application bootstrap, before the component is initialized.
+This bridge does not replay newly registered Options declarations on an existing instance.
 
-Base setup initialization runs before override attachment. A value copied eagerly during setup keeps that initial value. Captured callbacks and later method/computed reads dispatch through effective overrides.
+A migration must retain public blocks, props, events, members, routes, and behavior.
+Incomplete mappings remain unmigrated; a major-release migration must handle intentional contract changes separately.
+SFC setup runs before Options. Eager setup side effects cannot observe Options that Vue has not initialized yet.
+Captured callbacks and later binding reads use the bridge.
 
-Register Twig templates through `Shopware.Component.override()`. Passing a raw template directly to the Options converter logs a diagnostic. See the [Twig adapter](./06-twig-native-block-adapter.md) for template behavior.
-
-Native reactive-object replacements must retain the existing object's keys. The validator handles cyclic structures and accepts newly added reactive objects.
+Register retained Twig blocks through `Shopware.Component.override()`.
+See the [Twig adapter](./06-twig-native-block-adapter.md) for template behavior.
+The experimental native setup override API remains separate from the legacy Options contract.
 
 ---
 

@@ -4,7 +4,9 @@
 
 ### Administration SFC override compatibility
 
-Existing Options API and Twig overrides now retain more behavior when their base component migrates to an SFC. The adapter supports initialization context, complete watcher forms, providers, component-definition options, host refs and events, writable Twig state, nested scopes, and blocks around named slots. Overrides no longer duplicate when a component mounts again.
+Existing Options API overrides remain native Vue Options when their base component migrates to an SFC. A state bridge retains shared bindings and Shopware `$super` calls. Vue initializes mixins, watchers, providers, lifecycle hooks, and custom metadata. Route guards, shortcuts, and title metadata remain available. Retained Twig blocks share host state, refs, events, scopes, and named slots.
+
+The migration codemod only replaces components whose mappings preserve the legacy contract. It retains unused mapped members and leaves incomplete mappings and initialization-sensitive base effects on Options API.
 
 Register extensions during application bootstrap. Component migrations must still preserve their extension points. See the [compatibility guide](src/Administration/Resources/app/administration/technical-docs/03-extensibility/04-composition-extension-system.md#options-api-shim).
 

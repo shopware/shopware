@@ -3,7 +3,8 @@
  */
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { defineComponent, ref, h, nextTick, inject } from 'vue';
-import ComponentFactory from 'src/core/factory/async-component.factory';
+import { createLegacyComponent, prepareLegacyComponent } from '../options-composition-shim/component-definition';
+import ComponentFactory, { type ComponentConfig } from 'src/core/factory/async-component.factory';
 import { createExtendableSetup, _overridesMap } from './index';
 
 type LegacyInstance = {
@@ -30,14 +31,23 @@ describe('legacy overrides through the factory registry', () => {
         jest.restoreAllMocks();
     });
 
-    function base(name: string) {
-        return defineComponent({
+    function prepared(name: string, definition: object) {
+        return prepareLegacyComponent(
+            name,
+            definition as ComponentConfig,
+            ComponentFactory.getOverrideRegistry().get(name) ?? [],
+        );
+    }
+
+    function base(name: string, async = false) {
+        const definition = defineComponent({
             template: '<div>{{ value() }}|{{ added }}</div>',
             setup: (props, context) =>
                 createExtendableSetup({ name, props, context }, () => ({
                     public: { value: () => 1 },
                 })),
         });
+        return async ? createLegacyComponent(definition as unknown as ComponentConfig, name) : prepared(name, definition);
     }
 
     it('applies synchronous overrides before first render and only once per instance', async () => {
@@ -103,7 +113,7 @@ describe('legacy overrides through the factory registry', () => {
         expect(wrapper.text()).toBe('second!|second');
     });
 
-    it('retains async registration order and exposes added fields on existing instances', async () => {
+    it('resolves async registrations in order before initializing the component', async () => {
         let resolveFirst!: (value: object) => void;
         const pending = new Promise<object>((resolve) => {
             resolveFirst = resolve;
@@ -119,7 +129,8 @@ describe('legacy overrides through the factory registry', () => {
                 },
             },
         });
-        const wrapper = mount(base('legacy-async'));
+        const pendingComponent = base('legacy-async', true);
+        const wrapper = mount(defineComponent({ render: () => h(pendingComponent) }));
         wrappers.push(wrapper);
         resolveFirst({
             methods: {
@@ -132,12 +143,10 @@ describe('legacy overrides through the factory registry', () => {
         expect(wrapper.text()).toBe('12|second');
     });
 
-    it('runs late hooks and injection with their owner and stops watchers on unmount', async () => {
+    it('runs hooks and injection with their owner and stops watchers on unmount', async () => {
         const changes = jest.fn();
         const cleanup = jest.fn();
         const count = ref(0);
-        const wrapper = mount(base('legacy-late'), { global: { provide: { count } } });
-        wrappers.push(wrapper);
         ComponentFactory.override('legacy-late', {
             inject: ['count'],
             data() {
@@ -146,6 +155,8 @@ describe('legacy overrides through the factory registry', () => {
             watch: { count: changes },
             beforeUnmount: cleanup,
         });
+        const wrapper = mount(base('legacy-late'), { global: { provide: { count } } });
+        wrappers.push(wrapper);
         await flushPromises();
         count.value++;
         await nextTick();
@@ -172,7 +183,7 @@ describe('legacy overrides through the factory registry', () => {
                 createExtendableSetup({ name: 'legacy-errors', props, context }, () => ({ public: {} })),
             render: () => h(child),
         });
-        wrappers.push(mount(parent, { global: { config: { errorHandler: applicationError } } }));
+        wrappers.push(mount(prepared('legacy-errors', parent), { global: { config: { errorHandler: applicationError } } }));
         expect(hook.mock.calls[0][0]).toBe(error);
         expect(applicationError).not.toHaveBeenCalled();
     });
@@ -215,7 +226,10 @@ describe('legacy overrides through the factory registry', () => {
                 return () => h(child);
             },
         });
-        const wrapper = mount(parent, { props: { title: 'default' }, global: { provide: { [token]: count } } });
+        const wrapper = mount(prepared('legacy-provider', parent), {
+            props: { title: 'default' },
+            global: { provide: { [token]: count } },
+        });
         wrappers.push(wrapper);
         await wrapper.get('button').trigger('click');
         expect(count.value).toBe(3);

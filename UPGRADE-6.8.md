@@ -1307,7 +1307,7 @@ Due to inappropriate block names, the following deprecated blocks have been remo
 
 ## Migrating Options API overrides to the Composition API Extension System
 
-Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. The compatibility adapter also supports retained Twig blocks and Options definitions on native SFC components. Review each component migration for removed or renamed extension points.
+Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a compatibility bridge retains your existing `Shopware.Component.override()` Options definitions and lets Vue initialize them normally. The compatibility adapter also supports retained Twig blocks and Options definitions on native SFC components. Review each component migration for removed or renamed extension points.
 
 This guide shows how to migrate your plugin override to `Shopware.Component.overrideComponentSetup()` so it works natively against Composition API components.
 
@@ -1424,7 +1424,9 @@ Shopware.Component.overrideComponentSetup<typeof SwProductList>()(
 
 ### Legacy compatibility
 
-Existing overrides retained support for dotted watchers, string handlers, injections, providers, local assets, props, emits, and custom rendering through the compatibility adapter. Register component-definition options during application bootstrap, before Vue initializes the component.
+Existing overrides retain native Vue Options behavior, including watchers, mixins, injections, providers, custom metadata, route guards, shortcuts, and title metadata. The bridge shares migrated setup bindings and adapts `$super` calls. Register component-definition options during application bootstrap, before Vue initializes the component.
+
+Compatibility migrations retain every mapped member, including members unused by the base component. Incomplete composable mappings and initialization-sensitive base effects leave the component on Options API. Intentional contract changes require a separate major-release migration.
 
 Migrated components must retain existing block and member names. A component that renamed a member can provide `legacyOptionsBindings` to preserve the old Options instance name. See the [compatibility documentation](src/Administration/Resources/app/administration/technical-docs/03-extensibility/04-composition-extension-system.md#options-api-shim).
 

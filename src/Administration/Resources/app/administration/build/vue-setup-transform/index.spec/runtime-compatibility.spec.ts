@@ -8,6 +8,7 @@ import createDataScopeFixture from 'src/app/component/structure/sw-block-overrid
 import { transformOrFail } from './helpers';
 import { wrapLegacySlotVNodes } from '../wrap-slot-vnodes';
 import ComponentFactory, { type ComponentConfig } from 'src/core/factory/async-component.factory';
+import { prepareLegacyComponent } from 'src/app/adapter/options-composition-shim/component-definition';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 describe('compiled legacy SFC compatibility', () => {
@@ -45,7 +46,11 @@ describe('compiled legacy SFC compatibility', () => {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         const execute = new Function('require', 'exports', javascript) as (load: NodeRequire, output: object) => void;
         execute(require, exports);
-        return exports.default!;
+        return prepareLegacyComponent(
+            'sw-runtime-compatibility',
+            exports.default!,
+            ComponentFactory.getOverrideRegistry().get('sw-runtime-compatibility') ?? [],
+        );
     }
 
     const register = ComponentFactory.register as unknown as (name: string, component: ComponentConfig) => unknown;

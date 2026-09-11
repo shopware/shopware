@@ -1,91 +1,153 @@
 /** @sw-package framework */
-import { defineAsyncComponent, getCurrentInstance, type ComponentInternalInstance, type RenderFunction } from 'vue';
-import { getScriptSetupDataScope } from '../composition-extension-system/data-scope-helper';
-import { createThisProxy } from './instance';
+import { defineAsyncComponent, unref, type ComponentInternalInstance } from 'vue';
 import type { ComponentConfig, IndexedAwaitedComponentConfig } from 'src/core/factory/async-component.factory';
-import { inheritanceOrder } from './merge-options';
+import { baseOptionsData, initializeNativeOptions, readOriginalBinding } from './native-options-state';
+import { nativeOptionsChain } from './native-options-chain';
 
 type Definition = ComponentConfig & {
+    __swNativeOptions?: boolean;
+    __swLegacyBase?: ComponentConfig;
     __swLegacyRegistrations?: IndexedAwaitedComponentConfig[];
     __swLegacyNames?: string[];
-    __swLegacyRender?: RenderFunction;
 };
 
-/**
- * Merge options Vue must know before setup: props, events, local registrations and the render function.
- * Stateful Options API hooks stay out of Vue's extends chain; the shim executes them exactly once.
- * @private
- */
+/** Prepare a normal Vue Options chain around the SFC. Vue owns all Options initialization. @private */
 export function prepareLegacyComponent(
     name: string,
     base: ComponentConfig,
     registrations: IndexedAwaitedComponentConfig[],
 ): ComponentConfig {
-    const definition: Definition = { ...base, name, __swExtendable: true };
+    const previous = base as Definition;
+    const original = previous.__swLegacyBase ?? base;
     const layers = [
         ...new Set([
-            ...((base as Definition).__swLegacyRegistrations ?? []),
+            ...(previous.__swLegacyRegistrations ?? []),
             ...registrations,
         ]),
     ];
-    definition.__swLegacyRegistrations = layers;
-    definition.__swLegacyNames = [
-        ...new Set([
-            ...((base as Definition).__swLegacyNames ?? []),
-            name,
-        ]),
-    ];
-    for (const registration of registrations) {
-        const config = registration.resolvedConfig;
-        if (!config) throw new Error(`[Options API Shim] Component "${name}" was prepared before its overrides resolved.`);
-        for (const options of inheritanceOrder(config)) mergeDefinitionOptions(definition, options);
-    }
-    if (definition.__swLegacyRender) {
-        const setup = base.setup;
-        const render = definition.__swLegacyRender;
-        // Template-only HMR uses definition.render directly instead of running setup again.
-        definition.render = () => renderLegacyContent(render, getCurrentInstance());
+    const configs = layers.map((registration) => {
+        if (!registration.resolvedConfig)
+            throw new Error(`[Options API Bridge] Component "${name}" was prepared before its overrides resolved.`);
+        return registration.resolvedConfig;
+    });
+    const mixins = nativeOptionsChain(configs);
+    const originalData = original.data;
+    const foundation: ComponentConfig = {
+        ...original,
+        ...baseMemberOptions(original),
+        mixins: [
+            {
+                beforeCreate(this: { $: ComponentInternalInstance }) {
+                    initializeNativeOptions(this.$);
+                },
+            },
+            ...((original.mixins ?? []) as ComponentConfig[]),
+        ],
+        data(this: { $: ComponentInternalInstance }, vm: object) {
+            return {
+                ...baseOptionsData(this.$),
+                ...(originalData as ((this: object, vm: object) => object) | undefined)?.call(this, vm),
+            };
+        },
+    };
+    const definition: Definition = {
+        name,
+        __hmrId: original.__hmrId,
+        __swExtendable: true,
+        __swNativeOptions: true,
+        __swLegacyBase: original,
+        __swLegacyRegistrations: layers,
+        __swLegacyNames: [
+            ...new Set([
+                ...(previous.__swLegacyNames ?? []),
+                name,
+            ]),
+        ],
+        legacyOptionsBindings: original.legacyOptionsBindings,
+        extends: foundation,
+        mixins,
+        setup: original.setup,
+    };
+    // Vue cannot replace a render function returned by setup with an Options render declaration.
+    const customRender = lastRender(mixins);
+    definition.render = customRender ?? original.render;
+    if (customRender && original.setup) {
+        const setup = original.setup;
         definition.setup = function (props, context) {
-            const instance = getCurrentInstance();
-            const result: unknown = setup?.(props, context);
-            if (result instanceof Promise) {
-                return result.then(() => () => renderLegacyContent(render, instance));
-            }
-            return () => renderLegacyContent(render, instance);
-        };
+            const result: unknown = setup(props, context);
+            const stateOnly = (state: unknown) => (typeof state === 'function' ? undefined : state);
+            return result instanceof Promise ? result.then(stateOnly) : stateOnly(result);
+        } as ComponentConfig['setup'];
+    }
+    for (const guard of [
+        'beforeRouteEnter',
+        'beforeRouteUpdate',
+        'beforeRouteLeave',
+    ] as const) {
+        const handler = lastDefinitionOption(
+            [
+                foundation,
+                ...mixins,
+            ],
+            guard,
+        );
+        if (handler) definition[guard] = handler;
     }
     return definition;
 }
 
-function normalizeNames(value: unknown): Record<string, unknown> {
-    if (Array.isArray(value))
-        return Object.fromEntries(
-            value.map((name: string) => [
-                name,
-                null,
-            ]),
-        );
-    return (value ?? {}) as Record<string, unknown>;
-}
+/** Preserve the original Options categories for $data and $options consumers. */
+type BaseMember = (this: { $: ComponentInternalInstance }, ...args: unknown[]) => unknown;
+type BaseComputed = BaseMember | { get: BaseMember; set?: BaseMember };
 
-function mergeDefinitionOptions(definition: Definition, options: ComponentConfig): void {
-    for (const key of [
-        'props',
-        'emits',
-    ] as const) {
-        if (options[key])
-            Object.assign(definition, { [key]: { ...normalizeNames(definition[key]), ...normalizeNames(options[key]) } });
+function baseMemberOptions(base: ComponentConfig) {
+    const methods = { ...(base.methods as Record<string, BaseMember> | undefined) };
+    const computed = { ...(base.computed as Record<string, BaseComputed> | undefined) };
+    const members = (base.legacyOptionsMembers ?? {}) as Record<string, string>;
+    for (const [
+        name,
+        kind,
+    ] of Object.entries(members)) {
+        if (kind === 'method')
+            methods[name] = function (this: { $: ComponentInternalInstance }, ...args: unknown[]) {
+                const binding = readOriginalBinding(this.$, name) as (...values: unknown[]) => unknown;
+                return binding.apply(this, args);
+            };
+        if (kind === 'computed')
+            computed[name] = function () {
+                return unref(readOriginalBinding(this.$, name));
+            };
+        if (kind === 'writable-computed')
+            computed[name] = {
+                get(this: { $: ComponentInternalInstance }) {
+                    return unref(readOriginalBinding(this.$, name));
+                },
+                set(this: { $: ComponentInternalInstance }, value: unknown) {
+                    const binding = readOriginalBinding(this.$, name) as { value: unknown };
+                    binding.value = value;
+                },
+            };
     }
-    definition.components = { ...definition.components, ...options.components };
-    definition.directives = { ...definition.directives, ...options.directives };
-    if (options.inheritAttrs !== undefined) definition.inheritAttrs = options.inheritAttrs;
-    if (options.render) definition.__swLegacyRender = options.render as RenderFunction;
+    return { methods, computed };
 }
 
-function renderLegacyContent(render: RenderFunction, instance: ComponentInternalInstance | null) {
-    const state = instance ? (getScriptSetupDataScope(instance) ?? {}) : {};
-    const proxy = createThisProxy(state, instance?.props ?? {}, {}, {}, { instance, state });
-    return render.call(proxy);
+/** Vue Router reads component definitions before an instance exists. Its last declaration wins. */
+function lastDefinitionOption(configs: ComponentConfig[], key: string): unknown {
+    let value: unknown;
+    for (const config of configs) {
+        const parent = typeof config.extends === 'object' ? lastDefinitionOption([config.extends], key) : undefined;
+        value = config[key] ?? lastDefinitionOption((config.mixins ?? []) as ComponentConfig[], key) ?? parent ?? value;
+    }
+    return value;
+}
+
+function lastRender(configs: ComponentConfig[]): ComponentConfig['render'] {
+    let render: ComponentConfig['render'];
+    for (const config of configs) {
+        const parent = typeof config.extends === 'object' ? lastRender([config.extends]) : undefined;
+        render = config.render ?? lastRender((config.mixins ?? []) as ComponentConfig[]) ?? parent ?? render;
+    }
+    return render;
 }
 
 /**

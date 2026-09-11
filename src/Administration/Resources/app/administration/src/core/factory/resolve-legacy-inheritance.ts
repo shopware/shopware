@@ -10,7 +10,7 @@ export function hasNamedInheritance(config: ComponentConfig, visited = new Set<o
     return (
         typeof config.extends === 'string' ||
         (typeof config.extends === 'object' && hasNamedInheritance(config.extends, visited)) ||
-        (config.mixins ?? []).some((mixin) => hasNamedInheritance(mixin as ComponentConfig, visited))
+        (config.mixins ?? []).some((mixin) => hasNamedInheritance(resolveMixin(mixin), visited))
     );
 }
 
@@ -38,7 +38,13 @@ export async function resolveLegacyInheritance(
     }
     if (config.mixins)
         resolved.mixins = await Promise.all(
-            config.mixins.map((mixin) => resolveLegacyInheritance(mixin as ComponentConfig, load, next)),
+            config.mixins.map((mixin) => resolveLegacyInheritance(resolveMixin(mixin), load, next)),
         );
     return resolved;
+}
+
+function resolveMixin(mixin: unknown): ComponentConfig {
+    return typeof mixin === 'string'
+        ? (Shopware.Mixin.getByName(mixin as keyof MixinContainer) as ComponentConfig)
+        : (mixin as ComponentConfig);
 }

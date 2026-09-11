@@ -210,7 +210,11 @@ class LayoutDiagnostics
     {
         $violations = [];
 
-        if (!$this->registry->has($element->component)) {
+        // Derived once and shared by both property checks below, so they judge one declaration snapshot. A null
+        // map is the unregistered case, which is the same condition the violation reports.
+        $declared = $this->declaredProperties($element->component);
+
+        if ($declared === null) {
             $violations[] = new Violation(
                 ViolationCode::UnregisteredComponent,
                 $element->id,
@@ -227,7 +231,7 @@ class LayoutDiagnostics
             }
         }
 
-        foreach ($this->mismatchedPropertyTypeViolations($element) as $violation) {
+        foreach ($this->mismatchedPropertyTypeViolations($element, $declared) as $violation) {
             $violations[] = $violation;
         }
 
@@ -239,7 +243,7 @@ class LayoutDiagnostics
             $violations[] = $violation;
         }
 
-        foreach ($this->danglingLanguageViolations($element, $languageIds) as $violation) {
+        foreach ($this->danglingLanguageViolations($element, $declared, $languageIds) as $violation) {
             $violations[] = $violation;
         }
 
@@ -255,15 +259,16 @@ class LayoutDiagnostics
      * only a non-empty language map. Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL
      * write: the constraint pass refuses the tree inside `encode()`, before the gate that reaches this class.
      *
+     * @param array<string, PropertySpecification>|null $declared the component's declared properties, or null when unregistered
+     *
      * @return list<Violation>
      */
-    private function mismatchedPropertyTypeViolations(StoredElement $element): array
+    private function mismatchedPropertyTypeViolations(StoredElement $element, ?array $declared): array
     {
-        if (!$this->registry->has($element->component)) {
+        if ($declared === null) {
             return [];
         }
 
-        $declared = $this->registry->get($element->component)->properties();
         $violations = [];
 
         foreach ($element->properties() as $key => $value) {
@@ -286,29 +291,13 @@ class LayoutDiagnostics
                 \sprintf(
                     'Property "%s" is declared as "%s" but carries a value of type "%s".',
                     $key,
-                    $this->renderDeclaredType($type),
+                    $type->describe(),
                     get_debug_type($value->jsonSerialize()),
                 ),
             );
         }
 
         return $violations;
-    }
-
-    /**
-     * The declared type as the message names it. The translatable flag is spelled out because the same `string`
-     * declaration admits a bare string without it and only a language map with it, so the flag is what a client
-     * needs to read the report.
-     */
-    private function renderDeclaredType(PropertyType $type): string
-    {
-        $declared = implode('|', (array) $type->type());
-
-        if (!$type->translatable()) {
-            return $declared;
-        }
-
-        return $declared . ' (translatable)';
     }
 
     /**
@@ -320,17 +309,17 @@ class LayoutDiagnostics
      * null variant are wrong shapes for a translatable property, already reported as
      * {@see ViolationCode::MismatchedPropertyType}, and carry no language keys.
      *
+     * @param array<string, PropertySpecification>|null $declared the component's declared properties, or null when unregistered
      * @param \Closure(): array<string, true> $languageIds
      *
      * @return list<Violation>
      */
-    private function danglingLanguageViolations(StoredElement $element, \Closure $languageIds): array
+    private function danglingLanguageViolations(StoredElement $element, ?array $declared, \Closure $languageIds): array
     {
-        if (!$this->registry->has($element->component)) {
+        if ($declared === null) {
             return [];
         }
 
-        $declared = $this->registry->get($element->component)->properties();
         $violations = [];
 
         foreach ($element->properties() as $key => $value) {
@@ -430,13 +419,9 @@ class LayoutDiagnostics
      */
     private function declaredReferenceFqcn(string $component, string $key): ?string
     {
-        if (!$this->registry->has($component)) {
-            return null;
-        }
+        $property = $this->declaredProperty($component, $key);
 
-        $property = $this->registry->get($component)->properties()[$key] ?? null;
-
-        if (!$property instanceof PropertySpecification) {
+        if ($property === null) {
             return null;
         }
 
@@ -699,41 +684,53 @@ class LayoutDiagnostics
         return \is_array($raw) && \is_string($raw[Defaults::LANGUAGE_SYSTEM] ?? null);
     }
 
-    private function isTranslatableProperty(string $component, string $key): bool
+    /**
+     * The component's declared-property map, or null when the registry does not know the component. The one
+     * has-guarded registry read the property lookups share; every caller treats the null as "declares nothing"
+     * rather than reporting it — the unregistered case is {@see intrinsicElementViolations()}'s violation.
+     *
+     * @return array<string, PropertySpecification>|null
+     */
+    private function declaredProperties(string $component): ?array
     {
         if (!$this->registry->has($component)) {
-            return false;
+            return null;
         }
 
-        $property = $this->registry->get($component)->properties()[$key] ?? null;
+        return $this->registry->get($component)->properties();
+    }
 
-        if (!$property instanceof PropertySpecification) {
-            return false;
+    /**
+     * The declared property for a component's key, or null when the component is unregistered, the key is not
+     * declared, or the entry is not a {@see PropertySpecification}.
+     */
+    private function declaredProperty(string $component, string $key): ?PropertySpecification
+    {
+        $properties = $this->declaredProperties($component);
+
+        if ($properties === null) {
+            return null;
         }
 
-        return $property->type()->translatable();
+        $property = $properties[$key] ?? null;
+
+        return $property instanceof PropertySpecification ? $property : null;
+    }
+
+    private function isTranslatableProperty(string $component, string $key): bool
+    {
+        return $this->declaredProperty($component, $key)?->type()->translatable() ?? false;
     }
 
     /**
      * True only for a single-primitive declared type: a union answers false here even though the serving
      * side treats every non-reference declaration as authored ({@see RenderedElementFactory}). The one
      * consequence is keying — a union-typed configured input property takes the reference-property
-     * fallback at the call site instead of being keyed on itself. Consolidating this predicate onto
-     * {@see PropertyType} beside the conformance rules is planned post-merge work.
+     * fallback at the call site instead of being keyed on itself.
      */
     private function isDeclaredPrimitiveProperty(string $component, string $key): bool
     {
-        if (!$this->registry->has($component)) {
-            return false;
-        }
-
-        $property = $this->registry->get($component)->properties()[$key] ?? null;
-
-        if (!$property instanceof PropertySpecification) {
-            return false;
-        }
-
-        return $property->type()->isPrimitive();
+        return $this->declaredProperty($component, $key)?->type()->isPrimitive() ?? false;
     }
 
     /**

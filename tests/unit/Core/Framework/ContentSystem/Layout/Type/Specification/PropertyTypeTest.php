@@ -229,6 +229,35 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
+    #[DataProvider('describedTypeProvider')]
+    #[TestDox('renders the declared type as a violation message names it: $_dataName')]
+    public function testDescribeRendersTheDeclaredType(PropertyType $type, string $expected): void
+    {
+        static::assertSame($expected, $type->describe());
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, string}>
+     */
+    public static function describedTypeProvider(): iterable
+    {
+        yield 'lone scalar' => [
+            new PropertyType('string', false, null, null),
+            'string',
+        ];
+
+        yield 'union renders its members pipe-separated' => [
+            new PropertyType(['integer', 'string'], false, null, null),
+            'integer|string',
+        ];
+
+        // The flag is what separates the two `string` declarations a client must tell apart.
+        yield 'translatable string spells out the flag' => [
+            new PropertyType('string', true, null, null),
+            'string (translatable)',
+        ];
+    }
+
     #[TestDox('reads the translatable flag the published schema carries')]
     public function testTranslatableReadsTheFlagThePublishedSchemaCarries(): void
     {

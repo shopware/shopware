@@ -14,9 +14,10 @@ use Shopware\Core\Framework\Log\Package;
  * `enum` is ignored for non-primitive types; `translatable` is a declaration error on any type but the lone
  * `string`. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
  *
- * Three members serve the stored tree rather than the published schema: {@see translatable()} reads the flag,
- * {@see storedDefault()} is the one shape rule for a declared default in storage, and {@see admits()} is the one
- * conformance predicate answering whether a stored value matches this declared type.
+ * Four members serve the stored tree rather than the published schema: {@see translatable()} reads the flag,
+ * {@see storedDefault()} is the one shape rule for a declared default in storage, {@see admits()} is the one
+ * conformance predicate answering whether a stored value matches this declared type, and {@see describe()}
+ * renders the declaration for the violation messages both reporters share.
  *
  * @phpstan-type PropertyTypeSchema = array{
  *     type: string|list<string>,
@@ -87,6 +88,22 @@ final readonly class PropertyType
     public function translatable(): bool
     {
         return $this->translatable;
+    }
+
+    /**
+     * The declared type as a violation message names it. The translatable flag is spelled out because the same
+     * `string` declaration admits a bare string without it and only a language map with it, so the flag is what
+     * a client needs to read the report.
+     */
+    public function describe(): string
+    {
+        $declared = implode('|', (array) $this->type);
+
+        if (!$this->translatable) {
+            return $declared;
+        }
+
+        return $declared . ' (translatable)';
     }
 
     /**

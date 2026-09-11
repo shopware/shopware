@@ -719,6 +719,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentPreviewPayloadStore::class)
         ->args([
             service('cache.system'),
+            service('validator'),
         ]);
 
     // Preview Action (Admin API)

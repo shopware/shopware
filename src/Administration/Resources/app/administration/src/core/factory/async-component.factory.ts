@@ -48,7 +48,6 @@ export default {
     getComponentTemplate,
     getComponentRegistry,
     getOverrideRegistry,
-    subscribeToOverrides,
     getComponentHelper,
     _clearComponentHelper,
     registerComponentHelper,
@@ -89,19 +88,6 @@ export type IndexedAwaitedComponentConfig = {
     readonly resolvedConfig?: ComponentConfig;
 };
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
-
-const overrideSubscribers = new Map<string, Set<() => void>>();
-
-/** @private */
-function subscribeToOverrides(name: string, listener: () => void): () => void {
-    const listeners = overrideSubscribers.get(name) ?? new Set<() => void>();
-    listeners.add(listener);
-    overrideSubscribers.set(name, listeners);
-    return () => {
-        listeners.delete(listener);
-        if (!listeners.size) overrideSubscribers.delete(name);
-    };
-}
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.ts
@@ -700,7 +686,6 @@ function override(
         }
 
         config = resolved;
-        overrideSubscribers.get(componentName)?.forEach((listener) => listener());
         return config;
     };
     const configResolveMethod = (): Promise<ComponentConfig> => {
@@ -722,7 +707,6 @@ function override(
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
 
-    overrideSubscribers.get(componentName)?.forEach((listener) => listener());
     return configResolveMethod;
 }
 

@@ -156,7 +156,6 @@ class ShopwareClass implements CustomShopwareProperties {
         markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
-        subscribeToOverrides: AsyncComponentFactory.subscribeToOverrides,
         createExtendableSetup: createExtendableSetup,
         attachOverrides: attachOverrides,
         getExposedProps: getExposedProps,

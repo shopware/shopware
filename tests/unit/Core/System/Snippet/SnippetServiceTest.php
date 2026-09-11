@@ -88,13 +88,15 @@ class SnippetServiceTest extends TestCase
 
         $cachedThemeLoader = null;
         if ($salesChannelId !== null) {
-            $expectedDB = [
-                'themeName' => $usedTheme ?? 'Storefront',
-                'parentThemeName' => null,
+            $expectedDB = [[
                 'themeId' => Uuid::randomHex(),
-            ];
+                'technicalName' => $usedTheme ?? 'Storefront',
+                'parentThemeId' => null,
+                'configInheritance' => null,
+                'assigned' => 1,
+            ]];
             $connectionMock = $this->createMock(Connection::class);
-            $connectionMock->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn($expectedDB);
             $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
         }
 

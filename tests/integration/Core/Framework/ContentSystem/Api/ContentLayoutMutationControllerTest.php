@@ -538,6 +538,22 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
+    #[TestDox('rejects a persisted update-element-properties request that writes nothing and removes nothing with a 400 without writing')]
+    public function testUpdatePropertiesRejectsAnEmptyRequest(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'expectedVersion' => null,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('updateElementPropertiesEmpty', (string) $response->getContent());
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
     #[TestDox('rejects a non-array values map on the persisted update-element-properties with a 400 without writing')]
     public function testUpdatePropertiesRejectsNonArrayValues(): void
     {

@@ -420,11 +420,24 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
     }
 
+    #[TestDox('rejects an update-element-properties request that writes nothing and removes nothing with a 400')]
+    public function testUpdatePropertiesRejectsAnEmptyRequest(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],
+            'elementId' => 'block-a',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('updateElementPropertiesEmpty', (string) $response->getContent());
+    }
+
     #[TestDox('rejects a non-array values map on update-element-properties with a 400 at denormalization')]
     public function testUpdatePropertiesRejectsNonArrayValues(): void
     {
         // removeKeys names a primitive key the element type declares, so the request is non-empty and
-        // UpdateElementPropertiesRequest::rejectEmptyRequest cannot supply the 400: only the non-array
+        // the UpdateElementPropertiesNotEmpty constraint cannot supply the 400: only the non-array
         // values can.
         $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'update-element-properties', [
             'layout' => [$this->element('block-a', TestElementTypeLoader::DEFAULTED_PRIMITIVE)],

@@ -7,6 +7,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Condition                                                                                                | HTTP | Factory                                           |
 |----------------------------------------------------------------------------------------------------------|------|---------------------------------------------------|
 | Missing/invalid envelope field                                                                           | 400  | `#[MapRequestPayload]` validation (forced to 400) |
+| `update-element-properties`: both `values` and `removeKeys` empty                                        | 400  | `Validation/UpdateElementPropertiesNotEmpty` constraint, on the draft and the persisted route alike. Like every envelope 400, the body carries no error code; the `updateElementPropertiesEmpty` token in the message identifies it |
 | A referenced element id is not in the layout                                                             | 400  | `mutationTargetNotFound`                          |
 | Moving an element into itself or a descendant                                                            | 400  | `mutationCycle`                                   |
 | Inserting into a parent, moving under a different parent, or wrapping, without naming the target slot    | 400  | `mutationSlotRequired`                            |

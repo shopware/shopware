@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\UpdateElementPropertiesRequest;
+use Shopware\Core\Framework\ContentSystem\Api\Validation\UpdateElementPropertiesNotEmpty;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -29,10 +30,8 @@ class UpdateElementPropertiesRequestTest extends TestCase
 
         static::assertCount(1, $violations);
         static::assertSame('values', $violations->get(0)->getPropertyPath());
-        static::assertSame(
-            'An update-element-properties request must carry at least one entry in "values" or "removeKeys" (updateElementPropertiesEmpty).',
-            (string) $violations->get(0)->getMessage()
-        );
+        // The wording itself is pinned by the validator test; this pins that THIS route's DTO carries the rule.
+        static::assertSame((new UpdateElementPropertiesNotEmpty())->message, (string) $violations->get(0)->getMessage());
     }
 
     /**

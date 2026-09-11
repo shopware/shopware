@@ -22,11 +22,8 @@ final class UpdateElementPropertiesRequest
      */
     public function __construct(
         public readonly string $elementId,
-        #[Assert\Type('array')]
         public readonly array $layout = [],
-        #[Assert\Type('array')]
         public readonly array $values = [],
-        #[Assert\Type('array')]
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
         #[Assert\Unique]
         public readonly array $removeKeys = [],

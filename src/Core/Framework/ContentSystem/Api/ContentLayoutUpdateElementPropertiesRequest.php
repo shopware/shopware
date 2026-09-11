@@ -24,9 +24,7 @@ final class ContentLayoutUpdateElementPropertiesRequest
     public function __construct(
         public readonly string $elementId,
         public readonly ?string $expectedVersion,
-        #[Assert\Type('array')]
         public readonly array $values = [],
-        #[Assert\Type('array')]
         #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
         #[Assert\Unique]
         public readonly array $removeKeys = [],

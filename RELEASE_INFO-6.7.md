@@ -356,6 +356,9 @@ Both endpoints stay pinned to the protocol revision they served before, so the n
 - `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize` are used by the consent page and require authentication. Approval additionally requires an access token associated with an admin user. The `POST` route returns `{ "redirectUri": … }` containing the authorization code, or `error=access_denied` when the user declined.
 - `POST /api/oauth/token` accepts `grant_type=authorization_code` with `client_id`, `code`, `redirect_uri` and `code_verifier`. Codes are single use. Refreshing works with `grant_type=refresh_token` and the same `client_id`; refresh tokens rotate, and reusing an old token revokes its token family. The OpenAPI schema lists the new routes and the `authorizationCode` security flow.
 - An unregistered redirect URI on the authorization, consent-info, or approval endpoint returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message. No redirect is performed for these errors.
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
 
 ### Store API currency headers validate sales channel availability
 
@@ -775,13 +778,6 @@ Customer registration confirmation hashes are no longer included in API response
 `POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
 
 # 6.7.14.0
-## API
-
-### REST API indexing behavior header is honored
-
-The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
-
-# 6.7.14.0 (upcoming)
 
 ## Features
 

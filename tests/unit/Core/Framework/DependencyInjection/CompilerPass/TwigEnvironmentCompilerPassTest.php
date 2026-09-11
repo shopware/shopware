@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Twig\Environment;
 
 /**
@@ -27,6 +29,9 @@ class TwigEnvironmentCompilerPassTest extends TestCase
         $twig = $container->getDefinition('twig');
         static::assertTrue($twig->isPublic());
         static::assertSame(TwigEnvironment::class, $twig->getClass());
+        static::assertEquals([
+            ['configureAppTemplateFailureHandling', [new Reference(EntityTemplateLoader::class), new Reference('logger'), new Reference('request_stack')]],
+        ], $twig->getMethodCalls());
         static::assertSame(
             [['method' => 'reset']],
             $twig->getTag('kernel.reset'),

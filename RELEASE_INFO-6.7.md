@@ -89,6 +89,12 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### App template errors fall back during rendering
+
+When a database-backed app template fails during rendering, Shopware logs the template error and retries without that app's templates. Other overrides remain active; app fragments without a fallback render as empty content. The app is eligible again on the next render, and degraded storefront responses are marked `no-store`.
+
+Rendering may execute Twig functions more than once when a retry is necessary. Template functions should avoid side effects. Filesystem templates used in development continue to report errors normally. This handles catchable Twig errors; it does not impose execution-time or memory limits.
+
 ### GARAN label in the order confirmation mail is sized and sits next to the line item
 
 The GARAN label that 6.7.14.0 added to the `order_confirmation_mail` template (see "GARAN commercial guarantee label and EU legal guarantee notice") rendered without dimensions on a full width row of its own, so mail clients scaled the SVG data URI up to the width of the mail and cut it off. The label now carries explicit `width`/`height` attributes and renders inside the line item's description cell, with a translated `alt` text instead of an empty one.

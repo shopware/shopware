@@ -8,7 +8,8 @@
     @prop thumbnailSize - Number - The size of the thumbnail in pixels
     @prop thumbnailNavigationPosition - String 'left' | 'underneath'
     @prop thumbnailNavShowsMediaOnHover - Boolean - Show the media belonging to a thumbnail on hover, without clicking it
-    @prop showNavigationArrows - Boolean or Map of breakpoint keys (xs, sm, md, lg, xl, xxl) to Boolean - Show the navigation arrows
+    @prop showThumbnailNav - Boolean - Show the thumbnail navigation
+    @prop showNavigationArrows - Boolean - Show the navigation arrows
     @prop showMagnifier - Boolean - Show the magnifier
     @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
     @prop showFullScreenGallery - Boolean - Show the full screen gallery
@@ -23,14 +24,8 @@
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
     thumbnailNavShowsMediaOnHover = false,
-    showNavigationArrows = {
-        xs: true,
-        sm: true,
-        md: false,
-        lg: false,
-        xl: false,
-        xxl: false,
-    },
+    showThumbnailNav = true,
+    showNavigationArrows = true,
     showMagnifier = true,
     useSchemaMarkup = false,
     showFullScreenGallery = true,
@@ -40,17 +35,10 @@
 
 {% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
 {% set singleMedia = mediaItems|length == 1 %}
-{% set navigationArrowVisibility = {} %}
-
-{% for breakpoint in ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] %}
-    {% set navigationArrowVisibility = navigationArrowVisibility|merge({
-        (breakpoint): showNavigationArrows is mapping
-            ? (showNavigationArrows[breakpoint] ?? false)
-            : showNavigationArrows,
-    }) %}
-{% endfor %}
-
-{% set renderNavigationArrows = navigationArrowVisibility|filter(visible => visible)|length > 0 and not singleMedia %}
+{% set renderThumbnailNav = showThumbnailNav and not singleMedia %}
+{% set renderNavigationArrows = showNavigationArrows and not singleMedia %}
+{% set autoColumns = not renderThumbnailNav %}
+{% set previewItemTag = showFullScreenGallery ? 'button' : 'div' %}
 
 {% set mediaGalleryCVA = cva({
     base: 'sw-media-gallery',
@@ -63,8 +51,8 @@
             auto: 'sw-media-gallery--display-mode-auto',
             fixedHeight: 'sw-media-gallery--display-mode-fixed-height',
         },
-        singleMedia: {
-            true: 'sw-media-gallery--single-media',
+        autoColumns: {
+            true: 'sw-media-gallery--auto-columns',
         },
         isLightbox: {
             true: 'sw-media-gallery--is-lightbox',
@@ -83,7 +71,7 @@
 } %}
 
 {% set defaultAttributes = {
-    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia, isLightbox }),
+    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, autoColumns, isLightbox }),
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
     'aria-label': 'component.cms.mediaGallery.ariaLabel'|trans({'%total%': mediaItems|length})|striptags,
@@ -97,19 +85,9 @@
     }) %}
 {% endif %}
 
-{% if renderNavigationArrows %}
-    {% for breakpoint, visible in navigationArrowVisibility %}
-        {% set defaultAttributes = defaultAttributes|merge({
-            style: defaultAttributes.style ~ " --sw-media-gallery-nav-button-display-#{breakpoint}: #{visible ? 'inline-flex' : 'none'};",
-        }) %}
-    {% endfor %}
-{% endif %}
-
-{% set previewItemTag = showFullScreenGallery ? 'button' : 'div' %}
-
 {% if mediaItems is not null and mediaItems|length > 0 %}
     <section {{ attributes.defaults(defaultAttributes) }}>
-        {% if mediaItems|length > 1 %}
+        {% if renderThumbnailNav %}
             <twig:Sw:Media:ThumbnailNav
                 class="sw-media-gallery__thumbnail-nav"
                 :mediaItems="mediaItems" 

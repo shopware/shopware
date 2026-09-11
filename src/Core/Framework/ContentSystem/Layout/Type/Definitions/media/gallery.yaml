@@ -44,6 +44,14 @@ properties:
         field: "displayMode"
         equals: "fixedHeight"
 
+  showThumbnailNav:
+    type: boolean
+    title: "Show Thumbnail Navigation"
+    description: "Show the thumbnail navigation."
+    default: true
+    adminUI:
+      panel: "thumbnails"
+
   thumbnailSize:
     type: integer
     title: "Thumbnail Size"
@@ -52,6 +60,9 @@ properties:
     adminUI:
       component: "number"
       panel: "thumbnails"
+      visibleWhen:
+        field: "showThumbnailNav"
+        equals: true
 
   thumbnailNavigationPosition:
     type: string
@@ -64,6 +75,9 @@ properties:
     adminUI:
       component: "select"
       panel: "thumbnails"
+      visibleWhen:
+        field: "showThumbnailNav"
+        equals: true
 
   thumbnailNavShowsMediaOnHover:
     type: boolean
@@ -73,47 +87,17 @@ properties:
     adminUI:
       panel: "thumbnails"
       helpText: "Accessibility: when active, the gallery switches media on hover alone, without any click. This could be triggered by accident."
+      visibleWhen:
+        field: "showThumbnailNav"
+        equals: true
 
   showNavigationArrows:
-    type:
-      - "boolean"
-      - "object"
+    type: boolean
     title: "Show Navigation Arrows"
-    description: "Breakpoint-aware visibility of the navigation arrows."
+    description: "Show the navigation arrows. Visible on extra small and small viewports by default."
+    default: true
     adminUI:
       panel: "behaviour"
-      breakpointAware: true
-    properties:
-      xs:
-        type: boolean
-        title: "Show Navigation Arrows (XS)"
-        description: "Show the navigation arrows on extra small breakpoint."
-        default: true
-      sm:
-        type: boolean
-        title: "Show Navigation Arrows (SM)"
-        description: "Show the navigation arrows on small breakpoint."
-        default: true
-      md:
-        type: boolean
-        title: "Show Navigation Arrows (MD)"
-        description: "Show the navigation arrows on medium breakpoint."
-        default: false
-      lg:
-        type: boolean
-        title: "Show Navigation Arrows (LG)"
-        description: "Show the navigation arrows on large breakpoint."
-        default: false
-      xl:
-        type: boolean
-        title: "Show Navigation Arrows (XL)"
-        description: "Show the navigation arrows on extra large breakpoint."
-        default: false
-      xxl:
-        type: boolean
-        title: "Show Navigation Arrows (XXL)"
-        description: "Show the navigation arrows on extra extra large breakpoint."
-        default: false
 
   showMagnifier:
     type: boolean

@@ -1,5 +1,8 @@
 {% block sw_sales_channel_menu %}
-<div class="sw-sales-channel-menu">
+<div
+    class="sw-sales-channel-menu"
+    :class="salesChannelMenuClasses"
+>
     {% block sw_sales_channel_menu_modal %}
     <sw-sales-channel-modal
         v-if="showModal"

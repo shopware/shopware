@@ -8,8 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLogoutEvent;
-use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\Requirement\ShopwareAccountRequirement;
+use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber;
 
 /**
@@ -26,30 +25,30 @@ class ShopwareAccountSubscriberTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testSyncAccountRequirementOnLogin(): void
+    public function testReevaluatesServicesOnLogin(): void
     {
         $event = new ShopwareAccountLoginEvent($this->context);
 
-        $manager = $this->createMock(LifecycleManager::class);
-        $manager
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $serviceLifecycle
             ->expects($this->once())
-            ->method('reevaluateRequirement')
-            ->with(ShopwareAccountRequirement::NAME, $this->context);
+            ->method('reevaluateInstalled')
+            ->with($this->context);
 
-        (new ShopwareAccountSubscriber($manager))->syncAccountRequirement($event);
+        (new ShopwareAccountSubscriber($serviceLifecycle))->reevaluateServices($event);
     }
 
-    public function testSyncAccountRequirementOnLogout(): void
+    public function testReevaluatesServicesOnLogout(): void
     {
         $event = new ShopwareAccountLogoutEvent($this->context);
 
-        $manager = $this->createMock(LifecycleManager::class);
-        $manager
+        $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
+        $serviceLifecycle
             ->expects($this->once())
-            ->method('reevaluateRequirement')
-            ->with(ShopwareAccountRequirement::NAME, $this->context);
+            ->method('reevaluateInstalled')
+            ->with($this->context);
 
-        (new ShopwareAccountSubscriber($manager))->syncAccountRequirement($event);
+        (new ShopwareAccountSubscriber($serviceLifecycle))->reevaluateServices($event);
     }
 
     public function testSubscribedEvents(): void
@@ -58,7 +57,7 @@ class ShopwareAccountSubscriberTest extends TestCase
 
         static::assertArrayHasKey(ShopwareAccountLoginEvent::class, $events);
         static::assertArrayHasKey(ShopwareAccountLogoutEvent::class, $events);
-        static::assertSame('syncAccountRequirement', $events[ShopwareAccountLoginEvent::class]);
-        static::assertSame('syncAccountRequirement', $events[ShopwareAccountLogoutEvent::class]);
+        static::assertSame('reevaluateServices', $events[ShopwareAccountLoginEvent::class]);
+        static::assertSame('reevaluateServices', $events[ShopwareAccountLogoutEvent::class]);
     }
 }

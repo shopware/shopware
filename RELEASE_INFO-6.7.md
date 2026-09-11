@@ -140,6 +140,11 @@ The deprecated endpoint `GET /api/_action/system-config/schema` and its successo
 ### Deprecation of `ConfigurationService` class
 
 Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+### GARAN guarantee duration is capped at 600 months
+
+`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.
+
+Values already stored above 600 months are untouched and keep rendering their label; they only have to be corrected the next time that product is written.
 
 ### GARAN label in the order confirmation mail is sized and sits next to the line item
 

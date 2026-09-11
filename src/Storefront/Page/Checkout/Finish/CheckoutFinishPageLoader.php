@@ -115,7 +115,6 @@ class CheckoutFinishPageLoader
             ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
             ->addAssociation('primaryOrderTransaction.paymentMethod')
             ->addAssociation('lineItems.cover')
-            ->addAssociation('lineItems.product')
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
             ->addAssociation('billingAddress.countryState')

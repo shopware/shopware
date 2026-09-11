@@ -31,6 +31,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
@@ -96,7 +97,30 @@ class AccountOrderControllerTest extends TestCase
         $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
-        // the product association is loaded by default, since the template needs it to hide links for unavailable products
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            static function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
+
+                $orderLineItemCollection = $data['orderDetails'];
+                static::assertInstanceOf(OrderLineItemCollection::class, $orderLineItemCollection);
+
+                foreach ($orderLineItemCollection as $orderLineItemEntity) {
+                    static::assertNull($orderLineItemEntity->getProduct());
+                }
+            },
+            0,
+            true
+        );
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/widgets/account/order/detail/' . $orderId);
+
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $eventDispatcher->addListener(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
+            $event->getCriteria()->addAssociation('lineItems.product');
+        });
+
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,

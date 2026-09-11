@@ -14,7 +14,7 @@
 {% endif %}
 
 {# order line items keep referencing deleted/deactivated products, so availability must be checked explicitly #}
-{% set isProductAvailable = displayMode !== 'order' or (lineItem.product and lineItem.product.active) %}
+{% set isProductAvailable = displayMode !== 'order' or sw_product_available(lineItem.referencedId, context.context) %}
 
 {% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}
 

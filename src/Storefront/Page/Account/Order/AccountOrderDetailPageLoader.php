@@ -71,8 +71,7 @@ class AccountOrderDetailPageLoader
             ->addAssociation('orderCustomer')
             ->addAssociation('stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
-            ->addAssociation('lineItems.cover')
-            ->addAssociation('lineItems.product');
+            ->addAssociation('lineItems.cover');
 
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria

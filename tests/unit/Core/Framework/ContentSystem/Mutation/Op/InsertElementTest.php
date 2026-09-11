@@ -91,7 +91,7 @@ class InsertElementTest extends TestCase
         static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
-    #[TestDox('seeds only primitive properties that declare a default')]
+    #[TestDox('seeds top-level primitive properties that declare a default')]
     public function testInsertSeedsPrimitiveDefaultsOnly(): void
     {
         $spec = $this->spec('Sw:Card', [
@@ -104,6 +104,38 @@ class InsertElementTest extends TestCase
         $result = $insert->apply(new StoredTree([]));
 
         static::assertSame(['headline' => 'Hello'], $this->rawProperties($result->roots[0]));
+    }
+
+    #[TestDox('seeds nested object property defaults')]
+    public function testInsertSeedsNestedObjectDefaults(): void
+    {
+        $spec = $this->spec('Sw:Grid:Container', [
+            'padding' => new PropertySpecification(
+                'padding',
+                new PropertyType(
+                    ['string', 'object'],
+                    false,
+                    null,
+                    null,
+                    [
+                        'xs' => new PropertySpecification('xs', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+                        'sm' => new PropertySpecification('sm', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+                    ],
+                ),
+                false,
+                '',
+                '',
+                null,
+            ),
+        ]);
+
+        $insert = new InsertElement($this->registry(['Sw:Grid:Container' => $spec]), 'Sw:Grid:Container', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame(
+            ['padding' => ['xs' => '0 20px 0 20px', 'sm' => '0 20px 0 20px']],
+            $this->rawProperties($result->roots[0]),
+        );
     }
 
     #[TestDox('applies the binding specification onto the freshly scaffolded element with its wiring, seeded input default, and attribution')]

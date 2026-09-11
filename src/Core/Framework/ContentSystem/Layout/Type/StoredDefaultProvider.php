@@ -1,0 +1,70 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\ContentSystem\Layout\Type;
+
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * The single definition of a content element type's stored property defaults: every non-null primitive default,
+ * recursively collected into nested members of a registered type and keyed by property key. Both the layout
+ * mutations (seeding a scaffolded or replaced element) and the write-boundary {@see LayoutDefaultSeeder} read the
+ * rule here, so "a type's stored defaults" is defined once.
+ *
+ * The caller guarantees the type is registered; a property whose type declares neither a default of its own nor a
+ * nested member with one is skipped.
+ *
+ * @phpstan-type PropertyDefault = string|int|float|bool|array<string, mixed>
+ *
+ * @internal
+ */
+#[Package('framework')]
+final class StoredDefaultProvider
+{
+    /**
+     * @return array<string, PropertyDefault>
+     */
+    public function forType(AbstractContentSystemElementTypeRegistry $registry, string $type): array
+    {
+        $defaults = [];
+
+        foreach ($registry->get($type)->properties() as $key => $property) {
+            $default = $this->defaultFor($property->type());
+
+            if ($default === null) {
+                continue;
+            }
+
+            $defaults[$key] = $default;
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * @return PropertyDefault|null
+     */
+    private function defaultFor(PropertyType $type): string|int|float|bool|array|null
+    {
+        if ($type->isPrimitive()) {
+            return $type->default();
+        }
+
+        $properties = $type->properties();
+        if ($properties === null) {
+            return null;
+        }
+
+        $defaults = [];
+        foreach ($properties as $key => $property) {
+            $default = $this->defaultFor($property->type());
+            if ($default !== null) {
+                $defaults[$key] = $default;
+            }
+        }
+
+        return $defaults === [] ? null : $defaults;
+    }
+}

@@ -8,13 +8,14 @@
     columns = null,
     rows = null,
     gap = 24,
+    maxWidth = '1400px',
     padding = {
-        xs: '0 20px 0 20px',
-        sm: '0 20px 0 20px',
-        md: '0 20px 0 20px',
-        lg: '0 20px 0 20px',
-        xl: '0 20px 0 20px',
-        xxl: '0 20px 0 20px',
+        xs: null,
+        sm: null,
+        md: null,
+        lg: null,
+        xl: null,
+        xxl: null,
     },
     margin = {
         xs: '0 0 24px 0',
@@ -24,18 +25,20 @@
         xl: '0 0 24px 0',
         xxl: '0 0 24px 0',
     },
-    align = 'start',
-    alignContent = 'start',
-    justify = 'start',
-    justifyContent = 'start',
-    centered = true,
+    align = 'normal',
+    alignContent = 'normal',
+    justify = 'normal',
+    justifyContent = 'normal',
+    fullWidth = false,
     border = null,
     borderVariant = null,
+    borderFullWidth = false,
     backgroundOpacity = 100,
     borderRadius = '0',
     backgroundColor = null,
     backgroundImage = null,
     backgroundImageMode = 'auto',
+    backgroundFullWidth = false,
     shadowOffsetX = 0,
     shadowOffsetY = 0,
     shadowSpread = 0,
@@ -80,8 +83,32 @@
     {% set rowsXl = rows ?? null %}
 {% endif %}
 
+{% set containerCVA = cva({
+    base: 'sw-grid-container',
+    variants: {
+        fullWidth: {
+            true: 'full-width',
+        },
+        borderFullWidth: {
+            true: 'border-full-width',
+        },
+        border: {
+            all: 'border',
+            top: 'border-top',
+            end: 'border-end',
+            bottom: 'border-bottom',
+            start: 'border-start'
+        },
+        borderVariant: {
+            primary: 'border-primary',
+            secondary: 'border-secondary',
+            secondarySubtle: 'border-secondary-subtle'
+        },
+    },
+}) %}
+
 {% set gridCVA = cva({
-    base: 'grid-container',
+    base: 'sw-grid-container-inner',
     variants: {
         mode: {
             'max-content': 'max-content',
@@ -259,8 +286,8 @@
             spaceBetween: 'justify-content-space-between',
             spaceEvenly: 'justify-content-space-evenly',
         },
-        centered: {
-            true: 'centered',
+        fullWidth: {
+            true: 'full-width',
         },
         border: {
             all: 'border',
@@ -276,6 +303,15 @@
         },
     }
 }) %}
+
+{% set containerDefaults = {
+    class: containerCVA.apply({
+        fullWidth,
+        borderFullWidth,
+        border,
+        borderVariant,
+    }),
+} %}
 
 {% set attributeDefaults = {
     class: gridCVA.apply({
@@ -294,7 +330,7 @@
         alignContent,
         justify,
         justifyContent,
-        centered,
+        fullWidth,
         border,
         borderVariant,
         backgroundColor,
@@ -303,6 +339,8 @@
 } %}
 
 {% set gridStyle = '' %}
+{% set containerStyle = '' %}
+{% set backgroundStyle = '' %}
 {% set columnSetting = '' %}
 {% set rowSetting = '' %}
 {% set columnCvaValues = ['auto', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] %}
@@ -321,28 +359,38 @@
 {% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
 {% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; ' : gridStyle %}
+{% set gridStyle = maxWidth ? gridStyle ~ '--sw-grid-container-max-width: ' ~ maxWidth ~ '; ' : gridStyle %}
 
 {% for spacingName, spacingValue in { padding: padding, margin: margin } %}
     {% if spacingValue is mapping %}
         {% for viewport, value in spacingValue %}
             {% if value is not empty and value is not null %}
                 {% set gridStyle = gridStyle ~ '--sw-grid-container-' ~ spacingName ~ '-' ~ viewport ~ ': ' ~ value ~ '; ' %}
+                {% set containerStyle = containerStyle ~ '--sw-grid-container-' ~ spacingName ~ '-' ~ viewport ~ ': ' ~ value ~ '; ' %}
             {% endif %}
         {% endfor %}
     {% elseif spacingValue is not empty %}
         {% set gridStyle = gridStyle ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
+        {% set containerStyle = containerStyle ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
     {% endif %}
 {% endfor %}
 
 {% if backgroundColor and backgroundOpacity > 0 %}
-    {% set gridStyle = gridStyle ~ 'background-color: color-mix(in srgb, ' ~ backgroundColor ~ ' ' ~ backgroundOpacity ~ '%, transparent); ' %}
+    {% set backgroundStyle = backgroundStyle ~ 'background-color: color-mix(in srgb, ' ~ backgroundColor ~ ' ' ~ backgroundOpacity ~ '%, transparent); ' %}
 {% endif %}
 {% if backgroundImage %}
-    {% set gridStyle = gridStyle ~ 'background-image: url(' ~ backgroundImage|sw_encode_media_url ~ '); ' %}
+    {% set backgroundStyle = backgroundStyle ~ 'background-image: url(' ~ backgroundImage|sw_encode_media_url ~ '); ' %}
     {% if backgroundImageMode in ['cover', 'contain'] %}
-        {% set gridStyle = gridStyle ~ 'background-size: ' ~ backgroundImageMode ~ '; background-position: center; background-repeat: no-repeat; ' %}
+        {% set backgroundStyle = backgroundStyle ~ 'background-size: ' ~ backgroundImageMode ~ '; background-position: center; background-repeat: no-repeat; ' %}
     {% endif %}
 {% endif %}
+
+{% if backgroundFullWidth %}
+    {% set containerStyle = containerStyle ~ backgroundStyle %}
+{% else %}
+    {% set gridStyle = gridStyle ~ backgroundStyle %}
+{% endif %}
+
 {% if borderRadius and borderRadius != '0' %}
     {% set gridStyle = gridStyle ~ 'border-radius: ' ~ borderRadius ~ '; ' %}
 {% endif %}
@@ -353,7 +401,7 @@
 {% endif %}
 
 {% if mode == 'auto-fit' or mode == 'auto-fill' %}
-    {% set gridStyle = gridStyle ~ 'grid-template-columns: repeat(' ~ mode ~ ', minmax(' ~ itemMinWidth ~ ', 1fr));' %}
+    {% set gridStyle = gridStyle ~ 'grid-template-columns: repeat(' ~ mode ~ ', minmax(min(' ~ itemMinWidth ~ ', 100%), 1fr));' %}
 {% endif %}
 
 {% if gridStyle is not empty %}
@@ -363,11 +411,17 @@
     {% set attributeDefaults = attributeDefaults|merge({ style: gridStyle }) %}
 {% endif %}
 
-<div {{ attributes.without('style').defaults(attributeDefaults) }}>
+{% if containerStyle is not empty %}
+    {% set containerDefaults = containerDefaults|merge({ style: containerStyle }) %}
+{% endif %}
 
-    {% block content %}
-        {% for name, slot in slots %}
-            <twig:Slot :name="name"></twig:Slot>
-        {% endfor %}
-    {% endblock %}
+<div {{ attributes.without('style').defaults(containerDefaults) }}>
+    <div {{ attributes.nested('inner').without('style').defaults(attributeDefaults) }}>
+
+        {% block content %}
+            {% for name, slot in slots %}
+                <twig:Slot :name="name"></twig:Slot>
+            {% endfor %}
+        {% endblock %}
+    </div>
 </div>

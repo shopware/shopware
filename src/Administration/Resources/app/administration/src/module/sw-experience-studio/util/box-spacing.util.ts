@@ -10,11 +10,11 @@ export type BoxSpacingSide = 'top' | 'right' | 'bottom' | 'left';
  */
 export type BoxSpacingSides = Record<BoxSpacingSide, string>;
 
-const EMPTY_SIDES: BoxSpacingSides = {
-    top: '',
-    right: '',
-    bottom: '',
-    left: '',
+const ZERO_SIDES: BoxSpacingSides = {
+    top: '0',
+    right: '0',
+    bottom: '0',
+    left: '0',
 };
 
 const PLAIN_NUMBER_PATTERN = /^-?(\d+(\.\d+)?|\.\d+)$/;
@@ -99,11 +99,11 @@ function toInputSides(sides: BoxSpacingSides): BoxSpacingSides {
  */
 export function parseBoxSpacing(value: string | null | undefined): BoxSpacingSides {
     if (value === null || value === undefined) {
-        return { ...EMPTY_SIDES };
+        return { ...ZERO_SIDES };
     }
 
     if (value === '') {
-        return { ...EMPTY_SIDES };
+        return { ...ZERO_SIDES };
     }
 
     const explicitParts = String(value).split(' ');
@@ -120,7 +120,7 @@ export function parseBoxSpacing(value: string | null | undefined): BoxSpacingSid
     const normalized = String(value).trim();
 
     if (normalized === '') {
-        return { ...EMPTY_SIDES };
+        return { ...ZERO_SIDES };
     }
 
     const parts = normalized.split(/\s+/);
@@ -174,7 +174,11 @@ export type SerializeBoxSpacingOptions = {
  * @sw-package discovery
  */
 export function normalizeBoxSpacingCSSValue(value: unknown): string {
-    if (value === null || value === undefined) {
+    if (value === null) {
+        return '0 0 0 0';
+    }
+
+    if (value === undefined) {
         return '';
     }
 

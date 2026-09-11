@@ -733,11 +733,11 @@ export default Shopware.Component.wrapComponentConfig({
                     return normalizeBoxSpacingCSSValue(structuredDefault);
                 }
 
-                if (typeof initialValue === 'string' || typeof initialValue === 'number') {
-                    return normalizeBoxSpacingCSSValue(initialValue);
+                if (typeof property.default === 'string' || typeof property.default === 'number') {
+                    return normalizeBoxSpacingCSSValue(property.default);
                 }
 
-                return '';
+                return normalizeBoxSpacingCSSValue(null);
             }
 
             if (this.getControlType(property) === 'responsive-number' || this.getControlType(property) === 'number') {

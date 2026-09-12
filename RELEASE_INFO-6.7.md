@@ -250,6 +250,10 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 ## API
 
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
 ### Store API currency headers validate sales channel availability
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.

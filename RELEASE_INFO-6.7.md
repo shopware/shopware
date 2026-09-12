@@ -541,6 +541,28 @@ A theme that lists several ancestors in the `configInheritance` of its `theme.js
 
 `theme.parent_theme_id` now points to the nearest listed ancestor. Run `bin/console theme:refresh` to apply it outside a plugin or update cycle.
 
+### SEO URLs for app storefront routes
+
+Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` elements inside `<storefront>` in `manifest.xml`.
+
+```xml
+<storefront>
+    <seo-url name="imprint">
+        <path>imprint</path>
+        <path lang="de-DE">impressum</path>
+    </seo-url>
+    <seo-url name="blog-detail" entity="ce_blog">
+        <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+    </seo-url>
+</storefront>
+```
+
+A static entry maps the given path to the script hook `storefront-<name>` on every storefront sales channel domain; the `hook` attribute overrides the hook name. An entity-bound entry generates one SEO URL per entity from the Twig template. Merchants can adjust that template per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`. The template context exposes the entity under its camel-cased name, for example `ceBlog`. URLs are regenerated whenever the entity is written, marked as deleted while the app is inactive, and removed on uninstall.
+
+The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
+
+Two supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, and `seo_url.route_name` now allows 255 characters.
+
 # 6.7.14.0
 
 ## Features

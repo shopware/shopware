@@ -9,12 +9,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SeoUrlRouteConfig
 {
+    /**
+     * @param array<string, string> $routeParameters
+     */
     public function __construct(
         private readonly EntityDefinition $definition,
         private readonly string $routeName,
         private string $template,
         private bool $skipInvalid = true,
         private readonly ?string $primaryKeyParameterKey = null,
+        private readonly ?string $targetRouteName = null,
+        private readonly array $routeParameters = [],
     ) {
     }
 
@@ -26,6 +31,11 @@ class SeoUrlRouteConfig
     public function getRouteName(): string
     {
         return $this->routeName;
+    }
+
+    public function getTargetRouteName(): string
+    {
+        return $this->targetRouteName ?? $this->routeName;
     }
 
     public function getTemplate(): string
@@ -57,6 +67,6 @@ class SeoUrlRouteConfig
             throw SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey($this->definition->getEntityName());
         }
 
-        return [$this->primaryKeyParameterKey => $primaryKey];
+        return [...$this->routeParameters, $this->primaryKeyParameterKey => $primaryKey];
     }
 }

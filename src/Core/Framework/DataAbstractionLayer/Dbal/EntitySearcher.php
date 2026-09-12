@@ -80,7 +80,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
-            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table);
+            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, array_keys($fields));
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
         }
@@ -160,8 +160,10 @@ class EntitySearcher implements EntitySearcherInterface
      * Grouping the scored query directly would aggregate the score over all entities of a group instead, so that
      * a group would score higher the more entities it contains - product variants grouped by `displayGroup` for
      * example, where a product with three variants scored three times as high as a comparable single product.
+     *
+     * @param list<string> $columns the columns of the inner query which make up the result
      */
-    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table): QueryBuilder
+    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table, array $columns): QueryBuilder
     {
         $query->addGroupBy(
             EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
@@ -175,19 +177,39 @@ class EntitySearcher implements EntitySearcherInterface
             $partitionColumns[] = 'inner_q.`' . $alias . '`';
         }
 
+        $outer = new QueryBuilder($this->connection);
+
+        foreach ($query->getOrderByParts() as $i => $part) {
+            if (preg_match('/^(?<expression>.*)\s+(?<direction>ASC|DESC)$/i', $part, $matches) !== 1) {
+                continue;
+            }
+
+            $expression = $matches['expression'];
+
+            // the outer query cannot reach the table aliases the expression is built from, so it travels as a column
+            $alias = Criteria::SCORE_FIELD;
+            if ($expression !== Criteria::SCORE_FIELD) {
+                $alias = '_sort_' . $i;
+                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($alias));
+            }
+
+            $outer->addOrderBy('ranked.' . EntityDefinitionQueryHelper::escape($alias), $matches['direction']);
+        }
+
         $query->resetOrderBy();
 
         $innerSql = $query->getSQL();
 
-        $outer = new QueryBuilder($this->connection);
-        $outer->select('ranked.*')
-            ->from(\sprintf(
-                '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, inner_q.id ASC) as _rn FROM (%s) inner_q)',
-                implode(', ', $partitionColumns),
-                $innerSql
-            ), 'ranked')
-            ->andWhere('ranked._rn = 1')
-            ->addOrderBy('ranked._score', 'DESC');
+        $outer->select(...array_map(
+            static fn (string $column) => 'ranked.' . EntityDefinitionQueryHelper::escape($column),
+            [...$columns, Criteria::SCORE_FIELD]
+        ));
+
+        $outer->from(\sprintf(
+            '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, inner_q.id ASC) as _rn FROM (%s) inner_q)',
+            implode(', ', $partitionColumns),
+            $innerSql
+        ), 'ranked')->andWhere('ranked._rn = 1');
 
         $outer->setParameters($query->getParameters(), $query->getParameterTypes());
 

@@ -25,7 +25,8 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         private readonly RequestContextResolverInterface $decorated,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly RouteScopeRegistry $routeScopeRegistry
+        private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly SessionContextTokenAccessor $sessionContextToken
     ) {
     }
 
@@ -39,6 +40,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         if (!$this->isRequestScoped($request, SalesChannelContextRouteScopeDependant::class)) {
             return;
+        }
+
+        if ($this->isRequestScoped($request, StoreApiRouteScope::class) && $this->sessionContextToken->isRequested($request)) {
+            $this->resolveContextTokenFromSession($request);
         }
 
         if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
@@ -85,6 +90,40 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     protected function getScopeRegistry(): RouteScopeRegistry
     {
         return $this->routeScopeRegistry;
+    }
+
+    /**
+     * Declaring the session as context source is a contract: an unusable session fails the request
+     * instead of falling back to a fresh token, which a session based client would only see as an
+     * empty cart. Storefront requests are exempt, Core itself set their token header.
+     */
+    private function resolveContextTokenFromSession(Request $request): void
+    {
+        if ($request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            throw RoutingException::sessionContextNotResolvable(
+                'the request also carries a sw-context-token header; declare either the session or an explicit token as context source, not both'
+            );
+        }
+
+        $reason = $this->sessionContextToken->ineligibilityReason($request);
+
+        if ($reason !== null) {
+            throw RoutingException::sessionContextNotResolvable($reason);
+        }
+
+        $salesChannelId = (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        $token = $this->sessionContextToken->read($request, $salesChannelId);
+
+        if ($token === null) {
+            throw RoutingException::sessionContextNotResolvable(
+                'the session cookie does not resume a storefront session holding a context token for this sales channel'
+            );
+        }
+
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
     }
 
     private function contextTokenRequired(Request $request): bool

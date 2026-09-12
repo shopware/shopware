@@ -91,6 +91,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
@@ -257,6 +258,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SalesChannelContextPersister::class),
             service('request_stack'),
+            service(SessionContextTokenAccessor::class),
         ])
         ->tag('kernel.event_subscriber');
 

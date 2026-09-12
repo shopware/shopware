@@ -30,6 +30,7 @@ class RoutingException extends HttpException
     public const INVALID_ROUTE_SCOPE = 'FRAMEWORK__ROUTING_INVALID_ROUTE_SCOPE';
     public const MISSING_MAIN_REQUEST = 'FRAMEWORK__MAIN_REQUEST_MISSING';
     public const MISSING_ROUTE_ATTRIBUTE = 'FRAMEWORK__ROUTING_ROUTE_ATTRIBUTE_MISSING';
+    public const SESSION_CONTEXT_NOT_RESOLVABLE = 'FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -153,6 +154,16 @@ class RoutingException extends HttpException
             self::MISSING_ROUTE_ATTRIBUTE,
             'Route attribute "{{ routeAttribute }}" on route "{{ route }}" is missing.',
             ['routeAttribute' => $routeAttribute, 'route' => $route],
+        );
+    }
+
+    public static function sessionContextNotResolvable(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SESSION_CONTEXT_NOT_RESOLVABLE,
+            'The sales channel context cannot be resolved from the storefront session: {{ reason }}',
+            ['reason' => $reason]
         );
     }
 }

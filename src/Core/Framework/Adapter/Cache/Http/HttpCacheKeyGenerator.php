@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,6 +85,12 @@ class HttpCacheKeyGenerator
         $this->addVariantHeaders($request, $event);
 
         $this->addCookies($request, $response, $event);
+
+        // The built-in cache store does not evaluate Vary. Session requests must reach context
+        // resolution, including invalid requests which need to fail instead of hitting an anonymous entry.
+        if ($request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) === SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION) {
+            $event->isCacheable = false;
+        }
 
         $this->dispatcher->dispatch($event);
 

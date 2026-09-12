@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Cors;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Contributes additional header names to the CORS headers that the API answers preflight requests with.
+ * Contributes header names to the CORS headers that the API answers preflight requests with.
  *
  * Implementations are collected via the `shopware.api.cors_header_provider` tag, which is applied
  * automatically to autoconfigured services. Because preflight requests are answered before routing,
@@ -17,16 +17,9 @@ interface CorsHeaderProviderInterface
     public const SERVICE_TAG = 'shopware.api.cors_header_provider';
 
     /**
-     * Request headers a cross-origin client is allowed to send (`Access-Control-Allow-Headers`).
-     *
-     * @return list<string>
+     * Providers run in the order of their tag priority and share one `CorsHeaders` instance, so a
+     * provider can also remove a header name that an earlier provider contributed. Shopware's own
+     * names come from `CoreCorsHeaderProvider`, which runs first.
      */
-    public function getAllowedHeaders(): array;
-
-    /**
-     * Response headers a cross-origin client is allowed to read (`Access-Control-Expose-Headers`).
-     *
-     * @return list<string>
-     */
-    public function getExposedHeaders(): array;
+    public function provide(CorsHeaders $headers): void;
 }

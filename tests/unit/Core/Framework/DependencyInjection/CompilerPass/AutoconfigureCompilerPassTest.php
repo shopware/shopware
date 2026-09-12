@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
+use Shopware\Core\Framework\Api\Cors\CorsHeaders;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\Log\Package;
@@ -119,14 +120,9 @@ class ExampleHookableEntity implements HookableEntityInterface
  */
 class ExampleCorsHeaderProvider implements CorsHeaderProviderInterface
 {
-    public function getAllowedHeaders(): array
+    public function provide(CorsHeaders $headers): void
     {
-        return ['sw-example'];
-    }
-
-    public function getExposedHeaders(): array
-    {
-        return [];
+        $headers->addAllowed('sw-example');
     }
 }
 

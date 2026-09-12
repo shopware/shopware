@@ -281,6 +281,28 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### New extension points for the Shopping Experiences layout list
+
+The "Set as default" context menu item in `sw-cms-list` is now wrapped in its own Twig block, in both the grid and the list view:
+
+- `sw_cms_list_listing_list_item_option_set_as_default` (grid view)
+- `sw_cms_list_listing_list_data_grid_actions_set_as_default` (list view)
+
+It was previously the only context menu item in either view without a block, so extensions that had to change it were forced to replace the surrounding `sw_cms_list_listing_list_item` or `sw_cms_list_listing_list_data_grid_actions` block completely. That removed every other extension point inside those blocks for all other extensions.
+
+In addition, `sw-cms-list` has a new `isDefaultLayout(page)` method that decides whether a layout is a default layout. It backs both the `is-default` property of `sw-cms-list-item` and the label built in `getPageType()`. Extensions that add their own default layout type can override this single method instead of the template:
+
+```js
+Shopware.Component.override('sw-cms-list', {
+    methods: {
+        isDefaultLayout(page) {
+            return this.myDefaultLayoutId === page.id || this.$super('isDefaultLayout', page);
+        },
+    },
+});
+```
+
+Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

@@ -172,6 +172,25 @@ const ROUTE_WATCH_FIXTURE = runtimeFixture(
     `,
 );
 
+const META_INFO_FIXTURE = runtimeFixture(
+    'sw-runtime-meta-info',
+    `
+        export default {
+            data() {
+                return { name: 'Draft' };
+            },
+            metaInfo() {
+                return { title: this.identifier };
+            },
+            computed: {
+                identifier() {
+                    return this.name + ' | Shopware';
+                },
+            },
+        };
+    `,
+);
+
 const CLASS_THIS_FIXTURE = runtimeFixture(
     'sw-runtime-class-this',
     `
@@ -364,6 +383,7 @@ export {
     DATA_SCOPE_FIXTURE,
     FUNCTION_FIXTURE,
     INJECTION_FIXTURE,
+    META_INFO_FIXTURE,
     MODULE_IDENTITY_FIXTURE,
     MODULE_BINDING_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,

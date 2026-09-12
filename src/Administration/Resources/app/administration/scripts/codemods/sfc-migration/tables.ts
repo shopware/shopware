@@ -16,7 +16,7 @@
 
 type MemberKind = 'prop' | 'data' | 'computed' | 'method' | 'inject';
 
-type HelperName = 't' | 'router' | 'route' | 'emit' | 'props' | 'slots' | 'attrs' | 'nextTick';
+type HelperName = 't' | 'router' | 'route' | 'emit' | 'props' | 'slots' | 'attrs' | 'nextTick' | 'createTitle';
 
 type TodoEntry = {
     reason: string;
@@ -55,7 +55,6 @@ function sourceKeyed<T>(entries: Record<string, T>): Record<string, T> {
 const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
     render: 'skip',
     renderError: 'skip',
-    metaInfo: 'todo',
     shortcuts: 'todo',
     provide: 'todo',
     filters: 'todo',
@@ -91,6 +90,7 @@ const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName 
     $router: { replacement: 'router', helper: 'router' },
     $route: { replacement: 'route', helper: 'route' },
     $nextTick: { replacement: 'nextTick', helper: 'nextTick' },
+    $createTitle: { replacement: 'createTitle', helper: 'createTitle' },
     $slots: { replacement: 'slots', helper: 'slots' },
     $attrs: { replacement: 'attrs', helper: 'attrs' },
 });
@@ -101,6 +101,7 @@ const HELPER_SETUP_LINES: Record<HelperName, string | null> = {
     route: 'const route = useRoute();',
     slots: 'const slots = useSlots();',
     attrs: 'const attrs = useAttrs();',
+    createTitle: 'const createTitle = useCreateTitle();',
     nextTick: null,
     emit: null,
     props: null,
@@ -131,6 +132,7 @@ const GENERATED_HELPER_NAMES = new Set([
     'slots',
     'attrs',
     'nextTick',
+    'createTitle',
 ]);
 
 export {

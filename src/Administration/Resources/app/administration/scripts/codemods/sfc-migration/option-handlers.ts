@@ -82,6 +82,8 @@ type Collected = {
     methods: CollectedMember[];
     watchEntries: { key: string; prop: t.ObjectProperty | t.ObjectMethod }[];
     hooks: { hook: string; fn: FnLike }[];
+    /** The `metaInfo` option's function, handed to useMetaInfo() as a getter. */
+    metaInfoFn: FnLike | null;
     rewriteFns: FnLike[];
     foreignNodes: t.Node[];
     createdFn: FnLike | null;
@@ -129,6 +131,7 @@ function createCollected(): Collected {
         methods: [],
         watchEntries: [],
         hooks: [],
+        metaInfoFn: null,
         rewriteFns: [],
         foreignNodes: [],
         createdFn: null,
@@ -431,6 +434,23 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
                 collected.mixins.push(descriptor);
             }
         }
+    },
+
+    /**
+     * The meta-info plugin read this off the component type and called it with the instance, so its
+     * body reached members a `<script setup>` component does not expose. Handing the function over
+     * as a getter keeps the body as authored and drops the lookup.
+     */
+    metaInfo: (prop, ctx, collected) => {
+        const fn = asFunction(prop);
+
+        if (!fn) {
+            report(ctx, 'todo', 'metaInfo is not a plain function', prop);
+            return;
+        }
+
+        collected.metaInfoFn = fn;
+        collected.rewriteFns.push(fn);
     },
 
     created: (prop, ctx, collected) => {

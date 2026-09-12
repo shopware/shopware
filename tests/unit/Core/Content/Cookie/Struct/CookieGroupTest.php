@@ -61,4 +61,15 @@ class CookieGroupTest extends TestCase
         $this->expectExceptionObject(CookieException::notAllowedPropertyAssignment('cookie', 'entries'));
         $cookieGroup->setCookie('test-cookie');
     }
+
+    public function testJsonSerializeExposesTechnicalName(): void
+    {
+        $cookieGroup = new CookieGroup('test.group');
+        $cookieGroup->name = 'Translated name';
+
+        $data = $cookieGroup->jsonSerialize();
+
+        static::assertSame('test.group', $data['technicalName']);
+        static::assertSame('Translated name', $data['name']);
+    }
 }

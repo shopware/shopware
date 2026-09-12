@@ -58,6 +58,34 @@ class ConfigurationTest extends TestCase
         static::assertTrue($config['cdn']['path_cache_buster']);
     }
 
+    public function testCookieConsentDefaults(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[]]);
+
+        static::assertSame(['log_storage' => 'none', 'retention_days' => 120, 'filesystem_path' => 'cookie-consent'], $config['cookie_consent']);
+    }
+
+    public function testCookieConsentAcceptsACustomStorageName(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['cookie_consent' => ['log_storage' => 's3', 'retention_days' => 1095, 'filesystem_path' => 'evidence/cookies']]]);
+
+        static::assertSame(['log_storage' => 's3', 'retention_days' => 1095, 'filesystem_path' => 'evidence/cookies'], $config['cookie_consent']);
+    }
+
+    public function testCookieConsentRejectsAnEmptyStorageName(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [['cookie_consent' => ['log_storage' => '']]]);
+    }
+
+    public function testCookieConsentRejectsARetentionBelowOneDay(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [['cookie_consent' => ['retention_days' => 0]]]);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();

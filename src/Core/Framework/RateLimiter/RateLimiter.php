@@ -35,6 +35,8 @@ class RateLimiter
 
     final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
 
+    final public const COOKIE_CONSENT_LOG = 'cookie_consent_log';
+
     final public const MCP_ADMIN_API = 'mcp_admin_api';
 
     final public const MCP_STORE_API = 'mcp_store_api';

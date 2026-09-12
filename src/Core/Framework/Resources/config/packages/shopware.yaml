@@ -364,6 +364,15 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            cookie_consent_log:
+                # Anonymous storefront visitors write here and every request inserts a row, so
+                # this only caps volume per IP; it deliberately does not escalate like the form
+                # limiters. Kept generous because many real visitors can share one IP (carrier or
+                # corporate NAT) and a rejected request means lost consent evidence.
+                enabled: true
+                policy: 'sliding_window'
+                limit: 60
+                interval: '60 seconds'
             mcp_admin_api:
                 # Trusted automation (integrations / admin users), keyed per OAuth token, so a
                 # generous limit is acceptable. Kept higher than the Store API on purpose.
@@ -467,6 +476,15 @@ shopware:
         # supported types: mysql, redis
         # for redis also the shopware.number_range.config.connection is required to point to a valid redis connection
         increment_storage: "mysql"
+
+    cookie_consent:
+        # Where the built-in cookie banner records consent decisions. Off by default.
+        # none | database | filesystem | name of a custom storage tagged with shopware.cookie_consent.log_storage
+        log_storage: 'none'
+        # Days a recorded decision is kept before the daily cleanup task deletes it
+        retention_days: 120
+        # Directory inside shopware.filesystem.private used by the filesystem storage
+        filesystem_path: 'cookie-consent'
 
     sales_channel_context:
         expire_days: 120

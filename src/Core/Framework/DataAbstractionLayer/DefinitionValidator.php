@@ -122,6 +122,8 @@ class DefinitionValidator
         'theme_runtime_config',
         'consent_state',
         'consent_log',
+        'cookie_consent_log',
+        'cookie_consent_config_snapshot',
         'mcp_tool_result_cache',
         'mcp_toolset_session',
         'webhook_delivery',

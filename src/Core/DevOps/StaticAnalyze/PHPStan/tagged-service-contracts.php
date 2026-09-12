@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
+use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
@@ -89,6 +90,7 @@ return [
             'shopware.checkout.gateway.command' => AbstractCheckoutGatewayCommandHandler::class,
             'shopware.cms.data_resolver' => CmsElementResolverInterface::class,
             'shopware.cms.product_slider.processor' => AbstractProductSliderProcessor::class,
+            'shopware.cookie_consent.log_storage' => AbstractCookieConsentLogStorage::class,
             'shopware.dal.exception_handler' => ExceptionHandlerInterface::class,
             'shopware.demodata_generator' => DemodataGeneratorInterface::class,
             'shopware.document_v2.provider' => AbstractDocumentDataProvider::class,

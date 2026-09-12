@@ -806,6 +806,7 @@
     "groupRequiredTimezone": "Zeitzone",
     "groupRequiredCookieHash": "Cookie-Konfiguration-Hash",
     "groupRequiredAccepted": "Cookie-Einstellungen",
+    "groupRequiredConsentId": "Einwilligungs-ID",
     "groupRequiredCaptcha": "CAPTCHA-Integration",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",

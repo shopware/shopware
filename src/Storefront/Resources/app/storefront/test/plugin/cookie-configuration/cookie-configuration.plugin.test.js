@@ -1694,4 +1694,164 @@ describe('CookieConfiguration plugin tests', () => {
             expect(testPlugin._getDefaultCookieExpiration()).toBe(expected);
         });
     });
+
+    describe('Consent logging', () => {
+        const cookieGroups = [
+            {
+                technicalName: 'cookie.groupRequired',
+                isRequired: true,
+                entries: [{ cookie: 'session-' }, { cookie: 'timezone' }],
+            },
+            {
+                technicalName: 'cookie.groupStatistical',
+                isRequired: false,
+                entries: [{ cookie: 'lorem' }, { cookie: 'ipsum' }],
+            },
+        ];
+
+        beforeEach(() => {
+            window.router['frontend.cookie.consent.log'] = 'https://shop.example.com/cookie/consent-log';
+            CookieStorage.setItem(plugin.options.cookieConsentId, 'existing-consent-id', 30);
+        });
+
+        afterEach(() => {
+            delete navigator.sendBeacon;
+            CookieStorage.removeItem(plugin.options.cookieConsentId);
+        });
+
+        test('_logConsent sends the payload via sendBeacon', () => {
+            navigator.sendBeacon = jest.fn(() => true);
+            global.fetch = jest.fn();
+
+            plugin._logConsent('accept_all');
+
+            expect(navigator.sendBeacon).toHaveBeenCalledTimes(1);
+            expect(navigator.sendBeacon).toHaveBeenCalledWith(
+                'https://shop.example.com/cookie/consent-log',
+                expect.any(Blob),
+            );
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test('_logConsent sends the consent id and the ticked cookies, no group conclusion', () => {
+            global.fetch = jest.fn(() => Promise.resolve());
+
+            plugin._logConsent('accept_selected', ['lorem']);
+
+            expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/cookie/consent-log', {
+                method: 'POST',
+                body: JSON.stringify({
+                    consentId: 'existing-consent-id',
+                    consentAction: 'accept_selected',
+                    acceptedCookies: ['lorem'],
+                }),
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        });
+
+        test('_logConsent does nothing when the route is not registered', () => {
+            delete window.router['frontend.cookie.consent.log'];
+            navigator.sendBeacon = jest.fn();
+            global.fetch = jest.fn();
+
+            plugin._logConsent('accept_all');
+
+            expect(navigator.sendBeacon).not.toHaveBeenCalled();
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test('_getConsentId generates a token once and reuses it afterwards', () => {
+            CookieStorage.removeItem(plugin.options.cookieConsentId);
+
+            const first = plugin._getConsentId();
+            const second = plugin._getConsentId();
+
+            expect(first).toMatch(/^[A-Za-z0-9_-]{1,64}$/);
+            expect(second).toBe(first);
+            expect(CookieStorage.getItem(plugin.options.cookieConsentId)).toBe(first);
+        });
+
+        test('_getConsentId keeps the token of an earlier decision', () => {
+            expect(plugin._getConsentId()).toBe('existing-consent-id');
+        });
+
+        test('_getConsentId takes the cookie lifetime from the cookie configuration', () => {
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
+            const groupsWithConsentId = [{
+                technicalName: 'cookie.groupRequired',
+                isRequired: true,
+                entries: [{ cookie: 'session-' }, { cookie: 'cookie-consent-id', expiration: 120 }],
+            }];
+
+            plugin._getConsentId(groupsWithConsentId);
+            expect(setItemSpy).toHaveBeenLastCalledWith('cookie-consent-id', 'existing-consent-id', 120);
+
+            // Without the declared entry the default lifetime applies
+            plugin._getConsentId(cookieGroups);
+            expect(setItemSpy).toHaveBeenLastCalledWith('cookie-consent-id', 'existing-consent-id', 30);
+
+            setItemSpy.mockRestore();
+        });
+
+        test('_generateConsentId prefers the browser UUID and falls back to random hex', () => {
+            const originalCrypto = window.crypto;
+
+            Object.defineProperty(window, 'crypto', { value: { randomUUID: () => 'browser-uuid' }, configurable: true });
+            expect(plugin._generateConsentId()).toBe('browser-uuid');
+
+            Object.defineProperty(window, 'crypto', { value: undefined, configurable: true });
+            expect(plugin._generateConsentId()).toMatch(/^[0-9a-f]{32}$/);
+
+            Object.defineProperty(window, 'crypto', { value: originalCrypto, configurable: true });
+        });
+
+        test('acceptAllCookies logs an accept_all consent', async () => {
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: cookieGroups,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+
+            await plugin.acceptAllCookies();
+
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_all', [], cookieGroups);
+        });
+
+        test('_handlePermission logs an accept_required consent', async () => {
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: cookieGroups,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+
+            await plugin._handlePermission({ preventDefault: jest.fn() });
+
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_required', [], cookieGroups);
+        });
+
+        test('_handleSubmit logs the checked cookies, not a group verdict', async () => {
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: cookieGroups,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+            jest.spyOn(plugin, '_getCookies').mockReturnValue([
+                { cookie: 'lorem', required: false },
+            ]);
+
+            await plugin._handleSubmit();
+
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_selected', ['lorem'], cookieGroups);
+        });
+    });
 });

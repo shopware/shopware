@@ -1,129 +1,72 @@
-# Legacy Axios to Axios v1 Migration Guide
+# Administration HTTP client: Axios 1.x
 
 ## Overview
 
-The Shopware Administration is moving from its legacy Axios 0.x client to Axios 1.x. Axios 1.x is the maintained release line and provides current security fixes, bug fixes, and ecosystem compatibility.
+The Shopware Administration HTTP client (`httpClient`) is a single Axios 1.x instance behind a Shopware-owned facade. The legacy Axios 0.x transport, the per-request transport switch, and the dual-transport compatibility machinery have been removed.
 
-To keep existing extensions working during the migration, the Administration temporarily contains both Axios versions behind a Shopware-owned HTTP client facade. Extension code continues to use the injected `httpClient`; it must not select or access an underlying Axios instance.
+Extension code continues to use the injected `httpClient`. Axios stays an implementation detail: the facade, not Axios, is the extension boundary, and Shopware's HTTP types describe the supported contract.
 
-The exact installed patch versions are implementation details and may change while the migration is in progress. This guide therefore refers to the clients as legacy Axios 0.x and Axios v1.
+## What changed
 
-## Version selection
+| Before | Now |
+| --- | --- |
+| Two Axios copies (`axios` 0.x and `axios-v1`) | One `axios` 1.x dependency |
+| `useAxiosV1` selected the transport per request | `useAxiosV1` has no effect and is deprecated |
+| `CancelToken` cancelled Axios 0.x requests | `AbortController` cancels requests; `CancelToken` is deprecated |
+| `axiosV0`, `interceptorsV0`, `defaultsV0` escape hatches | Removed |
+| `axiosV1`, `interceptorsV1`, `defaultsV1` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 
-The HTTP client selects the transport in this order:
-
-1. An explicit `useAxiosV1` value in the request configuration
-2. The `V6_8_0_0` feature flag
-3. The compatibility default for the installed Shopware version
-
-The resulting behavior is:
-
-| Context | Default transport | Temporary override |
-| --- | --- | --- |
-| Direct HTTP requests on Shopware 6.7 | Legacy Axios | `useAxiosV1: true` |
-| Direct HTTP requests with `V6_8_0_0` active | Axios v1 | `useAxiosV1: false` |
-| Repository requests during the transition | Axios v1 | None; the transport is internal |
-
-Repository requests use Axios v1 before the global switch because repositories are the standard Administration data-access path. Axios is not part of the repository contract, so extensions do not select its transport or need to change repository calls.
+All deprecated members stay functional until the next major and log a deprecation warning in development mode the first time they are used.
 
 ## Migrating direct HTTP requests
 
-Opt in while running Shopware 6.7 by setting `useAxiosV1: true`:
+Remove the `useAxiosV1` option. Everything else stays the same:
 
 ```javascript
-// Injected by the Administration
-inject: ['httpClient']
+// Before
+this.httpClient.get('/api/endpoint', { useAxiosV1: true });
 
-this.httpClient.get('/api/endpoint', {
-    useAxiosV1: true,
-});
-
-this.httpClient.post('/api/endpoint', data, {
-    useAxiosV1: true,
-});
+// Now
+this.httpClient.get('/api/endpoint');
 ```
 
-API services extending `ApiService` use the same facade:
-
-```javascript
-this.httpClient.get(url, {
-    headers: this.getBasicHeaders(),
-    useAxiosV1: true,
-});
-```
-
-Keep the explicit opt-in while validating Axios v1 on Shopware 6.7. Remove it after upgrading to a version where `V6_8_0_0` is active, because Axios v1 is then the default.
+API services extending `ApiService` need no further change.
 
 ## Repository requests
 
-No change is normally required:
+No change is required:
 
 ```javascript
 const product = await this.productRepository.get(productId, context);
 ```
 
-If a repository operation behaves differently with Axios v1, treat it as a Shopware compatibility issue. Repository consumers should not work around it by selecting an HTTP transport.
-
-## TypeScript
-
-New Administration code should use Shopware's HTTP types instead of importing `AxiosInstance`:
-
-```typescript
-import type { HttpClient, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';
-
-class ExampleApiService {
-    public constructor(private readonly httpClient: HttpClient) {}
-
-    public getExample(config: HttpRequestConfig = {}): Promise<HttpResponse<ExampleData>> {
-        return this.httpClient.get<ExampleData>('/api/example', config);
-    }
-}
-```
-
-During the transition, the facade remains structurally compatible with the previously exposed `AxiosInstance` type. Existing code using `AxiosRequestConfig.useAxiosV1` or passing the client to `axios-mock-adapter` therefore does not require a compatibility cast.
-
-This structural compatibility is transitional. Do not depend on Axios implementation details such as:
-
-- The identity or concrete class of the underlying client
-- Version-specific client properties
-- Internal interceptor handler arrays
-- Axios-specific defaults not declared by Shopware's `HttpClient`
+Repositories never exposed the transport as part of their contract.
 
 ## Request cancellation
 
-Legacy Axios uses `CancelToken`:
+Replace `CancelToken` with `AbortController`:
 
 ```javascript
+// Before (deprecated)
 const source = httpClient.CancelToken.source();
-
-httpClient.get('/api/endpoint', {
-    cancelToken: source.token,
-    useAxiosV1: false,
-});
-
+httpClient.get('/api/endpoint', { cancelToken: source.token });
 source.cancel('Operation cancelled');
-```
 
-Axios v1 uses `AbortController`:
-
-```javascript
+// Now
 const controller = new AbortController();
-
-httpClient.get('/api/endpoint', {
-    signal: controller.signal,
-    useAxiosV1: true,
-});
-
+httpClient.get('/api/endpoint', { signal: controller.signal });
 controller.abort();
 ```
 
-Use the facade to detect cancellation errors from either transport:
+Detect cancellations with the facade, not with the error class:
 
 ```javascript
 if (httpClient.isCancel(error)) {
-    // Works for both cancellation mechanisms
+    // request was cancelled
 }
 ```
+
+`httpClient.isCancel()` recognises `AbortController` cancellations and errors produced by the deprecated `CancelToken`.
 
 ## Errors
 
@@ -135,11 +78,11 @@ error.response.data
 error.response.headers
 ```
 
-Do not depend on the exact error class or message. Axios v1 provides standardized error codes such as `ERR_CANCELED`; use `httpClient.isCancel(error)` when handling cancellation across both transports.
+Do not depend on the exact error class or message. Use `httpClient.isCancel(error)` for cancellations.
 
 ## Interceptors and defaults
 
-Register customizations through the existing facade:
+Register customizations through the facade:
 
 ```javascript
 const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
@@ -148,25 +91,33 @@ httpClient.defaults.headers.common['my-header'] = 'value';
 httpClient.interceptors.request.eject(interceptorId);
 ```
 
-The facade registers the interceptor and applies default mutations to both internal clients. A request is still handled by only one transport, so a mirrored interceptor runs once per request. The returned interceptor ID belongs to the facade and must be passed back to the same facade for ejection.
+`httpClient.interceptors` and `httpClient.defaults` are the Axios instance's own interceptor managers and defaults. Do not use the deprecated `interceptorsV1` and `defaultsV1` aliases in new code.
 
-Do not register separate version-specific interceptors or defaults.
+## Upload progress
+
+`onUploadProgress` keeps working because Axios uses the XHR adapter in the browser. Axios 1.x passes an `AxiosProgressEvent` with `loaded`, `total`, `progress`, `rate` and `estimated`. Do not force the Axios fetch adapter through `httpClient.defaults.adapter`; fetch cannot report upload progress.
+
+## TypeScript
+
+Use Shopware's HTTP types instead of Axios types:
+
+```typescript
+import type { HttpClient, HttpError, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';
+
+class ExampleApiService {
+    public constructor(private readonly httpClient: HttpClient) {}
+
+    public getExample(config: HttpRequestConfig = {}): Promise<HttpResponse<ExampleData>> {
+        return this.httpClient.get<ExampleData>('/api/example', config);
+    }
+}
+```
+
+The `axios-v1` module alias no longer exists. Code that imported types from `axios-v1` must import them from `axios`, or better, switch to the Shopware types above.
+
+`HttpClient` remains structurally compatible with Axios' `AxiosInstance`, so existing code that passes the client to `axios-mock-adapter` keeps compiling. Do not depend on Axios implementation details beyond that: the concrete class of the client, version-specific properties, or internal interceptor handler arrays.
 
 ## Testing extensions
-
-Test all transport-sensitive paths before relying on the 6.8 default:
-
-1. Test direct requests with `useAxiosV1: false`
-2. Test direct requests with `useAxiosV1: true`
-3. Test normal repository calls, which already use Axios v1
-4. Test request cancellation and error handling
-5. Run the Administration tests with all major feature flags enabled
-
-For the Shopware platform test suite:
-
-```bash
-FEATURE_ALL=major composer admin:unit
-```
 
 `axios-mock-adapter` continues to work with the facade:
 
@@ -180,44 +131,34 @@ const mock = new MockAdapter(httpClient);
 mock.onGet('/api/endpoint').reply(200, { data: 'test' });
 ```
 
-## Temporary fallback
+Run the Administration tests with the major feature flags enabled to catch code that still depends on deprecated members:
 
-When `V6_8_0_0` is active, use `useAxiosV1: false` only when an incompatibility prevents an immediate migration:
-
-```javascript
-httpClient.request({
-    method: 'get',
-    url: '/api/endpoint',
-    useAxiosV1: false,
-});
+```bash
+FEATURE_ALL=major composer admin:unit
 ```
-
-Avoid spreading this override across an extension. A widespread opt-out hides migration problems and makes later removal harder.
-
-Axios 0.x, the `useAxiosV1` switch, and structural `AxiosInstance` compatibility are transitional. Their removal will be announced through the release information and the applicable major upgrade guide. No specific removal release is promised by this guide.
-
-The architectural rationale for keeping both transports behind a Shopware-owned boundary is documented in [Keep Administration HTTP transports behind a compatibility facade](../../../../../../../adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
 ## Troubleshooting
 
+### A deprecation warning mentions `useAxiosV1`
+
+Remove the option from the request configuration. It has no effect anymore.
+
+### A deprecation warning mentions `cancelToken`
+
+Replace `CancelToken` with `AbortController` as shown above.
+
 ### Cancellation is not detected
 
-Use `AbortController` for Axios v1 requests and check errors with `httpClient.isCancel(error)`.
-
-### A custom interceptor or default affects only some requests
-
-Register it through `httpClient.interceptors` or `httpClient.defaults`. Do not retain or configure an underlying Axios instance.
-
-### A repository request behaves differently
-
-Reproduce the request with Axios v1 and check cancellation and error assumptions. The repository transport cannot be changed by consumers; report the compatibility issue so it can be fixed centrally.
+Pass `controller.signal` as `signal` in the request config and check errors with `httpClient.isCancel(error)`.
 
 ### TypeScript expects an Axios-specific property
 
-Use Shopware's `HttpClient`, `HttpRequestConfig`, and `HttpResponse` types. If the property is an Axios internal rather than part of the Shopware contract, remove that dependency.
+Use Shopware's `HttpClient`, `HttpRequestConfig`, `HttpResponse` and `HttpError` types. If the property is an Axios internal rather than part of the Shopware contract, remove that dependency.
 
 ## Additional resources
 
 - [Original Shopware migration issue](https://github.com/shopware/shopware/issues/14041)
+- [ADR: Keep Administration HTTP transports behind a compatibility facade](../../../../../../../adr/2026-07-23-administration-http-client-compatibility-facade.md)
+- [ADR: Administration HTTP client runs on a single Axios 1.x transport](../../../../../../../adr/2026-09-11-administration-http-client-single-transport.md)
 - [Axios v1 documentation](https://axios-http.com/docs/intro)
 - [AbortController documentation](https://developer.mozilla.org/docs/Web/API/AbortController)

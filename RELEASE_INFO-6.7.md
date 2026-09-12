@@ -281,6 +281,9 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### Administration HTTP client runs on a single Axios 1.x transport
+
+The Administration `httpClient` is now one Axios 1.x instance (1.20.0). The legacy Axios 0.x transport, the `axios-v1` package alias, and the per-request transport switch were removed, which also drops the second Axios copy from the Administration bundle. Extensions keep using `httpClient` unchanged. The `useAxiosV1` request option is accepted as a no-op, `httpClient.CancelToken` keeps working, and `axiosV1`, `interceptorsV1` and `defaultsV1` remain as aliases; all of them are deprecated for 6.8.0.0 and log a development-mode warning on first use. The `axiosV0`, `interceptorsV0` and `defaultsV0` escape hatches were removed. Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations. Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

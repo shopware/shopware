@@ -1463,99 +1463,65 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 />
 ```
 
-## Axios v1 is now the default HTTP client
+## Administration HTTP client ships only Axios 1.x
 
-Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2.
-This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+The Administration HTTP client (`httpClient`) is a single Axios 1.x instance. The legacy Axios 0.x transport, the `axios-v1` package alias, and the per-request transport selection were removed. Most extensions need no change; the members below keep working until 6.8.0.0 and log a deprecation warning in development mode.
 
-### What changed
+### `useAxiosV1` request option
 
-**Shopware 6.7.x:**
-- Default: axios 0.30.2
-- Opt-in to v1: `useAxiosV1: true`
-- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+The option has no effect anymore and will be removed. Remove it from your requests:
 
-**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Direct HTTP request default: axios 1.x
-- Direct HTTP request opt-out to v0: `useAxiosV1: false`
-
-### Key differences between axios 0.30.2 and axios 1.x
-
-**Request Cancellation:**
 ```javascript
-// Axios 0.30.2 (deprecated CancelToken)
-const { CancelToken } = Axios;
-const source = CancelToken.source();
+// Before
+this.httpClient.get('/api/endpoint', { useAxiosV1: true });
 
-httpClient.get('/api/endpoint', {
-    cancelToken: source.token,
-});
-source.cancel('Operation cancelled');
+// After
+this.httpClient.get('/api/endpoint');
+```
 
-// Axios 1.x (modern AbortController)
+### `CancelToken` replaced by `AbortController`
+
+`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` are deprecated and will be removed. Use `AbortController`:
+
+```javascript
+// Before
+const source = httpClient.CancelToken.source();
+httpClient.get('/api/endpoint', { cancelToken: source.token });
+source.cancel();
+
+// After
 const controller = new AbortController();
-
-httpClient.get('/api/endpoint', {
-    signal: controller.signal,
-    useAxiosV1: true,
-});
+httpClient.get('/api/endpoint', { signal: controller.signal });
 controller.abort();
 ```
 
-**Error Detection:**
-```javascript
-// Works for both versions
-if (httpClient.isCancel(error)) {
-    // Handle cancellation
-}
+Detect cancellations with `httpClient.isCancel(error)`. It recognises both mechanisms.
 
-// Axios 1.x specific
-if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
-    // Handle cancellation
-}
-```
+`Shopware.Service('messageQueueService').consume(receiver, signal)` accepts an `AbortSignal` as second argument. Passing a `CancelToken` is deprecated.
 
-**Interceptors and Defaults:**
+### Version-specific escape hatches
 
-The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
+`httpClient.axiosV0`, `httpClient.interceptorsV0` and `httpClient.defaultsV0` were removed. `httpClient.axiosV1`, `httpClient.interceptorsV1` and `httpClient.defaultsV1` are deprecated aliases and will be removed. Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
 
 ```javascript
-const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
-httpClient.defaults.headers.common['my-header'] = 'value';
+// Before
+httpClient.interceptorsV1.request.use(handler);
 
-// Removes the interceptor from both internal clients
-httpClient.interceptors.request.eject(interceptorId);
+// After
+httpClient.interceptors.request.use(handler);
 ```
 
-Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
+### TypeScript
 
-### Migration guide
+Import types from `axios-v1` no longer resolve. Use Shopware's HTTP types instead of Axios types:
 
-Most code will work without changes.
-However, if you use request cancellation or depend on specific axios behavior:
-
-1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
-2. **Test your plugin** with axios v1 before the 6.8 release
-3. **Review error handling** for version-specific error codes
-
-**If a direct HTTP request needs axios 0.30.2 temporarily:**
-```javascript
-// Explicitly opt-out to use axios 0.30.2
-httpClient.request({
-    method: 'get',
-    url: '/api/endpoint',
-    useAxiosV1: false, // Force axios 0.30.2
-});
+```typescript
+import type { HttpClient, HttpError, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';
 ```
 
-### Future removal
+`HttpClient` stays structurally compatible with `AxiosInstance`, so passing the client to `axios-mock-adapter` keeps compiling.
 
-Axios 0.30.2 support will be completely removed in a future major release.
-The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
-Plan to migrate all code to axios v1 as soon as possible.
-
-For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
-The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
+See the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md` and the [single-transport ADR](adr/2026-09-11-administration-http-client-single-transport.md).
 
 ## Removal of "sw-empty-state"
 

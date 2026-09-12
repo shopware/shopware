@@ -6,6 +6,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Category\CategoryBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -405,6 +406,31 @@ class EntitySearcherTest extends TestCase
         static::assertArrayNotHasKey('_rn', $data);
         static::assertArrayNotHasKey('_group_0', $data);
         static::assertArrayNotHasKey('_sort_0', $data);
+    }
+
+    public function testScoreRankingSupportsCombinedPrimaryKeys(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create(
+            [(new ProductBuilder($ids, 'mapped'))->price(100)->name('Sport Bottle')->category('sports')->build()],
+            Context::createDefaultContext(),
+        );
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('categoryId', $ids->get('sports')), score: 100));
+        $criteria->addGroupField(new FieldGrouping('categoryId'));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductCategoryDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(
+            [['productId' => $ids->get('mapped'), 'categoryId' => $ids->get('sports')]],
+            $result->getIds()
+        );
     }
 
     private function createSportProducts(): IdsCollection

@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
@@ -1008,11 +1009,12 @@ class DefinitionValidator
             }
 
             $violations[] = \sprintf(
-                'Field %s on %s is flagged as Inherited but the inheritance helper column `%s` is missing on table `%s`. Add a migration calling $this->updateInheritance($connection, \'%s\', \'%s\').',
+                'Field %s on %s is flagged as Inherited but the inheritance helper column `%s` is missing on table `%s`. Add a migration which uses the `%s` and calls $this->updateInheritance($connection, \'%s\', \'%s\').',
                 $columnName,
                 $definition->getClass(),
                 $columnName,
                 $definition->getEntityName(),
+                InheritanceUpdaterTrait::class,
                 $definition->getEntityName(),
                 $columnName
             );

@@ -46,6 +46,8 @@ use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Controller\IntegrationController;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Api\Controller\UserController;
+use Shopware\Core\Framework\Api\Cors\CoreCorsHeaderProvider;
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\SalesChannelAuthenticationListener;
 use Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber;
@@ -120,7 +122,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->call('setContainer', [service('service_container')]);
 
+    $services->set(CoreCorsHeaderProvider::class)
+        ->tag(CorsHeaderProviderInterface::SERVICE_TAG, ['priority' => 1000]);
+
     $services->set(CorsListener::class)
+        ->args([
+            tagged_iterator(CorsHeaderProviderInterface::SERVICE_TAG),
+        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ResponseExceptionListener::class)

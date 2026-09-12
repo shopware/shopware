@@ -120,10 +120,15 @@ Per-tool limits and a `Retry-After` header are tracked as future improvements in
 
 ## Browser-based Clients (CORS)
 
-The endpoint supports browser-based MCP clients. The global CORS handling
-(`CorsListener`) allows the `mcp-session-id` and `mcp-protocol-version` request headers
-and exposes `mcp-session-id` on responses. A browser client can therefore read the
-session ID from the `initialize` response header and send it on all subsequent requests.
+The endpoint supports browser-based MCP clients. `CoreCorsHeaderProvider` contributes the
+`mcp-session-id` and `mcp-protocol-version` request headers to the global CORS handling
+(`CorsListener`) and exposes `mcp-session-id` on responses. A browser client can therefore
+read the session ID from the `initialize` response header and send it on all subsequent
+requests.
+
+Bundles that introduce their own API headers add them the same way, by registering a
+`Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface` service. The lists are
+global rather than per-route because preflight requests are answered before routing.
 
 ## Sessions
 

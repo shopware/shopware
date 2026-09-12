@@ -117,7 +117,7 @@ class FilesystemFactory
         $options = new OptionsResolver();
 
         $options->setRequired(['type']);
-        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url', 'private']);
+        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url', 'private', 'use_last_modified_version_strategy']);
 
         $options->setDefault('config', []);
         $options->setDefault('visibility', Visibility::PUBLIC);

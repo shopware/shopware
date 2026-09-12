@@ -173,8 +173,13 @@ class RegisterRoute extends AbstractRegisterRoute
         $companyName = $billingAddress['company'] ?? $shippingAddress['company'] ?? null;
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $companyName) {
             $customer['company'] = $companyName;
-            if ($data->get('vatIds')) {
-                $customer['vatIds'] = $data->get('vatIds');
+            $vatIds = $data->get('vatIds');
+            if ($vatIds instanceof DataBag) {
+                $vatIds = $vatIds->all();
+            }
+
+            if ($vatIds) {
+                $customer['vatIds'] = $vatIds;
             }
         }
 

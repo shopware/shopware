@@ -388,6 +388,26 @@ class ChangeCustomerProfileRouteTest extends TestCase
             true,
             ['123456789'],
         ];
+
+        yield 'Success when vatIds is a valid EU vat id of a different country than the billing address' => [
+            ['NL123456789B01'],
+            [
+                'required' => false,
+                'validateFormat' => true,
+            ],
+            true,
+            ['NL123456789B01'],
+        ];
+
+        yield 'Error when vatIds belongs to no member state at all' => [
+            ['CHE123456789'],
+            [
+                'required' => false,
+                'validateFormat' => true,
+            ],
+            false,
+            null,
+        ];
     }
 
     /**
@@ -706,6 +726,59 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame('initialValueShouldStay', $customFields['initialCustomField']);
     }
 
+    public function testChangingTheProfilePersistsTheMemberStateTheVatIdBelongsTo(): void
+    {
+        $this->setVatIdOfTheCountryToValidateFormat();
+
+        $this->changeProfileWithVatIds(['NL123456789B01']);
+
+        static::assertSame($this->getCountryIdByIso('NL'), $this->getCustomer()->getVatIdCountryId());
+    }
+
+    public function testSwitchingBackToAPrivateAccountClearsTheResolvedMemberState(): void
+    {
+        $this->setVatIdOfTheCountryToValidateFormat();
+        $this->changeProfileWithVatIds(['NL123456789B01']);
+
+        $this->browser->request('POST', '/store-api/account/change-profile', [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+        ]);
+
+        static::assertNull($this->getCustomer()->getVatIdCountryId());
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    private function changeProfileWithVatIds(array $vatIds): void
+    {
+        $this->browser->request('POST', '/store-api/account/change-profile', [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => $vatIds,
+        ]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success'] ?? false, (string) $this->browser->getResponse()->getContent());
+    }
+
+    private function getCountryIdByIso(string $iso): string
+    {
+        $countryId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(`id`)) FROM `country` WHERE `iso` = :iso',
+            ['iso' => $iso]
+        );
+        static::assertIsString($countryId);
+
+        return $countryId;
+    }
+
     /**
      * @return list<string>
      */
@@ -797,9 +870,10 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
     private function setVatIdOfTheCountryToValidateFormat(): void
     {
+        // Only a member state honours the VAT ID patterns of the other ones
         static::getContainer()->get(Connection::class)
             ->executeStatement(
-                'UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}"
+                'UPDATE `country` SET `is_eu` = 1, `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}"
                  WHERE id = :id',
                 [
                     'id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->create('sales-channel'))),

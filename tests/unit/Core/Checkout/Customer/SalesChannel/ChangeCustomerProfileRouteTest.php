@@ -124,7 +124,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(DataValidator::class),
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
-            $salutationRepository
+            $salutationRepository,
         );
 
         $customer = new CustomerEntity();

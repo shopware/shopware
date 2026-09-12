@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -49,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -127,6 +129,7 @@ class CustomerDefinition extends EntityDefinition
             (new EmailField('email', 'email'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Email ID of the customer.'),
             (new StringField('title', 'title', self::MAX_LENGTH_TITLE))->addFlags(new ApiAware())->setDescription('Titles or honorifics like Mr, Mrs, etc.'),
             (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware(), new IgnoreInOpenapiSchema())->setDescription('Unique identity of VAT.'),
+            (new FkField('vat_id_country_id', 'vatIdCountryId', CountryDefinition::class))->addFlags(new ApiAware(AdminApiSource::class))->setDescription('The EU member state whose VAT ID format the first VAT ID matches. Derived from `vatIds` on every write, never entered by the customer.'),
             (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware())->setDescription('An affiliate code is an identification option with which website operators can mark outgoing links.'),
             (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware())->setDescription('A campaign code is the globally unique identifier for a campaign.'),
             (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('To keep the status of the customer active, the boolean value is set to `true`.'),
@@ -155,6 +158,7 @@ class CustomerDefinition extends EntityDefinition
             $defaultShippingAddressAssociation,
             (new ManyToOneAssociationField('activeShippingAddress', 'active_shipping_address_id', CustomerAddressDefinition::class, 'id', false))->addFlags(new ApiAware(), new Runtime())->setDescription('Currently active shipping address in the session'),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Customer salutation (e.g., Mr., Mrs., Ms.)'),
+            (new ManyToOneAssociationField('vatIdCountry', 'vat_id_country_id', CountryDefinition::class, 'id', false))->addFlags(new ApiAware(AdminApiSource::class)),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('All addresses saved for the customer'),
             (new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, 'customer_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new ApiAware())->setDescription('Tags assigned to the customer for organization and segmentation'),

@@ -1,0 +1,92 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    id = "#{name}-#{random()}",
+    label = null,
+    value = '1',
+    description = null,
+    validationRules = null,
+    violationPath = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set descriptionId = "#{id}-description" %}
+{% set describedBy = description is not empty ? "#{descriptionId} #{feedbackId}" : feedbackId %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set controlAttributes = attributes.without('class', 'style').defaults(attributes.nested('control')) %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-checkbox sw-form-field form-check',
+}) %}
+
+{% set checkboxCVA = cva({
+    base: 'sw-form-checkbox__control sw-form-field__control form-check-input',
+    variants: {
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+{% set checkboxAttributeDefaults = {
+    class: checkboxCVA.apply({ isInvalid }),
+    type: 'checkbox',
+    id: id,
+    name: name,
+    value: value,
+    'aria-describedby': describedBy,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+} %}
+
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
+    {% block control %}
+        <input {{ controlAttributes.defaults(checkboxAttributeDefaults) }}>
+    {% endblock %}
+
+    {% block label %}
+        <twig:Sw:Form:Field:Label
+            :fieldId="id"
+            :label="label"
+            :required="required"
+            variant="check"
+        />
+    {% endblock %}
+
+    {% block description %}
+        <twig:Sw:Form:Field:Description
+            :id="descriptionId"
+            :description="description"
+        />
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Field:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</div>

@@ -1,0 +1,38 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    action = null,
+    method = 'post',
+    ajax = false,
+    replaceSelectors = [],
+    submitOnChange = false,
+    validate = true,
+    slots = [],
+%}
+
+{% set formCVA = cva({
+    base: 'sw-form',
+}) %}
+
+{% set formOptions = {
+    ajax: ajax,
+    replaceSelectors: replaceSelectors is iterable ? replaceSelectors : [replaceSelectors],
+    submitOnChange: submitOnChange,
+    validate: validate,
+} %}
+
+{% set attributeDefaults = {
+    class: formCVA.apply({}),
+    action: action is not empty ? action : false,
+    method: method,
+    'data-component': 'Sw:Form',
+    'data-component-options': formOptions|json_encode,
+} %}
+
+<form {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        <twig:Slot name="content"></twig:Slot>
+    {% endblock %}
+</form>

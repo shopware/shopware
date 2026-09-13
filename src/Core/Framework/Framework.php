@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
@@ -179,5 +180,11 @@ class Framework extends Bundle
 
         $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);
         $stampedeProtectionConfigurator->apply();
+
+        // ServicesResetter only resets initialized services; Symfony 8.1 removes this requirement.
+        // https://github.com/symfony/symfony/pull/63751
+        // The test verifies whether the Symfony fix resolves this and lets us remove this workaround safely.
+        // @see \Shopware\Tests\Integration\Core\Framework\Adapter\Database\ReplicaConnectionResetterTest::testServicesResetterInitializesReplicaConnectionResetter()
+        $this->container->get(ReplicaConnectionResetter::class);
     }
 }

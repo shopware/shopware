@@ -168,10 +168,8 @@ class VersionManager
         }
 
         // acquire a lock to prevent multiple merges of the same version
-        $lock = $this->lockManager->acquireOrThrow(
-            'sw-merge-version-' . $versionId,
-            fn (): never => throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId),
-        );
+        $lock = $this->lockManager->acquire('sw-merge-version-' . $versionId)
+            ?? throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
 
         if (!$this->versionExists($versionId)) {
             throw DataAbstractionLayerException::versionNotExists($versionId);

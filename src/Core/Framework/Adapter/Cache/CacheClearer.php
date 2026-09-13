@@ -179,7 +179,7 @@ class CacheClearer
      */
     private function lock(\Closure $closure, string $key, int $timeToLive, string $operation): void
     {
-        $this->lockManager->executeLocked(
+        $this->lockManager->runWithLock(
             'cache-clearer::' . $key,
             $closure,
             fn (): never => throw AdapterException::cacheCleanerLocked($operation, $key),

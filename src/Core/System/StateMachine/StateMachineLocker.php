@@ -38,12 +38,11 @@ class StateMachineLocker implements ResetInterface
             return $closure();
         }
 
-        $lock = $this->lockManager->acquireOrThrow(
+        $lock = $this->lockManager->acquire(
             $lockKey,
-            fn (): never => throw StateMachineException::stateMachineTransitionLocked($transition->getEntityName(), $transition->getEntityId()),
             ttl: self::LOCK_TTL,
             blocking: true,
-        );
+        ) ?? throw StateMachineException::stateMachineTransitionLocked($transition->getEntityName(), $transition->getEntityId());
 
         $this->acquiredLocks[$lockKey] = true;
 

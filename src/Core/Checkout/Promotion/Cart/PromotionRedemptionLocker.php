@@ -58,12 +58,11 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
                 continue;
             }
 
-            $lock = $this->lockManager->acquireOrThrow(
+            $lock = $this->lockManager->acquire(
                 $this->getLockKey($key),
-                fn (): never => throw PromotionException::promotionUsageLocked($key),
                 ttl: self::LOCK_TTL,
                 blocking: true,
-            );
+            ) ?? throw PromotionException::promotionUsageLocked($key);
 
             $locks[$key] = $lock;
         }

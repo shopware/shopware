@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Lock\Exception\LockAcquiringException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -17,24 +18,24 @@ use Symfony\Component\Lock\SharedLockInterface;
 #[CoversClass(LockManager::class)]
 class LockManagerTest extends TestCase
 {
-    public function testExecuteLockedReleasesLockAfterSuccessfulCallback(): void
+    public function testRunWithLockUsesDefaultsAndReleasesLockAfterSuccessfulCallback(): void
     {
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())
             ->method('acquire')
-            ->with()
+            ->with(false)
             ->willReturn(true);
         $lock->expects($this->once())->method('release');
 
         $lockFactory = $this->createMock(LockFactory::class);
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with('test-lock')
+            ->with('test-lock', LockManager::DEFAULT_TTL)
             ->willReturn($lock);
 
         $manager = new LockManager($lockFactory);
 
-        $result = $manager->executeLocked(
+        $result = $manager->runWithLock(
             'test-lock',
             static fn (): string => 'result',
             static fn (): string => 'fallback',
@@ -43,7 +44,7 @@ class LockManagerTest extends TestCase
         static::assertSame('result', $result);
     }
 
-    public function testExecuteLockedReleasesLockAfterCallbackException(): void
+    public function testRunWithLockReleasesLockAfterCallbackException(): void
     {
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(true);
@@ -56,7 +57,7 @@ class LockManagerTest extends TestCase
 
         $this->expectExceptionObject(new \RuntimeException('callback failed'));
 
-        $manager->executeLocked(
+        $manager->runWithLock(
             'test-lock',
             static function (): void {
                 throw new \RuntimeException('callback failed');
@@ -66,7 +67,7 @@ class LockManagerTest extends TestCase
         );
     }
 
-    public function testExecuteLockedReturnsFailureCallbackResultWhenLockCannotBeAcquired(): void
+    public function testRunWithLockReturnsFailureCallbackResultWhenLockCannotBeAcquired(): void
     {
         $lock = $this->createMock(SharedLockInterface::class);
         $lock->expects($this->once())
@@ -83,7 +84,7 @@ class LockManagerTest extends TestCase
 
         $manager = new LockManager($lockFactory);
 
-        $result = $manager->executeLocked(
+        $result = $manager->runWithLock(
             'test-lock',
             static fn (): string => 'locked',
             static fn (): string => 'fallback',
@@ -116,70 +117,52 @@ class LockManagerTest extends TestCase
 
     public function testAcquireReturnsNullWhenLockCannotBeAcquired(): void
     {
-        $lock = static::createStub(SharedLockInterface::class);
-        $lock->method('acquire')->willReturn(false);
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(false)
+            ->willReturn(false);
 
-        $lockFactory = static::createStub(LockFactory::class);
-        $lockFactory->method('createLock')->willReturn($lock);
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('test-lock', LockManager::DEFAULT_TTL)
+            ->willReturn($lock);
 
         $manager = new LockManager($lockFactory);
 
         static::assertNull($manager->acquire('test-lock'));
     }
 
-    public function testAcquireOrThrowReturnsLockWithoutReleasingIt(): void
-    {
-        $lock = $this->createMock(SharedLockInterface::class);
-        $lock->expects($this->once())
-            ->method('acquire')
-            ->with(false)
-            ->willReturn(true);
-        $lock->expects($this->never())->method('release');
-
-        $lockFactory = $this->createMock(LockFactory::class);
-        $lockFactory->expects($this->once())
-            ->method('createLock')
-            ->with('test-lock', 15.0)
-            ->willReturn($lock);
-
-        $manager = new LockManager($lockFactory);
-
-        static::assertSame($lock, $manager->acquireOrThrow(
-            'test-lock',
-            static fn (): never => throw new \RuntimeException('lock failed'),
-            ttl: 15.0,
-            blocking: false,
-        ));
-    }
-
-    public function testAcquireOrThrowRunsFailureCallbackWhenLockCannotBeAcquired(): void
+    public function testAcquirePropagatesLockConflictedException(): void
     {
         $lock = static::createStub(SharedLockInterface::class);
-        $lock->method('acquire')->willReturn(false);
+        $exception = new LockConflictedException();
+        $lock->method('acquire')->willThrowException($exception);
 
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
 
         $manager = new LockManager($lockFactory);
 
-        $this->expectExceptionObject(new \RuntimeException('lock failed'));
+        $this->expectExceptionObject($exception);
 
-        $manager->acquireOrThrow(
-            'test-lock',
-            static fn (): never => throw new \RuntimeException('lock failed'),
-        );
+        $manager->acquire('test-lock');
     }
 
-    public function testAcquireCanTreatSymfonyAcquisitionExceptionsLikeFailedAcquisition(): void
+    public function testAcquirePropagatesLockAcquiringException(): void
     {
         $lock = static::createStub(SharedLockInterface::class);
-        $lock->method('acquire')->willThrowException(new LockConflictedException());
+        $exception = new LockAcquiringException();
+        $lock->method('acquire')->willThrowException($exception);
 
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
 
         $manager = new LockManager($lockFactory);
 
-        static::assertNull($manager->acquire('test-lock', catchAcquiringExceptions: true));
+        $this->expectExceptionObject($exception);
+
+        $manager->acquire('test-lock');
     }
 }

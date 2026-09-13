@@ -56,10 +56,8 @@ class ConsumeMessagesController extends AbstractController
             throw MessageQueueException::validReceiverNameNotProvided();
         }
 
-        $consumerLock = $this->lockManager->acquireOrThrow(
-            'message_queue_consume_' . $receiverName,
-            fn (): never => throw MessageQueueException::workerIsLocked($receiverName),
-        );
+        $consumerLock = $this->lockManager->acquire('message_queue_consume_' . $receiverName)
+            ?? throw MessageQueueException::workerIsLocked($receiverName);
 
         $receiver = $this->receiverLocator->get($receiverName);
 

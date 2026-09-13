@@ -18,6 +18,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\Lock\Exception\LockAcquiringException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -74,9 +75,11 @@ class AppUrlVerifierTest extends TestCase
 
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
         static::assertTrue($verifier->verify($shopId));
+        static::assertSame(0, $http->getRequestsCount());
     }
 
-    public function testVerifyReturnsTrueIfCreateLockThrowsException(): void
+    #[DataProvider('lockAcquisitionExceptionProvider')]
+    public function testVerifyReturnsTrueIfAcquiringLockThrowsException(\Exception $exception): void
     {
         $cache = new ArrayAdapter();
         $clock = new MockClock();
@@ -84,7 +87,7 @@ class AppUrlVerifierTest extends TestCase
 
         $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')
-            ->willThrowException(new LockConflictedException('cannot acquire'));
+            ->willThrowException($exception);
 
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
@@ -93,6 +96,13 @@ class AppUrlVerifierTest extends TestCase
 
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
         static::assertTrue($verifier->verify($shopId));
+        static::assertSame(0, $http->getRequestsCount());
+    }
+
+    public static function lockAcquisitionExceptionProvider(): iterable
+    {
+        yield 'conflicted lock' => [new LockConflictedException('cannot acquire')];
+        yield 'lock backend failure' => [new LockAcquiringException('cannot acquire')];
     }
 
     #[DataProvider('verifyOutcomeProvider')]

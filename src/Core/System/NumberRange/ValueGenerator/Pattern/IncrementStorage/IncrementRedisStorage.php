@@ -54,7 +54,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
 
         // if the configured start value is greater than the current increment
         // we need a lock so that the value be only set once to the start value
-        return $this->lockManager->executeLocked(
+        return $this->lockManager->runWithLock(
             'number-range-' . $config['id'],
             function () use ($key, $start, $increment): int {
                 // to set the current increment to the new configured start we use incrementBy, rather than simply setting the new start value
@@ -117,7 +117,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     public function increaseToAtLeast(string $configurationId, int $value): void
     {
         $key = $this->getKey($configurationId);
-        $this->lockManager->executeLocked(
+        $this->lockManager->runWithLock(
             'number-range-' . $configurationId,
             function () use ($key, $value): void {
                 $currentValue = $this->redis->get($key);

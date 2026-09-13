@@ -33,11 +33,8 @@ class CartLocker
         }
 
         $lockKey = $this->getLockKey($context->getToken());
-        $lock = $this->lockManager->acquireOrThrow(
-            $lockKey,
-            fn (): never => throw CartException::cartLocked($context->getToken()),
-            ttl: self::LOCK_TTL,
-        );
+        $lock = $this->lockManager->acquire($lockKey, ttl: self::LOCK_TTL)
+            ?? throw CartException::cartLocked($context->getToken());
 
         try {
             $context->setCartLock($lock);

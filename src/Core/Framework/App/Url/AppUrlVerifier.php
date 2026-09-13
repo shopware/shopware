@@ -11,6 +11,8 @@ use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Lock\Exception\LockAcquiringException;
+use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -172,7 +174,11 @@ class AppUrlVerifier
 
     private function acquireLock(string $lockKey): ?LockInterface
     {
-        return $this->lockManager->acquire($lockKey, ttl: 10, catchAcquiringExceptions: true);
+        try {
+            return $this->lockManager->acquire($lockKey, ttl: 10);
+        } catch (LockConflictedException|LockAcquiringException) {
+            return null;
+        }
     }
 
     private function performVerification(string $appUrl, int $tries = 1): VerificationState

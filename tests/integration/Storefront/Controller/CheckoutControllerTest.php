@@ -446,6 +446,41 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    #[DataProvider('checkoutMethodSelections')]
+    public function testCheckoutConfirmMethodSelectionsHaveNamedGroups(string $formId, string $inputName, string $legend): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browser->followRedirects(true);
+        $salesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $this->createProductOnDatabase(Uuid::randomHex(), 'test.123', $salesChannelId);
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+
+        $crawler = $browser->request('GET', '/checkout/confirm');
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $form = $crawler->filter('#' . $formId);
+        static::assertCount(1, $form);
+        $radios = $form->filter('input[type="radio"][name="' . $inputName . '"]');
+        static::assertGreaterThan(0, $radios->count());
+
+        $fieldset = $crawler->filterXPath('//fieldset[.//form[@id="' . $formId . '"]]');
+        static::assertCount(1, $fieldset, 'Checkout method choices must have a fieldset with a descriptive legend.');
+        static::assertCount(1, $fieldset->children('legend'));
+        static::assertSame($legend, $fieldset->children('legend')->text());
+        static::assertCount($radios->count(), $fieldset->filter('input[type="radio"]'));
+        static::assertCount(1, $radios->filter('[checked]'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function checkoutMethodSelections(): iterable
+    {
+        yield 'payment' => ['changePaymentForm', 'paymentMethodId', 'Payment method'];
+        yield 'shipping' => ['changeShippingForm', 'shippingMethodId', 'Shipping method'];
+    }
+
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();

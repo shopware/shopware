@@ -275,6 +275,33 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
 
+### Product and category Store API return the breadcrumb
+
+`GET|POST /store-api/product/{productId}` and `GET|POST /store-api/category/{navigationId}` now return a `seoBreadcrumb` field, so headless clients no longer need a second request to `GET /store-api/breadcrumb/{id}`. It holds the category id, type, resolved path and the seo urls of every category on the path.
+
+It is `null` when the product has no visible category, and on every route other than the two detail routes above. The category keeps its translated `breadcrumb` field, which only holds the category names.
+
+Pass `skipBreadcrumb=1` to skip loading it; the breadcrumb costs two additional queries per request:
+
+```
+GET /store-api/product/{productId}?skipBreadcrumb=1
+```
+
+`slotConfig` is no longer part of the `translated` object of a breadcrumb entry, on this field and on `GET /store-api/breadcrumb/{id}`. A breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` filter that a `category` payload gets, and `slotConfig` is not `ApiAware` on the category definition — it was never part of the Store API contract. Read it from the `category` payload instead.
+
+`customFields` stays part of the breadcrumb, and entries a merchant marked as not `store_api_aware` for the `category` entity are now stripped from it. The Store API encoder only strips the unscoped ones here, because it keys that lookup by api alias and `breadcrumb` is not a registered entity, so those entries used to be exposed through `GET /store-api/breadcrumb/{id}`. Every other translated field is unchanged.
+
+`GET /store-api/breadcrumb/{id}` stays available, for example to load a breadcrumb from a listing without loading the full product.
+
+### Product breadcrumb accepts `referrerCategoryId` and resolves one deterministic path
+
+`GET|POST /store-api/product/{productId}` now honours the `referrerCategoryId` parameter whenever it is sent, and builds the breadcrumb along that category instead of the product's SEO category. Previously the parameter was silently ignored unless both the `BREADCRUMB_REWORK` feature flag and the shop setting `core.listing.buildBreadcrumbByReferrerCategory` were enabled, which made the route disagree with `GET /store-api/breadcrumb/{id}`; both now behave the same, and neither requires the feature flag. The parameter is read from the query string and from the request body, and is ignored when the category is not part of the product's category tree or is not reachable in the sales channel.
+
+The parameter also steers the existing `seoCategory` field, which then holds the referrer category instead of the product's SEO category. That was already the design when the feature flag and the setting were both enabled; only the two gates are gone. Requests without the parameter are unchanged.
+
+The Storefront is unaffected: it keeps honouring the setting, and when the setting is off it now tells the route to ignore the parameter, so a link that still carries `referrerCategoryId` — an old bookmark, or a URL indexed while the setting was enabled — cannot bring referrer breadcrumbs back into a shop that disabled them. The quick view and the buy box widget ignore the parameter entirely, since they render no category path.
+
+Without `referrerCategoryId` the breadcrumb is built from the product's SEO category as before, but the choice is now deterministic: after the existing `visible` and `level` ordering, ties are broken by the category's `autoIncrement`. Previously two equally deep, equally visible categories in different branches were ordered by whatever the database returned first, so the same product could produce different breadcrumbs on different requests and whichever path won was frozen into the HTTP cache. Which category is preferred is unchanged; only the previously arbitrary tie is now resolved consistently.
 ### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
 
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.

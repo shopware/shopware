@@ -563,7 +563,18 @@
                     },
                     "seoCategory": {
                         "$ref": "#/components/schemas/Category",
-                        "description": "Main category used for SEO URL generation in the current sales channel"
+                        "description": "Main category used for SEO URL generation in the current sales channel, or the category given as `referrerCategoryId` when that parameter is sent and the category is part of the product's category tree"
+                    },
+                    "seoBreadcrumb": {
+                        "description": "Runtime field, cannot be used as part of the criteria. Breadcrumb of the SEO category, including the seo urls of every category in the path. Only populated by `GET|POST /store-api/product/{productId}`; `null` on every other route, when the request is sent with `skipBreadcrumb=1`, or when the product has no visible category.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/BreadcrumbCollection"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "apiAlias": {
                         "type": "string",

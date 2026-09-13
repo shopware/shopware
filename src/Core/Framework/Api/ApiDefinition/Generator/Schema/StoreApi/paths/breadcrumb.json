@@ -1,16 +1,6 @@
 {
     "openapi": "3.2.0",
     "info": [],
-    "components": {
-        "schemas": {
-            "BreadcrumbCollection": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/Breadcrumb"
-                }
-            }
-        }
-    },
     "paths": {
         "/breadcrumb/{id}": {
             "get": {

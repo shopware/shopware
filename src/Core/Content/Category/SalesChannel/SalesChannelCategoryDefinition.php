@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,6 +35,10 @@ class SalesChannelCategoryDefinition extends CategoryDefinition implements Sales
 
         $fields->add(
             (new StringField('seo_url', 'seoUrl'))->addFlags(new ApiAware(), new Runtime(['type', 'linkType', 'internalLink']))
+        );
+
+        $fields->add(
+            (new ObjectField('seoBreadcrumb', 'seoBreadcrumb'))->addFlags(new ApiAware(), new Runtime(['path', 'breadcrumb']), new Since('6.7.15.0'))->setDescription('Breadcrumb of the category, including the seo urls of every category in the path')
         );
 
         return $fields;

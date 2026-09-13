@@ -160,6 +160,17 @@
                         "description": "Runtime field, cannot be used as part of the criteria.",
                         "type": "string"
                     },
+                    "seoBreadcrumb": {
+                        "description": "Runtime field, cannot be used as part of the criteria. Breadcrumb of the category, including the seo urls of every category in the path. Only populated by `GET|POST /store-api/category/{navigationId}`; `null` on every other route and when the request is sent with `skipBreadcrumb=1`.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/BreadcrumbCollection"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",

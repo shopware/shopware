@@ -55,6 +55,7 @@ use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -113,7 +114,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(PromotionRedemptionLocker::class)
         ->args([
-            service('lock.factory'),
+            service(LockManager::class),
         ])
         ->tag('kernel.event_subscriber');
 

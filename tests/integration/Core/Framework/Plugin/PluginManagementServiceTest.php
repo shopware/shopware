@@ -8,6 +8,7 @@ use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
@@ -207,7 +208,7 @@ class PluginManagementServiceTest extends TestCase
             false,
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('logger'),
-            static::getContainer()->get('lock.factory')
+            static::getContainer()->get(LockManager::class)
         );
     }
 

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -55,7 +56,7 @@ class CacheClearerTest extends TestCase
 
     private string $cacheDir;
 
-    private LockFactory&Stub $lock;
+    private LockManager $lockManager;
 
     protected function setUp(): void
     {
@@ -74,9 +75,10 @@ class CacheClearerTest extends TestCase
 
         $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(true);
-        $this->lock = static::createStub(LockFactory::class);
-        $this->lock->method('createLock')
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')
             ->willReturn($lock);
+        $this->lockManager = new LockManager($lockFactory);
 
         // Create a nested directory structure to avoid scanning system temp directories
         $testBase = sys_get_temp_dir() . '/shopware_test_' . uniqid();
@@ -99,7 +101,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
     }
 
@@ -194,7 +196,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $logger,
-            $this->lock
+            $this->lockManager
         );
 
         $cacheClearer->clear();
@@ -218,7 +220,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->once())->method('clear');
@@ -251,7 +253,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->once())->method('clear');
@@ -286,7 +288,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->once())->method('clear');
@@ -349,7 +351,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->never())->method('clear');
@@ -384,7 +386,7 @@ class CacheClearerTest extends TestCase
             true,
             $messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->never())->method('clear');
@@ -438,7 +440,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->never())->method('clear');
@@ -497,7 +499,7 @@ class CacheClearerTest extends TestCase
             true,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->never())->method('clear');
@@ -538,7 +540,7 @@ class CacheClearerTest extends TestCase
             false,
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->never())->method('clear');
@@ -569,7 +571,7 @@ class CacheClearerTest extends TestCase
             false, // reverse http cache disabled
             $this->messageBus,
             $this->logger,
-            $this->lock
+            $this->lockManager
         );
 
         $this->appAdapter->expects($this->once())->method('clear');

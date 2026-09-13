@@ -89,8 +89,11 @@ class ProductPageLoader
 
         $this->eventDispatcher->dispatch(new ProductPageCriteriaEvent($productId, $criteria, $context));
 
-        // the storefront builds the breadcrumb itself below, so the route must not resolve it a second time
-        $request->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
+        // @deprecated tag:v6.8.0 - remove this if block; while the rework is inactive the storefront cannot use the
+        // breadcrumb of the route, so resolving it there would be wasted work on every page render
+        if (!Feature::isActive('BREADCRUMB_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
+        }
 
         if (!$this->systemConfigService->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
             // the route honours the parameter whenever a client sends it, so a link that still carries it must not
@@ -119,7 +122,12 @@ class ProductPageLoader
             $request->request->set('navigationId', $category->getId());
 
             if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
-                $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
+                // the route already resolved it, which is also what registers the `category-route-*` cache tags of the
+                // whole path on this page; a decorated route that does not populate it is still served by the builder
+                $page->setBreadcrumb(
+                    $product->getSeoBreadcrumb()
+                        ?? $this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel())
+                );
             }
         }
 

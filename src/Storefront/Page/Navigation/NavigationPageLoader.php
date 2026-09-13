@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
@@ -42,8 +44,11 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
 
         $navigationId = $request->attributes->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
-        // the storefront builds the breadcrumb itself below, so the route must not resolve it a second time
-        $request->attributes->set(CategoryRoute::SKIP_BREADCRUMB, true);
+        // @deprecated tag:v6.8.0 - remove this if block; while the rework is inactive the storefront cannot use the
+        // breadcrumb of the route, so resolving it there would be wasted work on every page render
+        if (!Feature::isActive('BREADCRUMB_REWORK') && !Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(CategoryRoute::SKIP_BREADCRUMB, true);
+        }
 
         $category = $this->cmsPageRoute
             ->load($navigationId, $request, $context)
@@ -58,7 +63,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $page->setCategory($category);
 
         if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
-            $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
+            $page->setBreadcrumb($this->getBreadcrumb($category, $context));
         }
 
         if ($category->getCmsPage()) {
@@ -82,6 +87,19 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         );
 
         return $page;
+    }
+
+    private function getBreadcrumb(CategoryEntity $category, SalesChannelContext $context): BreadcrumbCollection
+    {
+        if ($category instanceof SalesChannelCategoryEntity && $category->getSeoBreadcrumb() !== null) {
+            return $category->getSeoBreadcrumb();
+        }
+
+        return $this->breadcrumbBuilder->getCategoryBreadcrumbUrls(
+            $category,
+            $context->getContext(),
+            $context->getSalesChannel()
+        );
     }
 
     private function loadMetaData(CategoryEntity $category, NavigationPage $page, SalesChannelEntity $salesChannel): void

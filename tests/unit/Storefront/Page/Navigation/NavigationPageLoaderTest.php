@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
@@ -30,26 +31,82 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(NavigationPageLoader::class)]
 class NavigationPageLoaderTest extends TestCase
 {
-    public function testItTellsTheRouteToSkipTheBreadcrumb(): void
+    public function testItTakesTheBreadcrumbFromTheRoute(): void
     {
-        // the storefront builds the breadcrumb itself, so the route must not resolve it a second time
-        $request = new Request();
         $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', Uuid::randomHex())]);
-
-        $page = $this->load($request, $breadcrumb);
-
-        static::assertTrue($request->attributes->get(CategoryRoute::SKIP_BREADCRUMB));
-        static::assertSame($breadcrumb, $page->getBreadcrumb());
-    }
-
-    private function load(Request $request, BreadcrumbCollection $breadcrumb): NavigationPage
-    {
-        $context = Generator::generateSalesChannelContext();
 
         $category = new SalesChannelCategoryEntity();
         $category->setId(Uuid::randomHex());
         $category->setActive(true);
+        $category->setSeoBreadcrumb($breadcrumb);
 
+        // the route already resolved it, and that is also what registers the path cache tags on this page
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->never())->method('getCategoryBreadcrumbUrls');
+
+        $page = Feature::fake(['BREADCRUMB_REWORK'], fn (): NavigationPage => $this->load($category, $breadcrumbBuilder));
+
+        static::assertSame($breadcrumb, $page->getBreadcrumb());
+    }
+
+    public function testItFallsBackToTheBuilderForADecoratedRoute(): void
+    {
+        // CategoryRouteResponse only guarantees a CategoryEntity, which cannot carry the breadcrumb
+        $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
+        $category->setActive(true);
+
+        $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', $category->getId())]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        $page = Feature::fake(['BREADCRUMB_REWORK'], fn (): NavigationPage => $this->load($category, $breadcrumbBuilder));
+
+        static::assertSame($breadcrumb, $page->getBreadcrumb());
+    }
+
+    public function testItFallsBackWhenTheRouteLeftTheBreadcrumbUnset(): void
+    {
+        // the entity can carry it, but a decorated route may simply not populate it
+        $category = new SalesChannelCategoryEntity();
+        $category->setId(Uuid::randomHex());
+        $category->setActive(true);
+
+        $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', $category->getId())]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        $page = Feature::fake(['BREADCRUMB_REWORK'], fn (): NavigationPage => $this->load($category, $breadcrumbBuilder));
+
+        static::assertSame($breadcrumb, $page->getBreadcrumb());
+    }
+
+    public function testItSkipsTheRouteBreadcrumbWhileTheReworkIsInactive(): void
+    {
+        $category = new SalesChannelCategoryEntity();
+        $category->setId(Uuid::randomHex());
+        $category->setActive(true);
+
+        $request = new Request();
+        $request->attributes->set('navigationId', $category->getId());
+
+        // the storefront cannot use it yet, so the route must not spend queries on it
+        Feature::fake([], fn () => $this->load($category, static::createStub(CategoryBreadcrumbBuilder::class), $request));
+
+        static::assertTrue($request->attributes->get(CategoryRoute::SKIP_BREADCRUMB));
+    }
+
+    private function load(CategoryEntity $category, CategoryBreadcrumbBuilder $breadcrumbBuilder, ?Request $request = null): NavigationPage
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $request ??= new Request();
         $request->attributes->set('navigationId', $category->getId());
 
         $categoryRoute = static::createStub(AbstractCategoryRoute::class);
@@ -57,9 +114,6 @@ class NavigationPageLoaderTest extends TestCase
 
         $genericLoader = static::createStub(GenericPageLoaderInterface::class);
         $genericLoader->method('load')->willReturn(new Page());
-
-        $breadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
-        $breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn($breadcrumb);
 
         $loader = new NavigationPageLoader(
             $genericLoader,
@@ -69,9 +123,6 @@ class NavigationPageLoaderTest extends TestCase
             $breadcrumbBuilder,
         );
 
-        return Feature::fake(
-            ['BREADCRUMB_REWORK'],
-            static fn (): NavigationPage => $loader->load($request, $context)
-        );
+        return $loader->load($request, $context);
     }
 }

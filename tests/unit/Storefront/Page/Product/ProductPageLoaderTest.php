@@ -40,6 +40,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPage;
@@ -259,12 +260,13 @@ class ProductPageLoaderTest extends TestCase
         static::assertSame($referrerCategoryId, $request->query->get(ProductDetailRoute::REFERRER_CATEGORY_ID));
     }
 
+    #[DisabledFeatures(['BREADCRUMB_REWORK', 'v6.8.0.0'])]
     public function testItSkipsTheRouteBreadcrumbWhileTheReworkIsInactive(): void
     {
         $request = new Request([], [], ['productId' => Uuid::randomHex()]);
 
         // the storefront cannot use it yet, so the route must not spend queries on it
-        Feature::fake([], fn (): ProductPage => $this->loadWithBreadcrumbSettings($request));
+        $this->loadWithBreadcrumbSettings($request);
 
         static::assertTrue($request->attributes->get(ProductDetailRoute::SKIP_BREADCRUMB));
     }

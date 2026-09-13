@@ -16,6 +16,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
@@ -87,6 +88,7 @@ class NavigationPageLoaderTest extends TestCase
         static::assertSame($breadcrumb, $page->getBreadcrumb());
     }
 
+    #[DisabledFeatures(['BREADCRUMB_REWORK', 'v6.8.0.0'])]
     public function testItSkipsTheRouteBreadcrumbWhileTheReworkIsInactive(): void
     {
         $category = new SalesChannelCategoryEntity();
@@ -97,7 +99,7 @@ class NavigationPageLoaderTest extends TestCase
         $request->attributes->set('navigationId', $category->getId());
 
         // the storefront cannot use it yet, so the route must not spend queries on it
-        Feature::fake([], fn () => $this->load($category, static::createStub(CategoryBreadcrumbBuilder::class), $request));
+        $this->load($category, static::createStub(CategoryBreadcrumbBuilder::class), $request);
 
         static::assertTrue($request->attributes->get(CategoryRoute::SKIP_BREADCRUMB));
     }

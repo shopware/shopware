@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\Cookie\ScheduledTask;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
- */
 #[Package('framework')]
 class CleanupCookieConsentLogTask extends ScheduledTask
 {

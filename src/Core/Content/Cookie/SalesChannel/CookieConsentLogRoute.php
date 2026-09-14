@@ -30,8 +30,6 @@ use Symfony\Component\Routing\Attribute\Route;
  * per-group verdict, is derived here against the configuration the server holds,
  * so the stored evidence cannot be shaped by the client and the rules stay in
  * one testable place.
- *
- * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]

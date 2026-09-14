@@ -87,9 +87,9 @@ Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legac
 
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
-### Server-side cookie consent logging (experimental)
+### Server-side cookie consent logging
 
-The built-in cookie banner can now record every consent decision server-side, so shop operators can demonstrate that consent was obtained (GDPR Art. 7(1), Recital 42). Recording is **off by default** and is switched on with `shopware.cookie_consent.log_storage` in `shopware.yaml`. Its routes, database schema and PHP classes are experimental until 6.8.0 and not yet covered by the backwards compatibility promise, so they can still change in a patch release.
+The built-in cookie banner can now record every consent decision server-side, so shop operators can demonstrate that consent was obtained (GDPR Art. 7(1), Recital 42). Recording is **off by default** and is switched on with `shopware.cookie_consent.log_storage` in `shopware.yaml`.
 
 This provides proof that consent was collected through Shopware's built-in cookie banner. It is not a Consent Management Platform. It does not emit IAB TCF consent strings or Google Consent Mode v2 signals. Merchants serving ads in the EEA or UK still require a Google-certified CMP. Shops using a third-party consent manager instead of the built-in banner are not affected.
 

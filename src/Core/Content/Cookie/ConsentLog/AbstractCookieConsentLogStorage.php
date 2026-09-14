@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Log\Package;
  * of its primary database: implement this class, tag the service with
  * `shopware.cookie_consent.log_storage` and select it via
  * `shopware.cookie_consent.log_storage` in the bundle configuration.
- *
- * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
 #[Package('framework')]
 abstract class AbstractCookieConsentLogStorage

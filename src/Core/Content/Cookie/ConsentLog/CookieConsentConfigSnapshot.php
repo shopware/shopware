@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
  * The cookie banner configuration as it was presented to visitors, stored once per
  * configuration hash. A consent record references it through its `configHash`, so
  * it can be shown later what the visitor agreed to.
- *
- * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
 #[Package('framework')]
 final readonly class CookieConsentConfigSnapshot implements \JsonSerializable

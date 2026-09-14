@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
  * generated and keeps in its own cookie storage. It links the decisions of one
  * visitor and lets a data subject retrieve their own records, but it is neither an
  * IP address, a session id nor a customer id.
- *
- * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
 #[Package('framework')]
 final readonly class CookieConsentRecord implements \JsonSerializable

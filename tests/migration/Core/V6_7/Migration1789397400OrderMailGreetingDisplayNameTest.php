@@ -38,6 +38,8 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
     #[DataProvider('mailTypeProvider')]
     public function testItGreetsWithTheDisplayName(string $type): void
     {
+        $this->seedShippedGreeting($type);
+
         $migration = new Migration1789397400OrderMailGreetingDisplayName();
         $migration->update($this->connection);
         $migration->update($this->connection);
@@ -93,13 +95,34 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
     }
 
     /**
+     * Other migration tests leave the shipped templates with foreign content and a set updated_at
+     */
+    private function seedShippedGreeting(string $type): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE mail_template_translation
+             INNER JOIN mail_template ON mail_template.id = mail_template_translation.mail_template_id
+             INNER JOIN mail_template_type ON mail_template.mail_template_type_id = mail_template_type.id
+             SET mail_template_translation.content_plain = :plain,
+                 mail_template_translation.content_html = :html,
+                 mail_template_translation.updated_at = NULL,
+                 mail_template.updated_at = NULL
+             WHERE mail_template_type.technical_name = :type AND mail_template.system_default = 1',
+            [
+                'plain' => 'Hello {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}',
+                'html' => '<p>Hello {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}</p>',
+                'type' => $type,
+            ]
+        );
+    }
+
+    /**
      * @return list<string>
      */
     private function contents(string $type): array
     {
-        /** @var list<string> $contents */
-        $contents = $this->connection->fetchFirstColumn(
-            'SELECT mail_template_translation.content_plain
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT mail_template_translation.content_plain, mail_template_translation.content_html
              FROM mail_template_translation
              INNER JOIN mail_template ON mail_template.id = mail_template_translation.mail_template_id
              INNER JOIN mail_template_type ON mail_template.mail_template_type_id = mail_template_type.id
@@ -107,7 +130,13 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
             ['type' => $type]
         );
 
-        static::assertNotEmpty($contents);
+        static::assertNotEmpty($rows);
+
+        $contents = [];
+        foreach ($rows as $row) {
+            $contents[] = (string) $row['content_plain'];
+            $contents[] = (string) $row['content_html'];
+        }
 
         return $contents;
     }

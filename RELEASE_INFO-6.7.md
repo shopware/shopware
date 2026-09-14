@@ -146,48 +146,42 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 ### Company accounts can register without a contact person
 
-`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. Both default to on, for new and for upgraded installations, so nothing changes until a shop turns one of them off. Together they cover the three states a contact person can have on a commercial account: required, optional and hidden. A hidden field is never submitted and therefore never required. Once the contact person is no longer mandatory the company name takes its place and becomes required.
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. Both default to on, for new and for upgraded installations, so nothing changes until a shop turns one of them off. Together they cover the three states a contact person can have on a commercial account: required, optional and hidden. A hidden field is never submitted and therefore never required, the same rule the phone number and birthday pairs follow. Once the contact person is no longer mandatory the company name takes its place and becomes required.
 
-Both settings only do something while `core.loginRegistration.showAccountTypeSelection` is on. Without that selection a shop cannot tell a commercial registration from a private one, so first and last name stay mandatory whatever the two settings say. Apply the same gate wherever you read the two keys:
-
-```php
-$required = !$accountTypeSelection || ($showNameFields && $nameFieldsRequired);
-$visible = !$accountTypeSelection || $showNameFields;
-```
-
-The account type selection has no default value, so an unsaved value counts as off. The other two default to on. The settings screen renders both switches disabled while the account type selection is off. `sw-system-config` takes a new `disabledElements` prop for that, a list of config keys it renders disabled, and its `config-changed` event carries the inherited values of the global configuration as a second argument, because the first one holds the overrides of the selected sales channel alone.
+The account type of a write comes from the request first and from the authenticated customer second. A registration without an account type is a private one and keeps the names required, and a logged in commercial customer stays one even while the account type selection is switched off. The rule lives in the `CompanyAccountNameFields` service: `areVisible()`, `areRequired()` and `areOptional()` answer for a sales channel, `relax()` drops the blank check of a `DataValidationDefinition` and requires the company instead, and `normalize()` turns an absent name into the empty string the data abstraction layer accepts.
 
 The first and last name fields of `customer`, `customer_address`, `order_customer` and `order_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
 
-The customer entity gains a runtime field `displayName`, holding the person name, or the company name when a commercial account has no contact person. Use it instead of joining `firstName` and `lastName` when you render a customer:
+The `customer` and the `order_customer` entity gain a runtime field `displayName`, holding the person name, or the company name when there is no contact person. Use it instead of joining `firstName` and `lastName` when you render a customer:
 
 ```twig
 {{ customer.displayName }}
+{{ order.orderCustomer.displayName }}
 ```
 
-The getter resolves the name from the live `firstName`, `lastName`, `company` and `accountType`, so it is right on any entity, including one you build or change in code. A subscriber fills the runtime field itself on `customer.loaded` and `customer.partial_loaded`, which is what carries the value into the API responses, and the stored value is only read back when a partial read left every source field behind. A partial read that asks for `displayName` gets the four source fields pulled in with it; one that leaves any of them out carries no display name at all, because a name resolved from half the sources would not be the one the field promises. Being a runtime field it cannot be sorted or filtered in a `Criteria`; sort on `lastName` or `company` instead.
+`CustomerEntity::getDisplayName()` resolves the name from the live `firstName`, `lastName`, `company` and `accountType`, so a private account without a name renders nothing rather than its company. `OrderCustomerEntity::getDisplayName()` resolves it from the names and the company of the snapshot, which has no account type. A subscriber per entity fills the runtime field on the `loaded` and `partial_loaded` events, which is what carries the value into the API responses. Being a runtime field it cannot be sorted or filtered in a `Criteria`; sort on `lastName` or `company` instead.
 
-`CustomerTransformer` writes the company name into the order customer name fields when a commercial account has no contact person, so documents, mails and the order list keep naming the buyer.
+The order snapshot keeps the names as the customer had them, so an order of a commercial account without a contact person carries empty names and the company in `order_customer.company`. `OrderCustomerEntity::getBuyerName()` joins the person and the company for the buyer block of a document.
 
-`GET /store-api/shop-settings` returns the two new settings under `loginRegistration`, with the gate above already applied, so a headless client can build the same form as the Storefront.
-
-The four cart errors that name an address, the missing salutation and the missing country region of the billing and the shipping address, now name a company address by its company instead of starting the message with a blank. They read the name through the new `CustomerAddressNameFormatter`. The message of `ShippingAddressCountryRegionMissingError` also says "shipping address" now; it named the billing address by mistake.
+`GET /store-api/shop-settings` returns the two new settings under `loginRegistration`, so a headless client can build the same form as the Storefront.
 
 A registration that sends only a shipping address gets it as the default billing address, so that address is judged by the account type of the registration and has to carry the company.
 
 On the registration and profile forms the first and last name fields follow the account type selection through the new `CompanyNameFields` storefront plugin, so the client validation matches what the backend accepts. Address blocks keep the names required, because the backend judges those by the customer or by the top level account type rather than by the account type of the address.
 
+In the Administration the company becomes an account level field of a commercial customer, and a migration copies it from the default billing address for accounts that were created without one. The new `companyAccountNameFieldsService` answers whether a contact person is required for a sales channel, and the customer list, the order list and every other place that names a customer read `displayName` from the API.
+
 ### Customer mails greet a company account by its company name
 
 The seven shipped mail templates that greet the customer by name now use the resolved display name instead of `{{ customer.firstName }} {{ customer.lastName }}`: `customer.group.registration.accepted`, `customer.group.registration.declined`, `customer.password.changed`, `customer_register.double_opt_in`, `guest_order.double_opt_in` and `password_change` read `{{ customer.displayName }}`, and `customer.recovery.request` reads `{{ customerRecovery.customer.displayName }}`. A migration applies the same change to existing installations, and skips any template a shop has edited.
 
-The recipient name of the ten customer mail events follows the same rule, so the `To:` header of a commercial account without a contact person carries the company instead of a blank.
+The recipient name of the ten customer mail events and of the three order mail events follows the same rule, so the `To:` header of a commercial account without a contact person carries the company instead of a blank.
 
 A template of your own that greets by name needs the same change, otherwise it renders an empty greeting for such an account.
 
 ### Invoice buyer names no longer repeat the company name
 
-The buyer name on invoices no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present. The ZUGFeRD renderer and the document v2 trade party view both take the name from one shared formatter now, so they cannot drift apart again.
+The buyer name on invoices no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present. The ZUGFeRD renderer and the document v2 trade party view both take the name from `OrderCustomerEntity::getBuyerName()` now, so they cannot drift apart again.
 
 ### Dynamic product group assignments follow condition changes
 

@@ -228,6 +228,13 @@ shopware:
 
     api:
         max_limit: 500
+        auth_code_ttl: 'PT5M'
+        oauth_clients: # public OAuth clients allowed to use the authorization code grant with PKCE
+            shopware-cli:
+                name: 'Shopware CLI'
+                redirect_uris:
+                    - 'http://127.0.0.1/callback'
+                    - 'http://[::1]/callback'
         api_browser:
             auth_required: true
         store:

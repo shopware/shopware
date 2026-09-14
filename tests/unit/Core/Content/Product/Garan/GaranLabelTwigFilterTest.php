@@ -30,12 +30,25 @@ class GaranLabelTwigFilterTest extends TestCase
 
         $filters = $filter->getFilters();
 
-        static::assertCount(5, $filters);
+        static::assertCount(7, $filters);
         static::assertSame('sw_garan_label_duration', $filters[0]->getName());
         static::assertSame('sw_garan_label', $filters[1]->getName());
         static::assertSame('sw_garan_label_nested', $filters[2]->getName());
         static::assertSame('sw_garan_label_data_uri', $filters[3]->getName());
         static::assertSame('sw_garan_label_nested_uri', $filters[4]->getName());
+        static::assertSame('sw_garan_label_text_length', $filters[5]->getName());
+        static::assertSame('sw_garan_label_duration_text_length', $filters[6]->getName());
+    }
+
+    public function testTextLengthFiltersDelegateToFitter(): void
+    {
+        $filter = $this->createFilter([]);
+
+        static::assertNull($filter->fitTextLength('Acme', 190.43, 9));
+        static::assertSame(188.93, $filter->fitTextLength('Shopware Lebensmittel und Nahrungsmittel GmbH', 190.43, 9));
+
+        static::assertNull($filter->fitDurationTextLength('25', 116.4, 80, -0.03));
+        static::assertSame(114.9, $filter->fitDurationTextLength('25,5', 116.4, 80, -0.03));
     }
 
     public function testFormatDurationDelegatesToFormatter(): void

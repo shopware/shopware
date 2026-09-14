@@ -106,6 +106,7 @@ jobs:
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
+      FEATURE_ALL: major
 
     steps:
       - name: Setup Shopware

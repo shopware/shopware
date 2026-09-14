@@ -92,6 +92,9 @@ class IdSearchResult extends Struct
     }
 
     /**
+     * Returns a list of associative arrays. For regular entities it will only use `id` as the key.
+     * For mapping entities which have combined primary keys, it will just return the full primary key structure.
+     *
      * @return list<(IDStructure is string ? array{id: string} : IDStructure)>
      */
     public function getPrimaryKeyData(): array

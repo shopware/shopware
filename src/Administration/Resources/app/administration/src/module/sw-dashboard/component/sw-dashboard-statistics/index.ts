@@ -1,4 +1,4 @@
-import orderCustomerName from 'src/core/helper/order-customer-name.helper';
+import { orderCustomerDisplayName } from 'src/core/helper/order-customer-name.helper';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
@@ -296,7 +296,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        orderCustomerName,
+        orderCustomerDisplayName,
 
         calculateTodayBucket(aggregation: HistoryOrderData): BucketData | null {
             const buckets = aggregation?.buckets;

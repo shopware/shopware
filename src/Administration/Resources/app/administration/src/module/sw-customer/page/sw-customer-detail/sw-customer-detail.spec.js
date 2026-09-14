@@ -16,6 +16,8 @@ const defaultCustomer = {
     },
 };
 
+const customerRepositorySave = jest.fn(() => Promise.resolve());
+
 async function createWrapper(
     privileges = [],
     editMode = false,
@@ -112,6 +114,8 @@ async function createWrapper(
                             return {
                                 get: () => Promise.resolve(customerResponse),
 
+                                save: customerRepositorySave,
+
                                 searchIds: () =>
                                     Promise.resolve({
                                         total: 1,
@@ -156,6 +160,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
     beforeEach(async () => {
         Shopware.Store.get('error').resetApiErrors();
+        customerRepositorySave.mockClear();
         wrapper = await createWrapper();
     });
 
@@ -163,6 +168,45 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         Shopware.Store.get('error').resetApiErrors();
         Shopware.Store.get('shopwareApps').selectedIds = [];
         jest.restoreAllMocks();
+    });
+
+    it.each([
+        [
+            'a company customer saves without a contact person once the settings release the names',
+            'business',
+            false,
+            true,
+        ],
+        [
+            'a company customer keeps the contact person while the settings require it',
+            'business',
+            true,
+            false,
+        ],
+        [
+            'a private customer always needs a contact person',
+            'private',
+            false,
+            false,
+        ],
+    ])('%s', async (_name, accountType, companyNamesRequired, saved) => {
+        wrapper = await createWrapper([], true);
+        await flushPromises();
+
+        wrapper.vm.companyNamesRequired = companyNamesRequired;
+        wrapper.vm.customer = {
+            id: 'test',
+            accountType,
+            company: 'Acme GmbH',
+            email: '',
+            firstName: '',
+            lastName: '',
+            defaultBillingAddress: { company: 'Acme GmbH' },
+        };
+
+        await wrapper.vm.onSave();
+
+        expect(customerRepositorySave).toHaveBeenCalledTimes(saved ? 1 : 0);
     });
 
     it("should keep the customer's account type as private even when the company field is set", async () => {

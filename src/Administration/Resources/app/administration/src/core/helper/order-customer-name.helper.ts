@@ -8,28 +8,49 @@ type NameableOrderCustomer = {
     company?: string | null;
 };
 
+function personName(customer: NameableOrderCustomer, lastNameFirst: boolean): string {
+    const firstName = (customer.firstName ?? '').trim();
+    const lastName = (customer.lastName ?? '').trim();
+
+    if (!lastNameFirst) {
+        return `${firstName} ${lastName}`.trim();
+    }
+
+    return [
+        lastName,
+        firstName,
+    ]
+        .filter((part) => part !== '')
+        .join(', ');
+}
+
+/**
+ * Mirrors OrderCustomerNameFormatter::displayName().
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default function orderCustomerName(customer?: NameableOrderCustomer | null, lastNameFirst = false): string {
+export function orderCustomerDisplayName(customer?: NameableOrderCustomer | null, lastNameFirst = false): string {
     if (!customer) {
         return '';
     }
 
-    const firstName = (customer.firstName ?? '').trim();
-    const lastName = (customer.lastName ?? '').trim();
-    const company = (customer.company ?? '').trim();
+    return personName(customer, lastNameFirst) || (customer.company ?? '').trim();
+}
 
-    const personName = lastNameFirst
-        ? [
-              lastName,
-              firstName,
-          ]
-              .filter((part) => part !== '')
-              .join(', ')
-        : `${firstName} ${lastName}`.trim();
-
-    if (company === '' || personName === company || `${firstName} ${lastName}`.trim() === company) {
-        return personName === '' ? company : personName;
+/**
+ * Mirrors OrderCustomerNameFormatter::buyerName().
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function orderCustomerBuyerName(customer?: NameableOrderCustomer | null): string {
+    if (!customer) {
+        return '';
     }
 
-    return personName === '' ? company : `${personName} - ${company}`;
+    const name = personName(customer, false);
+    const company = (customer.company ?? '').trim();
+
+    if (company === '' || name === company) {
+        return name;
+    }
+
+    return name === '' ? company : `${name} - ${company}`;
 }

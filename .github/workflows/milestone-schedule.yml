@@ -35,10 +35,11 @@ jobs:
       - name: Schedule milestone
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
+          # The action reports tags, so the version arrives as "v6.7.15.0".
           VERSION: ${{ steps.versions.outputs.next-minor }}
           # Set the repository variable to "false" to let it actually write.
           DRY_RUN: ${{ vars.SCHEDULE_MILESTONE_DRY_RUN || 'true' }}
         with:
           script: |
             const { scheduleReleaseMilestone } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
-            await scheduleReleaseMilestone({ github, core, context, fetch }, { version: process.env.VERSION })
+            await scheduleReleaseMilestone({ github, core, context, fetch }, { version: process.env.VERSION.replace(/^v/, '') })

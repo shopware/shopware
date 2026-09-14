@@ -1,5 +1,5 @@
 import template from './sw-customer-create.html.twig';
-import companyNamesRequired from '../../helper/company-name-fields.helper';
+import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout

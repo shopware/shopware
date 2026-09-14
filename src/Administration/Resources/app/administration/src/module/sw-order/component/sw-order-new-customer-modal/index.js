@@ -1,4 +1,5 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
+import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 
@@ -261,7 +262,27 @@ export default {
             });
         },
 
+        async allowBlankContactPerson() {
+            if (this.customer.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return;
+            }
+
+            if (await companyNamesRequired(this.systemConfigApiService, this.customer.salesChannelId)) {
+                return;
+            }
+
+            this.customer.firstName ??= '';
+            this.customer.lastName ??= '';
+
+            this.customer.addresses.forEach((address) => {
+                address.firstName ??= '';
+                address.lastName ??= '';
+            });
+        },
+
         async saveCustomer() {
+            await this.allowBlankContactPerson();
+
             const languageId = await this.languageId;
 
             const context = { ...Shopware.Context.api, ...{ languageId } };

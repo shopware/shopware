@@ -3,7 +3,7 @@ import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
 import { customerAvatarName } from 'src/core/helper/customer-display-name.helper';
-import companyNamesRequired from '../../helper/company-name-fields.helper';
+import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout

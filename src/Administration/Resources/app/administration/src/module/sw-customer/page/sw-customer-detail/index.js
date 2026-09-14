@@ -1,7 +1,7 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
-import companyNamesRequired from '../../helper/company-name-fields.helper';
+import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
 import customerDisplayName from 'src/core/helper/customer-display-name.helper';
 
 /**

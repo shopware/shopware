@@ -13,6 +13,7 @@ async function createWrapper({
         customerRepositoryMock: undefined,
         languageRepositoryMock: undefined,
     },
+    systemConfigValues = { 'core.loginRegistration.passwordMinLength': 8 },
 } = {}) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
@@ -119,11 +120,7 @@ async function createWrapper({
                     reverse: () => Promise.resolve(),
                 },
                 systemConfigApiService: {
-                    getValues: () => {
-                        return Promise.resolve({
-                            'core.loginRegistration.passwordMinLength': 8,
-                        });
-                    },
+                    getValues: () => Promise.resolve(systemConfigValues),
                 },
                 customerValidationService: {
                     checkCustomerEmail: () => Promise.resolve(),
@@ -139,6 +136,63 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     beforeEach(async () => {
         Shopware.Store.get('error').resetApiErrors();
         wrapper = await createWrapper();
+    });
+
+    it('saves a company account without a contact person once the settings release the names', async () => {
+        const save = jest.fn(() => Promise.resolve());
+
+        wrapper = await createWrapper({
+            repositoryMocks: {
+                customerRepositoryMock: {
+                    create: () => ({
+                        id: '1',
+                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                    }),
+                    save,
+                },
+            },
+            systemConfigValues: {
+                'core.loginRegistration.showAccountTypeSelection': true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': false,
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.customer.accountType = 'business';
+        wrapper.vm.customer.company = 'Acme GmbH';
+
+        await wrapper.vm.saveCustomer();
+
+        expect(save).toHaveBeenCalled();
+        expect(wrapper.vm.customer.firstName).toBe('');
+        expect(wrapper.vm.customer.lastName).toBe('');
+        expect(wrapper.vm.customer.addresses.first().firstName).toBe('');
+        expect(wrapper.vm.customer.addresses.first().lastName).toBe('');
+    });
+
+    it('leaves the names alone while the settings keep the contact person', async () => {
+        const save = jest.fn(() => Promise.resolve());
+
+        wrapper = await createWrapper({
+            repositoryMocks: {
+                customerRepositoryMock: {
+                    create: () => ({
+                        id: '1',
+                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                    }),
+                    save,
+                },
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.customer.accountType = 'business';
+        wrapper.vm.customer.company = 'Acme GmbH';
+
+        await wrapper.vm.saveCustomer();
+
+        expect(wrapper.vm.customer.firstName).toBeUndefined();
+        expect(wrapper.vm.customer.lastName).toBeUndefined();
     });
 
     it('should not leave any warnings behind when the modal is closed', async () => {

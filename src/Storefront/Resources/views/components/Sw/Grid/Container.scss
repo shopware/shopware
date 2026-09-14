@@ -43,14 +43,14 @@
     }
 
     &.border-full-width {
-        .sw-grid-container-inner {
+        & > .sw-grid-container__inner {
             border: none !important;
         }
     }
 
     @each $breakpoint, $value in $grid-breakpoints {
         @include media-breakpoint-only($breakpoint) {
-            margin: var(--sw-grid-container-margin-#{$breakpoint});
+            margin: var(--sw-grid-container-margin-#{$breakpoint}, var(--sw-grid-container-margin));
             margin-left: 0 !important;
             margin-right: 0 !important;
         }
@@ -62,7 +62,7 @@
     padding-right: 0;
 }
 
-.sw-grid-container-inner {
+.sw-grid-container__inner {
     display: grid;
     width: 100%;
     max-width: var(--sw-grid-container-max-width, 1400px);
@@ -224,8 +224,8 @@
 
     @each $breakpoint, $value in $grid-breakpoints {
         @include media-breakpoint-only($breakpoint) {
-            padding: var(--sw-grid-container-padding-#{$breakpoint});
-            margin: var(--sw-grid-container-margin-#{$breakpoint});
+            padding: var(--sw-grid-container-padding-#{$breakpoint}, var(--sw-grid-container-padding));
+            margin: var(--sw-grid-container-margin-#{$breakpoint}, var(--sw-grid-container-margin));
             margin-top: 0 !important;
             margin-bottom: 0 !important;
         }

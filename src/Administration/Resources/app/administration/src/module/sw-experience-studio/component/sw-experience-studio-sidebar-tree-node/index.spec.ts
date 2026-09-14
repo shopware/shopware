@@ -38,9 +38,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
                     draggable: {
                         mounted(el: HTMLElement) {
                             el.addEventListener('mousedown', dragListener);
+                            el.addEventListener('touchstart', dragListener);
                         },
                         unmounted(el: HTMLElement) {
                             el.removeEventListener('mousedown', dragListener);
+                            el.removeEventListener('touchstart', dragListener);
                         },
                     },
                     droppable: {},
@@ -60,6 +62,16 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
 
             for (const button of wrapper.findAll('button')) {
                 await button.trigger('mousedown');
+            }
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            await duplicateButton.trigger('touchstart');
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            for (const button of wrapper.findAll('button')) {
+                await button.trigger('touchstart');
             }
 
             expect(dragListener).not.toHaveBeenCalled();

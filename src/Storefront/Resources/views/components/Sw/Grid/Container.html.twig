@@ -18,12 +18,12 @@
         xxl: null,
     },
     margin = {
-        xs: '0 0 24px 0',
-        sm: '0 0 24px 0',
-        md: '0 0 24px 0',
-        lg: '0 0 24px 0',
-        xl: '0 0 24px 0',
-        xxl: '0 0 24px 0',
+        xs: null,
+        sm: null,
+        md: null,
+        lg: null,
+        xl: null,
+        xxl: null,
     },
     align = 'normal',
     alignContent = 'normal',
@@ -108,7 +108,7 @@
 }) %}
 
 {% set gridCVA = cva({
-    base: 'sw-grid-container-inner',
+    base: 'sw-grid-container__inner',
     variants: {
         mode: {
             'max-content': 'max-content',
@@ -370,8 +370,8 @@
             {% endif %}
         {% endfor %}
     {% elseif spacingValue is not empty %}
-        {% set gridStyle = gridStyle ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
-        {% set containerStyle = containerStyle ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
+        {% set gridStyle = gridStyle ~ '--sw-grid-container-' ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
+        {% set containerStyle = containerStyle ~ '--sw-grid-container-' ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
     {% endif %}
 {% endfor %}
 

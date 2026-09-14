@@ -54,8 +54,10 @@
                                 "example": "Sw:Content:Text"
                             },
                             "parentElementId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$",
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
                                 "description": "Id of the parent element to insert into; the element is inserted at the root when omitted.",
                                 "default": null
                             },
@@ -90,8 +92,9 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to remove. Its subtree is removed with it."
                             }
                         }
@@ -108,13 +111,16 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to move."
                             },
                             "newParentId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$",
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
                                 "description": "Id of the new parent element; moves to the root when omitted. Moving an element into itself or a descendant is rejected with `400`.",
                                 "default": null
                             },
@@ -143,8 +149,9 @@
                         "required": ["elementId", "newType"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to replace."
                             },
                             "newType": {
@@ -167,8 +174,9 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to duplicate. The copy and its subtree receive freshly minted ids, returned in `affectedElementIds`."
                             },
                             "index": {
@@ -194,9 +202,7 @@
                                 "type": "array",
                                 "description": "Ids of the elements to wrap. They must be siblings in one slot, or all root-level. Must be non-empty and contain no duplicates.",
                                 "items": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "pattern": "^[0-9a-f]{32}$"
+                                    "$ref": "#/components/schemas/ContentElementId"
                                 },
                                 "minItems": 1,
                                 "uniqueItems": true
@@ -226,8 +232,9 @@
                         "required": ["containerElementId"],
                         "properties": {
                             "containerElementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the container element to unwrap. Its children take its place and the container is removed."
                             }
                         }
@@ -250,8 +257,10 @@
                                 "description": "The element subtree to splice in (for example an `orphaned` subtree from an earlier edit, or a copy). Every id in it is re-minted server-side; the placed ids are returned in `affectedElementIds`."
                             },
                             "parentElementId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$",
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
                                 "description": "Id of the parent element to attach into; attaches at the root when omitted.",
                                 "default": null
                             },
@@ -280,8 +289,9 @@
                         "required": ["elementId", "bindingSpecificationId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to bind the specification onto."
                             },
                             "bindingSpecificationId": {
@@ -310,8 +320,10 @@
                                 "example": "Sw:Content:Text"
                             },
                             "parentElementId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$",
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
                                 "description": "Id of the parent element to insert into; the element is inserted at the root when omitted.",
                                 "default": null
                             },
@@ -346,8 +358,9 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to remove. Its subtree is removed with it."
                             }
                         }
@@ -364,13 +377,16 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to move."
                             },
                             "newParentId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$",
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
                                 "description": "Id of the new parent element; moves to the root when omitted. Moving an element into itself or a descendant is rejected with `400`.",
                                 "default": null
                             },
@@ -399,8 +415,9 @@
                         "required": ["elementId", "newType"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to replace."
                             },
                             "newType": {
@@ -423,8 +440,9 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to duplicate. The copy and its subtree receive freshly minted ids, returned in `affectedElementIds`."
                             },
                             "index": {
@@ -450,9 +468,7 @@
                                 "type": "array",
                                 "description": "Ids of the elements to wrap. They must be siblings in one slot, or all root-level. Must be non-empty and contain no duplicates.",
                                 "items": {
-                                    "type": "string",
-                                    "minLength": 1,
-                                    "pattern": "^[0-9a-f]{32}$"
+                                    "$ref": "#/components/schemas/ContentElementId"
                                 },
                                 "minItems": 1,
                                 "uniqueItems": true
@@ -482,8 +498,9 @@
                         "required": ["containerElementId"],
                         "properties": {
                             "containerElementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the container element to unwrap. Its children take its place and the container is removed."
                             }
                         }
@@ -506,8 +523,10 @@
                                 "description": "The element subtree to splice in (for example an `orphaned` subtree from an earlier edit, or a copy). Every id in it is re-minted server-side; the placed ids are returned in `affectedElementIds`."
                             },
                             "parentElementId": {
-                                "type": ["string", "null"],
-                                "pattern": "^[0-9a-f]{32}$",
+                                "anyOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" },
+                                    { "type": "null" }
+                                ],
                                 "description": "Id of the parent element to attach into; attaches at the root when omitted.",
                                 "default": null
                             },
@@ -536,8 +555,9 @@
                         "required": ["elementId", "bindingSpecificationId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element to bind the specification onto."
                             },
                             "bindingSpecificationId": {

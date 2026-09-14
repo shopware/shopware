@@ -1,8 +1,7 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
-import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
-import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
@@ -18,17 +17,14 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: {
-        repositoryFactory: {},
-        customerGroupRegistrationService: {},
-        acl: {},
-        customerValidationService: {},
-        feature: {},
-        // Defaults to null so an extending component that does not provide it still mounts.
-        systemConfigApiService: {
-            default: null,
-        },
-    },
+    inject: [
+        'repositoryFactory',
+        'customerGroupRegistrationService',
+        'acl',
+        'customerValidationService',
+        'feature',
+        'companyAccountNameFieldsService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -56,8 +52,6 @@ export default {
 
     data() {
         return {
-            // Required until the settings resolve, so a slow request rejects a blank name rather
-            // than letting one through that the store api would refuse.
             companyNamesRequired: true,
             isLoading: false,
             isSaveSuccessful: false,
@@ -242,22 +236,6 @@ export default {
     },
 
     methods: {
-        backfillCompanyFromAddress() {
-            if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
-                return;
-            }
-
-            if (this.customer.company?.trim().length) {
-                return;
-            }
-
-            const company = this.customer.defaultBillingAddress?.company;
-
-            if (company?.trim().length) {
-                this.customer.company = company;
-            }
-        },
-
         async loadCustomer() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
@@ -308,14 +286,12 @@ export default {
         async loadCompanyNamesRequired() {
             const salesChannelId = this.customer?.salesChannelId;
 
-            // Strict again while the next sales channel is being read, so the form cannot keep calling
-            // a field optional that the channel the user just picked requires.
+            // strict while the settings of the next sales channel are read
             this.companyNamesRequired = true;
 
-            const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
+            const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
 
-            // A slower request for the channel the user has already left must not decide the rule
-            // for the one they are on now.
+            // a slower answer for a sales channel the user has already left must not win
             if (this.customer?.salesChannelId !== salesChannelId) {
                 return;
             }
@@ -384,8 +360,6 @@ export default {
                 }
             }
 
-            this.backfillCompanyFromAddress();
-
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
                 hasError = true;
@@ -432,7 +406,7 @@ export default {
                         message: this.$t(
                             'sw-customer.detail.messageSaveSuccess',
                             {
-                                name: customerDisplayName(this.customer),
+                                name: `${this.customer.firstName} ${this.customer.lastName}`.trim() || this.customer.company,
                             },
                             0,
                         ),
@@ -540,7 +514,7 @@ export default {
                 Shopware.Store.get('error').addApiError({
                     expression: `customer.${this.customer.id}.${field}`,
                     error: new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
                     }),
                 });
             });
@@ -551,7 +525,7 @@ export default {
             Shopware.Store.get('error').addApiError({
                 expression: `customer.${this.customer.id}.company`,
                 error: new ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    code: EntityValidationService.ERROR_CODE_REQUIRED,
                 }),
             });
         },

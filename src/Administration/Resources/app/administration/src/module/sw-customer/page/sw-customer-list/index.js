@@ -1,5 +1,4 @@
 import template from './sw-customer-list.html.twig';
-import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 import './sw-customer-list.scss';
 
 /**
@@ -218,7 +217,11 @@ export default {
     },
 
     methods: {
-        customerDisplayName,
+        customerName(customer) {
+            const personName = [customer.lastName, customer.firstName].filter((part) => part).join(', ');
+
+            return personName || customer.displayName;
+        },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement

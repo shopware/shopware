@@ -1,6 +1,5 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
-import { orderCustomerDisplayName } from 'src/module/sw-order/helper/order-customer-name.helper';
 
 /**
  * @sw-package checkout
@@ -319,7 +318,11 @@ export default {
     },
 
     methods: {
-        orderCustomerDisplayName,
+        orderCustomerName(customer) {
+            const personName = [customer.lastName, customer.firstName].filter((part) => part).join(', ');
+
+            return personName || customer.displayName;
+        },
 
         createdComponent() {},
 

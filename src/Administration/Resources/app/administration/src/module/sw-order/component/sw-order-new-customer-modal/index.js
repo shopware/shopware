@@ -1,5 +1,4 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
-import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 
@@ -22,6 +21,7 @@ export default {
         'systemConfigApiService',
         'customerValidationService',
         'feature',
+        'companyAccountNameFieldsService',
     ],
 
     emits: [
@@ -40,6 +40,7 @@ export default {
             customerNumberPreview: '',
             defaultSalutationId: null,
             activeTab: 'details',
+            companyNamesRequired: true,
         };
     },
 
@@ -142,6 +143,10 @@ export default {
             },
         },
 
+        contactPersonRequired() {
+            return this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || this.companyNamesRequired;
+        },
+
         validCompanyField() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS
                 ? this.customer?.company?.trim().length
@@ -204,6 +209,7 @@ export default {
 
     methods: {
         async createdComponent() {
+            this.loadCompanyNamesRequired();
             this.customer = this.customerRepository.create();
 
             this.defaultSalutationId = await this.getDefaultSalutationId();
@@ -262,12 +268,8 @@ export default {
             });
         },
 
-        async allowBlankContactPerson() {
-            if (this.customer.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
-                return;
-            }
-
-            if (await companyNamesRequired(this.systemConfigApiService, this.customer.salesChannelId)) {
+        allowBlankContactPerson() {
+            if (this.contactPersonRequired) {
                 return;
             }
 
@@ -280,8 +282,24 @@ export default {
             });
         },
 
+        async loadCompanyNamesRequired() {
+            const salesChannelId = this.customer?.salesChannelId;
+
+            // strict while the settings of the next sales channel are read
+            this.companyNamesRequired = true;
+
+            const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
+
+            // a slower answer for a sales channel the user has already left must not win
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
+        },
+
         async saveCustomer() {
-            await this.allowBlankContactPerson();
+            this.allowBlankContactPerson();
 
             const languageId = await this.languageId;
 
@@ -307,6 +325,7 @@ export default {
 
         onChangeSalesChannel(salesChannelId) {
             this.customer.salesChannelId = salesChannelId;
+            this.loadCompanyNamesRequired();
             this.numberRangeService.reserve('customer', salesChannelId, true).then((response) => {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;

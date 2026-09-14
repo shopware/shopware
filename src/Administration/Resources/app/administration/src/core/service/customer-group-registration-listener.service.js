@@ -1,5 +1,3 @@
-import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
-
 const { Application, Service, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -42,7 +40,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
             message: getApplicationRootReference().$t(
                 'sw-customer.customerGroupRegistration.notification.message',
                 {
-                    name: customerDisplayName(customer),
+                    name: customer.displayName,
                     groupName: customer.requestedGroup.name,
                 },
                 0,

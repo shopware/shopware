@@ -1,6 +1,5 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
-import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -200,7 +199,11 @@ export default {
     },
 
     methods: {
-        customerDisplayName,
+        customerName(customer) {
+            const personName = [customer.lastName, customer.firstName].filter((part) => part).join(', ');
+
+            return personName || customer.displayName;
+        },
 
         createdComponent() {
             this.getList();

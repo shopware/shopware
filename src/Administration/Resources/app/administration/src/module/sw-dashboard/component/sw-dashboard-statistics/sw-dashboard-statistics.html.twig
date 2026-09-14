@@ -57,7 +57,7 @@
                             :to="{ name: 'sw.order.detail', params: { id: item.id } }"
                             class="sw-data-grid__cell-value"
                         >
-                            {{ orderCustomerDisplayName(item.orderCustomer) }}
+                            {{ item.orderCustomer.displayName }}
                         </router-link>
                     </template>
 

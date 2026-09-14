@@ -68,43 +68,6 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
         wrapper = await createWrapper();
     });
 
-    it('disables the company name switches while the account type selection is off', async () => {
-        wrapper.vm.onLoginRegistrationConfigChanged({
-            'core.loginRegistration.showAccountTypeSelection': false,
-        });
-
-        expect(wrapper.vm.disabledLoginRegistrationElements).toEqual([
-            'core.loginRegistration.showNameFieldsForCompanyAccounts',
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
-        ]);
-    });
-
-    it('leaves the company name switches alone while the account type selection is on', async () => {
-        wrapper.vm.onLoginRegistrationConfigChanged({
-            'core.loginRegistration.showAccountTypeSelection': true,
-        });
-
-        expect(wrapper.vm.disabledLoginRegistrationElements).toEqual([]);
-    });
-
-    it('takes the inherited account type selection of a sales channel that does not override it', async () => {
-        wrapper.vm.onLoginRegistrationConfigChanged({}, { 'core.loginRegistration.showAccountTypeSelection': true });
-
-        expect(wrapper.vm.disabledLoginRegistrationElements).toEqual([]);
-    });
-
-    it('lets a sales channel switch the account type selection off against the inherited one', async () => {
-        wrapper.vm.onLoginRegistrationConfigChanged(
-            { 'core.loginRegistration.showAccountTypeSelection': false },
-            { 'core.loginRegistration.showAccountTypeSelection': true },
-        );
-
-        expect(wrapper.vm.disabledLoginRegistrationElements).toEqual([
-            'core.loginRegistration.showNameFieldsForCompanyAccounts',
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
-        ]);
-    });
-
     it('should contain the settings card system', async () => {
         await wrapper.vm.$nextTick();
         expect(

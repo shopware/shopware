@@ -13,17 +13,13 @@ const customer = {
     ],
 };
 
-async function createWrapper(systemConfig = {}) {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
         props: {
             customer,
+            ...props,
         },
         global: {
-            provide: {
-                systemConfigApiService: {
-                    getValues: () => Promise.resolve(systemConfig),
-                },
-            },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-entity-single-select': true,
@@ -38,19 +34,6 @@ async function createWrapper(systemConfig = {}) {
 }
 
 describe('module/sw-customer/page/sw-customer-base-form', () => {
-    it('is strict again while the settings of the next sales channel are read', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        wrapper.vm.companyNamesRequired = false;
-
-        const pending = wrapper.vm.createdComponent();
-
-        expect(wrapper.vm.companyNamesRequired).toBe(true);
-
-        await pending;
-    });
-
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
@@ -109,103 +92,22 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
     });
 
     it('should keep the contact person required for a private account', async () => {
-        const wrapper = await createWrapper({
-            'core.loginRegistration.showAccountTypeSelection': true,
-            'core.loginRegistration.showNameFieldsForCompanyAccounts': false,
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
-        });
-        await flushPromises();
+        const wrapper = await createWrapper({ companyNamesRequired: false });
 
         expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 
     it('should make the contact person optional for a company account when the settings allow it', async () => {
         const wrapper = await createWrapper({
-            'core.loginRegistration.showAccountTypeSelection': true,
-            'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
-        });
-        await flushPromises();
-
-        await wrapper.setProps({
-            customer: {
-                ...customer,
-                accountType: 'business',
-            },
+            companyNamesRequired: false,
+            customer: { ...customer, accountType: 'business' },
         });
 
         expect(wrapper.vm.contactPersonRequired).toBe(false);
     });
 
-    it('should keep the contact person required for a company account without the account type selection', async () => {
-        const wrapper = await createWrapper({
-            'core.loginRegistration.showAccountTypeSelection': false,
-            'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
-        });
-        await flushPromises();
-
-        await wrapper.setProps({
-            customer: {
-                ...customer,
-                accountType: 'business',
-            },
-        });
-
-        expect(wrapper.vm.contactPersonRequired).toBe(true);
-    });
-
-    it('should keep the contact person required when no config service is provided', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
-            props: {
-                customer: {
-                    ...customer,
-                    accountType: 'business',
-                },
-            },
-            global: {
-                stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-entity-single-select': true,
-                    'sw-text-field': true,
-                    'sw-email-field': true,
-                    'sw-datepicker': true,
-                    'sw-entity-tag-select': true,
-                    'sw-single-select': true,
-                },
-            },
-        });
-        await flushPromises();
-
-        expect(wrapper.vm.contactPersonRequired).toBe(true);
-    });
-
-    it('should keep the contact person required when the settings cannot be read', async () => {
-        const wrapper = mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
-            props: {
-                customer: {
-                    ...customer,
-                    accountType: 'business',
-                },
-            },
-            global: {
-                provide: {
-                    systemConfigApiService: {
-                        getValues: () => Promise.reject(new Error('forbidden')),
-                    },
-                },
-                stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-entity-single-select': true,
-                    'sw-text-field': true,
-                    'sw-email-field': true,
-                    'sw-datepicker': true,
-                    'sw-entity-tag-select': true,
-                    'sw-single-select': true,
-                },
-            },
-        });
-        await flushPromises();
+    it('should keep the contact person required for a company account by default', async () => {
+        const wrapper = await createWrapper({ customer: { ...customer, accountType: 'business' } });
 
         expect(wrapper.vm.contactPersonRequired).toBe(true);
     });

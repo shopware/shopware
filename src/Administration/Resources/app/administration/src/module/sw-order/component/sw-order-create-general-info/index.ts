@@ -1,7 +1,6 @@
 import './sw-order-create-general-info.scss';
 import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
-import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout
@@ -44,7 +43,7 @@ export default Component.wrapComponentConfig({
                 return '';
             }
 
-            return `${customerDisplayName(this.context.customer)} (${this.context.customer.email})`;
+            return `${this.context.customer.displayName} (${this.context.customer.email})`;
         },
 
         paymentMethodName(): string {

@@ -5,7 +5,6 @@
 import ApiService from 'src/core/service/api.service';
 import template from './sw-customer-imitate-customer-modal.html.twig';
 import './sw-customer-imitate-customer-modal.scss';
-import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -43,13 +42,13 @@ export default {
     computed: {
         modalTitle() {
             return this.$t('sw-customer.imitateCustomerModal.modalTitle', {
-                name: customerDisplayName(this.customer),
+                name: this.customer.displayName,
             });
         },
 
         modalDescription() {
             return this.$t('sw-customer.imitateCustomerModal.modalDescription', {
-                name: customerDisplayName(this.customer),
+                name: this.customer.displayName,
             });
         },
 

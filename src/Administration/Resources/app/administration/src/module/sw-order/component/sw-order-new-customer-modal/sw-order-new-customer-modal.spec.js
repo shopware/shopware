@@ -13,7 +13,7 @@ async function createWrapper({
         customerRepositoryMock: undefined,
         languageRepositoryMock: undefined,
     },
-    systemConfigValues = { 'core.loginRegistration.passwordMinLength': 8 },
+    contactPersonRequired = true,
 } = {}) {
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
@@ -120,7 +120,10 @@ async function createWrapper({
                     reverse: () => Promise.resolve(),
                 },
                 systemConfigApiService: {
-                    getValues: () => Promise.resolve(systemConfigValues),
+                    getValues: () => Promise.resolve({ 'core.loginRegistration.passwordMinLength': 8 }),
+                },
+                companyAccountNameFieldsService: {
+                    isContactPersonRequired: () => Promise.resolve(contactPersonRequired),
                 },
                 customerValidationService: {
                     checkCustomerEmail: () => Promise.resolve(),
@@ -151,10 +154,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                     save,
                 },
             },
-            systemConfigValues: {
-                'core.loginRegistration.showAccountTypeSelection': true,
-                'core.loginRegistration.showNameFieldsForCompanyAccounts': false,
-            },
+            contactPersonRequired: false,
         });
         await flushPromises();
 

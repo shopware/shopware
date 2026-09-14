@@ -19,8 +19,6 @@ export default {
             isSaveSuccessful: false,
             coreLoginRegistrationLoading: false,
             coreSystemWideLoginRegistrationLoading: false,
-            loginRegistrationConfig: {},
-            inheritedLoginRegistrationConfig: {},
         };
     },
 
@@ -33,21 +31,6 @@ export default {
     computed: {
         systemConfigLoading() {
             return this.coreLoginRegistrationLoading || this.coreSystemWideLoginRegistrationLoading;
-        },
-
-        disabledLoginRegistrationElements() {
-            const key = 'core.loginRegistration.showAccountTypeSelection';
-            // A sales channel that does not override the setting runs on the inherited one.
-            const accountTypeSelectable = this.loginRegistrationConfig[key] ?? this.inheritedLoginRegistrationConfig[key];
-
-            if (accountTypeSelectable) {
-                return [];
-            }
-
-            return [
-                'core.loginRegistration.showNameFieldsForCompanyAccounts',
-                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
-            ];
         },
     },
 
@@ -74,11 +57,6 @@ export default {
                         message: err,
                     });
                 });
-        },
-
-        onLoginRegistrationConfigChanged(config, inheritedConfig) {
-            this.loginRegistrationConfig = config ?? {};
-            this.inheritedLoginRegistrationConfig = inheritedConfig ?? {};
         },
 
         onLoginRegistrationLoadingChanged(loading) {

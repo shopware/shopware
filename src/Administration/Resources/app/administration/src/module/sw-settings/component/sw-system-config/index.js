@@ -70,11 +70,6 @@ export default {
             required: false,
             default: true,
         },
-        disabledElements: {
-            type: Array,
-            required: false,
-            default: () => [],
-        },
     },
 
     data() {
@@ -401,17 +396,11 @@ export default {
         },
 
         emitConfig() {
-            // The values of a sales channel hold its own overrides alone, so the inherited ones are
-            // passed along for a listener that needs the value the channel actually runs on.
-            this.$emit('config-changed', this.actualConfigData[this.currentSalesChannelId], this.actualConfigData.null);
+            this.$emit('config-changed', this.actualConfigData[this.currentSalesChannelId]);
         },
 
         kebabCase(value) {
             return kebabCase(value);
-        },
-
-        isElementDisabled(element) {
-            return this.disabledElements.includes(element.name);
         },
 
         /**
@@ -459,7 +448,7 @@ export default {
             bind.inheritedValue = this.getInheritedValue(element);
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
-            bind.disabled = mapInheritance?.isInherited || element.config?.disabled || this.isElementDisabled(element);
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {

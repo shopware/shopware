@@ -2,8 +2,6 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
-import { customerAvatarName } from 'src/module/sw-customer/helper/customer-display-name.helper';
-import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout
@@ -18,15 +16,11 @@ const { CUSTOMER } = Shopware.Constants;
 export default {
     template,
 
-    inject: {
-        acl: {},
-        contextStoreService: {},
-        repositoryFactory: {},
-        // Defaults to null so an extending component that does not provide it still mounts.
-        systemConfigApiService: {
-            default: null,
-        },
-    },
+    inject: [
+        'acl',
+        'contextStoreService',
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -34,6 +28,12 @@ export default {
     ],
 
     props: {
+        companyNamesRequired: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         customer: {
             type: Object,
             required: true,
@@ -58,19 +58,24 @@ export default {
         return {
             showImitateCustomerModal: false,
             showConvertCustomerModal: false,
-            // Required until the settings resolve, so a slow request leaves the form strict rather
-            // than claiming a field is optional that the routes still reject.
-            companyNamesRequired: true,
         };
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     computed: {
         avatarName() {
-            return customerAvatarName(this.customer);
+            const firstName = (this.customer.firstName ?? '').trim();
+            const lastName = (this.customer.lastName ?? '').trim();
+
+            if (firstName !== '' || lastName !== '') {
+                return { firstName, lastName };
+            }
+
+            const parts = (this.customer.displayName ?? '').split(' ');
+
+            return {
+                firstName: parts[0] ?? '',
+                lastName: parts.length > 1 ? parts[parts.length - 1] : '',
+            };
         },
 
         hasActionSlot() {
@@ -93,19 +98,16 @@ export default {
         },
 
         fullName() {
-            const company = (this.customer.company ?? '').trim();
-
-            // Read from the raw names and not from salutation(), which returns the salutation on its
-            // own when both are empty and would pair that with the company as "Mr - Acme GmbH".
             const hasContactPerson = `${this.customer.firstName ?? ''}${this.customer.lastName ?? ''}`.trim() !== '';
 
+            // the resolved name is the company for a company account, the salutation stands alone otherwise
             if (!hasContactPerson) {
-                return this.isBusinessAccountType && company !== '' ? company : this.salutation(this.customer);
+                return this.customer.displayName || this.salutation(this.customer);
             }
 
             return [
                 this.salutation(this.customer),
-                company,
+                (this.customer.company ?? '').trim(),
             ]
                 .filter((part) => part !== '')
                 .join(' - ');
@@ -218,11 +220,6 @@ export default {
     },
 
     watch: {
-        'customer.salesChannelId'() {
-            // The three settings are switchable per sales channel, so moving the customer to another
-            // one can change whether the contact person is required.
-            this.createdComponent();
-        },
         'customer.accountType'(value) {
             if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
                 return;
@@ -233,24 +230,6 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
-            const salesChannelId = this.customer?.salesChannelId;
-
-            // Strict again while the next sales channel is being read, so the form cannot keep calling
-            // a field optional that the channel the user just picked requires.
-            this.companyNamesRequired = true;
-
-            const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
-
-            // A slower request for the channel the user has already left must not decide the rule
-            // for the one they are on now.
-            if (this.customer?.salesChannelId !== salesChannelId) {
-                return;
-            }
-
-            this.companyNamesRequired = required;
-        },
-
         getMailTo(mail) {
             return `mailto:${mail}`;
         },

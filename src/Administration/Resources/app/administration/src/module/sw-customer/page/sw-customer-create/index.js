@@ -1,5 +1,5 @@
 import template from './sw-customer-create.html.twig';
-import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
@@ -20,6 +20,7 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'companyAccountNameFieldsService',
     ],
 
     mixins: [
@@ -28,8 +29,6 @@ export default {
 
     data() {
         return {
-            // Required until the settings resolve, so a slow request rejects a blank name rather
-            // than letting one through that the store api would refuse.
             companyNamesRequired: true,
             customer: null,
             address: null,
@@ -157,14 +156,12 @@ export default {
         async loadCompanyNamesRequired() {
             const salesChannelId = this.customer?.salesChannelId;
 
-            // Strict again while the next sales channel is being read, so the form cannot keep calling
-            // a field optional that the channel the user just picked requires.
+            // strict while the settings of the next sales channel are read
             this.companyNamesRequired = true;
 
-            const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
+            const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
 
-            // A slower request for the channel the user has already left must not decide the rule
-            // for the one they are on now.
+            // a slower answer for a sales channel the user has already left must not win
             if (this.customer?.salesChannelId !== salesChannelId) {
                 return;
             }
@@ -330,7 +327,7 @@ export default {
                 Shopware.Store.get('error').addApiError({
                     expression: `customer.${this.customer.id}.${field}`,
                     error: new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
                     }),
                 });
             });
@@ -346,7 +343,7 @@ export default {
                 Shopware.Store.get('error').addApiError({
                     expression,
                     error: new Shopware.Classes.ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
                     }),
                 });
             });

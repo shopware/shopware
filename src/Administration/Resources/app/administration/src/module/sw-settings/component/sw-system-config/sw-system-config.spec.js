@@ -822,22 +822,6 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBe(true);
     });
 
-    it('disables the elements named by the disabledElements prop', async () => {
-        const fieldName = 'ConfigRenderer.config.boolField';
-
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        let field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
-        expect(field.find('input[type="checkbox"]').element.disabled).toBe(false);
-
-        await wrapper.setProps({ disabledElements: [fieldName] });
-        await flushPromises();
-
-        field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
-        expect(field.find('input[type="checkbox"]').element.disabled).toBe(true);
-    });
-
     it('should return ShopwareError when has error', async () => {
         Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.null.dummyKey',

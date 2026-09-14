@@ -7,7 +7,7 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock, systemConfig = {} } = {}) {
+async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock, contactPersonRequired = true } = {}) {
     return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
         global: {
             stubs: {
@@ -32,8 +32,10 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                     getValues: () =>
                         Promise.resolve({
                             'core.register.minPasswordLength': 8,
-                            ...systemConfig,
                         }),
+                },
+                companyAccountNameFieldsService: {
+                    isContactPersonRequired: () => Promise.resolve(contactPersonRequired),
                 },
                 customerValidationService: {},
                 repositoryFactory: {
@@ -387,11 +389,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
         const wrapper = await createWrapper({
             customerRepositorySaveMock,
-            systemConfig: {
-                'core.loginRegistration.showAccountTypeSelection': true,
-                'core.loginRegistration.showNameFieldsForCompanyAccounts': true,
-                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts': false,
-            },
+            contactPersonRequired: false,
         });
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
         await flushPromises();

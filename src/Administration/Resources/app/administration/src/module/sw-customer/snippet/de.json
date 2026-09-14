@@ -117,6 +117,8 @@
       "placeholderCustomerGroup": "Wähle eine Kundengruppe ...",
       "placeholderSalesChannel": "Wähle einen Verkaufskanal ...",
       "placeholderPaymentMethod": "Wähle eine Zahlungsart ...",
+      "labelLanguage": "Sprache",
+      "placeholderLanguage": "Wähle eine Sprache ...",
       "labelTags": "Tags",
       "placeholderTags": "Wähle Tags aus ..."
     },

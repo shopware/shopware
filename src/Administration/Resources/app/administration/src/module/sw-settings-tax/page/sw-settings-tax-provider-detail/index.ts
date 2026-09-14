@@ -25,7 +25,7 @@ export default Component.wrapComponentConfig({
 
     props: {
         taxProviderId: {
-            type: String,
+            type: String as unknown as PropType<EntityKey<'tax_provider'>>,
             required: false,
             default: '',
         },
@@ -144,7 +144,7 @@ export default Component.wrapComponentConfig({
             void this.$router.push({ name: 'sw.settings.tax.index' });
         },
 
-        onSaveRule(ruleId: string): void {
+        onSaveRule(ruleId: EntityKey<'rule'>): void {
             if (!this.taxProvider) {
                 return;
             }

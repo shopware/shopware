@@ -12,8 +12,15 @@ on:
     - cron: "0 3 * * *" # every day at 03:00, offset from the regular nightly (01:00)
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   acceptance:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
@@ -31,6 +38,10 @@ jobs:
   # major arm only runs whatever ref dispatched it; this one is pinned to the major schedule).
   commercial-major:
     name: Commercial (major)
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:

@@ -27,7 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
         source: {
             type: Object,
             required: true,
-            validator(value: EntitySchema.Entity<'media'>) {
+            validator(value: Entity<'media'>) {
                 return value?.getEntityName() === 'media';
             },
         },
@@ -42,14 +42,14 @@ export default Shopware.Component.wrapComponentConfig({
         } as {
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
-            modelEntity: EntitySchema.Entity<'media'> | null;
+            modelEntity: Entity<'media'> | null;
             quickView: QuickView | null;
         };
     },
 
     watch: {
         async source(): Promise<void> {
-            this.modelEntity = this.source as EntitySchema.Entity<'media'>;
+            this.modelEntity = this.source as Entity<'media'>;
             await this.quickView?.dispose();
             return this.initializeQuickView();
         },
@@ -95,7 +95,7 @@ export default Shopware.Component.wrapComponentConfig({
             */
             this.canvas = this.$el?.querySelector?.('.sw-model-viewer-canvas');
 
-            this.modelEntity = this.source as EntitySchema.Entity<'media'>;
+            this.modelEntity = this.source as Entity<'media'>;
             this.initializeQuickView().catch((error) => {
                 console.error(error);
             });
@@ -132,7 +132,7 @@ export default Shopware.Component.wrapComponentConfig({
             await this.quickView?.dispose();
         },
 
-        onMediaLibraryItemUpdated(mediaId: string): void {
+        onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void {
             if (!this.modelEntity?.id) return;
             if (this.modelEntity?.id !== mediaId) return;
 

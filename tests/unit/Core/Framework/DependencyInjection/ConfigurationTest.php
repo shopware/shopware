@@ -344,6 +344,7 @@ class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(new Configuration(), []);
 
+        static::assertTrue($config['app_system']['enable_url_validation']);
         static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
         static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
     }
@@ -353,12 +354,14 @@ class ConfigurationTest extends TestCase
         $config = (new Processor())->processConfiguration(new Configuration(), [
             [
                 'app_system' => [
+                    'enable_url_validation' => false,
                     'allow_unencrypted_traffic' => true,
                     'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
                 ],
             ],
         ]);
 
+        static::assertFalse($config['app_system']['enable_url_validation']);
         static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
         static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
     }

@@ -82,8 +82,11 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
 
         const result = transformOrFail(source, 'template-data-scope.vue');
 
-        expect(result.code).toContain('<sw-block :data="$dataScope" name="sw_example_card">');
+        expect(result.code).toContain(
+            `<sw-block sw-internal-component-name='template-data-scope' :data="$dataScope" name="sw_example_card">`,
+        );
         expectGeneratedTokenUnmapped(result, ':data="$dataScope"');
+        expectGeneratedTokenUnmapped(result, `sw-internal-component-name='template-data-scope'`);
     });
 
     it('does not map generated override default slot scopes to user-authored template source', () => {

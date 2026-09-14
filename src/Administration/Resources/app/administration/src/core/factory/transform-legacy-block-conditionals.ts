@@ -943,18 +943,24 @@ export function transformLegacyTwigBlockSequenceConditionals(
 }
 
 /**
- * Collects the next free case index for every already indexed condition chain.
- * Use it while rebuilding the block index so later overrides append cases without reusing slots.
+ * Collects the next free case index for every already indexed condition chain of one component.
+ * Use it while rebuilding the block index so later overrides of the same component append cases without
+ * reusing slots. Case ranges are scoped per component name: a block of the same name in a different
+ * component keeps its own runtime chain, so it must not consume slots reserved for this component.
  *
  * @example
- * const offsets = collectExistingCaseStartIndices();
+ * const offsets = collectExistingCaseStartIndices('sw-product-detail');
  */
-function collectExistingCaseStartIndices(): Record<string, number> {
+function collectExistingCaseStartIndices(componentName: string): Record<string, number> {
     const caseStartIndexByChainKey: Record<string, number> = {};
 
     legacyTwigBlockIndex.forEach((entries) => {
-        entries.forEach(({ legacyConditionCases }) => {
-            legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
+        entries.forEach((entry) => {
+            if (entry.componentName !== componentName) {
+                return;
+            }
+
+            entry.legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
                 caseStartIndexByChainKey[chainKey] = Math.max(
                     caseStartIndexByChainKey[chainKey] ?? 0,
                     caseStartIndex + caseCount,
@@ -997,7 +1003,7 @@ function ensureLegacyTwigBlockIndex(): void {
         const transformedEntries = transformLegacyTwigBlockSequenceConditionals(
             groupedEntries,
             componentName,
-            collectExistingCaseStartIndices(),
+            collectExistingCaseStartIndices(componentName),
         );
 
         transformedEntries.forEach((entry) => {
@@ -1032,35 +1038,40 @@ export function indexLegacyTwigBlockConditionEntries(componentName: string, entr
 }
 
 /**
- * Returns indexed legacy Twig override entries for one block name.
- * Use it from `<sw-block name="...">` when creating shim slots for registered Twig overrides.
+ * Returns indexed legacy Twig override entries for one component's block.
+ * Use it from `<sw-block name="...">` when creating shim slots for registered Twig overrides. The owning
+ * component name is required: a Twig override of the same block name in a different component must not leak
+ * in — mirroring how Twig scopes a `{% block %}` to `componentName + blockName`.
  *
  * @example
- * const entries = getLegacyTwigBlockEntries('sw_product_detail_base');
+ * const entries = getLegacyTwigBlockEntries('sw-product-detail', 'sw_product_detail_base');
  *
  * @private
  */
-export function getLegacyTwigBlockEntries(blockName: string): BlockEntry[] {
+export function getLegacyTwigBlockEntries(componentName: string, blockName: string): BlockEntry[] {
     ensureLegacyTwigBlockIndex();
 
-    return legacyTwigBlockIndex.get(blockName) ?? [];
+    const entries = legacyTwigBlockIndex.get(blockName) ?? [];
+
+    return entries.filter((entry) => entry.componentName === componentName);
 }
 
 /**
- * Checks whether one block name has legacy Twig override entries.
- * Use it before creating shim slots so `sw-block` can skip work for untouched blocks.
+ * Checks whether one component's block has legacy Twig override entries.
+ * Use it before creating shim slots so `sw-block` can skip work for untouched blocks. Overrides that target
+ * the same block name in a different component are ignored.
  *
  * @example
- * if (hasLegacyTwigBlockEntries('sw_product_detail_base')) {
+ * if (hasLegacyTwigBlockEntries('sw-product-detail', 'sw_product_detail_base')) {
  *     // create shim slots
  * }
  *
  * @private
  */
-export function hasLegacyTwigBlockEntries(blockName: string): boolean {
+export function hasLegacyTwigBlockEntries(componentName: string, blockName: string): boolean {
     ensureLegacyTwigBlockIndex();
 
-    return legacyTwigBlockIndex.has(blockName);
+    return getLegacyTwigBlockEntries(componentName, blockName).length > 0;
 }
 
 /**

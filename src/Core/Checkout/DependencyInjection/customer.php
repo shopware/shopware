@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionControlle
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTask;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTaskHandler;
 use Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Cookie\WishlistCookieCollectListener;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -230,6 +231,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerDisplayNameSubscriber::class)
         ->tag('kernel.event_subscriber');
 
+    $services->set(CompanyAccountNameFields::class)
+        ->args([
+            service(SystemConfigService::class),
+        ]);
+
     $services->set(CustomerMetaFieldSubscriber::class)
         ->args([
             service(Connection::class),
@@ -349,7 +355,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerProfileValidationFactory::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
-            service(SystemConfigService::class),
+            service(CompanyAccountNameFields::class),
         ]);
 
     $services->set(ChangePasswordRoute::class)
@@ -421,6 +427,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DoubleOptInService::class),
             service(CustomerNewsletterSalesChannelsUpdater::class),
             service(ClockInterface::class),
+            service(CompanyAccountNameFields::class),
         ]);
 
     $services->set(RegisterConfirmRoute::class)
@@ -452,6 +459,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(CompanyAccountNameFields::class),
         ]);
 
     $services->set(DeleteAddressRoute::class)

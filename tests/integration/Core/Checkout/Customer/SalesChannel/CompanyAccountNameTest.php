@@ -144,11 +144,7 @@ class CompanyAccountNameTest extends TestCase
         static::assertSame('Acme GmbH', $this->loadCustomer('company-no-contact@example.com')->getCompany());
     }
 
-    /**
-     * Without the account type selection a shop cannot tell a commercial registration from a private
-     * one, so an account that once had the choice goes back to a mandatory contact person.
-     */
-    public function testProfileNeedsAContactPersonAgainWithoutTheAccountTypeSelection(): void
+    public function testProfileStaysRelaxedWithoutTheAccountTypeSelection(): void
     {
         $this->setNameFields(show: true, required: false);
         $this->register($this->companyRegistrationData());
@@ -159,9 +155,9 @@ class CompanyAccountNameTest extends TestCase
         $this->changeProfile();
 
         static::assertSame(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_OK,
             $this->browser->getResponse()->getStatusCode(),
-            'the two settings must do nothing while the account type selection is off'
+            'a business account stays one without the selection: ' . (string) $this->browser->getResponse()->getContent()
         );
     }
 

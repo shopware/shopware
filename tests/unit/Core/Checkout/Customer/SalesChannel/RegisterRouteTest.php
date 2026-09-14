@@ -725,6 +725,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -837,6 +838,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1015,6 +1017,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(DoubleOptInService::class),
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1547,6 +1550,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
     }
 

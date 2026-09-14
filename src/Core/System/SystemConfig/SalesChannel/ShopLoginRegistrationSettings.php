@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SystemConfig\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -52,7 +51,6 @@ final class ShopLoginRegistrationSettings extends Struct
      */
     public static function fromConfig(array $config): self
     {
-        $accountTypeSelectable = self::boolValue($config, 'showAccountTypeSelection');
         $showNameFields = (bool) ($config['showNameFieldsForCompanyAccounts'] ?? true);
         $nameFieldsRequired = (bool) ($config['nameFieldsRequiredForCompanyAccounts'] ?? true);
 
@@ -69,9 +67,9 @@ final class ShopLoginRegistrationSettings extends Struct
             phoneNumberFieldRequired: self::boolValue($config, 'phoneNumberFieldRequired'),
             showBirthdayField: self::boolValue($config, 'showBirthdayField'),
             birthdayFieldRequired: self::boolValue($config, 'birthdayFieldRequired'),
-            showAccountTypeSelection: $accountTypeSelectable,
-            showNameFieldsForCompanyAccounts: CompanyAccountNameFields::isVisible($accountTypeSelectable, $showNameFields),
-            nameFieldsRequiredForCompanyAccounts: CompanyAccountNameFields::isRequired($accountTypeSelectable, $showNameFields, $nameFieldsRequired),
+            showAccountTypeSelection: self::boolValue($config, 'showAccountTypeSelection'),
+            showNameFieldsForCompanyAccounts: $showNameFields,
+            nameFieldsRequiredForCompanyAccounts: $showNameFields && $nameFieldsRequired,
             showAdditionalAddressField1: self::boolValue($config, 'showAdditionalAddressField1'),
             additionalAddressField1Required: self::boolValue($config, 'additionalAddressField1Required'),
             showAdditionalAddressField2: self::boolValue($config, 'showAdditionalAddressField2'),

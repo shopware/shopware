@@ -373,7 +373,6 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $loader = $this->createLoader(
             addressValidationFactory: $addressValidation,
             systemConfigService: new StaticSystemConfigService([
-                CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => true,
                 CompanyAccountNameFields::CONFIG_SHOW => true,
                 CompanyAccountNameFields::CONFIG_REQUIRED => false,
             ]),
@@ -443,7 +442,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $addressValidationFactory ?? static::createStub(DataValidationFactoryInterface::class),
             $validator ?? static::createStub(DataValidator::class),
             static::createStub(AbstractTranslator::class),
-            $systemConfigService ?? static::createStub(SystemConfigService::class),
+            new CompanyAccountNameFields($systemConfigService ?? static::createStub(SystemConfigService::class)),
         );
     }
 

@@ -164,6 +164,7 @@ class UpsertAddressRouteTest extends TestCase
             $systemConfigService,
             $customFieldMapper,
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
@@ -251,6 +252,7 @@ class UpsertAddressRouteTest extends TestCase
             static::createStub(SystemConfigService::class),
             $customFieldMapper,
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -332,7 +334,8 @@ class UpsertAddressRouteTest extends TestCase
             static::createStub(DataValidationFactoryInterface::class),
             $systemConfigService,
             static::createStub(StoreApiCustomFieldMapper::class),
-            $salutationRepository
+            $salutationRepository,
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $customer = new CustomerEntity();
@@ -354,7 +357,6 @@ class UpsertAddressRouteTest extends TestCase
     {
         $systemConfigService = new StaticSystemConfigService([
             TestDefaults::SALES_CHANNEL => [
-                CompanyAccountNameFields::CONFIG_ACCOUNT_TYPE_SELECTION => true,
                 CompanyAccountNameFields::CONFIG_SHOW => true,
                 CompanyAccountNameFields::CONFIG_REQUIRED => false,
             ],
@@ -377,6 +379,7 @@ class UpsertAddressRouteTest extends TestCase
             $systemConfigService,
             new StoreApiCustomFieldMapper(static::createStub(Connection::class), []),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);

@@ -10,73 +10,84 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @internal
+ * Decides whether a company account needs a contact person and adjusts a validation definition
+ * and its request data accordingly
  */
 #[Package('checkout')]
 final class CompanyAccountNameFields
 {
     public const CONFIG_SHOW = 'core.loginRegistration.showNameFieldsForCompanyAccounts';
     public const CONFIG_REQUIRED = 'core.loginRegistration.nameFieldsRequiredForCompanyAccounts';
-    public const CONFIG_ACCOUNT_TYPE_SELECTION = 'core.loginRegistration.showAccountTypeSelection';
 
-    private function __construct()
+    private const NAME_FIELDS = ['firstName', 'lastName'];
+
+    /**
+     * @internal
+     */
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
     }
 
-    public static function areRequired(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
+    public function areVisible(?string $salesChannelId): bool
     {
-        return self::isRequired(
-            self::accountTypeIsSelectable($systemConfigService, $salesChannelId),
-            self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId),
-            self::isEnabled($systemConfigService, self::CONFIG_REQUIRED, $salesChannelId)
-        );
+        return $this->isEnabled(self::CONFIG_SHOW, $salesChannelId);
     }
 
-    public static function areVisible(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
+    public function areRequired(?string $salesChannelId): bool
     {
-        return self::isVisible(
-            self::accountTypeIsSelectable($systemConfigService, $salesChannelId),
-            self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId)
-        );
+        return $this->areVisible($salesChannelId) && $this->isEnabled(self::CONFIG_REQUIRED, $salesChannelId);
     }
 
     /**
-     * The rule itself, for a caller that already holds the three values. A shop without the account
-     * type selection cannot tell a commercial registration from a private one, so the contact person
-     * stays mandatory there and the other two settings do nothing.
+     * The account type comes from the request first and the authenticated customer second
      */
-    public static function isRequired(bool $accountTypeSelectable, bool $show, bool $required): bool
+    public function areOptional(DataBag $data, ?CustomerEntity $customer, ?string $salesChannelId): bool
     {
-        return !$accountTypeSelectable || ($show && $required);
-    }
+        $accountType = $data->get('accountType');
 
-    public static function isVisible(bool $accountTypeSelectable, bool $show): bool
-    {
-        return !$accountTypeSelectable || $show;
+        $isBusinessAccount = \is_string($accountType) && $accountType !== ''
+            ? $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            : ($customer?->isBusinessAccount() ?? false);
+
+        return $isBusinessAccount && !$this->areRequired($salesChannelId);
     }
 
     /**
-     * Unlike the other two keys this one has no default value in loginRegistration.xml, so an unsaved
-     * value means off.
+     * Drops the blank check on the names and requires the company instead, as it carries the identity then
      */
-    public static function accountTypeIsSelectable(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
+    public function relax(DataValidationDefinition $definition, bool $requireCompany = true): void
     {
-        return (bool) $systemConfigService->get(self::CONFIG_ACCOUNT_TYPE_SELECTION, $salesChannelId);
-    }
+        foreach (self::NAME_FIELDS as $property) {
+            $constraints = $definition->getProperty($property);
 
-    public static function normalize(DataBag $data): void
-    {
-        foreach (['firstName', 'lastName'] as $property) {
-            if ($data->get($property) === null) {
-                $data->set($property, '');
+            if ($constraints === []) {
+                continue;
             }
+
+            $definition->set($property, ...array_values(array_filter(
+                $constraints,
+                static fn (Constraint $constraint) => !$constraint instanceof NotBlank
+            )));
+        }
+
+        if ($requireCompany) {
+            $definition->add('company', self::companyNotBlank());
         }
     }
 
-    public static function normalizeSubmitted(DataBag $data): void
+    /**
+     * A name the form did not fill becomes an empty string, which the data abstraction layer accepts
+     * while null is rejected. With $submittedOnly an absent name stays absent, so an update leaves
+     * the stored value alone.
+     */
+    public function normalize(DataBag $data, bool $submittedOnly = false): void
     {
-        foreach (['firstName', 'lastName'] as $property) {
-            if ($data->has($property) && $data->get($property) === null) {
+        foreach (self::NAME_FIELDS as $property) {
+            if ($submittedOnly && !$data->has($property)) {
+                continue;
+            }
+
+            if ($data->get($property) === null) {
                 $data->set($property, '');
             }
         }
@@ -87,26 +98,10 @@ final class CompanyAccountNameFields
         return new NotBlank(normalizer: static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value);
     }
 
-    public static function makeOptional(DataValidationDefinition $validation): void
+    private function isEnabled(string $key, ?string $salesChannelId): bool
     {
-        foreach (['firstName', 'lastName'] as $property) {
-            $constraints = $validation->getProperty($property);
+        $value = $this->systemConfigService->get($key, $salesChannelId);
 
-            if ($constraints === []) {
-                continue;
-            }
-
-            $validation->set($property, ...array_values(array_filter(
-                $constraints,
-                static fn (Constraint $constraint) => !$constraint instanceof NotBlank
-            )));
-        }
-    }
-
-    private static function isEnabled(SystemConfigService $systemConfigService, string $key, ?string $salesChannelId): bool
-    {
-        $value = $systemConfigService->get($key, $salesChannelId);
-
-        return $value === null ? true : (bool) $value;
+        return $value === null || (bool) $value;
     }
 }

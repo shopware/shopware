@@ -57,6 +57,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
     ) {
     }
 
@@ -102,17 +103,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
-        $accountType = $data->get('accountType');
-
-        if (!\is_string($accountType) || $accountType === '') {
-            $accountType = null;
-        }
-
-        // Anything the request names other than business counts as private, because that is how the
-        // branch below reads it and there is no Choice constraint to keep an unknown value out.
+        // A private customer cannot relax an address the checkout later judges by the account type
         $namesAreOptional = $customer->isBusinessAccount()
-            && ($accountType === null || $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS)
-            && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
+            && $this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId());
 
         if ($namesAreOptional) {
             // Only an update has stored names to keep; a create carries an id nothing is saved under.
@@ -120,10 +113,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
                 $this->keepStoredNames($addressId, $data, $context);
             }
 
-            CompanyAccountNameFields::normalize($data);
+            $this->companyAccountNameFields->normalize($data);
         }
 
-        $definition = $this->getValidationDefinition($data, $accountType, $namesAreOptional, $isCreate, $context);
+        $definition = $this->getValidationDefinition($data, $namesAreOptional, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -201,7 +194,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     private function getValidationDefinition(
         DataBag $data,
-        ?string $accountType,
         bool $namesAreOptional,
         bool $isCreate,
         SalesChannelContext $context
@@ -212,15 +204,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        $requestSelectedBusiness = $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && (bool) $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId());
-
-        if ($namesAreOptional || $requestSelectedBusiness) {
-            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
-        }
-
         if ($namesAreOptional) {
-            CompanyAccountNameFields::makeOptional($validation);
+            $this->companyAccountNameFields->relax($validation);
+        } elseif ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
+            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));

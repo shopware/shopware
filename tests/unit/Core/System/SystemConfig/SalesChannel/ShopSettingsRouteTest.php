@@ -191,13 +191,8 @@ class ShopSettingsRouteTest extends TestCase
         static::assertFalse($settings->newsletter->doubleOptInRegistered);
     }
 
-    /**
-     * The response has to answer what the store api routes actually enforce, so a headless client
-     * cannot build a form that the backend then rejects.
-     */
     #[DataProvider('companyNameFieldsProvider')]
-    public function testLoadAppliesTheAccountTypeGateToTheCompanyNameFields(
-        bool $accountTypeSelection,
+    public function testLoadHidesTheCompanyNameFieldsBeforeItRequiresThem(
         bool $show,
         bool $required,
         bool $expectedShow,
@@ -205,7 +200,6 @@ class ShopSettingsRouteTest extends TestCase
     ): void {
         $route = new ShopSettingsRoute(new StaticSystemConfigService([
             TestDefaults::SALES_CHANNEL => [
-                'core.loginRegistration.showAccountTypeSelection' => $accountTypeSelection,
                 'core.loginRegistration.showNameFieldsForCompanyAccounts' => $show,
                 'core.loginRegistration.nameFieldsRequiredForCompanyAccounts' => $required,
             ],
@@ -218,15 +212,14 @@ class ShopSettingsRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{bool, bool, bool, bool, bool}>
+     * @return iterable<string, array{bool, bool, bool, bool}>
      */
     public static function companyNameFieldsProvider(): iterable
     {
-        yield 'shown and required' => [true, true, true, true, true];
-        yield 'shown but optional' => [true, true, false, true, false];
-        yield 'hidden cannot be required' => [true, false, true, false, false];
-        yield 'the account type selection gates both settings' => [false, false, false, true, true];
-        yield 'an optional contact person needs the account type selection' => [false, true, false, true, true];
+        yield 'shown and required' => [true, true, true, true];
+        yield 'shown but optional' => [true, false, true, false];
+        yield 'hidden cannot be required' => [false, true, false, false];
+        yield 'hidden and optional' => [false, false, false, false];
     }
 
     public function testLoadDoesNotLeakConfigOfOtherSalesChannels(): void

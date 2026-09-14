@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +42,7 @@ class CheckoutConfirmPageLoader
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
         private readonly AbstractTranslator $translator,
-        private readonly SystemConfigService $systemConfigService
+        private readonly CompanyAccountNameFields $companyAccountNameFields
     ) {
     }
 
@@ -114,15 +113,12 @@ class CheckoutConfirmPageLoader
 
     private function makeNameOptionalForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
     {
-        if ($context->getCustomer()?->isBusinessAccount() !== true) {
+        if (!$this->companyAccountNameFields->areOptional(new DataBag(), $context->getCustomer(), $context->getSalesChannelId())) {
             return;
         }
 
-        if (CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
-            return;
-        }
-
-        CompanyAccountNameFields::makeOptional($validation);
+        // The company is not required here, so an address stored before the setting cannot block the checkout
+        $this->companyAccountNameFields->relax($validation, requireCompany: false);
     }
 
     private function validateBillingAddress(

@@ -29,7 +29,6 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -58,7 +57,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
-        private readonly SystemConfigService $systemConfigService,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
     ) {
     }
 
@@ -96,23 +95,15 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 $data->set('vatIds', $customer->getVatIds());
             }
 
-            if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
-                CompanyAccountNameFields::makeOptional($validation);
+            if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
+                $this->companyAccountNameFields->relax($validation);
+                $this->companyAccountNameFields->normalize($data, submittedOnly: true);
 
-                CompanyAccountNameFields::normalizeSubmitted($data);
-
-                // The company carries the identity once the contact person is optional, so it has to
-                // be there even when the form does not post it. Filling in the stored one first keeps
-                // the check on the value the account ends up with.
+                // The company carries the identity now, so the stored one is checked when the form does not post it
                 if (!$data->has('company')) {
                     $data->set('company', $customer->getCompany() ?? '');
                 }
-            }
-
-            // Required on an explicit switch to business, as before, and on the stored value the
-            // branch above fills in. Only a request that leaves an existing business account alone
-            // without touching the company skips it.
-            if ($data->has('company') || $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            } elseif ($data->has('company') || $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
                 $data->set('company', $data->get('company') ?? '');
                 $validation->add('company', CompanyAccountNameFields::companyNotBlank());
             }

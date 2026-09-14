@@ -94,6 +94,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly DoubleOptInService $doubleOptInService,
         private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
     ) {
     }
 
@@ -139,11 +140,11 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($this->namesAreOptional($data, $context)) {
-            CompanyAccountNameFields::normalize($data);
+            $this->companyAccountNameFields->normalize($data);
 
             foreach ([$billing, $shipping] as $address) {
                 if ($address instanceof DataBag) {
-                    CompanyAccountNameFields::normalize($address);
+                    $this->companyAccountNameFields->normalize($address);
                 }
             }
         }
@@ -461,19 +462,13 @@ class RegisterRoute extends AbstractRegisterRoute
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        // The top level names are copied from the billing address, so only the address that becomes
-        // the default billing one follows the optional contact person. A separate shipping address
-        // names whoever receives the parcel and keeps its own rules, company included.
-        $namesAreOptional = $isBillingAddress && $this->namesAreOptional($data, $context);
-
-        if ($namesAreOptional
-            || ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-                && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId()))) {
+        // Only the address that becomes the default billing one follows the optional contact person,
+        // a separate shipping address names whoever receives the parcel and keeps its own rules
+        if ($isBillingAddress && $this->namesAreOptional($data, $context)) {
+            $this->companyAccountNameFields->relax($validation);
+        } elseif ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
             $validation->add('company', CompanyAccountNameFields::companyNotBlank());
-        }
-
-        if ($namesAreOptional) {
-            CompanyAccountNameFields::makeOptional($validation);
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
@@ -494,15 +489,9 @@ class RegisterRoute extends AbstractRegisterRoute
             : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
     }
 
-    private function nameFieldsRequiredForCompanyAccounts(SalesChannelContext $context): bool
-    {
-        return CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
-    }
-
     private function namesAreOptional(DataBag $data, SalesChannelContext $context): bool
     {
-        return $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && !$this->nameFieldsRequiredForCompanyAccounts($context);
+        return $this->companyAccountNameFields->areOptional($data, null, $context->getSalesChannelId());
     }
 
     private function getCustomerCreateValidationDefinition(bool $isGuest, DataBag $data, SalesChannelContext $context): DataValidationDefinition
@@ -526,7 +515,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($this->namesAreOptional($data, $context)) {
-            CompanyAccountNameFields::makeOptional($validation);
+            $this->companyAccountNameFields->relax($validation, requireCompany: false);
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

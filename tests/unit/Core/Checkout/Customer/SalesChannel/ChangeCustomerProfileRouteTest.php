@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
@@ -48,7 +49,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             $storeApiCustomFieldMapper,
             static::createStub(EntityRepository::class),
-            static::createStub(SystemConfigService::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -82,7 +83,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
-            static::createStub(SystemConfigService::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -159,7 +160,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             $salutationRepository,
-            static::createStub(SystemConfigService::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -199,7 +200,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
-            static::createStub(SystemConfigService::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
     }
 }

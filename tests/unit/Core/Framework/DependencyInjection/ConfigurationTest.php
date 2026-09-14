@@ -327,6 +327,48 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
     }
 
+    public function testWebhookHealthDefaults(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['webhook' => ['health' => []]],
+        ]);
+
+        static::assertSame(
+            [300, 600, 1200, 2400, 3600, 14400],
+            $config['webhook']['health']['cooldown_schedule_seconds']
+        );
+        static::assertSame(5, $config['webhook']['health']['degraded_threshold_count']);
+        static::assertSame(3, $config['webhook']['health']['non_transient_threshold_count']);
+        static::assertSame(7, $config['webhook']['health']['max_suspended_days']);
+    }
+
+    /**
+     * @param array<string, mixed> $healthConfig
+     */
+    #[DataProvider('invalidWebhookHealthConfigProvider')]
+    public function testRejectsInvalidWebhookHealthConfig(array $healthConfig): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['webhook' => ['health' => $healthConfig]],
+        ]);
+    }
+
+    public function testWebhookHealthCooldownScheduleReplacesPreviousConfiguration(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['webhook' => ['health' => ['cooldown_schedule_seconds' => [300, 600]]]],
+            ['webhook' => ['health' => [
+                'cooldown_schedule_seconds' => [60],
+                'degraded_threshold_count' => 1,
+            ]]],
+        ]);
+
+        static::assertSame([60], $config['webhook']['health']['cooldown_schedule_seconds']);
+        static::assertSame(1, $config['webhook']['health']['degraded_threshold_count']);
+    }
+
     public function testWebhookDoesNotAcceptNetworkPolicy(): void
     {
         $this->expectException(InvalidConfigurationException::class);
@@ -614,6 +656,20 @@ class ConfigurationTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function invalidWebhookHealthConfigProvider(): iterable
+    {
+        yield 'empty cooldown schedule' => [['cooldown_schedule_seconds' => []]];
+        yield 'first cooldown does not exceed delivery timeout' => [['cooldown_schedule_seconds' => [20]]];
+        yield 'non-positive cooldown' => [['cooldown_schedule_seconds' => [300, 0]]];
+        yield 'non-positive degraded threshold' => [['degraded_threshold_count' => 0]];
+        yield 'non-positive non-transient threshold' => [['non_transient_threshold_count' => 0]];
+        yield 'non-positive suspension bound' => [['max_suspended_days' => 0]];
+        yield 'suspension bound above maximum' => [['max_suspended_days' => 15]];
     }
 
     /**

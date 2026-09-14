@@ -44,6 +44,7 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
+use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Kernel;
@@ -1610,6 +1611,7 @@ class WebhookManagerTest extends TestCase
             $adminWorkerEnabled,
             static::getContainer()->get(WebhookDeliveryService::class),
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(WebhookHealthService::class),
         );
     }
 

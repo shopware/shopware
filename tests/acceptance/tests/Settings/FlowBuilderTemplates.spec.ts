@@ -21,7 +21,10 @@ test(
         await test.step('Go to flow template detail page and retrieve template UUID', async () => {
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
-            const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(flowTemplateSearchTerm, flowTemplateName);
+            const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(
+                flowTemplateSearchTerm,
+                flowTemplateName,
+            );
             await ShopAdmin.expects(templateRow.lineItem).toBeVisible();
             await templateRow.templateDetailLink.click();
             await ShopAdmin.expects(AdminFlowBuilderDetail.generalTab).toBeVisible();
@@ -34,7 +37,10 @@ test(
             const flowTemplateId = flowTemplateUrl[flowTemplateUrl.length - 2];
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
-            const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(flowTemplateSearchTerm, flowTemplateName);
+            const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(
+                flowTemplateSearchTerm,
+                flowTemplateName,
+            );
             await ShopAdmin.expects(templateRow.lineItem).toBeVisible();
             await templateRow.createFlowLink.click();
             await ShopAdmin.expects(AdminFlowBuilderCreate.smartBarHeader).toContainText(flowTemplateName);

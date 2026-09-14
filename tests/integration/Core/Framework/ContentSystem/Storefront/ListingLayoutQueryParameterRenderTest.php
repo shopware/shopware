@@ -61,7 +61,7 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
      */
     private const CARD_XPATH = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-product-card ")]';
 
-    private const GRID_XPATH = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-grid-container-inner ")]';
+    private const GRID_XPATH = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-product-listing__grid ")]/div[contains(concat(" ", normalize-space(@class), " "), " sw-grid-container__inner ")]';
 
     private IdsCollection $ids;
 

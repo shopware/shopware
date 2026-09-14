@@ -30,6 +30,8 @@ class WebhookOutboxStore
 
     public const CANCEL_REASON_ORPHANED = 'webhook_deleted';
 
+    public const DROP_REASON_DISABLED = 'webhook_disabled';
+
     /**
      * Held deliveries older than this are cancelled before they can be released.
      */
@@ -660,6 +662,37 @@ class WebhookOutboxStore
     }
 
     /**
+     * Drops the undelivered backlog while the webhook remains DISABLED.
+     */
+    public function dropBacklogForWebhook(string $webhookId): void
+    {
+        RetryableTransaction::retryable($this->connection, function () use ($webhookId): void {
+            $id = Uuid::fromHexToBytes($webhookId);
+
+            // Lock before checking so a concurrent reactivation wins over a stale drop.
+            $state = $this->connection->fetchOne(
+                'SELECT endpoint_state FROM webhook_health WHERE webhook_id = :id FOR UPDATE',
+                ['id' => $id]
+            );
+            if ($state !== EndpointState::Disabled->value) {
+                return;
+            }
+
+            $this->cancelDeliveries(
+                'd.webhook_id = :id AND d.delivery_status IN (:queued, :pendingRetry, :paused, :running)',
+                [
+                    'id' => $id,
+                    'queued' => WebhookEventLogDefinition::STATUS_QUEUED,
+                    'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                    'running' => WebhookEventLogDefinition::STATUS_RUNNING,
+                ],
+                self::DROP_REASON_DISABLED
+            );
+        });
+    }
+
+    /**
      * Keeps one claimable trial for a SUSPENDED webhook, or none if one is already running.
      */
     public function cancelSurplusInFlightRows(string $webhookId): int
@@ -757,6 +790,24 @@ class WebhookOutboxStore
                 'suspended' => EndpointState::Suspended->value,
                 'queued' => WebhookEventLogDefinition::STATUS_QUEUED,
                 'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+            ]
+        );
+    }
+
+    /**
+     * @return list<string> webhook ids (hex)
+     */
+    public function findDisabledWebhookIdsWithHeldRows(): array
+    {
+        /** @var list<string> */
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(d.webhook_id))
+             FROM webhook_delivery d
+             JOIN webhook_health wh ON wh.webhook_id = d.webhook_id
+             WHERE wh.endpoint_state = :disabled AND d.delivery_status = :paused',
+            [
+                'disabled' => EndpointState::Disabled->value,
+                'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
             ]
         );
     }

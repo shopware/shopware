@@ -5,15 +5,23 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Health;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -155,7 +163,152 @@ class WebhookHealthTickTest extends TestCase
         $this->assertFailureReason('evt-surplus', WebhookOutboxStore::CANCEL_REASON_SUSPENDED);
     }
 
-    private function createWebhook(string $webhookKey, bool $active = true, int $errorCount = 0): void
+    public function testTickRetiresASuspendedWebhookPastTheBoundAndDropsItsWholeBacklog(): void
+    {
+        $this->createWebhook('wh-old', active: false, errorCount: 3);
+        $this->insertHealth('wh-old', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-8 days'));
+        $this->createDelivery('evt-held', 'wh-old', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-running', 'wh-old', WebhookEventLogDefinition::STATUS_RUNNING);
+
+        $this->createWebhook('wh-young', active: false, errorCount: 3);
+        $this->insertHealth('wh-young', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-6 days'));
+
+        $this->service->tick();
+
+        static::assertSame(EndpointState::Disabled->value, $this->fetchEndpointState('wh-old'));
+        static::assertSame(DisabledOrigin::Escalation->value, $this->fetchDisabledOrigin('wh-old'));
+        static::assertNotNull($this->fetchHealthTimestamp('wh-old', 'disabled_since'));
+        static::assertNull($this->fetchHealthTimestamp('wh-old', 'cooldown_until'), 'cooldown must be cleared');
+        static::assertFalse($this->fetchActive('wh-old'));
+
+        foreach (['evt-held', 'evt-running'] as $eventKey) {
+            $this->assertDeliveryDeleted($eventKey);
+            $this->assertEventLogStatus($eventKey, WebhookEventLogDefinition::STATUS_FAILED);
+            $this->assertFailureReason($eventKey, WebhookOutboxStore::DROP_REASON_DISABLED);
+        }
+
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-young'));
+        static::assertNull($this->fetchHealthTimestamp('wh-young', 'disabled_since'));
+    }
+
+    public function testTickShiftsAPausedSuspensionClockSoDeactivatedTimeNeverRetires(): void
+    {
+        $appId = $this->createApp('SwagShiftApp', active: true);
+        $this->createWebhook('wh-1', active: false, errorCount: 3, appId: $appId);
+        $this->insertHealth('wh-1', EndpointState::Suspended, cooldownUntil: new \DateTimeImmutable('+1 hour'), nonTransientFailures: 3, suspendedSince: new \DateTimeImmutable('-9 days'));
+
+        $this->connection->executeStatement('UPDATE app SET active = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
+        $this->service->pauseSuspensionClockForApp($appId);
+
+        $this->connection->executeStatement(
+            'UPDATE webhook_health SET updated_at = :cursor WHERE webhook_id = :id',
+            [
+                'cursor' => (new \DateTimeImmutable('-4 days'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes('wh-1'),
+            ]
+        );
+
+        $suspendedSinceBefore = $this->fetchHealthTimestamp('wh-1', 'suspended_since');
+        static::assertIsString($suspendedSinceBefore);
+        $cursorBefore = $this->fetchHealthTimestamp('wh-1', 'updated_at');
+        static::assertIsString($cursorBefore);
+
+        $this->service->tick();
+
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-1'));
+        $shifted = $this->fetchHealthTimestamp('wh-1', 'suspended_since');
+        static::assertIsString($shifted);
+
+        $pausedSeconds = (new \DateTimeImmutable())->getTimestamp() - (new \DateTimeImmutable($cursorBefore))->getTimestamp();
+        static::assertEqualsWithDelta(
+            (new \DateTimeImmutable($suspendedSinceBefore))->getTimestamp() + $pausedSeconds,
+            (new \DateTimeImmutable($shifted))->getTimestamp(),
+            90,
+            'suspended_since must advance by the paused interval',
+        );
+
+        $this->connection->executeStatement('UPDATE app SET active = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
+        $this->service->tick();
+
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-1'));
+        static::assertNull($this->fetchHealthTimestamp('wh-1', 'disabled_since'));
+    }
+
+    public function testAppLifecycleEventsPauseAndResumeTheSuspensionClock(): void
+    {
+        $appId = $this->createApp('SwagLifecycleApp', active: true);
+        $this->createWebhook('wh-1', active: false, errorCount: 3, appId: $appId);
+        $this->insertHealth('wh-1', EndpointState::Suspended, suspendedSince: new \DateTimeImmutable('-9 days'));
+
+        $app = (new AppEntity())->assign(['id' => $appId, 'active' => true]);
+        $context = Context::createDefaultContext();
+        $cursor = new \DateTimeImmutable('-4 days');
+        /** @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+
+        $suspendedSinceBefore = $this->fetchHealthTimestamp('wh-1', 'suspended_since');
+        static::assertIsString($suspendedSinceBefore);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($app, $appId, $context, $cursor, $eventDispatcher): void {
+            $eventDispatcher->dispatch(new AppDeactivatedEvent($app, $context));
+
+            $pausedAt = $this->fetchHealthTimestamp('wh-1', 'updated_at');
+            static::assertIsString($pausedAt);
+            static::assertEqualsWithDelta(
+                (new \DateTimeImmutable())->getTimestamp(),
+                (new \DateTimeImmutable($pausedAt))->getTimestamp(),
+                5,
+            );
+
+            $this->connection->executeStatement(
+                'UPDATE app SET active = 0 WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($appId)],
+            );
+            $this->connection->executeStatement(
+                'UPDATE webhook_health SET updated_at = :cursor WHERE webhook_id = :id',
+                [
+                    'cursor' => $cursor->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'id' => $this->ids->getBytes('wh-1'),
+                ],
+            );
+
+            $this->connection->executeStatement(
+                'UPDATE app SET active = 1 WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($appId)],
+            );
+            $app->setActive(true);
+            $eventDispatcher->dispatch(new AppActivatedEvent($app, $context));
+        });
+
+        $shifted = $this->fetchHealthTimestamp('wh-1', 'suspended_since');
+        static::assertIsString($shifted);
+        $pausedSeconds = (new \DateTimeImmutable())->getTimestamp() - $cursor->getTimestamp();
+        static::assertEqualsWithDelta(
+            (new \DateTimeImmutable($suspendedSinceBefore))->getTimestamp() + $pausedSeconds,
+            (new \DateTimeImmutable($shifted))->getTimestamp(),
+            5,
+        );
+        static::assertSame(EndpointState::Suspended->value, $this->fetchEndpointState('wh-1'));
+    }
+
+    private function createApp(string $name, bool $active): string
+    {
+        $appId = Uuid::randomHex();
+        static::getContainer()->get('app.repository')->create([[
+            'id' => $appId,
+            'name' => $name,
+            'path' => 'custom/apps/' . $name,
+            'active' => $active,
+            'version' => '1.0.0',
+            'label' => $name,
+            'integration' => ['label' => $name, 'accessKey' => Uuid::randomHex(), 'secretAccessKey' => Uuid::randomHex()],
+            'aclRole' => ['name' => $name],
+        ]], Context::createDefaultContext());
+
+        return $appId;
+    }
+
+    private function createWebhook(string $webhookKey, bool $active = true, int $errorCount = 0, ?string $appId = null): void
     {
         $this->connection->insert('webhook', [
             'id' => $this->ids->getBytes($webhookKey),
@@ -164,6 +317,7 @@ class WebhookHealthTickTest extends TestCase
             'url' => 'https://example.com/webhook',
             'active' => (int) $active,
             'error_count' => $errorCount,
+            'app_id' => $appId !== null ? Uuid::fromHexToBytes($appId) : null,
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -296,6 +450,16 @@ class WebhookHealthTickTest extends TestCase
             'SELECT degraded_cycle_count FROM webhook_health WHERE webhook_id = :id',
             ['id' => $this->ids->getBytes($webhookKey)]
         );
+    }
+
+    private function fetchDisabledOrigin(string $webhookKey): ?string
+    {
+        $value = $this->connection->fetchOne(
+            'SELECT disabled_origin FROM webhook_health WHERE webhook_id = :id',
+            ['id' => $this->ids->getBytes($webhookKey)]
+        );
+
+        return \is_string($value) ? $value : null;
     }
 
     private function fetchHealthTimestamp(string $webhookKey, string $column): ?string

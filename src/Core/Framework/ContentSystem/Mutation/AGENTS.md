@@ -26,7 +26,7 @@
 - Structural impossibilities fail `400` via `ContentSystemException`: `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`. Mutation-specific structural errors, NOT client-defect codes (not in `CLIENT_DEFECT_CODES`).
 - `bindingSpecificationNotFound` and `bindingTypeMismatch` (`400`, also not client-defect codes) concern the specification rather than the tree's shape, and `bindingSpecificationDefaultAmbiguous` is `409`.
 - `MutationPipeline::run()` takes an already-decoded `StoredTree`; the request draft is decoded upstream by `Api/DraftLayoutDecoder`, never by the pipeline.
-- `ReplaceElement` honors a type default exactly as `scaffoldElement` does on insert: `apply()` overlays `primitiveDefaults($newType)` with PHP's `+`, so a carried or authored value wins and a default fills only a new-type primitive key the carry-over left empty ([docs/replace-element.md](docs/replace-element.md)).
+- `ReplaceElement` honors a type default exactly as `scaffoldElement` does on insert: `apply()` overlays `storedDefaults($newType)` with PHP's `+`, so a carried or authored value wins and a default fills only a new-type defaulted key the carry-over left empty ([docs/replace-element.md](docs/replace-element.md)).
 - `WrapElements` containers provide no context of their own; wrapping changes the wrapped elements' nesting scope but adds no provider.
 
 ## Navigation

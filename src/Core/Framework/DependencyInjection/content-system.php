@@ -73,10 +73,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -187,13 +187,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('validator.constraint_validator');
 
-    // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
-    $services->set(PrimitiveDefaultProvider::class);
+    // Write-boundary default seeding (seeds type stored defaults into every DAL write of the layout field)
+    $services->set(StoredDefaultProvider::class);
 
     $services->set(LayoutDefaultSeeder::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
-            service(PrimitiveDefaultProvider::class),
+            service(StoredDefaultProvider::class),
         ]);
 
     // The forest-wide style pass, shared by the write boundary and the draft decode so the two cannot drift

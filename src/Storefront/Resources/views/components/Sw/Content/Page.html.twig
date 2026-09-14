@@ -11,7 +11,5 @@
 } %}
 
 <div class="sw-content-page" {{ attributes.defaults(attributeDefaults) }}>
-    {% for element in page.elements %}
-        {% sw_include '@Storefront/components/Sw/Content/_element.html.twig' with { element: element } only %}
-    {% endfor %}
+    <twig:Slot :elements="page.elements" />
 </div>

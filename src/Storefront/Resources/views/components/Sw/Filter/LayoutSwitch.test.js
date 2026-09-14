@@ -20,7 +20,13 @@ function createLayoutSwitch() {
 
 function createProductListing() {
     const el = document.createElement('div');
-    el.innerHTML = '<div class="sw-product-listing__grid"><div class="sw-product-card"></div></div>';
+    el.innerHTML = `
+        <div class="sw-product-listing__grid">
+            <div class="sw-grid-container-inner">
+                <div class="sw-product-card"></div>
+            </div>
+        </div>
+    `;
 
     // The `ShopwareComponent` test double does not call `init()` from its constructor.
     const listing = new ProductListing(el);

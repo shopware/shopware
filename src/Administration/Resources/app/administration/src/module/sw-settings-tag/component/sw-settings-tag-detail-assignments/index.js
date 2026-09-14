@@ -3,7 +3,7 @@
  */
 import utils from 'src/core/service/util.service';
 import customerDisplayName from 'src/core/helper/customer-display-name.helper';
-import orderCustomerName from '../../../sw-order/helper/order-customer-name.helper';
+import orderCustomerName from 'src/core/helper/order-customer-name.helper';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
 

@@ -40,3 +40,20 @@ export default function customerDisplayName(customer?: NameableCustomer | null, 
 
     return `${lastName}, ${firstName}`;
 }
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function customerAvatarName(customer?: NameableCustomer | null): { firstName: string; lastName: string } {
+    const firstName = (customer?.firstName ?? '').trim();
+    const lastName = (customer?.lastName ?? '').trim();
+
+    if (firstName !== '' || lastName !== '') {
+        return { firstName, lastName };
+    }
+
+    const parts = customerDisplayName(customer).split(' ');
+
+    return {
+        firstName: parts[0] ?? '',
+        lastName: parts.length > 1 ? parts[parts.length - 1] : '',
+    };
+}

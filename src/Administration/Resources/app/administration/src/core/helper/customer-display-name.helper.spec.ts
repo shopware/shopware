@@ -2,7 +2,7 @@
  * @sw-package checkout
  */
 
-import customerDisplayName from './customer-display-name.helper';
+import customerDisplayName, { customerAvatarName } from './customer-display-name.helper';
 
 describe('core/helper/customer-display-name.helper', () => {
     it.each([
@@ -76,5 +76,44 @@ describe('core/helper/customer-display-name.helper', () => {
     it('returns an empty string without a customer', () => {
         expect(customerDisplayName(null)).toBe('');
         expect(customerDisplayName(undefined)).toBe('');
+    });
+
+    describe('customerAvatarName', () => {
+        it('keeps the raw name fields of a contact person', () => {
+            expect(
+                customerAvatarName({
+                    accountType: 'business',
+                    firstName: ' Ada ',
+                    lastName: 'van Halen',
+                    company: 'Acme GmbH',
+                }),
+            ).toEqual({ firstName: 'Ada', lastName: 'van Halen' });
+        });
+
+        it('takes the first and the last word of the company of a nameless company account', () => {
+            expect(
+                customerAvatarName({
+                    accountType: 'business',
+                    firstName: '',
+                    lastName: '',
+                    company: 'Acme Holding GmbH',
+                }),
+            ).toEqual({ firstName: 'Acme', lastName: 'GmbH' });
+        });
+
+        it('leaves the last name empty for a one word company', () => {
+            expect(
+                customerAvatarName({
+                    accountType: 'business',
+                    firstName: '',
+                    lastName: '',
+                    company: 'Acme',
+                }),
+            ).toEqual({ firstName: 'Acme', lastName: '' });
+        });
+
+        it('returns empty names without a customer', () => {
+            expect(customerAvatarName(null)).toEqual({ firstName: '', lastName: '' });
+        });
     });
 });

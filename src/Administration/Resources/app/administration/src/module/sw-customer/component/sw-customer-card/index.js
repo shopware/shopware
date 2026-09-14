@@ -2,7 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
-import customerDisplayName from 'src/core/helper/customer-display-name.helper';
+import { customerAvatarName } from 'src/core/helper/customer-display-name.helper';
 import companyNamesRequired from '../../helper/company-name-fields.helper';
 
 /**
@@ -70,19 +70,7 @@ export default {
 
     computed: {
         avatarName() {
-            const firstName = (this.customer.firstName ?? '').trim();
-            const lastName = (this.customer.lastName ?? '').trim();
-
-            if (firstName !== '' || lastName !== '') {
-                return { firstName, lastName };
-            }
-
-            const parts = customerDisplayName(this.customer).split(' ');
-
-            return {
-                firstName: parts[0] ?? '',
-                lastName: parts.length > 1 ? parts[parts.length - 1] : '',
-            };
+            return customerAvatarName(this.customer);
         },
 
         hasActionSlot() {

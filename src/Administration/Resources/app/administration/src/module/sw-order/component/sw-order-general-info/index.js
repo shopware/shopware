@@ -1,6 +1,6 @@
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
-import orderCustomerName from '../../helper/order-customer-name.helper';
+import orderCustomerName from 'src/core/helper/order-customer-name.helper';
 
 /**
  * @sw-package checkout

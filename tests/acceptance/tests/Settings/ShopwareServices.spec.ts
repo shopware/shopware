@@ -1,6 +1,5 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
-import { expect } from '@playwright/test';
 
 test.describe('Shopware Services', () => {
     test.describe.configure({ mode: 'serial' });
@@ -16,7 +15,7 @@ test.describe('Shopware Services', () => {
             .catch(() => false);
     });
 
-    test.afterAll(async ({ ShopAdmin, AdminShopwareServices, InstanceMeta }) => {
+    test.afterAll(async ({ ShopAdmin, AdminShopwareServices, ActivateShopwareServices, InstanceMeta }) => {
         if (satisfies(InstanceMeta.version, '>=6.7.1')) {
             try {
                 await ShopAdmin.goesTo(AdminShopwareServices.url());
@@ -25,17 +24,7 @@ test.describe('Shopware Services', () => {
                     .catch(() => false);
 
                 if (initialServicesState && !isCurrentlyActive) {
-                    const enableResponsePromise = AdminShopwareServices.page.waitForResponse(
-                        (response) =>
-                            response.url().includes('/api/services/enable') && response.request().method() === 'POST',
-                        { timeout: 20000 },
-                    );
-                    await AdminShopwareServices.activateServicesButton.click();
-                    await enableResponsePromise;
-                    await AdminShopwareServices.page.reload();
-                    await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeVisible({
-                        timeout: 15000,
-                    });
+                    await ShopAdmin.attemptsTo(ActivateShopwareServices());
                 }
             } catch (error) {
                 console.error('Failed to restore Shopware Services state:', error);
@@ -53,7 +42,7 @@ test.describe('Shopware Services', () => {
                 description: 'https://github.com/shopware/shopware/issues/17082',
             },
         },
-        async ({ ShopAdmin, AdminShopwareServices, InstanceMeta }) => {
+        async ({ ShopAdmin, AdminShopwareServices, DeactivateShopwareServices, ActivateShopwareServices, InstanceMeta }) => {
             test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
 
             await ShopAdmin.goesTo(AdminShopwareServices.url());
@@ -66,34 +55,14 @@ test.describe('Shopware Services', () => {
             await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeVisible();
             await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeEnabled();
 
-            const disableResponsePromise = AdminShopwareServices.page.waitForResponse(
-                (response) => response.url().includes('/api/services/disable') && response.request().method() === 'POST',
-                { timeout: 20000 },
-            );
+            await ShopAdmin.attemptsTo(DeactivateShopwareServices());
 
-            await AdminShopwareServices.deactivateServicesButton.click();
-            await ShopAdmin.expects(AdminShopwareServices.deactivateServicesModal).toBeVisible();
-            await AdminShopwareServices.deactivateServicesConfirmButton.click();
-
-            const disableResponse = await disableResponsePromise;
-            expect(disableResponse.ok()).toBeTruthy();
-
-            await ShopAdmin.expects(AdminShopwareServices.deactivatedBanner).toBeVisible({ timeout: 15000 });
             await ShopAdmin.expects(AdminShopwareServices.activateServicesButton).toBeVisible();
             await ShopAdmin.expects(AdminShopwareServices.permissionBanner).not.toBeVisible();
             await ShopAdmin.expects(AdminShopwareServices.serviceCards).not.toBeVisible();
 
-            const enableResponsePromise = AdminShopwareServices.page.waitForResponse(
-                (response) => response.url().includes('/api/services/enable') && response.request().method() === 'POST',
-                { timeout: 20000 },
-            );
+            await ShopAdmin.attemptsTo(ActivateShopwareServices());
 
-            await AdminShopwareServices.activateServicesButton.click();
-            const enableResponse = await enableResponsePromise;
-            expect(enableResponse.ok()).toBeTruthy();
-
-            await AdminShopwareServices.page.reload();
-            await ShopAdmin.expects(AdminShopwareServices.deactivateServicesButton).toBeVisible({ timeout: 15000 });
             await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible();
         },
     );

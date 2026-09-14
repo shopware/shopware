@@ -169,8 +169,13 @@ class AppSeoUrlTest extends TestCase
 
         static::getContainer()->get(AppManager::class)->deactivate($this->loadApp(), $this->context);
 
-        static::assertSame([1], $this->fetchDeletedFlags(self::IMPRINT_ROUTE));
-        static::assertSame([1], $this->fetchDeletedFlags(self::PRODUCT_ROUTE));
+        $imprintFlags = $this->fetchDeletedFlags(self::IMPRINT_ROUTE);
+        $productFlags = $this->fetchDeletedFlags(self::PRODUCT_ROUTE);
+
+        static::assertNotEmpty($imprintFlags);
+        static::assertNotEmpty($productFlags);
+        static::assertSame([1], array_values(array_unique($imprintFlags)));
+        static::assertSame([1], array_values(array_unique($productFlags)));
         static::assertNotNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
     }
 

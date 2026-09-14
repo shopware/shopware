@@ -30,6 +30,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 #[Package('framework')]
 class SessionContextTokenAccessor
 {
+    use RouteScopeCheckTrait;
+
     public const CONTEXT_SOURCE_SESSION = 'session';
 
     /**
@@ -52,7 +54,8 @@ class SessionContextTokenAccessor
     public function __construct(
         array $sessionOptions,
         private readonly bool $enabled,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RouteScopeRegistry $routeScopeRegistry
     ) {
         $this->sessionName = (string) ($sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME);
     }
@@ -83,12 +86,16 @@ class SessionContextTokenAccessor
             return 'session context resolution is disabled (see shopware.routing.session_context_token.enabled)';
         }
 
+        if (!$this->isRequestScoped($request, StoreApiRouteScope::class)) {
+            return 'the request is not a Store API request';
+        }
+
         if ($request->cookies->get($this->sessionName) === null) {
             return 'the request carries no storefront session cookie';
         }
 
-        if (!$this->isSameSiteFetch($request)) {
-            return 'the request is not a same-origin or same-site fetch';
+        if (!$this->isSameOriginFetch($request)) {
+            return 'the request is not a same-origin fetch';
         }
 
         return null;
@@ -180,6 +187,11 @@ class SessionContextTokenAccessor
         return true;
     }
 
+    protected function getScopeRegistry(): RouteScopeRegistry
+    {
+        return $this->routeScopeRegistry;
+    }
+
     private function sessionFor(Request $request): ?SessionInterface
     {
         if ($this->isOwner($request)) {
@@ -261,9 +273,9 @@ class SessionContextTokenAccessor
     }
 
     /**
-     * An absent header means a non-browser client, not a cross-site one.
+     * An absent header means a non-browser client, not a cross-origin one.
      */
-    private function isSameSiteFetch(Request $request): bool
+    private function isSameOriginFetch(Request $request): bool
     {
         $fetchSite = $request->headers->get('Sec-Fetch-Site');
 
@@ -271,7 +283,7 @@ class SessionContextTokenAccessor
             return true;
         }
 
-        return \in_array(strtolower($fetchSite), ['same-origin', 'same-site'], true);
+        return strtolower($fetchSite) === 'same-origin';
     }
 
     /**

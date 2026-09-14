@@ -202,7 +202,7 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame('logged-in', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testLogoutContinuesOnAFreshTokenAndANewSessionId(): void
+    public function testLogoutContinuesOnTheTokenTheLogoutRouteReturned(): void
     {
         $context = Generator::generateSalesChannelContext(token: 'the-routes-own-token');
         $request = $this->ownerRequest($context->getSalesChannelId());
@@ -212,10 +212,28 @@ class SessionContextTokenSubscriberTest extends TestCase
 
         $this->subscriber([$request])->onCustomerLogout(new CustomerLogoutEvent($context, new CustomerEntity()));
 
+        static::assertSame('the-routes-own-token', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame('the-routes-own-token', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('logged-in-session', $session->getId());
+    }
+
+    public function testLogoutContinuesOnASeparateFreshTokenBeforeV680(): void
+    {
+        $context = Generator::generateSalesChannelContext(token: 'the-routes-own-token');
+        $request = $this->ownerRequest($context->getSalesChannelId());
+        $session = $this->sessionWithId('logged-in-session');
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'logged-in');
+        $request->setSession($session);
+
+        Feature::fake([], function () use ($request, $context): void {
+            $this->subscriber([$request])->onCustomerLogout(new CustomerLogoutEvent($context, new CustomerEntity()));
+        });
+
         $token = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertIsString($token);
         static::assertSame(32, \strlen($token));
         static::assertNotSame('logged-in', $token);
+        static::assertNotSame('the-routes-own-token', $token);
         static::assertSame($token, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotSame('logged-in-session', $session->getId());
     }
@@ -257,7 +275,7 @@ class SessionContextTokenSubscriberTest extends TestCase
             ]);
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
             $request->setSession($session);
-            $accessor = new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService());
+            $accessor = new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService(), new RouteScopeRegistry([new StoreApiRouteScope()]));
             static::assertSame('expired', $accessor->read($request, $context->getSalesChannelId()));
 
             $subscriber = $this->subscriber([$request]);
@@ -281,7 +299,10 @@ class SessionContextTokenSubscriberTest extends TestCase
             static::assertSame($session->getId(), $cookies[0]->getValue());
             static::assertFalse($session->isStarted());
 
-            $nextRequest = new Request(cookies: ['session-' => $cookies[0]->getValue()]);
+            $nextRequest = new Request(
+                attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]],
+                cookies: ['session-' => $cookies[0]->getValue()]
+            );
             $nextRequest->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
             $nextRequest->setSession($session);
             static::assertSame('logged-in', $accessor->read($nextRequest, $context->getSalesChannelId()));
@@ -361,6 +382,22 @@ class SessionContextTokenSubscriberTest extends TestCase
 
         $subscriber->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
         static::assertSame('logged-in', $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testAnAdminApiRequestCannotRotateTheStorefrontSession(): void
+    {
+        $context = Generator::generateSalesChannelContext(token: 'rotated');
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]]);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+        $request->cookies->set('session-', 'storefront-session');
+        $session = $this->sessionWithId('storefront-session');
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'untouched');
+        $request->setSession($session);
+
+        $this->subscriber([$request])->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'rotated'));
+
+        static::assertSame('untouched', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame('storefront-session', $session->getId());
     }
 
     public function testTheKillSwitchStopsBorrowers(): void
@@ -513,7 +550,7 @@ class SessionContextTokenSubscriberTest extends TestCase
     private function subscriber(array $requests, array $config = [], bool $enabled = true): SessionContextTokenSubscriber
     {
         return new SessionContextTokenSubscriber(
-            new SessionContextTokenAccessor(['name' => 'session-'], $enabled, new StaticSystemConfigService($config)),
+            new SessionContextTokenAccessor(['name' => 'session-'], $enabled, new StaticSystemConfigService($config), new RouteScopeRegistry([new StoreApiRouteScope(), new ApiRouteScope()])),
             new RequestStack($requests),
             new RouteScopeRegistry([new StoreApiRouteScope(), new ApiRouteScope()])
         );

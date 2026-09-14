@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
@@ -81,7 +82,12 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
 
     public function onCustomerLogout(CustomerLogoutEvent $event): void
     {
-        $this->rotate($event->getSalesChannelId(), Random::getAlphanumericString(32), true);
+        // the logout route already rotated the context and returns that token in its body
+        $token = Feature::isActive('v6.8.0.0')
+            ? $event->getSalesChannelContext()->getToken()
+            : Random::getAlphanumericString(32);
+
+        $this->rotate($event->getSalesChannelId(), $token, true);
     }
 
     public function onContextResolved(SalesChannelContextResolvedEvent $event): void

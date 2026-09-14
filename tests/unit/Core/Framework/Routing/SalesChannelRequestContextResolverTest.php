@@ -68,7 +68,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $contextService,
             new EventDispatcher(),
             new RouteScopeRegistry([new StoreApiRouteScope()]),
-            new SessionContextTokenAccessor([], true, new StaticSystemConfigService())
+            new SessionContextTokenAccessor([], true, new StaticSystemConfigService(), new RouteScopeRegistry([new StoreApiRouteScope()]))
         );
 
         $resolver->resolve($request);
@@ -116,7 +116,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $contextService,
             new EventDispatcher(),
             new RouteScopeRegistry([new StoreApiRouteScope()]),
-            new SessionContextTokenAccessor([], true, new StaticSystemConfigService())
+            new SessionContextTokenAccessor([], true, new StaticSystemConfigService(), new RouteScopeRegistry([new StoreApiRouteScope()]))
         );
 
         $resolver->resolve($request);
@@ -184,7 +184,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $contextService,
             new EventDispatcher(),
             new RouteScopeRegistry([new StoreApiRouteScope()]),
-            new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService())
+            new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService(), new RouteScopeRegistry([new StoreApiRouteScope()]))
         );
     }
 

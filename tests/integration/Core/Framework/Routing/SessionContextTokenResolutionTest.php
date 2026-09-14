@@ -173,7 +173,7 @@ class SessionContextTokenResolutionTest extends TestCase
     {
         return [
             ['same-origin', true],
-            ['same-site', true],
+            ['same-site', false],
             ['cross-site', false],
             ['none', false],
         ];
@@ -190,7 +190,7 @@ class SessionContextTokenResolutionTest extends TestCase
 
         if (!$shouldResolve) {
             $this->expectExceptionObject(
-                RoutingException::sessionContextNotResolvable('the request is not a same-origin or same-site fetch')
+                RoutingException::sessionContextNotResolvable('the request is not a same-origin fetch')
             );
         }
 

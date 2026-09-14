@@ -22,7 +22,10 @@ class CustomerAddressNameFormatterTest extends TestCase
         $address = new CustomerAddressEntity();
         $address->setFirstName($firstName);
         $address->setLastName($lastName);
-        $address->setCompany($company);
+
+        if ($company !== null) {
+            $address->setCompany($company);
+        }
 
         static::assertSame($expected, CustomerAddressNameFormatter::displayName($address));
     }

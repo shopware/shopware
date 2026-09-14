@@ -55,7 +55,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(FilesystemCookieConsentLogStorage::class)
         ->args([
             service('shopware.filesystem.private'),
-            param('shopware.cookie_consent.filesystem_path'),
         ])
         ->tag('shopware.cookie_consent.log_storage', ['storage' => FilesystemCookieConsentLogStorage::NAME]);
 

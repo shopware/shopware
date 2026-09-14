@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * Keeps the consent log as files on the private filesystem, so the evidence stays out
  * of the shop database and can live on object storage through the Flysystem adapters.
  *
- * Layout below the configured path:
+ * Layout below `cookie-consent/` on the private filesystem:
  *   <year>/<month>/<day>/<hour>/<timestamp>.<random>.<consentId>.json   one decision
  *   snapshots/<configHash>.json                                          one banner configuration
  *
@@ -36,13 +36,10 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
      */
     private const HOUR_DEPTH = 4;
 
-    private readonly string $path;
+    private const PATH = 'cookie-consent';
 
-    public function __construct(
-        private readonly FilesystemOperator $filesystem,
-        string $path,
-    ) {
-        $this->path = trim($path, '/');
+    public function __construct(private readonly FilesystemOperator $filesystem)
+    {
     }
 
     public function log(CookieConsentRecord $record): void
@@ -53,7 +50,7 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
         $name = $createdAt->format(self::TIMESTAMP_FORMAT) . '.' . bin2hex(random_bytes(4)) . '.' . $record->consentId . self::FILE_EXTENSION;
 
         $this->filesystem->write(
-            $this->path . '/' . $createdAt->format('Y/m/d/H') . '/' . $name,
+            self::PATH . '/' . $createdAt->format('Y/m/d/H') . '/' . $name,
             json_encode($record, \JSON_THROW_ON_ERROR),
         );
     }
@@ -70,7 +67,7 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
 
     public function cleanup(\DateTimeImmutable $before): void
     {
-        $this->prune($this->path, [], $before->setTimezone(new \DateTimeZone('UTC')));
+        $this->prune(self::PATH, [], $before->setTimezone(new \DateTimeZone('UTC')));
     }
 
     public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
@@ -78,7 +75,7 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
         $from = $from->setTimezone(new \DateTimeZone('UTC'));
         $to = $to->setTimezone(new \DateTimeZone('UTC'));
 
-        foreach ($this->hourDirectories($this->path, [], $from, $to) as $hourDirectory) {
+        foreach ($this->hourDirectories(self::PATH, [], $from, $to) as $hourDirectory) {
             // The file names start with the timestamp, so sorting them yields chronological order
             $files = [];
             foreach ($this->filesystem->listContents($hourDirectory) as $item) {
@@ -214,7 +211,7 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
 
     private function snapshotLocation(string $configHash): string
     {
-        return $this->path . '/' . self::SNAPSHOT_DIRECTORY . '/' . $configHash . self::FILE_EXTENSION;
+        return self::PATH . '/' . self::SNAPSHOT_DIRECTORY . '/' . $configHash . self::FILE_EXTENSION;
     }
 
     /**

@@ -483,8 +483,6 @@ shopware:
         log_storage: 'none'
         # Days a recorded decision is kept before the daily cleanup task deletes it
         retention_days: 120
-        # Directory inside shopware.filesystem.private used by the filesystem storage
-        filesystem_path: 'cookie-consent'
 
     sales_channel_context:
         expire_days: 120

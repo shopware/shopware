@@ -28,7 +28,7 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
-        $this->storage = new FilesystemCookieConsentLogStorage($this->filesystem, '/cookie-consent/');
+        $this->storage = new FilesystemCookieConsentLogStorage($this->filesystem);
     }
 
     public function testADecisionBecomesOneFileInItsHourDirectory(): void

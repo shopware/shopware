@@ -986,11 +986,6 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
-                ->scalarNode('filesystem_path')
-                    ->info('Directory inside shopware.filesystem.private used by the "filesystem" storage')
-                    ->cannotBeEmpty()
-                    ->defaultValue('cookie-consent')
-                ->end()
             ->end();
 
         return $rootNode;

@@ -8,7 +8,7 @@ test(
     { tag: '@FirstRunWizard' },
     async ({
         FRWSalesChannelSelectionPossibility,
-        FRWExtensionRecommendationPossibility,
+        SelectExtensionCategory,
         ShopAdmin,
         DefaultSalesChannel,
         AdminFirstRunWizard,
@@ -64,7 +64,8 @@ test(
         // Extensions part
         await ShopAdmin.expects(AdminFirstRunWizard.extensionsHeader).toBeVisible();
         await AdminFirstRunWizard.germanRegionSelector.click();
-        await ShopAdmin.attemptsTo(FRWExtensionRecommendationPossibility(AdminFirstRunWizard.toolsSelector, 'Migration Assistant'));
+        await ShopAdmin.attemptsTo(SelectExtensionCategory(AdminFirstRunWizard.toolsSelector));
+        await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin.first()).toContainText('Migration Assistant');
         await ShopAdmin.expects(AdminFirstRunWizard.recommendationHeader).toBeVisible();
         await AdminFirstRunWizard.nextButton.click();
 

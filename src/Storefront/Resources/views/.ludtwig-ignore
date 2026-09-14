@@ -52,3 +52,5 @@
 # Ludtwig related parser errors below.
 # These are ignored until this syntax is supported in ludtwig
 # -------------------------------------------
+# Dynamic tag names via {{ previewItemTag }} (button vs div) are not valid HTML for the parser
+/components/Sw/Media/Gallery.html.twig

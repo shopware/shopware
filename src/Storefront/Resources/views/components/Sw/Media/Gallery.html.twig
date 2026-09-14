@@ -104,8 +104,8 @@
                         {% set previewLabel = previewLabel ~ ', ' ~ mediaItem.translated.alt|striptags %}
                     {% endif %}
 
-                    <{{ previewItemTag }} 
-                        class="sw-media-gallery__preview-item" 
+                    <{{ previewItemTag }}
+                        class="sw-media-gallery__preview-item"
                         id="sw-media-gallery-preview-{{ loop.index }}"
                         data-media-id="{{ loop.index }}"
                         {% if showFullScreenGallery %}

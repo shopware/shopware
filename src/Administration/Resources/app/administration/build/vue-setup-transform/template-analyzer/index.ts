@@ -11,11 +11,20 @@
  * decided here.
  */
 
+import {
+    isSlotDefinitionBlock,
+    describeSlotDefinitionBlock,
+    canReceiveSlotDefinitions,
+    type SlotDefinitionReceiver,
+} from './slot-definition-blocks';
 import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type ElementNode,
+    type DirectiveNode,
+    collectBindingPatternNames,
+    getForDirective,
     collectTemplateReferences,
     getStaticSwBlockExtends,
     getStaticSwBlockName,
@@ -51,7 +60,9 @@ type OverrideSlotScope = {
  */
 type TemplateAnalysis = {
     // Absolute offsets on base `<sw-block>` opening tags where the generated data scope is inserted.
-    dataScopeInsertions: number[];
+    dataScopeInsertions: { at: number; locals: string[] }[];
+    slotDefinitionReceivers: SlotDefinitionReceiver[];
+    slotDefinitionRemovals: { start: number; end: number }[];
     slotScopes: OverrideSlotScope[];
     privateBindings: Set<string>;
     // Static names of the base `<sw-block name="...">` blocks this component owns. Emitted so a later
@@ -72,6 +83,8 @@ type TemplateAnalysis = {
 function emptyTemplateAnalysis(): TemplateAnalysis {
     return {
         dataScopeInsertions: [],
+        slotDefinitionReceivers: [],
+        slotDefinitionRemovals: [],
         slotScopes: [],
         privateBindings: new Set<string>(),
         ownedBlockNames: [],
@@ -184,6 +197,8 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
 
     return {
         dataScopeInsertions: [],
+        slotDefinitionReceivers: [],
+        slotDefinitionRemovals: [],
         slotScopes,
         privateBindings,
         ownedBlockNames: [],
@@ -202,29 +217,67 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 
     const template = block.template;
     const ast = parseTemplate(template.content);
-    const dataScopeInsertions: number[] = [];
+    const dataScopeInsertions: TemplateAnalysis['dataScopeInsertions'] = [];
     const ownedBlockNames: string[] = [];
+    const receivers = new Map<ElementNode, SlotDefinitionReceiver>();
+    const removals: TemplateAnalysis['slotDefinitionRemovals'] = [];
 
-    forEachTemplateElement(ast.children, (element) => {
-        if (element.tag === 'sw-block') {
-            assertSwBlockAttributes(element, 'base', template.contentStart);
-        }
-
-        if (isSwBlockName(element)) {
-            const blockName = getStaticSwBlockName(element);
-
-            if (blockName !== null) {
-                ownedBlockNames.push(blockName);
+    function visit(nodes: TemplateChildNode[], inherited: Set<string>, parent?: ElementNode, receiver?: ElementNode): void {
+        nodes.forEach((node) => {
+            if (node.type !== NodeTypes.ELEMENT) return;
+            const element = node as ElementNode;
+            const locals = new Set(inherited);
+            collectBindingPatternNames(getForDirective(element)).forEach((name) => locals.add(name));
+            const structural = isSlotDefinitionBlock(element) && canReceiveSlotDefinitions(receiver ?? parent);
+            if (element.tag === 'sw-block') {
+                assertSwBlockAttributes(element, 'base', template.contentStart, structural);
             }
 
-            dataScopeInsertions.push(
-                template.contentStart + findOpeningTagNameEnd(template.content, element.loc.start.offset),
-            );
-        }
-    });
+            if (isSwBlockName(element)) {
+                const blockName = getStaticSwBlockName(element);
+
+                if (blockName !== null) {
+                    ownedBlockNames.push(blockName);
+                }
+
+                if (structural) {
+                    const owner = receiver ?? parent!;
+                    const descriptor = receivers.get(owner) ?? {
+                        at: template.contentStart + findOpeningTagAttributeEnd(template.content, owner.loc.start.offset),
+                        groups: [],
+                        locals: [...inherited],
+                    };
+                    // Children run first so an outer block's parent descriptors include inner block overrides.
+
+                    receivers.set(owner, descriptor);
+                    const openingEnd = findOpeningTagAttributeEnd(template.content, element.loc.start.offset) + 1;
+                    const closingStart = template.content.lastIndexOf('</', element.loc.end.offset - 1);
+                    removals.push(
+                        { start: template.contentStart + element.loc.start.offset, end: template.contentStart + openingEnd },
+                        { start: template.contentStart + closingStart, end: template.contentStart + element.loc.end.offset },
+                    );
+                } else {
+                    dataScopeInsertions.push({
+                        at: template.contentStart + findOpeningTagNameEnd(template.content, element.loc.start.offset),
+                        locals: [...locals],
+                    });
+                }
+            }
+            element.props.forEach((prop) => {
+                if (prop.type === NodeTypes.DIRECTIVE && prop.name === 'slot') {
+                    collectBindingPatternNames(prop as DirectiveNode).forEach((name) => locals.add(name));
+                }
+            });
+            visit(element.children, locals, element, structural ? (receiver ?? parent) : undefined);
+            if (structural) receivers.get(receiver ?? parent!)!.groups.push(describeSlotDefinitionBlock(element));
+        });
+    }
+    visit(ast.children, new Set());
 
     return {
         dataScopeInsertions,
+        slotDefinitionReceivers: [...receivers.values()],
+        slotDefinitionRemovals: removals,
         slotScopes: [],
         privateBindings: new Set<string>(),
         ownedBlockNames,

@@ -1,31 +1,20 @@
 import type { ComputedRef, Ref } from 'vue';
-import {
-    computed,
-    getCurrentInstance as vueGetCurrentInstance,
-    getCurrentScope,
-    isReactive,
-    isReadonly,
-    isRef,
-    reactive,
-    watch,
-} from 'vue';
-import { syncRef } from '@vueuse/core';
+import { computed, getCurrentInstance as vueGetCurrentInstance, getCurrentScope, reactive, watch } from 'vue';
+import { publishOverrideState } from './publish-override-state';
+import { createNativeOptionsState } from '../options-composition-shim/native-options-state';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
-import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
-import type { OverrideFn } from '../options-composition-shim';
+import type { OverrideFn } from '../options-composition-shim/types';
 import {
     createDataScope,
     createOverrideLocalState,
     exposeOverrideLocalState,
-    getOverrideLocalState,
     isOverrideLocalStateKey,
-    mergeOverrideState,
     setDataScopeForInstance,
 } from './data-scope-helper';
-import type { ExtendableSetupState, OverrideLocalState } from './data-scope-helper';
+import type { ExtendableSetupState } from './data-scope-helper';
 
 /** @private */
-export { getScriptSetupDataScope } from './data-scope-helper';
+export { getScriptSetupDataScope, createBlockDataScope } from './data-scope-helper';
 
 /**
  * @private
@@ -53,7 +42,7 @@ export { getScriptSetupDataScope } from './data-scope-helper';
  */
 
 // Disable ESLint rules for this file due to the use of 'any' types and potentially unsafe operations
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
     /**
      * @private
@@ -103,67 +92,6 @@ export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
 export const _overridesMap: {
     [componentName: string]: Array<OverrideFn>;
 } = reactive({});
-
-/**
- * @private
- * Function to check if the new structure contains at least all keys of the old structure (nested)
- */
-const checkNestedStructure = <
-    TOld extends Record<string, unknown>,
-    TNew extends Partial<Record<keyof TOld, unknown>> & Record<string, unknown>,
->({
-    oldObj,
-    newObj,
-    path = '',
-    componentName,
-}: {
-    oldObj: TOld;
-    newObj: TNew;
-    path?: string;
-    componentName: string;
-}): {
-    isValid: boolean;
-    error: string | null;
-} => {
-    let result: {
-        isValid: boolean;
-        error: string | null;
-    } = { isValid: true, error: null };
-
-    for (const key of Object.keys(oldObj)) {
-        const currentPath = path ? `${path}.${key}` : key;
-
-        if (!Object.prototype.hasOwnProperty.call(newObj, key)) {
-            result = {
-                isValid: false,
-                error: `[${componentName}] Override value not working. New structure does not contain key: ${currentPath}`,
-            };
-            break;
-        }
-
-        if (
-            typeof oldObj[key] === 'object' &&
-            oldObj[key] !== null &&
-            typeof newObj[key] === 'object' &&
-            newObj[key] !== null
-        ) {
-            // Recursively check nested objects
-            const nestedResult = checkNestedStructure({
-                oldObj: oldObj[key] as Record<string, unknown>,
-                newObj: newObj[key] as Record<string, unknown>,
-                path: currentPath,
-                componentName,
-            });
-
-            if (!nestedResult.isValid) {
-                result = nestedResult;
-                break;
-            }
-        }
-    }
-
-    return result;
-};
 
 const getComponentContext = (): SetupContext => {
     const instance = getCurrentInstance();
@@ -222,13 +150,14 @@ const getOverrideVisibleStateKeys = (state: object): string[] => {
 const createPreviousStateForOverride = <TPublicState extends object, TPrivateState extends object>(
     setupState: TPublicState & TPrivateState,
     publicState: TPublicState,
+    privateKeys: string[],
 ): PreviousStateForOverride<TPublicState, TPrivateState> => {
     const setupStateAsRecord = setupState as Record<string, unknown>;
     const publicStateKeys = Object.keys(publicState);
 
     return getOverrideVisibleStateKeys(setupState).reduce<PreviousStateForOverride<TPublicState, TPrivateState>>(
         (previousState, key) => {
-            if (publicStateKeys.includes(key)) {
+            if (publicStateKeys.includes(key) || !privateKeys.includes(key)) {
                 (previousState as Record<string, unknown>)[key] = setupStateAsRecord[key];
                 return previousState;
             }
@@ -249,8 +178,8 @@ const createPreviousStateForOverride = <TPublicState extends object, TPrivateSta
  * this module for them. Reachable on the `Shopware.Component` global only because generated code has to
  * resolve it at runtime.
  *
- * The wrapper separates public and private setup state, applies all registered Composition API and
- * Options API shim overrides once, and returns a data scope that `sw-block` can read during slot
+ * The wrapper separates public and private setup state, applies registered Composition API overrides and
+ * bridges bindings to the native Vue Options instance, and returns a data scope that `sw-block` can read during slot
  * rendering.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -322,49 +251,25 @@ export function createExtendableSetup<
         _overridesMap[options.name] = reactive([]);
     }
 
-    // Process pending overrides from the component factory override registry.
-    // This is the single canonical path for routing Options API overrides through the shim.
-    // Plugins always register overrides (via Shopware.Component.override()) before the Vue
-    // application mounts, so all pending overrides are present in the registry at this point.
-    void (async () => {
-        try {
-            const overrideRegistry = Shopware?.Component?.getOverrideRegistry?.();
-            if (!overrideRegistry) {
-                // Shopware global not available (e.g. in unit tests that don't bootstrap the app)
-                return;
-            }
-
-            if (overrideRegistry.has(options.name as string)) {
-                const pendingOverrides = overrideRegistry.get(options.name as string)!;
-                await Promise.all(
-                    pendingOverrides.map(async (pendingOverride) => {
-                        const resolvedConfig = await pendingOverride.config();
-                        if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
-                            const compositionOverride = convertOptionsApiOverrideToCompositionApi(
-                                options.name as string,
-                                resolvedConfig,
-                            );
-                            _overridesMap[options.name].push(compositionOverride);
-                        }
-                    }),
-                );
-            }
-        } catch (e) {
-            console.error(`[Options API Shim] Failed to process pending overrides for "${options.name as string}":`, e);
-        }
-    })();
-
-    const registeredOverrides = _overridesMap[options.name];
+    const instance = getCurrentInstance();
+    const definition = instance?.type as { __swLegacyNames?: string[]; __swNativeOptions?: boolean } | undefined;
+    const names = definition?.__swLegacyNames ?? [options.name as string];
+    const nativeOverrides = names.map((name) => (_overridesMap[name] ??= reactive([])));
+    const registeredOverrides = computed(() => nativeOverrides.flat());
 
     // Create a reactive wrapper for the original setup result
-    const reactiveSetupState = reactive(setupState);
+    const usesNativeOptions = definition?.__swNativeOptions;
+    const reactiveSetupState =
+        usesNativeOptions && instance
+            ? (createNativeOptionsState(instance, setupState, Object.keys(publicSetupState)) as typeof setupState)
+            : reactive(setupState);
 
     // Keep track of applied overrides to avoid duplicates
     const appliedOverrides = reactive<OverrideFn[]>([]);
 
     // Function to apply overrides
     const applyOverrides = () => {
-        registeredOverrides.forEach((override) => {
+        registeredOverrides.value.forEach((override) => {
             // Skip if this override has already been applied
             if (appliedOverrides.includes(override)) {
                 return;
@@ -373,7 +278,7 @@ export function createExtendableSetup<
             const previousStateForOverride = createPreviousStateForOverride<
                 Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>,
                 TPrivateSetupResult
-            >(setupState, publicSetupState);
+            >(setupState, publicSetupState, Object.keys(privateSetupState));
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;
@@ -386,74 +291,13 @@ export function createExtendableSetup<
                 throw e;
             }
 
-            // Process each property in the override result
-            Object.keys(overrideResult).forEach((key) => {
-                if (isOverrideLocalStateKey(key)) {
-                    mergeOverrideState(getOverrideLocalState(reactiveSetupState), overrideResult[key] as OverrideLocalState);
-                    return;
-                }
-
-                // Skip if the key is a prop, as props should not be overridden
-                if (Object.keys(options.props).includes(key)) {
-                    console.error(
-                        `[${options.name}] Override result value not working. Cannot override props. Following prop should be changed: "${key}"`,
-                    );
-                    return;
-                }
-                const resultValue = overrideResult[key];
-
-                if (
-                    !isReadonly(resultValue) &&
-                    isRef(resultValue) &&
-                    // @ts-expect-error - "effect" is not part of the Ref type
-                    !resultValue?.effect
-                ) {
-                    if (setupState[key] !== undefined && isRef(setupState[key])) {
-                        // Handle normal ref values with 2-Way sync
-                        syncRef(resultValue, setupState[key]);
-                    } else {
-                        // New property from override (e.g. Options API shim data), add directly
-                        reactiveSetupState[key] = resultValue;
-                    }
-                } else if (isReadonly(resultValue) && isRef(resultValue)) {
-                    // Handle readonly computed values
-                    reactiveSetupState[key] = resultValue;
-                    // @ts-expect-error - "effect" is part of a writable computed value
-                } else if (!isReadonly(resultValue) && isRef(resultValue) && resultValue?.effect) {
-                    // Handle writable computed values, create a new computed property with getter and setter
-                    reactiveSetupState[key] = computed({
-                        get: () => resultValue.value,
-                        set: (value) => {
-                            resultValue.value = value;
-                        },
-                    });
-                } else if (isReactive(resultValue)) {
-                    // Check if new structure contains at least all keys of the old structure (nested)
-                    const validationResult = checkNestedStructure({
-                        oldObj: reactiveSetupState[key] as Record<string, unknown>,
-                        newObj: resultValue as Record<string, unknown>,
-                        componentName: options.name as string,
-                        path: key,
-                    });
-
-                    if (!validationResult.isValid) {
-                        console.error(validationResult.error);
-                        return;
-                    }
-
-                    // Assign reactive objects directly
-                    Object.assign(reactiveSetupState[key], resultValue);
-                } else if (typeof resultValue === 'function') {
-                    // Handle functions, assign directly
-                    reactiveSetupState[key] = resultValue;
-                } else {
-                    // Log an error for unhandled types
-                    console.error(
-                        `[${options.name}] Override value not working. No handling declared for:`,
-                        key,
-                        resultValue,
-                    );
-                }
+            publishOverrideState({
+                componentName: options.name as string,
+                props: options.props,
+                result: overrideResult,
+                rawState: setupState,
+                state: reactiveSetupState,
+                instance,
             });
 
             // Mark this override as applied
@@ -467,15 +311,12 @@ export function createExtendableSetup<
     const ownerScope = getCurrentScope();
 
     watch(registeredOverrides, ownerScope ? () => ownerScope.run(applyOverrides) : applyOverrides, {
-        deep: true,
         immediate: true,
     });
 
     const state = createDataScope<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>(
-        reactiveSetupState,
+        reactiveSetupState as ReturnType<typeof reactive<typeof setupState>>,
     );
-
-    const instance = getCurrentInstance();
 
     if (instance) {
         setDataScopeForInstance(instance, state);

@@ -418,12 +418,7 @@ describe('sw-block', () => {
 
     // ─── DEV-mode guard: props.name change after mount ────────────────────────
     //
-    // sw-block registers a watch (guarded by process.env.NODE_ENV !== 'production')
-    // that warns if the `name` prop changes after mount, because the shim slots and
-    // block context bindings are computed once in setup() and cannot be rebound.
-    // Jest runs with NODE_ENV='test', so the watch is active in these tests.
-
-    describe('DEV-mode guard for dynamic "name" prop (T-3)', () => {
+    describe('dynamic block names', () => {
         let consoleSpy;
 
         beforeEach(() => {
@@ -434,7 +429,7 @@ describe('sw-block', () => {
             consoleSpy.mockRestore();
         });
 
-        it('emits a console.warn when the "name" prop changes after the initial mount', async () => {
+        it('retains content without stale-name warnings after the block name changes', async () => {
             const wrapper = await mount(
                 {
                     template: `
@@ -458,10 +453,8 @@ describe('sw-block', () => {
 
             await wrapper.setData({ blockName: 'changed-block-name' });
 
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-block]'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"name" prop changed'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('original-block-name'));
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('changed-block-name'));
+            expect(wrapper.find('.content').exists()).toBe(true);
+            expect(consoleSpy).not.toHaveBeenCalled();
         });
 
         it('does not emit a console.warn on initial mount — the watch fires only on subsequent changes', async () => {

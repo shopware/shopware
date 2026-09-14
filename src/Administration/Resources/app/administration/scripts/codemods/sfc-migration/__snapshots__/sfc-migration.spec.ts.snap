@@ -59,11 +59,11 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "sfc": "<template>
     <sw-block name="sw_block_named_slot">
         <sw-modal v-if="active">
-            <template #modal-footer>
-                <sw-block name="sw_block_named_slot_footer">
+            <sw-block name="sw_block_named_slot_footer">
+                <template #modal-footer>
                     <button class="sw-block-named-slot__cancel">Cancel</button>
-                </sw-block>
-            </template>
+                </template>
+            </sw-block>
         </sw-modal>
     </sw-block>
 </template>

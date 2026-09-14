@@ -64,6 +64,8 @@ type ComposableScaffold = {
 
 type ComposableDescriptor = {
     id: string;
+    /** Audited complete public surface and override dispatch; absence keeps compatibility migrations on Options. */
+    legacyCompatible?: boolean;
     /** Matches `Mixin.getByName('x')` and the bare string form `mixins: ['x']` alike. */
     mixinNames: string[];
     import: { source: string; name: string };

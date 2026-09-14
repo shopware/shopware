@@ -819,11 +819,28 @@ function resolveMixins(
 
     const routedConfig = routeScaffoldConfig(collected, ownMembers);
     const active = collected.mixins.filter(
-        (descriptor) => scaffoldRunsUnread(descriptor) || readsAnyMember(descriptor, readMembers),
+        (descriptor) => ctx.preserveLegacyApi || scaffoldRunsUnread(descriptor) || readsAnyMember(descriptor, readMembers),
     );
 
     for (const descriptor of collected.mixins) {
         const internal = descriptor.internallyReferencedMembers ?? [];
+        if (ctx.preserveLegacyApi) {
+            if (descriptor.scaffold) report(ctx, 'skip', `the '${descriptor.id}' mapping requires a manual behavior review`);
+            if (internal.length)
+                report(
+                    ctx,
+                    'skip',
+                    `the '${descriptor.id}' composable closes over overridable members: ${internal.join(', ')}`,
+                );
+            if (descriptor.unmappedMembers?.length)
+                report(
+                    ctx,
+                    'skip',
+                    `the '${descriptor.id}' mapping omits legacy members: ${descriptor.unmappedMembers.join(', ')}`,
+                );
+            if (!descriptor.legacyCompatible)
+                report(ctx, 'skip', `the '${descriptor.id}' mapping has not been verified for legacy overrides`);
+        }
 
         for (const member of internal) {
             if (ownMembers.has(member)) {
@@ -892,7 +909,7 @@ function resolveMixins(
             member,
             spec,
         ] of Object.entries(descriptor.members)) {
-            if (!readMembers.has(member)) {
+            if (!ctx.preserveLegacyApi && !readMembers.has(member)) {
                 continue;
             }
 

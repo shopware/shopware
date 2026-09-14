@@ -213,6 +213,10 @@ function scheduleChainUpdate(chainKey: string): void {
 
     queueMicrotask(() => {
         pendingUpdates.delete(chainKey);
+        if (!legacyConditionContext[chainKey]) {
+            delete legacyConditionRenderVersions[chainKey];
+            return;
+        }
         legacyConditionRenderVersions[chainKey] = (legacyConditionRenderVersions[chainKey] ?? 0) + 1;
     });
 }
@@ -258,11 +262,6 @@ function legacyIf(chainKey: string, expression: unknown, options: LegacyConditio
     }
 
     const chain = legacyConditionContext[chainKey];
-
-    if (options.renderOrderSegment === 'defaultSlot') {
-        chain.defaultSlotCases = [];
-        chain.nativeExtensionCases = [];
-    }
 
     setLegacyCaseResult(chainKey, chain, options, createLegacyConditionCaseResult(result, options));
 
@@ -327,7 +326,11 @@ function legacyElse(chainKey: string, options: LegacyConditionCaseOptions): bool
  * @example
  * reserveLegacyConditionCases('sw_card:0', { caseStartIndex: 1, caseCount: 2 });
  */
-function reserveLegacyConditionCases(chainKey: string, reservation: LegacyConditionCaseReservation): void {
+function reserveLegacyConditionCases(
+    chainKey: string,
+    reservation: LegacyConditionCaseReservation,
+    synchronous = false,
+): void {
     if (reservation.caseCount < 1) {
         return;
     }
@@ -363,7 +366,7 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
             // Undefined means the case exists, but the shim has not evaluated it yet.
             caseList[currentIndex] = undefined;
             hasNewReservation = true;
-        } else if (!keepShimResultsForNextReservation && caseList[currentIndex] !== undefined) {
+        } else if (!synchronous && !keepShimResultsForNextReservation && caseList[currentIndex] !== undefined) {
             // Clear existing results for re-reserved slots to ensure they are up-to-date with the latest shim evaluation.
             caseList[currentIndex] = undefined;
             hasNewReservation = true;

@@ -17,7 +17,6 @@
 
 import { assertBlockSlots } from './assert-block-slots';
 import { assertSingleRoot } from './assert-single-root';
-import { hoistBlockSlots } from './hoist-block-slots';
 import { moveRootTwigCommentsOutOfTemplate, TWIG_COMMENT_MARKER } from './move-root-comments';
 import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
@@ -69,15 +68,8 @@ function transformTemplate(twig: string): TemplateResult {
         return { template: null, blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`] };
     }
 
-    // Runs before the gate below, so a slot the conversion re-parented is repaired rather than refused.
-    const hoisted = hoistBlockSlots(template);
-
-    if (hoisted.blockers.length > 0) {
-        return { template: null, blockers: hoisted.blockers };
-    }
-
-    // Checked before the guard insertion below, so the blocker describes the authored shape.
-    const slotBlockers = assertBlockSlots(hoisted.template);
+    // Preserve block placement: the setup compiler merges named-slot definitions at the receiver.
+    const slotBlockers = assertBlockSlots(template);
 
     if (slotBlockers.length > 0) {
         return { template: null, blockers: slotBlockers };
@@ -85,7 +77,7 @@ function transformTemplate(twig: string): TemplateResult {
 
     // A Twig comment rendered nothing. Preserve root comments as SFC comments outside `<template>`,
     // otherwise Vue keeps them as rendered roots in development and changes `$el` into an anchor.
-    const rooted = moveRootTwigCommentsOutOfTemplate(hoisted.template);
+    const rooted = moveRootTwigCommentsOutOfTemplate(template);
     const normalized = normalizeCrossBlockConditionals(rooted.template);
 
     if (normalized.template === null) {

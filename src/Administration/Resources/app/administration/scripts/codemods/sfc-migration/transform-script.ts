@@ -289,6 +289,7 @@ function transformScript(
     componentName: string,
     transformOptions: {
         templateImportRange: { start: number; end: number };
+        preserveLegacyApi?: boolean;
         templateIdentifiers: ReadonlySet<string>;
         templateComponentTags: ReadonlySet<string>;
     },
@@ -298,6 +299,7 @@ function transformScript(
         ms: new MagicString(source),
         paths: new Map(),
         componentName,
+        preserveLegacyApi: transformOptions.preserveLegacyApi,
         bindings: new Map(),
         renamedBindings: new Map(),
         templateIdentifiers: transformOptions.templateIdentifiers,
@@ -339,6 +341,12 @@ function transformScript(
     const collected = classifyOptions(ctx, options);
     const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
     const watchers = collectWatchers(ctx, collected);
+    if (ctx.preserveLegacyApi && collected.createdFn) {
+        report(ctx, 'skip', 'created() would run during setup before legacy Options initialization');
+    }
+    if (ctx.preserveLegacyApi && collected.watchEntries.length) {
+        report(ctx, 'skip', 'base watchers need their original Options initialization order');
+    }
 
     // --- name safety checks --------------------------------------------------------------------
 
@@ -432,11 +440,9 @@ function transformScript(
 
     // --- prelude (module-level code outside the component options) ------------------------------
 
-    const end = ctx.source.indexOf('\n', transformOptions.templateImportRange.end);
-    ctx.ms.remove(
-        transformOptions.templateImportRange.start,
-        end === -1 ? transformOptions.templateImportRange.end : end + 1,
-    );
+    // The import can share its line with component options. Remove only its AST range,
+    // otherwise data initializers on that line disappear before renderScript reads them.
+    ctx.ms.remove(transformOptions.templateImportRange.start, transformOptions.templateImportRange.end);
 
     // Keep the module prelude in a normal `<script>` block. `<script setup>` runs once per
     // component instance, so even a getter, regex, live import, or apparently pure member read can

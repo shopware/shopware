@@ -91,6 +91,7 @@ async function convertFixture(name: string): Promise<ConvertResult> {
     const { source: jsSource, lang } = fixtureScript(name);
 
     return convertComponent({
+        preserveLegacyApi: false, // These fixtures also exercise drafts intended for a major release.
         jsSource,
         twigSource: fs.readFileSync(path.join(dir, `${name}.html.twig`), 'utf8'),
         componentName: name,

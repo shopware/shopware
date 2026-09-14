@@ -4,6 +4,27 @@ Converts Options API Administration components (`index.js` + `*.html.twig`) into
 (`<component-name>.vue` with `swDefinePublic`, see
 `technical-docs/03-extensibility/07-native-setup-authoring.md`).
 
+## Legacy compatibility gate
+
+Use the [legacy Options migration guide](../../../technical-docs/03-extensibility/08-legacy-options-migration.md) to review public names, member categories, and runtime behavior.
+The gate identifies migration candidates; it does not prove compatibility with every extension.
+
+The batch runner preserves existing Options overrides by default. A mapping must declare `legacyCompatible: true` after its complete member surface and override behavior have been verified.
+The gate also rejects mappings with missing members, internal calls that bypass overrides, or scaffold-only behavior.
+The first verified mapping is `placeholder`.
+
+Every mapped member is emitted, including members unused by the base.
+The codemod emits ordinary SFC declarations without compatibility options.
+The shared Vite and Jest transform generates member categories and shared alias mappings in compiled output.
+The runtime bridges these bindings to Vue Options without executing the original mixin again.
+
+Base `created()` and watcher declarations currently remain on Options API because setup would execute them in a different order.
+Rejected components produce no SFC and cannot replace their entry point, even with `--replace-originals`.
+Other partial drafts also retain their original entry point.
+
+The low-level transform can produce major-release drafts with `preserveLegacyApi: false`; the batch runner never disables this gate.
+The draft conversion rules below describe that broader tooling as well. They do not override the compatibility gate.
+
 ## Usage
 
 `--write` creates validated Vue drafts and leaves the legacy entry point and Twig file untouched.

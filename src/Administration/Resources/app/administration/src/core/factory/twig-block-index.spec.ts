@@ -88,7 +88,7 @@ describe('core/factory/twig-block-index.ts', () => {
 
         it('offsets legacy condition cases for chained plugin overrides of the same block', () => {
             indexTwigBlocksFromTemplate(
-                'sw-plugin-one',
+                'sw-target',
                 `
                 {% block shared_condition_block %}
                     {% parent %}
@@ -97,7 +97,7 @@ describe('core/factory/twig-block-index.ts', () => {
             `,
             );
             indexTwigBlocksFromTemplate(
-                'sw-plugin-two',
+                'sw-target',
                 `
                 {% block shared_condition_block %}
                     {% parent %}

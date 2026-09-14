@@ -201,7 +201,23 @@ const legacyTwigBlockIndex = new Map<string, BlockEntry[]>();
 const indexedLegacyTwigBlockEntries: Array<{
     componentName: string;
     entries: LegacyTwigBlockSequenceEntry[];
+    order: number;
+    priority: number;
 }> = [];
+let nextRegistrationOrder = 0;
+const blockIndexListeners = new Set<() => void>();
+const stableBlockEntries = new Map<string, BlockEntry>();
+
+/** @private */
+export function subscribeToLegacyBlockIndex(listener: () => void): () => void {
+    blockIndexListeners.add(listener);
+    return () => blockIndexListeners.delete(listener);
+}
+
+/** @private */
+export function reserveLegacyBlockRegistration(): number {
+    return nextRegistrationOrder++;
+}
 
 let legacyTwigBlockIndexDirty = false;
 let legacyTwigBlockIndexVersion = -1;
@@ -235,6 +251,7 @@ function storeLegacyConditionContinuationAlias(componentName: string, localChain
     context[localChainKey] = fullChainKey;
     legacyConditionContinuationContexts.set(componentName, context);
     legacyConditionContinuationContextVersion += 1;
+    blockIndexListeners.forEach((listener) => listener());
 }
 
 /**
@@ -949,18 +966,20 @@ export function transformLegacyTwigBlockSequenceConditionals(
  * @example
  * const offsets = collectExistingCaseStartIndices();
  */
-function collectExistingCaseStartIndices(): Record<string, number> {
+function collectExistingCaseStartIndices(componentName: string): Record<string, number> {
     const caseStartIndexByChainKey: Record<string, number> = {};
 
     legacyTwigBlockIndex.forEach((entries) => {
-        entries.forEach(({ legacyConditionCases }) => {
-            legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
-                caseStartIndexByChainKey[chainKey] = Math.max(
-                    caseStartIndexByChainKey[chainKey] ?? 0,
-                    caseStartIndex + caseCount,
-                );
+        entries
+            .filter((entry) => entry.componentName === componentName)
+            .forEach(({ legacyConditionCases }) => {
+                legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
+                    caseStartIndexByChainKey[chainKey] = Math.max(
+                        caseStartIndexByChainKey[chainKey] ?? 0,
+                        caseStartIndex + caseCount,
+                    );
+                });
             });
-        });
     });
 
     return caseStartIndexByChainKey;
@@ -979,40 +998,56 @@ function ensureLegacyTwigBlockIndex(): void {
     }
 
     legacyTwigBlockIndex.clear();
+    const liveCacheKeys = new Set<string>();
 
-    for (let entryIndex = 0; entryIndex < indexedLegacyTwigBlockEntries.length; entryIndex += 1) {
-        const { componentName } = indexedLegacyTwigBlockEntries[entryIndex];
-        const groupedEntries: LegacyTwigBlockSequenceEntry[] = [];
+    const registrationsByComponent = new Map<string, typeof indexedLegacyTwigBlockEntries>();
+    indexedLegacyTwigBlockEntries.forEach((registration) => {
+        const registrations = registrationsByComponent.get(registration.componentName) ?? [];
+        registrations.push(registration);
+        registrationsByComponent.set(registration.componentName, registrations);
+    });
 
-        while (
-            entryIndex < indexedLegacyTwigBlockEntries.length &&
-            indexedLegacyTwigBlockEntries[entryIndex].componentName === componentName
-        ) {
-            groupedEntries.push(...indexedLegacyTwigBlockEntries[entryIndex].entries);
-            entryIndex += 1;
-        }
-
-        entryIndex -= 1;
+    for (const [
+        componentName,
+        registrations,
+    ] of registrationsByComponent) {
+        const groupedEntries = registrations
+            .sort((a, b) => a.priority - b.priority || a.order - b.order)
+            .flatMap((registration) => registration.entries);
 
         const transformedEntries = transformLegacyTwigBlockSequenceConditionals(
             groupedEntries,
             componentName,
-            collectExistingCaseStartIndices(),
+            collectExistingCaseStartIndices(componentName),
         );
 
-        transformedEntries.forEach((entry) => {
+        transformedEntries.forEach((entry, index) => {
             const existing = legacyTwigBlockIndex.get(entry.blockName) ?? [];
 
-            existing.push({
+            const cacheKey = JSON.stringify([
                 componentName,
-                innerTemplate: entry.innerTemplate,
-                legacyConditionCases: entry.legacyConditionCases,
-            });
+                index,
+                entry,
+            ]);
+            liveCacheKeys.add(cacheKey);
+            let blockEntry = stableBlockEntries.get(cacheKey);
+            if (!blockEntry) {
+                blockEntry = {
+                    componentName,
+                    innerTemplate: entry.innerTemplate,
+                    legacyConditionCases: entry.legacyConditionCases,
+                };
+                stableBlockEntries.set(cacheKey, blockEntry);
+            }
+            existing.push(blockEntry);
 
             legacyTwigBlockIndex.set(entry.blockName, existing);
         });
     }
 
+    for (const key of stableBlockEntries.keys()) {
+        if (!liveCacheKeys.has(key)) stableBlockEntries.delete(key);
+    }
     legacyTwigBlockIndexDirty = false;
     legacyTwigBlockIndexVersion = legacyConditionContinuationContextVersion;
 }
@@ -1026,9 +1061,18 @@ function ensureLegacyTwigBlockIndex(): void {
  *
  * @private
  */
-export function indexLegacyTwigBlockConditionEntries(componentName: string, entries: LegacyTwigBlockSequenceEntry[]): void {
-    indexedLegacyTwigBlockEntries.push({ componentName, entries });
+export function indexLegacyTwigBlockConditionEntries(
+    componentName: string,
+    entries: LegacyTwigBlockSequenceEntry[],
+    order = reserveLegacyBlockRegistration(),
+    priority = 0,
+): void {
+    const previous = indexedLegacyTwigBlockEntries.findIndex((entry) => entry.order === order);
+    const registration = { componentName, entries, order, priority };
+    if (previous < 0) indexedLegacyTwigBlockEntries.push(registration);
+    else indexedLegacyTwigBlockEntries[previous] = registration;
     legacyTwigBlockIndexDirty = true;
+    blockIndexListeners.forEach((listener) => listener());
 }
 
 /**
@@ -1040,10 +1084,12 @@ export function indexLegacyTwigBlockConditionEntries(componentName: string, entr
  *
  * @private
  */
-export function getLegacyTwigBlockEntries(blockName: string): BlockEntry[] {
+export function getLegacyTwigBlockEntries(blockName: string, componentNames?: readonly string[]): BlockEntry[] {
     ensureLegacyTwigBlockIndex();
 
-    return legacyTwigBlockIndex.get(blockName) ?? [];
+    const entries = legacyTwigBlockIndex.get(blockName) ?? [];
+    if (!componentNames) return entries;
+    return componentNames.flatMap((name) => entries.filter((entry) => entry.componentName === name));
 }
 
 /**
@@ -1075,7 +1121,9 @@ export function hasLegacyTwigBlockEntries(blockName: string): boolean {
 export function resetLegacyTwigBlockConditionIndex(): void {
     legacyTwigBlockIndex.clear();
     indexedLegacyTwigBlockEntries.length = 0;
+    stableBlockEntries.clear();
     legacyTwigBlockIndexDirty = false;
     legacyTwigBlockIndexVersion = -1;
     resetLegacyConditionContinuationContexts();
+    blockIndexListeners.forEach((listener) => listener());
 }

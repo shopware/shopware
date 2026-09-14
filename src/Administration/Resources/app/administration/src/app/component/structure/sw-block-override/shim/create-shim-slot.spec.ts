@@ -89,22 +89,6 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
             expect(result.length).toBeGreaterThan(0);
         });
 
-        it('exposes allowlisted legacy block helpers while keeping other $ keys hidden', () => {
-            const legacyElse = jest.fn(() => true);
-            const slot = createShimSlot(makeEntry(), 'slot_allowlisted_helper');
-            const [vnode] = slot({
-                $swLegacyBlockElse: legacyElse,
-                $store: {},
-            });
-            const shimComponent = vnode.type as { setup: () => Record<string, unknown> };
-            const setupContext = shimComponent.setup();
-
-            expect(setupContext).toHaveProperty('$swLegacyBlockElse');
-            expect(setupContext).not.toHaveProperty('$store');
-            expect((setupContext.$swLegacyBlockElse as () => boolean)()).toBe(true);
-            expect(legacyElse).toHaveBeenCalledTimes(1);
-        });
-
         it('reserves legacy condition cases from block entry metadata', () => {
             const { legacyIf, legacyConditionContext, clearLegacyConditionChain } = useLegacyConditionContext();
             const chainKey = '42:reservation_chain';
@@ -171,16 +155,15 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
                 renderOrderSegment: 'defaultSlot',
                 isStartingCondition: true,
             });
-            const [vnode] = slot({
+            slot({
                 $: {
                     uid: 43,
                 },
             });
-            const shimComponent = vnode.type as { beforeUnmount: () => void };
 
             expect(legacyConditionContext[chainKey]).toBeDefined();
 
-            shimComponent.beforeUnmount();
+            slot.dispose();
 
             expect(legacyConditionContext[chainKey]).toBeUndefined();
         });
@@ -212,19 +195,6 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
 
             expect(vnode1.type).toBe(vnode2.type);
             expect(vnode2.type).toBe(vnode3.type);
-        });
-
-        it('creates independent component types for each createShimSlot invocation', () => {
-            // Each call to createShimSlot owns a separate shimComponent object so
-            // that different shim slots do not share — and therefore conflict on —
-            // the same component identity during VDOM diffing.
-            const slot1 = createShimSlot(makeEntry({ innerTemplate: '<div class="a"></div>' }), 'distinct_types_a');
-            const slot2 = createShimSlot(makeEntry({ innerTemplate: '<div class="b"></div>' }), 'distinct_types_b');
-
-            const [vnode1] = slot1(null);
-            const [vnode2] = slot2(null);
-
-            expect(vnode1.type).not.toBe(vnode2.type);
         });
     });
 

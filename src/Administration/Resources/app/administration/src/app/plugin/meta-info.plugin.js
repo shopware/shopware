@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { getCurrentInstance, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 
 const { warn } = Shopware.Utils.debug;
 
@@ -27,12 +27,11 @@ class MetaInfoPlugin {
             },
 
             created() {
-                const instance = getCurrentInstance();
-                if (!instance?.type || !('metaInfo' in instance.type)) {
+                if (!('metaInfo' in this.$options)) {
                     return;
                 }
 
-                const metaInfoOption = instance.type.metaInfo;
+                const metaInfoOption = this.$options.metaInfo;
                 if (typeof metaInfoOption === 'function') {
                     this.metaInfoWatchStopHandle = watchEffect(() => {
                         const metaInfo = metaInfoOption.call(this);

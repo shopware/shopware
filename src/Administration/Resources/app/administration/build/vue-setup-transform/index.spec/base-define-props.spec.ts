@@ -36,7 +36,9 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).toContain('Shopware.Component.attachOverrides(');
         expect(result).toContain("name: 'sw-my-component'");
         expect(result).toContain('props: __swSetupAuthor_props,');
-        expect(result).toContain('const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);');
+        expect(result).toContain(
+            "const __swSetupAuthor_count = ref((__swSetupDispatch.read('props', () => __swSetupAuthor_props)).initialCount ?? 0);",
+        );
     });
 
     it('keeps a local prop type declaration in place for defineProps()', () => {
@@ -114,7 +116,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         // outer binding is renamed.
         expect(result).toContain('validator: (defaultCount: number) => defaultCount > 0');
         expect(result).toContain(
-            'const __swSetupAuthor_count = __swSetupAuthor_props.initialCount ?? __swSetupAuthor_defaultCount;',
+            "const __swSetupAuthor_count = (__swSetupDispatch.read('props', () => __swSetupAuthor_props)).initialCount ?? (__swSetupDispatch.read('defaultCount', () => __swSetupAuthor_defaultCount));",
         );
     });
 
@@ -143,7 +145,9 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         const result = transformOrFail(source, 'base-props-body-local-shadow.vue').code;
 
         expect(result).toContain('const count = 2;');
-        expect(result).toContain('const __swSetupAuthor_total = __swSetupAuthor_props.initial + __swSetupAuthor_count;');
+        expect(result).toContain(
+            "const __swSetupAuthor_total = (__swSetupDispatch.read('props', () => __swSetupAuthor_props)).initial + (__swSetupDispatch.read('count', () => __swSetupAuthor_count));",
+        );
     });
 
     it('supports destructured defineProps() by leaving it for Vue 3.5 reactive-props-destructure', () => {
@@ -167,7 +171,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         // renamed `doubled` computed.
         expect(result).toContain('const { initialCount = 0 } = defineProps<{');
         expect(result).toContain('const __swSetupAuthor_doubled = computed(() => initialCount * 2);');
-        expect(result).not.toContain('__swSetupAuthor_initialCount');
+        expect(result).not.toContain("(__swSetupDispatch.read('initialCount', () => __swSetupAuthor_initialCount))");
         // Vue's own compiler accepts the output and applies the reactive-props-destructure rewrite.
         expectVueCompilerScriptToCompile(result, 'base-destructured-props.vue');
     });
@@ -187,7 +191,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         const result = transformOrFail(source, 'base-destructured-bare-props.vue').code;
 
         expect(result).toContain('const { initialCount = 0 } = defineProps();');
-        expect(result).not.toContain('__swSetupAuthor_initialCount');
+        expect(result).not.toContain("(__swSetupDispatch.read('initialCount', () => __swSetupAuthor_initialCount))");
     });
 
     it('keeps a bare defineProps() statement in place', () => {
@@ -238,7 +242,9 @@ describe('build/vue-setup-transform base defineProps macro', () => {
 });`);
         expect(result).toContain("name: 'sw-my-component'");
         expect(result).toContain('props: __swSetupAuthor_props,');
-        expect(result).toContain('const __swSetupAuthor_count = __swSetupAuthor_props.initialCount;');
+        expect(result).toContain(
+            "const __swSetupAuthor_count = (__swSetupDispatch.read('props', () => __swSetupAuthor_props)).initialCount;",
+        );
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
@@ -296,7 +302,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         // We do not reject this: Vue's own compiler accepts it (with a "reactive destructure disabled"
         // warning) - that is Vue's concern, not ours. The destructure is left untouched.
         expect(result).toContain('const { initialCount = 0 } = withDefaults(defineProps<{');
-        expect(result).not.toContain('__swSetupAuthor_initialCount');
+        expect(result).not.toContain("(__swSetupDispatch.read('initialCount', () => __swSetupAuthor_initialCount))");
     });
 
     it('keeps defineProps() wrapped in a TypeScript as expression', () => {
@@ -376,7 +382,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).toContain(`return withDefaults(defineProps<{ label?: string }>(), {
         label: 'fallback',
     });`);
-        expect(result).not.toContain('props: __swSetupAuthor_props');
+        expect(result).not.toContain("props: (__swSetupDispatch.read('props', () => __swSetupAuthor_props))");
     });
 
     it('does not reject a setup binding that shares a declared prop name', () => {

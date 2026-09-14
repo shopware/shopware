@@ -19,6 +19,7 @@ type ConvertInput = {
     componentName: string;
     vuePath: string;
     lang: 'js' | 'ts';
+    preserveLegacyApi?: boolean;
     templateImportRange: { start: number; end: number };
 };
 
@@ -42,6 +43,7 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     // reads: a member only the template uses still has to end up as a binding.
     const script = transformScript(input.jsSource, input.componentName, {
         templateImportRange: input.templateImportRange,
+        preserveLegacyApi: input.preserveLegacyApi ?? true,
         templateIdentifiers: collectTemplateIdentifiers(template.template),
         templateComponentTags: collectTemplateComponentTags(template.template),
     });

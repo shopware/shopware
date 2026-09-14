@@ -5,6 +5,17 @@
  * @module Shopware
  * @ignore
  */
+import { resolveLegacyAsset } from 'src/app/adapter/options-composition-shim/legacy-assets';
+import {
+    applyLegacySlotBlocks,
+    mapSlotNames,
+} from 'src/app/component/structure/sw-block-override/shim/slot-definition-blocks';
+import {
+    prepareLegacyComponent,
+    createLegacyComponent,
+    resolveLegacyHotUpdate,
+} from 'src/app/adapter/options-composition-shim/component-definition';
+import { createSetupDispatch } from 'src/app/adapter/composition-extension-system/setup-dispatch';
 import Bottle from 'bottlejs';
 
 import ModuleFactory from 'src/core/factory/module.factory';
@@ -47,6 +58,7 @@ import {
     attachOverrides,
     createExtendableSetup,
     getExposedProps,
+    createBlockDataScope,
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
@@ -147,6 +159,14 @@ class ShopwareClass implements CustomShopwareProperties {
         createExtendableSetup: createExtendableSetup,
         attachOverrides: attachOverrides,
         getExposedProps: getExposedProps,
+        createBlockDataScope,
+        createSetupDispatch,
+        resolveLegacyAsset,
+        prepareLegacyComponent,
+        createLegacyComponent,
+        resolveLegacyHotUpdate,
+        applyLegacySlotBlocks,
+        mapSlotNames,
         overrideComponentSetup: overrideComponentSetup,
 
         /**

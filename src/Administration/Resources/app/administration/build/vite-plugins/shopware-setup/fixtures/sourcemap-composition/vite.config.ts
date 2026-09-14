@@ -30,12 +30,21 @@ export default (async () => {
     const jiti = createJiti(fileURLToPath(import.meta.url));
     const ShopwareSetupPlugin = jiti(path.join(adminRoot, 'build/vite-plugins/shopware-setup/index.ts')).default;
 
+    const legacy = jiti(path.join(adminRoot, 'build/vite-plugins/shopware-setup/legacy-component-plugin.ts')) as unknown as {
+        default: () => unknown;
+        legacySlotBlocksPlugin: () => unknown;
+    };
+
     return {
         root: here,
+        resolve: { alias: { vue: requireFromAdmin.resolve('vue/dist/vue.runtime.esm-bundler.js') } },
+        optimizeDeps: { noDiscovery: true, include: [] },
         logLevel: 'silent',
         plugins: [
             ShopwareSetupPlugin({ administrationRoot: adminRoot }),
             vue(),
+            legacy.default(),
+            legacy.legacySlotBlocksPlugin(),
         ],
         build: {
             write: true,

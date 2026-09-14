@@ -319,8 +319,8 @@ describe('SFC migration runtime equivalence', () => {
         }
 
         expect(outcomes).toEqual([
-            'full',
-            'full',
+            'skipped',
+            'skipped',
         ]);
     });
 

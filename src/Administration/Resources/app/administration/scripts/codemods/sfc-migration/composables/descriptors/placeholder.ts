@@ -7,6 +7,7 @@ import { type ComposableDescriptor, methodMembers } from '../types';
 
 const PLACEHOLDER_DESCRIPTOR: ComposableDescriptor = {
     id: 'placeholder',
+    legacyCompatible: true,
     mixinNames: ['placeholder'],
     import: { source: 'src/app/composables/use-placeholder', name: 'usePlaceholder' },
     members: methodMembers([

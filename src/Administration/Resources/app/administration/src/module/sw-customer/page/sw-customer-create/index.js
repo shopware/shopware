@@ -333,11 +333,17 @@ export default {
 
         createErrorMessageForCompanyField() {
             this.isLoading = false;
-            Shopware.Store.get('error').addApiError({
-                expression: `customer_address.${this.address.id}.company`,
-                error: new Shopware.Classes.ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                }),
+            // Both fields satisfy the requirement and both are on screen, so both are marked.
+            [
+                `customer.${this.customer.id}.company`,
+                `customer_address.${this.address.id}.company`,
+            ].forEach((expression) => {
+                Shopware.Store.get('error').addApiError({
+                    expression,
+                    error: new Shopware.Classes.ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }),
+                });
             });
 
             this.createNotificationError({

@@ -90,6 +90,7 @@
             v-model="customer.company"
             name="sw-field--customer-company"
             required
+            :error="customerCompanyError"
             :label="$t('sw-customer.baseForm.labelCompany')"
         />
         {% endblock %}

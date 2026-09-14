@@ -409,4 +409,30 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         expect(await wrapper.vm.onSave()).toBe(false);
         expect(customerRepositorySaveMock).not.toHaveBeenCalled();
     });
+
+    it('should mark both company fields when a company account has none', async () => {
+        const customerRepositorySaveMock = jest.fn((customer, context) => Promise.resolve(context));
+        const wrapper = await createWrapper({ customerRepositorySaveMock });
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: {
+                id: '1',
+                email: 'user@domain.com',
+                accountType: 'business',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
+                password: 'shopware',
+            },
+            address: { id: '2' },
+        });
+
+        expect(await wrapper.vm.onSave()).toBe(false);
+
+        const errors = Shopware.Store.get('error');
+
+        expect(errors.getApiError({ getEntityName: () => 'customer', id: '1' }, 'company')).not.toBeNull();
+        expect(errors.getApiError({ getEntityName: () => 'customer_address', id: '2' }, 'company')).not.toBeNull();
+    });
 });

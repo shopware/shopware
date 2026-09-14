@@ -3,7 +3,7 @@
  */
 
 import types from 'src/core/service/utils/types.utils';
-import type { AxiosResponse } from 'axios';
+import type { HttpResponse } from 'src/core/factory/http-client.types';
 import Entity from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
@@ -81,7 +81,7 @@ export default class EntityHydrator {
     hydrateSearchResult<EntityName extends keyof EntitySchema.Entities>(
         route: string,
         entityName: EntityName,
-        response: AxiosResponse<data>,
+        response: HttpResponse<data>,
         context: apiContext,
         criteria: Criteria,
     ): EntityCollection<EntityName> {

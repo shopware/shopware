@@ -7,7 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Where cookie consent decisions are kept.
  *
- * The shipped default writes to the shop database. The log is write-once evidence
+ * Logging is off until a storage is selected. The shipped `database` storage writes to
+ * the shop database, `filesystem` to the private filesystem. The log is write-once evidence
  * nobody reads in normal operation, so a shop with a lot of traffic can keep it out
  * of its primary database: implement this class, tag the service with
  * `shopware.cookie_consent.log_storage` and select it via

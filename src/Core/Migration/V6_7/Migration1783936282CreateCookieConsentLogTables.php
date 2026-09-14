@@ -7,7 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * Creates the default storage for server-side cookie consent logging:
+ * Creates the tables of the `database` storage for server-side cookie consent logging.
+ * They are created for every shop and stay empty until that storage is selected:
  * - `cookie_consent_log`: pseudonymous, high-volume record of consent decisions
  * - `cookie_consent_config_snapshot`: one row per banner configuration, referenced by `config_hash`
  *

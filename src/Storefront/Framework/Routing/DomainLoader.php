@@ -52,7 +52,7 @@ class DomainLoader extends AbstractDomainLoader
 
         if ($this->logger !== null) {
             foreach ($domains as $domain) {
-                $this->logger->debug('Temporary domain database lookup.', [
+                $this->logger->info('Temporary domain database lookup.', [
                     'url' => $domain->url,
                     'salesChannelId' => $domain->salesChannelId,
                     'languageId' => $domain->languageId,

@@ -126,7 +126,7 @@ class ElasticsearchFieldBuilder
             $languageFields[$languageId]['fields']['search']['analyzer'] = $languageAnalyzer;
         }
 
-        $this->logger?->debug('Temporary Elasticsearch translated mapping languages.', [
+        $this->logger?->info('Temporary Elasticsearch translated mapping languages.', [
             'languageIds' => array_keys($languageFields),
         ]);
 

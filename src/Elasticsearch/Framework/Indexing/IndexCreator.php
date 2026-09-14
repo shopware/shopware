@@ -87,7 +87,7 @@ class IndexCreator
         $this->eventDispatcher->dispatch($event);
 
         $nameProperties = $event->getConfig()['mappings']['properties']['name']['properties'] ?? [];
-        $this->logger?->debug('Temporary Elasticsearch name mapping languages.', [
+        $this->logger?->info('Temporary Elasticsearch name mapping languages.', [
             'languageIds' => \is_array($nameProperties) ? array_keys($nameProperties) : [],
         ]);
 

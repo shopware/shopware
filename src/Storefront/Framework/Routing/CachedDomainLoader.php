@@ -127,7 +127,7 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
         }
 
         foreach ($domains as $domain) {
-            $this->logger->debug('Temporary domain cache lookup.', [
+            $this->logger->info('Temporary domain cache lookup.', [
                 'cacheHit' => $cacheHit,
                 'url' => $domain->url,
                 'salesChannelId' => $domain->salesChannelId,

@@ -82,14 +82,27 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $request = Request::createFromGlobals();
         $event = new DocumentTemplateRendererParameterEvent($parameters);
 
-        $expectedDB = [
-            'themeName' => $usingTheme,
-            'parentThemeName' => $usingParentTheme,
-            'themeId' => Uuid::randomHex(),
-        ];
+        $expectedDB = [[
+            'themeId' => 'theme',
+            'technicalName' => $usingTheme,
+            'parentThemeId' => $usingParentTheme !== null ? 'parentTheme' : null,
+            'configInheritance' => null,
+            'assigned' => 1,
+        ]];
+
+        if ($usingParentTheme !== null) {
+            $expectedDB[] = [
+                'themeId' => 'parentTheme',
+                'technicalName' => $usingParentTheme,
+                'parentThemeId' => null,
+                'configInheritance' => null,
+                'assigned' => 0,
+            ];
+        }
+
         if (\array_key_exists('context', $parameters)) {
             $connectionMock = $this->createMock(Connection::class);
-            $connectionMock->expects($this->exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects($this->exactly(1))->method('fetchAllAssociative')->willReturn($expectedDB);
         } else {
             $connectionMock = static::createStub(Connection::class);
         }
@@ -126,12 +139,14 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock
             ->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn([
-                'themeName' => 'SwagTheme',
-                'parentThemeName' => null,
-                'themeId' => Uuid::randomHex(),
-            ]);
+            ->method('fetchAllAssociative')
+            ->willReturn([[
+                'themeId' => 'theme',
+                'technicalName' => 'SwagTheme',
+                'parentThemeId' => null,
+                'configInheritance' => null,
+                'assigned' => 1,
+            ]]);
 
         $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), new DatabaseSalesChannelThemeLoader($connectionMock));
         $builder->onSalesChannelFileTemplateResolve(new SalesChannelFileTemplateResolveEvent(Uuid::randomHex()));

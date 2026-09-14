@@ -87,6 +87,16 @@ export default {
                     },
                     {
                         id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutToggleNavigation'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutToggleNavigation'),
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutCycleTheme'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutCycleTheme'),
+                    },
+                    {
+                        id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionAccessibilityCloseDialog'),
                         content: this.$t('sw-shortcut-overview.keyboardShortcutAccessibilityCloseDialog'),
                     },

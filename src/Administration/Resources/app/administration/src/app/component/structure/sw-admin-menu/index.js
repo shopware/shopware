@@ -33,6 +33,15 @@ export default {
         Mixin.getByName('notification'),
     ],
 
+    shortcuts: {
+        S: {
+            active(event) {
+                return !this.isMobileViewport && !(event?.ctrlKey || event?.altKey || event?.metaKey);
+            },
+            method: 'onToggleSidebar',
+        },
+    },
+
     data() {
         return {
             activeEntry: null,

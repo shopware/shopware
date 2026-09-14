@@ -25,8 +25,8 @@ Module.register('sw-settings-shopware-updates', {
     description: 'sw-settings-shopware-updates.general.menuTitle',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-sync',
     favicon: 'icon-module-settings.svg',
 
     routes: {

@@ -21,23 +21,19 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(CustomerDisplayNameSubscriber::class)]
 class CustomerDisplayNameSubscriberTest extends TestCase
 {
-    public function testItSubscribesToBothCustomerLoadedEvents(): void
+    public function testSubscribedEvents(): void
     {
         static::assertSame(
             [
-                'customer.loaded' => 'onCustomerLoaded',
-                'customer.partial_loaded' => 'onCustomerLoaded',
+                'customer.loaded' => 'loaded',
+                'customer.partial_loaded' => 'loaded',
             ],
             CustomerDisplayNameSubscriber::getSubscribedEvents()
         );
     }
 
-    /**
-     * A partial read hands over PartialEntity instances, which carry none of the typed getters, and
-     * the field is ApiAware so it has to be filled there too.
-     */
     #[DataProvider('displayNameProvider')]
-    public function testItResolvesTheNameOnAPartialRead(
+    public function testPartialLoadedResolvesTheName(
         string $accountType,
         string $firstName,
         string $lastName,
@@ -54,27 +50,23 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $event = new PartialEntityLoadedEvent(new CustomerDefinition(), [$customer], Context::createDefaultContext());
 
-        (new CustomerDisplayNameSubscriber())->onCustomerLoaded($event);
+        (new CustomerDisplayNameSubscriber())->loaded($event);
 
         static::assertSame($expected, $customer->get('displayName'));
     }
 
     /**
-     * A read that asks for displayName always carries all four sources, so one that does not carry
-     * them never asked for it, and a name resolved from the half that is there would be a different
-     * name than the field promises.
-     *
      * @param array<string, string|null> $fields
      */
     #[DataProvider('incompletePartialReadProvider')]
-    public function testAPartialReadWithoutEverySourceRendersNothing(array $fields): void
+    public function testPartialLoadedWithoutEverySourceLeavesTheEntityAlone(array $fields): void
     {
         $customer = new PartialEntity();
         $customer->assign($fields);
 
         $event = new PartialEntityLoadedEvent(new CustomerDefinition(), [$customer], Context::createDefaultContext());
 
-        (new CustomerDisplayNameSubscriber())->onCustomerLoaded($event);
+        (new CustomerDisplayNameSubscriber())->loaded($event);
 
         static::assertFalse($customer->has('displayName'));
     }
@@ -102,7 +94,7 @@ class CustomerDisplayNameSubscriberTest extends TestCase
     }
 
     #[DataProvider('displayNameProvider')]
-    public function testItResolvesTheNameToRender(
+    public function testLoadedResolvesTheName(
         string $accountType,
         string $firstName,
         string $lastName,
@@ -120,7 +112,7 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $this->load($customer);
 
-        static::assertSame($expected, $customer->getDisplayName());
+        static::assertSame($expected, $customer->get('displayName'));
     }
 
     /**
@@ -161,7 +153,7 @@ class CustomerDisplayNameSubscriberTest extends TestCase
         ];
     }
 
-    public function testItDoesNotRequireAnAccountType(): void
+    public function testLoadedDoesNotRequireAnAccountType(): void
     {
         $customer = new CustomerEntity();
         $customer->setFirstName('Ada');
@@ -169,10 +161,10 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $this->load($customer);
 
-        static::assertSame('Ada Lovelace', $customer->getDisplayName());
+        static::assertSame('Ada Lovelace', $customer->get('displayName'));
     }
 
-    public function testItFillsEveryCustomerInTheEvent(): void
+    public function testLoadedFillsEveryCustomerInTheEvent(): void
     {
         $person = new CustomerEntity();
         $person->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
@@ -187,8 +179,8 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $this->load($person, $company);
 
-        static::assertSame('Ada Lovelace', $person->getDisplayName());
-        static::assertSame('Analytical Engines', $company->getDisplayName());
+        static::assertSame('Ada Lovelace', $person->get('displayName'));
+        static::assertSame('Analytical Engines', $company->get('displayName'));
     }
 
     private function load(CustomerEntity ...$customers): void
@@ -199,6 +191,6 @@ class CustomerDisplayNameSubscriberTest extends TestCase
             Context::createDefaultContext()
         );
 
-        (new CustomerDisplayNameSubscriber())->onCustomerLoaded($event);
+        (new CustomerDisplayNameSubscriber())->loaded($event);
     }
 }

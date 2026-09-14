@@ -217,14 +217,6 @@ class CustomerEntityTest extends TestCase
         static::assertSame('Ada Lovelace', (string) $customer);
     }
 
-    public function testAPartialReadKeepsWhatTheSubscriberStored(): void
-    {
-        $customer = new CustomerEntity();
-        $customer->setDisplayName('Acme GmbH');
-
-        static::assertSame('Acme GmbH', $customer->getDisplayName());
-    }
-
     public function testTheStringRepresentationFollowsTheDisplayName(): void
     {
         $customer = new CustomerEntity();

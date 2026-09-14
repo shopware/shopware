@@ -20,6 +20,7 @@ export default {
             coreLoginRegistrationLoading: false,
             coreSystemWideLoginRegistrationLoading: false,
             loginRegistrationConfig: {},
+            inheritedLoginRegistrationConfig: {},
         };
     },
 
@@ -35,7 +36,11 @@ export default {
         },
 
         disabledLoginRegistrationElements() {
-            if (this.loginRegistrationConfig['core.loginRegistration.showAccountTypeSelection']) {
+            const key = 'core.loginRegistration.showAccountTypeSelection';
+            // A sales channel that does not override the setting runs on the inherited one.
+            const accountTypeSelectable = this.loginRegistrationConfig[key] ?? this.inheritedLoginRegistrationConfig[key];
+
+            if (accountTypeSelectable) {
                 return [];
             }
 
@@ -71,8 +76,9 @@ export default {
                 });
         },
 
-        onLoginRegistrationConfigChanged(config) {
+        onLoginRegistrationConfigChanged(config, inheritedConfig) {
             this.loginRegistrationConfig = config ?? {};
+            this.inheritedLoginRegistrationConfig = inheritedConfig ?? {};
         },
 
         onLoginRegistrationLoadingChanged(loading) {

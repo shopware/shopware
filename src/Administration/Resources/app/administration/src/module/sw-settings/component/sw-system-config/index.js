@@ -401,7 +401,9 @@ export default {
         },
 
         emitConfig() {
-            this.$emit('config-changed', this.actualConfigData[this.currentSalesChannelId]);
+            // The values of a sales channel hold its own overrides alone, so the inherited ones are
+            // passed along for a listener that needs the value the channel actually runs on.
+            this.$emit('config-changed', this.actualConfigData[this.currentSalesChannelId], this.actualConfigData.null);
         },
 
         kebabCase(value) {

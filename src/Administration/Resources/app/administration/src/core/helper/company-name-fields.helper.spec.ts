@@ -10,11 +10,14 @@ function service(values: Record<string, unknown>) {
 
 function recordingService(values: Record<string, unknown>) {
     const seen: Array<string | null | undefined> = [];
+    const params: Array<Record<string, unknown> | undefined> = [];
 
     return {
         seen,
-        getValues: (_domain: string, salesChannelId?: string | null) => {
+        params,
+        getValues: (_domain: string, salesChannelId?: string | null, additionalParams?: Record<string, unknown>) => {
             seen.push(salesChannelId);
+            params.push(additionalParams);
 
             return Promise.resolve(values);
         },
@@ -86,5 +89,13 @@ describe('core/helper/company-name-fields.helper', () => {
         await companyNamesRequired(api);
 
         expect(api.seen).toEqual([null]);
+    });
+
+    it('inherits the global settings for anything the sales channel does not override', async () => {
+        const api = recordingService({ 'core.loginRegistration.showAccountTypeSelection': true });
+
+        await companyNamesRequired(api, 'sales-channel-id');
+
+        expect(api.params).toEqual([{ inherit: true }]);
     });
 });

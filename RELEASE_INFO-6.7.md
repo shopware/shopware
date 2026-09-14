@@ -155,7 +155,7 @@ $required = !$accountTypeSelection || ($showNameFields && $nameFieldsRequired);
 $visible = !$accountTypeSelection || $showNameFields;
 ```
 
-The account type selection has no default value, so an unsaved value counts as off. The other two default to on. The settings screen renders both switches disabled while the account type selection is off. `sw-system-config` takes a new `disabledElements` prop for that, a list of config keys it renders disabled.
+The account type selection has no default value, so an unsaved value counts as off. The other two default to on. The settings screen renders both switches disabled while the account type selection is off. `sw-system-config` takes a new `disabledElements` prop for that, a list of config keys it renders disabled, and its `config-changed` event carries the inherited values of the global configuration as a second argument, because the first one holds the overrides of the selected sales channel alone.
 
 The first and last name fields of `customer`, `customer_address`, `order_customer` and `order_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
 

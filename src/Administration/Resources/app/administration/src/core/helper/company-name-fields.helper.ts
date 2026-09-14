@@ -3,7 +3,11 @@
  */
 
 type SystemConfigApiService = {
-    getValues: (domain: string, salesChannelId?: string | null) => Promise<Record<string, unknown>>;
+    getValues: (
+        domain: string,
+        salesChannelId?: string | null,
+        additionalParams?: Record<string, unknown>,
+    ) => Promise<Record<string, unknown>>;
 };
 
 const DOMAIN = 'core.loginRegistration';
@@ -23,7 +27,11 @@ export default async function companyNamesRequired(
     systemConfigApiService?: SystemConfigApiService | null,
     salesChannelId?: string | null,
 ): Promise<boolean> {
-    const values = await systemConfigApiService?.getValues(DOMAIN, salesChannelId ?? null).catch(() => null);
+    // inherit, because getValues returns the overrides of the sales channel alone without it, and a
+    // channel that overrides none of the three would read as all off.
+    const values = await systemConfigApiService
+        ?.getValues(DOMAIN, salesChannelId ?? null, { inherit: true })
+        .catch(() => null);
 
     if (!values) {
         return true;

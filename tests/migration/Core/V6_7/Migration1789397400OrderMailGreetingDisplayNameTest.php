@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -22,6 +23,11 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
 {
     use MigrationTestTrait;
+
+    /**
+     * The languages the mail update trait rewrites
+     */
+    private const LOCALES = ['en-GB', 'de-DE'];
 
     private Connection $connection;
 
@@ -95,7 +101,7 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
     }
 
     /**
-     * Other migration tests leave the shipped templates with foreign content and a set updated_at
+     * Other migration tests leave the shipped templates with foreign content, a set updated_at and extra languages
      */
     private function seedShippedGreeting(string $type): void
     {
@@ -103,16 +109,23 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
             'UPDATE mail_template_translation
              INNER JOIN mail_template ON mail_template.id = mail_template_translation.mail_template_id
              INNER JOIN mail_template_type ON mail_template.mail_template_type_id = mail_template_type.id
+             INNER JOIN language ON language.id = mail_template_translation.language_id
+             INNER JOIN locale ON locale.id = language.locale_id
              SET mail_template_translation.content_plain = :plain,
                  mail_template_translation.content_html = :html,
                  mail_template_translation.updated_at = NULL,
                  mail_template.updated_at = NULL
-             WHERE mail_template_type.technical_name = :type AND mail_template.system_default = 1',
+             WHERE mail_template_type.technical_name = :type
+             AND mail_template.system_default = 1
+             AND (language.id = :system OR locale.code IN (:locales))',
             [
                 'plain' => 'Hello {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}',
                 'html' => '<p>Hello {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}</p>',
                 'type' => $type,
-            ]
+                'system' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'locales' => self::LOCALES,
+            ],
+            ['locales' => ArrayParameterType::STRING]
         );
     }
 
@@ -126,8 +139,17 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
              FROM mail_template_translation
              INNER JOIN mail_template ON mail_template.id = mail_template_translation.mail_template_id
              INNER JOIN mail_template_type ON mail_template.mail_template_type_id = mail_template_type.id
-             WHERE mail_template_type.technical_name = :type AND mail_template.system_default = 1',
-            ['type' => $type]
+             INNER JOIN language ON language.id = mail_template_translation.language_id
+             INNER JOIN locale ON locale.id = language.locale_id
+             WHERE mail_template_type.technical_name = :type
+             AND mail_template.system_default = 1
+             AND (language.id = :system OR locale.code IN (:locales))',
+            [
+                'type' => $type,
+                'system' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'locales' => self::LOCALES,
+            ],
+            ['locales' => ArrayParameterType::STRING]
         );
 
         static::assertNotEmpty($rows);

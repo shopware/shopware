@@ -97,6 +97,14 @@ describe('core/factory/async-component.factory.ts - native extension points in T
                 'nep-chain-else',
                 ['nep_chain_else'],
             ],
+            [
+                'each block',
+                'nep-chain-both',
+                [
+                    'nep_chain_if',
+                    'nep_chain_else',
+                ],
+            ],
         ])('renders exactly one branch and follows the condition when %s is the target', async (_label, name, blocks) => {
             const wrapper = await mountChain(name, blocks);
 

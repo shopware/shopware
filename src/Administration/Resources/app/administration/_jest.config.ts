@@ -41,6 +41,11 @@ const isCi = (() => {
 })();
 const isDocker = existsSync('/.dockerenv');
 
+// The extension-tooling e2e specs scaffold a project and run the real vue-tsc/ESLint
+// toolchain, so they are slow and turn red on any unrelated type or lint breakage.
+// Gated to a dedicated nightly job (see admin.yml) instead of every pull request.
+const runExtensionToolingE2e = process.env.EXTENSION_TOOLING_E2E === '1';
+
 if (isCi) {
     // eslint-disable-next-line no-console
     console.info('Run Jest in CI mode');
@@ -233,6 +238,11 @@ const config: Config = {
         '<rootDir>/test/_setup/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
+    ],
+
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        ...(runExtensionToolingE2e ? [] : ['<rootDir>/scripts/extensionTooling/e2e\\.spec/']),
     ],
 
     testEnvironmentOptions: {

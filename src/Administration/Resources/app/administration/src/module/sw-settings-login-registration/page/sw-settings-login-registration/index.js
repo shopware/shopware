@@ -29,6 +29,18 @@ export default {
     },
 
     computed: {
+        /**
+         * Both settings only do something while the account type selection is on, so they are greyed
+         * out without it rather than looking editable and being ignored.
+         */
+        companyNameFieldDependencies() {
+            return {
+                'core.loginRegistration.showNameFieldsForCompanyAccounts': 'core.loginRegistration.showAccountTypeSelection',
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts':
+                    'core.loginRegistration.showAccountTypeSelection',
+            };
+        },
+
         systemConfigLoading() {
             return this.coreLoginRegistrationLoading || this.coreSystemWideLoginRegistrationLoading;
         },

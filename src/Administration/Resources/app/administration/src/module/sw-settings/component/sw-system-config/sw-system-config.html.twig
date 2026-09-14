@@ -85,7 +85,7 @@
                                 <sw-form-field-renderer
                                     v-bind="getElementBind(element, props)"
                                     :key="props.isInheritField + props.isInherited"
-                                    :disabled="props.isInherited"
+                                    :disabled="props.isInherited || isDisabledByDependency(element)"
                                     :value="props.currentValue"
                                     :error="getFieldError(element.name)"
                                     @update:value="props.updateCurrentValue"

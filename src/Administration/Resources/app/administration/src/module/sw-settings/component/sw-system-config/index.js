@@ -70,6 +70,15 @@ export default {
             required: false,
             default: true,
         },
+        /**
+         * Disables an element while another one is switched off, so a setting the backend ignores
+         * cannot be edited. Keyed by element name, the value is the element it depends on.
+         */
+        disableWhenFalsy: {
+            type: Object,
+            required: false,
+            default: () => ({}),
+        },
     },
 
     data() {
@@ -406,6 +415,20 @@ export default {
         /**
          * New methods for Meteor components
          */
+        isDisabledByDependency(element) {
+            const dependsOn = this.disableWhenFalsy[element.name];
+
+            if (!dependsOn) {
+                return false;
+            }
+
+            // A sales channel that inherits stores null, so the global value decides there.
+            const value =
+                this.actualConfigData?.[this.currentSalesChannelId]?.[dependsOn] ?? this.actualConfigData?.null?.[dependsOn];
+
+            return !value;
+        },
+
         isMeteorComponent(element) {
             const componentName = element.config ? element.config.componentName : undefined;
 
@@ -448,7 +471,7 @@ export default {
             bind.inheritedValue = this.getInheritedValue(element);
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
-            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled || this.isDisabledByDependency(element);
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {

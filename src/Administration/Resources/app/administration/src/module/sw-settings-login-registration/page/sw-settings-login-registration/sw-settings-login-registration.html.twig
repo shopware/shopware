@@ -66,6 +66,7 @@
                     ref="systemConfig"
                     sales-channel-switchable
                     domain="core.loginRegistration"
+                    :disable-when-falsy="companyNameFieldDependencies"
                     @loading-changed="onLoginRegistrationLoadingChanged"
                 />
                 {% endblock %}

@@ -18,7 +18,7 @@ import 'src/app/filter/unicode-uri';
 /** @type Wrapper */
 let wrapper;
 
-async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}) {
+async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}, props = {}) {
     const systemConfigApiService = {
         getConfig: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
@@ -36,6 +36,7 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
         props: {
             salesChannelSwitchable: true,
             domain: 'ConfigRenderer.config',
+            ...props,
         },
         global: {
             components,
@@ -876,6 +877,54 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
             'This value should not be blank.',
         );
+    });
+
+    it('should disable an element while the element it depends on is off', async () => {
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        'ConfigRenderer.config.boolField': false,
+                        'ConfigRenderer.config.textField': 'Amazing field',
+                    },
+                },
+            },
+            createConfig(),
+            {},
+            {},
+            { disableWhenFalsy: { 'ConfigRenderer.config.textField': 'ConfigRenderer.config.boolField' } },
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.isDisabledByDependency({ name: 'ConfigRenderer.config.textField' })).toBe(true);
+        expect(wrapper.vm.isDisabledByDependency({ name: 'ConfigRenderer.config.boolField' })).toBe(false);
+    });
+
+    it('should release the element once the one it depends on is switched on', async () => {
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        'ConfigRenderer.config.boolField': true,
+                        'ConfigRenderer.config.textField': 'Amazing field',
+                    },
+                },
+            },
+            createConfig(),
+            {},
+            {},
+            { disableWhenFalsy: { 'ConfigRenderer.config.textField': 'ConfigRenderer.config.boolField' } },
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.isDisabledByDependency({ name: 'ConfigRenderer.config.textField' })).toBe(false);
+    });
+
+    it('should leave every element alone without a dependency', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.isDisabledByDependency({ name: 'ConfigRenderer.config.textField' })).toBe(false);
     });
 
     it('should add a class based on the card name when provided', async () => {

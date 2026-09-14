@@ -1,6 +1,7 @@
 const CONTROL_SELECTOR = '.sw-form-field__control';
 const FEEDBACK_SELECTOR = '.sw-form-feedback';
 const INVALID_CLASS = 'is-invalid';
+const STATUS_SELECTOR = '.sw-form__status';
 const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
 const BUTTON_LOADER_CLASS = 'is-loading-indicator-inner';
 
@@ -27,11 +28,6 @@ export default class Form extends ShopwareComponent {
         this.hasPendingSubmit = false;
         this.buttonLoaders = [];
         this.elementLoaders = [];
-
-        if (this.el.tagName !== 'FORM') {
-            console.error('[Sw:Form]: Element is not of type <form>', this.el);
-            return;
-        }
 
         // Copied because the static default is shared by every instance that does not override it.
         const selectors = this.options.replaceSelectors;
@@ -410,22 +406,29 @@ export default class Form extends ShopwareComponent {
         });
     }
 
-    /** Mirrors the markup of `LoadingIndicatorUtil` so the existing loader styling applies. */
-    createLoader() {
-        const loader = document.createElement('div');
-        loader.className = 'loader';
-        loader.setAttribute('role', 'status');
+    /** One message per submission, read out through the live region the template renders. */
+    announce(message) {
+        // Not cached, because `replaceContent` can swap the region out.
+        const region = this.el.querySelector(STATUS_SELECTOR);
 
-        const label = document.createElement('span');
-        label.className = 'visually-hidden';
-        label.textContent = 'Loading...';
-        loader.appendChild(label);
+        // Rewriting the same text can make a screen reader repeat it.
+        if (region && region.textContent !== message) {
+            region.textContent = message;
+        }
+    }
+
+    /** Decorative only, the status region carries the announcement. */
+    createLoader() {
+        const loader = document.createElement('span');
+        loader.className = 'loader';
+        loader.setAttribute('aria-hidden', 'true');
 
         return loader;
     }
 
     startLoading() {
         this.el.setAttribute('aria-busy', 'true');
+        this.announce(this.el.querySelector(STATUS_SELECTOR)?.dataset.loadingText ?? '');
 
         this.getSubmitButtons().forEach((button) => {
             // The nodes are kept rather than the markup, so a component inside the button survives.
@@ -434,8 +437,11 @@ export default class Form extends ShopwareComponent {
             // Keep the button from jumping in width while the loader replaces its content.
             button.style.width = `${button.getBoundingClientRect().width}px`;
             button.replaceChildren(this.createLoader());
-            button.classList.add(BUTTON_LOADER_CLASS);
-            button.disabled = true;
+
+            // Not `disabled`, which drops focus and the submitter's name/value. `onSubmit` already
+            // rejects a second submission.
+            button.classList.add(BUTTON_LOADER_CLASS, 'disabled');
+            button.setAttribute('aria-disabled', 'true');
         });
 
         this.getReplaceTargets().forEach((target) => {
@@ -459,12 +465,13 @@ export default class Form extends ShopwareComponent {
 
     stopLoading() {
         this.el.removeAttribute('aria-busy');
+        this.announce('');
 
         this.buttonLoaders.forEach(({ button, content, width }) => {
             button.style.width = width;
             button.replaceChildren(...content);
-            button.classList.remove(BUTTON_LOADER_CLASS);
-            button.disabled = false;
+            button.classList.remove(BUTTON_LOADER_CLASS, 'disabled');
+            button.removeAttribute('aria-disabled');
         });
 
         this.elementLoaders.forEach((target) => {

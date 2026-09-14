@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Import order is load-bearing: this module's side effect installs the `globalThis.ShopwareComponent`
 // that the component below extends as a bare global while its own module is evaluated.
 import { Shopware } from 'shopware';
-import Form from './Form';
+import Form from './index';
 
 function htmlResponse(body, { ok = true, status = 200 } = {}) {
     return {
@@ -29,7 +29,10 @@ function createForm(innerHtml, options = {}, attributes = {}) {
 
     Object.entries(attributes).forEach(([name, value]) => el.setAttribute(name, value));
 
-    el.innerHTML = innerHtml;
+    // The status region is part of what the component's Twig always renders.
+    el.innerHTML = `
+        <div class="sw-form__status visually-hidden" role="status" data-loading-text="Loading..."></div>
+        ${innerHtml}`;
     document.body.appendChild(el);
 
     // The `ShopwareComponent` test double does not call `init()` from its constructor.
@@ -114,7 +117,7 @@ describe('Sw:Form', () => {
 
         expect(notPrevented).toBe(true);
         expect(window.fetch).not.toHaveBeenCalled();
-        expect(el.querySelector('button').disabled).toBe(true);
+        expect(el.querySelector('button').getAttribute('aria-disabled')).toBe('true');
     });
 
     it('blocks an invalid submission and moves the focus to the first invalid field', () => {
@@ -225,12 +228,35 @@ describe('Sw:Form', () => {
         submit(el);
         submit(el);
 
-        expect(button.disabled).toBe(true);
+        expect(button.getAttribute('aria-disabled')).toBe('true');
         expect(button.innerHTML).toContain('loader');
 
         await vi.waitFor(() => expect(window.fetch).toHaveBeenCalledOnce());
-        await vi.waitFor(() => expect(button.disabled).toBe(false));
+        await vi.waitFor(() => expect(button.hasAttribute('aria-disabled')).toBe(false));
         expect(button.innerHTML).toBe('Save');
+    });
+
+    // A live region per spinner would read the same message out several times.
+    it('announces the submission once, through the status region the form renders', async () => {
+        const { el } = createForm(
+            `${field('title')}<button type="submit">Save</button><button type="submit">Save and continue</button>`,
+            { ajax: true },
+        );
+        const status = el.querySelector('.sw-form__status');
+        status.dataset.loadingText = 'Wird geladen...';
+
+        submit(el);
+
+        expect(status.textContent).toBe('Wird geladen...');
+        expect(el.getAttribute('aria-busy')).toBe('true');
+
+        const loaders = el.querySelectorAll('.loader');
+        expect(loaders).toHaveLength(2);
+        loaders.forEach(loader => expect(loader.getAttribute('aria-hidden')).toBe('true'));
+        expect([...loaders].some(loader => loader.textContent !== '')).toBe(false);
+
+        await vi.waitFor(() => expect(status.textContent).toBe(''));
+        expect(el.hasAttribute('aria-busy')).toBe(false);
     });
 
     // Round-tripping the button through innerHTML would rebuild its children, tearing down any
@@ -245,7 +271,7 @@ describe('Sw:Form', () => {
         submit(el);
         expect(el.querySelector('.sw-icon')).toBeNull();
 
-        await vi.waitFor(() => expect(el.querySelector('button').disabled).toBe(false));
+        await vi.waitFor(() => expect(el.querySelector('button').hasAttribute('aria-disabled')).toBe(false));
 
         expect(el.querySelector('.sw-icon')).toBe(icon);
     });
@@ -258,7 +284,7 @@ describe('Sw:Form', () => {
 
         submit(el);
 
-        await vi.waitFor(() => expect(el.querySelector('button').disabled).toBe(false));
+        await vi.waitFor(() => expect(el.querySelector('button').hasAttribute('aria-disabled')).toBe(false));
         expect(Shopware.emit).toHaveBeenCalledWith('Form:Error', expect.objectContaining({ form: el }));
     });
 
@@ -367,7 +393,7 @@ describe('Sw:Form', () => {
         submit(el);
         component.destroy();
 
-        expect(el.querySelector('button').disabled).toBe(false);
+        expect(el.querySelector('button').hasAttribute('aria-disabled')).toBe(false);
         expect(el.hasAttribute('aria-busy')).toBe(false);
 
         window.fetch.mockClear();
@@ -416,7 +442,7 @@ describe('Sw:Form', () => {
         ));
 
         expect(Shopware.emit).not.toHaveBeenCalledWith('Form:Response', expect.anything());
-        expect(el.querySelector('button').disabled).toBe(false);
+        expect(el.querySelector('button').hasAttribute('aria-disabled')).toBe(false);
         expect(el.hasAttribute('aria-busy')).toBe(false);
 
         window.fetch.mockClear();
@@ -473,17 +499,17 @@ describe('Sw:Form', () => {
         const button = el.querySelector('button');
 
         expect(submit(el)).toBe(true);
-        expect(button.disabled).toBe(true);
+        expect(button.getAttribute('aria-disabled')).toBe('true');
         expect(el.getAttribute('aria-busy')).toBe('true');
 
         window.dispatchEvent(restoreEvent());
 
-        expect(button.disabled).toBe(false);
+        expect(button.hasAttribute('aria-disabled')).toBe(false);
         expect(button.innerHTML).toBe('Save');
         expect(el.hasAttribute('aria-busy')).toBe(false);
 
         expect(submit(el)).toBe(true);
-        expect(button.disabled).toBe(true);
+        expect(button.getAttribute('aria-disabled')).toBe('true');
     });
 
     it('leaves a running ajax submission alone when the page is restored', () => {
@@ -494,7 +520,7 @@ describe('Sw:Form', () => {
         submit(el);
         window.dispatchEvent(restoreEvent());
 
-        expect(el.querySelector('button').disabled).toBe(true);
+        expect(el.querySelector('button').getAttribute('aria-disabled')).toBe('true');
     });
 
     it('aborts the submission and cleans up when a pre-submit task rejects', async () => {
@@ -516,7 +542,7 @@ describe('Sw:Form', () => {
         ));
 
         expect(window.fetch).not.toHaveBeenCalled();
-        expect(el.querySelector('button').disabled).toBe(false);
+        expect(el.querySelector('button').hasAttribute('aria-disabled')).toBe(false);
         expect(el.hasAttribute('aria-busy')).toBe(false);
 
         submit(el);
@@ -598,10 +624,10 @@ describe('Sw:Form', () => {
 
         submit(review.el);
 
-        expect(review.el.querySelector('button').disabled).toBe(true);
+        expect(review.el.querySelector('button').getAttribute('aria-disabled')).toBe('true');
         expect(container.classList.contains('has-element-loader')).toBe(true);
 
-        expect(login.el.querySelector('button').disabled).toBe(false);
+        expect(login.el.querySelector('button').hasAttribute('aria-disabled')).toBe(false);
         expect(login.el.querySelector('button').innerHTML).toBe('Log in');
         expect(login.el.hasAttribute('aria-busy')).toBe(false);
 
@@ -611,8 +637,8 @@ describe('Sw:Form', () => {
 
         pending[0](htmlResponse('<html></html>'));
 
-        await vi.waitFor(() => expect(review.el.querySelector('button').disabled).toBe(false));
-        expect(login.el.querySelector('button').disabled).toBe(true);
+        await vi.waitFor(() => expect(review.el.querySelector('button').hasAttribute('aria-disabled')).toBe(false));
+        expect(login.el.querySelector('button').getAttribute('aria-disabled')).toBe('true');
     });
 
     it('keeps a submit-on-change form and a plain form independent', async () => {
@@ -629,13 +655,13 @@ describe('Sw:Form', () => {
         // A change in one form submits only that form, and only once while it is in flight.
         expect(window.fetch).toHaveBeenCalledOnce();
         expect(window.fetch.mock.calls[0][1].body.has('points')).toBe(true);
-        expect(plain.el.querySelector('button').disabled).toBe(false);
+        expect(plain.el.querySelector('button').hasAttribute('aria-disabled')).toBe(false);
 
         pending[0](htmlResponse('<html></html>'));
         await vi.waitFor(() => expect(window.fetch).toHaveBeenCalledTimes(2));
 
         // The follow-up belongs to the filter form; the plain one never submitted.
         expect(window.fetch.mock.calls[1][1].body.has('points')).toBe(true);
-        expect(plain.el.querySelector('button').disabled).toBe(false);
+        expect(plain.el.querySelector('button').hasAttribute('aria-disabled')).toBe(false);
     });
 });

@@ -781,7 +781,7 @@ class FormComponentsTest extends TestCase
     {
         $html = $this->renderTemplate('<twig:Sw:Form action="/some-path">x</twig:Sw:Form>');
 
-        static::assertStringContainsString('data-component="Sw:Form"', $html);
+        static::assertStringContainsString('data-component="Sw:Form:index"', $html);
         static::assertSame([
             'ajax' => false,
             'replaceSelectors' => [],

@@ -40,18 +40,18 @@ Phase 1 writes each business event to an *outbox* before a worker `POST`s it to 
 Phase 1 replaced the delivery machinery; failure handling is still the legacy stopgap running on top of it:
 
 1. Every failed delivery makes `RetryWebhookMessageFailedSubscriber` increment `webhook.error_count`.
-2. `RelatedWebhooks::updateRelated()` copies the increment to every other webhook subscribed to the same `event_name + url`.
-3. At `error_count >= 10` the webhook flips `active = 0` and stays dead until manually reactivated.
+2. At `error_count >= 10` the webhook flips `active = 0` and stays dead until manually reactivated.
+
+A single counter cannot distinguish a transient 503 from a permanent 401, so the only outcome it can
+reach is permanent death — there is no recovery path short of an operator.
 
 ```mermaid
 flowchart LR
-    subgraph TODAY ["Today: shared counter, permanent disable"]
+    subgraph TODAY ["Today: one undifferentiated counter, permanent disable"]
         direction TB
-        E["one 401 / timeout / TLS"] --> SHARE["error_count++<br/>RelatedWebhooks::updateRelated()"]
-        SHARE -->|"same event + url"| W1["webhook A counter++"]
-        SHARE -->|"same event + url"| W2["webhook B counter++"]
-        W1 -->|">= 10"| D1["active = 0<br/>dead forever"]
-        W2 -->|">= 10"| D2["active = 0<br/>dead forever"]
+        E["401 / timeout / TLS / 503<br/>— all the same to the counter"] --> SHARE["webhook.error_count++"]
+        SHARE -->|">= 10"| D1["active = 0<br/>dead forever"]
+        D1 --> D2["manual reactivation only"]
     end
 
     style SHARE fill:#f96,stroke:#333

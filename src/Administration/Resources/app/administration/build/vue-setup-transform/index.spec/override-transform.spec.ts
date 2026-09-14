@@ -11,7 +11,13 @@
  * in override-template-patterns.spec.ts.
  */
 
-import { expectVueCompilerScriptToCompile, stripIndent, stripWhitespace, transformOrFail } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    expectVueCompilerScriptToReject,
+    stripIndent,
+    stripWhitespace,
+    transformOrFail,
+} from './helpers';
 
 describe('build/vue-setup-transform override transforms', () => {
     it('pins the whole generated output for an override with an <sw-block extends> and forwarded locals', () => {
@@ -144,7 +150,7 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(stripWhitespace(result)).toContain(
             stripWhitespace`
                 export const moduleValue = 1;
-                Shopware.Component.registerNativeExtensionTargets?.({
+                ;Shopware.Component.registerNativeExtensionTargets?.({
                     component: 'sw-example',
                     blocks: [
                         'sw_example_headline',
@@ -154,6 +160,36 @@ describe('build/vue-setup-transform override transforms', () => {
             `,
         );
         expectVueCompilerScriptToCompile(result, 'sw-example.override.vue');
+    });
+
+    it('keeps an unterminated prelude statement a syntax error instead of feeding it the registration call', () => {
+        const source = stripIndent`
+            <script data-sfc-migration-module lang="ts">
+            export const moduleValue =
+            </script>
+
+            <template>
+                <sw-block extends="sw_example_headline">
+                    <h1>overridden</h1>
+                </sw-block>
+            </template>
+
+            <script setup lang="ts">
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-example.override.vue').code;
+
+        // Without the semicolon the appended call would become the right-hand side of the open
+        // assignment, and a broken prelude would compile - and register the targets - by accident.
+        expect(stripWhitespace(result)).toContain(
+            stripWhitespace`
+                export const moduleValue =
+                ;Shopware.Component.registerNativeExtensionTargets?.({
+            `,
+        );
+        expectVueCompilerScriptToReject(result, 'sw-example.override.vue', 'Unexpected token');
     });
 
     it('transforms sw-override blocks in .override.vue files', () => {

@@ -8,7 +8,8 @@ use Shopware\Core\Framework\Api\OAuth\AuthCode;
 use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Clock\MockClock;
 
@@ -18,7 +19,8 @@ use Symfony\Component\Clock\MockClock;
 #[Package('framework')]
 class AuthCodeRepositoryTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

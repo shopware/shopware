@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\Index;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1788947575AddOAuthAuthCodeTable;
 
 /**
@@ -34,16 +37,16 @@ class Migration1788947575AddOAuthAuthCodeTableTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $columns = array_column($this->connection->fetchAllAssociative('SHOW COLUMNS FROM `oauth_auth_code`'), 'Field');
-        static::assertSame(['id', 'code_id', 'user_id', 'client_id', 'issued_at', 'expires_at'], $columns);
+        $table = TableHelper::getTable($this->connection, 'oauth_auth_code');
+        static::assertSame(['id', 'code_id', 'user_id', 'client_id', 'issued_at', 'expires_at'], array_column($table->columns, 'name'));
 
-        $uniqueIndexes = array_unique(array_column(
+        $uniqueIndexes = array_column(
             array_filter(
-                $this->connection->fetchAllAssociative('SHOW INDEX FROM `oauth_auth_code`'),
-                static fn (array $index) => (int) $index['Non_unique'] === 0
+                $table->indexes,
+                static fn (Index $index) => $index->type === IndexType::UNIQUE->name
             ),
-            'Key_name'
-        ));
-        static::assertEqualsCanonicalizing(['PRIMARY', 'uniq.oauth_auth_code.code_id'], array_values($uniqueIndexes));
+            'name'
+        );
+        static::assertEqualsCanonicalizing(['primary', 'uniq.oauth_auth_code.code_id'], $uniqueIndexes);
     }
 }

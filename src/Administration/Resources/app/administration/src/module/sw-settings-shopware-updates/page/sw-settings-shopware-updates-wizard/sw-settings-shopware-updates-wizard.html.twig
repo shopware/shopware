@@ -42,6 +42,24 @@
                         </mt-badge>
                     </template>
 
+                    {% block sw_settings_shopware_updates_wizard_check_failed %}
+                    <mt-banner
+                        v-if="!isLoading && updateCheckFailed"
+                        class="sw-settings-shopware-updates-wizard__check-failed"
+                        variant="critical"
+                        :title="$t('sw-settings-shopware-updates.notifications.checkFailed')"
+                    >
+                        <mt-button
+                            class="sw-settings-shopware-updates-wizard__retry-check"
+                            variant="secondary"
+                            size="small"
+                            @click="createdComponent"
+                        >
+                            {{ $t('sw-settings-shopware-updates.versionCard.retryCheck') }}
+                        </mt-button>
+                    </mt-banner>
+                    {% endblock %}
+
                     <div
                         v-if="isUpdateAvailable"
                         class="sw-settings-shopware-updates-version"
@@ -91,7 +109,7 @@
 
                     {% block sw_settings_shopware_updates_wizard_up_to_date %}
                     <mt-empty-state
-                        v-else-if="!isLoading"
+                        v-else-if="!isLoading && !updateCheckFailed"
                         class="sw-settings-shopware-updates-up-to-date"
                         :centered="true"
                         icon="regular-check-circle"
@@ -313,7 +331,7 @@
 
                 <template #modal-footer>
                     <mt-checkbox
-                        v-model="checkedBackupCheckbox"
+                        v-model:checked="checkedBackupCheckbox"
                         class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                         :label="$t('sw-settings-shopware-updates.updateModal.backupLabel')"
                     />

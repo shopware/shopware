@@ -141,11 +141,19 @@ export default Component.wrapComponentConfig({
             return !this.licenseValid;
         },
 
-        updateStatusBadgeVariant(): 'attention' | 'positive' {
+        updateStatusBadgeVariant(): 'attention' | 'positive' | 'critical' {
+            if (this.updateCheckFailed) {
+                return 'critical';
+            }
+
             return this.isUpdateAvailable ? 'attention' : 'positive';
         },
 
         updateStatusBadgeLabel(): string {
+            if (this.updateCheckFailed) {
+                return this.$t('sw-settings-shopware-updates.versionCard.badgeCheckFailed');
+            }
+
             return this.$t(
                 this.isUpdateAvailable
                     ? 'sw-settings-shopware-updates.versionCard.badgeUpdateAvailable'
@@ -208,6 +216,13 @@ export default Component.wrapComponentConfig({
         },
 
         async createdComponent() {
+            this.isLoading = true;
+            this.updateCheckFailed = false;
+            this.updateInfo = { version: null, changelog: null };
+            this.licenseValid = true;
+            this.extensions = [];
+            this.chosenExtensionBehaviour = '';
+
             try {
                 const response = await this.updateService.checkForUpdates();
                 this.autoUpdateEnabled = response.autoUpdateEnabled !== false;

@@ -13,6 +13,8 @@
       "title": "Shopware-Version",
       "badgeUpdateAvailable": "Update verfügbar",
       "badgeUpToDate": "Auf dem aktuellen Stand",
+      "badgeCheckFailed": "Update-Prüfung fehlgeschlagen",
+      "retryCheck": "Erneut versuchen",
       "currentVersionLabel": "Installierte Version:",
       "newVersionLabel": "Neueste Version:",
       "changelogLink": "Changelog ansehen",

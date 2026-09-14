@@ -289,8 +289,6 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 The administration update wizard now asks you to choose an update method before starting the web installer. `shopware-cli project upgrade` is the recommended path for developers and managed deployments. The existing web installer flow remains available.
 
-When `shopware.auto_update.enabled` is `false` or `SHOPWARE_DISABLE_UPDATE_CHECK` is set, the wizard no longer claims the shop is already on the latest version. `GET /api/_action/update/check` returns `{ "disabled": true }` instead of an empty object, and the Administration explains that update checks are disabled and points to Shopware CLI.
-
 On cluster setups (`shopware.deployment.cluster_setup: true`) the web installer is no longer offered: the update button in the wizard is disabled with a hint towards Shopware CLI, and `GET /api/_action/update/download-recovery` responds with `403` (`FRAMEWORK__UPDATE_CLUSTER_SETUP_NOT_SUPPORTED`).
 
 ### Update module can be hidden from the Administration

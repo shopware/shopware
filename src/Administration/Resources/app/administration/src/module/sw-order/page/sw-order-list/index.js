@@ -319,7 +319,12 @@ export default {
 
     methods: {
         orderCustomerName(customer) {
-            const personName = [customer.lastName, customer.firstName].filter((part) => part).join(', ');
+            const personName = [
+                customer.lastName,
+                customer.firstName,
+            ]
+                .filter((part) => part)
+                .join(', ');
 
             return personName || customer.displayName;
         },

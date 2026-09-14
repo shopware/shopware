@@ -190,7 +190,7 @@ class CustomerEntity extends Entity implements \Stringable
         return self::resolveDisplayName(
             $this->firstName ?? '',
             $this->lastName ?? '',
-            $this->company ?? null,
+            $this->company,
             $this->isBusinessAccount()
         );
     }

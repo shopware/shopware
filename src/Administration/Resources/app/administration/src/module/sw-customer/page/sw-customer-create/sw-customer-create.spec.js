@@ -7,7 +7,11 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper({ customerRepositorySaveMock, languageRepositorySearchIdsMock, contactPersonRequired = true } = {}) {
+async function createWrapper({
+    customerRepositorySaveMock,
+    languageRepositorySearchIdsMock,
+    contactPersonRequired = true,
+} = {}) {
     return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
         global: {
             stubs: {

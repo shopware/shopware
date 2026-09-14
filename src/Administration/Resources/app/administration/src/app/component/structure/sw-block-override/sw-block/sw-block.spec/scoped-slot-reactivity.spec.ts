@@ -3,14 +3,11 @@
  * @group disabledCompat
  */
 import { mount } from '@vue/test-utils';
-import blockOverrideStore from '../../../../../store/block-override.store';
+// Registers the `blockOverride` store as a side effect.
+import '../../../../../store/block-override.store';
 import createDataScopeFixture from '../../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 describe('src/app/component/structure/sw-block-override/sw-block: scoped slot reactivity', () => {
-    beforeAll(() => {
-        Shopware.Store.register('blockOverride', blockOverrideStore);
-    });
-
     it('re-renders block content when only the surrounding slot scope changes', async () => {
         // A scoped slot's scope reaches the slot function as an argument, not as a
         // reactive read, so sw-block's computed template must be invalidated when

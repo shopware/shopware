@@ -1148,7 +1148,7 @@
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "description": "URL of the storefront for that registration. Used in the double opt-in confirmation email. Only required and validated against the configured domains of the sales channel when double opt-in registration is enabled.",
                                         "type": "string"
                                     },
                                     "requestedGroupId": {

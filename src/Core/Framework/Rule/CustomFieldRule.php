@@ -211,11 +211,7 @@ class CustomFieldRule
             return true;
         }
 
-        if ($renderedField['config']['componentName'] === MultiEntitySelectField::COMPONENT_NAME) {
-            return true;
-        }
-
-        return false;
+        return $renderedField['config']['componentName'] === MultiEntitySelectField::COMPONENT_NAME;
     }
 
     /**

@@ -446,6 +446,28 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             });
         });
 
+        it('should save the theme applied by the appearance shortcut while the page is open', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            await useTheme().saveUserTheme('dark');
+            await flushPromises();
+
+            expect(wrapper.vm.userTheme).toBe('dark');
+
+            await wrapper.find('.sw-profile__save-action').trigger('click');
+            await flushPromises();
+
+            expect(useTheme().theme.value).toBe('dark');
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenNthCalledWith(2, {
+                [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+            });
+        });
+
         it('should not persist the theme before saving', async () => {
             const wrapper = await createWrapper();
             await flushPromises();

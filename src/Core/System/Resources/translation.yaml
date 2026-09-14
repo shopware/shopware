@@ -85,6 +85,8 @@ languages:
     locale: 'nn-NO'
   - name: 'Polski'
     locale: 'pl-PL'
+  - name: 'Português (Brasil)'
+    locale: 'pt-BR'
   - name: 'Português'
     locale: 'pt-PT'
   - name: 'Română'

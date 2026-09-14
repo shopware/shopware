@@ -230,9 +230,11 @@ function buildNativeExtensionTargetsEdits(
         ];
     }
 
-    // The codemod ends its prelude with a newline, but a hand-written one need not - without this the
-    // call would land on the tail of the last statement.
-    const separator = block.moduleScript.content.endsWith('\n') ? '' : '\n';
+    // The codemod ends its prelude with a newline, but a hand-written one need not - without the newline
+    // the call would land on the tail of the last statement. The leading semicolon terminates a prelude
+    // whose last statement is left open: a dangling `export const value =` must stay the syntax error it
+    // is, instead of silently receiving the registration call's return value.
+    const separator = `${block.moduleScript.content.endsWith('\n') ? '' : '\n'};`;
 
     return [
         ...(placeholderTemplate.length > 0

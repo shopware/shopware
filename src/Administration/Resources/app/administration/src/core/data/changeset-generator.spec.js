@@ -392,4 +392,53 @@ describe('src/core/data/changeset-generator.data.js', () => {
             expect(changes).toEqual(expected);
         });
     });
+
+    describe('fields that allow an empty string', () => {
+        beforeAll(() => {
+            Shopware.EntityDefinition.add('empty_string_test', {
+                entity: 'empty_string_test',
+                properties: {
+                    id: { type: 'uuid', flags: { primary_key: true, required: true } },
+                    requiredName: { type: 'string', flags: { required: true, allow_empty_string: true } },
+                    optionalNote: { type: 'string', flags: { allow_empty_string: true } },
+                    plainName: { type: 'string', flags: { required: true } },
+                },
+            });
+        });
+
+        it('keeps an empty string on a required field that allows it', () => {
+            const testEntity = entityFactory.create('empty_string_test');
+            testEntity.getDraft().requiredName = 'Ada';
+            testEntity.getOrigin().requiredName = 'Ada';
+            testEntity.requiredName = '';
+
+            const { changes } = changesetGenerator.generate(testEntity);
+
+            expect(changes.requiredName).toBe('');
+        });
+
+        it('sends an empty string on a new entity', () => {
+            const testEntity = entityFactory.create('empty_string_test');
+            testEntity.requiredName = '';
+
+            const { changes } = changesetGenerator.generate(testEntity);
+
+            expect(changes.requiredName).toBe('');
+        });
+
+        it('still nulls an empty string on every other field', () => {
+            const testEntity = entityFactory.create('empty_string_test');
+            testEntity.getDraft().optionalNote = 'note';
+            testEntity.getOrigin().optionalNote = 'note';
+            testEntity.getDraft().plainName = 'Ada';
+            testEntity.getOrigin().plainName = 'Ada';
+            testEntity.optionalNote = '';
+            testEntity.plainName = '';
+
+            const { changes } = changesetGenerator.generate(testEntity);
+
+            expect(changes.optionalNote).toBeNull();
+            expect(changes.plainName).toBeNull();
+        });
+    });
 });

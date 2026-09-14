@@ -11,6 +11,11 @@ test(
         },
     },
     async ({ ShopAdmin, AdminFlowBuilderListing, AdminFlowBuilderDetail, IdProvider, TestDataService, CreateFlow }) => {
+        // This flow spans ~15 sequential admin interactions; on a loaded/shared environment the
+        // default timeouts are too tight and the very first assertion inside CreateFlow (waiting
+        // for the create-flow page to render) can time out before navigation actually completes.
+        test.slow();
+
         const uniqueId = IdProvider.getIdPair().uuid;
         const tagName = `Test tag - ${uniqueId}`;
         const flowName = `Test flow - ${uniqueId}`;
@@ -31,8 +36,6 @@ test(
 
         await test.step('Create a flow with a condition and two actions.', async () => {
             await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
-            // The button stays disabled until the ACL check for "flow.creator" resolves; without
-            // this wait the click can race that check and silently fail to navigate.
             await ShopAdmin.expects(AdminFlowBuilderListing.createFlowButton).toBeEnabled();
             await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
         });

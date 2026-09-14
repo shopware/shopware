@@ -29,14 +29,6 @@ export default {
     },
 
     computed: {
-        companyNameFieldDependencies() {
-            return {
-                'core.loginRegistration.showNameFieldsForCompanyAccounts': 'core.loginRegistration.showAccountTypeSelection',
-                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts':
-                    'core.loginRegistration.showAccountTypeSelection',
-            };
-        },
-
         systemConfigLoading() {
             return this.coreLoginRegistrationLoading || this.coreSystemWideLoginRegistrationLoading;
         },

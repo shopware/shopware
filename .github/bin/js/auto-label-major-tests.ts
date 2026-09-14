@@ -1,5 +1,5 @@
 /**
- * Auto-apply the `major-php` label when a PR touches major feature flags.
+ * Auto-apply the relevant major-test labels when a PR touches major feature flags.
  *
  * Detection is registry-driven: every flag registered with `major: true` in
  * `src/Core/Framework/Resources/config/packages/feature.yaml` counts, read from the
@@ -15,9 +15,16 @@
  * signal. The imprecision is accepted: mentioning a version in changed code is a
  * good-enough reason to run the major matrix, and the known noise (e.g. changelog
  * release headings) is rare — see the discussion on the introducing PR.
+ *
+ * The PHP arm retains that repository-wide marker detection. The Administration
+ * Jest arm uses the same markers only in Administration source and test files;
+ * a feature-registry change enables both arms because it changes both baselines.
  */
 
 export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packages/feature.yaml';
+export const ADMINISTRATION_APP_PATH = 'src/Administration/Resources/app/administration/';
+export const ADMINISTRATION_SOURCE_PATH = `${ADMINISTRATION_APP_PATH}src/`;
+export const ADMINISTRATION_TEST_PATH = `${ADMINISTRATION_APP_PATH}test/`;
 
 type PullRequestLabel = {
     name: string;
@@ -108,6 +115,11 @@ type DiffFileSection = {
     section: string;
 };
 
+export type MajorTestArms = {
+    php: boolean;
+    js: boolean;
+};
+
 // All run conditions beyond the workflow-level `if: github.event_name == 'pull_request'`
 // live here so they are unit-testable instead of being an untestable YAML expression.
 export function shouldDetect(context: PullRequestDetectionContext): boolean {
@@ -127,7 +139,7 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
 
     const labels = (pullRequest.labels ?? []).map((label) => label.name);
 
-    return !labels.includes('major-php') && !labels.includes('major-tests');
+    return !labels.includes('major-tests') && (!labels.includes('major-php') || !labels.includes('major-js'));
 }
 
 export function parseMajorFlags(registryYaml: string): string[] {
@@ -155,7 +167,7 @@ export function parseMajorFlags(registryYaml: string): string[] {
  */
 export const EXCLUDED_PATH_PREFIX = '.github/';
 
-function splitDiffByFile(diff: string): DiffFileSection[] {
+export function splitDiffByFile(diff: string): DiffFileSection[] {
     return diff
         .split(/^diff --git /m)
         .slice(1)
@@ -190,11 +202,47 @@ export function hasMajorMarkers(diff: string, majorFlags: string[]): boolean {
     return changedLines.some((line) => markers.some((marker) => marker.test(line)));
 }
 
-export async function detectMajorFlagUsage({ github, core, context }: DetectionToolkit): Promise<boolean> {
+export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
+    const files = splitDiffByFile(diff);
+
+    if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
+        return true;
+    }
+
+    const administrationFiles = files.filter(
+        ({ path }) => path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH),
+    );
+    const changedLines = administrationFiles.flatMap(({ section }) =>
+        section.split('\n').filter((line) => /^[+-][^+-]/.test(line)),
+    );
+
+    if (changedLines.length === 0) {
+        return false;
+    }
+
+    const escaped = majorFlags.map((flag) => flag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const markers = [
+        new RegExp(`['"](${escaped.join('|')})['"]`),
+        /6\.\d+\.\d/,
+    ];
+
+    return changedLines.some((line) => markers.some((marker) => marker.test(line)));
+}
+
+export function labelsForMajorTestArms(arms: MajorTestArms, existingLabels: PullRequestLabel[] = []): string[] {
+    const existing = new Set(existingLabels.map((label) => label.name));
+
+    return [
+        arms.php && !existing.has('major-php') ? 'major-php' : null,
+        arms.js && !existing.has('major-js') ? 'major-js' : null,
+    ].filter((label): label is string => label !== null);
+}
+
+export async function detectMajorTestArms({ github, core, context }: DetectionToolkit): Promise<MajorTestArms> {
     if (!shouldDetect(context)) {
         core.info('skipping major-flag detection: event, fork head, or existing label rules it out');
 
-        return false;
+        return { php: false, js: false };
     }
 
     const { data: registry } = await github.rest.repos.getContent({
@@ -214,22 +262,25 @@ export async function detectMajorFlagUsage({ github, core, context }: DetectionT
         mediaType: { format: 'diff' },
     });
 
-    const hit = hasMajorMarkers(String(diff), majorFlags);
+    const arms = {
+        php: hasMajorMarkers(String(diff), majorFlags),
+        js: hasMajorJsMarkers(String(diff), majorFlags),
+    };
     core.info(
-        hit
-            ? `major marker found in the diff (${majorFlags.length} registered major flags)`
+        arms.php || arms.js
+            ? `major marker found in the diff (${majorFlags.length} registered major flags; php=${arms.php}; js=${arms.js})`
             : 'no major markers in the diff',
     );
 
-    return hit;
+    return arms;
 }
 
 // Expects a token able to trigger the `labeled` workflow run.
-export async function addMajorPhpLabel({ github, context }: LabelToolkit): Promise<void> {
+export async function addMajorTestLabels({ github, context, labels }: LabelToolkit & { labels: string[] }): Promise<void> {
     await github.rest.issues.addLabels({
         owner: context.repo.owner,
         repo: context.repo.repo,
         issue_number: context.payload.pull_request.number,
-        labels: ['major-php'],
+        labels,
     });
 }

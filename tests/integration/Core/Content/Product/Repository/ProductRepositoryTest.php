@@ -1638,6 +1638,62 @@ class ProductRepositoryTest extends TestCase
         static::assertFalse($products->has($ids->get('green')));
     }
 
+    public function testGuaranteeConfirmedInheritance(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'T-shirt',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'stock' => 10,
+                'guaranteeConfirmed' => true,
+            ],
+            [
+                'id' => $ids->create('red'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'name' => 'red',
+                'stock' => 10,
+            ],
+            [
+                'id' => $ids->create('green'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'name' => 'green',
+                'stock' => 10,
+                'guaranteeConfirmed' => false,
+            ],
+        ];
+
+        $this->repository->create($products, $this->context);
+
+        $stored = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(`id`)), `guarantee_confirmed` FROM `product` WHERE `id` IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['red', 'green']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertNull($stored[$ids->get('red')]);
+        static::assertSame('0', $stored[$ids->get('green')]);
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $variants = $this->repository->search(new Criteria($ids->getList(['red', 'green'])), $context);
+
+        $red = $variants->getEntities()->get($ids->get('red'));
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertTrue($red->isGuaranteeConfirmed());
+
+        $green = $variants->getEntities()->get($ids->get('green'));
+        static::assertInstanceOf(ProductEntity::class, $green);
+        static::assertFalse($green->isGuaranteeConfirmed());
+    }
+
     public function testVariantInheritanceWithCategories(): void
     {
         $redId = Uuid::randomHex();

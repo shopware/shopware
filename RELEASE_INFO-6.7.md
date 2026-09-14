@@ -175,6 +175,8 @@ In the Administration the company becomes an account level field of a commercial
 
 The seven shipped mail templates that greet the customer by name now use the resolved display name instead of `{{ customer.firstName }} {{ customer.lastName }}`: `customer.group.registration.accepted`, `customer.group.registration.declined`, `customer.password.changed`, `customer_register.double_opt_in`, `guest_order.double_opt_in` and `password_change` read `{{ customer.displayName }}`, and `customer.recovery.request` reads `{{ customerRecovery.customer.displayName }}`. A migration applies the same change to existing installations, and skips any template a shop has edited.
 
+The 27 shipped order mail templates, from the order confirmation and the payment method change over the document mails to every order, delivery and payment state mail, greet by `{{ order.orderCustomer.displayName }}` instead of `{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}`. A second migration applies this to existing installations under the same rule: an edited template is left alone.
+
 The recipient name of the ten customer mail events and of the three order mail events follows the same rule, so the `To:` header of a commercial account without a contact person carries the company instead of a blank.
 
 A template of your own that greets by name needs the same change, otherwise it renders an empty greeting for such an account.

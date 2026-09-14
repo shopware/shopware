@@ -1,14 +1,14 @@
 # 6.7.15.0
 
-## Document generation v1 deprecated for removal in Shopware 6.9
+## Document generation v1 marked for replacement
 
-The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
+The legacy document generation implementation is superseded by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). Because v2 is still `@experimental`, the legacy classes are not deprecated yet. They carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]`, which is silent for static analysis. With Shopware 6.8 the attribute becomes a `@deprecated tag:v6.9.0` annotation. The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
 
-### Deprecated classes
+### Superseded classes
 
-All classes below live under `Shopware\Core\Checkout\Document`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally.
+All classes below live under `Shopware\Core\Checkout\Document` and carry `#[ExperimentalReplacement]`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally and the attribute's `description` explains the shift.
 
-| Deprecated | Replacement |
+| Legacy class | Replacement |
 |---|---|
 | `Controller\DocumentController` | `Controller\DocumentV2Controller` |
 | `DocumentGeneratorController` | `Controller\DocumentV2Controller` |
@@ -49,6 +49,8 @@ All classes below live under `Shopware\Core\Checkout\Document`. Replacements liv
 | `Event\DocumentOrderEvent` | Data provider (base class of the events above) |
 | `Event\DocumentOrderCriteriaEvent` | `AbstractDocumentDataProvider::enrichOrderCriteria()` |
 | `Event\DocumentTemplateRendererParameterEvent` | `AbstractDocumentDataProvider::provideRenderingData()` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator` | none |
+| `Api\DocumentTypeTechnicalNameFkResolver` | none |
 | `DocumentEvents` | none |
 | `DocumentGenerator\Counter` | none |
 | `DocumentIdCollection` | none |
@@ -58,6 +60,8 @@ All classes below live under `Shopware\Core\Checkout\Document`. Replacements liv
 | `Service\DocumentConfigLoader` | none |
 | `Service\DocumentFileRendererRegistry` | none |
 | `Service\DocumentMerger` | none |
+| `Service\ZugferdEmbeddedService` | none |
+| `Subscriber\DocumentDeleteSubscriber` | none |
 | `Zugferd\ZugferdBuilder` | none |
 | `Zugferd\ZugferdDocument` | none |
 | `Zugferd\ZugferdInvoiceGeneratedEvent` | none |
@@ -76,7 +80,7 @@ The `document_type` and `document_type_translation` entities are deprecated with
 
 ### Relocated classes
 
-The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names (annotated with `#[NamespaceChange]`):
+The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names.
 
 | Current location | Location from 6.9 |
 |---|---|

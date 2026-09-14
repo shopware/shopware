@@ -6,7 +6,7 @@
 
 The legacy document generation implementation was removed together with the `DOCUMENT_GENERATION_REWORK` feature flag. Document generation v2 is now the only implementation. The full strategy is described in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).
 
-The complete list of removed classes, entities, and Administration components is in `UPGRADE-6.7.md` ("Document generation v1 deprecated for removal in Shopware 6.9", section 6.7.15.0). In addition:
+The complete list of removed classes, entities, and Administration components is in `UPGRADE-6.7.md` ("Document generation v1 marked for replacement", section 6.7.15.0). In addition:
 
 - The `document.renderer` and `document_type.renderer` service tags were removed. Register document types, data providers, and renderers via the `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` tags instead, or use the app manifest `<documents>` block. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
 - The `document_type` and `document_type_translation` entities were removed including their DAL definitions and associations. Document types are code-registered strings. Read the type from `document.typeName` instead of the `documentType` association. Persisted references were backfilled into the `type_name` columns, and the `document_type_id` columns became nullable.

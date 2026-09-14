@@ -143,7 +143,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentType(): ?DocumentTypeEntity
     {
@@ -151,7 +151,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
@@ -159,7 +159,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentTypeId(): string
     {
@@ -167,7 +167,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentTypeId(string $documentTypeId): void
     {
@@ -225,7 +225,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentMediaFile(): ?MediaEntity
     {
@@ -233,7 +233,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentMediaFile(?MediaEntity $documentMediaFile): void
     {
@@ -241,7 +241,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentMediaFileId(): ?string
     {
@@ -249,7 +249,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentMediaFileId(?string $documentMediaFileId): void
     {
@@ -267,7 +267,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentA11yMediaFileId(): ?string
     {
@@ -275,7 +275,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentA11yMediaFileId(?string $mediaFileId): void
     {
@@ -283,7 +283,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentA11yMediaFile(): ?MediaEntity
     {
@@ -291,7 +291,7 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentA11yMediaFile(?MediaEntity $mediaEntity): void
     {

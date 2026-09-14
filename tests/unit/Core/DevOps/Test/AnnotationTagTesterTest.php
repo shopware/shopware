@@ -157,6 +157,29 @@ class AnnotationTagTesterTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
+    public function testExperimentalReplacementWithFutureVersionDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            <<<'PHP'
+            #[ExperimentalReplacement(
+                version: 'v6.5.0',
+                feature: 'MY_FEATURE',
+                replacement: Replacement::class,
+            )]
+            PHP
+        );
+    }
+
+    public function testExperimentalReplacementWithLiveVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[ExperimentalReplacement(version: \'v6.4.0\', feature: \'MY_FEATURE\', description: \'Superseded.\')]'
+        );
+    }
+
     public function testDeprecatedWithoutPropertiesWillThrowException(): void
     {
         $deprecatedContent = '@deprecated';

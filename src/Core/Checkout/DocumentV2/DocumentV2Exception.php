@@ -95,7 +95,7 @@ class DocumentV2Exception extends HttpException
     public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
 
     /**
-     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
      */
     public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
 
@@ -213,7 +213,7 @@ class DocumentV2Exception extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     * @deprecated tag:v6.9.0 - reason:remove-exception - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
      */
     public static function documentTypeReservedIdentifier(string $identifier): self
     {

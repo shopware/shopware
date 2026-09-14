@@ -117,7 +117,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentTypeId(): ?string
     {
@@ -125,7 +125,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentTypeId(?string $documentTypeId): void
     {
@@ -163,7 +163,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentType(): ?DocumentTypeEntity
     {
@@ -171,7 +171,7 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {

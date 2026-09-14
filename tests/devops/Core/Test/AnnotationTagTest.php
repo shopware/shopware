@@ -54,6 +54,8 @@ class AnnotationTagTest extends TestCase
         'Core/Framework/Adapter/Doctrine/Patch',
         // PHPStan rule fixtures intentionally contain malformed annotations and attributes
         'DevOps/StaticAnalyse/PHPStan/Rules/data',
+        // asserts rule messages that quote deprecation and experimental annotations verbatim
+        'DevOps/StaticAnalyse/PHPStan/Rules/BCChangeAttributeUsageRuleTest.php',
     ];
 
     private string $rootDir;

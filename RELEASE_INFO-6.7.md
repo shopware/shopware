@@ -2,6 +2,12 @@
 
 ## Features
 
+### Browser login for CLI tools and other public OAuth clients
+
+The Admin API now supports the OAuth 2.0 authorization code grant with PKCE for registered public clients such as CLI tools and native apps. Users sign in to the Administration and approve access in the browser. The client receives access and refresh tokens with the approving user's permissions, without storing the user's password or an integration secret.
+
+Shopware ships the `shopware-cli` client. Operators can register their own public clients, see the Hosting & Configuration section.
+
 ### Document generation v2 (experimental)
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
@@ -89,6 +95,12 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Authorization code grant on the Admin API authorization server
+
+Decorators of `ClientRepository` or `ScopeRepository` should handle the new `authorization_code` grant identifier. Public clients may use only the `authorization_code` and `refresh_token` grants; the `write` scope is granted as for the password grant.
+
+`Shopware\Core\Framework\Api\OAuth\Client\ApiClient` accepts optional `$redirectUris` and `$grantTypes` constructor arguments and exposes `supportsGrantType()`. Existing constructor calls remain compatible; `getRedirectUri()` returns an empty array when no redirect URIs are configured.
+
 ### GARAN guarantee duration is capped at 600 months
 
 `product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.
@@ -134,6 +146,7 @@ When Elasticsearch indexing is enabled and the cluster is reachable, the Elastic
 Sitemaps are now generated for headless (API type) sales channels that have a domain flagged as external storefront (introduced in 6.7.14.0, see "SEO URLs for headless sales channels"). This applies to all refresh strategies: the scheduled task and `sitemap:generate` now include such sales channels, and the live strategy on `GET /store-api/sitemap` generates their files on request. The `<loc>` entries point at the external storefront domain and use the headless SEO URL paths; the file URLs returned by `GET /store-api/sitemap` point at the configured sitemap filesystem (the Shopware host or its CDN), since the external storefront does not serve the files — headless frontends can serve or proxy them from there, or download them via `GET /store-api/sitemap/{filePath}`.
 
 Headless sales channels without an external storefront domain for the requested language are skipped silently — matching the behavior of the SEO URL generation — instead of failing with `CONTENT__INVALID_DOMAIN` under the live strategy. Storefront sales channels are unaffected.
+
 ### Concurrent sitemap generation is skipped gracefully again
 
 `sitemap:generate` (without `--force`) no longer aborts with `CONTENT__SITEMAP_ALREADY_LOCKED` when another process is currently generating the sitemap of the same sales channel and language — the affected channel is skipped with an error message and the command continues, as originally intended. The generation lock throws `Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException` again (now extending `SitemapException`, error code and HTTP status 400 unchanged), so existing `catch (AlreadyLockedException)` blocks — including those in plugins — work as they did before the sitemap exceptions were consolidated into `SitemapException`.
@@ -192,6 +205,7 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
     $event->getSortings()->add($mySorting);
 }
 ```
+
 ### Adding a product to an existing order applies line item factory decorators
 
 `POST /api/_action/order/{orderId}/product/{productId}` now builds the line item through the `LineItemFactoryRegistry` instead of creating a plain `product` line item directly, so extensions that decorate a `LineItemFactoryInterface` are applied when a product is added to an existing order, the same way they already are in the cart. A decorator that returns a different line item type — or a cart collector that replaces the line item with several others — therefore takes effect in the administration order detail page as well.
@@ -211,6 +225,7 @@ $this->addPromotionNotEligibleError($name, $cart);
 $cart->addErrors(new PromotionNotFoundError($code));
 $cart->addErrors(new PromotionNotEligibleError($name));
 ```
+
 ### Installing translations from files that are already present
 
 `translation:install` accepts a new `--offline` option. It creates the languages and snippet sets for translation files that are already on the filesystem, without contacting the translation repository at all — not even for the metadata lookup that normally runs first.
@@ -260,6 +275,13 @@ Changed snippets of an app reach the storefront on update: raise the manifest ve
 
 ## API
 
+### OAuth authorization endpoint
+
+- `GET /api/oauth/authorize` starts the authorization code flow. It validates `response_type=code`, `client_id`, `redirect_uri`, `code_challenge` and `code_challenge_method=S256` and redirects the browser to the consent page of the Administration. Errors are only redirected to a redirect URI registered for the client; otherwise a JSON error is returned.
+- `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize` are used by the consent page and require authentication. Approval additionally requires an access token associated with an admin user. The `POST` route returns `{ "redirectUri": … }` containing the authorization code, or `error=access_denied` when the user declined.
+- `POST /api/oauth/token` accepts `grant_type=authorization_code` with `client_id`, `code`, `redirect_uri` and `code_verifier`. Codes are single use. Refreshing works with `grant_type=refresh_token` and the same `client_id`; refresh tokens rotate, and reusing an old token revokes its token family. The OpenAPI schema lists the new routes and the `authorizationCode` security flow.
+- An unregistered redirect URI on the authorization, consent-info, or approval endpoint returns HTTP 400 with error code `FRAMEWORK__OAUTH_INVALID_REDIRECT_URI` and a readable `detail` message. No redirect is performed for these errors.
+
 ### Store API currency headers validate sales channel availability
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
@@ -302,6 +324,10 @@ On cluster setups (`shopware.deployment.cluster_setup: true`) the web installer 
 Operators who manage updates through Shopware CLI or their deployment pipeline can now remove the update module from the Administration entirely. Set `shopware.auto_update.hide_module: true` or the environment variable `SHOPWARE_AUTO_UPDATE_HIDE_MODULE=1` and the module is no longer registered: the "Shopware updates" settings item and its wizard route do not exist, and the update-available notification is suppressed. The flag is also exposed to API consumers as `settings.hideUpdateModule` in `GET /api/_info/config`.
 
 The update API endpoints enforce both flags server-side: all `GET /api/_action/update/*` endpoints respond with `403` (`FRAMEWORK__UPDATE_MODULE_HIDDEN`) while the module is hidden, and the mutating `download-recovery` and `deactivate-plugins` actions respond with `403` (`FRAMEWORK__AUTO_UPDATE_DISABLED`) while `shopware.auto_update.enabled` is `false`.
+### Consent page for OAuth clients
+
+The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.
+
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
@@ -315,6 +341,7 @@ When creating an order in the Administration, the options step now includes a "S
 The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.
 
 Extensions that override the `sw_settings_shipping_price_matrix_price_grid_currencies_list` block or style the removed `.sw-settings-shipping-price-matrix__price-input` class must be adjusted to the `sw-price-field` markup. The gross and net input `name` attributes are unchanged.
+
 ### Admin UI shell rework (sidebar, top bar, smart bar)
 
 The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.
@@ -438,6 +465,7 @@ The bar offers the same actions already available per card:
 - All actions respect the existing `system.plugin_maintain` permission and the runtime extension-management setting, exactly like the single-card actions.
 
 The listing reloads once after the batch finishes rather than after every individual extension. With nothing selected, the listing behaves exactly as before, so the feature is fully opt-in.
+
 ### Product detail empty states use `mt-empty-state`
 
 The empty states of the product detail tabs "Advanced pricing" and "Cross Selling" now render `mt-empty-state` instead of custom markup with an illustration. The headline, description, icon and the link to the parent product are `mt-empty-state` props.
@@ -455,6 +483,7 @@ The classes `.sw-product-detail-context-prices__parent-prices-link` and `.sw-pro
 Editor support for native-setup authoring is now generated by the extension tooling instead of copied by hand. Run `composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install): the generated ESLint config declares the compile-time macro globals (`swDefinePublic`, `swDefineOverride`, `useSwPreviousState`, `useSwProps`, `useSwContext`) and enables the `sw-core-rules/valid-shopware-setup` and `sw-core-rules/native-setup-filename` guards, and the generated type surface carries the macro declarations so they type-check.
 
 The workspace templates in `build/vue-setup-transform/templates/custom-plugin-workspace` are removed with it. They imported `eslint-plugin-vue` and `@typescript-eslint/parser` through explicit paths into the Administration's `node_modules`, so a dependency bump broke every copied workspace at once. If you copied `eslint.config.mjs` to `custom/eslint.config.mjs` or `plugin-tsconfig.json` to `custom/plugins/<PluginName>/tsconfig.json`, delete them and run the setup command instead.
+
 ### Extension pages use `mt-empty-state`
 
 The empty states of Extensions > My extensions (previously a `sw-meteor-card` with custom markup) and the extension store landing page (previously custom markup with an illustration) now render `mt-empty-state`. The existing Twig blocks are unchanged and wrap the new markup.
@@ -549,6 +578,29 @@ The button is looked up with the plugin's existing `buyButtonSelector` option, w
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
 
+### Themes inherit snippets from every theme in `configInheritance`
+
+A theme that lists several ancestors in the `configInheritance` of its `theme.json` now receives the snippets of all of them. Storefront texts can change where an intermediate theme defines a snippet key that was dropped until now.
+
+`theme.parent_theme_id` now points to the nearest listed ancestor. Run `bin/console theme:refresh` to apply it outside a plugin or update cycle.
+
+## Hosting & Configuration
+
+### Registering public OAuth clients
+
+Public OAuth clients that may use the authorization code grant are configured under `shopware.api.oauth_clients`. Shopware ships `shopware-cli` with the loopback redirect URIs `http://127.0.0.1/callback` and `http://[::1]/callback`. Loopback URIs accept any port (RFC 8252), all other redirect URIs must match exactly. Additional clients are added per project:
+
+```yaml
+shopware:
+    api:
+        oauth_clients:
+            my-tool:
+                name: 'My Tool'
+                redirect_uris: ['http://127.0.0.1/callback']
+```
+
+The lifetime of authorization codes is configurable with `shopware.api.auth_code_ttl` (default `PT5M`).
+
 ## App System
 
 ### Target validation can be disabled for local development
@@ -556,11 +608,6 @@ Dispatching a `removeLoader` event on the form removes the indicator and re-enab
 The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
 
 While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
-### Themes inherit snippets from every theme in `configInheritance`
-
-A theme that lists several ancestors in the `configInheritance` of its `theme.json` now receives the snippets of all of them. Storefront texts can change where an intermediate theme defines a snippet key that was dropped until now.
-
-`theme.parent_theme_id` now points to the nearest listed ancestor. Run `bin/console theme:refresh` to apply it outside a plugin or update cycle.
 
 # 6.7.14.0
 

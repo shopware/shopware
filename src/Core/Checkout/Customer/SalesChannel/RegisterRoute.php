@@ -334,7 +334,17 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($shippingAddress instanceof DataBag) {
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, self::addressAccountType($shippingAddress), $shippingAddress, $context, false));
+            // Without a billing address the shipping one becomes the default billing address, so it is
+            // judged by the account type of the registration and carries the company with it.
+            $isDefaultBillingAddress = !$billingAddress instanceof DataBag;
+
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition(
+                $data,
+                $isDefaultBillingAddress ? $accountType : self::addressAccountType($shippingAddress),
+                $shippingAddress,
+                $context,
+                $isDefaultBillingAddress
+            ));
         }
 
         if ($data->get('vatIds') instanceof DataBag) {
@@ -451,9 +461,9 @@ class RegisterRoute extends AbstractRegisterRoute
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        // The top level names are copied from the billing address, so only that one follows the
-        // optional contact person. A separate shipping address names whoever receives the parcel and
-        // keeps its own rules, company included.
+        // The top level names are copied from the billing address, so only the address that becomes
+        // the default billing one follows the optional contact person. A separate shipping address
+        // names whoever receives the parcel and keeps its own rules, company included.
         $namesAreOptional = $isBillingAddress && $this->namesAreOptional($data, $context);
 
         if ($namesAreOptional

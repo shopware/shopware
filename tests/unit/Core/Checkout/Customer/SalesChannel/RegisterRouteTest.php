@@ -844,6 +844,77 @@ class RegisterRouteTest extends TestCase
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
+    #[TestDox('A lone shipping address becomes the billing address and has to carry the company')]
+    public function testShippingOnlyRegistrationOfACompanyAccountStillNeedsTheCompany(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts' => false,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'salutationId' => $salutationId,
+            'storefrontUrl' => 'foo',
+            'shippingAddress' => [
+                'id' => Uuid::randomHex(),
+                'salutationId' => $salutationId,
+            ],
+        ];
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->with(static::anything(), static::callback(static function (DataValidationDefinition $definition) {
+                $subs = $definition->getSubDefinitions();
+
+                static::assertArrayNotHasKey('billingAddress', $subs);
+                static::assertArrayHasKey('shippingAddress', $subs);
+
+                $company = $subs['shippingAddress']->getProperties()['company'] ?? [];
+
+                static::assertNotEmpty($company);
+                static::assertContainsOnlyInstancesOf(NotBlank::class, $company);
+
+                return true;
+            }));
+
+        $definitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $definitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn () => new DataValidationDefinition());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            addressValidationFactory: $definitionFactory,
+            accountValidationFactory: $definitionFactory,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository,
+        );
+
+        $registerRoute->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+    }
+
     #[TestDox('Rejects registration when billing address is not an associative array')]
     public function testRegisterWithNonArrayBillingAddressViolation(): void
     {

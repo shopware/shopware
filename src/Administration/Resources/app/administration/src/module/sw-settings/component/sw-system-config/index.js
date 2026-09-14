@@ -70,10 +70,7 @@ export default {
             required: false,
             default: true,
         },
-        /**
-         * Disables an element while another one is switched off, so a setting the backend ignores
-         * cannot be edited. Keyed by element name, the value is the element it depends on.
-         */
+        // Keyed by element name, the value is the element it depends on.
         disableWhenFalsy: {
             type: Object,
             required: false,

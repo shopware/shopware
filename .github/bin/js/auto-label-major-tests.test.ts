@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { FEATURE_REGISTRY_PATH, hasMajorMarkers, parseMajorFlags, shouldDetect } from './auto-label-major-php.ts';
+import {
+    FEATURE_REGISTRY_PATH,
+    hasMajorJsMarkers,
+    hasMajorMarkers,
+    labelsForMajorTestArms,
+    parseMajorFlags,
+    shouldDetect,
+} from './auto-label-major-tests.ts';
 
 
 type TestContext = {
@@ -68,6 +75,43 @@ test('deprecation tag annotation matches', () => {
 test('registry file edits match regardless of line content', () => {
     const diff = diffFor(FEATURE_REGISTRY_PATH, '+            - name: NEW_FLAG');
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
+test('major markers in Administration source or tests enable the major-js arm', () => {
+    const sourceDiff = diffFor(
+        'src/Administration/Resources/app/administration/src/app/component/example/index.ts',
+        "+        return Shopware.Feature.isActive('v6.8.0.0');",
+    );
+    const testDiff = diffFor(
+        'src/Administration/Resources/app/administration/test/_setup/example.spec.ts',
+        "+        it.deprecated('v6.8.0.0')('keeps the legacy path', () => {});",
+    );
+
+    assert.equal(hasMajorJsMarkers(sourceDiff, parseMajorFlags(REGISTRY)), true);
+    assert.equal(hasMajorJsMarkers(testDiff, parseMajorFlags(REGISTRY)), true);
+});
+
+test('major markers outside Administration source and tests do not enable the major-js arm', () => {
+    const phpDiff = diffFor('src/Core/Framework/Feature.php', "+        Feature::isActive('v6.8.0.0');");
+    const documentationDiff = diffFor(
+        'src/Administration/Resources/app/administration/technical-docs/guide.md',
+        '+ v6.8.0.0',
+    );
+
+    assert.equal(hasMajorJsMarkers(phpDiff, parseMajorFlags(REGISTRY)), false);
+    assert.equal(hasMajorJsMarkers(documentationDiff, parseMajorFlags(REGISTRY)), false);
+});
+
+test('feature registry edits enable the major-js arm', () => {
+    const diff = diffFor(FEATURE_REGISTRY_PATH, '+            - name: NEW_FLAG');
+
+    assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
+test('labelsForMajorTestArms adds only missing relevant labels', () => {
+    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true }), ['major-php', 'major-js']);
+    assert.deepEqual(labelsForMajorTestArms({ php: true, js: true }, [{ name: 'major-php' }]), ['major-js']);
+    assert.deepEqual(labelsForMajorTestArms({ php: false, js: true }, [{ name: 'major-js' }]), []);
 });
 
 test('non-major flag usage does not match', () => {
@@ -157,10 +201,16 @@ test('shouldDetect rejects fork heads', async () => {
     assert.equal(shouldDetect(context), false);
 });
 
-test('shouldDetect rejects PRs already labeled major-php or major-tests', async () => {
-    for (const name of ['major-php', 'major-tests']) {
-        const context = baseContext();
-        context.payload.pull_request.labels = [{ name }];
-        assert.equal(shouldDetect(context), false);
-    }
+test('shouldDetect permits detection until both per-arm labels are present', () => {
+    const phpOnly = baseContext();
+    phpOnly.payload.pull_request.labels = [{ name: 'major-php' }];
+    assert.equal(shouldDetect(phpOnly), true);
+
+    const bothArms = baseContext();
+    bothArms.payload.pull_request.labels = [{ name: 'major-php' }, { name: 'major-js' }];
+    assert.equal(shouldDetect(bothArms), false);
+
+    const umbrella = baseContext();
+    umbrella.payload.pull_request.labels = [{ name: 'major-tests' }];
+    assert.equal(shouldDetect(umbrella), false);
 });

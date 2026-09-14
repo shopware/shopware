@@ -89,6 +89,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Asset installation on S3-compatible storage
+
+Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
+
 ### GARAN guarantee duration is capped at 600 months
 
 `product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.

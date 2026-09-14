@@ -28,6 +28,8 @@ To achieve this we touch the following scopes.
 
 `firstName` and `lastName` on `customer`, `customer_address`, `order_customer` and `order_address` get `AllowEmptyString` beside `Required`. `StringFieldSerializer::getConstraints()` then yields `NotNull` instead of `NotBlank`, so an empty string becomes legal while `null` stays rejected. The columns stay `NOT NULL`.
 
+The relaxation cannot depend on the sales channel settings, because a field definition sees neither the row nor the configuration, and the Admin API, the Sync API and direct repository writes carry no sales channel. One rule needs none of that and holds on every path through a `PreWriteValidationEvent` subscriber, `CustomerContactPersonSubscriber`: a customer or an address may not end up naming nobody. Both names may be empty only for a commercial account with a company, or for an address that carries a company. A private account keeps needing a contact person everywhere, and the store API routes add the finer, setting driven rule on top.
+
 ```php
 // the same change in all four definitions
 (new StringField('first_name', 'firstName'))
@@ -167,7 +169,7 @@ accountTypeSelect.addEventListener('change', () => nameFields.forEach((field) =>
 
 The two name fields become optional only when both settings allow it. One API service, `companyAccountNameFieldsService`, mirrors `areRequired()` for the sales channel of the customer, and only the three pages that save a customer call it: the create page, the detail page and the order customer modal. The base form and the card receive the answer as a prop and stay strict until it arrives. Every read only place, the customer list, the order list, the search bar, the dashboard and the tag assignments, reads `displayName` from the API response instead of resolving the rule again in JavaScript.
 
-`Customers > New customer` gains a company field in the account section for the commercial type, so the company is persisted on the customer and not only on the address. This is a requirement of its own in the issue, not a side effect of the name change. A migration copies the company from the default billing address into accounts the Administration created without one.
+The detail card already edits the account level company; the create page did not, so a customer created there carried the company on the billing address only. `Customers > New customer` gains the field in the account section for the commercial type, so the company is persisted on the customer from the start. This is a requirement of its own in the issue, not a side effect of the name change. A migration copies the company from the default billing address into accounts the Administration created without one.
 
 ```js
 // sw-customer-base-form
@@ -188,7 +190,7 @@ contactPersonRequired() {
 
 What the API accepts after this change:
 
-* An empty string on `firstName` and `lastName` for `customer`, `customer_address`, `order_customer` and `order_address`, on every write path. That includes the Admin API, the Sync API and direct repository writes, and it applies to private accounts too. An entity extension sees the field definition, never the row or the configuration, so the relaxation cannot be conditional. `null` is still rejected.
+* An empty string on `firstName` and `lastName` for `customer`, `customer_address`, `order_customer` and `order_address`, on every write path, `null` still rejected. `CustomerContactPersonSubscriber` keeps the one rule that needs no configuration: both names may only be empty for a commercial account with a company, or for an address with a company. A private account without a contact person is rejected on the Admin API and the Sync API as well.
 * `customer.displayName` and `orderCustomer.displayName` in store API and Admin API responses. They are runtime fields, so they cannot be sorted or searched by. The Administration customer list keeps sorting on `lastName,firstName`, which means a commercial account without a contact person displays as its company but sorts as an empty name. Search still finds it through `company`.
 * Two new system config keys, both defaulting to on, and no gate on the account type selection. A logged in commercial customer can have an optional contact person while the selection is off.
 * A migration that copies the company of the default billing address into the account of a commercial customer that has none.

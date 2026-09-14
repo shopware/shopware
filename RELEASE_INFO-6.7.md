@@ -89,6 +89,12 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### GARAN guarantee duration is capped at 600 months
+
+`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.
+
+Values already stored above 600 months are untouched and keep rendering their label; they only have to be corrected the next time that product is written.
+
 ### GARAN label in the order confirmation mail is sized and sits next to the line item
 
 The GARAN label that 6.7.14.0 added to the `order_confirmation_mail` template (see "GARAN commercial guarantee label and EU legal guarantee notice") rendered without dimensions on a full width row of its own, so mail clients scaled the SVG data URI up to the width of the mail and cut it off. The label now carries explicit `width`/`height` attributes and renders inside the line item's description cell, with a translated `alt` text instead of an empty one.
@@ -592,6 +598,11 @@ Dispatching a `removeLoader` event on the form removes the indicator and re-enab
 The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
 
 While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
+### Themes inherit snippets from every theme in `configInheritance`
+
+A theme that lists several ancestors in the `configInheritance` of its `theme.json` now receives the snippets of all of them. Storefront texts can change where an intermediate theme defines a snippet key that was dropped until now.
+
+`theme.parent_theme_id` now points to the nearest listed ancestor. Run `bin/console theme:refresh` to apply it outside a plugin or update cycle.
 
 # 6.7.14.0
 

@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\System\NumberRange\Validation;
 
+use Monolog\Handler\TestHandler;
+use Monolog\Level;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
-use Shopware\Core\System\NumberRange\Validation\NumberRangePatternCollisionValidator;
 
 /**
  * @internal
@@ -34,19 +34,24 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
 
     private Context $context;
 
+    private Logger $logger;
+
     protected function setUp(): void
     {
         $this->numberRangeTypeRepository = static::getContainer()->get('number_range_type.repository');
         $this->numberRangeRepository = static::getContainer()->get('number_range.repository');
         $this->context = Context::createDefaultContext();
+        $this->logger = static::getContainer()->get('logger');
     }
 
-    public function testRepositoryCreateRejectsCollidingPatternForSameDocumentType(): void
+    public function testRepositoryCreateLogsWarningForCollidingPatternButSucceeds(): void
     {
         $typeId = $this->createDocumentNumberRangeType('document_test_invoice');
         $this->createNumberRange($typeId, 'INV{n}');
 
-        $this->expectPatternCollisionViolation(fn () => $this->createNumberRange($typeId, 'INV{n}'));
+        // create() itself would throw if the write were rejected, so reaching
+        // the warning assertion below already proves the write went through.
+        $this->expectPatternCollisionWarning(fn () => $this->createNumberRange($typeId, 'INV{n}'));
     }
 
     public function testRepositoryCreateAllowsDistinctPatternForSameDocumentType(): void
@@ -59,23 +64,23 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
         static::addToAssertionCount(1);
     }
 
-    public function testRepositoryUpdateRejectsCollidingPattern(): void
+    public function testRepositoryUpdateLogsWarningForCollidingPattern(): void
     {
         $typeId = $this->createDocumentNumberRangeType('document_test_credit_note');
         $this->createNumberRange($typeId, 'CN{n}');
         $secondId = $this->createNumberRange($typeId, 'CN-B-{n}');
 
-        $this->expectPatternCollisionViolation(fn () => $this->numberRangeRepository->update([[
+        $this->expectPatternCollisionWarning(fn () => $this->numberRangeRepository->update([[
             'id' => $secondId,
             'pattern' => 'CN{n}',
         ]], $this->context));
     }
 
-    public function testRepositoryCreateRejectsCollidingPatternInSameWriteBatch(): void
+    public function testRepositoryCreateLogsWarningForCollidingPatternInSameWriteBatch(): void
     {
         $typeId = $this->createDocumentNumberRangeType('document_test_storno');
 
-        $this->expectPatternCollisionViolation(fn () => $this->numberRangeRepository->create([
+        $this->expectPatternCollisionWarning(fn () => $this->numberRangeRepository->create([
             $this->numberRangePayload($typeId, 'STO{n}'),
             $this->numberRangePayload($typeId, 'STO{n}'),
         ], $this->context));
@@ -86,9 +91,16 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
         $typeId = $this->createNumberRangeType('test_non_document_type');
         $this->createNumberRange($typeId, 'X{n}');
 
-        $this->createNumberRange($typeId, 'X{n}');
+        $handler = new TestHandler(Level::Warning);
+        $this->logger->pushHandler($handler);
 
-        static::addToAssertionCount(1);
+        try {
+            $this->createNumberRange($typeId, 'X{n}');
+
+            static::assertEmpty($handler->getRecords());
+        } finally {
+            $this->logger->popHandler();
+        }
     }
 
     private function createDocumentNumberRangeType(string $technicalName): string
@@ -134,19 +146,22 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
         ];
     }
 
-    private function expectPatternCollisionViolation(\Closure $callback): void
+    /**
+     * Runs the callback and asserts it logged a pattern-collision warning
+     * instead of throwing — the write is expected to succeed regardless.
+     */
+    private function expectPatternCollisionWarning(\Closure $callback): void
     {
+        $handler = new TestHandler(Level::Warning);
+        $this->logger->pushHandler($handler);
+
         try {
             $callback();
-            static::fail('Expected a number range pattern collision violation.');
-        } catch (WriteException $exception) {
-            $writeException = $exception->getExceptions()[0] ?? null;
 
-            static::assertInstanceOf(WriteConstraintViolationException::class, $writeException);
-            static::assertSame(
-                NumberRangePatternCollisionValidator::NUMBER_RANGE_PATTERN_NOT_UNIQUE,
-                $writeException->getViolations()->get(0)->getCode(),
-            );
+            static::assertNotEmpty($handler->getRecords());
+            static::assertStringContainsString('already used by another', $handler->getRecords()[0]->message);
+        } finally {
+            $this->logger->popHandler();
         }
     }
 }

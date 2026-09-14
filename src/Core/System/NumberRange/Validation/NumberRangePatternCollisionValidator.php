@@ -4,17 +4,15 @@ namespace Shopware\Core\System\NumberRange\Validation;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -26,8 +24,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class NumberRangePatternCollisionValidator implements EventSubscriberInterface
 {
-    final public const NUMBER_RANGE_PATTERN_NOT_UNIQUE = 'NUMBER_RANGE_PATTERN_NOT_UNIQUE';
-
     /**
      * Document number range types are seeded with this technical name prefix, e.g. `document_invoice`.
      *
@@ -37,6 +33,7 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
 
     public function __construct(
         private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -74,8 +71,6 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
             \array_keys($states),
         );
 
-        $violations = new ConstraintViolationList();
-
         foreach ($states as $numberRangeId => $state) {
             $otherPatterns = $existingPatternsByType[$state['typeId']] ?? [];
 
@@ -91,11 +86,14 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $this->addViolation($violations, $commands[$numberRangeId]->getPath(), $documentTypeNames[$state['typeId']], $state['pattern']);
-        }
-
-        if ($violations->count() > 0) {
-            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+            $this->logger->warning(
+                'Number range "{numberRangeId}" uses pattern "{pattern}", already used by another {documentType} number range. Generated documents may collide.',
+                [
+                    'numberRangeId' => $numberRangeId,
+                    'pattern' => $state['pattern'],
+                    'documentType' => $documentTypeNames[$state['typeId']],
+                ],
+            );
         }
     }
 
@@ -255,22 +253,6 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
         }
 
         return $patternsByType;
-    }
-
-    private function addViolation(ConstraintViolationList $violations, string $path, string $documentTypeName, string $pattern): void
-    {
-        $messageTemplate = 'Another {{ documentType }} number range already uses this pattern. Generated documents would collide.';
-        $parameters = ['{{ documentType }}' => $documentTypeName];
-
-        $violations->add(new ConstraintViolation(
-            message: \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
-            messageTemplate: $messageTemplate,
-            parameters: $parameters,
-            root: null,
-            propertyPath: $path . '/pattern',
-            invalidValue: $pattern,
-            code: self::NUMBER_RANGE_PATTERN_NOT_UNIQUE,
-        ));
     }
 
     private function normalizeId(mixed $id): ?string

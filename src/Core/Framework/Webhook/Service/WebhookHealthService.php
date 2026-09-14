@@ -4,12 +4,17 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
+use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
@@ -17,6 +22,7 @@ use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\HealthChange;
 use Shopware\Core\Framework\Webhook\Health\HealthConfig;
 use Shopware\Core\Framework\Webhook\Health\HealthRow;
+use Shopware\Core\Framework\Webhook\Health\SuspensionCause;
 use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\WebhookException;
@@ -38,6 +44,7 @@ class WebhookHealthService
         private readonly WebhookOutboxStore $outboxStore,
         private readonly HealthConfig $config,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -79,7 +86,7 @@ class WebhookHealthService
             return;
         }
 
-        $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideSuccess($row));
+        $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideSuccess($row), trigger: WebhookActivationTrigger::Trial);
     }
 
     public function recordFailure(string $webhookId, ErrorClassification $classification, int $attempt): EndpointState
@@ -93,7 +100,11 @@ class WebhookHealthService
             return $this->fetchRow($webhookId)->state ?? EndpointState::Healthy;
         }
 
-        $change = $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideFailure($row, $classification, $attempt));
+        $change = $this->transition($webhookId, fn (HealthRow $row): ?HealthRow => $this->decideFailure($row, $classification, $attempt), cause: match ($classification) {
+            ErrorClassification::NonTransientEndpoint => SuspensionCause::Gone,
+            ErrorClassification::NonTransientAuth => SuspensionCause::AuthStreak,
+            default => SuspensionCause::ScheduleExhausted,
+        });
 
         return $change->to->state ?? EndpointState::Healthy;
     }
@@ -152,7 +163,7 @@ class WebhookHealthService
             }
 
             return $row->toHealthy(keepStreaks: false);
-        });
+        }, trigger: $trigger);
 
         return $change !== null && $change->changedState();
     }
@@ -344,7 +355,8 @@ class WebhookHealthService
     {
         return match ($trigger) {
             WebhookActivationTrigger::Manual => $row->state === EndpointState::Suspended || $row->state === EndpointState::Disabled,
-            WebhookActivationTrigger::AppReset => !($row->state === EndpointState::Disabled && $row->disabledOrigin === DisabledOrigin::Operator),
+            WebhookActivationTrigger::AppReset,
+            WebhookActivationTrigger::AppReactivateApi => !($row->state === EndpointState::Disabled && $row->disabledOrigin === DisabledOrigin::Operator),
             WebhookActivationTrigger::Trial,
             WebhookActivationTrigger::Idle => false,
         };
@@ -415,7 +427,7 @@ class WebhookHealthService
         );
 
         foreach ($candidates as $webhookId) {
-            $this->transition($webhookId, function (HealthRow $row) use ($webhookId, $now): ?HealthRow {
+            $change = $this->transition($webhookId, function (HealthRow $row) use ($webhookId, $now): ?HealthRow {
                 if (!\in_array($row->state, [EndpointState::Degraded, EndpointState::Suspended], true) || !$row->cooldownElapsed($now)) {
                     return null;
                 }
@@ -432,7 +444,7 @@ class WebhookHealthService
 
                 // Nothing held, nothing in flight: idle promotion. Unproven streaks stay.
                 return $row->toHealthy(keepStreaks: true);
-            });
+            }, trigger: WebhookActivationTrigger::Idle);
         }
     }
 
@@ -463,12 +475,14 @@ class WebhookHealthService
                 return $row->toDisabled(DisabledOrigin::Escalation, $this->now());
             });
 
-            if ($change !== null && $change->changedState()) {
-                $this->logger->warning('Webhook endpoint disabled after exceeding the suspension bound', [
-                    'webhookId' => $webhookId,
-                    'maxSuspendedDays' => $this->config->maxSuspendedDays,
-                ]);
+            if ($change === null || !$change->changedState()) {
+                continue;
             }
+
+            $this->logger->warning('Webhook endpoint disabled after exceeding the suspension bound', [
+                'webhookId' => $webhookId,
+                'maxSuspendedDays' => $this->config->maxSuspendedDays,
+            ]);
         }
     }
 
@@ -500,13 +514,15 @@ class WebhookHealthService
 
     /**
      * The one write path: lock the row, let $decide compute the next row, store it, mirror the legacy
-     * columns and flip the backlog. $decide returns null to leave the row untouched.
+     * columns, flip the backlog and emit the lifecycle event. $decide returns null to leave the row untouched.
      *
      * @param \Closure(HealthRow): ?HealthRow $decide
+     * @param WebhookActivationTrigger|null $trigger required when $decide can return a HEALTHY row
+     * @param SuspensionCause|null $cause required when $decide can return a SUSPENDED row
      *
      * @return HealthChange|null the rows before and after, or null when the webhook no longer exists
      */
-    private function transition(string $webhookId, \Closure $decide): ?HealthChange
+    private function transition(string $webhookId, \Closure $decide, ?WebhookActivationTrigger $trigger = null, ?SuspensionCause $cause = null): ?HealthChange
     {
         $id = Uuid::fromHexToBytes($webhookId);
 
@@ -548,6 +564,8 @@ class WebhookHealthService
             $this->outboxStore->pauseDeliveriesForWebhook($webhookId);
         }
 
+        $this->emit($webhookId, $change, $trigger, $cause);
+
         return $change;
     }
 
@@ -558,6 +576,56 @@ class WebhookHealthService
     {
         return \in_array($to, [EndpointState::Degraded, EndpointState::Suspended], true)
             && $from !== EndpointState::Suspended;
+    }
+
+    /**
+     * Every state entry emits one best-effort lifecycle event after the transition has committed.
+     */
+    private function emit(string $webhookId, HealthChange $change, ?WebhookActivationTrigger $trigger, ?SuspensionCause $cause): void
+    {
+        $ref = $this->connection->fetchAssociative(
+            'SELECT LOWER(HEX(app_id)) AS app_id, name, event_name FROM webhook WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
+        );
+        $appId = \is_array($ref) && \is_string($ref['app_id']) ? $ref['app_id'] : null;
+        $name = \is_array($ref) && \is_string($ref['name']) ? $ref['name'] : null;
+        $eventName = \is_array($ref) && \is_string($ref['event_name']) ? $ref['event_name'] : null;
+
+        $from = $change->from;
+        $to = $change->to;
+        $now = $this->clock->now();
+
+        if ($to->state === EndpointState::Healthy) {
+            \assert($trigger !== null);
+            $event = new WebhookActivatedEvent(
+                $webhookId,
+                $appId,
+                $from->state,
+                $trigger,
+                $name,
+                $eventName,
+                $now,
+                $from->suspendedSince === null ? null : new \DateTimeImmutable($from->suspendedSince),
+            );
+        } elseif ($to->state === EndpointState::Degraded) {
+            $event = new WebhookDegradedEvent($webhookId, $appId, $from->state, $name, $eventName, $now);
+        } elseif ($to->state === EndpointState::Suspended) {
+            \assert($cause !== null && $to->suspendedSince !== null);
+            $event = new WebhookSuspendedEvent($webhookId, $appId, $from->state, new \DateTimeImmutable($to->suspendedSince), $cause, $name, $eventName, $now);
+        } else {
+            \assert($to->disabledOrigin !== null);
+            $event = new WebhookDisabledEvent($webhookId, $appId, $from->state, $to->disabledOrigin, $name, $eventName, $now);
+        }
+
+        try {
+            $this->eventDispatcher->dispatch($event);
+        } catch (\Throwable $e) {
+            // Lifecycle events are advisory; the committed transition is the truth.
+            $this->logger->warning('Webhook lifecycle event listener failed', [
+                'event' => $event::class,
+                'exception' => $e::class,
+            ]);
+        }
     }
 
     private function fetchRow(string $webhookId, bool $forUpdate = false): ?HealthRow

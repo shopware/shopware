@@ -1,9 +1,6 @@
 ---
 title: Survive MySQL 8.4 non-standard FK guard failures in migrations
 issue: 16240
-author: Thuy Le
-author_email: t.le@shopware.com
-author_github: @vienthuong
 ---
 # Core
 * Added `Shopware\Core\Framework\Migration\NonStandardFkGuard`, which executes migration DDL and retries once with `restrict_fk_on_non_standard_key` relaxed when MySQL 8.4 rejects the statement through MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151). On MariaDB and MySQL < 8.4 the variable does not exist and there is no retry.

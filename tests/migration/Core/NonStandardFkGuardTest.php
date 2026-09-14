@@ -17,8 +17,7 @@ use Shopware\Core\Migration\V6_6\Migration1714659357CanonicalProductVersion;
  * Proves the migrations doing DDL on `product` survive MySQL bug #118151 with a non-standard
  * foreign key against that table in place.
  *
- * Requires MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`; skips elsewhere. Run by the
- * `mysql:8.4` migration lane, see .github/bin/generate-phpunit-matrix.php.
+ * Requires MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`; skips elsewhere.
  *
  * @internal
  */

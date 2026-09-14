@@ -59,16 +59,46 @@ class CustomerDisplayNameSubscriberTest extends TestCase
         static::assertSame($expected, $customer->get('displayName'));
     }
 
-    public function testAPartialReadWithoutTheNameFieldsRendersNothing(): void
+    /**
+     * A read that asks for displayName always carries all four sources, so one that does not carry
+     * them never asked for it, and a name resolved from the half that is there would be a different
+     * name than the field promises.
+     *
+     * @param array<string, string|null> $fields
+     */
+    #[DataProvider('incompletePartialReadProvider')]
+    public function testAPartialReadWithoutEverySourceRendersNothing(array $fields): void
     {
         $customer = new PartialEntity();
-        $customer->assign(['id' => 'customer-id']);
+        $customer->assign($fields);
 
         $event = new PartialEntityLoadedEvent(new CustomerDefinition(), [$customer], Context::createDefaultContext());
 
         (new CustomerDisplayNameSubscriber())->onCustomerLoaded($event);
 
-        static::assertSame('', $customer->get('displayName'));
+        static::assertFalse($customer->has('displayName'));
+    }
+
+    /**
+     * @return \Generator<string, array{array<string, string|null>}>
+     */
+    public static function incompletePartialReadProvider(): \Generator
+    {
+        yield 'none of the sources' => [['id' => 'customer-id']];
+
+        yield 'the first name alone' => [['id' => 'customer-id', 'firstName' => 'Ada']];
+
+        yield 'the person name without the company' => [[
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => '',
+            'lastName' => '',
+        ]];
+
+        yield 'the company without the account type' => [[
+            'firstName' => '',
+            'lastName' => '',
+            'company' => 'Analytical Engines',
+        ]];
     }
 
     #[DataProvider('displayNameProvider')]

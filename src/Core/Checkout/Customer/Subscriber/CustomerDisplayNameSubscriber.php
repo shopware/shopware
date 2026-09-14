@@ -16,6 +16,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('checkout')]
 class CustomerDisplayNameSubscriber implements EventSubscriberInterface
 {
+    private const SOURCES = [
+        'firstName',
+        'lastName',
+        'company',
+        'accountType',
+    ];
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -33,15 +40,30 @@ class CustomerDisplayNameSubscriber implements EventSubscriberInterface
     public function onCustomerLoaded(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $customer) {
-            $customer->assign(['displayName' => $this->resolve($customer)]);
+            $displayName = $this->resolve($customer);
+
+            if ($displayName === null) {
+                continue;
+            }
+
+            $customer->assign(['displayName' => $displayName]);
         }
     }
 
-    private function resolve(Entity $customer): string
+    private function resolve(Entity $customer): ?string
     {
         // getVars() and not has()/get(), because on a hydrated entity has() is a property_exists check
         // and a name the read did not select would throw on access.
         $vars = $customer->getVars();
+
+        foreach (self::SOURCES as $source) {
+            // A partial read that left one of the sources behind cannot tell the right name from a
+            // shortened one, and a read that asks for displayName always carries all four, because
+            // CriteriaFieldsResolver adds what the Runtime flag depends on.
+            if (!\array_key_exists($source, $vars)) {
+                return null;
+            }
+        }
 
         return CustomerEntity::resolveDisplayName(
             $this->string($vars, 'firstName'),

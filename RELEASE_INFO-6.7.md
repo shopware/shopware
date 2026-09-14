@@ -165,7 +165,7 @@ The customer entity gains a runtime field `displayName`, holding the person name
 {{ customer.displayName }}
 ```
 
-The getter resolves the name from the live `firstName`, `lastName`, `company` and `accountType`, so it is right on any entity, including one you build or change in code. A subscriber fills the runtime field itself on `customer.loaded` and `customer.partial_loaded`, which is what carries the value into the API responses, and the stored value is only read back when a partial read left every source field behind. Being a runtime field it cannot be sorted or filtered in a `Criteria`; sort on `lastName` or `company` instead.
+The getter resolves the name from the live `firstName`, `lastName`, `company` and `accountType`, so it is right on any entity, including one you build or change in code. A subscriber fills the runtime field itself on `customer.loaded` and `customer.partial_loaded`, which is what carries the value into the API responses, and the stored value is only read back when a partial read left every source field behind. A partial read that asks for `displayName` gets the four source fields pulled in with it; one that leaves any of them out carries no display name at all, because a name resolved from half the sources would not be the one the field promises. Being a runtime field it cannot be sorted or filtered in a `Criteria`; sort on `lastName` or `company` instead.
 
 `CustomerTransformer` writes the company name into the order customer name fields when a commercial account has no contact person, so documents, mails and the order list keep naming the buyer.
 

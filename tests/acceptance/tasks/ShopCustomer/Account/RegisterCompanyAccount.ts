@@ -1,5 +1,6 @@
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 import { test as base } from '@playwright/test';
+import { getCountryAddressData, getCountryCodeFromLocale, getLocale } from '@shopware-ag/acceptance-test-suite';
 
 export interface CompanyAccountData {
     email: string;
@@ -16,6 +17,8 @@ export interface CompanyAccountData {
  */
 export const RegisterCompanyAccount = base.extend<{ RegisterCompanyAccount: Task }, FixtureTypes>({
     RegisterCompanyAccount: async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }, use) => {
+        const address = getCountryAddressData(getCountryCodeFromLocale(getLocale()));
+
         const task = (data: CompanyAccountData) => {
             return async function RegisterCompanyAccount() {
                 await ShopCustomer.goesTo(StorefrontAccountLogin.url());
@@ -34,13 +37,11 @@ export const RegisterCompanyAccount = base.extend<{ RegisterCompanyAccount: Task
                 await ShopCustomer.fillsIn(StorefrontAccountLogin.vatRegNoInput, data.vatRegNo ?? '');
                 await ShopCustomer.fillsIn(StorefrontAccountLogin.registerEmailInput, data.email);
                 await ShopCustomer.fillsIn(StorefrontAccountLogin.registerPasswordInput, data.password ?? 'shopware');
-                await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, 'Ebbinghoff 10');
-                await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, '48624');
-                await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, 'Schöppingen');
+                await ShopCustomer.fillsIn(StorefrontAccountLogin.streetAddressInput, address.street);
+                await ShopCustomer.fillsIn(StorefrontAccountLogin.postalCodeInput, address.postalCode);
+                await ShopCustomer.fillsIn(StorefrontAccountLogin.cityInput, address.city);
                 await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
-                await StorefrontAccountLogin.countryInput.selectOption({
-                    label: 'Germany',
-                });
+                await StorefrontAccountLogin.countryInput.selectOption({ label: address.country });
                 await ShopCustomer.presses(StorefrontAccountLogin.registerButton);
 
                 const customer = await TestDataService.getCustomerByEmail(data.email);

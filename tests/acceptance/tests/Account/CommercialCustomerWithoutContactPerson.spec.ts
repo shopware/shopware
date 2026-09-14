@@ -278,91 +278,61 @@ test.describe('Commercial accounts without a contact person', () => {
             };
             const product = await TestDataService.createBasicProduct();
 
-            const setGlobal = async (values: Record<string, boolean | null>) => {
-                const response = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-                    data: { null: values },
-                });
-                expect(response.ok()).toBeTruthy();
-                await TestDataService.clearCaches();
-            };
-
-            const globalBefore = await (
-                await TestDataService.AdminApiClient.get('_action/system-config?domain=core.loginRegistration')
-            ).json();
-
-            try {
-                await test.step('The shop requires the contact person, the sales channel makes it optional', async () => {
-                    await setGlobal({
-                        [SELECTION]: true,
-                        [SHOW]: true,
-                        [REQUIRED]: true,
-                    });
-                    await TestDataService.setSystemConfig({
-                        [SELECTION]: true,
-                        [SHOW]: true,
-                        [REQUIRED]: false,
-                    });
-
-                    await ShopCustomer.attemptsTo(RegisterCompanyAccount(account));
-                    await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
-                    await ShopCustomer.expects(StorefrontAccount.page.getByText(account.company).first()).toBeVisible();
+            await test.step('The shop keeps the names required, the sales channel makes them optional', async () => {
+                await TestDataService.setSystemConfig({
+                    [SELECTION]: true,
+                    [SHOW]: true,
+                    [REQUIRED]: false,
                 });
 
-                await test.step('Requiring the names again in the sales channel blocks the checkout of the nameless account', async () => {
-                    await TestDataService.setSystemConfig({ [REQUIRED]: true });
+                await ShopCustomer.attemptsTo(RegisterCompanyAccount(account));
+                await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
+                await ShopCustomer.expects(StorefrontAccount.page.getByText(account.company).first()).toBeVisible();
+            });
 
-                    await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-                    await ShopCustomer.attemptsTo(AddProductToCart(product));
-                    await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
+            await test.step('Requiring the names again in the sales channel blocks the checkout of the nameless account', async () => {
+                await TestDataService.setSystemConfig({ [REQUIRED]: true });
 
-                    await ShopCustomer.expects(
-                        StorefrontCheckoutConfirm.page.locator('.alert-danger').first(),
-                    ).toBeVisible();
+                await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
+                await ShopCustomer.attemptsTo(AddProductToCart(product));
+                await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
+
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.alert-danger').first()).toBeVisible();
+            });
+
+            await test.step('Making the names optional again lets the same account order', async () => {
+                await TestDataService.setSystemConfig({
+                    [REQUIRED]: false,
                 });
 
-                await test.step('Making the names optional again lets the same account order', async () => {
-                    await TestDataService.setSystemConfig({
-                        [REQUIRED]: false,
-                    });
+                await ShopCustomer.goesTo(StorefrontCheckoutConfirm.url());
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.alert-danger')).toHaveCount(0);
+                await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
+                await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+                await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
+                await ShopCustomer.attemptsTo(SubmitOrder());
+                TestDataService.addCreatedRecord('order', StorefrontCheckoutFinish.getOrderId());
+            });
 
-                    await ShopCustomer.goesTo(StorefrontCheckoutConfirm.url());
-                    await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.alert-danger')).toHaveCount(0);
-                    await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-                    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
-                    await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
-                    await ShopCustomer.attemptsTo(SubmitOrder());
-                    TestDataService.addCreatedRecord('order', StorefrontCheckoutFinish.getOrderId());
+            await test.step('The registration form of the sales channel follows its own required setting', async () => {
+                await TestDataService.setSystemConfig({ [REQUIRED]: true });
+                await ShopCustomer.attemptsTo(Logout());
+
+                await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+                await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
+                await ShopCustomer.expects(StorefrontAccountLogin.firstNameInput).toHaveAttribute('aria-required', 'true');
+
+                await TestDataService.setSystemConfig({
+                    [REQUIRED]: false,
                 });
 
-                await test.step('The registration form of the sales channel follows its own required setting', async () => {
-                    await TestDataService.setSystemConfig({ [REQUIRED]: true });
-                    await ShopCustomer.attemptsTo(Logout());
-
-                    await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-                    await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
-                    await ShopCustomer.expects(StorefrontAccountLogin.firstNameInput).toHaveAttribute(
-                        'aria-required',
-                        'true',
-                    );
-
-                    await TestDataService.setSystemConfig({
-                        [REQUIRED]: false,
-                    });
-
-                    await ShopCustomer.goesTo(StorefrontAccountLogin.url());
-                    await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
-                    await ShopCustomer.expects(StorefrontAccountLogin.firstNameInput).not.toHaveAttribute(
-                        'aria-required',
-                        'true',
-                    );
-                });
-            } finally {
-                await setGlobal({
-                    [SELECTION]: globalBefore[SELECTION] ?? null,
-                    [SHOW]: globalBefore[SHOW] ?? null,
-                    [REQUIRED]: globalBefore[REQUIRED] ?? null,
-                });
-            }
+                await ShopCustomer.goesTo(StorefrontAccountLogin.url());
+                await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');
+                await ShopCustomer.expects(StorefrontAccountLogin.firstNameInput).not.toHaveAttribute(
+                    'aria-required',
+                    'true',
+                );
+            });
         },
     );
 });

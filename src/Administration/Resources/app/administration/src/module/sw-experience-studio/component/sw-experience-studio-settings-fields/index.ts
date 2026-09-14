@@ -514,7 +514,15 @@ export default Shopware.Component.wrapComponentConfig({
             this.onUpdateField(key, base);
         },
 
-        getSelectOptions(property: ContentSystemElementTypeProperty): Array<{ value: PrimitiveValue; label: string }> {
+        getSelectOptions(property: ContentSystemElementTypeProperty): Array<Record<string, unknown>> {
+            const options = this.getControlProps(property).options;
+
+            if (Array.isArray(options)) {
+                return options.filter(
+                    (option): option is Record<string, unknown> => typeof option === 'object' && option !== null,
+                );
+            }
+
             if (!Array.isArray(property.enum)) {
                 return [];
             }
@@ -733,11 +741,11 @@ export default Shopware.Component.wrapComponentConfig({
                     return normalizeBoxSpacingCSSValue(structuredDefault);
                 }
 
-                if (typeof initialValue === 'string' || typeof initialValue === 'number') {
-                    return normalizeBoxSpacingCSSValue(initialValue);
+                if (typeof property.default === 'string' || typeof property.default === 'number') {
+                    return normalizeBoxSpacingCSSValue(property.default);
                 }
 
-                return '';
+                return normalizeBoxSpacingCSSValue(null);
             }
 
             if (this.getControlType(property) === 'responsive-number' || this.getControlType(property) === 'number') {

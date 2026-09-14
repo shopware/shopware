@@ -43,10 +43,11 @@ class ContentSystemElementTypeSpecificationBuilder
      * declaration itself rather than picking one of the named kinds above.
      *
      * @param string|list<string> $type
+     * @param array<string, PropertySpecification>|null $properties
      */
-    public function declared(string $key, string|array $type, bool $required = false): self
+    public function declared(string $key, string|array $type, bool $required = false, ?array $properties = null): self
     {
-        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($type, false, null, null), $required, '', '', null);
+        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($type, false, null, null, $properties), $required, '', '', null);
 
         return $this;
     }

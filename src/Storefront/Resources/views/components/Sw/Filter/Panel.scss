@@ -1,9 +1,10 @@
 .sw-filter-panel {
+    --sw-filter-panel-background-color: var(--bs-body-bg);
     display: flex;
     flex-wrap: wrap;
     align-items: start;
     gap: 0.5rem;
-    background-color: var(--bs-body-bg);
+    background-color: var(--sw-filter-panel-background-color, transparent);
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;

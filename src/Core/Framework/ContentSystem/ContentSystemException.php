@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
-use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -170,11 +169,8 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * An element id outside the value domain the decode gate admits. Two values are excluded: the reserved
-     * literal {@see VirtualRootWrapper::VIRTUAL_ROOT_ID}, which an authored element carrying it would collide
-     * with on every wrapping render, and a string PHP casts to an integer array key, which puts an integer key
-     * into {@see ResolvedValueIndexFactory}'s string-keyed assignments map — encoding as a JSON list once those
-     * keys happen to run 0..n-1, and as a map with integer-looking members otherwise.
+     * An element id outside the value domain {@see ElementIdRule} states and the decode gate admits; that
+     * class carries each exclusion and its reason, and `$reason` here is the phrase it returned.
      *
      * A 500 while still in CLIENT_DEFECT_CODES, the same split {@see invalidFieldValueType()} and
      * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only
@@ -201,8 +197,8 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ELEMENT_ID,
-            'Element id "{{ id }}" is not accepted: {{ reason }}.',
-            ['id' => $id, 'reason' => $reason]
+            'Element id "{{ id }}" is not accepted: it {{ reason }}.',
+            ['id' => self::printableId($id), 'reason' => $reason]
         );
     }
 
@@ -1152,5 +1148,18 @@ class ContentSystemException extends HttpException
         );
 
         return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
+    }
+
+    /**
+     * An id the domain rule refused is the one id this class renders that can hold a control character, and
+     * the message is written to logs as plain text — where a `\r` rewinds the line and hides the id it was
+     * meant to name. JSON's escaping is borrowed rather than `addcslashes`, which leaves U+2028 and U+2029
+     * untouched, and rather than plain `json_encode`, which would also mangle a legitimate `héro`.
+     */
+    private static function printableId(string $id): string
+    {
+        $encoded = json_encode($id, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+
+        return $encoded === false ? $id : substr($encoded, 1, -1);
     }
 }

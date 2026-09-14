@@ -8,6 +8,21 @@ import {
 } from './box-spacing.util';
 
 describe('module/sw-experience-studio/util/box-spacing.util', () => {
+    it('presents unset spacing as zero on every side', () => {
+        expect(parseBoxSpacing(null)).toEqual({
+            top: '0',
+            right: '0',
+            bottom: '0',
+            left: '0',
+        });
+        expect(parseBoxSpacing('')).toEqual({
+            top: '0',
+            right: '0',
+            bottom: '0',
+            left: '0',
+        });
+    });
+
     it('parses single-value shorthand into all sides', () => {
         expect(parseBoxSpacing('5%')).toEqual({
             top: '5%',
@@ -203,6 +218,24 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
         expect(normalizeBoxSpacingCSSValue(20)).toBe('20px 20px 20px 20px');
         expect(normalizeBoxSpacingCSSValue('30px')).toBe('30px 30px 30px 30px');
         expect(normalizeBoxSpacingCSSValue('30')).toBe('30px 30px 30px 30px');
+    });
+
+    it('presents persisted null values as explicit zero spacing', () => {
+        expect(normalizeBoxSpacingCSSValue(null)).toBe('0 0 0 0');
+    });
+
+    it('keeps all-zero spacing unset for persistence', () => {
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '0',
+                    right: '0',
+                    bottom: '0',
+                    left: '0',
+                },
+                { explicit: true },
+            ),
+        ).toBe('');
     });
 
     it('normalizes asymmetric CSS values to explicit four-value strings', () => {

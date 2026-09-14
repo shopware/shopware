@@ -429,11 +429,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementTypeCollisionDetector::class),
             service(ContentSystemElementTypeRegistry::class),
             service(ElementTypeSpecificationSerializer::class),
+            service(Connection::class),
+            service('lock.factory'),
         ]);
 
     $services->set(ContentSystemElementTypeLifecycleHandler::class)
         ->args([
             service(ContentSystemElementTypePersister::class),
+            service(ContentSystemElementTypeRegistry::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1400]);
 
@@ -451,6 +454,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemStyleOptionRegistry::class),
             service(StyleOptionSpecificationSerializer::class),
             service(Connection::class),
+            service('lock.factory'),
         ]);
 
     $services->set(ContentSystemStyleOptionLifecycleHandler::class)

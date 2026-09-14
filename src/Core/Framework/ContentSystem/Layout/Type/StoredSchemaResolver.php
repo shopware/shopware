@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type;
 
-use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -41,11 +40,10 @@ use Shopware\Core\Framework\Log\Package;
  *
  * No error path guards {@see DataLoaderProvider::get()}, which throws on an unregistered source: a registered
  * binding specification always names a registered loader, because
- * {@see TypeConsistentBindingSpecification} resolves
- * every `resolves` entry's produced type through the loader at load time and
- * {@see DatabaseBindingSpecificationLoader} skips a row
- * that fails validation. If that invariant ever breaks, the throw is the correct outcome: a swallowed loader
- * would publish a storage schema silently missing keys, indistinguishable from a type that stores nothing.
+ * {@see TypeConsistentBindingSpecification} resolves every `resolves` entry's produced type through the loader
+ * at load time, and an invalid specification aborts loading before registry construction completes. If that
+ * invariant ever breaks, the throw is the correct outcome: a swallowed loader would publish a storage schema
+ * silently missing keys, indistinguishable from a type that stores nothing.
  *
  * @internal
  *

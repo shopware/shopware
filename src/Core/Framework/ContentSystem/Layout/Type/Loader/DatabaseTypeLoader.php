@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDtoCollection;
@@ -11,10 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * A persisted row is runtime data that can drift after install (a dependency deactivated, a column
- * hand-edited): a row whose schema fails to decode or validate is skipped and logged at warning
- * level rather than aborting the whole load, unlike YamlTypeLoader, which fails hard on an authored
- * file.
+ * Persisted active-app rows follow the same fail-fast contract as definitions loaded by
+ * {@see YamlTypeLoader}.
+ * Every row must have a name, and its schema must decode to a map, deserialize, and validate
+ * successfully; otherwise, the whole load aborts.
  *
  * @internal
  *
@@ -28,7 +28,6 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
         private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -52,57 +51,43 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
         $resolvedSpecificationDtos = [];
 
         foreach ($rows as $row) {
-            $name = $row['name'] ?: '<unknown>';
             $source = 'app:' . $row['app_name'];
-            $identifier = $source . ':' . $name;
+            $name = $row['name'];
+            $identifier = $source . ':' . ($name === '' ? '<unknown>' : $name);
+
+            if ($name === '') {
+                throw ContentSystemException::elementTypeLoadFailed($identifier, 'persisted row has no name and cannot be registered');
+            }
 
             try {
                 $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $e) {
-                $this->logger->warning(\sprintf('Skipping element type "%s": invalid JSON schema: %s', $identifier, $e->getMessage()), [
-                    'identifier' => $identifier,
-                    'reason' => $e->getMessage(),
-                ]);
-
-                continue;
+                throw ContentSystemException::elementTypeLoadFailed($identifier, 'Invalid JSON schema: ' . $e->getMessage(), $e);
             }
 
             if (!\is_array($schema)) {
-                $this->logger->warning(\sprintf('Skipping element type "%s": persisted schema must decode to an array/map, got %s', $identifier, get_debug_type($schema)), [
-                    'identifier' => $identifier,
-                    'type' => get_debug_type($schema),
-                ]);
-
-                continue;
+                throw ContentSystemException::elementTypeLoadFailed($identifier, 'Persisted schema must decode to an array/map, got ' . get_debug_type($schema));
             }
 
             try {
                 $dto = $this->serializer->denormalize($schema);
             } catch (\Throwable $e) {
-                $this->logger->warning(\sprintf('Skipping element type "%s": invalid schema: %s', $identifier, $e->getMessage()), [
-                    'identifier' => $identifier,
-                    'reason' => $e->getMessage(),
-                ]);
-
-                continue;
-            }
-
-            $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection([$name => $dto]));
-            if ($violations->count() > 0) {
-                $messages = [];
-                foreach ($violations as $violation) {
-                    $messages[] = $violation->getMessage();
-                }
-
-                $this->logger->warning(\sprintf('Skipping element type "%s": validation failed: %s', $identifier, implode('; ', $messages)), [
-                    'identifier' => $identifier,
-                    'reason' => implode('; ', $messages),
-                ]);
-
-                continue;
+                throw ContentSystemException::elementTypeLoadFailed($identifier, 'Invalid schema: ' . $e->getMessage(), $e);
             }
 
             $resolvedSpecificationDtos[] = new ResolvedElementTypeSpecificationDto($name, $source, $dto);
+        }
+
+        $dtos = [];
+        foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
+            // Element type names are globally unique across persisted app rows, so the bare name keeps every
+            // row distinct in the collection and ensures that all rows are validated.
+            $dtos[$resolvedSpecificationDto->name] = $resolvedSpecificationDto->dto;
+        }
+
+        $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection($dtos));
+        if ($violations->count() > 0) {
+            throw ContentSystemException::elementTypesInvalid($violations);
         }
 
         return array_map(

@@ -201,7 +201,6 @@ readonly class MediaUploadService
         $criteria->addFilter(new PrefixFilter('path', 'http'));
 
         $deletePayload = $this->thumbnailRepository->searchIds($criteria, $context)->getPrimaryKeyData();
-
         if ($deletePayload === []) {
             return;
         }

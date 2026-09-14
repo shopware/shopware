@@ -151,8 +151,7 @@ class ConvertGuestControllerTest extends TestCase
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
 
         $ids = $repository->searchIds($criteria, $context)->getPrimaryKeyData();
-
-        if (!$ids) {
+        if ($ids === []) {
             return;
         }
 

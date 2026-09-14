@@ -59,7 +59,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
         $this->productStreamRepository->update($streamIds, $context);
 
         foreach ($streamIds as $streamId) {
-            $message = new ProductStreamMappingIndexingMessage($streamId);
+            $message = new ProductStreamMappingIndexingMessage($streamId['id']);
             $message->setIndexer(ProductStreamUpdater::INDEXER_NAME);
             $this->messageBus->dispatch($message);
         }

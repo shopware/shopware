@@ -115,13 +115,12 @@ class CreatePageCommand extends Command
         $criteria = new Criteria();
         $criteria->setLimit(999);
 
-        $pages = $this->cmsPageRepository->searchIds($criteria, $context);
-
-        if ($pages->getTotal() === 0) {
+        $pages = $this->cmsPageRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($pages === []) {
             return;
         }
 
-        $this->cmsPageRepository->delete($pages->getPrimaryKeyData(), $context);
+        $this->cmsPageRepository->delete($pages, $context);
     }
 
     private function getRandomImageUrl(): string

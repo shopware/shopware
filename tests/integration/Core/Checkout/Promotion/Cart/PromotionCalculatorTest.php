@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Promotion\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -168,6 +169,7 @@ class PromotionCalculatorTest extends TestCase
         $preventedPromotionId = $this->getPromotionId(true);
         $validDiscountItem = $this->getDiscountItem($preventedPromotionId);
         $validDiscountItem->setPayloadValue('preventCombination', true);
+        $validDiscountItem->setPayloadValue('priority', 2);
 
         $discountItems = new LineItemCollection([$discountItemToBeExcluded, $validDiscountItem]);
 
@@ -203,10 +205,16 @@ class PromotionCalculatorTest extends TestCase
      */
     public function testPromotionDependingOnPromotionInCartExcludesLowerPriorityPromotion(): void
     {
-        $productId = $this->createProduct();
+        $productId = $this->createProduct(gross: 100.0);
         $appliedPromotionId = $this->getPromotionId(priority: 3, value: 10.0);
         $dependentPromotionId = $this->getPromotionId(priority: 2, value: 20.0);
         $excludedPromotionId = $this->getPromotionId(priority: 1, value: 40.0);
+
+        foreach ([$appliedPromotionId, $dependentPromotionId, $excludedPromotionId] as $promotionId) {
+            $this->promotionRepository->update([
+                ['id' => $promotionId, 'salesChannels' => [['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1]]],
+            ], $this->salesChannelContext->getContext());
+        }
 
         $ruleId = Uuid::randomHex();
         static::getContainer()->get('rule.repository')->create([
@@ -227,8 +235,11 @@ class PromotionCalculatorTest extends TestCase
         $cartService = static::getContainer()->get(CartService::class);
         $cart = $cartService->createNew($this->salesChannelContext->getToken());
         $cart = $this->addProduct($productId, 1, $cart, $cartService, $this->salesChannelContext);
+        static::assertSame(100.0, $cart->getPrice()->getTotalPrice());
         $cart = $this->addPromotionCode(\sprintf('phpUnit-%s', $appliedPromotionId), $cart, $cartService, $this->salesChannelContext);
+        static::assertSame(90.0, $cart->getPrice()->getTotalPrice());
         $cart = $this->addPromotionCode(\sprintf('phpUnit-%s', $dependentPromotionId), $cart, $cartService, $this->salesChannelContext);
+        static::assertSame(70.0, $cart->getPrice()->getTotalPrice());
         $cart = $this->addPromotionCode(\sprintf('phpUnit-%s', $excludedPromotionId), $cart, $cartService, $this->salesChannelContext);
 
         static::assertSame(70.0, $cart->getPrice()->getTotalPrice());
@@ -449,8 +460,7 @@ class PromotionCalculatorTest extends TestCase
         bool $useCodes = true,
         string $type = PromotionDiscountEntity::TYPE_ABSOLUTE,
         float $value = 10.0
-    ): string
-    {
+    ): string {
         $promotionId = Uuid::randomHex();
 
         $promotionData = [
@@ -503,7 +513,7 @@ class PromotionCalculatorTest extends TestCase
         return $discountItemToBeExcluded;
     }
 
-    private function createProduct(): string
+    private function createProduct(float $gross = 10.0): string
     {
         $id = Uuid::randomHex();
 
@@ -515,7 +525,7 @@ class PromotionCalculatorTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'price' => [
-                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 7, 'linked' => false],
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => $gross, 'net' => $gross * 0.7, 'linked' => false],
                     ],
                     'purchasePrices' => [
                         ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],

@@ -207,7 +207,7 @@ class PromotionCalculator
             }
         }
 
-        if (empty($preventCombinationPromotionIdMapping)) {
+        if ($preventCombinationPromotionIdMapping === []) {
             return;
         }
 
@@ -229,7 +229,7 @@ class PromotionCalculator
                 $originalExclusions = $discountItem->getPayloadValue('exclusions');
                 $newExclusions = \array_unique(\array_merge($originalExclusions, $preventCombinationPromotionIds));
             }
-            $filteredExclusions = \array_filter($newExclusions, fn($excludedPromotionId) => $excludedPromotionId !== $currentPromotionId);
+            $filteredExclusions = \array_filter($newExclusions, static fn ($excludedPromotionId) => $excludedPromotionId !== $currentPromotionId);
             $discountItem->setPayloadValue('exclusions', $filteredExclusions);
         }
     }

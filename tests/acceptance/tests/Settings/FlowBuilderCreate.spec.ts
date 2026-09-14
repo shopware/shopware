@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 
 test(
@@ -11,11 +11,6 @@ test(
         },
     },
     async ({ ShopAdmin, AdminFlowBuilderListing, AdminFlowBuilderDetail, IdProvider, TestDataService, CreateFlow }) => {
-        // This flow spans ~15 sequential admin interactions; on a loaded/shared environment the
-        // default timeouts are too tight and the very first assertion inside CreateFlow (waiting
-        // for the create-flow page to render) can time out before navigation actually completes.
-        test.slow();
-
         const uniqueId = IdProvider.getIdPair().uuid;
         const tagName = `Test tag - ${uniqueId}`;
         const flowName = `Test flow - ${uniqueId}`;
@@ -35,15 +30,8 @@ test(
         };
 
         await test.step('Create a flow with a condition and two actions.', async () => {
-            // The create-flow button occasionally doesn't navigate on the first click (its own
-            // assertion for the "New flow" header uses a fixed 5s timeout that test.slow() does not
-            // extend). Nothing is persisted until CreateFlow reaches the save step, so retrying the
-            // whole block - re-navigating and re-clicking - is safe and recovers from a missed click.
-            await expect(async () => {
-                await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
-                await ShopAdmin.expects(AdminFlowBuilderListing.createFlowButton).toBeEnabled();
-                await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
-            }).toPass({ timeout: 45_000 });
+            await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
+            await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
         });
 
         await test.step('Confirm the flow exists and is structured correctly.', async () => {

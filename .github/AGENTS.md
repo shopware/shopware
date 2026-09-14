@@ -56,7 +56,7 @@ its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test
 install) → `phpunit-run` (the suite) → `phpunit-upload` (Codecov, called with
 `if: !cancelled()`).
 
-The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`) are
+The agentic workflows (`sw-triage`, `sw-review`, `sw-bugfixer`, `sw-screenshot`) are
 [gh aw](https://github.com/githubnext/gh-aw) sources: edit `<name>.md`, never the
 generated `<name>.lock.yml`, and run `gh aw compile`. Setup and the version pin
 live in [`.github/aw/README.md`](aw/README.md).

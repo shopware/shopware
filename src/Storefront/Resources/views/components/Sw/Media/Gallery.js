@@ -6,6 +6,7 @@ export default class MediaGallery extends ShopwareComponent {
         showNavigationArrows: true,
         showFullScreenGallery: true,
         zoomScale: 2.5,
+        clickZoomScale: 2,
         isLightbox: false,
         counterDeviderLabel: 'of',
     };
@@ -110,62 +111,149 @@ export default class MediaGallery extends ShopwareComponent {
         }
 
         if (container.classList.contains('is--zoomed')) {
-            container.classList.remove('is--zoomed');
+            this.disableClickZoom(container);
             return;
         }
 
-        container.classList.add('is--zoomed');
+        this.enableClickZoom(container, imageEl, event);
+    }
 
-        // Load original image
+    enableClickZoom(container, imageEl, event) {
+        const scale = this.options.clickZoomScale;
+        const imageRect = imageEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        if (imageRect.width === 0 || imageRect.height === 0) {
+            return;
+        }
+
+        const originX = Math.min(Math.max(event.clientX - imageRect.left, 0), imageRect.width);
+        const originY = Math.min(Math.max(event.clientY - imageRect.top, 0), imageRect.height);
+
+        container._clickZoom = {
+            imageEl,
+            scale,
+            originX,
+            originY,
+            panX: 0,
+            panY: 0,
+            imageWidth: imageRect.width,
+            imageHeight: imageRect.height,
+            imageOffsetX: imageRect.left - containerRect.left,
+            imageOffsetY: imageRect.top - containerRect.top,
+        };
+
+        this.applyClickZoomTransform(container._clickZoom);
+        container.classList.add('is--zoomed');
         imageEl.removeAttribute('srcset');
 
-        // Only attach drag listeners once per container
+        this.initZoomDrag(container);
+    }
+
+    disableClickZoom(container) {
+        const zoom = container._clickZoom;
+        container.classList.remove('is--zoomed', 'is--panning');
+
+        if (zoom?.imageEl) {
+            zoom.imageEl.style.transform = 'scale(1)';
+            zoom.imageEl.style.removeProperty('transform-origin');
+        }
+
+        container._clickZoom = null;
+    }
+
+    applyClickZoomTransform(zoom) {
+        zoom.imageEl.style.transformOrigin = `${zoom.originX}px ${zoom.originY}px`;
+        zoom.imageEl.style.transform = `translate(${zoom.panX}px, ${zoom.panY}px) scale(${zoom.scale})`;
+    }
+
+    /**
+     * Keep the scaled image covering the preview when it is larger than the viewport,
+     * and fully inside it when it is smaller — never pan so far that the image leaves the canvas.
+     */
+    clampClickZoomPan(container, zoom) {
+        const viewport = container.getBoundingClientRect();
+        const originShiftX = zoom.originX * (1 - zoom.scale);
+        const originShiftY = zoom.originY * (1 - zoom.scale);
+        const scaledWidth = zoom.imageWidth * zoom.scale;
+        const scaledHeight = zoom.imageHeight * zoom.scale;
+
+        const visLeft = this.clampClickZoomAxis(
+            zoom.imageOffsetX + originShiftX + zoom.panX,
+            scaledWidth,
+            viewport.width,
+        );
+        const visTop = this.clampClickZoomAxis(
+            zoom.imageOffsetY + originShiftY + zoom.panY,
+            scaledHeight,
+            viewport.height,
+        );
+
+        zoom.panX = visLeft - zoom.imageOffsetX - originShiftX;
+        zoom.panY = visTop - zoom.imageOffsetY - originShiftY;
+    }
+
+    clampClickZoomAxis(position, scaledSize, viewportSize) {
+        if (scaledSize >= viewportSize) {
+            return Math.min(0, Math.max(viewportSize - scaledSize, position));
+        }
+
+        return Math.min(viewportSize - scaledSize, Math.max(0, position));
+    }
+
+    initZoomDrag(container) {
         if (container._dragListenersAdded) {
             return;
         }
 
         container._dragListenersAdded = true;
 
-        // When lightbox preview item is zoomed, it becomes a scrollable container.
-        // Native mousewheel scrolls or touch swipes can scroll the container normally.
-        // Since there is no native mouse "drag-to-scroll" functionality, we change the scroll position when dragging the mouse.
         let isDown = false;
-        let startX; let startY; let scrollLeft; let scrollTop;
+        let startX = 0;
+        let startY = 0;
+        let startPanX = 0;
+        let startPanY = 0;
 
         container.addEventListener('mousedown', (e) => {
+            const zoom = container._clickZoom;
+            if (!zoom) {
+                return;
+            }
             isDown = true;
             container._dragOccurred = false;
+            container.classList.add('is--panning');
             container.style.cursor = 'grabbing';
-            startX = e.pageX - container.offsetLeft;
-            startY = e.pageY - container.offsetTop;
-            scrollLeft = container.scrollLeft;
-            scrollTop = container.scrollTop;
+            startX = e.clientX;
+            startY = e.clientY;
+            startPanX = zoom.panX;
+            startPanY = zoom.panY;
         });
 
-        container.addEventListener('mouseleave', () => { 
-            isDown = false; 
-            container.style.cursor = 'zoom-out'; 
-        });
+        const endPan = () => {
+            isDown = false;
+            container.classList.remove('is--panning');
+            container.style.cursor = 'zoom-out';
+        };
 
-        container.addEventListener('mouseup', () => { 
-            isDown = false; 
-            container.style.cursor = 'zoom-out'; 
-        });
+        container.addEventListener('mouseleave', endPan);
+        container.addEventListener('mouseup', endPan);
 
         container.addEventListener('mousemove', (e) => {
-            if (!isDown) {
+            const zoom = container._clickZoom;
+            if (!isDown || !zoom) {
                 return;
             }
             e.preventDefault();
-            const x = e.pageX - container.offsetLeft;
-            const y = e.pageY - container.offsetTop;
-            const deltaX = x - startX;
-            const deltaY = y - startY;
+            e.stopPropagation();
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
             if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                 container._dragOccurred = true;
             }
-            container.scrollLeft = scrollLeft - deltaX;
-            container.scrollTop = scrollTop - deltaY;
+            zoom.panX = startPanX + deltaX;
+            zoom.panY = startPanY + deltaY;
+            this.clampClickZoomPan(container, zoom);
+            this.applyClickZoomTransform(zoom);
         });
     }
 

@@ -166,7 +166,7 @@ class CustomerContactPersonSubscriberTest extends TestCase
 
     private function event(WriteCommand ...$commands): PreWriteValidationEvent
     {
-        return new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), $commands);
+        return new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), array_values($commands));
     }
 
     /**

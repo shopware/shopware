@@ -188,13 +188,17 @@ class CompanyAccountNameTest extends TestCase
 
         $customerId = $this->loadCustomer('company-no-contact@example.com')->getId();
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(CustomerContactPersonSubscriber::MESSAGE);
+        try {
+            $this->customerRepository->update(
+                [['id' => $customerId, 'firstName' => '', 'lastName' => '', 'company' => 'Acme GmbH']],
+                Context::createDefaultContext()
+            );
+            static::fail('a private account needs a contact person on every write path');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString(CustomerContactPersonSubscriber::MESSAGE, $exception->getMessage());
+        }
 
-        $this->customerRepository->update(
-            [['id' => $customerId, 'firstName' => '', 'lastName' => '', 'company' => 'Acme GmbH']],
-            Context::createDefaultContext()
-        );
+        static::assertSame('Ada', $this->loadCustomer('company-no-contact@example.com')->getFirstName());
     }
 
     public function testSwitchingToACompanyAccountStillNeedsACompanyName(): void

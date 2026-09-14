@@ -38,6 +38,19 @@ async function createWrapper(systemConfig = {}) {
 }
 
 describe('module/sw-customer/page/sw-customer-base-form', () => {
+    it('is strict again while the settings of the next sales channel are read', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.companyNamesRequired = false;
+
+        const pending = wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.companyNamesRequired).toBe(true);
+
+        await pending;
+    });
+
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;

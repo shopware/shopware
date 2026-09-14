@@ -235,6 +235,11 @@ export default {
     methods: {
         async createdComponent() {
             const salesChannelId = this.customer?.salesChannelId;
+
+            // Strict again while the next sales channel is being read, so the form cannot keep calling
+            // a field optional that the channel the user just picked requires.
+            this.companyNamesRequired = true;
+
             const required = await companyNamesRequired(this.systemConfigApiService, salesChannelId);
 
             // A slower request for the channel the user has already left must not decide the rule

@@ -89,6 +89,19 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
 }
 
 describe('module/sw-customer/page/sw-customer-create', () => {
+    it('is strict again while the settings of the next sales channel are read', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.companyNamesRequired = false;
+
+        const pending = wrapper.vm.loadCompanyNamesRequired();
+
+        expect(wrapper.vm.companyNamesRequired).toBe(true);
+
+        await pending;
+    });
+
     it('should have valid email validation response when no email is given', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

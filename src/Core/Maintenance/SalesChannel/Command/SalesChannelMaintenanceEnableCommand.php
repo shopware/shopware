@@ -66,22 +66,21 @@ class SalesChannelMaintenanceEnableCommand extends Command
             $criteria->setIds($ids);
         }
 
-        $salesChannelIds = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
-
-        if ($salesChannelIds === []) {
+        $salesChannels = $this->salesChannelRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($salesChannels === []) {
             $output->write('No sales channels were updated');
 
             return self::SUCCESS;
         }
 
-        $update = array_map(fn (string $id) => [
-            'id' => $id,
-            'maintenance' => $this->setMaintenanceMode,
-        ], $salesChannelIds);
+        foreach ($salesChannels as &$salesChannel) {
+            $salesChannel['maintenance'] = $this->setMaintenanceMode;
+        }
+        unset($salesChannel);
 
-        $this->salesChannelRepository->update($update, $context);
+        $this->salesChannelRepository->update($salesChannels, $context);
 
-        $output->write(\sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannelIds)));
+        $output->write(\sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannels)));
 
         return self::SUCCESS;
     }

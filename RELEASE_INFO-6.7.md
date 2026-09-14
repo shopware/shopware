@@ -101,11 +101,26 @@ Decorators of `ClientRepository` or `ScopeRepository` should handle the new `aut
 
 `Shopware\Core\Framework\Api\OAuth\Client\ApiClient` accepts optional `$redirectUris` and `$grantTypes` constructor arguments and exposes `supportsGrantType()`. Existing constructor calls remain compatible; `getRedirectUri()` returns an empty array when no redirect URIs are configured.
 
+### New method `IdSearchResult::getPrimaryKeyData`
+
+The new `Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult::getPrimaryKeyData()` method returns IDs in repository write format.
+Single ID lists are formatted like this: `list<['id' => $id]>`.
+Composite primary keys remain unchanged.
+E.g: The returned array can then be passed directly to `EntityRepository::delete()`:
+
+```php
+$result = $repository->searchIds($criteria, $context);
+$repository->delete($result->getPrimaryKeyData(), $context);
+```
+
 ### GARAN guarantee duration is capped at 600 months
 
-`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.
+`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee.
+Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation.
+The Administration's product detail page enforces the same range.
 
-Values already stored above 600 months are untouched and keep rendering their label; they only have to be corrected the next time that product is written.
+Values already stored above 600 months are untouched and keep rendering their label;
+they only have to be corrected the next time that product is written.
 
 ### GARAN label in the order confirmation mail is sized and sits next to the line item
 

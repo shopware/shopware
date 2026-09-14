@@ -42,18 +42,15 @@ class MediaFolderService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mediaFolderId', $folder->getId()));
-        $mediaIds = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
-        $payload = [];
-        foreach ($mediaIds as $mediaId) {
-            $payload[] = [
-                'id' => $mediaId,
-                'mediaFolderId' => $folder->getParentId(),
-            ];
+        $medias = $this->mediaRepo->searchIds($criteria, $context)->getPrimaryKeyData();
+        foreach ($medias as &$media) {
+            $media['mediaFolderId'] = $folder->getParentId();
         }
+        unset($media);
 
-        if ($payload !== []) {
-            $this->mediaRepo->update($payload, $context);
+        if ($medias !== []) {
+            $this->mediaRepo->update($medias, $context);
         }
     }
 

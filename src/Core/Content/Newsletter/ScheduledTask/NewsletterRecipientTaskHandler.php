@@ -50,9 +50,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(static fn ($id) => ['id' => $id], $emailRecipient->getIds());
-
-        $this->newsletterRecipientRepository->delete($emailRecipientIds, $context);
+        $this->newsletterRecipientRepository->delete($emailRecipient->getPrimaryKeyData(), $context);
     }
 
     private function getExpiredNewsletterRecipientCriteria(): Criteria

@@ -150,15 +150,12 @@ class ConvertGuestControllerTest extends TestCase
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
 
-        $ids = $repository->searchIds($criteria, $context)->getIds();
+        $ids = $repository->searchIds($criteria, $context)->getPrimaryKeyData();
 
         if (!$ids) {
             return;
         }
 
-        $repository->delete(
-            array_map(fn (string $id) => ['id' => $id], $ids),
-            $context
-        );
+        $repository->delete($ids, $context);
     }
 }

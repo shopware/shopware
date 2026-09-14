@@ -162,10 +162,9 @@ class DeleteExpiredFilesServiceTest extends TestCase
     public function testDeleteFilesWithEmptyDatabase(): void
     {
         // Ensure no files exist
-        $allFiles = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
+        $allFiles = $this->fileRepository->searchIds(new Criteria(), $this->context)->getPrimaryKeyData();
         if ($allFiles !== []) {
-            $deleteData = array_map(static fn ($id) => ['id' => $id], $allFiles);
-            $this->fileRepository->delete($deleteData, $this->context);
+            $this->fileRepository->delete($allFiles, $this->context);
         }
 
         $count = $this->deleteExpiredFilesService->countFiles($this->context);

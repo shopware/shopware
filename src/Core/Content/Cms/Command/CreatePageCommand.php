@@ -121,9 +121,7 @@ class CreatePageCommand extends Command
             return;
         }
 
-        $keys = array_map(static fn ($id) => ['id' => $id], $pages->getIds());
-
-        $this->cmsPageRepository->delete($keys, $context);
+        $this->cmsPageRepository->delete($pages->getPrimaryKeyData(), $context);
     }
 
     private function getRandomImageUrl(): string

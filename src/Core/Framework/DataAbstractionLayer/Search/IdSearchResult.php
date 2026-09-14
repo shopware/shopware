@@ -91,6 +91,17 @@ class IdSearchResult extends Struct
         return $this->ids;
     }
 
+    /**
+     * @return list<(IDStructure is string ? array{id: string} : IDStructure)>
+     */
+    public function getPrimaryKeyData(): array
+    {
+        return array_map(
+            static fn (string|array $id): array => \is_array($id) ? $id : ['id' => $id],
+            $this->ids
+        );
+    }
+
     public function getTotal(): int
     {
         return $this->total;

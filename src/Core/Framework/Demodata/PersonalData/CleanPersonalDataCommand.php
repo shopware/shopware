@@ -89,13 +89,10 @@ class CleanPersonalDataCommand extends Command
                 ]));
 
             $context = Context::createCLIContext();
-            $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
+            $ids = $this->customerRepository->searchIds($criteria, $context)->getPrimaryKeyData();
 
             if ($ids !== []) {
-                $this->customerRepository->delete(
-                    array_map(static fn ($id) => ['id' => $id], $ids),
-                    $context
-                );
+                $this->customerRepository->delete($ids, $context);
             }
 
             $output->writeln('Personal data for guests successfully cleaned!');

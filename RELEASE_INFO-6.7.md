@@ -171,6 +171,8 @@ The getter resolves the name from the live `firstName`, `lastName`, `company` an
 
 `GET /store-api/shop-settings` returns the two new settings under `loginRegistration`, with the gate above already applied, so a headless client can build the same form as the Storefront.
 
+The four cart errors that name an address, the missing salutation and the missing country region of the billing and the shipping address, now name a company address by its company instead of starting the message with a blank. They read the name through the new `CustomerAddressNameFormatter`.
+
 A registration that sends only a shipping address gets it as the default billing address, so that address is judged by the account type of the registration and has to carry the company.
 
 On the registration and profile forms the first and last name fields follow the account type selection through the new `CompanyNameFields` storefront plugin, so the client validation matches what the backend accepts. Address blocks keep the names required, because the backend judges those by the customer or by the top level account type rather than by the account type of the address.

@@ -1,4 +1,4 @@
-import customerDisplayName from 'src/core/helper/customer-display-name.helper';
+import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 
 const { Application, Service, Store } = Shopware;
 const { Criteria } = Shopware.Data;

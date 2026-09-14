@@ -24,7 +24,7 @@ function recordingService(values: Record<string, unknown>) {
     };
 }
 
-describe('core/helper/company-name-fields.helper', () => {
+describe('module/sw-customer/helper/company-name-fields.helper', () => {
     it('follows both settings while the account type selection is on', async () => {
         await expect(
             companyNamesRequired(

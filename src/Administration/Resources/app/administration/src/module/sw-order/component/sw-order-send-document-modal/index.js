@@ -1,7 +1,7 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
-import { orderCustomerDisplayName } from 'src/core/helper/order-customer-name.helper';
+import { orderCustomerDisplayName } from 'src/module/sw-order/helper/order-customer-name.helper';
 
 const { Filter } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;

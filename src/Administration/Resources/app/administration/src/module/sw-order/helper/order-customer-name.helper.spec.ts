@@ -4,7 +4,7 @@
 
 import { orderCustomerBuyerName, orderCustomerDisplayName } from './order-customer-name.helper';
 
-describe('core/helper/order-customer-name.helper', () => {
+describe('module/sw-order/helper/order-customer-name.helper', () => {
     describe('orderCustomerDisplayName', () => {
         it.each([
             [

@@ -2,7 +2,7 @@
  * @sw-package checkout
  */
 
-import CUSTOMER from '../constant/customer.constant';
+import CUSTOMER from '../constant/sw-customer.constant';
 
 type NameableCustomer = {
     accountType?: string;

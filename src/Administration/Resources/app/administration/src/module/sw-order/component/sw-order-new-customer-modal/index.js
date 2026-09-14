@@ -1,5 +1,5 @@
 import EntityValidationService from 'src/app/service/entity-validation.service';
-import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
+import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 

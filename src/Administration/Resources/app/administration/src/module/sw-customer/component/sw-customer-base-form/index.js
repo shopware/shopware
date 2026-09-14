@@ -1,6 +1,6 @@
 import template from './sw-customer-base-form.html.twig';
 import errorConfig from '../../error-config.json';
-import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
+import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
 
 /**
  * @sw-package checkout

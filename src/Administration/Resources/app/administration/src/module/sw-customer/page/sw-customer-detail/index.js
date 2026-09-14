@@ -1,8 +1,8 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
-import companyNamesRequired from 'src/core/helper/company-name-fields.helper';
-import customerDisplayName from 'src/core/helper/customer-display-name.helper';
+import companyNamesRequired from 'src/module/sw-customer/helper/company-name-fields.helper';
+import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout

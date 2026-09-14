@@ -1,7 +1,7 @@
 import './sw-order-create-general-info.scss';
 import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
-import customerDisplayName from 'src/core/helper/customer-display-name.helper';
+import customerDisplayName from 'src/module/sw-customer/helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout

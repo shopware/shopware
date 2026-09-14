@@ -1,4 +1,4 @@
-import { orderCustomerDisplayName } from 'src/core/helper/order-customer-name.helper';
+import { orderCustomerDisplayName } from 'src/module/sw-order/helper/order-customer-name.helper';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 

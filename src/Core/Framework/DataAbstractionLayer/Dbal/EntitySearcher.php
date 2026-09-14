@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -80,7 +81,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
-            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, array_keys($fields));
+            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, $fields);
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
         }
@@ -161,13 +162,21 @@ class EntitySearcher implements EntitySearcherInterface
      * a group would score higher the more entities it contains - product variants grouped by `displayGroup` for
      * example, where a product with three variants scored three times as high as a comparable single product.
      *
-     * @param list<string> $columns the columns of the inner query which make up the result
+     * @param array<string, Field> $fields keyed by storage name
      */
-    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table, array $columns): QueryBuilder
+    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table, array $fields): QueryBuilder
     {
-        $query->addGroupBy(
-            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
-        );
+        $rankingOrder = [];
+        foreach ($fields as $storageName => $field) {
+            if (!$field->is(PrimaryKey::class)) {
+                continue;
+            }
+
+            $rankingOrder[] = 'inner_q.' . EntityDefinitionQueryHelper::escape($storageName) . ' ASC';
+            $query->addGroupBy(
+                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($storageName)
+            );
+        }
 
         $partitionColumns = [];
         foreach (array_values($criteria->getGroupFields()) as $i => $grouping) {
@@ -194,13 +203,14 @@ class EntitySearcher implements EntitySearcherInterface
 
         $innerSql = $query->getSQL();
 
-        foreach ([...$columns, Criteria::SCORE_FIELD] as $column) {
+        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
             $outer->addSelect('ranked.' . EntityDefinitionQueryHelper::escape($column));
         }
 
         $outer->from(\sprintf(
-            '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, inner_q.id ASC) as _rn FROM (%s) inner_q)',
+            '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, %s) as _rn FROM (%s) inner_q)',
             implode(', ', $partitionColumns),
+            implode(', ', $rankingOrder),
             $innerSql
         ), 'ranked')->andWhere('ranked._rn = 1');
 

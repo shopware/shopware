@@ -182,9 +182,14 @@
         {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == businessType %}
         {% set customerIsCompany = accountType|default('') == businessType or loggedInCustomerIsCompany %}
 
-        {% set companyOnlyForm = onlyCompanyRegistration|default(false)
-            or hasSelectedBusiness|default(false)
-            or (not accountTypeSelectable and customerIsCompany) %}
+        {# A separate shipping address names whoever receives the parcel, and the register route keeps its
+           names required, so none of the company shortcuts may reach it. #}
+        {% set isSeparateShippingAddress = prefix|default('') == 'shippingAddress' %}
+
+        {% set companyOnlyForm = not isSeparateShippingAddress
+            and (onlyCompanyRegistration|default(false)
+                or hasSelectedBusiness|default(false)
+                or (not accountTypeSelectable and customerIsCompany)) %}
 
         {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
         {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}

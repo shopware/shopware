@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -72,6 +73,7 @@ class OrderCustomerDefinition extends EntityDefinition
             (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new AllowEmptyString(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING))->setDescription('First name of the customer.'),
             (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new AllowEmptyString(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Last name of the customer.'),
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Name of the company.'),
+            (new StringField('display_name', 'displayName'))->addFlags(new ApiAware(), new Runtime(['firstName', 'lastName', 'company']))->setDescription('The name to render for this order customer: the contact person, or the company when there is none.'),
             (new StringField('title', 'title'))->addFlags(new ApiAware())->setDescription('Title name given to the customer like Dr, prof. etc.'),
             (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware())->setDescription('Unique identity of VAT.'),
             (new StringField('customer_number', 'customerNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Unique number assigned to the customer.'),

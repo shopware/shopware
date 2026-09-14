@@ -10,9 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class OrderCustomerEntity extends Entity
 {
@@ -51,6 +48,8 @@ class OrderCustomerEntity extends Entity
     protected ?string $remoteAddress = null;
 
     protected string $orderVersionId;
+
+    protected ?string $displayName = null;
 
     public function getEmail(): string
     {
@@ -186,6 +185,42 @@ class OrderCustomerEntity extends Entity
     public function setCompany(?string $company): void
     {
         $this->company = $company;
+    }
+
+    public function getDisplayName(): string
+    {
+        return self::resolveDisplayName($this->firstName ?? '', $this->lastName ?? '', $this->company);
+    }
+
+    public function setDisplayName(?string $displayName): void
+    {
+        $this->displayName = $displayName;
+    }
+
+    /**
+     * The name for a greeting or a recipient header. The company stands in only when there is no
+     * contact person, so the two are never joined here.
+     */
+    public static function resolveDisplayName(string $firstName, string $lastName, ?string $company): string
+    {
+        $personName = trim($firstName . ' ' . $lastName);
+
+        return $personName !== '' ? $personName : trim($company ?? '');
+    }
+
+    /**
+     * The buyer block of a document, where the company belongs next to the contact person.
+     */
+    public function getBuyerName(): string
+    {
+        $personName = trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
+        $company = trim($this->company ?? '');
+
+        return match (true) {
+            $company === '' => $personName,
+            $personName === '' || $personName === $company => $company,
+            default => $personName . ' - ' . $company,
+        };
     }
 
     public function getRemoteAddress(): ?string

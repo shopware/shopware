@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -39,59 +38,18 @@ class CustomerTransformerTest extends TestCase
         ], $customerData);
     }
 
-    #[DataProvider('buyerNameProvider')]
-    public function testTransformResolvesTheBuyerName(
-        string $accountType,
-        string $firstName,
-        string $lastName,
-        ?string $company,
-        string $expectedFirstName,
-        string $expectedLastName
-    ): void {
+    public function testTransformKeepsAnEmptyContactPersonEmpty(): void
+    {
         $customer = $this->buildCustomerEntity(Uuid::randomHex());
-        $customer->setAccountType($accountType);
-        $customer->setFirstName($firstName);
-        $customer->setLastName($lastName);
-        $customer->setCompany($company ?? '');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setFirstName('');
+        $customer->setLastName('');
 
         $transformed = CustomerTransformer::transform($customer);
 
-        static::assertSame($expectedFirstName, $transformed['firstName']);
-        static::assertSame($expectedLastName, $transformed['lastName']);
-    }
-
-    public function testTransformDoesNotRequireAnAccountType(): void
-    {
-        $transformed = CustomerTransformer::transform($this->buildCustomerEntity(Uuid::randomHex()));
-
-        static::assertSame('Max', $transformed['firstName']);
-        static::assertSame('Smith', $transformed['lastName']);
-    }
-
-    /**
-     * @return iterable<string, array{string, string, string, string|null, string, string}>
-     */
-    public static function buyerNameProvider(): iterable
-    {
-        yield 'company account without a contact person takes the company' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Acme GmbH', '', 'Acme GmbH',
-        ];
-
-        yield 'company account with a contact person keeps it' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', 'Acme GmbH', 'Ada', 'Lovelace',
-        ];
-
-        yield 'company account without a company keeps the empty name' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', null, '', '',
-        ];
-
-        yield 'company account with a blank company keeps the empty name' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', '   ', '', '',
-        ];
-
-        yield 'private account never takes the company' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, '', '', 'Acme GmbH', '', '',
-        ];
+        static::assertSame('', $transformed['firstName']);
+        static::assertSame('', $transformed['lastName']);
+        static::assertSame('Acme Inc.', $transformed['company']);
     }
 
     private function buildCustomerEntity(string $id): CustomerEntity

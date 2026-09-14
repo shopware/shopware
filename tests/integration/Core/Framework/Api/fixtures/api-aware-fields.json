@@ -1368,6 +1368,7 @@
     "order_customer.firstName",
     "order_customer.lastName",
     "order_customer.company",
+    "order_customer.displayName",
     "order_customer.title",
     "order_customer.vatIds",
     "order_customer.customerNumber",

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -59,7 +58,7 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
             }
 
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $orderCustomer->getEmail() => OrderCustomerNameFormatter::displayName($orderCustomer),
+                $orderCustomer->getEmail() => $orderCustomer->getDisplayName(),
             ]);
         }
 

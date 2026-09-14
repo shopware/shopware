@@ -36,6 +36,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
+use Shopware\Core\Checkout\Order\Subscriber\OrderCustomerDisplayNameSubscriber;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
@@ -222,6 +223,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
         ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderCustomerDisplayNameSubscriber::class)
         ->tag('kernel.event_subscriber');
 
     // Telemetry: order placed metrics

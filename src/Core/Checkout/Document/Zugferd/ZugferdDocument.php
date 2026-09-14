@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -131,7 +130,7 @@ class ZugferdDocument
 
     public function withBuyerInformation(OrderCustomerEntity $customer, OrderAddressEntity $billingAddress): self
     {
-        $customerName = OrderCustomerNameFormatter::buyerName($customer);
+        $customerName = $customer->getBuyerName();
 
         $replace = $billingAddress->getCountry()?->getIso() . '-';
         $countryStateCode = $billingAddress->getCountryState()?->getShortCode() ?? '';

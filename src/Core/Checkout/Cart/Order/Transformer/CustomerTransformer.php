@@ -46,19 +46,11 @@ class CustomerTransformer
      */
     public static function transform(CustomerEntity $customer): array
     {
-        $lastName = $customer->getLastName();
-
-        if (trim($customer->getFirstName() . $lastName) === ''
-            && ($company = trim($customer->getCompany() ?? '')) !== ''
-            && $customer->isBusinessAccount()) {
-            $lastName = $company;
-        }
-
         return [
             'customerId' => $customer->getId(),
             'email' => $customer->getEmail(),
             'firstName' => $customer->getFirstName(),
-            'lastName' => $lastName,
+            'lastName' => $customer->getLastName(),
             'salutationId' => $customer->getSalutationId(),
             'title' => $customer->getTitle(),
             'vatIds' => $customer->getVatIds(),

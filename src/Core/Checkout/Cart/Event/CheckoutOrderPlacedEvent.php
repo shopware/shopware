@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
@@ -76,7 +75,7 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
     {
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
             $this->mailRecipientStruct = new MailRecipientStruct([
-                $this->order->getOrderCustomer()?->getEmail() ?? '' => OrderCustomerNameFormatter::displayName($this->order->getOrderCustomer()),
+                $this->order->getOrderCustomer()?->getEmail() ?? '' => $this->order->getOrderCustomer()?->getDisplayName() ?? '',
             ]);
         }
 

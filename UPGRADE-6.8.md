@@ -238,13 +238,7 @@ Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to pre
 
 The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag. The columns stayed `NOT NULL` and the getters kept returning `string`, but the data abstraction layer stopped rejecting an empty string. This applies to every write path, the Admin API, the Sync API and direct repository writes included, and to private accounts as well as commercial ones.
 
-Only the store API routes judge whether a name is required, from the two settings a shop configures. Code that relied on the layer to reject an empty name has to validate it itself, at every write entry point it cares about. Adding the constraint to a `DataValidationDefinition` only guards the route that reads that definition:
-
-```php
-$definition->add('firstName', new NotBlank());
-```
-
-The Admin API, the Sync API and direct repository writes go past it. To cover them all in one place, subscribe to `PreWriteValidationEvent` and add a violation to `$event->getExceptions()` for the write commands you reject.
+One rule still holds on every write path, through a `PreWriteValidationEvent` subscriber: a customer or an address may not end up naming nobody. Both names may be empty only when the customer is a commercial account with a company, or when the address carries a company. A private account keeps needing a contact person on the Admin API, the Sync API and direct repository writes as well. The store API routes add the finer rule on top, from the two settings a shop configures. Code that needs a stricter rule than that can still add a `NotBlank` to its own `DataValidationDefinition` or subscribe to `PreWriteValidationEvent` itself.
 
 Read a customer name through `CustomerEntity::getDisplayName()` and an order customer name through `OrderCustomerEntity::getDisplayName()` rather than joining `firstName` and `lastName`. Both fall back to the company when there is no contact person, the customer one for a commercial account only and the order one always, because the snapshot has no account type. Both getters return a value assigned to the runtime field first and resolve from the live fields otherwise, so they are right on an entity you build in code and honour a name an extension assigns on load. A subscriber per entity fills the runtime `displayName` field on `loaded` and `partial_loaded`, which carries the value into the API responses; a partial read has to ask for `displayName` or for all of its source fields to get it. `CustomerEntity::__toString()` returns the display name as well, so casting a customer to a string no longer yields the raw `firstName lastName` concatenation. Being a runtime field it cannot be sorted or filtered in a `Criteria`.
 

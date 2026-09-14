@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -161,23 +163,37 @@ class CompanyAccountNameTest extends TestCase
         );
     }
 
-    public function testProfileStillNeedsACompanyWhenTheFormDoesNotPostOne(): void
+    public function testTheDataLayerRefusesToLeaveACompanyAccountWithoutAName(): void
     {
         $this->setNameFields(show: true, required: false);
         $this->register($this->companyRegistrationData());
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
 
+        $customerId = $this->loadCustomer('company-no-contact@example.com')->getId();
+
+        try {
+            $this->customerRepository->update([['id' => $customerId, 'company' => '']], Context::createDefaultContext());
+            static::fail('an account with neither a contact person nor a company has no name left');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString(CustomerContactPersonSubscriber::MESSAGE, $exception->getMessage());
+        }
+
+        static::assertSame('Acme GmbH', $this->loadCustomer('company-no-contact@example.com')->getCompany());
+    }
+
+    public function testTheDataLayerRefusesToClearTheNamesOfAPrivateAccount(): void
+    {
+        $this->register($this->privateRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $customerId = $this->loadCustomer('company-no-contact@example.com')->getId();
+
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage(CustomerContactPersonSubscriber::MESSAGE);
+
         $this->customerRepository->update(
-            [['id' => $this->loadCustomer('company-no-contact@example.com')->getId(), 'company' => '']],
+            [['id' => $customerId, 'firstName' => '', 'lastName' => '', 'company' => 'Acme GmbH']],
             Context::createDefaultContext()
-        );
-
-        $this->changeProfile();
-
-        static::assertSame(
-            Response::HTTP_BAD_REQUEST,
-            $this->browser->getResponse()->getStatusCode(),
-            'an account with neither a contact person nor a company has no name left'
         );
     }
 

@@ -101,11 +101,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "birthdayDay": {
@@ -123,6 +123,10 @@
                                 },
                                 "oneOf": [
                                     {
+                                        "required": [
+                                            "firstName",
+                                            "lastName"
+                                        ],
                                         "properties": {
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",
@@ -1132,11 +1136,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
@@ -1196,6 +1200,10 @@
                                 ],
                                 "oneOf": [
                                     {
+                                        "required": [
+                                            "firstName",
+                                            "lastName"
+                                        ],
                                         "properties": {
                                             "accountType": {
                                                 "description": "Type of the customer account. Default value is 'private'.",

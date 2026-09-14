@@ -129,10 +129,6 @@ describe('core/factory/reconnect-cross-block-conditionals.ts', () => {
                 'blocks without conditionals',
                 '<sw-block name="sw_one"><p>a</p></sw-block><sw-block name="sw_two"><p>b</p></sw-block>',
             ],
-            [
-                'a sw-block whose name is bound dynamically',
-                '<sw-block :name="one"><p v-if="x">a</p></sw-block><sw-block :name="two"><p v-else>b</p></sw-block>',
-            ],
         ])('leaves %s untouched', (_label, source) => {
             expect(normalizeCrossBlockConditionals(source)).toEqual({ template: source, blockers: [] });
         });

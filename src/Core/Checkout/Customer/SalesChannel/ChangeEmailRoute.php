@@ -122,11 +122,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validations = $validation->getProperties();
 
-        if (!\array_key_exists($field, $validations)) {
-            return;
-        }
-
-        $fieldValidations = $validations[$field];
+        $fieldValidations = $validations[$field] ?? [];
 
         $equalityValidation = null;
 

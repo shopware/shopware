@@ -79,6 +79,20 @@ class CustomerMailGreetingTest extends TestCase
     }
 
     /**
+     * A surname of only spaces is truthy in Twig, so without a trim it would render as a greeting
+     * with nothing in it while the company sits right there in the display name.
+     */
+    #[DataProvider('surnameTemplateProvider')]
+    public function testAWhitespaceSurnameFallsBackToTheCompany(string $type, string $file): void
+    {
+        $rendered = $this->render($type, $file, $this->customer('Acme GmbH', '', '   '));
+
+        static::assertStringContainsString('Acme GmbH', $this->greeting($rendered));
+        static::assertStringNotContainsString('  ', $this->greeting($rendered));
+        static::assertStringNotContainsString(' ,', $this->greeting($rendered));
+    }
+
+    /**
      * @return iterable<string, array{string, string}>
      */
     public static function surnameTemplateProvider(): iterable

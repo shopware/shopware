@@ -603,6 +603,8 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "cheapestPriceLabel": "Varianten ab",
+    "regularPriceLabel": "Regulärer Preis:",
+    "listPriceLabel": "Verkaufspreis:",
     "addToWishlist": "Zum Merkzettel hinzufügen",
     "removeFromWishlist": "Vom Merkzettel entfernen"
   },

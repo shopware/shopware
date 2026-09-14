@@ -1,0 +1,44 @@
+name: Schedule release milestone
+
+on:
+  schedule:
+    - cron: "0 6 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  schedule:
+    name: Schedule milestone
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+
+      # Same source as the milestone labeler, so a milestone and the labels
+      # pointing at it can never name different versions.
+      - name: Get versions
+        id: versions
+        uses: shopware/github-actions/versions@main
+        with:
+          github-token: ${{ github.token }}
+
+      # Daily, because the milestone of the next minor is created at branch-off and
+      # should carry its date from that day on. The run only fills in what is
+      # missing, so repeating it costs nothing and never overwrites a correction.
+      - name: Schedule milestone
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          VERSION: ${{ steps.versions.outputs.next-minor }}
+          # Set the repository variable to "false" to let it actually write.
+          DRY_RUN: ${{ vars.SCHEDULE_MILESTONE_DRY_RUN || 'true' }}
+        with:
+          script: |
+            const { scheduleReleaseMilestone } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await scheduleReleaseMilestone({ github, core, context, fetch }, { version: process.env.VERSION })

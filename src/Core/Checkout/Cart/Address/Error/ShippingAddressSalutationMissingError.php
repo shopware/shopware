@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressNameFormatter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,8 +16,9 @@ class ShippingAddressSalutationMissingError extends SalutationMissingError
         private readonly CustomerAddressEntity $address
     ) {
         $this->message = \sprintf(
-            'A salutation needs to be defined for the shipping address "%s, %s %s".',
-            CustomerAddressNameFormatter::displayName($address),
+            'A salutation needs to be defined for the shipping address "%s %s, %s %s".',
+            $address->getFirstName(),
+            $address->getLastName(),
             (string) $address->getZipcode(),
             $address->getCity()
         );

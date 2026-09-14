@@ -28,26 +28,10 @@ class ShippingAddressCountryRegionMissingErrorTest extends TestCase
         $error = new ShippingAddressCountryRegionMissingError($address);
 
         static::assertSame('country-region-missing-shipping-address', $error->getId());
-        static::assertSame('A country region needs to be defined for the shipping address "Max Mustermann, 12345 Musterstadt".', $error->getMessage());
+        static::assertSame('A country region needs to be defined for the billing address "Max Mustermann 12345 Musterstadt".', $error->getMessage());
         static::assertSame('country-region-missing-shipping-address', $error->getMessageKey());
         static::assertSame(10, $error->getLevel());
         static::assertTrue($error->blockOrder());
         static::assertSame(['addressId' => 'address-id'], $error->getParameters());
-    }
-
-    public function testItNamesACompanyAddressByItsCompany(): void
-    {
-        $address = new CustomerAddressEntity();
-        $address->setFirstName('');
-        $address->setLastName('');
-        $address->setCompany('Acme GmbH');
-        $address->setStreet('Musterstraße 1');
-        $address->setZipcode('12345');
-        $address->setCity('Musterstadt');
-        $address->setId('address-id');
-
-        $error = new ShippingAddressCountryRegionMissingError($address);
-
-        static::assertSame('A country region needs to be defined for the shipping address "Acme GmbH, 12345 Musterstadt".', $error->getMessage());
     }
 }

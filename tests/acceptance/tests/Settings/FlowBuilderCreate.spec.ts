@@ -1,4 +1,4 @@
-import { test } from '@fixtures/AcceptanceTest';
+import { test, expect } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 
 test(
@@ -35,9 +35,15 @@ test(
         };
 
         await test.step('Create a flow with a condition and two actions.', async () => {
-            await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
-            await ShopAdmin.expects(AdminFlowBuilderListing.createFlowButton).toBeEnabled();
-            await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
+            // The create-flow button occasionally doesn't navigate on the first click (its own
+            // assertion for the "New flow" header uses a fixed 5s timeout that test.slow() does not
+            // extend). Nothing is persisted until CreateFlow reaches the save step, so retrying the
+            // whole block - re-navigating and re-clicking - is safe and recovers from a missed click.
+            await expect(async () => {
+                await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
+                await ShopAdmin.expects(AdminFlowBuilderListing.createFlowButton).toBeEnabled();
+                await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
+            }).toPass({ timeout: 45_000 });
         });
 
         await test.step('Confirm the flow exists and is structured correctly.', async () => {

@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\HealthChange;
@@ -50,7 +51,12 @@ class WebhookHealthService
             return WebhookDispatchDecision::Skip;
         }
 
-        return WebhookDispatchDecision::Hold;
+        if ($row->state === EndpointState::Degraded && $row->suspendedSince === null) {
+            return WebhookDispatchDecision::Hold;
+        }
+
+        // During a suspension incident only a due trial is delivered; other events are shed.
+        return $this->admitIncidentTrial($webhookId, $row);
     }
 
     public function recordSuccess(string $webhookId): void
@@ -70,8 +76,7 @@ class WebhookHealthService
             return;
         }
 
-        // Any 2xx clears both failure streaks; DEGRADED → HEALTHY also resumes the held backlog.
-        $this->transition($webhookId, static fn (HealthRow $row): HealthRow => $row->toHealthy(keepStreaks: false));
+        $this->transition($webhookId, fn (HealthRow $row): HealthRow => $this->decideSuccess($row));
     }
 
     /**
@@ -84,12 +89,12 @@ class WebhookHealthService
         }
 
         // A payload-specific failure is this message's problem, not the endpoint's.
-        if (!$classification->isTransient()) {
+        if ($classification === ErrorClassification::NonTransientPayload) {
             return $this->fetchRow($webhookId)->state ?? EndpointState::Healthy;
         }
 
         $stale = false;
-        $change = $this->transition($webhookId, function (HealthRow $row) use ($attempt, $entry, &$stale): ?HealthRow {
+        $change = $this->transition($webhookId, function (HealthRow $row) use ($classification, $attempt, $entry, &$stale): ?HealthRow {
             // Must stay first: the ownership lock is only safe to take after the health row's, never before.
             if (!$this->outboxStore->ownsRunningAttempt($entry)) {
                 $stale = true;
@@ -97,7 +102,7 @@ class WebhookHealthService
                 return null;
             }
 
-            return $this->decideTransientFailure($row, $attempt);
+            return $this->decideFailure($row, $classification, $attempt);
         });
 
         if ($stale) {
@@ -110,6 +115,10 @@ class WebhookHealthService
     public function tick(): void
     {
         $this->runDueReleases();
+
+        foreach ($this->outboxStore->findSuspendedWebhookIdsWithClaimableRows() as $webhookId) {
+            $this->outboxStore->cancelSurplusInFlightRows($webhookId);
+        }
 
         foreach ($this->outboxStore->findWebhookIdsWithStrandedHolds() as $webhookId) {
             $this->outboxStore->resumeDeliveriesForWebhook($webhookId);
@@ -149,35 +158,133 @@ class WebhookHealthService
         $this->connection->update('webhook', ['error_count' => 0], ['id' => Uuid::fromHexToBytes($webhookId)]);
     }
 
-    private function decideTransientFailure(HealthRow $row, int $attempt): ?HealthRow
+    /**
+     * A 2xx climbs exactly one state: SUSPENDED → DEGRADED keeps the incident clock and restarts the
+     * ladder at tier 0; DEGRADED → HEALTHY ends the incident and resumes the held backlog.
+     */
+    private function decideSuccess(HealthRow $row): HealthRow
+    {
+        if ($row->state !== EndpointState::Suspended) {
+            return $row->toHealthy(keepStreaks: false);
+        }
+
+        $next = clone $row;
+        $next->state = EndpointState::Degraded;
+        $next->consecutiveTransientFailures = 0;
+        $next->consecutiveNonTransientFailures = 0;
+        $next->degradedCycleCount = 0;
+        $next->cooldownUntil = $this->cooldownAt(0);
+
+        return $next;
+    }
+
+    private function decideFailure(HealthRow $row, ErrorClassification $classification, int $attempt): ?HealthRow
     {
         $next = clone $row;
 
-        if ($row->state === EndpointState::Degraded) {
-            // Only a released trial moves the ladder; a result landing inside the cooldown is a straggler.
-            if (!$row->cooldownElapsed($this->now())) {
-                return null;
+        // The auth streak is independent of the trial ladder and counts on every delivery.
+        if ($classification === ErrorClassification::NonTransientAuth) {
+            ++$next->consecutiveNonTransientFailures;
+        }
+        $trips = $classification === ErrorClassification::NonTransientEndpoint
+            || ($classification === ErrorClassification::NonTransientAuth && $next->consecutiveNonTransientFailures >= $this->config->nonTransientThreshold);
+
+        if ($row->state === EndpointState::Healthy) {
+            if ($trips) {
+                return $this->suspend($next, entryTier: 0);
             }
 
-            $next->degradedCycleCount = min($row->degradedCycleCount + 1, $this->topTier());
-            $next->cooldownUntil = $this->cooldownAt($next->degradedCycleCount);
+            if ($classification->isTransient()) {
+                // Retries of one delivery count as one failure.
+                if ($attempt > 1) {
+                    return null;
+                }
+
+                ++$next->consecutiveTransientFailures;
+                if ($next->consecutiveTransientFailures >= $this->config->degradedThreshold) {
+                    $next->state = EndpointState::Degraded;
+                    $next->degradedCycleCount = 0;
+                    $next->cooldownUntil = $this->cooldownAt(0);
+                }
+            }
 
             return $next;
         }
 
-        // Retries of one delivery count as one failure.
-        if ($attempt > 1) {
-            return null;
+        if ($trips && $row->state === EndpointState::Degraded) {
+            return $this->suspend($next, entryTier: 0);
         }
 
-        ++$next->consecutiveTransientFailures;
-        if ($next->consecutiveTransientFailures >= $this->config->degradedThreshold) {
-            $next->state = EndpointState::Degraded;
-            $next->degradedCycleCount = 0;
-            $next->cooldownUntil = $this->cooldownAt(0);
+        // Only a released trial moves the ladder; a result landing inside the cooldown is a straggler.
+        if (!$row->cooldownElapsed($this->now())) {
+            return $classification === ErrorClassification::NonTransientAuth ? $next : null;
         }
+
+        $nextTier = $row->degradedCycleCount + 1;
+        if ($row->state === EndpointState::Degraded && $nextTier > $this->topTier()) {
+            // The DEGRADED budget is the schedule's length; an exhausted ladder keeps backing off at the top tier.
+            return $this->suspend($next, entryTier: $this->topTier());
+        }
+
+        $next->degradedCycleCount = min($nextTier, $this->topTier());
+        $next->cooldownUntil = $this->cooldownAt($next->degradedCycleCount);
 
         return $next;
+    }
+
+    /**
+     * `suspended_since` is written once per incident and survives a re-suspension.
+     */
+    private function suspend(HealthRow $next, int $entryTier): HealthRow
+    {
+        $next->state = EndpointState::Suspended;
+        $next->suspendedSince ??= $this->now();
+        $next->degradedCycleCount = $entryTier;
+        $next->cooldownUntil = $this->cooldownAt($entryTier);
+
+        return $next;
+    }
+
+    /**
+     * Admits one natural-traffic trial. The re-arm UPDATE succeeds only while the cooldown has elapsed, the
+     * ladder is where the caller saw it, and no row of this webhook is held or in flight — exactly one
+     * caller per burst is admitted, without a row lock.
+     */
+    private function admitIncidentTrial(string $webhookId, HealthRow $row): WebhookDispatchDecision
+    {
+        $now = $this->now();
+        if (!$row->cooldownElapsed($now)) {
+            return WebhookDispatchDecision::Skip;
+        }
+
+        $tier = min($row->degradedCycleCount + 1, $this->topTier());
+
+        $admitted = (int) $this->connection->executeStatement(
+            'UPDATE webhook_health
+             SET degraded_cycle_count = :tier, cooldown_until = :cooldown, updated_at = :now
+             WHERE webhook_id = :id
+               AND endpoint_state = :state
+               AND degraded_cycle_count = :seenTier
+               AND (cooldown_until IS NULL OR cooldown_until <= :now)
+               AND NOT EXISTS (
+                   SELECT 1 FROM webhook_delivery d
+                   WHERE d.webhook_id = :id AND d.delivery_status IN (:paused, :queued, :pendingRetry, :running)
+               )',
+            [
+                'tier' => $tier,
+                'cooldown' => $this->cooldownAt($tier),
+                'now' => $now,
+                'id' => Uuid::fromHexToBytes($webhookId),
+                'state' => $row->state->value,
+                'seenTier' => $row->degradedCycleCount,
+                'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                'queued' => WebhookEventLogDefinition::STATUS_QUEUED,
+                'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                'running' => WebhookEventLogDefinition::STATUS_RUNNING,
+            ]
+        );
+
+        return $admitted > 0 ? WebhookDispatchDecision::Deliver : WebhookDispatchDecision::Skip;
     }
 
     private function runDueReleases(): void
@@ -188,22 +295,28 @@ class WebhookHealthService
         $candidates = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(webhook_id))
              FROM webhook_health
-             WHERE endpoint_state = :degraded
+             WHERE endpoint_state IN (:degraded, :suspended)
                AND (cooldown_until IS NULL OR cooldown_until <= :now)',
             [
                 'now' => $now,
                 'degraded' => EndpointState::Degraded->value,
+                'suspended' => EndpointState::Suspended->value,
             ]
         );
 
         foreach ($candidates as $webhookId) {
             $this->transition($webhookId, function (HealthRow $row) use ($webhookId, $now): ?HealthRow {
-                if ($row->state !== EndpointState::Degraded || !$row->cooldownElapsed($now)) {
+                if ($row->state === EndpointState::Healthy || !$row->cooldownElapsed($now)) {
                     return null;
                 }
 
                 // One release at a time: a trial still in flight, or one released now, ends this tick's duty.
-                if ($this->outboxStore->hasClaimableOrRunningRows($webhookId) || $this->outboxStore->releaseOneTrialLocked($webhookId)) {
+                if ($this->outboxStore->hasClaimableOrRunningRows($webhookId) || $this->outboxStore->releaseOneTrial($webhookId)) {
+                    return null;
+                }
+
+                // SUSPENDED never idle-promotes; the gate admits its next natural event instead.
+                if ($row->state === EndpointState::Suspended) {
                     return null;
                 }
 
@@ -257,11 +370,21 @@ class WebhookHealthService
             return $change;
         }
 
-        if ($change->to->state === EndpointState::Degraded) {
+        if ($this->entersHold($change->from->state, $change->to->state)) {
             $this->outboxStore->pauseDeliveriesForWebhook($webhookId);
         }
 
         return $change;
+    }
+
+    /**
+     * The claimable backlog is held when an incident starts or deepens; SUSPENDED → DEGRADED keeps it held as is.
+     */
+    private function entersHold(EndpointState $from, EndpointState $to): bool
+    {
+        return $from !== $to
+            && $to !== EndpointState::Healthy
+            && $from !== EndpointState::Suspended;
     }
 
     private function fetchRow(string $webhookId, bool $forUpdate = false): ?HealthRow
@@ -318,9 +441,9 @@ class WebhookHealthService
         return \count($this->config->cooldownScheduleSeconds) - 1;
     }
 
-    private function cooldownAt(int $index): string
+    private function cooldownAt(int $tier): string
     {
-        $seconds = $this->config->cooldownScheduleSeconds[min($index, $this->topTier())];
+        $seconds = $this->config->cooldownScheduleSeconds[min($tier, $this->topTier())];
 
         return $this->clock->now()
             ->modify(\sprintf('+%d seconds', $seconds))

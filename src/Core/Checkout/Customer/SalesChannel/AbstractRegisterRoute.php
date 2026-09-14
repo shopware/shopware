@@ -9,7 +9,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route is used for customer registration
- * The required parameters are: "salutationId", "firstName", "lastName", "email", "password", "billingAddress" and "storefrontUrl"
+ * The required parameters are: "salutationId", "firstName", "lastName", "email", "password" and "billingAddress"
+ * "storefrontUrl" is additionally required when double opt-in registration is enabled
  * The "billingAddress" should has required parameters: "salutationId", "firstName", "lastName", "street", "zipcode", "city", "countyId".
  * "firstName" and "lastName" may be omitted, at the top level and on the billing address, for a commercial
  * registration in a shop that turned "core.loginRegistration.nameFieldsRequiredForCompanyAccounts" off. The

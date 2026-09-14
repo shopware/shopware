@@ -11,6 +11,19 @@
                     "city",
                     "street"
                 ],
+                "anyOf": [
+                    {
+                        "required": [
+                            "firstName",
+                            "lastName"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "company"
+                        ]
+                    }
+                ],
                 "properties": {
                     "countryId": {
                         "type": "string",
@@ -24,11 +37,20 @@
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "firstName": { "type": "string" },
-                    "lastName": { "type": "string" },
+                    "firstName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. The company is required instead then.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. The company is required instead then.",
+                        "type": "string"
+                    },
                     "zipcode": { "type": "string" },
                     "city": { "type": "string" },
-                    "company": { "type": "string" },
+                    "company": {
+                        "description": "Required when the contact person is omitted, and when the request selects a commercial account type in a shop that shows the account type selection.",
+                        "type": "string"
+                    },
                     "street": { "type": "string" },
                     "department": { "type": "string" },
                     "title": { "type": "string" },

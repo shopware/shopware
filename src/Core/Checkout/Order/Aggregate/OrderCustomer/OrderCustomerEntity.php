@@ -187,9 +187,12 @@ class OrderCustomerEntity extends Entity
         $this->company = $company;
     }
 
+    /**
+     * A value assigned on load, by the subscriber or by an extension, wins over the resolved one
+     */
     public function getDisplayName(): string
     {
-        return self::resolveDisplayName($this->firstName ?? '', $this->lastName ?? '', $this->company);
+        return $this->displayName ?? self::resolveDisplayName($this->firstName ?? '', $this->lastName ?? '', $this->company);
     }
 
     public function setDisplayName(?string $displayName): void

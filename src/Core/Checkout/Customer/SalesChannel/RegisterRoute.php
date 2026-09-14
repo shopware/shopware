@@ -465,7 +465,7 @@ class RegisterRoute extends AbstractRegisterRoute
         // Only the address that becomes the default billing one follows the optional contact person,
         // a separate shipping address names whoever receives the parcel and keeps its own rules
         if ($isBillingAddress && $this->namesAreOptional($data, $context)) {
-            $this->companyAccountNameFields->relax($validation);
+            $this->companyAccountNameFields->relax($validation, requireCompany: true);
         } elseif ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
             $validation->add('company', CompanyAccountNameFields::companyNotBlank());

@@ -96,7 +96,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             }
 
             if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
-                $this->companyAccountNameFields->relax($validation);
+                $this->companyAccountNameFields->relax($validation, requireCompany: true);
                 $this->companyAccountNameFields->normalize($data, submittedOnly: true);
 
                 // The company carries the identity now, so the stored one is checked when the form does not post it

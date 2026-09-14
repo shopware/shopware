@@ -198,23 +198,15 @@ class CustomerEntityTest extends TestCase
         static::assertTrue($customer->hasLegacyPassword());
     }
 
-    public function testTheDisplayNameFollowsALaterChange(): void
+    public function testAnAssignedDisplayNameWinsOverTheLiveFields(): void
     {
         $customer = new CustomerEntity();
-        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-        $customer->setFirstName('');
-        $customer->setLastName('');
-        $customer->setCompany('Acme GmbH');
-        $customer->setDisplayName('Acme GmbH');
-
-        static::assertSame('Acme GmbH', $customer->getDisplayName());
-
-        // What the subscriber stored must not outlive the fields it was built from.
         $customer->setFirstName('Ada');
         $customer->setLastName('Lovelace');
+        $customer->setDisplayName('Analytical Engines');
 
-        static::assertSame('Ada Lovelace', $customer->getDisplayName());
-        static::assertSame('Ada Lovelace', (string) $customer);
+        static::assertSame('Analytical Engines', $customer->getDisplayName());
+        static::assertSame('Analytical Engines', (string) $customer);
     }
 
     public function testTheStringRepresentationFollowsTheDisplayName(): void
@@ -233,7 +225,7 @@ class CustomerEntityTest extends TestCase
         static::assertSame('Analytical Engines', (string) $customer);
     }
 
-    public function testDisplayNameResolvesFromTheLiveFields(): void
+    public function testDisplayNameResolvesFromTheLiveFieldsUntilOneIsAssigned(): void
     {
         $customer = new CustomerEntity();
 
@@ -244,8 +236,7 @@ class CustomerEntityTest extends TestCase
 
         static::assertSame('Ada Lovelace', $customer->getDisplayName());
 
-        // The live fields win over what the subscriber stored, so the name cannot go stale.
-        $customer->setDisplayName('Analytical Engines');
+        $customer->setDisplayName(null);
 
         static::assertSame('Ada Lovelace', $customer->getDisplayName());
     }

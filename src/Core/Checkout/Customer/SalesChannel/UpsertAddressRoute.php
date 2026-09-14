@@ -205,7 +205,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         }
 
         if ($namesAreOptional) {
-            $this->companyAccountNameFields->relax($validation);
+            // A new address has to name someone. A stored one keeps the names it has, so an edit of the
+            // street alone must not fail on a company the checkout does not demand either.
+            $this->companyAccountNameFields->relax($validation, requireCompany: $isCreate);
         } elseif ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
             $validation->add('company', CompanyAccountNameFields::companyNotBlank());

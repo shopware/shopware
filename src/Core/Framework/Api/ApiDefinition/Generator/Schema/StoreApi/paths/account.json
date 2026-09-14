@@ -101,11 +101,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "birthdayDay": {
@@ -1136,11 +1136,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop shows the account type selection and turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {

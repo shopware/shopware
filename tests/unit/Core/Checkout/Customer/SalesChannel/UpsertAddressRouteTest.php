@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -33,6 +34,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -347,6 +349,86 @@ class UpsertAddressRouteTest extends TestCase
         ]);
 
         $upsert->upsert(null, $data, static::createStub(SalesChannelContext::class), $customer);
+    }
+
+    #[DataProvider('companyRequirementProvider')]
+    public function testOptionalNamesRequireTheCompanyOnCreateOnly(bool $isCreate, bool $companyRequired): void
+    {
+        $definition = new DataValidationDefinition($isCreate ? 'address.create' : 'address.update');
+        $definition->add('firstName', new NotBlank());
+        $definition->add('lastName', new NotBlank());
+
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory->method($isCreate ? 'create' : 'update')->willReturn($definition);
+
+        $validated = null;
+        $validator = static::createStub(DataValidator::class);
+        $validator->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $passed) use (&$validated): void {
+            $validated = $passed;
+        });
+
+        $addressId = $isCreate ? null : 'address-1';
+        $stored = new CustomerAddressEntity();
+        $stored->setId('address-1');
+        $stored->setFirstName('Ada');
+        $stored->setLastName('Lovelace');
+
+        $addressRepository = static::createStub(EntityRepository::class);
+        $addressRepository->method('searchIds')->willReturn(
+            new IdSearchResult(1, ['address-1' => ['primaryKey' => 'address-1', 'data' => []]], new Criteria(), Context::createDefaultContext())
+        );
+        $addressRepository->method('search')->willReturn(
+            new EntitySearchResult(CustomerAddressDefinition::ENTITY_NAME, 1, new CustomerAddressCollection([$stored]), null, new Criteria(), Context::createDefaultContext())
+        );
+        $addressRepository->method('upsert')->willReturn(
+            new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), [])
+        );
+
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new CustomerAddressCollection([$stored]));
+        $salesChannelAddressRepository = static::createStub(SalesChannelRepository::class);
+        $salesChannelAddressRepository->method('search')->willReturn($result);
+
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                CompanyAccountNameFields::CONFIG_SHOW => true,
+                CompanyAccountNameFields::CONFIG_REQUIRED => false,
+            ],
+        ]);
+
+        $upsert = new UpsertAddressRoute(
+            $addressRepository,
+            $salesChannelAddressRepository,
+            $validator,
+            static::createStub(EventDispatcherInterface::class),
+            $addressValidationFactory,
+            $systemConfigService,
+            new StoreApiCustomFieldMapper(static::createStub(Connection::class), []),
+            static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields($systemConfigService),
+        );
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer1');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        $upsert->upsert($addressId, new RequestDataBag(['street' => 'New Street 1']), $salesChannelContext, $customer);
+
+        static::assertInstanceOf(DataValidationDefinition::class, $validated);
+        static::assertSame([], $validated->getProperty('firstName'), 'the blank check on the names has to be gone');
+        static::assertCount($companyRequired ? 1 : 0, $validated->getProperty('company'));
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool}>
+     */
+    public static function companyRequirementProvider(): iterable
+    {
+        yield 'a new address has to name someone' => [true, true];
+        yield 'a stored address keeps its names, so the company stays optional' => [false, false];
     }
 
     /**

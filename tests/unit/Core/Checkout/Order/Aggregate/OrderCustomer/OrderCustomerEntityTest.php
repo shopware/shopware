@@ -27,13 +27,14 @@ class OrderCustomerEntityTest extends TestCase
         static::assertSame($expected, OrderCustomerEntity::resolveDisplayName($firstName, $lastName, $company));
     }
 
-    public function testDisplayNameFollowsTheLiveFields(): void
+    public function testAnAssignedDisplayNameWinsOverTheLiveFields(): void
     {
-        $customer = $this->customer('', '', 'Acme GmbH');
+        $customer = $this->customer('Ada', 'Lovelace', null);
         $customer->setDisplayName('Acme GmbH');
 
-        $customer->setFirstName('Ada');
-        $customer->setLastName('Lovelace');
+        static::assertSame('Acme GmbH', $customer->getDisplayName());
+
+        $customer->setDisplayName(null);
 
         static::assertSame('Ada Lovelace', $customer->getDisplayName());
     }

@@ -185,9 +185,12 @@ class CustomerEntity extends Entity implements \Stringable
         return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
     }
 
+    /**
+     * A value assigned on load, by the subscriber or by an extension, wins over the resolved one
+     */
     public function getDisplayName(): string
     {
-        return self::resolveDisplayName(
+        return $this->displayName ?? self::resolveDisplayName(
             $this->firstName ?? '',
             $this->lastName ?? '',
             $this->company,

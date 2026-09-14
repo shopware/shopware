@@ -53,9 +53,10 @@ final class CompanyAccountNameFields
     }
 
     /**
-     * Drops the blank check on the names and requires the company instead, as it carries the identity then
+     * Drops the blank check on the names. The caller says whether the company has to stand in, because
+     * a stored address may already carry a name while a new one needs someone to be named.
      */
-    public function relax(DataValidationDefinition $definition, bool $requireCompany = true): void
+    public function relax(DataValidationDefinition $definition, bool $requireCompany): void
     {
         foreach (self::NAME_FIELDS as $property) {
             $constraints = $definition->getProperty($property);

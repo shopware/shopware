@@ -86,7 +86,7 @@ class CompanyAccountNameFieldsTest extends TestCase
         $validation->add('firstName', new NotBlank(), $length, $regex);
         $validation->add('lastName', new NotBlank(), $length);
 
-        $this->fields(true, false)->relax($validation);
+        $this->fields(true, false)->relax($validation, requireCompany: true);
 
         static::assertSame([$length, $regex], $validation->getProperty('firstName'));
         static::assertSame([$length], $validation->getProperty('lastName'));

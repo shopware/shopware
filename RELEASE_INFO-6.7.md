@@ -171,7 +171,7 @@ The getter resolves the name from the live `firstName`, `lastName`, `company` an
 
 `GET /store-api/shop-settings` returns the two new settings under `loginRegistration`, with the gate above already applied, so a headless client can build the same form as the Storefront.
 
-The four cart errors that name an address, the missing salutation and the missing country region of the billing and the shipping address, now name a company address by its company instead of starting the message with a blank. They read the name through the new `CustomerAddressNameFormatter`.
+The four cart errors that name an address, the missing salutation and the missing country region of the billing and the shipping address, now name a company address by its company instead of starting the message with a blank. They read the name through the new `CustomerAddressNameFormatter`. The message of `ShippingAddressCountryRegionMissingError` also says "shipping address" now; it named the billing address by mistake.
 
 A registration that sends only a shipping address gets it as the default billing address, so that address is judged by the account type of the registration and has to carry the company.
 

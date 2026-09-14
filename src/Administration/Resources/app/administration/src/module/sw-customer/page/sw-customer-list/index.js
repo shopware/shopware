@@ -327,7 +327,7 @@ export default {
             const columns = [
                 {
                     property: 'firstName',
-                    dataIndex: 'lastName,firstName',
+                    dataIndex: 'lastName,firstName,company',
                     inlineEdit: 'string',
                     label: 'sw-customer.list.columnName',
                     routerLink: 'sw.customer.detail',

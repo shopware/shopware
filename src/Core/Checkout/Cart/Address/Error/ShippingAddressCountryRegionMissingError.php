@@ -17,7 +17,7 @@ class ShippingAddressCountryRegionMissingError extends CountryRegionMissingError
         private readonly CustomerAddressEntity $address,
     ) {
         $this->message = \sprintf(
-            'A country region needs to be defined for the billing address "%s %s %s".',
+            'A country region needs to be defined for the shipping address "%s, %s %s".',
             CustomerAddressNameFormatter::displayName($address),
             (string) $address->getZipcode(),
             $address->getCity()

@@ -17,9 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -336,6 +338,77 @@ class EntitySearcherTest extends TestCase
 
     public function testScoreRankingPicksHighestScoredRowPerGroup(): void
     {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        $resultIds = array_values($result->getIds());
+
+        static::assertCount(2, $resultIds);
+        static::assertSame($ids->get('b2'), $resultIds[0], 'Highest overall score (Sport Gear Premium Green) should be first');
+        static::assertSame($ids->get('a3'), $resultIds[1], 'Highest score in Group A (Sport Bottle Green) should be second');
+    }
+
+    public function testScoreRankingRespectsTheSortingOfTheCriteria(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
+
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        $criteria->addSorting(new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(
+            [$ids->get('a3'), $ids->get('b2')],
+            array_values($result->getIds()),
+            'The sorting of the criteria has to win over the score'
+        );
+    }
+
+    public function testScoreRankingDoesNotLeakItsHelperColumnsIntoTheResult(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        // a sorting other than _score is what makes the ranking add its `_sort_*` columns
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        $data = $result->getDataOfId($ids->get('a1'));
+
+        static::assertIsArray($data);
+        static::assertArrayHasKey(Criteria::SCORE_FIELD, $data);
+        static::assertArrayNotHasKey('_rn', $data);
+        static::assertArrayNotHasKey('_group_0', $data);
+        static::assertArrayNotHasKey('_sort_0', $data);
+    }
+
+    private function createSportProducts(): IdsCollection
+    {
         $ids = new IdsCollection();
 
         // Group A: "Sport Bottle" variants — all share a displayGroup via parent-a
@@ -361,23 +434,19 @@ class EntitySearcherTest extends TestCase
             Context::createDefaultContext(),
         );
 
+        return $ids;
+    }
+
+    private function createScoreRankedCriteria(IdsCollection $ids): Criteria
+    {
         $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(new EqualsAnyFilter(
+            'parentId',
+            [$ids->get('parent-a'), $ids->get('parent-b')]
+        ));
 
-        $result = $this->entitySearcher->search(
-            static::getContainer()->get(ProductDefinition::class),
-            $criteria,
-            Context::createDefaultContext(),
-        );
-
-        $resultIds = array_values($result->getIds());
-
-        static::assertCount(2, $resultIds);
-        static::assertSame($ids->get('b2'), $resultIds[0], 'Highest overall score (Sport Gear Premium Green) should be first');
-        static::assertSame($ids->get('a3'), $resultIds[1], 'Highest score in Group A (Sport Bottle Green) should be second');
+        return $criteria;
     }
 
     /**

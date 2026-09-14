@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -35,7 +36,8 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
      */
     public function __construct(
         private readonly AbstractDomainLoader $decorated,
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
+        private readonly ?LoggerInterface $logger = null
     ) {
     }
 
@@ -83,6 +85,8 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
     public function loadDomains(): DomainCollection
     {
         if ($this->domainCollection !== null) {
+            $this->logDomains($this->domainCollection, cacheHit: true);
+
             return $this->domainCollection;
         }
 
@@ -97,11 +101,15 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
         // the domains were loaded in this call, return them directly instead of
         // uncompressing the cache payload that was just compressed from them
         if ($fresh instanceof DomainCollection) {
+            $this->logDomains($fresh, cacheHit: false);
+
             return $this->domainCollection = $fresh;
         }
 
         /** @var DomainCollection $value */
         $value = CacheValueCompressor::uncompress($value);
+
+        $this->logDomains($value, cacheHit: true);
 
         return $this->domainCollection = $value;
     }
@@ -110,5 +118,21 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
     {
         $this->domains = null;
         $this->domainCollection = null;
+    }
+
+    private function logDomains(DomainCollection $domains, bool $cacheHit): void
+    {
+        if ($this->logger === null) {
+            return;
+        }
+
+        foreach ($domains as $domain) {
+            $this->logger->debug('Temporary domain cache lookup.', [
+                'cacheHit' => $cacheHit,
+                'url' => $domain->url,
+                'salesChannelId' => $domain->salesChannelId,
+                'languageId' => $domain->languageId,
+            ]);
+        }
     }
 }

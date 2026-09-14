@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
@@ -64,7 +65,8 @@ class ElasticsearchFieldBuilder
     public function __construct(
         private readonly LanguageLoaderInterface $languageLoader,
         private readonly ElasticsearchIndexingUtils $indexingUtils,
-        private readonly array $languageAnalyzerMapping
+        private readonly array $languageAnalyzerMapping,
+        private readonly ?LoggerInterface $logger = null
     ) {
     }
 
@@ -123,6 +125,10 @@ class ElasticsearchFieldBuilder
 
             $languageFields[$languageId]['fields']['search']['analyzer'] = $languageAnalyzer;
         }
+
+        $this->logger?->debug('Temporary Elasticsearch translated mapping languages.', [
+            'languageIds' => array_keys($languageFields),
+        ]);
 
         return ['properties' => $languageFields];
     }

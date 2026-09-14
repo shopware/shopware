@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -47,7 +48,8 @@ class IndexCreator
         private readonly IndexMappingProvider $mappingProvider,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ElasticsearchHelper $helper,
-        bool $dimensionNormalizeEnabled = false
+        bool $dimensionNormalizeEnabled = false,
+        private readonly ?LoggerInterface $logger = null
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -83,6 +85,11 @@ class IndexCreator
 
         $event = new ElasticsearchIndexConfigEvent($index, $body, $definition, $context);
         $this->eventDispatcher->dispatch($event);
+
+        $nameProperties = $event->getConfig()['mappings']['properties']['name']['properties'] ?? [];
+        $this->logger?->debug('Temporary Elasticsearch name mapping languages.', [
+            'languageIds' => \is_array($nameProperties) ? array_keys($nameProperties) : [],
+        ]);
 
         try {
             $this->client->indices()->create([

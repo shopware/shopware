@@ -280,6 +280,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DomainLoader::class)
         ->args([
             service(Connection::class),
+            service('logger'),
         ]);
 
     $services->set(RequestTransformer::class)

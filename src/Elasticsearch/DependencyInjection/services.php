@@ -168,6 +168,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLoader::class),
             service(ElasticsearchIndexingUtils::class),
             param('elasticsearch.language_analyzer_mapping'),
+            service('shopware.elasticsearch.logger'),
         ]);
 
     $services->set(ElasticsearchFieldMapper::class)
@@ -205,6 +206,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ElasticsearchHelper::class),
             param('elasticsearch.dimension_normalize'),
+            service('shopware.elasticsearch.logger'),
         ]);
 
     $services->set(IndexManager::class)

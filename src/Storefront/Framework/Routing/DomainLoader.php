@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Feature;
@@ -19,8 +20,10 @@ class DomainLoader extends AbstractDomainLoader
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ?LoggerInterface $logger = null
+    ) {
     }
 
     public function getDecorated(): AbstractDomainLoader
@@ -45,7 +48,19 @@ class DomainLoader extends AbstractDomainLoader
 
     public function loadDomains(): DomainCollection
     {
-        return DomainCollection::fromArray($this->fetch());
+        $domains = DomainCollection::fromArray($this->fetch());
+
+        if ($this->logger !== null) {
+            foreach ($domains as $domain) {
+                $this->logger->debug('Temporary domain database lookup.', [
+                    'url' => $domain->url,
+                    'salesChannelId' => $domain->salesChannelId,
+                    'languageId' => $domain->languageId,
+                ]);
+            }
+        }
+
+        return $domains;
     }
 
     /**

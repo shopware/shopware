@@ -111,16 +111,27 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $this->eventDispatcher->dispatch($beforeWriteEvent);
 
         try {
-            RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+            $firstAttempt = true;
+
+            RetryableTransaction::retryable($this->connection, function () use ($commands, $context, &$firstAttempt): void {
+                if (!$firstAttempt) {
+                    $context->resetExceptions();
+                }
+
+                $firstAttempt = false;
                 $this->executeCommands($commands, $context);
             });
 
+            // An outer transaction must not replay callbacks if they or its commit fail.
+            $context->addState(WriteContext::STATE_WRITE_CALLBACKS_STARTED);
             $beforeWriteEvent->success();
         } catch (\Throwable $e) {
-            $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
-            $this->eventDispatcher->dispatch($event);
+            $context->onWriteError(function () use ($e, $commands, $context, $beforeWriteEvent): void {
+                $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
+                $this->eventDispatcher->dispatch($event);
 
-            $beforeWriteEvent->error();
+                $beforeWriteEvent->error();
+            });
 
             throw $e;
         }

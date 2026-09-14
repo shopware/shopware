@@ -2,6 +2,16 @@
 
 ## Features
 
+### Live state transition writes are batched
+
+Live state transitions now persist the history entry and new entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive `state_machine_history` commands together with commands for the transitioned entity; use `getCommandsForEntity()` instead of assuming that an event contains commands for only one entity. Their pre-write work can run again on retry and must be idempotent.
+
+The subsequent entity-written container events remain separate and keep their history-before-state order. Listener failures roll back the history and state together. Automatic contention retries stop once write-success callbacks begin, so those callbacks and entity-written listeners are not replayed.
+
+### MariaDB record-change conflicts are retryable
+
+MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error is now reported instead.
+
 ### Document generation v2 (experimental)
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.

@@ -70,6 +70,11 @@ export default {
             required: false,
             default: true,
         },
+        disabledElements: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {
@@ -403,6 +408,10 @@ export default {
             return kebabCase(value);
         },
 
+        isElementDisabled(element) {
+            return this.disabledElements.includes(element.name);
+        },
+
         /**
          * New methods for Meteor components
          */
@@ -448,7 +457,7 @@ export default {
             bind.inheritedValue = this.getInheritedValue(element);
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
-            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled || this.isElementDisabled(element);
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {

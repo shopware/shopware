@@ -4,10 +4,16 @@
 
 import types from 'src/core/service/utils/types.utils';
 
-function castValueToNullIfNecessary(value) {
-    if (value === '' || typeof value === 'undefined') {
+function castValueToNullIfNecessary(value, field) {
+    if (typeof value === 'undefined') {
         return null;
     }
+
+    // A required field that allows an empty string cannot be null.
+    if (value === '' && !(field?.flags?.required && field?.flags?.allow_empty_string)) {
+        return null;
+    }
+
     return value;
 }
 
@@ -67,8 +73,8 @@ export default class ChangesetGenerator {
                 return;
             }
 
-            let draftValue = castValueToNullIfNecessary(draft[fieldName]);
-            let originValue = castValueToNullIfNecessary(origin[fieldName]);
+            let draftValue = castValueToNullIfNecessary(draft[fieldName], field);
+            let originValue = castValueToNullIfNecessary(origin[fieldName], field);
 
             if (definition.isScalarField(field)) {
                 if (draftValue !== originValue) {
@@ -78,8 +84,8 @@ export default class ChangesetGenerator {
             }
 
             if (field.flags.extension) {
-                draftValue = castValueToNullIfNecessary(draft.extensions[fieldName]);
-                originValue = castValueToNullIfNecessary(origin.extensions[fieldName]);
+                draftValue = castValueToNullIfNecessary(draft.extensions[fieldName], field);
+                originValue = castValueToNullIfNecessary(origin.extensions[fieldName], field);
             }
 
             if (definition.isJsonField(field)) {

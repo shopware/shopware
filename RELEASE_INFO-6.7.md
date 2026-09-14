@@ -155,9 +155,11 @@ $required = !$accountTypeSelection || ($showNameFields && $nameFieldsRequired);
 $visible = !$accountTypeSelection || $showNameFields;
 ```
 
-The account type selection has no default value, so an unsaved value counts as off. The other two default to on.
+The account type selection has no default value, so an unsaved value counts as off. The other two default to on. The settings screen renders both switches disabled while the account type selection is off. `sw-system-config` takes a new `disabledElements` prop for that, a list of config keys it renders disabled.
 
 The first and last name fields of `customer`, `customer_address`, `order_customer` and `order_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
+
+The Administration now sends an empty string for such a field. `ChangesetGenerator` turned every empty string into `null`, which a required field rejects, so clearing a name in the Administration could not be saved. It keeps the empty string for fields flagged `Required` and `AllowEmptyString`: the names above, `app_template.template` and `snippet.value`.
 
 The customer entity gains a runtime field `displayName`, holding the person name, or the company name when a commercial account has no contact person. Use it instead of joining `firstName` and `lastName` when you render a customer:
 

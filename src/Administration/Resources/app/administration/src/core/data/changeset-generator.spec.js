@@ -21,6 +21,50 @@ describe('src/core/data/changeset-generator.data.js', () => {
         );
     });
 
+    it('sends an empty string for a required field that allows one', async () => {
+        const testEntity = entityFactory.create('customer');
+        testEntity.getDraft().firstName = 'Ada';
+        testEntity.getOrigin().firstName = 'Ada';
+
+        testEntity.firstName = '';
+
+        const { changes } = changesetGenerator.generate(testEntity);
+
+        expect(changes.firstName).toBe('');
+    });
+
+    it('sends an empty string of a new entity for a required field that allows one', async () => {
+        const testEntity = entityFactory.create('customer');
+
+        testEntity.firstName = '';
+
+        const { changes } = changesetGenerator.generate(testEntity);
+
+        expect(changes.firstName).toBe('');
+    });
+
+    it('still nulls an empty string for a field that does not allow one', async () => {
+        const testEntity = entityFactory.create('customer');
+        testEntity.getDraft().company = 'Acme GmbH';
+        testEntity.getOrigin().company = 'Acme GmbH';
+
+        testEntity.company = '';
+
+        const { changes } = changesetGenerator.generate(testEntity);
+
+        expect(changes.company).toBeNull();
+    });
+
+    it('sends no change when a required field that allows an empty string was already empty', async () => {
+        const testEntity = entityFactory.create('customer');
+        testEntity.getDraft().firstName = '';
+        testEntity.getOrigin().firstName = '';
+
+        const { changes } = changesetGenerator.generate(testEntity);
+
+        expect(changes).toBeNull();
+    });
+
     it('should generate no changes', async () => {
         const testEntity = entityFactory.create('product_manufacturer');
 

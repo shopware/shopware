@@ -19,6 +19,7 @@ export default {
             isSaveSuccessful: false,
             coreLoginRegistrationLoading: false,
             coreSystemWideLoginRegistrationLoading: false,
+            loginRegistrationConfig: {},
         };
     },
 
@@ -31,6 +32,17 @@ export default {
     computed: {
         systemConfigLoading() {
             return this.coreLoginRegistrationLoading || this.coreSystemWideLoginRegistrationLoading;
+        },
+
+        disabledLoginRegistrationElements() {
+            if (this.loginRegistrationConfig['core.loginRegistration.showAccountTypeSelection']) {
+                return [];
+            }
+
+            return [
+                'core.loginRegistration.showNameFieldsForCompanyAccounts',
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
+            ];
         },
     },
 
@@ -57,6 +69,10 @@ export default {
                         message: err,
                     });
                 });
+        },
+
+        onLoginRegistrationConfigChanged(config) {
+            this.loginRegistrationConfig = config ?? {};
         },
 
         onLoginRegistrationLoadingChanged(loading) {

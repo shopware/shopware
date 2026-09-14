@@ -12,7 +12,8 @@ import pluginVue from 'eslint-plugin-vue';
 import tseslint from 'typescript-eslint';
 import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import swPluginRules from 'eslint-plugin-plugin-rules';
-import { legacyTwigConfig, defaultTwigFiles } from './legacy-twig.mjs';
+import swCoreRules from 'eslint-plugin-sw-core-rules';
+import { legacyTwigConfig, defaultTwigFiles, resolveVueParser } from './legacy-twig.mjs';
 
 const javascriptFilePatterns = [
     '**/*.js',
@@ -51,8 +52,7 @@ const NO_ADMIN_INTERNALS_RULE = [
     },
 ];
 const typedRules = Object.assign({}, ...tseslint.configs.recommendedTypeChecked.map((config) => config.rules ?? {}));
-const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
-const vueParser = vueParserSetup.languageOptions.parser;
+const vueParser = resolveVueParser();
 
 /**
  * Creates the shared flat config for Administration extensions.
@@ -190,6 +190,31 @@ export function shopwareAdminExtension(options = {}) {
             },
         },
         {
+            name: 'shopware/admin-extension/native-setup',
+            files: scope(vueFilePatterns),
+            languageOptions: {
+                // Compile-time macros the Shopware setup transform removes: they
+                // are never real runtime values, so they are declared globals to
+                // keep no-undef from flagging them.
+                globals: {
+                    swDefinePublic: 'readonly',
+                    swDefineOverride: 'readonly',
+                    useSwPreviousState: 'readonly',
+                    useSwProps: 'readonly',
+                    useSwContext: 'readonly',
+                },
+            },
+            plugins: {
+                'sw-core-rules': swCoreRules,
+            },
+            rules: {
+                // Native-setup correctness guards. vue/no-dupe-keys — the third
+                // native-setup guard — is already error via vue/essential.
+                'sw-core-rules/valid-shopware-setup': 'error',
+                'sw-core-rules/native-setup-filename': 'error',
+            },
+        },
+        {
             name: 'shopware/admin-extension/runtime-contract',
             files: scope([
                 ...javascriptFilePatterns,
@@ -233,6 +258,26 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
             },
         },
+        // typescript-eslint types `.vue` SFCs only partially — without the Vue
+        // language service the program falls back to `any` for some Vue surfaces
+        // (component instances, `defineExpose`/`useTemplateRef`, async components),
+        // which makes the `no-unsafe-*` family fire on idiomatic Vue. Turn just
+        // those five off for `.vue`, after the `vue-typescript` block so this
+        // overrides the entries `recommendedTypeChecked` set there — the same
+        // trade-off `@vue/eslint-config-typescript` makes via its
+        // `allowComponentTypeUnsafety` default. The resolvable type-aware rules
+        // (no-deprecated, no-floating-promises) and no-unused-vars stay on.
+        {
+            name: 'shopware/admin-extension/vue-component-type-unsafety',
+            files: scope(vueFilePatterns),
+            rules: {
+                '@typescript-eslint/no-unsafe-argument': 'off',
+                '@typescript-eslint/no-unsafe-assignment': 'off',
+                '@typescript-eslint/no-unsafe-call': 'off',
+                '@typescript-eslint/no-unsafe-member-access': 'off',
+                '@typescript-eslint/no-unsafe-return': 'off',
+            },
+        },
         ...(specFiles === 'typed' ? [] : [specFilesConfig]),
     ];
 
@@ -243,6 +288,6 @@ export function shopwareAdminExtension(options = {}) {
     return config;
 }
 
-export { legacyTwigConfig, pluginVue, swDeprecationRules, swPluginRules, tseslint };
+export { legacyTwigConfig, pluginVue, swCoreRules, swDeprecationRules, swPluginRules, tseslint };
 
 export default shopwareAdminExtension;

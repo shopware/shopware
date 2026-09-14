@@ -9,7 +9,7 @@ import './sw-settings-payment-overview.scss';
  */
 
 interface PaymentMethodCard {
-    id: string;
+    id: EntityKey<'payment_method'>;
     hasCustomCard: boolean;
     component?: string;
     positionId: string;
@@ -149,7 +149,7 @@ export default Shopware.Component.wrapComponentConfig({
                 });
         },
 
-        onChangeLanguage(languageId: string): void {
+        onChangeLanguage(languageId: EntityKey<'language'>): void {
             Shopware.Store.get('context').api.languageId = languageId;
             this.loadPaymentMethods();
         },

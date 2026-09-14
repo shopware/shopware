@@ -26,7 +26,7 @@ function stubShopware(can = true): void {
 }
 
 function videoItem(overrides: VideoCoverMedia = {}): VideoCoverMedia {
-    return { id: 'video-1', mediaType: { name: 'VIDEO' }, ...overrides };
+    return { id: 'video-1' as EntityKey<'media'>, mediaType: { name: 'VIDEO' }, ...overrides };
 }
 
 describe('src/app/composables/use-video-cover', () => {
@@ -89,7 +89,7 @@ describe('src/app/composables/use-video-cover', () => {
         const { onCoverSelectionChange, showCoverSelectionModal } = useVideoCover({ item: () => item });
 
         showCoverSelectionModal.value = true;
-        await onCoverSelectionChange([{ id: 'cover-1', mediaType: { name: 'IMAGE' } }]);
+        await onCoverSelectionChange([{ id: 'cover-1' as EntityKey<'media'>, mediaType: { name: 'IMAGE' } }]);
 
         expect(showCoverSelectionModal.value).toBe(false);
         expect(assignVideoCover).toHaveBeenCalledWith('video-1', 'cover-1');
@@ -104,7 +104,7 @@ describe('src/app/composables/use-video-cover', () => {
         const item = videoItem();
         const { onCoverSelectionChange } = useVideoCover({ item: () => item });
 
-        await onCoverSelectionChange([{ id: 'other-1', mediaType: { name: 'VIDEO' } }]);
+        await onCoverSelectionChange([{ id: 'other-1' as EntityKey<'media'>, mediaType: { name: 'VIDEO' } }]);
 
         expect(assignVideoCover).not.toHaveBeenCalled();
         expect(createNotificationError).toHaveBeenCalledWith({
@@ -140,7 +140,7 @@ describe('src/app/composables/use-video-cover', () => {
     it.each([
         [
             'a non-video item',
-            { id: 'image-1', mediaType: { name: 'IMAGE' } },
+            { id: 'image-1' as EntityKey<'media'>, mediaType: { name: 'IMAGE' } },
         ],
         [
             'an item without an id',

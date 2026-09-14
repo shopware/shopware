@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\LegacyEncoderInterface;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Type\AbstractDocumentType;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AbstractCheckoutGatewayCommandHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
@@ -39,6 +41,7 @@ use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -78,6 +81,7 @@ return [
             'messenger.receiver' => ReceiverInterface::class,
             'promotion.filter.picker' => FilterPickerInterface::class,
             'promotion.filter.sorter' => FilterSorterInterface::class,
+            'shopware.api.cors_header_provider' => CorsHeaderProviderInterface::class,
             'shopware.api.enum_provider' => FieldEnumProviderInterface::class,
             'shopware.app_script.twig.extension' => ExtensionInterface::class,
             'shopware.cart.collector' => CartDataCollectorInterface::class,
@@ -89,6 +93,9 @@ return [
             'shopware.cms.product_slider.processor' => AbstractProductSliderProcessor::class,
             'shopware.dal.exception_handler' => ExceptionHandlerInterface::class,
             'shopware.demodata_generator' => DemodataGeneratorInterface::class,
+            'shopware.document_v2.provider' => AbstractDocumentDataProvider::class,
+            'shopware.document_v2.renderer' => Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer::class,
+            'shopware.document_v2.type' => AbstractDocumentType::class,
             'shopware.elastic.admin-searcher-index' => AbstractAdminIndexer::class,
             'shopware.entity.definition' => EntityDefinition::class,
             'shopware.entity.hookable' => [EntityDefinition::class, Entity::class],

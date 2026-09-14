@@ -52,6 +52,7 @@ export default {
             startDrag: this.startDrag,
             endDrag: this.endDrag,
             moveDrag: this.moveDrag,
+            openTreeById: this.openTreeById,
             addSubElement: this.addSubElement,
             addElement: this.addElement,
             duplicateElement: this.duplicateElement,
@@ -167,6 +168,14 @@ export default {
             },
         },
 
+        allowDropIntoFolder: {
+            type: Boolean,
+            required: false,
+            default: () => {
+                return false;
+            },
+        },
+
         sortable: {
             type: Boolean,
             required: false,
@@ -218,6 +227,7 @@ export default {
         return {
             treeItems: [],
             draggedItem: null,
+            droppedIntoItem: false,
             currentTreeSearch: null,
             newElementId: null,
             contextItem: null,
@@ -682,17 +692,19 @@ export default {
         startDrag(draggedComponent) {
             draggedComponent.opened = false;
             this.draggedItem = draggedComponent.item;
+            this.droppedIntoItem = false;
             this.$emit('drag-start');
         },
 
         endDrag() {
             if (!this.droppedItem) {
                 this.draggedItem = null;
+                this.droppedIntoItem = false;
                 return;
             }
 
             const oldParentId = this.draggedItem.data.parentId;
-            const newParentId = this.droppedItem.data.parentId;
+            const newParentId = this.droppedIntoItem ? this.droppedItem.id : this.droppedItem.data.parentId;
 
             // item moved into other tree, update count
             if (oldParentId !== newParentId) {
@@ -710,14 +722,14 @@ export default {
                     droppedParent.data.childCount += 1;
                 }
 
-                this.draggedItem.data.parentId = this.droppedItem.data.parentId;
+                this.draggedItem.data.parentId = newParentId;
             }
 
             const tree = this.findTreeByParentId(oldParentId);
             this.updateSorting(tree);
 
-            if (oldParentId !== this.droppedItem.parentId) {
-                const dropTree = this.findTreeByParentId(this.droppedItem.parentId);
+            if (oldParentId !== newParentId) {
+                const dropTree = this.findTreeByParentId(newParentId);
                 this.updateSorting(dropTree);
             }
 
@@ -732,13 +744,14 @@ export default {
             // reset event items
             this.draggedItem = null;
             this.droppedItem = null;
+            this.droppedIntoItem = false;
 
             this.isLoading = true;
 
             this.$emit('drag-end', eventData);
         },
 
-        moveDrag(draggedComponent, droppedComponent) {
+        moveDrag(draggedComponent, droppedComponent, dropInto = false) {
             if (!draggedComponent || !droppedComponent) {
                 return;
             }
@@ -748,18 +761,25 @@ export default {
             }
 
             const sourceTree = this.findTreeByParentId(draggedComponent.parentId);
-            const targetTree = this.findTreeByParentId(droppedComponent.parentId);
+            const targetTree = dropInto ? droppedComponent.children : this.findTreeByParentId(droppedComponent.parentId);
 
             const dragItemIdx = sourceTree.findIndex((i) => i.id === draggedComponent.id);
             const dropItemIdx = targetTree.findIndex((i) => i.id === droppedComponent.id);
 
-            if (dragItemIdx < 0 || dropItemIdx < 0) {
+            if (dragItemIdx < 0 || (!dropInto && dropItemIdx < 0)) {
                 return;
             }
 
-            droppedComponent = targetTree[dropItemIdx];
+            if (!dropInto) {
+                droppedComponent = targetTree[dropItemIdx];
+            }
 
-            if (!this.bindItemsToFolder || draggedComponent.parentId === droppedComponent.parentId) {
+            if (dropInto) {
+                droppedComponent.initialOpened = true;
+                sourceTree.splice(dragItemIdx, 1);
+                targetTree.unshift(draggedComponent);
+                draggedComponent.parentId = droppedComponent.id;
+            } else if (!this.bindItemsToFolder || draggedComponent.parentId === droppedComponent.parentId) {
                 sourceTree.splice(dragItemIdx, 1);
                 targetTree.splice(dropItemIdx, 0, draggedComponent);
 
@@ -769,6 +789,7 @@ export default {
             }
 
             this.droppedItem = droppedComponent;
+            this.droppedIntoItem = dropInto;
         },
 
         openTreeById(id = this.activeElementId) {

@@ -21,7 +21,7 @@ export default Component.wrapComponentConfig({
         Mixin.getByName('cms-element'),
     ],
 
-    data(): { showMediaModal: boolean; initialFolderId: string | null } {
+    data(): { showMediaModal: boolean; initialFolderId: EntityKey<'media_folder'> | null } {
         return {
             showMediaModal: false,
             initialFolderId: null,
@@ -144,7 +144,7 @@ export default Component.wrapComponentConfig({
             this.initElementConfig();
         },
 
-        async onVideoUpload({ targetId }: { targetId: string }): Promise<void> {
+        async onVideoUpload({ targetId }: { targetId: EntityKey<'media'> }): Promise<void> {
             const mediaEntity = (await this.mediaRepository.get(targetId)) as Entity<'media'>;
 
             const mediaConfig = this.element.config.media as { value: string | null; source: string };
@@ -185,7 +185,10 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            const data = this.element.data as unknown as { mediaId?: string | null; media?: Entity<'media'> | null };
+            const data = this.element.data as unknown as {
+                mediaId?: EntityKey<'media'> | null;
+                media?: Entity<'media'> | null;
+            };
             data.mediaId = mediaId;
             data.media = media;
         },

@@ -4,6 +4,32 @@
 
 <details>
 
+## Document generation v2 is the default
+
+The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopware-driven surfaces use document generation v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes.
+
+The flag became an opt-out. Set it to `false` to keep running the legacy implementation during 6.8. The legacy implementation and the flag are removed with Shopware 6.9, so verify your document related extensions are v2 ready before upgrading. Migration guidance is in `UPGRADE-6.9.md`.
+
+The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
+
+## State machine actions enforce a single destination per source state
+
+A state machine action now maps to exactly one destination state per source state:
+
+- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and replaced the unique key on `state_machine_transition` over `(action_name, state_machine_id, from_state_id, to_state_id)` with `uniq.state_machine_transition.action_name_from_state` over `(action_name, state_machine_id, from_state_id)`.
+- Writing a `state_machine_transition` that has the same state machine, source state, and action name as an existing transition, but a different destination state, now fails against that unique key instead of silently making the action's destination undefined.
+
+If your extension registered a transition that reuses an existing action name (for example `authorize`) from the same source state with its own destination state, register it under its own action name instead. Find affected installations with:
+
+```sql
+SELECT sm.technical_name, f.technical_name AS from_state, t.action_name, COUNT(*) AS destinations
+FROM state_machine_transition t
+JOIN state_machine sm ON sm.id = t.state_machine_id
+JOIN state_machine_state f ON f.id = t.from_state_id
+GROUP BY t.state_machine_id, t.from_state_id, t.action_name
+HAVING COUNT(*) > 1;
+```
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
@@ -83,6 +109,15 @@ The calculated taxes of the original line item are now distributed proportionall
 This can change cent-level rounding compared to previous versions.
 
 If an extension relies on recalculated taxes for percentage prices or split line items, review the resulting taxes for mixed tax rates, net and gross prices, promotions, and partial quantities.
+
+## Edit order page selects the payment method of the order
+
+`frontend.account.edit-order.change-payment-method` no longer switches the payment method of the sales channel context.
+It passes the selected method to the edit order page as the `paymentMethodId` query parameter, and the page selects the payment method of the order when that parameter is absent.
+
+Storefront templates of the edit order page that render `context.paymentMethod` have to use `page.selectedPaymentMethodId` instead, which is the payment method of the order or the one the customer selected on the page.
+
+Extensions that reacted to the context switch can listen to `Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent`, which is dispatched when the customer confirms the change and the payment method of the order really changes.
 
 ## Payment: Removal of Payment Method "Debit Payment"
 
@@ -174,6 +209,12 @@ The Agentic Commerce sales channel features — including product export provide
 ## Document rendering no longer falls back to the Storefront browser timezone
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
+
+## Nullable order reference on `DocumentEntity`
+
+The order reference on `Shopware\Core\Checkout\Document\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+
+`DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
 
 ## Removed document template variables
 
@@ -272,6 +313,32 @@ Previously, these routes could return unrelated records or fail because the unde
 # Core
 
 <details>
+
+## `AbstractCartPersister::exists()` is abstract
+
+`Shopware\Core\Checkout\Cart\AbstractCartPersister::exists()` was introduced in 6.7.15.0 with a default implementation that delegated to the decorated persister. It is abstract now, so every cart persister declares it itself:
+
+```php
+public function exists(string $token, SalesChannelContext $context): bool
+{
+    return $this->getDecorated()->exists($token, $context);
+}
+```
+
+Answer it from the storage a persister that does not decorate another one owns. Placing an order rejects a cart token that `exists()` reports as gone, so a persister that always answers `true` reintroduces duplicate orders on overlapping checkout submits.
+
+## `AbstractCartLoadRoute::load()` takes the cart
+
+`Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute::load()` takes the cart to respond with as an optional third parameter. Call sites are unaffected, but decorations had to add the parameter to their own `load()` declaration and forward it, otherwise the declaration is no longer compatible:
+
+```php
+public function load(Request $request, SalesChannelContext $context, ?Cart $cart = null): CartResponse
+{
+    return $this->getDecorated()->load($request, $context, $cart);
+}
+```
+
+A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
 
 ## XML configuration is no longer supported
 
@@ -498,6 +565,20 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Removal of `PromotionCartInformationTrait` helper methods
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` and `addPromotionNotEligibleError()` are removed, replace any calls in classes that use this trait with `$cart->addErrors()`:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -1490,9 +1571,117 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
+## `sw-tabs` automatic wrapper switch deferred
+
+The previously announced automatic switch from the deprecated Administration `sw-tabs` wrapper to `mt-tabs` when the `v6.8.0.0` feature flag is active will not happen. `sw-tabs` keeps rendering its legacy implementation regardless of the feature flag and remains deprecated for removal in 6.9.
+
+When an extension has already prepared for the Meteor API, it can opt in to the wrapper's temporary compatibility path with `use-meteor-component`. This renders the underlying `mt-tabs` implementation regardless of the `v6.8.0.0` feature flag:
+
+```html
+<sw-tabs use-meteor-component />
+```
+
+Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
+
+The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
+
+### Replace `sw-tabs` with `mt-tabs`
+
+Before:
+
+```html
+<sw-tabs />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
+### Replace `sw-tabs-item` children with the `items` prop
+
+Before:
+
+```html
+<sw-tabs>
+    <template #default="{ active }">
+        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
+        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs :items="[
+    {
+        label: 'Tab 1',
+        name: 'tab1',
+    },
+    {
+        label: 'Tab 2',
+        name: 'tab2',
+    },
+]" />
+```
+
+### Render content outside `mt-tabs`
+
+The legacy `content` slot is not supported. Store the active item from `new-item-active` and render the corresponding content outside the component.
+
+Before:
+
+```html
+<sw-tabs>
+    <template #content="{ active }">
+        The current active item is {{ active }}
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs @new-item-active="setActiveItem" />
+
+The current active item is {{ activeItem }}
+```
+
+### Rename `is-vertical` to `vertical`
+
+Before:
+
+```html
+<sw-tabs is-vertical />
+```
+
+After:
+
+```html
+<mt-tabs vertical />
+```
+
+### Remove `align-right`
+
+`mt-tabs` has no replacement for `align-right`.
+
+Before:
+
+```html
+<sw-tabs align-right />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 
-The Administration `sw-tabs` component has been replaced by `mt-tabs`. The legacy `sw-tabs` fallback branches guarded by the `v6.8.0.0` feature flag have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+The affected core Administration components use `mt-tabs` in their `v6.8.0.0` branches. Their legacy `sw-tabs` fallback branches have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
 
 The following Twig blocks have been removed:
 

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 abstract class PluginLifecycleEvent extends Event
 {

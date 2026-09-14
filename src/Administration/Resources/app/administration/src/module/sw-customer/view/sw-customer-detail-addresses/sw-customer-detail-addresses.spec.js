@@ -26,6 +26,9 @@ async function createWrapper() {
         }),
         {
             global: {
+                mocks: {
+                    $route: { query: {} },
+                },
                 stubs: {
                     'mt-card': {
                         template: `<div class="mt-card">
@@ -201,6 +204,103 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         await wrapper.vm.onSaveAddress();
 
         expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clear the error of a required field once it holds a value again', async () => {
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '1',
+        };
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+
+        wrapper.vm.currentAddress.street = 'Stehr Divide';
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
+    });
+
+    it('should not leave any warnings on the customer page when closing the address modal', async () => {
+        const errorStore = Shopware.Store.get('error');
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(errorStore.getErrorsForEntity('customer_address', '1')).not.toBeNull();
+
+        wrapper.vm.onCloseAddressModal();
+        await flushPromises();
+
+        expect(errorStore.getErrorsForEntity('customer_address', '1')).toBeNull();
+        expect(wrapper.vm.currentAddress).toBeNull();
+    });
+
+    it('should keep a server reported error when closing the address modal', async () => {
+        const errorStore = Shopware.Store.get('error');
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '2',
+        };
+
+        errorStore.addApiError({
+            expression: 'customer_address.2.additionalAddressLine1',
+            error: new ShopwareError({ code: 'ADDITIONAL_ADDR1_IS_TOO_LONG' }),
+        });
+
+        await wrapper.setData({ currentAddress: { id: '2' } });
+
+        wrapper.vm.onCloseAddressModal();
+        await flushPromises();
+
+        expect(errorStore.getApiError(entityMock, 'additionalAddressLine1')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clear pending required field errors when the view is torn down', async () => {
+        const errorStore = Shopware.Store.get('error');
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '3',
+        };
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '3',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(errorStore.getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+
+        wrapper.unmount();
+
+        expect(errorStore.getApiError(entityMock, 'street')).toBeNull();
     });
 
     it('should clone address line correctly', async () => {

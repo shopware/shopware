@@ -80,6 +80,26 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($indexer->iterate(), 'Iterate should return null if es is disabled');
     }
 
+    public function testCreateIndicesDoesNothingWhenIndexingIsDisabled(): void
+    {
+        $this->helper = static::createStub(ElasticsearchHelper::class);
+
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator->expects($this->never())->method('createIndex');
+
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
+        $indexer->createIndices();
+    }
+
+    public function testCreateIndicesCreatesEmptyIndexStructure(): void
+    {
+        $indexCreator = $this->createMock(IndexCreator::class);
+        $indexCreator->expects($this->once())->method('createIndex');
+
+        $indexer = $this->getIndexer(indexCreator: $indexCreator);
+        $indexer->createIndices();
+    }
+
     public function testIterateTillLastMsgCreatesIndices(): void
     {
         $indexCreator = $this->createMock(IndexCreator::class);

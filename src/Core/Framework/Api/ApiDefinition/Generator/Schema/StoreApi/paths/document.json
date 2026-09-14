@@ -35,11 +35,11 @@
                         "name": "format",
                         "in": "query",
                         "required": false,
-                        "description": "Selects the persisted document v2 representation. Defaults to PDF.",
+                        "description": "Technical name of the document v2 format to return. Defaults to `pdf` Ignored for v1 documents.",
                         "schema": {
                             "type": "string",
                             "default": "pdf",
-                            "enum": [
+                            "examples": [
                                 "pdf",
                                 "html",
                                 "zugferd_xml",
@@ -173,11 +173,11 @@
                         "name": "format",
                         "in": "query",
                         "required": false,
-                        "description": "Selects the persisted document v2 representation. Defaults to PDF.",
+                        "description": "Technical name of the document v2 format to return. Defaults to `pdf` Ignored for v1 documents.",
                         "schema": {
                             "type": "string",
                             "default": "pdf",
-                            "enum": [
+                            "examples": [
                                 "pdf",
                                 "html",
                                 "zugferd_xml",

@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
+use Shopware\Core\Framework\Api\Cors\CorsHeaders;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -16,6 +17,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 class CorsListener implements EventSubscriberInterface
 {
+    /**
+     * @param iterable<CorsHeaderProviderInterface> $headerProviders
+     */
+    public function __construct(private readonly iterable $headerProviders)
+    {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -44,27 +52,16 @@ class CorsListener implements EventSubscriberInterface
             return;
         }
 
-        // The MCP headers must be part of the global lists because this listener
-        // answers OPTIONS preflight requests before routing, so the target route
-        // (e.g. the MCP endpoints) is unknown at this point.
-        $corsHeaders = [
-            'Content-Type',
-            'Authorization',
-            PlatformRequest::HEADER_CONTEXT_TOKEN,
-            PlatformRequest::HEADER_ACCESS_KEY,
-            PlatformRequest::HEADER_LANGUAGE_ID,
-            PlatformRequest::HEADER_VERSION_ID,
-            PlatformRequest::HEADER_INHERITANCE,
-            PlatformRequest::HEADER_INDEXING_BEHAVIOR,
-            PlatformRequest::HEADER_INCLUDE_SEO_URLS,
-            PlatformRequest::HEADER_MCP_SESSION_ID,
-            PlatformRequest::HEADER_MCP_PROTOCOL_VERSION,
-        ];
+        $headers = new CorsHeaders();
+
+        foreach ($this->headerProviders as $provider) {
+            $provider->provide($headers);
+        }
 
         $response = $event->getResponse();
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
-        $response->headers->set('Access-Control-Allow-Headers', implode(',', $corsHeaders));
-        $response->headers->set('Access-Control-Expose-Headers', implode(',', $corsHeaders));
+        $response->headers->set('Access-Control-Allow-Headers', implode(',', $headers->getAllowed()));
+        $response->headers->set('Access-Control-Expose-Headers', implode(',', $headers->getExposed()));
     }
 }

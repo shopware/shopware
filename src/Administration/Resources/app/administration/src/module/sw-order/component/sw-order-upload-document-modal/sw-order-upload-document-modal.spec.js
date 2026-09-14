@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data/entity-collection.data';
 import component from './index';
 
 /**
@@ -15,52 +14,6 @@ const orderFixture = {
     taxStatus: 'gross',
     versionId: 'order-version-id',
 };
-
-const documentTypeFixture = [
-    {
-        id: 'delivery-note',
-        name: 'Delivery note',
-        technicalName: 'delivery_note',
-        translated: {
-            name: 'Delivery note',
-        },
-    },
-    {
-        id: 'invoice',
-        name: 'Invoice',
-        technicalName: 'invoice',
-        translated: {
-            name: 'Invoice',
-        },
-    },
-    {
-        id: 'storno',
-        name: 'Cancellation invoice',
-        technicalName: 'storno',
-        translated: {
-            name: 'Cancellation invoice',
-        },
-    },
-    {
-        id: 'credit-note',
-        name: 'Credit note',
-        technicalName: 'credit_note',
-        translated: {
-            name: 'Credit note',
-        },
-    },
-];
-function getCollection(entity, collection) {
-    return new EntityCollection(
-        `/${entity}`,
-        entity,
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
-}
 
 async function createWrapper(props = {}) {
     const {
@@ -104,7 +57,7 @@ async function createWrapper(props = {}) {
                     getDocumentNumberRangeType: (documentType) => documentType,
                     sortFileFormats: (formats) => formats,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
-                    getDocumentTypeSnippet: (technicalName) => `${technicalName}--type-snippet`,
+                    getDocumentTypeLabel: (technicalName) => `${technicalName}--type-snippet`,
                     getDocumentNumbersByTypes: () => [],
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                 },
@@ -113,12 +66,6 @@ async function createWrapper(props = {}) {
                 },
                 repositoryFactory: {
                     create: (entity) => {
-                        if (entity === 'document_type') {
-                            return {
-                                search: jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture)),
-                            };
-                        }
-
                         if (entity === 'media') {
                             return {
                                 get: jest.fn(),
@@ -181,7 +128,7 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
         await documentTypeSelectInput.trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--1').trigger('click');
+        await wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--storno').trigger('click');
         await flushPromises();
 
         await documentFormatSelectInput.trigger('click');
@@ -393,5 +340,37 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
                 .find('.sw-order-upload-document-modal__file-format .mt-select-selection-list__input')
                 .attributes('value'),
         ).toBeUndefined();
+    });
+
+    it('lists app-provided document types from the registry as selectable', async () => {
+        const wrapper = await createWrapper({
+            supportedDocumentTypes: {
+                invoice: { formats: ['pdf'] },
+                swag_warranty: {
+                    formats: [
+                        'pdf',
+                        'html',
+                    ],
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-upload-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--swag_warranty').exists(),
+        ).toBe(true);
+
+        await wrapper
+            .find('.sw-order-upload-document-modal__document-type .mt-select-option--swag_warranty')
+            .trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted()['update:documentType']).toBeTruthy();
+        expect(wrapper.emitted()['update:documentType'].at(-1)[0]).toStrictEqual({ technicalName: 'swag_warranty' });
     });
 });

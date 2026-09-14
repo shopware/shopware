@@ -1,5 +1,6 @@
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Application, Mixin, Context } = Shopware;
 const { warn } = Shopware.Utils.debug;
@@ -44,6 +45,7 @@ export default {
             lastDefaultFolderId: null,
             iconConfig: {
                 name: '',
+                color: '',
             },
         };
     },
@@ -67,6 +69,15 @@ export default {
 
         iconName() {
             return 'folder-thumbnail';
+        },
+
+        // Module color of a default folder while the user has module colors enabled
+        folderColor() {
+            return useModuleIconColors().enabled.value && this.iconConfig.color ? this.iconConfig.color : undefined;
+        },
+
+        moduleIconColor() {
+            return this.folderColor ?? 'var(--color-icon-secondary-default)';
         },
 
         assetFilter() {
@@ -113,6 +124,7 @@ export default {
             }
 
             this.iconConfig.name = module.manifest?.icon ?? '';
+            this.iconConfig.color = module.manifest?.color ?? '';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

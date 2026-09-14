@@ -14,6 +14,7 @@ import { GenerateVariants } from './ShopAdmin/Product/GenerateVariants';
  * First Run Wizard
  */
 import { FRWSalesChannelSelectionPossibility } from '@tasks/ShopAdmin/FRW/FRWSalesChannelSelectionPossibility';
+import { FRWExtensionRecommendationPossibility } from '@tasks/ShopAdmin/FRW/FRWExtensionRecommendationPossibility';
 
 /**
  * CustomField
@@ -51,6 +52,7 @@ export const test = mergeTests(
     GenerateVariants,
     UploadImage,
     FRWSalesChannelSelectionPossibility,
+    FRWExtensionRecommendationPossibility,
     CreateCustomField,
     CreateLandingPage,
     CustomerGroupActivation,

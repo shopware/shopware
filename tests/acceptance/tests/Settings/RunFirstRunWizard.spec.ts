@@ -6,7 +6,14 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'Merchant is able to be guided through the First Run Wizard.',
     { tag: '@FirstRunWizard' },
-    async ({ FRWSalesChannelSelectionPossibility, ShopAdmin, DefaultSalesChannel, AdminFirstRunWizard, InstanceMeta }) => {
+    async ({
+        FRWSalesChannelSelectionPossibility,
+        FRWExtensionRecommendationPossibility,
+        ShopAdmin,
+        DefaultSalesChannel,
+        AdminFirstRunWizard,
+        InstanceMeta,
+    }) => {
         test.skip(
             InstanceMeta.isSaaS || InstanceMeta.isPaaS,
             'Skipping test for the first run wizard, because it is disabled on SaaS and PaaS instances.',
@@ -57,14 +64,7 @@ test(
         // Extensions part
         await ShopAdmin.expects(AdminFirstRunWizard.extensionsHeader).toBeVisible();
         await AdminFirstRunWizard.germanRegionSelector.click();
-        // Selecting the category triggers the store recommendations request; wait for it to land
-        // before asserting on its content, instead of racing the assertion against the network call.
-        const recommendationsLoaded = AdminFirstRunWizard.page.waitForResponse(
-            (response) => response.url().includes('/_action/store/recommendations') && response.ok(),
-        );
-        await AdminFirstRunWizard.toolsSelector.click();
-        await recommendationsLoaded;
-        await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin.first()).toContainText('Migration Assistant');
+        await ShopAdmin.attemptsTo(FRWExtensionRecommendationPossibility(AdminFirstRunWizard.toolsSelector, 'Migration Assistant'));
         await ShopAdmin.expects(AdminFirstRunWizard.recommendationHeader).toBeVisible();
         await AdminFirstRunWizard.nextButton.click();
 

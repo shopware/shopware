@@ -31,6 +31,9 @@ test(
 
         await test.step('Create a flow with a condition and two actions.', async () => {
             await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
+            // The button stays disabled until the ACL check for "flow.creator" resolves; without
+            // this wait the click can race that check and silently fail to navigate.
+            await ShopAdmin.expects(AdminFlowBuilderListing.createFlowButton).toBeEnabled();
             await ShopAdmin.attemptsTo(CreateFlow(testConfig as FlowConfig));
         });
 

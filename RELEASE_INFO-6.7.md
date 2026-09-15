@@ -337,6 +337,10 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
 
+### Corrected `billingAddress`/`shippingAddress` schema on `POST /store-api/account/register`
+
+The OpenAPI schema for `POST /store-api/account/register` now types `billingAddress` and `shippingAddress` as `CustomerAddressBody` instead of `CustomerAddress`. The previous schema incorrectly required `id` and `customerId`, fields the server always assigns and that the route never reads from the request. Clients generating types from this schema (e.g. `@shopware/api-client`) no longer need a workaround to satisfy those fields; the actual request/response behavior of the route is unchanged.
+
 ## Administration
 
 ### Update wizard recommends Shopware CLI

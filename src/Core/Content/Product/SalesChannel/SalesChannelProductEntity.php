@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MeasurementSystem\Unit\ConvertedUnitSet;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
@@ -32,6 +33,8 @@ class SalesChannelProductEntity extends ProductEntity
     protected int $calculatedMaxPurchase;
 
     protected ?CategoryEntity $seoCategory = null;
+
+    protected ?BreadcrumbCollection $seoBreadcrumb = null;
 
     /**
      * The container will be resolved on product.loaded event and
@@ -101,6 +104,16 @@ class SalesChannelProductEntity extends ProductEntity
     public function setSeoCategory(?CategoryEntity $category): void
     {
         $this->seoCategory = $category;
+    }
+
+    public function getSeoBreadcrumb(): ?BreadcrumbCollection
+    {
+        return $this->seoBreadcrumb;
+    }
+
+    public function setSeoBreadcrumb(?BreadcrumbCollection $seoBreadcrumb): void
+    {
+        $this->seoBreadcrumb = $seoBreadcrumb;
     }
 
     public function getCalculatedCheapestPrice(): CalculatedCheapestPrice

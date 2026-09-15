@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product\QuickView;
 
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -48,7 +49,13 @@ class MinimalQuickViewPageLoader
 
         $this->eventDispatcher->dispatch(new MinimalQuickViewPageCriteriaEvent($productId, $criteria, $salesChannelContext));
 
-        $result = $this->productRoute->load($productId, $request->duplicate(), $salesChannelContext, $criteria);
+        $productRequest = $request->duplicate();
+        // the quick view renders neither a breadcrumb nor a category path, so a referrer in the url must not change
+        // which category the product resolves to
+        $productRequest->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
+        $productRequest->attributes->set(ProductDetailRoute::REFERRER_CATEGORY_ID, null);
+
+        $result = $this->productRoute->load($productId, $productRequest, $salesChannelContext, $criteria);
         $product = $result->getProduct();
 
         $page = new MinimalQuickViewPage($product);

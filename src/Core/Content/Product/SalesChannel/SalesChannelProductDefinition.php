@@ -111,6 +111,10 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             (new ObjectField('measurements', 'measurements'))->addFlags(new Runtime(), new ApiAware(), new Since('6.7.1.0'))
         );
 
+        $fields->add(
+            (new ObjectField('seoBreadcrumb', 'seoBreadcrumb'))->addFlags(new Runtime(['categoryIds', 'streamIds', 'mainCategories']), new ApiAware(), new Since('6.7.15.0'))->setDescription('Breadcrumb of the SEO category, including the seo urls of every category in the path')
+        );
+
         return $fields;
     }
 

@@ -22,6 +22,7 @@ import {
     MODULE_IDENTITY_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
+    PROVIDE_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,
@@ -178,6 +179,36 @@ describe('SFC migration runtime equivalence', () => {
 
         expect(result.outcome).toBeDefined();
         expectConservative(result.outcome);
+    });
+
+    it('provides the same values a provide() option returned', async () => {
+        const providesOf = (wrapper: { vm: unknown }): Record<string, unknown> => {
+            const instance = (wrapper.vm as { $: { provides: Record<string, unknown> } }).$;
+
+            return Object.fromEntries(
+                Object.keys(instance.provides).map((key) => [
+                    key,
+                    instance.provides[key],
+                ]),
+            );
+        };
+
+        const pair = await runEquivalentOrConservative(PROVIDE_FIXTURE, (original, generated) => {
+            const originalProvides = providesOf(original);
+            const generatedProvides = providesOf(generated);
+
+            expect(Object.keys(generatedProvides)).toEqual(Object.keys(originalProvides));
+
+            // A data read provided a snapshot, not the ref behind it.
+            expect(generatedProvides.snapshot).toBe(7);
+            expect(originalProvides.snapshot).toBe(7);
+
+            // The provided method still writes the component's own state.
+            (generatedProvides.register as (id: number) => void)(9);
+            expect(vmOf(generated).openedId).toBe(9);
+        });
+
+        expect(pair.result.outcome).toBe('full');
     });
 
     it('does not confuse class-local this with component this', async () => {

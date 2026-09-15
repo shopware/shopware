@@ -28,6 +28,7 @@ class NoLocaleAwareSprintfFloatRuleTest extends RuleTestCase
             [self::ERROR, 17],
             [self::ERROR, 20],
             [self::ERROR, 21],
+            [self::ERROR, 25],
         ]);
     }
 

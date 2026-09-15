@@ -62,6 +62,9 @@ final class NoLocaleAwareSprintfFloatRule implements Rule
     private static function containsLocaleAwareFloatSpecifier(string $format): bool
     {
         $offset = 0;
+
+        // Process each consecutive sequence of "%" characters once. A pair of percent signs is an escaped literal "%";
+        // therefore only an odd-length sequence can contain a real conversion specifier.
         while (($percent = strpos($format, '%', $offset)) !== false) {
             $percentRunLength = strspn($format, '%', $percent);
             if ($percentRunLength % 2 === 0) {
@@ -70,7 +73,12 @@ final class NoLocaleAwareSprintfFloatRule implements Rule
                 continue;
             }
 
+            // For an odd run, the final percent starts the conversion after all escaped percent pairs,
+            // e.g. "%%%f" means a literal "%" followed by "%f".
             $conversion = substr($format, $percent + $percentRunLength - 1);
+
+            // A conversion specification follows this prototype: %[argnum$][flags][width][.precision]specifier.
+            // Match all optional parts, but deliberately only the locale-aware lowercase "f" conversion.
             if (preg_match('~^%(?:\\d+\$)?(?>(?:[-+ 0]|\'[\\s\\S])*)(?:\\*|\\d+)?(?:\\.(?:\\*|\\d+))?f~', $conversion) === 1) {
                 return true;
             }

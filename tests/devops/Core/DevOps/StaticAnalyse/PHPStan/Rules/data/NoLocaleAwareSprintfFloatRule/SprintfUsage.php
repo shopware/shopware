@@ -20,9 +20,15 @@ class SprintfUsage
         \sprintf('%2$.1f', $value, $value);
         \sprintf('%%%f', $value);
 
-        // Locale-independent, escaped, and dynamic formats remain valid
+        // PHPStan can resolve this variable to the constant string "%f".
+        $example = '%f';
+        \sprintf($example, $value);
+
+        // Locale-independent and escaped formats are valid.
         \sprintf('%F', $value);
         \sprintf('%%f', $value);
+
+        // PHPStan cannot determine the runtime value of this format string, so this rule does not inspect it.
         \sprintf($format, $value);
     }
 }

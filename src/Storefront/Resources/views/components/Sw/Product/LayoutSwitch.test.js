@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // that both components below extend as a bare global while their own module is evaluated.
 import { Shopware } from 'shopware';
 import LayoutSwitch from './LayoutSwitch';
-import ProductListing from '../Product/Listing';
+import ProductListing from './Listing';
 
 const LISTING_LAYOUT_PARAM = 'listingLayout';
 
@@ -22,7 +22,7 @@ function createProductListing() {
     const el = document.createElement('div');
     el.innerHTML = `
         <div class="sw-product-listing__grid">
-            <div class="sw-grid-container-inner">
+            <div class="sw-grid-container__inner">
                 <div class="sw-product-card"></div>
             </div>
         </div>
@@ -42,7 +42,7 @@ function lastPushedParams(pushState) {
     return Object.fromEntries(url.searchParams);
 }
 
-describe('Sw:Filter:LayoutSwitch', () => {
+describe('Sw:Product:LayoutSwitch', () => {
     beforeEach(() => {
         window.location.search = '';
         Shopware.emit.mockClear();

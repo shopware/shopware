@@ -1,5 +1,9 @@
+.sw-product-listing {
+    width: 100%;
+}
+
 .sw-product-listing__grid {
-    .sw-grid-container-inner {
+    .sw-grid-container__inner {
         opacity: 1;
         transition: all 0.2s ease-in-out;
 
@@ -8,4 +12,13 @@
             transform: translateY(10px);
         }
     }
+}
+
+.sw-product-listing__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: end;
+    gap: var(--spacer-sm);
+    margin-bottom: var(--spacer-sm);
 }

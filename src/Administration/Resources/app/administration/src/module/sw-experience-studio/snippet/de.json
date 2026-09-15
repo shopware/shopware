@@ -18,6 +18,11 @@
           "shadow": "Schatten",
           "background": "Hintergrund"
         }
+      },
+      "sw-product-listing": {
+        "panels": {
+          "sorting": "Sortierung"
+        }
       }
     },
     "list": {

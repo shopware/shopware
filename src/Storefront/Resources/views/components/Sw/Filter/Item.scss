@@ -59,9 +59,14 @@
     }
 }
 
-.is--collapse {
+.is--vertical {
     .sw-filter-item__btn {
         width: 100%;
+
+        &[aria-expanded="true"] {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
     }
 }
 

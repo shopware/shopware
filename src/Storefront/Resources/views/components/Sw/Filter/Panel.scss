@@ -1,16 +1,20 @@
 .sw-filter-panel {
     --sw-filter-panel-background-color: var(--bs-body-bg);
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: start;
     gap: 0.5rem;
     background-color: var(--sw-filter-panel-background-color, transparent);
-    position: sticky;
-    top: 0;
-    z-index: 10;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+// Only the inline variant pins
+.sw-filter-panel.is--inline {
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .sw-filter-panel__filter {
@@ -20,18 +24,18 @@
     gap: 0.5rem;
 }
 
-.is--collapse .sw-filter-panel__filter {
+.sw-filter-panel.is--vertical {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
 }
 
-.sw-filter-panel__actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: end;
-    gap: 0.5rem;
+.is--vertical .sw-filter-panel__filter {
+    flex-direction: column;
+    align-items: stretch;
+    flex-grow: 1;
 }
 
-.sw-filter-panel__counter {
-    line-height: 40px;
+.sw-filter-panel > .sw-active-filters {
+    flex: 0 0 100%;
+    margin-bottom: 0;
 }

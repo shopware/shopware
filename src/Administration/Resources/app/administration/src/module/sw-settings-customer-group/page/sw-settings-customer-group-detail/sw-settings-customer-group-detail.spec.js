@@ -97,9 +97,7 @@ async function createWrapper(privileges = []) {
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-settings-customer-group-price-preview': await wrapTestComponent(
-                        'sw-settings-customer-group-price-preview',
-                    ),
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-text-field': {
                         props: [
                             'label',
@@ -123,7 +121,6 @@ async function createWrapper(privileges = []) {
                     'sw-button-process': true,
 
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
-                    'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
@@ -298,7 +295,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         });
     });
 
-    describe('price display', () => {
+    describe('tax display and price basis', () => {
         let wrapper;
 
         beforeEach(async () => {
@@ -306,38 +303,42 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             await flushPromises();
         });
 
-        it('should offer the three price display modes with a description each', async () => {
-            const priceDisplayMode = wrapper.find('.sw-settings-customer-group-detail__price-display-mode');
+        it('should render both radio groups with a description per option', async () => {
+            const taxDisplay = wrapper.find('.sw-settings-customer-group-detail__tax-display');
+            const priceBasis = wrapper.find('.sw-settings-customer-group-detail__price-basis');
 
-            expect(priceDisplayMode.exists()).toBe(true);
-            expect(wrapper.vm.priceDisplayModeOptions).toEqual([
-                {
-                    value: 'gross',
-                    label: 'sw-settings-customer-group.priceDisplay.modeGrossLabel',
-                    description: 'sw-settings-customer-group.priceDisplay.modeGrossDescription',
-                },
-                {
-                    value: 'net',
-                    label: 'sw-settings-customer-group.priceDisplay.modeNetLabel',
-                    description: 'sw-settings-customer-group.priceDisplay.modeNetDescription',
-                },
-                {
-                    value: 'grossNetBase',
-                    label: 'sw-settings-customer-group.priceDisplay.modeGrossNetBaseLabel',
-                    description: 'sw-settings-customer-group.priceDisplay.modeGrossNetBaseDescription',
-                },
+            expect(taxDisplay.find('.sw-field__label label').text()).toBe(
+                'sw-settings-customer-group.detail.taxDisplay.label',
+            );
+            expect(taxDisplay.findAll('.sw-field__radio-option-label span').map((option) => option.text())).toEqual([
+                'sw-settings-customer-group.detail.taxDisplay.grossLabel',
+                'sw-settings-customer-group.detail.taxDisplay.netLabel',
+            ]);
+            expect(
+                taxDisplay.findAll('.sw-field__radio-option-description').map((description) => description.text()),
+            ).toEqual([
+                'sw-settings-customer-group.detail.taxDisplay.grossDescription',
+                'sw-settings-customer-group.detail.taxDisplay.netDescription',
             ]);
 
-            await priceDisplayMode.find('.sw-select__selection').trigger('click');
-            await flushPromises();
-
-            expect(wrapper.findAll('.sw-select-result')).toHaveLength(3);
-            expect(wrapper.find('.sw-select-option--gross').exists()).toBe(true);
-            expect(wrapper.find('.sw-select-option--net').exists()).toBe(true);
-            expect(wrapper.find('.sw-select-option--grossNetBase').exists()).toBe(true);
-            expect(wrapper.find('.sw-select-option--grossNetBase .sw-select-result__result-item-description').text()).toBe(
-                'sw-settings-customer-group.priceDisplay.modeGrossNetBaseDescription',
+            expect(priceBasis.find('.sw-field__label label').text()).toBe(
+                'sw-settings-customer-group.detail.priceBasis.label',
             );
+            expect(priceBasis.findAll('.sw-field__radio-option-label span').map((option) => option.text())).toEqual([
+                'sw-settings-customer-group.detail.priceBasis.grossLabel',
+                'sw-settings-customer-group.detail.priceBasis.netLabel',
+            ]);
+            expect(
+                priceBasis.findAll('.sw-field__radio-option-description').map((description) => description.text()),
+            ).toEqual([
+                'sw-settings-customer-group.detail.priceBasis.grossDescription',
+                'sw-settings-customer-group.detail.priceBasis.netDescription',
+            ]);
+        });
+
+        it('should leave both fields untouched as long as nobody selects anything', async () => {
+            expect(wrapper.vm.customerGroup.displayGross).toBe(false);
+            expect(wrapper.vm.customerGroup.priceBasis).toBeNull();
         });
 
         it.each([
@@ -347,133 +348,83 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 'net',
             ],
             [
-                false,
-                'net',
-                'net',
-            ],
-            [
-                false,
-                'gross',
-                'net',
-            ],
-            [
                 true,
                 null,
                 'gross',
             ],
             [
-                true,
-                'gross',
-                'gross',
-            ],
-            [
-                true,
-                'net',
-                'grossNetBase',
-            ],
-        ])('should derive the mode from displayGross %s and price basis %s', async (displayGross, priceBasis, mode) => {
-            wrapper.vm.customerGroup.displayGross = displayGross;
-            wrapper.vm.customerGroup.priceBasis = priceBasis;
-            await flushPromises();
-
-            expect(wrapper.vm.priceDisplayMode).toBe(mode);
-            expect(wrapper.find('.sw-single-select__selection-text').text()).toBe(
-                wrapper.vm.priceDisplayModeOptions.find((option) => option.value === mode).label,
-            );
-        });
-
-        /**
-         * @deprecated tag:v6.8.0 - The price basis stays empty as long as the display mode decides the
-         * calculation basis, the test goes away with that coupling.
-         */
-        it.deprecated('v6.8.0.0').each([
-            [
-                'gross',
-                true,
-                null,
-            ],
-            [
-                'net',
                 false,
-                null,
-            ],
-            [
-                'grossNetBase',
-                true,
-                'net',
-            ],
-        ])('should write %s without an explicit price basis', async (mode, displayGross, priceBasis) => {
-            wrapper.vm.priceDisplayMode = mode;
-            await flushPromises();
-
-            expect(wrapper.vm.customerGroup.displayGross).toBe(displayGross);
-            expect(wrapper.vm.customerGroup.priceBasis).toBe(priceBasis);
-        });
-
-        it.activeFeatureFlags(['v6.8.0.0']).each([
-            [
                 'gross',
-                true,
                 'gross',
             ],
             [
+                true,
                 'net',
+                'net',
+            ],
+        ])(
+            'should show the effective basis for displayGross %s and stored basis %s',
+            async (displayGross, storedBasis, effectiveBasis) => {
+                wrapper.vm.customerGroup.displayGross = displayGross;
+                wrapper.vm.customerGroup.priceBasis = storedBasis;
+                await flushPromises();
+
+                expect(wrapper.vm.priceBasis).toBe(effectiveBasis);
+                expect(
+                    wrapper
+                        .find('.sw-settings-customer-group-detail__price-basis')
+                        .find('.sw-field__radio-option-checked .sw-field__radio-option-label span')
+                        .text(),
+                ).toBe(`sw-settings-customer-group.detail.priceBasis.${effectiveBasis}Label`);
+            },
+        );
+
+        it.each([
+            [
                 false,
-                'net',
-            ],
-            [
-                'grossNetBase',
+                0,
                 true,
                 'net',
             ],
-        ])('should write %s with an explicit price basis', async (mode, displayGross, priceBasis) => {
-            wrapper.vm.priceDisplayMode = mode;
+            [
+                true,
+                1,
+                false,
+                'gross',
+            ],
+        ])(
+            'should materialise the effective basis when the tax display of displayGross %s changes',
+            async (displayGross, optionIndex, expectedDisplayGross, expectedBasis) => {
+                wrapper.vm.customerGroup.displayGross = displayGross;
+                wrapper.vm.customerGroup.priceBasis = null;
+                await flushPromises();
+
+                await wrapper.findAll('input[name="sw-field--customerGroup-displayGross"]').at(optionIndex).setValue();
+                await flushPromises();
+
+                expect(wrapper.vm.customerGroup.displayGross).toBe(expectedDisplayGross);
+                expect(wrapper.vm.customerGroup.priceBasis).toBe(expectedBasis);
+            },
+        );
+
+        it('should write the basis without touching the tax display when the basis changes', async () => {
+            const grossPriceBasis = wrapper.findAll('input[name="sw-field--customerGroup-priceBasis"]').at(0);
+            await grossPriceBasis.setValue();
             await flushPromises();
 
-            expect(wrapper.vm.customerGroup.displayGross).toBe(displayGross);
-            expect(wrapper.vm.customerGroup.priceBasis).toBe(priceBasis);
-        });
-
-        it('should write both fields when a mode is selected in the select', async () => {
-            const priceDisplayMode = wrapper.find('.sw-settings-customer-group-detail__price-display-mode');
-            await priceDisplayMode.find('.sw-select__selection').trigger('click');
-            await flushPromises();
-
-            await wrapper.find('.sw-select-option--grossNetBase').trigger('click');
-            await flushPromises();
-
-            expect(wrapper.vm.customerGroup.displayGross).toBe(true);
-            expect(wrapper.vm.customerGroup.priceBasis).toBe('net');
-        });
-
-        it('should update the preview when the mode changes', async () => {
-            const preview = wrapper.find('.sw-settings-customer-group-detail__price-preview');
-
-            expect(preview.exists()).toBe(true);
-            expect(preview.find('.sw-settings-customer-group-price-preview__row--merchant').classes()).toContain(
-                'is--fixed',
-            );
-
-            wrapper.vm.priceDisplayMode = 'gross';
-            await flushPromises();
-
-            expect(preview.find('.sw-settings-customer-group-price-preview__row--total').classes()).toContain('is--fixed');
-            expect(preview.find('.sw-settings-customer-group-price-preview__row--merchant').classes()).toContain(
-                'is--varying',
-            );
+            expect(wrapper.vm.customerGroup.priceBasis).toBe('gross');
+            expect(wrapper.vm.customerGroup.displayGross).toBe(false);
         });
 
         it('should only be editable with edit permission', async () => {
-            expect(wrapper.find('.sw-settings-customer-group-detail__price-display-mode').classes()).not.toContain(
-                'is--disabled',
-            );
+            expect(wrapper.find('.sw-settings-customer-group-detail__tax-display').classes()).not.toContain('is--disabled');
+            expect(wrapper.find('.sw-settings-customer-group-detail__price-basis').classes()).not.toContain('is--disabled');
 
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(wrapper.find('.sw-settings-customer-group-detail__price-display-mode').classes()).toContain(
-                'is--disabled',
-            );
+            expect(wrapper.find('.sw-settings-customer-group-detail__tax-display').classes()).toContain('is--disabled');
+            expect(wrapper.find('.sw-settings-customer-group-detail__price-basis').classes()).toContain('is--disabled');
         });
     });
 

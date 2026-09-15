@@ -15,10 +15,10 @@ test(
             await ShopAdmin.expects(AdminCustomerGroupDetail.headline).toContainText(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupNameField).toHaveValue(customerGroup.name);
             await ShopAdmin.expects(
-                AdminCustomerGroupDetail.page.locator(
-                    '.sw-settings-customer-group-detail__price-display-mode .sw-single-select__selection-text',
-                ),
-            ).toHaveText('Gross prices');
+                AdminCustomerGroupDetail.page
+                    .locator('.sw-settings-customer-group-detail__tax-display input[type="radio"]')
+                    .first(),
+            ).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.customSignupFormToggle).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormTitle).toHaveValue(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormIntroduction).toContainText(

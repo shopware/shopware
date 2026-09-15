@@ -135,44 +135,59 @@ export default {
             return criteria;
         },
 
-        priceDisplayModeOptions() {
+        taxDisplayOptions() {
             return [
                 {
-                    value: 'gross',
-                    label: this.$t('sw-settings-customer-group.priceDisplay.modeGrossLabel'),
-                    description: this.$t('sw-settings-customer-group.priceDisplay.modeGrossDescription'),
+                    value: true,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.grossDescription'),
                 },
                 {
-                    value: 'net',
-                    label: this.$t('sw-settings-customer-group.priceDisplay.modeNetLabel'),
-                    description: this.$t('sw-settings-customer-group.priceDisplay.modeNetDescription'),
-                },
-                {
-                    value: 'grossNetBase',
-                    label: this.$t('sw-settings-customer-group.priceDisplay.modeGrossNetBaseLabel'),
-                    description: this.$t('sw-settings-customer-group.priceDisplay.modeGrossNetBaseDescription'),
+                    value: false,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.netDescription'),
                 },
             ];
         },
 
-        priceDisplayMode: {
+        priceBasisOptions() {
+            return [
+                {
+                    value: 'gross',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.grossDescription'),
+                },
+                {
+                    value: 'net',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.netDescription'),
+                },
+            ];
+        },
+
+        displayGross: {
             get() {
-                if (this.customerGroup?.displayGross && this.customerGroup?.priceBasis === 'net') {
-                    return 'grossNetBase';
+                return !!this.customerGroup?.displayGross;
+            },
+            set(value) {
+                const priceBasis = this.priceBasis;
+
+                this.customerGroup.displayGross = value;
+                this.customerGroup.priceBasis = priceBasis;
+            },
+        },
+
+        priceBasis: {
+            get() {
+                if (this.customerGroup?.priceBasis) {
+                    return this.customerGroup.priceBasis;
                 }
 
                 return this.customerGroup?.displayGross ? 'gross' : 'net';
             },
             set(value) {
-                if (value === 'grossNetBase') {
-                    this.customerGroup.displayGross = true;
-                    this.customerGroup.priceBasis = 'net';
-
-                    return;
-                }
-
-                this.customerGroup.displayGross = value === 'gross';
-                this.customerGroup.priceBasis = this.feature.isActive('v6.8.0.0') ? value : null;
+                this.customerGroup.displayGross = this.displayGross;
+                this.customerGroup.priceBasis = value;
             },
         },
 

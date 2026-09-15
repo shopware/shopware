@@ -14,12 +14,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - reason: the tested factory is removed with the next major - to be removed
  */
 #[Package('inventory')]
 #[CoversClass(ProductListingResult::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class ProductListingResultTest extends TestCase
 {
     public function testFromSearchResultCopiesResultProperties(): void

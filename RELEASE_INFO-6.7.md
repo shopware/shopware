@@ -521,6 +521,12 @@ The component's props are exposed alongside them and need no declaration, so `re
 
 Calling `defineExpose()` yourself is rejected in base and override components: in base mode `swDefinePublic()` already calls it for you, in override mode you're unnable to use it.
 
+### Native-setup build errors point at the author's source
+
+Errors raised by the native-setup transform now carry the line and column of the offending code in the original `.vue` file and print a code frame, in Vite, Jest and the `valid-shopware-setup` ESLint rule alike. Syntax errors previously reported block-relative Babel coordinates, and marker or reserved-name errors pointed at the start of the file or block.
+
+The transform now also rejects `v-model` on a forwarded override binding inside `<sw-block extends>` content, the same way it rejects `count++` or `count = 1` there. Such a binding arrives read-only through the slot scope, so the write never took effect. Member writes such as `v-model="form.name"` remain allowed; mutate override state from a handler defined in the override setup instead.
+
 ### Extension empty states use `mt-empty-state`
 
 The empty states of Extensions > My extensions and the Shopware Store activation page render `mt-empty-state`. The Twig blocks and snippet keys are unchanged, but overrides that build on the previous markup need to adapt: the listing empty state is no longer a `sw-meteor-card`, and on the activation page the "Now available" badge (`.sw-extension-store-landing-page__wrapper-label`) and the `sw-label` of the success and error states no longer exist.

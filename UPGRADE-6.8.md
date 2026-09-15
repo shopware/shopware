@@ -234,6 +234,14 @@ Price-based shipping method price matrix ranges are now compared in the default 
 
 Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
+## Customer and address names accept an empty string
+
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag. The columns stayed `NOT NULL` and the getters kept returning `string`, but the data abstraction layer stopped rejecting an empty string. This applies to every write path, the Admin API, the Sync API and direct repository writes included, and to private accounts as well as commercial ones.
+
+One rule still holds on every write path, through a `PreWriteValidationEvent` subscriber: a customer, an address, an order customer or an order address may not end up naming nobody. Both names may be empty only when the customer is a commercial account with a company, or when the address or the order snapshot carries a company. A private account keeps needing a contact person on the Admin API, the Sync API and direct repository writes as well. The store API routes add the finer rule on top, from the two settings a shop configures. Code that needs a stricter rule than that can still add a `NotBlank` to its own `DataValidationDefinition` or subscribe to `PreWriteValidationEvent` itself.
+
+Read a customer name through `CustomerEntity::getDisplayName()` and an order customer name through `OrderCustomerEntity::getDisplayName()` rather than joining `firstName` and `lastName`. Both fall back to the company when there is no contact person, the customer one for a commercial account only and the order one always, because the snapshot has no account type. The value is a runtime field that a subscriber per entity fills on `loaded` and `partial_loaded`, which carries it into the API responses; the getters return that field as it is, so an entity you build in code has an empty display name until you call `setDisplayName()`, and an extension changes the name in a subscriber that runs after the shipped one. A partial read has to ask for `displayName` or for all of its source fields to get it. `CustomerEntity::__toString()` returns the display name once it is loaded, so casting a loaded customer to a string no longer yields the raw `firstName lastName` concatenation; an entity built in code keeps the old string. Being a runtime field it cannot be sorted or filtered in a `Criteria`.
+
 </details>
 
 # API

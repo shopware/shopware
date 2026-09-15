@@ -1,6 +1,11 @@
 import { mergeTests } from '@playwright/test';
 
 /**
+ * Account
+ */
+import { RegisterCompanyAccount } from './ShopCustomer/Account/RegisterCompanyAccount';
+
+/**
  * Account Orders
  */
 import { DownloadDigitalProductFromOrderAndExpectContentToBe } from './ShopCustomer/Account/DownloadDigitalProductFromOrder';
@@ -26,6 +31,7 @@ import { ValidateLighthouseScore } from './ShopCustomer/Pagespeed/ValidateLighth
 import { AcceptTechnicalRequiredCookies } from './ShopCustomer/Settings/AcceptTechnicalRequiredCookies';
 
 export const test = mergeTests(
+    RegisterCompanyAccount,
     DownloadDigitalProductFromOrderAndExpectContentToBe,
     AddPromotionCodeToCart,
     ConfirmImmediateAccessToDigitalProduct,

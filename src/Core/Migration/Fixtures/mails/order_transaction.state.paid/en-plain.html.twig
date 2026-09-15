@@ -1,5 +1,5 @@
 {% set currencyIsoCode = order.currency.isoCode %}
-{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.displayName }},
 
 We received your payment and will now start processing the order.
 

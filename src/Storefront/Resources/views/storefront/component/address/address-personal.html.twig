@@ -87,9 +87,13 @@
                 {% endif %}
             </div>
         {% elseif not hideCustomerTypeSelect %}
-            {# This case applies to custom registration forms with the "Company signup form" config enabled. #}
-            {# The registration is always of type "commercial" then. #}
-            <input type="hidden" name="{{ accountTypeFieldName }}">
+            {% if hasSelectedBusiness|default(false) %}
+                <input type="hidden"
+                       name="{{ accountTypeFieldName }}"
+                       value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+            {% else %}
+                <input type="hidden" name="{{ accountTypeFieldName }}">
+            {% endif %}
         {% endif %}
     {% endblock %}
 
@@ -149,7 +153,40 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        <div class="row g-2">
+        {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+
+        {% set showSetting = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
+        {% set requiredSetting = config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+        {% set companyNameFieldsShown = showSetting is null ? true : showSetting %}
+        {% set companyNameFieldsRequired = companyNameFieldsShown and (requiredSetting is null ? true : requiredSetting) %}
+
+        {% set accountTypeSelectable = config('core.loginRegistration.showAccountTypeSelection') %}
+        {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == businessType %}
+        {% set customerIsCompany = accountType|default('') == businessType or loggedInCustomerIsCompany %}
+
+        {% set isSeparateShippingAddress = prefix|default('') == 'shippingAddress' %}
+
+        {% set companyOnlyForm = not isSeparateShippingAddress
+            and (onlyCompanyRegistration|default(false)
+                or hasSelectedBusiness|default(false)
+                or (not accountTypeSelectable and customerIsCompany)) %}
+
+        {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
+        {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
+
+        {% set accountTypeSwitchable = (prefix|default('') == '' or (prefix|default('') == 'address' and loggedInCustomerIsCompany))
+            and accountTypeSelectable
+            and not hideCustomerTypeSelect|default(false)
+            and not hasSelectedBusiness|default(false)
+            and not onlyCompanyRegistration %}
+
+        <div class="row g-2"{% if accountTypeSwitchable %} data-company-name-fields="true" data-company-name-fields-options="{{ {
+            accountTypeSelector: '#' ~ idPrefix ~ prefix ~ '-accountType',
+            businessValue: constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
+            shown: companyNameFieldsShown,
+            required: companyNameFieldsRequired,
+        }|json_encode }}"{% endif %}>
+            {% if personNameShown %}
             {% block component_address_personal_fields_first_name %}
                 {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
@@ -170,7 +207,7 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
                         autocomplete: 'section-personal given-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
@@ -195,11 +232,12 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
                         autocomplete: 'section-personal family-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
             {% endblock %}
+            {% endif %}
         </div>
     {% endblock %}
 

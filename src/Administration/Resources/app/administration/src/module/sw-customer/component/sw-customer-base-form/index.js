@@ -19,6 +19,12 @@ export default {
     emits: ['sales-channel-change'],
 
     props: {
+        companyNamesRequired: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         customer: {
             type: Object,
             required: true,
@@ -55,6 +61,10 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        contactPersonRequired() {
+            return !this.isBusinessAccountType || this.companyNamesRequired;
         },
 
         languageCriteria() {

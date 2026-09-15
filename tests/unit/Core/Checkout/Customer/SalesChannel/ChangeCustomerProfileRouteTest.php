@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -47,6 +49,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             $storeApiCustomFieldMapper,
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -80,6 +83,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -90,6 +94,37 @@ class ChangeCustomerProfileRouteTest extends TestCase
         ]);
 
         $change->change($data, static::createStub(SalesChannelContext::class), $customer);
+    }
+
+    public function testStoredVatIdsSurviveAFormThatDoesNotPostThem(): void
+    {
+        $route = $this->assertVatIdsWritten(['DE123456789']);
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer1');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setVatIds(['DE123456789']);
+
+        $data = new RequestDataBag(['salutationId' => '1']);
+
+        $route->change($data, static::createStub(SalesChannelContext::class), $customer);
+    }
+
+    public function testASubmittedNullClearsTheStoredVatIds(): void
+    {
+        $route = $this->assertVatIdsWritten(null);
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer1');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setVatIds(['DE123456789']);
+
+        $data = new RequestDataBag([
+            'salutationId' => '1',
+            'vatIds' => null,
+        ]);
+
+        $route->change($data, static::createStub(SalesChannelContext::class), $customer);
     }
 
     public function testSalutationIdIsAssignedDefaultValue(): void
@@ -124,7 +159,8 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(DataValidator::class),
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
-            $salutationRepository
+            $salutationRepository,
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
         );
 
         $customer = new CustomerEntity();
@@ -139,5 +175,32 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $change->change($data, $salesChannelContext, $customer);
+    }
+
+    /**
+     * @param array<string>|null $expected
+     */
+    private function assertVatIdsWritten(?array $expected): ChangeCustomerProfileRoute
+    {
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository
+            ->expects($this->once())
+            ->method('update')
+            ->with(static::callback(static function (array $data) use ($expected) {
+                static::assertIsArray($data[0]);
+                static::assertSame($expected, $data[0]['vatIds']);
+
+                return true;
+            }));
+
+        return new ChangeCustomerProfileRoute(
+            $customerRepository,
+            new EventDispatcher(),
+            static::createStub(DataValidator::class),
+            static::createStub(CustomerValidationFactory::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            new CompanyAccountNameFields(static::createStub(SystemConfigService::class)),
+        );
     }
 }

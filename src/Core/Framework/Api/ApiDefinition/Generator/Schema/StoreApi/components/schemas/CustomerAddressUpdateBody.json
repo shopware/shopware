@@ -1,0 +1,80 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CustomerAddressUpdateBody": {
+                "description": "Added since version: 6.7.15.0",
+                "required": [
+                    "countryId",
+                    "city",
+                    "street"
+                ],
+                "properties": {
+                    "countryId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryStateId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salutationId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "firstName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. An omitted name keeps the stored value then.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. An omitted name keeps the stored value then.",
+                        "type": "string"
+                    },
+                    "zipcode": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "company": {
+                        "description": "Required when the request selects a commercial account type in a shop that shows the account type selection. An omitted company keeps the stored value.",
+                        "type": "string"
+                    },
+                    "street": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "type": "string"
+                    },
+                    "additionalAddressLine1": {
+                        "type": "string"
+                    },
+                    "additionalAddressLine2": {
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "countryState": {
+                        "$ref": "#/components/schemas/CountryState"
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

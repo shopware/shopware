@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -56,6 +57,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
     ) {
     }
 
@@ -81,8 +83,27 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->remove('accountType');
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $validation->add('company', new NotBlank());
+        $isBusinessAccount = $data->has('accountType')
+            ? $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            : $customer->isBusinessAccount();
+
+        if ($isBusinessAccount) {
+            if (!$data->has('vatIds') && $customer->getVatIds() !== null) {
+                $data->set('vatIds', $customer->getVatIds());
+            }
+
+            if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
+                $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
+                $this->companyAccountNameFields->normalize($data, submittedOnly: true);
+
+                if (!$data->has('company')) {
+                    $data->set('company', $customer->getCompany() ?? '');
+                }
+            } elseif ($data->has('company') || $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+                $data->set('company', $data->get('company') ?? '');
+                $validation->add('company', CompanyAccountNameFields::companyNotBlank());
+            }
+
             $billingAddress = $customer->getDefaultBillingAddress();
             if ($billingAddress) {
                 $this->addVatIdsValidation($validation, $billingAddress);

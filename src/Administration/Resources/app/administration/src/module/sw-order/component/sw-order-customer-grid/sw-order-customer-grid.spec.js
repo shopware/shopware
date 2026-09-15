@@ -243,6 +243,17 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         Shopware.Store.register(contextState);
     });
 
+    it('should sort the name column by the company after the person name', async () => {
+        setCustomerData([]);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.customerColumns.find((column) => column.property === 'firstName').dataIndex).toBe(
+            'lastName,firstName,company',
+        );
+    });
+
     it('should show empty state view when there is no customer', async () => {
         setCustomerData([]);
 

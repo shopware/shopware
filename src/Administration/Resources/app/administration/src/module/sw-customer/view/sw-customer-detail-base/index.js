@@ -29,6 +29,12 @@ export default {
             required: false,
             default: false,
         },
+
+        companyNamesRequired: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 
     data() {

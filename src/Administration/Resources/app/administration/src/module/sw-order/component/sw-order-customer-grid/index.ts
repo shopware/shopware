@@ -123,7 +123,7 @@ export default Component.wrapComponentConfig({
                 },
                 {
                     property: 'firstName',
-                    dataIndex: 'lastName,firstName',
+                    dataIndex: 'lastName,firstName,company',
                     label: this.$t('sw-order.initialModal.customerGrid.columnCustomerName'),
                     primary: true,
                 },

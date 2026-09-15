@@ -13,10 +13,11 @@ const customer = {
     ],
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-customer-base-form', { sync: true }), {
         props: {
             customer,
+            ...props,
         },
         global: {
             stubs: {
@@ -88,5 +89,26 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
         const criteria = wrapper.vm.languageCriteria;
 
         expect(criteria.filters).toHaveLength(0);
+    });
+
+    it('should keep the contact person required for a private account', async () => {
+        const wrapper = await createWrapper({ companyNamesRequired: false });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should make the contact person optional for a company account when the settings allow it', async () => {
+        const wrapper = await createWrapper({
+            companyNamesRequired: false,
+            customer: { ...customer, accountType: 'business' },
+        });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(false);
+    });
+
+    it('should keep the contact person required for a company account by default', async () => {
+        const wrapper = await createWrapper({ customer: { ...customer, accountType: 'business' } });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 });

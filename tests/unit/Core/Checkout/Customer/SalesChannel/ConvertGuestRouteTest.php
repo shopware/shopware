@@ -168,9 +168,11 @@ class ConvertGuestRouteTest extends TestCase
         $route = $this->buildRoute($eventDispatcher, $validator, $passwordValidationFactory);
 
         $this->expectException(ConstraintViolationException::class);
-        $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
-
-        static::assertEmpty($this->customerRepository->updates);
+        try {
+            $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
+        } finally {
+            static::assertEmpty($this->customerRepository->updates);
+        }
     }
 
     private function buildRoute(

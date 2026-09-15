@@ -67,6 +67,52 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(global.console.warn).not.toHaveBeenCalled();
     });
 
+    it('[prop] should warn if the deprecated prop is explicitly set to its default value', async () => {
+        component = createComponent({
+            customComponent: {
+                props: {
+                    example: {
+                        type: String,
+                        required: false,
+                        deprecated: '6.4.0',
+                        default: 'Lorem ipsum',
+                    },
+                },
+            },
+            customOptions: {
+                props: {
+                    example: 'Lorem ipsum',
+                },
+            },
+        });
+
+        expect(global.console.warn).toHaveBeenCalled();
+    });
+
+    it('[prop] should warn when a deprecated prop is supplied in kebab case', async () => {
+        component = createComponent({
+            customComponent: {
+                template: '<deprecated-component example-property-test="value" />',
+            },
+            customGlobalOptions: {
+                stubs: {
+                    'deprecated-component': {
+                        name: 'deprecated-component',
+                        template: '<div></div>',
+                        props: {
+                            examplePropertyTest: {
+                                type: String,
+                                deprecated: '6.4.0',
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(global.console.warn.mock.calls[0][1]).toEqual(expect.stringContaining('examplePropertyTest'));
+    });
+
     it('[prop] should throw an error if the deprecated (string) prop is used', async () => {
         component = createComponent({
             customComponent: {

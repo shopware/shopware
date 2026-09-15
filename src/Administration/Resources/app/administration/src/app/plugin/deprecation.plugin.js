@@ -85,7 +85,7 @@ class DeprecationPlugin {
                 if (!_instance) return;
 
                 const { props } = _instance.type;
-                const propsData = _instance.props;
+                const propsData = _instance.vnode.props ?? {};
 
                 const deprecatedProps = _this.getDeprecatedProps(props);
 
@@ -178,28 +178,9 @@ class DeprecationPlugin {
                     prop,
                 ],
             ) => {
-                // The deprecated property exists in the current instance props
-                if (usedProps.hasOwnProperty(propKey)) {
-                    // If the deprecated property has a default?
-                    // Then it will also be in the current props with the default value
-                    if (prop.hasOwnProperty('default')) {
-                        // Only add the prop to the used deprecated props if the value differs from the default
-                        // Prop default function
-                        if (typeof prop.default === 'function' && prop.default() !== usedProps[propKey]) {
-                            acc[propKey] = prop.deprecated;
-                            return acc;
-                        }
-
-                        // Prop default scalar value
-                        if (prop.default !== usedProps[propKey]) {
-                            acc[propKey] = prop.deprecated;
-                            return acc;
-                        }
-
-                        return acc;
-                    }
-
-                    acc[propKey] = prop;
+                const kebabCasePropKey = propKey.replace(/\B([A-Z])/g, '-$1').toLowerCase();
+                if (usedProps.hasOwnProperty(propKey) || usedProps.hasOwnProperty(kebabCasePropKey)) {
+                    acc[propKey] = prop.deprecated;
                 }
 
                 return acc;

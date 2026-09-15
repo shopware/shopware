@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -72,6 +73,8 @@ class CustomerGroupPriceBasisTest extends TestCase
 
     public function testWithoutAPriceBasisTheStoredGrossStaysAuthoritative(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $price = $this->calculateLineItemPrice($this->productId, null, displayGross: true);
 
         static::assertSame(99.99, $price->getUnitPrice());

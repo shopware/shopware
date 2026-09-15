@@ -147,8 +147,7 @@ class PriceSelectorTest extends TestCase
 
     private function select(Price $price, TaxRuleCollection $taxRules, ?string $basis, string $taxState): SelectedPrice
     {
-        $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setPriceBasis($basis);
+        $customerGroup = (new CustomerGroupEntity())->assign(['priceBasis' => $basis]);
 
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);

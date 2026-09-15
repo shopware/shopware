@@ -29,6 +29,8 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @internal
+     *
      * @return string|null the fingerprint of the resolved tax rates, or null when the customer group does not derive prices from them
      */
     public static function buildTaxRuleFingerprint(SalesChannelContext $context): ?string

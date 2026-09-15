@@ -69,9 +69,11 @@ Loose ends handled:
   the two fields is needed.
 
 End state: `NULL` is transitional. With v6.8 a migration backfills the remaining `price_basis` rows from
-`display_gross`, the column becomes `NOT NULL`, and the `NULL` fallback in the selector goes away. Until
-then `NULL` keeps the old coupling alive for every writer that does not know the field: old core during
-blue-green, plugins, ERP syncs, API clients.
+`display_gross`, the column becomes `NOT NULL`, and the `NULL` fallback in the selector goes away. Behind
+the v6.8 flag both fields are already required on write, with entity defaults (gross display, gross basis)
+so a field-unaware writer gets an explicit pair instead of a silent `NULL`. Until then `NULL` keeps the old
+coupling alive for every writer that does not know the field: old core during blue-green, plugins, ERP
+syncs, API clients.
 
 ## Alternatives considered
 

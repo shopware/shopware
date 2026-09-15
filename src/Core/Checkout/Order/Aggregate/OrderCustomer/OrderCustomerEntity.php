@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderCustomerEntity extends Entity
 {
@@ -195,18 +198,6 @@ class OrderCustomerEntity extends Entity
     public function setDisplayName(string $displayName): void
     {
         $this->displayName = $displayName;
-    }
-
-    public function getBuyerName(): string
-    {
-        $personName = trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
-        $company = trim($this->company ?? '');
-
-        return match (true) {
-            $company === '' => $personName,
-            $personName === '' || $personName === $company => $company,
-            default => $personName . ' - ' . $company,
-        };
     }
 
     public function getRemoteAddress(): ?string

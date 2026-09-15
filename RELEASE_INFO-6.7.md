@@ -161,7 +161,7 @@ The `customer` and the `order_customer` entity gain a runtime field `displayName
 
 A subscriber per entity fills the field on the `loaded` and `partial_loaded` events, which is what carries the value into the API responses, and an extension can replace it in a later subscriber. For a `customer` it resolves from `firstName`, `lastName`, `company` and `accountType`, so a private account without a name renders nothing rather than its company. For an `order_customer` it resolves from the names and the company of the snapshot, which has no account type. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return the field as loaded; an entity built in code has an empty display name until `setDisplayName()` is called. `CustomerEntity::__toString()` returns the display name too. Being a runtime field it cannot be sorted or filtered in a `Criteria`; sort on `lastName` or `company` instead.
 
-The order snapshot keeps the names as the customer had them, so an order of a commercial account without a contact person carries empty names and the company in `order_customer.company`. `OrderCustomerEntity::getBuyerName()` joins the person and the company for the buyer block of a document.
+The order snapshot keeps the names as the customer had them, so an order of a commercial account without a contact person carries empty names and the company in `order_customer.company`. The buyer block of a document joins the person and the company, the company alone when there is no contact person or the two are the same.
 
 `GET /store-api/shop-settings` returns the two new settings under `loginRegistration`, so a headless client can build the same form as the Storefront.
 

@@ -166,7 +166,10 @@ function renderScript(
         ...(ctx.helpers.has('nextTick') ? ['nextTick'] : []),
         ...(ctx.helpers.has('slots') ? ['useSlots'] : []),
         ...(ctx.helpers.has('attrs') ? ['useAttrs'] : []),
-        ...[...new Set(collected.hooks.map((hook) => hook.hook))],
+        ...new Set([
+            ...collected.hooks.map((hook) => hook.hook),
+            ...(collected.createdFn ? ['onBeforeMount'] : []),
+        ]),
     ];
     const routerImports = [
         ...(ctx.helpers.has('router') ? ['useRouter'] : []),
@@ -273,8 +276,10 @@ function renderScript(
         dataBlock || null,
         refBlock || null,
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
+        // `created` ran before every other lifecycle hook, and hooks of the same type run in
+        // registration order — so its call is emitted above them.
+        collected.createdFn ? `onBeforeMount(${arrowText(ctx, collected.createdFn)});` : null,
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
-        collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
         ...siteTodos.map(todoBlock),
         publicNames.length > 0
             ? `swDefinePublic({\n${publicNames.map((publicName) => `${publicName},`).join('\n')}\n});`

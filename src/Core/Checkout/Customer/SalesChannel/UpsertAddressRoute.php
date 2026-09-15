@@ -108,7 +108,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         if ($namesAreOptional) {
             if (!$isCreate) {
-                $this->keepStoredNames($addressId, $data, $context);
+                $this->keepStoredIdentity($addressId, $data, $context);
             }
 
             $this->companyAccountNameFields->normalize($data);
@@ -161,9 +161,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         return new UpsertAddressRouteResponse($address);
     }
 
-    private function keepStoredNames(?string $addressId, DataBag $data, SalesChannelContext $context): void
+    private function keepStoredIdentity(?string $addressId, DataBag $data, SalesChannelContext $context): void
     {
-        if ($addressId === null || ($data->has('firstName') && $data->has('lastName'))) {
+        if ($addressId === null || ($data->has('firstName') && $data->has('lastName') && $data->has('company'))) {
             return;
         }
 
@@ -182,6 +182,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         if (!$data->has('lastName')) {
             $data->set('lastName', $address->getLastName());
+        }
+
+        if (!$data->has('company')) {
+            $data->set('company', $address->getCompany());
         }
     }
 

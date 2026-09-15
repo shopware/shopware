@@ -7,6 +7,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -46,6 +48,8 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 
         $this->validateEntity($event, CustomerDefinition::ENTITY_NAME, $violations, true);
         $this->validateEntity($event, CustomerAddressDefinition::ENTITY_NAME, $violations, false);
+        $this->validateEntity($event, OrderCustomerDefinition::ENTITY_NAME, $violations, false);
+        $this->validateEntity($event, OrderAddressDefinition::ENTITY_NAME, $violations, false);
 
         if ($violations->count() === 0) {
             return;

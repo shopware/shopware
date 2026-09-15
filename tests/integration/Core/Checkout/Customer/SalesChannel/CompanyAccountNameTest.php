@@ -124,6 +124,33 @@ class CompanyAccountNameTest extends TestCase
             $this->browser->getResponse()->getStatusCode(),
             'a company address without a contact person has to stay editable: ' . (string) $this->browser->getResponse()->getContent()
         );
+
+        $this->browser->request(
+            'PATCH',
+            '/store-api/account/address/' . $addressId,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
+                'street' => 'Examplestreet 12',
+                'zipcode' => '48441',
+                'city' => 'Hamburg',
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        static::assertSame(
+            Response::HTTP_OK,
+            $this->browser->getResponse()->getStatusCode(),
+            'an edit that omits the company has to keep the stored one: ' . (string) $this->browser->getResponse()->getContent()
+        );
+
+        $address = $this->loadCustomer('company-no-contact@example.com')->getDefaultBillingAddress();
+
+        static::assertNotNull($address);
+        static::assertSame('Examplestreet 12', $address->getStreet());
+        static::assertSame('Acme GmbH', $address->getCompany());
+        static::assertSame('', $address->getFirstName());
     }
 
     public function testProfileKeepsTheCompanyWhenTheFormDoesNotPostIt(): void

@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -37,7 +39,7 @@ class CustomerContactPersonSubscriberTest extends TestCase
     protected function setUp(): void
     {
         $this->registry = new StaticDefinitionInstanceRegistry(
-            [CustomerDefinition::class, CustomerAddressDefinition::class],
+            [CustomerDefinition::class, CustomerAddressDefinition::class, OrderCustomerDefinition::class, OrderAddressDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
         );
@@ -85,6 +87,13 @@ class CustomerContactPersonSubscriberTest extends TestCase
         yield 'address with a contact person' => [$address, ['first_name' => 'Ada', 'last_name' => 'Lovelace'], true];
         yield 'address with a company only' => [$address, ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'], true];
         yield 'address naming nobody' => [$address, ['first_name' => '', 'last_name' => '', 'company' => null], false];
+
+        foreach ([OrderCustomerDefinition::ENTITY_NAME, OrderAddressDefinition::ENTITY_NAME] as $snapshot) {
+            yield $snapshot . ' with a contact person' => [$snapshot, ['first_name' => 'Ada', 'last_name' => 'Lovelace'], true];
+            yield $snapshot . ' with a company only' => [$snapshot, ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'], true];
+            yield $snapshot . ' with a blank company only' => [$snapshot, ['first_name' => '', 'last_name' => '', 'company' => ' '], false];
+            yield $snapshot . ' naming nobody' => [$snapshot, ['first_name' => '', 'last_name' => ''], false];
+        }
     }
 
     /**
@@ -121,6 +130,43 @@ class CustomerContactPersonSubscriberTest extends TestCase
         yield 'clearing the company of a nameless commercial account' => [['company' => null], ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH', 'account_type' => 'business'], false];
         yield 'switching a nameless commercial account to private' => [['account_type' => 'private'], ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH', 'account_type' => 'business'], false];
         yield 'clearing one name keeps the other' => [['first_name' => ''], $private, true];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @param array<string, string|null> $stored
+     */
+    #[DataProvider('snapshotUpdateProvider')]
+    public function testOrderSnapshotUpdateMergesTheStoredRow(string $entity, array $payload, array $stored, bool $valid): void
+    {
+        $id = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociativeIndexed')
+            ->willReturn([$id => $stored]);
+
+        $event = $this->event($this->update($entity, $id, $payload));
+
+        (new CustomerContactPersonSubscriber($connection))->validate($event);
+
+        $this->assertOutcome($event, $valid);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>, array<string, string|null>, bool}>
+     */
+    public static function snapshotUpdateProvider(): iterable
+    {
+        foreach ([OrderCustomerDefinition::ENTITY_NAME, OrderAddressDefinition::ENTITY_NAME] as $snapshot) {
+            $nameless = ['first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'];
+            $named = ['first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null];
+
+            yield $snapshot . ': clearing the names next to a company' => [$snapshot, ['first_name' => '', 'last_name' => ''], ['first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => 'Acme GmbH'], true];
+            yield $snapshot . ': clearing the names without a company' => [$snapshot, ['first_name' => '', 'last_name' => ''], $named, false];
+            yield $snapshot . ': clearing the company of a nameless snapshot' => [$snapshot, ['company' => null], $nameless, false];
+            yield $snapshot . ': clearing one name keeps the other' => [$snapshot, ['first_name' => ''], $named, true];
+        }
     }
 
     public function testUpdateWithoutANameFieldIsNotChecked(): void

@@ -44,12 +44,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(UpsertAddressRoute::class)]
 class UpsertAddressRouteTest extends TestCase
 {
-    public function testItKeepsAStoredNameTheFormDidNotSubmit(): void
+    #[DataProvider('storedIdentityProvider')]
+    public function testItKeepsAStoredIdentityTheFormDidNotSubmit(string $firstName, string $lastName, ?string $company): void
     {
         $stored = new CustomerAddressEntity();
         $stored->setId('address-1');
-        $stored->setFirstName('Ada');
-        $stored->setLastName('Lovelace');
+        $stored->setFirstName($firstName);
+        $stored->setLastName($lastName);
+        $stored->assign(['company' => $company]);
 
         $written = null;
         $addressRepository = $this->createMock(EntityRepository::class);
@@ -78,8 +80,19 @@ class UpsertAddressRouteTest extends TestCase
         $this->upsertWithOptionalNames($addressRepository, 'address-1', ['street' => 'New Street 1']);
 
         static::assertIsArray($written);
-        static::assertSame('Ada', $written['firstName'], 'an unrelated edit must not erase the contact person');
-        static::assertSame('Lovelace', $written['lastName']);
+        static::assertSame($firstName, $written['firstName'], 'an unrelated edit must not erase the contact person');
+        static::assertSame($lastName, $written['lastName']);
+        static::assertSame($company, $written['company'], 'an unrelated edit must not erase the company');
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string|null}>
+     */
+    public static function storedIdentityProvider(): iterable
+    {
+        yield 'a contact person without a company' => ['Ada', 'Lovelace', null];
+        yield 'a contact person with a company' => ['Ada', 'Lovelace', 'Acme GmbH'];
+        yield 'a company without a contact person' => ['', '', 'Acme GmbH'];
     }
 
     public function testItFillsAnEmptyNameOnCreate(): void

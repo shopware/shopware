@@ -819,6 +819,7 @@ class InvoiceRendererTest extends TestCase
         bool $isEuMember,
         bool $validateVat,
         string $vatNumber,
+        bool $sellsFromTheDeliveryCountry,
         bool $shouldDisplay
     ): void {
         $cart = $this->generateDemoCartWithTaxes([7]);
@@ -866,10 +867,11 @@ class InvoiceRendererTest extends TestCase
 
         static::getContainer()->get('country.repository')->upsert([$updateData], Context::createDefaultContext());
 
-        // The note is only granted against a member state the shop does not supply from itself
+        // A supply that stays inside the shop's own member state is domestic and never carries the note,
+        // so every cross-border case has to supply from another member state
         static::getContainer()->get(SystemConfigService::class)->set(
             'core.basicInformation.sellerCountryId',
-            $this->getCountryIdByIsoCode('DE')
+            $sellsFromTheDeliveryCountry ? $countryId : $this->getAnotherEuCountryId($orderAddress->getCountry()?->getIso())
         );
 
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
@@ -922,6 +924,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -932,6 +935,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => true,
         ];
 
@@ -942,6 +946,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -952,6 +957,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => false,
             'validateVat' => false,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -962,6 +968,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => true,
             'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => true,
         ];
 
@@ -972,6 +979,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => true,
             'vatNumber' => 'invalid',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
 
@@ -982,6 +990,7 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => true,
             'vatNumber' => 'NL123456789B01',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => true,
         ];
 
@@ -992,7 +1001,49 @@ class InvoiceRendererTest extends TestCase
             'isEuMember' => true,
             'validateVat' => true,
             'vatNumber' => 'CHE116281838',
+            'sellsFromTheDeliveryCountry' => false,
             'shouldDisplay' => false,
         ];
+
+        yield 'should not be displayed because the goods stay in the shop\'s own member state' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'NL123456789B01',
+            'sellsFromTheDeliveryCountry' => true,
+            'shouldDisplay' => false,
+        ];
+
+        yield 'should not be displayed for a domestic supply carrying the delivery country\'s own VAT ID' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => true,
+            'shouldDisplay' => false,
+        ];
+
+        yield 'should not be displayed for a domestic supply while the VAT ID pattern check is off' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => false,
+            'vatNumber' => 'DE123456789',
+            'sellsFromTheDeliveryCountry' => true,
+            'shouldDisplay' => false,
+        ];
+    }
+
+    /**
+     * @return string the id of an EU member state the goods are not delivered to
+     */
+    private function getAnotherEuCountryId(?string $deliveryCountryIso): string
+    {
+        return $this->getCountryIdByIsoCode($deliveryCountryIso === 'BE' ? 'NL' : 'BE');
     }
 }

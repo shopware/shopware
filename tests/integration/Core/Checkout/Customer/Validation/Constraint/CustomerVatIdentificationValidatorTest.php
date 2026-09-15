@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Validation\Constraint;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
@@ -54,9 +53,10 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             static::getContainer()->get(TranslatorInterface::class),
         );
 
-        $connection = static::getContainer()->get(Connection::class);
-
-        $this->validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
+        $this->validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider(
+            static::getContainer()->get('country.repository'),
+            static::createStub(SystemConfigService::class),
+        ));
 
         $this->validator->initialize($this->executionContext);
     }

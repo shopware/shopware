@@ -2,15 +2,21 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Validation;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
@@ -25,9 +31,9 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     private const DE_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0de0';
 
     private const EU_PATTERNS = [
-        ['iso' => 'BE', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0be0', 'vat_id_pattern' => 'BE\d{10}'],
-        ['iso' => 'DE', 'id' => self::DE_ID, 'vat_id_pattern' => 'DE\d{9}'],
-        ['iso' => 'NL', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0140', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ['iso' => 'BE', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0be0', 'vatIdPattern' => 'BE\d{10}'],
+        ['iso' => 'DE', 'id' => self::DE_ID, 'vatIdPattern' => 'DE\d{9}'],
+        ['iso' => 'NL', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0140', 'vatIdPattern' => 'NL\d{9}B\d{2}'],
     ];
 
     private ExecutionContextInterface&MockObject $context;
@@ -63,16 +69,17 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testTheEuPatternsAreNotLoadedWhenTheCountryPatternAlreadyMatches(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAssociative')->willReturn([
-            'is_eu' => 1,
-            'check_vat_id_pattern' => 1,
-            'vat_id_pattern' => 'DE\\d{9}',
-        ]);
+        $repository = $this->createMock(EntityRepository::class);
         // Every VAT ID matches the country's own pattern, so the fallback must stay off the hot path
-        $connection->expects($this->never())->method('fetchAllAssociative');
+        $repository->expects($this->once())->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context): EntitySearchResult {
+                static::assertNotSame([], $criteria->getIds(), 'The EU patterns must not be loaded');
 
-        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
+                return self::searchResult($criteria, $context, [], self::createCountry((string) $criteria->getIds()[0], 'DE\\d{9}'));
+            }
+        );
+
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($repository, static::createStub(SystemConfigService::class)));
         $validator->initialize($this->context);
 
         $this->context->expects($this->never())->method('buildViolation');
@@ -170,11 +177,12 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testUnknownCountryIsNotValidated(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAssociative')->willReturn(false);
-        $connection->method('fetchAllAssociative')->willReturn(self::EU_PATTERNS);
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => self::searchResult($criteria, $context, self::EU_PATTERNS, null)
+        );
 
-        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($repository, static::createStub(SystemConfigService::class)));
         $validator->initialize($this->context);
 
         $this->context->expects($this->never())->method('buildViolation');
@@ -240,7 +248,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, id: string, vat_id_pattern: string}> $euPatterns
+     * @param list<array{iso: string, id: string, vatIdPattern: string}> $euPatterns
      */
     private function createValidator(
         string $countryPattern,
@@ -249,20 +257,20 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         bool $isEu = true,
         ?string $sellerCountryId = null,
     ): CustomerVatIdentificationValidator {
-        $connection = static::createStub(Connection::class);
-        $connection
-            ->method('fetchAssociative')
-            ->willReturn([
-                'is_eu' => (int) $isEu,
-                'check_vat_id_pattern' => (int) $checkVatIdPattern,
-                'vat_id_pattern' => $countryPattern,
-            ]);
-        $connection->method('fetchAllAssociative')->willReturn($euPatterns);
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => self::searchResult(
+                $criteria,
+                $context,
+                $euPatterns,
+                $criteria->getIds() === [] ? null : self::createCountry((string) $criteria->getIds()[0], $countryPattern, $isEu, $checkVatIdPattern),
+            )
+        );
 
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId ?? '');
 
-        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, $systemConfigService));
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($repository, $systemConfigService));
         $validator->initialize($this->context);
 
         return $validator;
@@ -294,5 +302,38 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             ->expects($this->once())
             ->method('buildViolation')
             ->willReturn($builder);
+    }
+
+    /**
+     * @param list<array{iso: string, id: string, vatIdPattern: string}> $euPatterns
+     *
+     * @return EntitySearchResult<CountryCollection>
+     */
+    private static function searchResult(Criteria $criteria, Context $context, array $euPatterns, ?CountryEntity $country): EntitySearchResult
+    {
+        $countries = new CountryCollection();
+
+        if ($criteria->getIds() === []) {
+            foreach ($euPatterns as $row) {
+                $euCountry = self::createCountry($row['id'], $row['vatIdPattern']);
+                $euCountry->setIso($row['iso']);
+                $countries->add($euCountry);
+            }
+        } elseif ($country !== null) {
+            $countries->add($country);
+        }
+
+        return new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context);
+    }
+
+    private static function createCountry(string $id, ?string $vatIdPattern, bool $isEu = true, bool $checkVatIdPattern = true): CountryEntity
+    {
+        $country = new CountryEntity();
+        $country->setId($id);
+        $country->setVatIdPattern($vatIdPattern);
+        $country->setIsEu($isEu);
+        $country->setCheckVatIdPattern($checkVatIdPattern);
+
+        return $country;
     }
 }

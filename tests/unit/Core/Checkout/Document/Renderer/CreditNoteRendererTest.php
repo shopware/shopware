@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -476,7 +477,8 @@ class CreditNoteRendererTest extends TestCase
             $connection,
             static::createStub(DocumentFileRendererRegistry::class),
             static::createStub(ValidatorInterface::class),
-            new NativeClock()
+            new NativeClock(),
+            static::createStub(VatIdPatternProvider::class)
         );
     }
 }

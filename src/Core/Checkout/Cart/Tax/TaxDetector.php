@@ -76,10 +76,13 @@ class TaxDetector extends AbstractTaxDetector
             return false;
         }
 
+        if ($this->vatIdPatternProvider->isDomesticSupply($shippingLocationCountry->getIso(), $context->getSalesChannelId())) {
+            return false;
+        }
+
         if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
             foreach ($vatIds as $vatId) {
-                // An intra-EU B2B supply is tax free because the customer holds a VAT ID of another
-                // member state, not because the delivery goes to that state.
+                // An intra-EU B2B supply is tax free because the customer holds a VAT ID of another member state.
                 if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, true, $context->getSalesChannelId())) {
                     return false;
                 }

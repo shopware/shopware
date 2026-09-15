@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Validation\Constraint;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContext;
@@ -52,9 +53,10 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             static::getContainer()->get(TranslatorInterface::class),
         );
 
-        $connection = static::getContainer()->get(Connection::class);
-
-        $this->validator = new CustomerVatIdentificationValidator($connection);
+        $this->validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider(
+            static::getContainer()->get('country.repository'),
+            static::createStub(SystemConfigService::class),
+        ));
 
         $this->validator->initialize($this->executionContext);
     }
@@ -112,6 +114,65 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         );
 
         $this->validator->validate(null, $constraint);
+
+        static::assertCount(0, $this->executionContext->getViolations());
+    }
+
+    public function testAcceptsAVatIdOfAnotherEuMemberState(): void
+    {
+        $this->validator->validate(['NL123456789B01'], $this->belgianConstraint());
+
+        static::assertCount(0, $this->executionContext->getViolations());
+    }
+
+    public function testAcceptsAVatIdOfItsOwnCountry(): void
+    {
+        $this->validator->validate(['BE0123456789'], $this->belgianConstraint());
+
+        static::assertCount(0, $this->executionContext->getViolations());
+    }
+
+    public function testRejectsANonEuVatId(): void
+    {
+        $this->validator->validate(['CHE123456789'], $this->belgianConstraint());
+
+        static::assertCount(1, $violations = $this->executionContext->getViolations());
+        static::assertSame(['{{ vatId }}' => '"CHE123456789"'], $violations->get(0)->getParameters());
+    }
+
+    public function testReportsOnlyTheVatIdOfASetThatIsNotAnEuVatId(): void
+    {
+        $this->validator->validate(['NL123456789B01', 'INVALID'], $this->belgianConstraint());
+
+        static::assertCount(1, $violations = $this->executionContext->getViolations());
+        static::assertSame(['{{ vatId }}' => '"INVALID"'], $violations->get(0)->getParameters());
+    }
+
+    public function testACountryOutsideTheEuRejectsAVatIdOfAMemberState(): void
+    {
+        // Great Britain ships a VAT ID pattern but is no member state, so no union's VAT IDs apply
+        $this->validator->validate(['NL123456789B01'], $this->constraintFor('GB'));
+
+        static::assertCount(1, $violations = $this->executionContext->getViolations());
+        static::assertSame(['{{ vatId }}' => '"NL123456789B01"'], $violations->get(0)->getParameters());
+    }
+
+    public function testACountryOutsideTheEuAcceptsAVatIdOfItsOwn(): void
+    {
+        $this->validator->validate(['GB123456789'], $this->constraintFor('GB'));
+
+        static::assertCount(0, $this->executionContext->getViolations());
+    }
+
+    public function testTheCountrySwitchTurnsTheCheckOff(): void
+    {
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries['BE'],
+            shouldCheck: false,
+            message: 'Invalid VAT ID',
+        );
+
+        $this->validator->validate(['INVALID'], $constraint);
 
         static::assertCount(0, $this->executionContext->getViolations());
     }
@@ -339,6 +400,20 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             3,
             ['SK123456789', 'SK12345678901', 'SK12345678901'],
         ];
+    }
+
+    private function belgianConstraint(): CustomerVatIdentification
+    {
+        return $this->constraintFor('BE');
+    }
+
+    private function constraintFor(string $iso): CustomerVatIdentification
+    {
+        return new CustomerVatIdentification(
+            countryId: $this->countries[$iso],
+            shouldCheck: true,
+            message: 'Invalid VAT ID',
+        );
     }
 
     /**

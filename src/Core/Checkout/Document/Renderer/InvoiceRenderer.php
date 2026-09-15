@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
@@ -40,6 +41,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ValidatorInterface $validator,
         private readonly ClockInterface $clock,
+        private readonly VatIdPatternProvider $vatIdPatternProvider,
     ) {
     }
 
@@ -113,7 +115,9 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                         'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
                             $config->jsonSerialize(),
                             $order,
-                        ) && $this->isValidVat($order, $this->validator),
+                        )
+                            && !$this->isDomesticSupply($order, $this->vatIdPatternProvider)
+                            && $this->isValidVat($order, $this->validator),
                         'custom' => [
                             'invoiceNumber' => $number,
                         ],

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -38,6 +39,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         private DocumentConfigLoader $documentConfigLoader,
         private DocumentTypeRegistry $documentTypeRegistry,
         private ValidatorInterface $validator,
+        private VatIdPatternProvider $vatIdPatternProvider,
     ) {
     }
 
@@ -206,6 +208,10 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             return false;
         }
 
+        if ($this->vatIdPatternProvider->isDomesticSupply($country->getIso(), $order->getSalesChannelId())) {
+            return false;
+        }
+
         if ($country->getCheckVatIdPattern() === false) {
             return true;
         }
@@ -220,9 +226,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $vatIds,
             [
                 new NotBlank(),
-                new CustomerVatIdentification(
-                    countryId: $country->getId(),
-                ),
+                new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
             ],
         )->count() === 0;
     }

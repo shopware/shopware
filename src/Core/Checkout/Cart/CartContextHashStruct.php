@@ -22,6 +22,21 @@ class CartContextHashStruct extends Struct
      */
     protected array $lineItems;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $billingAddress = null;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $shippingAddress = null;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $customer = null;
+
     public function getPrice(): ?float
     {
         return $this->price;
@@ -74,5 +89,53 @@ class CartContextHashStruct extends Struct
     public function addLineItem(string $id, array $lineItem): void
     {
         $this->lineItems[$id] = $lineItem;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getBillingAddress(): ?array
+    {
+        return $this->billingAddress;
+    }
+
+    /**
+     * @param array<string, mixed>|null $billingAddress
+     */
+    public function setBillingAddress(?array $billingAddress): void
+    {
+        $this->billingAddress = $billingAddress;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getShippingAddress(): ?array
+    {
+        return $this->shippingAddress;
+    }
+
+    /**
+     * @param array<string, mixed>|null $shippingAddress
+     */
+    public function setShippingAddress(?array $shippingAddress): void
+    {
+        $this->shippingAddress = $shippingAddress;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getCustomer(): ?array
+    {
+        return $this->customer;
+    }
+
+    /**
+     * @param array<string, mixed>|null $customer
+     */
+    public function setCustomer(?array $customer): void
+    {
+        $this->customer = $customer;
     }
 }

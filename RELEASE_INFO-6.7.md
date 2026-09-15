@@ -262,6 +262,32 @@ Two consequences for operators:
 
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
+### Company tax exemption accepts VAT IDs from other EU member states
+
+Settings > Basic information has a new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel). Once it is set:
+
+- *Tax-free (B2B)* also applies to a VAT ID of any other EU member state. A VAT ID of the shop's own member state, or of no member state, is taxed.
+- A delivery within the shop's own member state is never *Tax-free (B2B)*, whichever VAT ID the customer holds. Domestic deliveries that were exempt before are taxed now. *Tax-free (B2C)* is unaffected and keeps exempting the delivery.
+- The invoice, cancellation invoice and credit note print the intra-community delivery note for exactly the orders the cart exempts.
+
+If the setting is empty, nothing changes: the exemption and the note keep checking the delivery country's pattern only.
+Independently of the setting, a customer counts as a business based on `accountType` instead of a non-empty `company`.
+
+The exemption applies for all product types: digital products follow the same delivery-country rules as goods.
+
+`store-api/account/register` and `store-api/account/change-profile` now accept a VAT ID of any EU member state when the billing country is an EU member state with *Check VAT ID pattern* enabled.
+
+For extension developers:
+
+- `CustomerVatIdentification` has a new optional `salesChannelId` argument. Given one, it also rejects a VAT ID of the shop's own member state.
+- `AbstractDocumentRenderer` has a new protected `isDomesticSupply()`. Custom invoice renderers should call it next to `isAllowIntraCommunityDelivery()` to omit the note on domestic deliveries.
+- `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
+- The document letter head prints the VAT ID stored on the order. Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
+
+### Customers store the EU member state of their VAT ID
+
+`customer` has a new `vatIdCountryId` field with a `vatIdCountry` association to `country`, derived from the first entry of `vatIds` on every write that contains `vatIds`. It is readable via the Admin API and the DAL, but not via the Store API. Existing customers keep `null` until their VAT IDs are written again.
+
 ### Order and category tags are versioned
 
 Tag assignments of orders and categories are now part of the entity version. Creating a version copies the existing assignments into it, and reading, filtering or aggregating `tags` returns the assignments of the version in the context instead of the live ones. Assignments made in a version reach the live entity on merge and are dropped when the version is discarded.
@@ -274,6 +300,13 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
 
+### The cart hash covers the checkout addresses
+
+The hash returned by `GET /store-api/checkout/cart` and verified by `POST /store-api/checkout/order` now also covers the active billing and shipping address of the context: id, country, country state, zip code and city, as well as the customer's account type, company and VAT IDs.
+
+When any of those change between reading the cart and placing the order, the order route answers `409 CHECKOUT__CART_HASH_MISMATCH` instead of creating an order with data the customer never confirmed. This happens for example when an administrator edits the customer's addresses while the checkout confirm page is open. The Storefront returns the customer to the confirm page with a notice and the updated values; a Store API client that sends `hash` should read the cart again and let the customer confirm before retrying. Clients that do not send `hash` are unaffected.
+
+Purely cosmetic address fields such as name, street or phone number are not part of the hash, so correcting a typo does not interrupt a checkout. Extensions that need additional data covered can add it to the struct provided by `Shopware\Core\Checkout\Cart\Event\CartContextHashEvent`.
 ### Storefront snippets of apps are served from a persisted snapshot
 
 Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an app are written to the translation filesystem on install and update, and removed on uninstall. A snippet catalogue build reads them from there instead of from the app's location, so a self-managed app's source is no longer downloaded during a storefront request.

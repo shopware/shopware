@@ -18,9 +18,6 @@ type SystemConfigReader = {
     ) => Promise<Record<string, unknown>>;
 };
 
-/**
- * Mirrors CompanyAccountNameFields::areRequired() for the sales channel a customer belongs to
- */
 class CompanyAccountNameFieldsApiService extends ApiService {
     private readonly systemConfigReader: SystemConfigReader | null;
 
@@ -39,10 +36,8 @@ class CompanyAccountNameFieldsApiService extends ApiService {
         let values: Record<string, unknown>;
 
         try {
-            // inherit, because a sales channel that overrides neither key would read as all off otherwise
             values = await this.reader().getValues(DOMAIN, salesChannelId ?? null, { inherit: true });
         } catch {
-            // the routes keep the names required while the settings cannot be read
             return true;
         }
 
@@ -53,7 +48,6 @@ class CompanyAccountNameFieldsApiService extends ApiService {
     }
 
     private reader(): SystemConfigReader {
-        // resolved late, because api services are built before the container hands out other services
         return this.systemConfigReader ?? (Shopware.Service('systemConfigApiService') as unknown as SystemConfigReader);
     }
 }

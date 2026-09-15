@@ -103,12 +103,10 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
-        // A private customer cannot relax an address the checkout later judges by the account type
         $namesAreOptional = $customer->isBusinessAccount()
             && $this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId());
 
         if ($namesAreOptional) {
-            // Only an update has stored names to keep; a create carries an id nothing is saved under.
             if (!$isCreate) {
                 $this->keepStoredNames($addressId, $data, $context);
             }
@@ -163,11 +161,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         return new UpsertAddressRouteResponse($address);
     }
 
-    /**
-     * The address data below takes both names from the request every time. A form that hides them
-     * submits neither, so an edit of the street alone would replace a stored contact person with an
-     * empty string. Reading the stored values back first keeps that edit harmless.
-     */
     private function keepStoredNames(?string $addressId, DataBag $data, SalesChannelContext $context): void
     {
         if ($addressId === null || ($data->has('firstName') && $data->has('lastName'))) {
@@ -205,8 +198,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         }
 
         if ($namesAreOptional) {
-            // A new address has to name someone. A stored one keeps the names it has, so an edit of the
-            // street alone must not fail on a company the checkout does not demand either.
             $this->companyAccountNameFields->relax($validation, requireCompany: $isCreate);
         } elseif ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {

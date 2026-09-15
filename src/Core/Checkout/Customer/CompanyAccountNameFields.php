@@ -9,10 +9,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * Decides whether a company account needs a contact person and adjusts a validation definition
- * and its request data accordingly
- */
 #[Package('checkout')]
 final class CompanyAccountNameFields
 {
@@ -38,9 +34,6 @@ final class CompanyAccountNameFields
         return $this->areVisible($salesChannelId) && $this->isEnabled(self::CONFIG_REQUIRED, $salesChannelId);
     }
 
-    /**
-     * The account type comes from the request first and the authenticated customer second
-     */
     public function areOptional(DataBag $data, ?CustomerEntity $customer, ?string $salesChannelId): bool
     {
         $accountType = $data->get('accountType');
@@ -52,10 +45,6 @@ final class CompanyAccountNameFields
         return $isBusinessAccount && !$this->areRequired($salesChannelId);
     }
 
-    /**
-     * Drops the blank check on the names. The caller says whether the company has to stand in, because
-     * a stored address may already carry a name while a new one needs someone to be named.
-     */
     public function relax(DataValidationDefinition $definition, bool $requireCompany): void
     {
         foreach (self::NAME_FIELDS as $property) {
@@ -76,11 +65,6 @@ final class CompanyAccountNameFields
         }
     }
 
-    /**
-     * A name the form did not fill becomes an empty string, which the data abstraction layer accepts
-     * while null is rejected. With $submittedOnly an absent name stays absent, so an update leaves
-     * the stored value alone.
-     */
     public function normalize(DataBag $data, bool $submittedOnly = false): void
     {
         foreach (self::NAME_FIELDS as $property) {

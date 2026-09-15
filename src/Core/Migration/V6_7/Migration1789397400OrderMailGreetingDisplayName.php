@@ -18,11 +18,6 @@ class Migration1789397400OrderMailGreetingDisplayName extends MigrationStep
 {
     use UpdateMailTrait;
 
-    /**
-     * Every shipped order mail greets by the name of the order customer, which is empty on an order of
-     * a commercial account without a contact person. The fixture directory of each type is named
-     * after the type.
-     */
     final public const MAIL_TYPES = [
         MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
         MailTemplateTypes::MAILTYPE_ORDER_PAYMENT_METHOD_CHANGED,
@@ -75,9 +70,6 @@ class Migration1789397400OrderMailGreetingDisplayName extends MigrationStep
         }
     }
 
-    /**
-     * One shipped type keeps its plain text under a .txt.twig name
-     */
     private function plainFile(Filesystem $filesystem, string $directory, string $locale): string
     {
         $file = \sprintf('%s/%s-plain.html.twig', $directory, $locale);

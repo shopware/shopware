@@ -10,9 +10,6 @@ use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * The To: header name is built in the events, not in the mail template, so a nameless commercial
- * account would arrive as a bare space unless every one of them resolves the name.
  */
 #[Package('checkout')]
 trait MailRecipientNameTestBehaviour
@@ -64,7 +61,6 @@ trait MailRecipientNameTestBehaviour
     private function mailSalesChannelContext(): SalesChannelContext
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        // Two of the events read the shop name out of the sales channel translation on construction.
         $salesChannelContext->getSalesChannel()->setTranslated(['name' => 'Demostore']);
 
         return $salesChannelContext;

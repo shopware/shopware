@@ -117,7 +117,6 @@ class CheckoutConfirmPageLoader
             return;
         }
 
-        // The company is not required here, so an address stored before the setting cannot block the checkout
         $this->companyAccountNameFields->relax($validation, requireCompany: false);
     }
 

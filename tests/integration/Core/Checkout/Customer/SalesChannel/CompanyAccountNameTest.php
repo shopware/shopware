@@ -25,9 +25,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * Covers the whole path a company account without a contact person takes, because making optional one
- * validation entry point while another still rejects the empty name is not visible in isolation.
  */
 #[Package('checkout')]
 #[Group('store-api')]
@@ -245,10 +242,6 @@ class CompanyAccountNameTest extends TestCase
         static::assertSame('0', $customer->getDisplayName());
     }
 
-    /**
-     * The top level names come from the billing address, so only that one follows the setting. A
-     * separate shipping address names the recipient and must not suddenly demand a company.
-     */
     public function testAShippingAddressKeepsItsOwnRules(): void
     {
         $this->setNameFields(show: true, required: false);
@@ -318,10 +311,6 @@ class CompanyAccountNameTest extends TestCase
         );
     }
 
-    /**
-     * The form can leave a name out entirely or send it as null. CompanyAccountNameFields rewrites a
-     * submitted null to an empty string and leaves an absent one alone, so the stored name survives.
-     */
     public function testProfileTakesANullNameAndLeavesAnAbsentOneAlone(): void
     {
         $this->setNameFields(show: true, required: false);

@@ -195,9 +195,6 @@ export default {
                 return true;
             }
 
-            // Private accounts included: a name the user types and then clears is an empty string,
-            // which the data abstraction layer accepts once the field allows one, so nothing below
-            // this page would reject it any more.
             return Boolean(this.customer.firstName?.trim().length && this.customer.lastName?.trim().length);
         },
 
@@ -218,8 +215,6 @@ export default {
 
     watch: {
         'customer.salesChannelId'() {
-            // The three settings are switchable per sales channel, so moving the customer to another
-            // one can change whether the contact person is required.
             this.loadCompanyNamesRequired();
         },
         customerId() {
@@ -286,12 +281,10 @@ export default {
         async loadCompanyNamesRequired() {
             const salesChannelId = this.customer?.salesChannelId;
 
-            // strict while the settings of the next sales channel are read
             this.companyNamesRequired = true;
 
             const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
 
-            // a slower answer for a sales channel the user has already left must not win
             if (this.customer?.salesChannelId !== salesChannelId) {
                 return;
             }
@@ -304,8 +297,6 @@ export default {
 
             await this.loadCustomer();
 
-            // Loaded last so the page is built before the settings request, which only decides
-            // whether a blank contact person may be saved.
             await this.loadCompanyNamesRequired();
         },
 
@@ -365,8 +356,6 @@ export default {
                 hasError = true;
             }
 
-            // The data abstraction layer accepts an empty name now, so the page has to hold the line
-            // the two settings draw.
             if (!this.validContactPersonFields) {
                 this.createErrorMessageForContactPerson();
                 hasError = true;

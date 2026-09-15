@@ -11,10 +11,6 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 /**
  * This route can be used to change profile information about the logged-in user
  * The required fields are "salutationId", "firstName" and "lastName"
- * "firstName" and "lastName" may be omitted for a commercial account when the shop shows the account type
- * selection and turned either "core.loginRegistration.showNameFieldsForCompanyAccounts" or
- * "core.loginRegistration.nameFieldsRequiredForCompanyAccounts" off. Without the account type selection they
- * stay required. The company then takes their place and is required instead.
  */
 #[Package('checkout')]
 abstract class AbstractChangeCustomerProfileRoute

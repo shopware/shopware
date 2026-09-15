@@ -45,16 +45,10 @@ class Migration1789026910CustomerMailGreetingDisplayNameTest extends TestCase
 
         foreach ($this->contents($type) as $content) {
             static::assertStringContainsString('.displayName', $content);
-            // The surname greetings keep reading lastName, with displayName only standing in for a
-            // company account that has no contact person, so only the joined pair has to be gone.
             static::assertStringNotContainsString('customer.firstName', $content);
         }
     }
 
-    /**
-     * The guard in UpdateMailTrait is the whole reason this migration is safe to ship, so it gets a
-     * test of its own rather than being taken on trust.
-     */
     public function testAMailTheShopEditedIsLeftAlone(): void
     {
         $type = MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED;

@@ -88,9 +88,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             : $customer->isBusinessAccount();
 
         if ($isBusinessAccount) {
-            // The route writes the vat ids unconditionally further down, so a form that hides them
-            // along with the company would drop the stored ones. has() and not a null check, because a
-            // submitted null is a deliberate clear.
             if (!$data->has('vatIds') && $customer->getVatIds() !== null) {
                 $data->set('vatIds', $customer->getVatIds());
             }
@@ -99,7 +96,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                 $this->companyAccountNameFields->relax($validation, requireCompany: true);
                 $this->companyAccountNameFields->normalize($data, submittedOnly: true);
 
-                // The company carries the identity now, so the stored one is checked when the form does not post it
                 if (!$data->has('company')) {
                     $data->set('company', $customer->getCompany() ?? '');
                 }

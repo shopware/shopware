@@ -88,16 +88,10 @@
             </div>
         {% elseif not hideCustomerTypeSelect %}
             {% if hasSelectedBusiness|default(false) %}
-                {# A customer group signup form with "Company signup form" enabled. The registration is
-                   always commercial then, so the value has to say so: the routes read the account type
-                   off the request and would otherwise treat the whole registration as private. #}
                 <input type="hidden"
                        name="{{ accountTypeFieldName }}"
                        value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
             {% else %}
-                {# The account type selection is switched off for the whole shop. Nothing here decides
-                   the type, so the field stays empty and the routes keep whatever the account already
-                   is. #}
                 <input type="hidden" name="{{ accountTypeFieldName }}">
             {% endif %}
         {% endif %}
@@ -161,7 +155,6 @@
     {% block component_address_personal_fields_name %}
         {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
 
-        {# Both settings default to on. `is null` and not `??`, because Twig's null coalescing would read a stored false as absent. #}
         {% set showSetting = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
         {% set requiredSetting = config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
         {% set companyNameFieldsShown = showSetting is null ? true : showSetting %}
@@ -171,10 +164,8 @@
         {% set loggedInCustomerIsCompany = context.customer is defined and context.customer and context.customer.accountType == businessType %}
         {% set customerIsCompany = accountType|default('') == businessType or loggedInCustomerIsCompany %}
 
-        {# A separate shipping address names whoever receives the parcel and keeps its names required. #}
         {% set isSeparateShippingAddress = prefix|default('') == 'shippingAddress' %}
 
-        {# A form without a selector is fixed to a company account for a company signup form and for a company customer. #}
         {% set companyOnlyForm = not isSeparateShippingAddress
             and (onlyCompanyRegistration|default(false)
                 or hasSelectedBusiness|default(false)
@@ -183,8 +174,6 @@
         {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
         {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
 
-        {# The plugin follows the selector of the registration and of the standalone address form of a company customer.
-           The nested registration addresses carry their own selector but are judged by the top level account type. #}
         {% set accountTypeSwitchable = (prefix|default('') == '' or (prefix|default('') == 'address' and loggedInCustomerIsCompany))
             and accountTypeSelectable
             and not hideCustomerTypeSelect|default(false)

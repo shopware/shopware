@@ -24,9 +24,6 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
 {
     use MigrationTestTrait;
 
-    /**
-     * The languages the mail update trait rewrites
-     */
     private const LOCALES = ['en-GB', 'de-DE'];
 
     private Connection $connection;
@@ -100,9 +97,6 @@ class Migration1789397400OrderMailGreetingDisplayNameTest extends TestCase
         }
     }
 
-    /**
-     * Other migration tests leave the shipped templates with foreign content, a set updated_at and extra languages
-     */
     private function seedShippedGreeting(string $type): void
     {
         $this->connection->executeStatement(

@@ -100,7 +100,6 @@ export default {
         fullName() {
             const hasContactPerson = `${this.customer.firstName ?? ''}${this.customer.lastName ?? ''}`.trim() !== '';
 
-            // the resolved name is the company for a company account, the salutation stands alone otherwise
             if (!hasContactPerson) {
                 return this.customer.displayName || this.salutation(this.customer);
             }

@@ -187,9 +187,6 @@ class OrderCustomerEntity extends Entity
         $this->company = $company;
     }
 
-    /**
-     * A value assigned on load, by the subscriber or by an extension, wins over the resolved one
-     */
     public function getDisplayName(): string
     {
         return $this->displayName ?? self::resolveDisplayName($this->firstName ?? '', $this->lastName ?? '', $this->company);
@@ -200,10 +197,6 @@ class OrderCustomerEntity extends Entity
         $this->displayName = $displayName;
     }
 
-    /**
-     * The name for a greeting or a recipient header. The company stands in only when there is no
-     * contact person, so the two are never joined here.
-     */
     public static function resolveDisplayName(string $firstName, string $lastName, ?string $company): string
     {
         $personName = trim($firstName . ' ' . $lastName);
@@ -211,9 +204,6 @@ class OrderCustomerEntity extends Entity
         return $personName !== '' ? $personName : trim($company ?? '');
     }
 
-    /**
-     * The buyer block of a document, where the company belongs next to the contact person.
-     */
     public function getBuyerName(): string
     {
         $personName = trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));

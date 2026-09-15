@@ -14,9 +14,6 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * Renders the shipped templates rather than asserting on the entity, because a greeting can read
- * "Hello ," while every getter involved still returns what it promised.
  */
 #[Package('checkout')]
 #[CoversNothing]
@@ -51,11 +48,6 @@ class CustomerMailGreetingTest extends TestCase
         static::assertStringNotContainsString(' ,', $this->greeting($rendered));
     }
 
-    /**
-     * Four of these greet by surname alone and three by the full name, so the assertion is the part
-     * they share. What matters is that a contact person is still greeted as one, and never as the
-     * company.
-     */
     #[DataProvider('templateProvider')]
     public function testAContactPersonIsStillGreetedByName(string $type, string $file): void
     {
@@ -65,10 +57,6 @@ class CustomerMailGreetingTest extends TestCase
         static::assertStringNotContainsString('Acme GmbH', $rendered);
     }
 
-    /**
-     * The templates that greeted by surname before this change still do, so an upgraded shop does not
-     * suddenly read "Mr Ada Lovelace".
-     */
     #[DataProvider('surnameTemplateProvider')]
     public function testASurnameGreetingStaysASurnameGreeting(string $type, string $file): void
     {
@@ -78,10 +66,6 @@ class CustomerMailGreetingTest extends TestCase
         static::assertStringNotContainsString('Ada', $this->greeting($rendered));
     }
 
-    /**
-     * A surname of only spaces is truthy in Twig, so without a trim it would render as a greeting
-     * with nothing in it while the company sits right there in the display name.
-     */
     #[DataProvider('surnameTemplateProvider')]
     public function testAWhitespaceSurnameFallsBackToTheCompany(string $type, string $file): void
     {
@@ -143,10 +127,6 @@ class CustomerMailGreetingTest extends TestCase
         ]);
     }
 
-    /**
-     * Every shipped greeting is the first line that carries the name, and the assertions above are
-     * about that line alone.
-     */
     private function greeting(string $rendered): string
     {
         foreach (explode("\n", $rendered) as $line) {

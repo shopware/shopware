@@ -183,8 +183,6 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $companyName = $billingAddress['company'] ?? $shippingAddress['company'] ?? null;
-        // Compared against the empty string and not by truthiness, because a company literally named
-        // "0" passes the validation above and would otherwise leave the account without a name.
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && \is_string($companyName) && $companyName !== '') {
             $customer['company'] = $companyName;
             if ($data->get('vatIds')) {
@@ -335,8 +333,6 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($shippingAddress instanceof DataBag) {
-            // Without a billing address the shipping one becomes the default billing address, so it is
-            // judged by the account type of the registration and carries the company with it.
             $isDefaultBillingAddress = !$billingAddress instanceof DataBag;
 
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition(
@@ -462,8 +458,6 @@ class RegisterRoute extends AbstractRegisterRoute
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        // Only the address that becomes the default billing one follows the optional contact person,
-        // a separate shipping address names whoever receives the parcel and keeps its own rules
         if ($isBillingAddress && $this->namesAreOptional($data, $context)) {
             $this->companyAccountNameFields->relax($validation, requireCompany: true);
         } elseif ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS

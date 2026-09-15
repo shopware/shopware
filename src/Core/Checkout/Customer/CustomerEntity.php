@@ -185,9 +185,6 @@ class CustomerEntity extends Entity implements \Stringable
         return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
     }
 
-    /**
-     * A value assigned on load, by the subscriber or by an extension, wins over the resolved one
-     */
     public function getDisplayName(): string
     {
         return $this->displayName ?? self::resolveDisplayName(
@@ -198,9 +195,6 @@ class CustomerEntity extends Entity implements \Stringable
         );
     }
 
-    /**
-     * The company stands in only when a commercial account has no contact person
-     */
     public static function resolveDisplayName(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
     {
         $personName = trim($firstName . ' ' . $lastName);

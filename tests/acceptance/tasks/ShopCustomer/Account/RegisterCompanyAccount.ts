@@ -11,10 +11,6 @@ export interface CompanyAccountData {
     vatRegNo?: string;
 }
 
-/**
- * Registers a commercial account in the Storefront. The name fields are only filled when they are
- * rendered, so the task serves both a shop that shows them and one that hides them for company accounts.
- */
 export const RegisterCompanyAccount = base.extend<{ RegisterCompanyAccount: Task }, FixtureTypes>({
     RegisterCompanyAccount: async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }, use) => {
         const address = getCountryAddressData(getCountryCodeFromLocale(getLocale()));

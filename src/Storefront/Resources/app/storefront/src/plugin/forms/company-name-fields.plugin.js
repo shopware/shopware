@@ -7,34 +7,16 @@ export default class CompanyNameFieldsPlugin extends Plugin {
 
     static options = {
 
-        /**
-         * the selector for the account type select this plugin reacts to
-         */
         accountTypeSelector: null,
 
-        /**
-         * the account type value that stands for a company account
-         */
         businessValue: 'business',
 
-        /**
-         * whether the name fields are rendered at all for a company account
-         */
         shown: true,
 
-        /**
-         * whether the name fields are required for a company account
-         */
         required: true,
 
-        /**
-         * the class which hides the fields
-         */
         hiddenCls: 'd-none',
 
-        /**
-         * the selector for the fields inside this element
-         */
         fieldSelector: 'input',
     };
 
@@ -48,7 +30,6 @@ export default class CompanyNameFieldsPlugin extends Plugin {
 
         this._registerEvents();
 
-        // the select can already be set to a company account on load
         this._onChange();
     }
 
@@ -75,7 +56,6 @@ export default class CompanyNameFieldsPlugin extends Plugin {
         this.el.classList.toggle(this.options.hiddenCls, !shown);
 
         this._fields.forEach(field => {
-            // a hidden field must not be submitted, the route then stores an empty name
             if (shown) {
                 field.removeAttribute('disabled');
             } else {

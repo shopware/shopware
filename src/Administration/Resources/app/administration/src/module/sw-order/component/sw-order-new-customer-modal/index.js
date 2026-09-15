@@ -285,12 +285,10 @@ export default {
         async loadCompanyNamesRequired() {
             const salesChannelId = this.customer?.salesChannelId;
 
-            // strict while the settings of the next sales channel are read
             this.companyNamesRequired = true;
 
             const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
 
-            // a slower answer for a sales channel the user has already left must not win
             if (this.customer?.salesChannelId !== salesChannelId) {
                 return;
             }

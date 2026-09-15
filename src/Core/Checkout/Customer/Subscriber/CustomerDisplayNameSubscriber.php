@@ -38,7 +38,6 @@ class CustomerDisplayNameSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            // A partial read only carries the sources when it asked for the display name
             if (!$customer instanceof PartialEntity || !$this->hasSources($customer)) {
                 continue;
             }

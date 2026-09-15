@@ -21,10 +21,6 @@ class Migration1789378246CustomerCompanyFromBillingAddress extends MigrationStep
         return 1789378246;
     }
 
-    /**
-     * The Administration wrote the company of a commercial account to its billing address only, while the
-     * account now carries it itself
-     */
     public function update(Connection $connection): void
     {
         do {

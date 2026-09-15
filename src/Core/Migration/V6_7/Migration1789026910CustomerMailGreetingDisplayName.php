@@ -19,11 +19,6 @@ class Migration1789026910CustomerMailGreetingDisplayName extends MigrationStep
 {
     use UpdateMailTrait;
 
-    /**
-     * The fixture directory of each type is named after the type, so one list serves both. The types
-     * here greet the customer by name, which is empty on a commercial account without a contact
-     * person.
-     */
     private const MAIL_TYPES = [
         MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED,
         MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED,

@@ -247,7 +247,6 @@ class CustomerProfileValidationFactoryTest extends TestCase
         static::assertSame('', $normalizer('   '));
         static::assertSame('Ada', $normalizer('  Ada  '));
 
-        // HappyPathValidator applies the normalizer without checking the type first
         static::assertNull($normalizer(null));
     }
 

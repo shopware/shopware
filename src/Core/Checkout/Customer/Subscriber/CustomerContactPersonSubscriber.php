@@ -21,9 +21,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * The data abstraction layer accepts an empty name, so this guard keeps every write path from storing
- * a customer or an address that names nobody: a contact person, or the company of a commercial account
  */
 #[Package('checkout')]
 class CustomerContactPersonSubscriber implements EventSubscriberInterface
@@ -78,7 +75,6 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            // a submitted null clears the company, so the key decides and not the value
             $company = \array_key_exists('company', $payload) ? $payload['company'] : ($row['company'] ?? null);
             $accountType = $payload['account_type'] ?? $row['account_type'] ?? CustomerEntity::ACCOUNT_TYPE_PRIVATE;
 

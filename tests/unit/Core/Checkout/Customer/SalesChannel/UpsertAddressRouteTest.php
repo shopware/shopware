@@ -53,7 +53,6 @@ class UpsertAddressRouteTest extends TestCase
 
         $written = null;
         $addressRepository = $this->createMock(EntityRepository::class);
-        // the route checks ownership through searchIds before it touches the payload
         $addressRepository->method('searchIds')->willReturn(
             new IdSearchResult(1, ['address-1' => ['primaryKey' => 'address-1', 'data' => []]], new Criteria(), Context::createDefaultContext())
         );
@@ -96,7 +95,6 @@ class UpsertAddressRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        // A create carries a fresh id, so there is nothing stored to look up.
         $addressRepository->expects($this->never())->method('search');
 
         $this->upsertWithOptionalNames($addressRepository, null, ['street' => 'New Street 1']);
@@ -119,7 +117,6 @@ class UpsertAddressRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        // Core reads anything but business as the private branch, so an unknown value must not relax
         $this->upsertWithOptionalNames($addressRepository, null, ['accountType' => 'something-else']);
 
         static::assertIsArray($written);

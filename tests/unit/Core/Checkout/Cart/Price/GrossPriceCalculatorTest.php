@@ -140,6 +140,72 @@ class GrossPriceCalculatorTest extends TestCase
         ];
     }
 
+    public function testUncalculatedUnitPriceIsGrossedUpFromTheNetValue(): void
+    {
+        $definition = new QuantityPriceDefinition(10.0, new TaxRuleCollection([new TaxRule(19)]), 2);
+        $definition->setIsCalculated(false);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertSame(11.9, $price->getUnitPrice());
+        static::assertSame(23.8, $price->getTotalPrice());
+
+        $tax = $price->getCalculatedTaxes()->first();
+        static::assertNotNull($tax);
+        static::assertSame(3.8, $tax->getTax());
+    }
+
+    public function testUncalculatedListPriceIsGrossedUpFromTheNetValue(): void
+    {
+        $definition = new QuantityPriceDefinition(10.0, new TaxRuleCollection([new TaxRule(19)]), 1);
+        $definition->setIsCalculated(false);
+        $definition->setListPrice(20.0);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertEquals(ListPrice::createFromUnitPrice(11.9, 23.8), $price->getListPrice());
+    }
+
+    public function testUncalculatedRegulationPriceIsGrossedUpFromTheNetValue(): void
+    {
+        $definition = new QuantityPriceDefinition(10.0, new TaxRuleCollection([new TaxRule(19)]), 1);
+        $definition->setIsCalculated(false);
+        $definition->setRegulationPrice(20.0);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertEquals(new RegulationPrice(23.8), $price->getRegulationPrice());
+    }
+
+    public function testUncalculatedReferencePriceUsesTheDerivedGrossUnitPrice(): void
+    {
+        $definition = new QuantityPriceDefinition(10.0, new TaxRuleCollection([new TaxRule(19)]), 1);
+        $definition->setIsCalculated(false);
+        $definition->setReferencePriceDefinition(new ReferencePriceDefinition(0.5, 1, 'liter'));
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertEquals(new ReferencePrice(23.8, 0.5, 1, 'liter'), $price->getReferencePrice());
+    }
+
+    public function testDerivedGrossPriceRespectsTheCashRoundingInterval(): void
+    {
+        $definition = new QuantityPriceDefinition(9.99, new TaxRuleCollection([new TaxRule(19)]), 1);
+        $definition->setIsCalculated(false);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+
+        $cents = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+        static::assertSame(11.89, $cents->getUnitPrice());
+
+        $fiveCents = $calculator->calculate($definition, new CashRoundingConfig(2, 0.05, true));
+        static::assertSame(11.9, $fiveCents->getUnitPrice());
+    }
+
     public function testTaxesAreRoundedProperly(): void
     {
         $definition = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 48.12345)]), 1);

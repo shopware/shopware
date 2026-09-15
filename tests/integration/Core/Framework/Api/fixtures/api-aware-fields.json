@@ -1205,6 +1205,7 @@
     "customer_group.id",
     "customer_group.name",
     "customer_group.displayGross",
+    "customer_group.priceBasis",
     "customer_group.customFields",
     "customer_group.registrationActive",
     "customer_group.registrationTitle",

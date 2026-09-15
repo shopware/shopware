@@ -136,6 +136,25 @@
                                 {% endblock %}
                         </template>
                         {% endblock %}
+
+                        {% block sw_settings_customer_group_list_grid_column_price_basis %}
+                        <template #column-priceBasis="{ item }">
+                            {% block sw_settings_customer_group_list_grid_column_price_basis_inner %}
+                            {{ getPriceBasisLabel(item) }}
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_settings_customer_group_list_grid_column_registration_active %}
+                        <template #column-registrationActive="{ item }">
+                            {% block sw_settings_customer_group_list_grid_column_registration_active_inner %}
+                            <sw-data-grid-column-boolean
+                                :value="item.registrationActive"
+                                :is-inline-edit="false"
+                            />
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
                     </sw-entity-listing>
                 </template>
                 {% endblock %}

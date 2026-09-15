@@ -135,6 +135,62 @@ export default {
             return criteria;
         },
 
+        taxDisplayOptions() {
+            return [
+                {
+                    value: true,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.grossDescription'),
+                },
+                {
+                    value: false,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.netDescription'),
+                },
+            ];
+        },
+
+        priceBasisOptions() {
+            return [
+                {
+                    value: 'gross',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.grossDescription'),
+                },
+                {
+                    value: 'net',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.netDescription'),
+                },
+            ];
+        },
+
+        displayGross: {
+            get() {
+                return !!this.customerGroup?.displayGross;
+            },
+            set(value) {
+                const priceBasis = this.priceBasis;
+
+                this.customerGroup.displayGross = value;
+                this.customerGroup.priceBasis = priceBasis;
+            },
+        },
+
+        priceBasis: {
+            get() {
+                if (this.customerGroup?.priceBasis) {
+                    return this.customerGroup.priceBasis;
+                }
+
+                return this.customerGroup?.displayGross ? 'gross' : 'net';
+            },
+            set(value) {
+                this.customerGroup.displayGross = this.displayGross;
+                this.customerGroup.priceBasis = value;
+            },
+        },
+
         entityDescription() {
             return this.placeholder(
                 this.customerGroup,

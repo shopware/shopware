@@ -7,7 +7,9 @@
     },
     "list": {
       "columnName": "Name",
-      "columnDisplayGross": "Tax display"
+      "columnDisplayGross": "Tax display",
+      "columnPriceBasis": "Price basis",
+      "columnRegistrationActive": "Custom signup form"
     },
     "detail": {
       "cardTitle": "Customer group",
@@ -17,7 +19,21 @@
       "placeholderName": "Enter a name...",
       "placeholderNewCustomerGroup": "New customer group",
       "notificationErrorMessage": "An error occured while saving your customer group.",
-      "registrationForm": "Custom signup form"
+      "registrationForm": "Custom signup form",
+      "taxDisplay": {
+        "label": "Tax display",
+        "grossLabel": "Gross",
+        "grossDescription": "Prices are shown including tax.",
+        "netLabel": "Net",
+        "netDescription": "Prices are shown excluding tax."
+      },
+      "priceBasis": {
+        "label": "Price basis",
+        "grossLabel": "Gross stays constant",
+        "grossDescription": "Gross prices stay the same when tax rates change. Tax-free orders are always charged the net price.",
+        "netLabel": "Net stays constant",
+        "netDescription": "Net prices stay the same when tax rates change."
+      }
     },
     "registration": {
       "formTitle": "Signup form",

@@ -8,11 +8,18 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -35,7 +42,7 @@ class ScriptPriceStubsTest extends TestCase
             'USD' => self::USD_ID,
         ]);
 
-        $stubs = new ScriptPriceStubs($connection, static::createStub(QuantityPriceCalculator::class), static::createStub(PercentagePriceCalculator::class));
+        $stubs = new ScriptPriceStubs($connection, static::createStub(QuantityPriceCalculator::class), static::createStub(PercentagePriceCalculator::class), new PriceSelector(new TaxCalculator()));
 
         $actual = $stubs->build($prices);
 
@@ -47,6 +54,31 @@ class ScriptPriceStubsTest extends TestCase
             static::assertSame($expectedPrice->getGross(), $actualPrice->getGross());
             static::assertSame($expectedPrice->getLinked(), $actualPrice->getLinked());
         }
+    }
+
+    public function testSelectReturnsTheValueTheCustomerGroupPriceBasisMakesAuthoritative(): void
+    {
+        $stubs = new ScriptPriceStubs(
+            static::createStub(Connection::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(PercentagePriceCalculator::class),
+            new PriceSelector(new TaxCalculator())
+        );
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign(['priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET])
+        );
+
+        $selected = $stubs->select(
+            new Price(Defaults::CURRENCY, 10.0, 99.99, false),
+            new TaxRuleCollection([new TaxRule(19)]),
+            $context
+        );
+
+        static::assertSame(10.0, $selected->getValue());
+        static::assertFalse($selected->isCalculated());
     }
 
     public static function priceCases(): \Generator

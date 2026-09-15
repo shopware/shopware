@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEvents;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -48,6 +51,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             EntityWriteEvent::class => 'beforeDelete',
             OrderEvents::ORDER_LINE_ITEM_DELETED_EVENT => 'lineItemDeleted',
             OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT => 'lineItemCreated',
+            StateMachineTransitionEvent::class => 'orderStateChanged',
         ];
     }
 
@@ -131,6 +135,40 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
     }
 
     /**
+     * Cancelling an order neither writes nor deletes its line items, so the redemption counts would
+     * otherwise keep the promotion claimed forever. Both directions are handled so that reopening a
+     * cancelled order claims the promotion again.
+     */
+    public function orderStateChanged(StateMachineTransitionEvent $event): void
+    {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
+        if ($event->getEntityName() !== OrderDefinition::ENTITY_NAME) {
+            return;
+        }
+
+        if ($event->getToPlace()->getTechnicalName() !== OrderStates::STATE_CANCELLED
+            && $event->getFromPlace()->getTechnicalName() !== OrderStates::STATE_CANCELLED
+        ) {
+            return;
+        }
+
+        $promotionIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(promotion_id)) FROM order_line_item
+             WHERE order_id = :orderId AND version_id = :versionId AND type = :type AND promotion_id IS NOT NULL',
+            [
+                'orderId' => Uuid::fromHexToBytes($event->getEntityId()),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'type' => PromotionProcessor::LINE_ITEM_TYPE,
+            ]
+        );
+
+        $this->update($promotionIds, $event->getContext());
+    }
+
+    /**
      * @param array<string> $ids
      */
     public function update(array $ids, Context $context): void
@@ -141,11 +179,29 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
+        $parameters = [
+            'type' => PromotionProcessor::LINE_ITEM_TYPE,
+            'ids' => Uuid::fromHexToBytesList($ids),
+            'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+        ];
+
+        // a cancelled order no longer claims its promotions, so it must not count towards the redemptions
+        $cancelledStateFilter = '';
+        $cancelledStateId = $this->fetchCancelledOrderStateId();
+        if ($cancelledStateId !== null) {
+            $cancelledStateFilter = 'AND `order`.state_id != :cancelledStateId';
+            $parameters['cancelledStateId'] = $cancelledStateId;
+        }
+
         $sql = <<<'SQL'
             SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
                    COUNT(DISTINCT order_line_item.order_id) as total,
                    LOWER(HEX(order_customer.customer_id)) as customer_id
             FROM order_line_item
+                     INNER JOIN `order`
+                               ON (`order`.id = order_line_item.order_id
+                                   AND `order`.version_id = order_line_item.order_version_id
+                                   #cancelledStateFilter#)
                      LEFT JOIN order_customer
                                ON (order_customer.order_id = order_line_item.order_id
                                    AND order_customer.order_version_id = order_line_item.order_version_id)
@@ -153,10 +209,12 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             GROUP BY order_line_item.promotion_id, order_customer.customer_id
         SQL;
 
+        $sql = str_replace('#cancelledStateFilter#', $cancelledStateFilter, $sql);
+
         /** @var list<array{promotion_id: string, total: numeric-string, customer_id: ?string}> $promotions */
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
-            ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            $parameters,
             ['ids' => ArrayParameterType::BINARY]
         );
 
@@ -175,6 +233,23 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                 'customerCount' => $totals !== [] ? json_encode($totals, \JSON_THROW_ON_ERROR) : null,
             ]);
         }
+    }
+
+    /**
+     * Resolved per call rather than memoised, so the class keeps no state that would need resetting
+     * between requests or test cases.
+     */
+    private function fetchCancelledOrderStateId(): ?string
+    {
+        $id = $this->connection->fetchOne(
+            'SELECT state_machine_state.id
+             FROM state_machine_state
+                 INNER JOIN state_machine ON state_machine.id = state_machine_state.state_machine_id
+             WHERE state_machine.technical_name = :stateMachine AND state_machine_state.technical_name = :state',
+            ['stateMachine' => OrderStates::STATE_MACHINE, 'state' => OrderStates::STATE_CANCELLED]
+        );
+
+        return $id === false ? null : $id;
     }
 
     /**

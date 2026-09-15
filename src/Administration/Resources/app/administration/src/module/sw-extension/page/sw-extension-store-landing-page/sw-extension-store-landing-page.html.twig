@@ -21,7 +21,7 @@
             <mt-empty-state
                 v-else-if="activationStatus === 'error'"
                 class="sw-extension-store-landing-page__wrapper-activated"
-                :centered="true"
+                centered
                 icon="regular-times-circle"
                 :headline="error && error.title || $t('sw-extension-store.landing-page.activationErrorTitle')"
                 :description="error && error.detail || $t('sw-extension-store.landing-page.activationErrorDescription')"
@@ -39,7 +39,7 @@
             <mt-empty-state
                 v-else-if="activationStatus === 'success'"
                 class="sw-extension-store-landing-page__wrapper-activated"
-                :centered="true"
+                centered
                 icon="regular-check-circle"
                 :headline="$t('sw-extension-store.landing-page.activationSuccessTitle')"
                 :description="$t('sw-extension-store.landing-page.activationSuccessDescription')"
@@ -48,7 +48,7 @@
             <mt-empty-state
                 v-else
                 class="sw-extension-store-landing-page__wrapper-content"
-                :centered="true"
+                centered
                 icon="regular-shopware"
                 :headline="activationHeadline"
                 :description="$t('sw-extension-store.landing-page.activationDescriptionTitleDescription')"

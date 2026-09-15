@@ -66,7 +66,7 @@
         <div class="sw-settings-rule-list__content">
             {% block sw_settings_rule_list_grid %}
             <sw-entity-listing
-                v-if="isLoading || rules"
+                v-if="isLoading || rules?.length"
                 ref="swRuleGrid"
                 identifier="sw-settings-rule-list"
                 class="sw-rule-list-grid"
@@ -139,9 +139,31 @@
             {% block sw_settings_rule_list_empty_message %}
             <mt-empty-state
                 v-else-if="!isLoading && !total"
+                centered
                 :icon="$route.meta.$module.icon"
-                :headline="$t('sw-settings-rule.list.messageEmpty')"
-            />
+                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-rule.list.messageEmpty')"
+                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : ''"
+                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+            >
+                <template
+                    v-if="!filterCriteria.length && !isValidTerm(term)"
+                    #button
+                >
+                    <mt-button
+                        v-tooltip="{
+                            message: $t('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('rule.creator'),
+                            showOnDisabledElements: true
+                        }"
+                        variant="primary"
+                        :disabled="!acl.can('rule.creator')"
+                        @click="$router.push({ name: 'sw.settings.rule.create' })"
+                    >
+                        {{ $t('sw-settings-rule.list.buttonAddRule') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
             {% endblock %}
         </div>
         {% endblock %}

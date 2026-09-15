@@ -7,7 +7,14 @@ const { Criteria } = Shopware.Data;
  * @sw-package fundamentals@after-sales
  */
 
-async function createWrapper(privileges = []) {
+function createRuleCollection(items = [{ id: 'ruleId', name: 'Test rule', tags: [] }]) {
+    const rules = [...items];
+    rules.total = items.length;
+
+    return rules;
+}
+
+async function createWrapper(privileges = [], rules = createRuleCollection()) {
     const wrapper = mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
         global: {
             stubs: {
@@ -40,7 +47,7 @@ async function createWrapper(privileges = []) {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve([]),
+                        search: () => Promise.resolve(rules),
                         clone: (id) => Promise.resolve({ id }),
                     }),
                 },
@@ -77,6 +84,12 @@ async function createWrapper(privileges = []) {
             mocks: {
                 $route: {
                     query: 'foo',
+                    meta: {
+                        $module: {
+                            icon: 'regular-rule',
+                            description: 'sw-settings-rule.general.descriptionTextModule',
+                        },
+                    },
                 },
             },
         },
@@ -84,8 +97,9 @@ async function createWrapper(privileges = []) {
     await flushPromises();
 
     const buttonAddRule = wrapper.findByText('button', 'sw-settings-rule.list.buttonAddRule');
-    const entityListing = wrapper.get('.sw-entity-listing');
-    const contextMenuItemDuplicate = wrapper.get('.sw-context-menu-item');
+    // both only exist while the listing renders, so an empty result yields empty wrappers
+    const entityListing = wrapper.find('.sw-entity-listing');
+    const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
 
     return {
         wrapper,
@@ -284,6 +298,50 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         expect(wrapper.vm.ruleRepository.search).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should replace the listing with an empty state offering the create action when no rule exists', async () => {
+        const { wrapper } = await createWrapper(['rule.creator'], createRuleCollection([]));
+        await flushPromises();
+
+        // the repository resolves an empty collection, so the grid must give way to the empty state
+        expect(wrapper.find('.sw-entity-listing').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-rule.list.messageEmpty');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.text()).toBe('sw-settings-rule.list.buttonAddRule');
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should keep the listing and hide the empty state when rules exist', async () => {
+        const { wrapper } = await createWrapper(['rule.creator']);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-listing').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+    });
+
+    it('should disable the empty state create action without the creator privilege', async () => {
+        const { wrapper } = await createWrapper([], createRuleCollection([]));
+        await flushPromises();
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeDefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const { wrapper } = await createWrapper(['rule.creator'], createRuleCollection([]));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty rule set, so it points at the search preferences instead
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });
 
     it('should set languageId on language switch change', async () => {

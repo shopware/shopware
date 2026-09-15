@@ -192,16 +192,36 @@ class CacheHeadersServiceTest extends TestCase
         static::assertNull($event->get(HttpCacheCookieEvent::TAX_RULES));
     }
 
-    public function testCacheHashSeparatesTaxRatesWhenAPriceBasisIsSet(): void
+    public function testCacheHashSeparatesTaxRatesForTheNetBasisWithGrossDisplay(): void
     {
-        $germany = $this->applyNetBasisCacheHash(19.0);
-        $austria = $this->applyNetBasisCacheHash(20.0);
+        $germany = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_NET, 'gross', 19.0);
+        $austria = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_NET, 'gross', 20.0);
 
         static::assertInstanceOf(HttpCacheCookieEvent::class, $germany);
         static::assertInstanceOf(HttpCacheCookieEvent::class, $austria);
 
         static::assertNotNull($germany->get(HttpCacheCookieEvent::TAX_RULES));
         static::assertNotSame($germany->getHash(), $austria->getHash());
+    }
+
+    public function testCacheHashSeparatesTaxRatesForTheGrossBasisWithNetDisplay(): void
+    {
+        $germany = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_GROSS, 'net', 19.0);
+        $austria = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_GROSS, 'net', 20.0);
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $germany);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $austria);
+
+        static::assertNotNull($germany->get(HttpCacheCookieEvent::TAX_RULES));
+        static::assertNotSame($germany->getHash(), $austria->getHash());
+    }
+
+    public function testCacheHashIgnoresTaxRulesWhenTheBasisMatchesTheDisplayState(): void
+    {
+        $event = $this->applyPriceBasisCacheHash(CustomerGroupEntity::PRICE_BASIS_GROSS, 'gross', 19.0);
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNull($event->get(HttpCacheCookieEvent::TAX_RULES));
     }
 
     public function testStoreNonDefaultLanguageRequiresCacheHash(): void
@@ -508,7 +528,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertNotSame($firstHash, $secondHash);
     }
 
-    private function applyNetBasisCacheHash(float $taxRate): ?HttpCacheCookieEvent
+    private function applyPriceBasisCacheHash(string $priceBasis, string $taxState, float $taxRate): ?HttpCacheCookieEvent
     {
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
@@ -516,9 +536,9 @@ class CacheHeadersServiceTest extends TestCase
         $context->method('getRuleIdsByAreas')->willReturn([]);
         $context->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getTaxState')->willReturn('gross');
+        $context->method('getTaxState')->willReturn($taxState);
         $context->method('getCurrentCustomerGroup')->willReturn(
-            (new CustomerGroupEntity())->assign(['priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET])
+            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
         );
         $context->method('getTaxRules')->willReturn(new TaxCollection([
             (new TaxEntity())->assign([

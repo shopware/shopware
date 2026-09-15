@@ -347,7 +347,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PriceSelector::class),
         ]);
 
-    $services->set(PriceSelector::class);
+    $services->set(PriceSelector::class)
+        ->args([
+            service(TaxCalculator::class),
+        ]);
 
     $services->set(CartContextHasher::class)
         ->args([

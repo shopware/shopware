@@ -225,6 +225,23 @@ class PriceFacadeTest extends TestCase
         static::assertSame(0.2, $price->getTaxes()->getAmount());
     }
 
+    public function testChangeDerivesTheNetUnderAGrossPriceBasis(): void
+    {
+        $price = $this->rampUpPriceFacade(
+            new IdsCollection(['default' => Defaults::CURRENCY]),
+            'default',
+            CartPrice::TAX_STATE_NET,
+            CustomerGroupEntity::PRICE_BASIS_GROSS
+        );
+
+        $price->change(new PriceCollection([
+            new Price(Defaults::CURRENCY, 2, 5, false),
+        ]));
+
+        // the 10% tax contained in the fixed gross of 5.00 is taken out, the stored net of 2.00 is ignored
+        static::assertSame(4.55, $price->getUnit());
+    }
+
     public function testPlusAddsTheDerivedGrossUnderANetPriceBasis(): void
     {
         $price = $this->rampUpPriceFacade(
@@ -256,7 +273,7 @@ class PriceFacadeTest extends TestCase
             static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
-            new PriceSelector(),
+            new PriceSelector(new TaxCalculator()),
         );
 
         $original = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));

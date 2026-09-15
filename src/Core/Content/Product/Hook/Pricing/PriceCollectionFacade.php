@@ -75,7 +75,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
         $rules = $this->context->buildTaxRules($this->product->get('taxId'));
 
         foreach ($mapped as $quantity => $price) {
-            $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->context);
+            $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $rules, $this->context);
 
             $definition = new QuantityPriceDefinition($selected->getValue(), $rules, $quantity);
             $definition->setIsCalculated($selected->isCalculated());

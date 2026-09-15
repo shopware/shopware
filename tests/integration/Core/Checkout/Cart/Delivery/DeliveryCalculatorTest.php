@@ -286,6 +286,7 @@ class DeliveryCalculatorTest extends TestCase
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setName(Uuid::randomHex());
         $price = new ShippingMethodPriceEntity();

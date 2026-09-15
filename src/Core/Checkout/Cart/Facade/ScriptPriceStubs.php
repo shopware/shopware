@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -45,9 +46,9 @@ class ScriptPriceStubs implements ResetInterface
         return $this->quantityCalculator->calculate($definition, $context);
     }
 
-    public function select(Price $price, SalesChannelContext $context): SelectedPrice
+    public function select(Price $price, TaxRuleCollection $taxRules, SalesChannelContext $context): SelectedPrice
     {
-        return $this->priceSelector->select($price, $context);
+        return $this->priceSelector->select($price, $taxRules, $context);
     }
 
     public function calculatePercentage(float $percentage, CalculatedPriceCollection $prices, SalesChannelContext $context): CalculatedPrice

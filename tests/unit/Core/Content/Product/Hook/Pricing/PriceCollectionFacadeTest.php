@@ -63,11 +63,11 @@ class PriceCollectionFacadeTest extends TestCase
     }
 
     #[DataProvider('priceBasisProvider')]
-    public function testChangeSelectsTheValueTheCustomerGroupPriceBasisMakesAuthoritative(?string $priceBasis, float $expectedUnitPrice): void
+    public function testChangeSelectsTheValueTheCustomerGroupPriceBasisMakesAuthoritative(?string $priceBasis, string $taxState, float $expectedUnitPrice): void
     {
         $prices = new CalculatedPriceCollection();
 
-        $facade = $this->createFacade($prices, $this->createContext($priceBasis));
+        $facade = $this->createFacade($prices, $this->createContext($priceBasis, $taxState));
 
         $stored = new PriceCollection([new Price(Defaults::CURRENCY, 10.0, 99.99, false)]);
 
@@ -84,10 +84,16 @@ class PriceCollectionFacadeTest extends TestCase
 
     public static function priceBasisProvider(): \Generator
     {
-        yield 'legacy basis takes the stored gross for gross display' => [null, 99.99];
+        yield 'legacy basis takes the stored gross for gross display' => [
+            null, CartPrice::TAX_STATE_GROSS, 99.99,
+        ];
 
         yield 'net basis derives the gross from the stored net and ignores the stored gross' => [
-            CustomerGroupEntity::PRICE_BASIS_NET, 11.9,
+            CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_GROSS, 11.9,
+        ];
+
+        yield 'gross basis derives the net from the stored gross and ignores the stored net' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_NET, 84.03,
         ];
     }
 
@@ -160,7 +166,7 @@ class PriceCollectionFacadeTest extends TestCase
             static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
-            new PriceSelector(),
+            new PriceSelector(new TaxCalculator()),
         );
 
         $product = (new PartialEntity())->assign(['taxId' => Uuid::randomHex()]);
@@ -168,11 +174,11 @@ class PriceCollectionFacadeTest extends TestCase
         return new PriceCollectionFacade($product, $prices, $stubs, $context);
     }
 
-    private function createContext(?string $priceBasis): SalesChannelContext
+    private function createContext(?string $priceBasis, string $taxState = CartPrice::TAX_STATE_GROSS): SalesChannelContext
     {
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getTaxState')->willReturn($taxState);
         $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
         $context->method('getCurrentCustomerGroup')->willReturn(

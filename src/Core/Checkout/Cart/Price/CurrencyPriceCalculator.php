@@ -32,14 +32,15 @@ class CurrencyPriceCalculator
             throw CartException::invalidPriceDefinition();
         }
 
-        $selected = $this->priceSelector->select($currency, $context);
+        $taxRules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $prices->getTotalPriceAmount());
+
+        $selected = $this->priceSelector->select($currency, $taxRules, $context);
         $value = $selected->getValue();
 
         if ($currency->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getCurrency()->getFactor();
         }
 
-        $taxRules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $prices->getTotalPriceAmount());
         $definition = new QuantityPriceDefinition($value, $taxRules, $quantity);
         $definition->setIsCalculated($selected->isCalculated());
 

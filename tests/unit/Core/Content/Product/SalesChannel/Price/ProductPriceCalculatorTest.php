@@ -71,7 +71,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector(),
+            new PriceSelector(new TaxCalculator()),
         );
     }
 
@@ -194,6 +194,18 @@ class ProductPriceCalculatorTest extends TestCase
 
         yield 'net basis takes the stored net verbatim for tax free display' => [
             CartPrice::TAX_STATE_FREE, CustomerGroupEntity::PRICE_BASIS_NET, 10.0, 0.0,
+        ];
+
+        yield 'gross basis takes the stored gross verbatim for gross display' => [
+            CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_GROSS, 99.99, 15.96,
+        ];
+
+        yield 'gross basis derives the net from the stored gross and ignores the stored net' => [
+            CartPrice::TAX_STATE_NET, CustomerGroupEntity::PRICE_BASIS_GROSS, 84.03, 15.97,
+        ];
+
+        yield 'gross basis falls back to the stored net for tax free display' => [
+            CartPrice::TAX_STATE_FREE, CustomerGroupEntity::PRICE_BASIS_GROSS, 10.0, 0.0,
         ];
     }
 
@@ -349,7 +361,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector()
+            new PriceSelector(new TaxCalculator())
         ))->getDecorated();
     }
 
@@ -688,7 +700,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
-            new PriceSelector(),
+            new PriceSelector(new TaxCalculator()),
         );
     }
 

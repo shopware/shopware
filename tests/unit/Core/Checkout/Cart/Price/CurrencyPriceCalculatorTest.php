@@ -66,6 +66,14 @@ class CurrencyPriceCalculatorTest extends TestCase
         yield 'net basis takes the stored net verbatim for net display' => [
             CartPrice::TAX_STATE_NET, CustomerGroupEntity::PRICE_BASIS_NET, 10.0,
         ];
+
+        yield 'gross basis takes the stored gross verbatim for gross display' => [
+            CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_GROSS, 99.99,
+        ];
+
+        yield 'gross basis derives the net from the stored gross and ignores the stored net' => [
+            CartPrice::TAX_STATE_NET, CustomerGroupEntity::PRICE_BASIS_GROSS, 84.03,
+        ];
     }
 
     public function testMissingCurrencyPriceIsRejected(): void
@@ -89,7 +97,7 @@ class CurrencyPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new PercentageTaxRuleBuilder(),
-            new PriceSelector()
+            new PriceSelector(new TaxCalculator())
         );
     }
 

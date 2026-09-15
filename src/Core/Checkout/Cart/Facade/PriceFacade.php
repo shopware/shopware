@@ -107,7 +107,7 @@ class PriceFacade
      */
     public function change(PriceCollection $price): void
     {
-        $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->context);
+        $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->price->getTaxRules(), $this->context);
 
         $definition = new QuantityPriceDefinition(
             $selected->getValue(),
@@ -217,7 +217,7 @@ class PriceFacade
 
     protected function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
     {
-        $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $context);
+        $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->price->getTaxRules(), $context);
 
         if ($selected->isCalculated()) {
             return $selected->getValue();

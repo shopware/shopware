@@ -135,7 +135,7 @@ class CheapestPriceFacadeTest extends TestCase
             static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
-            new PriceSelector(),
+            new PriceSelector(new TaxCalculator()),
         );
 
         $entity->assign(['calculatedPrice' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection())]);

@@ -1255,7 +1255,8 @@ The method must raise the stored increment state to at least the given value wit
 
 ## Deprecated block `sw_settings_customer_group_detail_content_card_display_gross`
 
-The gross display toggle on the customer group detail page was replaced by a combined price mode selection in the new "Price display & calculation" card. The old block `sw_settings_customer_group_detail_content_card_display_gross` in `sw-settings-customer-group-detail.html.twig` remains as an empty extension point and will be removed with 6.8; use `sw_settings_customer_group_detail_content_price_display_card_mode` instead.
+The gross display toggle on the customer group detail page was replaced by two separate controls, one for the tax display and one for the price calculation basis. The old block `sw_settings_customer_group_detail_content_card_display_gross` in `sw-settings-customer-group-detail.html.twig` remains as an empty extension point and will be removed with 6.8. Extensions that customized the toggle have to extend the blocks of the new controls instead.
+
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.

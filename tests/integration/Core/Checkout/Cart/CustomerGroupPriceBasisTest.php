@@ -39,13 +39,54 @@ class CustomerGroupPriceBasisTest extends TestCase
     protected function setUp(): void
     {
         $this->tax = ['id' => Uuid::randomHex(), 'taxRate' => 19.0, 'name' => 'price-basis-tax'];
-        $this->productId = Uuid::randomHex();
+        $this->productId = $this->createProduct(net: 10.00, gross: 99.99);
+    }
+
+    public function testNetBasisWithGrossDisplayDerivesTheCartLineItemGross(): void
+    {
+        $price = $this->calculateLineItemPrice($this->productId, CustomerGroupEntity::PRICE_BASIS_NET, displayGross: true);
+
+        // the stored gross of 99.99 is ignored, 10.00 net is grossed up with the 19% rate instead
+        static::assertSame(11.9, $price->getUnitPrice());
+        static::assertSame(11.9, $price->getTotalPrice());
+        static::assertSame(1.9, $price->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testGrossBasisWithNetDisplayDerivesTheCartLineItemNet(): void
+    {
+        // the stored net of 3.00 is nowhere near the 10.00 that the fixed gross of 11.90 contains at 19%
+        $productId = $this->createProduct(net: 3.00, gross: 11.90);
+
+        $price = $this->calculateLineItemPrice($productId, CustomerGroupEntity::PRICE_BASIS_GROSS, displayGross: false);
+
+        static::assertSame(10.0, $price->getUnitPrice());
+        static::assertSame(1.9, $price->getCalculatedTaxes()->getAmount());
+
+        // adding the derived tax back returns the customer to the stored gross, up to sub-cent rounding noise
+        static::assertEqualsWithDelta(
+            11.9,
+            $price->getTotalPrice() + $price->getCalculatedTaxes()->getAmount(),
+            0.005
+        );
+    }
+
+    public function testWithoutAPriceBasisTheStoredGrossStaysAuthoritative(): void
+    {
+        $price = $this->calculateLineItemPrice($this->productId, null, displayGross: true);
+
+        static::assertSame(99.99, $price->getUnitPrice());
+        static::assertSame(15.96, $price->getCalculatedTaxes()->getAmount());
+    }
+
+    private function createProduct(float $net, float $gross): string
+    {
+        $productId = Uuid::randomHex();
 
         static::getContainer()->get('product.repository')->create([[
-            'id' => $this->productId,
+            'id' => $productId,
             'name' => 'price basis product',
             'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 99.99, 'net' => 10.00, 'linked' => false],
+                ['currencyId' => Defaults::CURRENCY, 'gross' => $gross, 'net' => $net, 'linked' => false],
             ],
             'productNumber' => Uuid::randomHex(),
             'manufacturer' => ['name' => 'test'],
@@ -56,40 +97,24 @@ class CustomerGroupPriceBasisTest extends TestCase
                 ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ]], Context::createDefaultContext());
+
+        return $productId;
     }
 
-    public function testNetBasisWithGrossDisplayDerivesTheCartLineItemGross(): void
+    private function calculateLineItemPrice(string $productId, ?string $priceBasis, bool $displayGross): CalculatedPrice
     {
-        $price = $this->calculateLineItemPrice(CustomerGroupEntity::PRICE_BASIS_NET);
-
-        // the stored gross of 99.99 is ignored, 10.00 net is grossed up with the 19% rate instead
-        static::assertSame(11.9, $price->getUnitPrice());
-        static::assertSame(11.9, $price->getTotalPrice());
-        static::assertSame(1.9, $price->getCalculatedTaxes()->getAmount());
-    }
-
-    public function testWithoutAPriceBasisTheStoredGrossStaysAuthoritative(): void
-    {
-        $price = $this->calculateLineItemPrice(null);
-
-        static::assertSame(99.99, $price->getUnitPrice());
-        static::assertSame(15.96, $price->getCalculatedTaxes()->getAmount());
-    }
-
-    private function calculateLineItemPrice(?string $priceBasis): CalculatedPrice
-    {
-        $context = $this->createContextForPriceBasis($priceBasis);
+        $context = $this->createContextForPriceBasis($priceBasis, $displayGross);
 
         $cart = new Cart('price-basis');
         $cart->add(
-            (new LineItem($this->productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $this->productId, 1))
+            (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 1))
                 ->setStackable(true)
                 ->setRemovable(true)
         );
 
         $calculated = static::getContainer()->get(Processor::class)->process($cart, $context, new CartBehavior());
 
-        $item = $calculated->get($this->productId);
+        $item = $calculated->get($productId);
         static::assertNotNull($item);
 
         $price = $item->getPrice();
@@ -98,14 +123,14 @@ class CustomerGroupPriceBasisTest extends TestCase
         return $price;
     }
 
-    private function createContextForPriceBasis(?string $priceBasis): SalesChannelContext
+    private function createContextForPriceBasis(?string $priceBasis, bool $displayGross): SalesChannelContext
     {
         $customerGroupId = Uuid::randomHex();
 
         static::getContainer()->get('customer_group.repository')->create([[
             'id' => $customerGroupId,
             'name' => 'price basis group',
-            'displayGross' => true,
+            'displayGross' => $displayGross,
             'priceBasis' => $priceBasis,
         ]], Context::createDefaultContext());
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -32,7 +33,7 @@ class EntityCacheKeyGenerator
      */
     public static function buildTaxRuleFingerprint(SalesChannelContext $context): ?string
     {
-        if ($context->getCurrentCustomerGroup()->getPriceBasis() !== CustomerGroupEntity::PRICE_BASIS_NET) {
+        if (!self::derivesPricesFromTaxRates($context)) {
             return null;
         }
 
@@ -90,5 +91,16 @@ class EntityCacheKeyGenerator
             $criteria->getFields(),
             $criteria->getExcludedFields(),
         ]);
+    }
+
+    private static function derivesPricesFromTaxRates(SalesChannelContext $context): bool
+    {
+        $basis = $context->getCurrentCustomerGroup()->getPriceBasis();
+
+        return match ($context->getTaxState()) {
+            CartPrice::TAX_STATE_GROSS => $basis === CustomerGroupEntity::PRICE_BASIS_NET,
+            CartPrice::TAX_STATE_NET => $basis === CustomerGroupEntity::PRICE_BASIS_GROSS,
+            default => false,
+        };
     }
 }

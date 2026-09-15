@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
@@ -40,35 +39,12 @@ class CustomerGroupDefinitionTest extends TestCase
         );
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testPriceBasisAcceptsTheNetBasisBeforeTheMajor(): void
-    {
-        static::assertSame(
-            ['price_basis' => CustomerGroupEntity::PRICE_BASIS_NET],
-            $this->writePriceBasis(CustomerGroupEntity::PRICE_BASIS_NET)
-        );
-    }
-
     public function testPriceBasisAcceptsTheGrossBasis(): void
     {
         static::assertSame(
             ['price_basis' => CustomerGroupEntity::PRICE_BASIS_GROSS],
             $this->writePriceBasis(CustomerGroupEntity::PRICE_BASIS_GROSS)
         );
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testPriceBasisRejectsTheGrossBasisBeforeTheMajor(): void
-    {
-        try {
-            $this->writePriceBasis(CustomerGroupEntity::PRICE_BASIS_GROSS);
-            static::fail('The gross price basis must be rejected until the v6.8.0.0 major is active.');
-        } catch (WriteConstraintViolationException $exception) {
-            $violation = $exception->getViolations()->get(0);
-
-            static::assertSame('/priceBasis', $violation->getPropertyPath());
-            static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $violation->getCode());
-        }
     }
 
     public function testPriceBasisRejectsAnUnknownBasis(): void

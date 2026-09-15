@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
@@ -16,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
@@ -69,9 +69,8 @@ class DeliveryCalculator
                 : $delivery->getShippingCosts()->getTotalPrice() * $context->getContext()->getCurrencyFactor();
 
             $costs = $this->calculateShippingCosts(
-                $delivery->getShippingMethod(),
                 new SelectedPrice($total, isCalculated: true),
-                $delivery->getPositions()->getLineItems(),
+                $this->resolveTaxRules($delivery, $context),
                 $context
             );
 
@@ -85,9 +84,8 @@ class DeliveryCalculator
             || $this->hasDeliveryWithOnlyShippingFreeItems($delivery)
         ) {
             $costs = $this->calculateShippingCosts(
-                $delivery->getShippingMethod(),
                 new SelectedPrice(0.0, isCalculated: true),
-                $delivery->getPositions()->getLineItems(),
+                $this->resolveTaxRules($delivery, $context),
                 $context
             );
             $delivery->setShippingCosts($costs);
@@ -181,43 +179,45 @@ class DeliveryCalculator
         return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
     }
 
-    private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, SelectedPrice $price, LineItemCollection $calculatedLineItems, SalesChannelContext $context): CalculatedPrice
+    private function resolveTaxRules(Delivery $delivery, SalesChannelContext $context): TaxRuleCollection
     {
+        $shippingMethod = $delivery->getShippingMethod();
+        $calculatedLineItems = $delivery->getPositions()->getLineItems();
+
         switch ($shippingMethod->getTaxType()) {
             case ShippingMethodEntity::TAX_TYPE_HIGHEST:
-                $rules = $calculatedLineItems->getPrices()->getHighestTaxRule();
-
-                break;
+                return $calculatedLineItems->getPrices()->getHighestTaxRule();
 
             case ShippingMethodEntity::TAX_TYPE_FIXED:
                 $taxId = $shippingMethod->getTaxId();
 
                 if ($taxId !== null) {
-                    $rules = $context->buildTaxRules($taxId);
-
-                    break;
+                    return $context->buildTaxRules($taxId);
                 }
 
                 // no break
             default:
-                $rules = $this->percentageTaxRuleBuilder->buildCollectionRules(
+                return $this->percentageTaxRuleBuilder->buildCollectionRules(
                     $calculatedLineItems->getPrices()->getCalculatedTaxes(),
                     $this->cashRounding->mathRound($calculatedLineItems->getPrices()->getTotalPriceAmount(), $context->getTotalRounding()),
                 );
         }
+    }
 
-        $definition = new QuantityPriceDefinition($price->getValue(), $rules, 1);
+    private function calculateShippingCosts(SelectedPrice $price, TaxRuleCollection $taxRules, SalesChannelContext $context): CalculatedPrice
+    {
+        $definition = new QuantityPriceDefinition($price->getValue(), $taxRules, 1);
         $definition->setIsCalculated($price->isCalculated());
 
         return $this->priceCalculator->calculate($definition, $context);
     }
 
-    private function getCurrencyPrice(PriceCollection $priceCollection, SalesChannelContext $context): SelectedPrice
+    private function getCurrencyPrice(PriceCollection $priceCollection, TaxRuleCollection $taxRules, SalesChannelContext $context): SelectedPrice
     {
         /** @var Price $price */
         $price = $priceCollection->getCurrencyPrice($context->getCurrencyId());
 
-        $selected = $this->priceSelector->select($price, $context);
+        $selected = $this->priceSelector->select($price, $taxRules, $context);
 
         if ($price->getCurrencyId() === Defaults::CURRENCY) {
             return new SelectedPrice(
@@ -231,13 +231,19 @@ class DeliveryCalculator
 
     private function getMatchingPriceOfRule(Delivery $delivery, SalesChannelContext $context, ShippingMethodPriceCollection $shippingPrices): ?CalculatedPrice
     {
+        if ($shippingPrices->count() === 0) {
+            return null;
+        }
+
+        $taxRules = $this->resolveTaxRules($delivery, $context);
+
         $shippingPrices->sort(
-            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
+            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($taxRules, $context) {
                 $priceCollectionA = $priceEntityA->getCurrencyPrice();
-                $priceA = $priceCollectionA ? $this->getCurrencyPrice($priceCollectionA, $context)->getValue() : null;
+                $priceA = $priceCollectionA ? $this->getCurrencyPrice($priceCollectionA, $taxRules, $context)->getValue() : null;
 
                 $priceCollectionB = $priceEntityB->getCurrencyPrice();
-                $priceB = $priceCollectionB ? $this->getCurrencyPrice($priceCollectionB, $context)->getValue() : null;
+                $priceB = $priceCollectionB ? $this->getCurrencyPrice($priceCollectionB, $taxRules, $context)->getValue() : null;
 
                 return $priceA <=> $priceB;
             }
@@ -252,12 +258,7 @@ class DeliveryCalculator
             if (!$price) {
                 continue;
             }
-            $costs = $this->calculateShippingCosts(
-                $delivery->getShippingMethod(),
-                $this->getCurrencyPrice($price, $context),
-                $delivery->getPositions()->getLineItems(),
-                $context
-            );
+            $costs = $this->calculateShippingCosts($this->getCurrencyPrice($price, $taxRules, $context), $taxRules, $context);
 
             break;
         }

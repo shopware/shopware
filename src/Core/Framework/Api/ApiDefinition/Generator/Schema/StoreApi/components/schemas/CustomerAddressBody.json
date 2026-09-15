@@ -38,11 +38,11 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "firstName": {
-                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. A new address needs the company instead then.",
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. The company is required instead then.",
                         "type": "string"
                     },
                     "lastName": {
-                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. A new address needs the company instead then.",
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. The company is required instead then.",
                         "type": "string"
                     },
                     "zipcode": { "type": "string" },

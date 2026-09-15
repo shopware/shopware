@@ -741,7 +741,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CustomerAddressBody"
+                                "$ref": "#/components/schemas/CustomerAddressUpdateBody"
                             }
                         }
                     }

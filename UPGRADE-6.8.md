@@ -86,6 +86,18 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 
 The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
 
+## `RegulationPrice` constructor is private
+
+Matching `ListPrice`, `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is built through its factory, which also computes `discount` and `percentage`:
+
+```php
+// before
+$regulationPrice = new RegulationPrice($price);
+
+// after
+$regulationPrice = RegulationPrice::createFromUnitPrice($unitPrice, $price);
+```
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.

@@ -95,6 +95,30 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Document v1 survivors moved to the DocumentV2 namespace
+
+Thirteen classes of the legacy document domain survive the removal of document generation v1 and moved out of
+`Shopware\Core\Checkout\Document`. Update your imports:
+
+| Previous namespace | Current namespace |
+|---|---|
+| `Shopware\Core\Checkout\Document` | `Shopware\Core\Checkout\DocumentV2` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel` |
+| `Shopware\Core\Checkout\Document\Renderer` (`RenderedDocument` only) | `Shopware\Core\Checkout\DocumentV2\Struct` |
+| `Shopware\Core\Checkout\Document\SalesChannel` | `Shopware\Core\Checkout\DocumentV2\SalesChannel` |
+| `Shopware\Core\Checkout\Document\Service` (`ReferenceInvoiceLoader` only) | `Shopware\Core\Checkout\DocumentV2\Service` |
+
+The previous names keep working until 6.9 as class aliases, so `instanceof` checks and type declarations stay valid
+and an extension can address v1 and v2 side by side. `UPGRADE-6.7.md` lists the per-class mapping.
+
+Two caveats. `Service\ReferenceInvoiceLoader` is `@internal` and moved without an alias, so its previous name no
+longer resolves. Static analysis models a previous name as a subclass of the new one, so an old type declaration
+receiving a v2 object gets a PHPStan report even though the code runs correctly.
+
+Rolling an installation back to a release from before this change requires clearing the caches: entries written after
+the move carry the new class names, which the older release cannot load.
+
 ### Extensions can change the API CORS header lists
 
 The API answers CORS preflight requests with a fixed list of allowed and exposed headers, so a custom request header of an extension was rejected by the browser on cross-origin calls.

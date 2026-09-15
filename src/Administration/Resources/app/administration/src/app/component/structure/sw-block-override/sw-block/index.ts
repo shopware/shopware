@@ -18,6 +18,15 @@ import useBlockContext from '../../../../composables/use-block-context';
 import { createShimSlot } from '../shim/create-shim-slot';
 import reduceToSingleRoot from '../reduce-to-single-root';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
+import { isBlockInspectorEnabled, registerInspectedBlock } from 'src/core/factory/block-inspector';
+import markBlockVNodes from './mark-block-vnodes';
+
+/** Name of the component whose template contains the `<sw-block>`, for the block inspector. */
+function getOwnerComponentName(instance: ComponentInternalInstance | null): string {
+    const owner = instance?.parent?.type as { name?: string; __name?: string } | undefined;
+
+    return owner?.name ?? owner?.__name ?? 'unknown';
+}
 
 /**
  * @private
@@ -109,6 +118,15 @@ export default Shopware.Component.wrapComponentConfig({
             clearLegacyConditionChainsForBlock(props.name, ownerUid);
         });
 
+        // Development-only: the block inspector lists this block under the component that wrote it.
+        if (isBlockInspectorEnabled() && props.name) {
+            registerInspectedBlock({
+                name: props.name,
+                component: getOwnerComponentName(instance),
+                kind: 'native',
+            });
+        }
+
         // Shim slots are created once in setup() to guarantee a stable VNode type
         // reference across renders. A new object on every render call would cause
         // Vue to unmount + remount ShimContent on every reactive update, destroying
@@ -176,6 +194,13 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
     render() {
-        return reduceToSingleRoot(this.template);
+        const nodes = reduceToSingleRoot(this.template);
+
+        // Development-only: mark the rendered roots so the block inspector can find this block in the DOM.
+        if (isBlockInspectorEnabled() && this.name) {
+            return markBlockVNodes(nodes, this.name);
+        }
+
+        return nodes;
     },
 });

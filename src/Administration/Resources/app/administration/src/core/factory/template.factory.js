@@ -6,6 +6,7 @@
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import transformNativeLegacyBlockConditionals from './transform-legacy-block-conditionals';
+import { installTwigBlockMarker, renderForBlockInspection } from './block-inspector';
 
 /**
  * @module core/factory/async-template
@@ -81,6 +82,9 @@ Twig.extend((TwigCore) => {
     TwigCore.exports.clearRegistry = function clearRegistry() {
         TwigCore.Templates.registry = {};
     };
+
+    /** Development-only: lets every rendered block mark its elements for the block inspector. */
+    installTwigBlockMarker(TwigCore);
 
     TwigTemplates = TwigCore.Templates;
     TwigCore.cache = false;
@@ -260,7 +264,7 @@ function applyTemplateOverrides(name) {
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render(templateVars);
+        const finalHtml = renderForBlockInspection(item.name, () => item.template.render(templateVars));
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -291,7 +295,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render(templateVars);
+    const finalHtml = renderForBlockInspection(updatedTemplate.name, () => updatedTemplate.template.render(templateVars));
 
     // Update item which will written to the registry
     updatedTemplate = {

@@ -181,3 +181,16 @@ Explore detailed documentation for each extension method:
 ## Tooling
 
 Extension authors can type-check and lint their Administration code against the installed Shopware version's live types and the Administration's own pinned TypeScript/ESLint setup with the opt-in commands `composer admin:setup-extension-tooling` and `composer admin:check-extensions`. See [`extension-tooling/README.md`](../../extension-tooling/README.md) for details.
+
+### Finding extension blocks in the running Administration
+
+Twig blocks disappear once a template is rendered, so the DOM alone does not tell which block a piece of UI belongs to. The Shopware devtools plugin (development mode, Vue devtools browser extension) ships an inspector named **Shopware Extension Blocks** for exactly that, the block counterpart of the position identifier inspector for apps:
+
+- The tree lists every block currently rendered, grouped by the component that owns it, tagged as `twig` or `native` and as `extended` when an override or a native extension already targets it. It is rebuilt on every route change and follows DOM changes within a page.
+- Selecting a block frames it in the page with a label such as `{% block sw_product_detail_base_price_form %}`. The devtools do not tell a plugin when their panel closes, so a click or Escape in the page removes the frame.
+- The pick action lets you click on any part of the page to select the innermost block underneath it. The click never reaches the page; Escape cancels. The picked block then appears as the first entry of the tree, tagged `picked`, with the blocks enclosing it listed below, and the tree jumps to it. Vue devtools v6 select and scroll to it directly; devtools v7 offer no way for a plugin to select a node, so the inspector relies on the tree falling back to its first entry after a pick.
+- The state panel shows the owning component, the enclosing blocks, how many Twig overrides and native `<sw-block extends>` target the block, and copy-ready snippets for both extension styles.
+
+The inspector needs `data-sw-block` markers on the rendered elements. Marking changes the compiled templates and is therefore opt-in and off by default: use the power action of the inspector, or run `localStorage.setItem('sw-admin-block-inspector', 'true')` in the console, then reload. The markers are never rendered in production builds.
+
+Implementation: `src/core/factory/block-inspector.ts` marks the rendered output of every Twig `{% block %}` through Twig's block handler, `sw-block` marks its rendered roots, and `src/app/adapter/view/block-inspector/` contains the DOM logic, the tree building and the devtools glue.

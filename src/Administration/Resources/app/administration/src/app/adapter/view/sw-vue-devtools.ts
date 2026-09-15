@@ -9,6 +9,7 @@ import type { CustomInspectorNode } from '@vue/devtools-api';
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
 import type { App } from '@vue/devtools-api/lib/esm/api/app';
 import type { DevtoolsPluginApi } from '@vue/devtools-api/lib/esm/api/api';
+import setupBlockInspector from './block-inspector/sw-vue-devtools-block-inspector';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface DevtoolComponent {
@@ -47,6 +48,9 @@ export default function setupShopwareDevtools(app: App): void {
             app,
         },
         (api) => {
+            // Second inspector: extension blocks of Twig and native components
+            setupBlockInspector(api, app);
+
             // Add CSS for highlighting elements
             const highlightStyle = document.createElement('style');
             highlightStyle.innerHTML = `

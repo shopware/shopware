@@ -275,6 +275,12 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### Extension block inspector in the Vue devtools
+
+The Shopware devtools plugin gets a second inspector, "Shopware Extension Blocks". It lists the Twig blocks and native `<sw-block>` extension points that are currently rendered, grouped by component, highlights the selected block in the page and picks a block by clicking on it, the same way the existing inspector finds position identifiers. A picked block moves to the top of the tree together with the blocks enclosing it. The state panel shows the owning component, how many Twig overrides and native extensions target the block, and copy-ready snippets for both extension styles.
+
+The inspector reads `data-sw-block` markers that the Administration renders only in development mode and only after opting in: use the power action of the inspector, or set `localStorage.setItem('sw-admin-block-inspector', 'true')` and reload.
+
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

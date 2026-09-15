@@ -81,17 +81,17 @@ if ($this->companyAccountNameFields->areOptional($data, $customer, $context->get
 
 ### Orders and documents
 
-The order snapshot keeps the names as the customer had them. The company already lives in `order_customer.company`, and the display name resolves at read time, so no name column holds a company. `ZugferdDocument` and `TradePartyView` move to `OrderCustomerEntity::getBuyerName()`, where the company belongs next to the contact person:
+The order snapshot keeps the names as the customer had them. The company already lives in `order_customer.company`, and the display name resolves at read time, so no name column holds a company. `ZugferdDocument` and `TradePartyView` build the buyer name from the snapshot themselves, where the company belongs next to the contact person; the entity stays plain data and does not carry the rule:
 
 ```php
-$personName = trim($firstName . ' ' . $lastName);
-$company = trim($company ?? '');
+$personName = trim($customer->getFirstName() . ' ' . $customer->getLastName());
+$company = trim($customer->getCompany() ?? '');
 
-if ($company === '' || $company === $personName) {
-    return $personName;
-}
-
-return $personName === '' ? $company : $personName . ' - ' . $company;
+$name = match (true) {
+    $company === '' => $personName,
+    $personName === '' || $personName === $company => $company,
+    default => $personName . ' - ' . $company,
+};
 ```
 
 ### Mail

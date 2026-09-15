@@ -20,6 +20,7 @@ import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
 import TimezoneService from 'src/core/service/timezone.service';
+import CompanyAccountNameFieldsService from 'src/core/service/company-account-name-fields.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import ProductTypeApiService from 'src/app/service/product-type.api.service';
@@ -151,6 +152,9 @@ Application.addServiceProvider('feature', () => {
     })
     .addServiceProvider('timezoneService', () => {
         return new TimezoneService();
+    })
+    .addServiceProvider('companyAccountNameFieldsService', () => {
+        return new CompanyAccountNameFieldsService(Shopware.Service('systemConfigApiService'));
     })
     .addServiceProvider('ruleConditionDataProviderService', () => {
         return new RuleConditionService();

@@ -73,7 +73,7 @@ import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type DocumentV2ApiService from './core/service/api/documentV2.api.service';
 import type DocumentV2Service from './module/sw-order/service/documentV2.service';
-import type CompanyAccountNameFieldsApiService from './core/service/api/company-account-name-fields.api.service';
+import type CompanyAccountNameFieldsService from './core/service/company-account-name-fields.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
 import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
@@ -263,7 +263,7 @@ declare global {
         customSnippetApiService: CustomSnippetApiService;
         documentV2ApiService: DocumentV2ApiService;
         documentV2Service: DocumentV2Service;
-        companyAccountNameFieldsService: CompanyAccountNameFieldsApiService;
+        companyAccountNameFieldsService: CompanyAccountNameFieldsService;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;

@@ -1,26 +1,13 @@
-import CompanyAccountNameFieldsApiService from 'src/core/service/api/company-account-name-fields.api.service';
-import createLoginService from 'src/core/service/login.service';
-import createHTTPClient from 'src/core/factory/http.factory';
+import CompanyAccountNameFieldsService from 'src/core/service/company-account-name-fields.service';
 
 function createService(getValues: jest.Mock) {
-    const context = Shopware.Context?.api || {};
-    const client = createHTTPClient(context);
-    const loginService = createLoginService(client, context);
-
-    return new CompanyAccountNameFieldsApiService(client, loginService, 'system-config', { getValues });
+    return new CompanyAccountNameFieldsService({ getValues });
 }
 
 /**
  * @sw-package checkout
  */
-describe('companyAccountNameFieldsService', () => {
-    it('is registered correctly', () => {
-        const service = createService(jest.fn());
-
-        expect(service).toBeInstanceOf(CompanyAccountNameFieldsApiService);
-        expect(service.name).toBe('companyAccountNameFieldsService');
-    });
-
+describe('src/core/service/company-account-name-fields.service', () => {
     it('reads the inherited login registration settings of the sales channel', async () => {
         const getValues = jest.fn().mockResolvedValue({
             'core.loginRegistration.showNameFieldsForCompanyAccounts': true,

@@ -75,6 +75,16 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
     </permissions>
     <storefront>
         <template-load-priority>100</template-load-priority>
+        <seo-url name="imprint">
+            <label>Imprint</label>
+            <label lang="de-DE">Impressum</label>
+            <path>imprint</path>
+            <path lang="de-DE">impressum</path>
+        </seo-url>
+        <seo-url name="blog-detail" entity="ce_blog" hook="blog-detail">
+            <label>Blog post</label>
+            <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+        </seo-url>
     </storefront>
     <custom-fields>
         <custom-field-set global="true">

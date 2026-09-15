@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinitio
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
@@ -150,6 +151,7 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('mcpTools', AppMcpToolDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mcpPrompts', AppMcpPromptDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mcpResources', AppMcpResourceDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('seoUrlRoutes', AppSeoUrlRouteDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

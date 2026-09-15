@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollectio
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
@@ -164,6 +165,8 @@ class AppEntity extends Entity
     protected ?AppMcpPromptCollection $mcpPrompts = null;
 
     protected ?AppMcpResourceCollection $mcpResources = null;
+
+    protected ?AppSeoUrlRouteCollection $seoUrlRoutes = null;
 
     protected int $templateLoadPriority;
 
@@ -672,6 +675,16 @@ class AppEntity extends Entity
     public function setAppShippingMethods(EntityCollection $appShippingMethods): void
     {
         $this->appShippingMethods = $appShippingMethods;
+    }
+
+    public function getSeoUrlRoutes(): ?AppSeoUrlRouteCollection
+    {
+        return $this->seoUrlRoutes;
+    }
+
+    public function setSeoUrlRoutes(AppSeoUrlRouteCollection $seoUrlRoutes): void
+    {
+        $this->seoUrlRoutes = $seoUrlRoutes;
     }
 
     public function getMcpTools(): ?AppMcpToolCollection

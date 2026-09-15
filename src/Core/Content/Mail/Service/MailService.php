@@ -12,6 +12,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -84,6 +85,7 @@ class MailService extends AbstractMailService
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
         private readonly MailMetricsInstrumentor $mailMetrics,
+        private readonly AbstractTranslator $translator,
     ) {
     }
 
@@ -111,7 +113,17 @@ class MailService extends AbstractMailService
         \assert(\array_key_exists('contentPlain', $data) && \is_string($data['contentPlain']) && $data['contentPlain'] !== '');
         \assert(\array_key_exists('subject', $data) && \is_string($data['subject']) && $data['subject'] !== '');
 
-        $mail = $this->createMail($data, $templateData, $context);
+        $salesChannel = $this->getSalesChannel($data, $templateData, $context);
+        $injectedTranslator = $this->injectTranslator($context, $salesChannel?->getId());
+
+        try {
+            $mail = $this->createMail($data, $templateData, $context, $salesChannel);
+        } finally {
+            if ($injectedTranslator) {
+                $this->translator->resetInjection();
+            }
+        }
+
         if ($mail === null) {
             return null;
         }
@@ -183,6 +195,26 @@ class MailService extends AbstractMailService
         );
     }
 
+    private function injectTranslator(Context $context, ?string $salesChannelId): bool
+    {
+        if ($salesChannelId === null) {
+            return false;
+        }
+
+        if ($this->translator->getSnippetSetId() !== null) {
+            return false;
+        }
+
+        $this->translator->injectSettings(
+            $salesChannelId,
+            $context->getLanguageId(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
+            $context
+        );
+
+        return true;
+    }
+
     private function getValidationDefinition(Context $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('mail_service.send');
@@ -200,11 +232,9 @@ class MailService extends AbstractMailService
      * @param ValidatedMailData $data
      * @param array<string, mixed> $templateData
      */
-    private function createMail(array &$data, array $templateData, Context $context): ?Email
+    private function createMail(array &$data, array $templateData, Context $context, ?SalesChannelEntity $salesChannel): ?Email
     {
         $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || ($data['testMode'] ?? false);
-
-        $salesChannel = $this->getSalesChannel($data, $templateData, $context);
 
         $templateData['salesChannel'] = $salesChannel;
         $templateData['salesChannelId'] = $salesChannel?->getId();

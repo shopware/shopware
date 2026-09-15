@@ -22,17 +22,21 @@ import {
     MODULE_IDENTITY_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
+    ROUTE_GUARD_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,
 } from './runtime-equivalence-fixtures';
 import {
+    type RoutedMount,
     convertFixture,
     flushPromises,
     mountGenerated,
     mountGeneratedPair,
     mountOriginal,
     mountOriginalPair,
+    mountRoutedGenerated,
+    mountRoutedOriginal,
     resetOverrides,
     runEquivalentOrConservative,
     setProbe,
@@ -171,6 +175,39 @@ describe('SFC migration runtime equivalence', () => {
         if (pair.conservative) {
             expectConservative(pair.result.outcome);
         }
+    });
+
+    it('runs in-component route guards through their composables', async () => {
+        const result = await convertFixture(ROUTE_GUARD_FIXTURE);
+
+        expect(result.outcome).toBe('full');
+
+        const trace = async ({ router }: RoutedMount): Promise<unknown[]> => {
+            const probe = setProbe();
+
+            await router.push('/1');
+            await flushPromises();
+            await router.push('/2');
+            await flushPromises();
+            await router.push('/leave');
+            await flushPromises();
+
+            return [
+                ...probe.events,
+                router.currentRoute.value.name,
+            ];
+        };
+
+        const original = await trace(mountRoutedOriginal(ROUTE_GUARD_FIXTURE));
+        const generated = await trace(mountRoutedGenerated(ROUTE_GUARD_FIXTURE, result));
+
+        // The update guard sees each id, and the leave guard cancels the navigation off the fixture.
+        expect(original).toEqual([
+            'update:2',
+            'leave:true',
+            'fixture',
+        ]);
+        expect(generated).toEqual(original);
     });
 
     it('keeps exact-$route watch sources conservative until their runtime contract is proven', async () => {

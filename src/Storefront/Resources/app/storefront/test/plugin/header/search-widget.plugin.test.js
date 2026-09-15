@@ -291,8 +291,16 @@ describe('ListingPlugin tests', () => {
     });
 
     test('_suggest should handle successful AJAX request', async () => {
-        const mockResponse = '<div class="js-search-result"><div class="js-result"><a href="#">Test Result</a></div></div>';
-
+        const mockResponse = `
+            <div class="search-suggest js-search-result">
+                <ul id="search-suggest-listbox">
+                    <li class="js-result">
+                        <a href="#">Test Result</a>
+                    </li>
+                    <li id="search-suggest-result-info">1 result</li>
+                </ul>
+            </div>
+        `;
         searchPlugin._client.get = jest.fn((url, callback) => {
             callback(mockResponse);
         });
@@ -308,7 +316,42 @@ describe('ListingPlugin tests', () => {
         await new Promise(process.nextTick);
         expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('afterSuggest');
         expect(searchPlugin._inputField.getAttribute('aria-expanded')).toBe('true');
+        expect(searchPlugin._inputField.getAttribute('aria-controls')).toBe('search-suggest-listbox');
+        expect(searchPlugin._inputField.getAttribute('aria-describedby')).toBe('search-suggest-result-info');
         expect(searchPlugin.searchSuggestLinks.length).toBe(1);
+    });
+
+    test('_clearSuggestResults should remove dynamic accessibility references', () => {
+        document.body.innerHTML = `
+            <form id="search-widget" data-search-widget="true" data-url="/search" class="js-search-form">
+                <input
+                    type="search"
+                    name="search"
+                    autocapitalize="off"
+                    autocomplete="off"
+                    aria-controls="search-suggest-listbox"
+                    aria-describedby="search-suggest-result-info"
+                >
+                <button type="submit" class="btn header-search-btn">Search</button>
+                <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
+                <div class="search-suggest js-search-result">
+                    <ul id="search-suggest-listbox">
+                        <li id="search-suggest-result-info">1 result</li>
+                    </ul>
+                </div>
+            </form>
+        `;
+
+        const formElement = document.getElementById('search-widget');
+        const searchPlugin = new SearchPlugin(formElement);
+        searchPlugin.$emitter.publish = jest.fn();
+
+        searchPlugin._clearSuggestResults();
+
+        expect(searchPlugin._inputField.hasAttribute('aria-controls')).toBe(false);
+        expect(searchPlugin._inputField.hasAttribute('aria-describedby')).toBe(false);
+        expect(searchPlugin._inputField.getAttribute('aria-expanded')).toBe('false');
+        expect(document.querySelector('.js-search-result')).toBeNull();
     });
 
     test('_onBodyClick should clear results when clicking outside', () => {

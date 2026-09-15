@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -49,7 +50,8 @@ class MailService extends AbstractMailService
         private readonly EntityRepository $salesChannelRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
     ) {
     }
 
@@ -168,6 +170,11 @@ class MailService extends AbstractMailService
             $mediaUrls,
             $data,
             $binAttachments
+        );
+
+        $mail->getHeaders()->addTextHeader(
+            'Content-Language',
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId())
         );
 
         if (trim($mail->getBody()->toString()) === '') {

@@ -27,7 +27,7 @@ class Migration1714659357CanonicalProductVersion extends MigrationStep
         $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.canonical_product_id');
         $this->dropIndexIfExists($connection, 'product', 'fk.product.canonical_product_id');
 
-        $connection->executeStatement('
+        $this->executeDdlStatement($connection, '
             ALTER TABLE `product`
             ADD CONSTRAINT `fk.product.canonical_product_id`
             FOREIGN KEY (`canonical_product_id` , `canonical_product_version_id`)

@@ -74,8 +74,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         if ($customer !== null) {
             $activeShippingAddress = $customer->getActiveShippingAddress();
-            \assert($activeShippingAddress !== null);
-            $shippingLocation = ShippingLocation::createFromAddress($activeShippingAddress);
+            $shippingLocation = $activeShippingAddress !== null
+                ? ShippingLocation::createFromAddress($activeShippingAddress)
+                : $base->getShippingLocation();
 
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setTitle('context-factory::customer-group');
@@ -258,18 +259,26 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context)->getEntities();
 
+        // a default address id can point to a deleted row, and the setters are not nullable yet
         $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
-        \assert($activeBillingAddress !== null);
-        $customer->setActiveBillingAddress($activeBillingAddress);
+        if ($activeBillingAddress !== null) {
+            $customer->setActiveBillingAddress($activeBillingAddress);
+        }
+
         $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
-        \assert($activeShippingAddress !== null);
-        $customer->setActiveShippingAddress($activeShippingAddress);
+        if ($activeShippingAddress !== null) {
+            $customer->setActiveShippingAddress($activeShippingAddress);
+        }
+
         $defaultBillingAddress = $addresses->get($customer->getDefaultBillingAddressId());
-        \assert($defaultBillingAddress !== null);
-        $customer->setDefaultBillingAddress($defaultBillingAddress);
+        if ($defaultBillingAddress !== null) {
+            $customer->setDefaultBillingAddress($defaultBillingAddress);
+        }
+
         $defaultShippingAddress = $addresses->get($customer->getDefaultShippingAddressId());
-        \assert($defaultShippingAddress !== null);
-        $customer->setDefaultShippingAddress($defaultShippingAddress);
+        if ($defaultShippingAddress !== null) {
+            $customer->setDefaultShippingAddress($defaultShippingAddress);
+        }
 
         return $customer;
     }

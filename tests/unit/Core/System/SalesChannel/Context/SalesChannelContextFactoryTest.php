@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
@@ -375,5 +376,133 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
         static::assertSame($customer, $generatedContext->getCustomer());
+    }
+
+    /**
+     * @param list<'billing'|'shipping'> $danglingDefaults
+     */
+    #[DataProvider('danglingDefaultAddressProvider')]
+    public function testCustomerWithDanglingDefaultAddressDoesNotThrow(array $danglingDefaults, bool $expectsBillingAddress, bool $expectsShippingAddress): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
+        $customer->setDefaultBillingAddressId(Uuid::randomHex());
+        $customer->setDefaultShippingAddressId(Uuid::randomHex());
+        $customer->setGroupId(Uuid::randomHex());
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setFactor(1);
+
+        $addresses = new CustomerAddressCollection();
+
+        if (!\in_array('billing', $danglingDefaults, true)) {
+            $billingAddress = new CustomerAddressEntity();
+            $billingAddress->setId($customer->getDefaultBillingAddressId());
+            $billingAddress->setCountry($country);
+            $addresses->add($billingAddress);
+        }
+
+        if (!\in_array('shipping', $danglingDefaults, true)) {
+            $shippingAddress = new CustomerAddressEntity();
+            $shippingAddress->setId($customer->getDefaultShippingAddressId());
+            $shippingAddress->setCountry($country);
+            $addresses->add($shippingAddress);
+        }
+
+        $baseShippingLocation = new ShippingLocation($country, null, null);
+
+        $baseContext = new BaseSalesChannelContext(
+            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
+            $salesChannel,
+            $currency,
+            new CustomerGroupEntity(),
+            new TaxCollection(),
+            new PaymentMethodEntity(),
+            new ShippingMethodEntity(),
+            $baseShippingLocation,
+            new CashRoundingConfig(2, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
+            Generator::createLanguageInfo(),
+            MeasurementUnits::createDefaultUnits()
+        );
+
+        $customerRepository = new StaticEntityRepository(
+            [
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
+                    CustomerDefinition::ENTITY_NAME,
+                    1,
+                    new CustomerCollection([$customer]),
+                    null,
+                    $criteria,
+                    $context
+                ),
+            ],
+            new CustomerDefinition(),
+        );
+
+        $addressRepository = new StaticEntityRepository(
+            [
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
+                    CustomerAddressDefinition::ENTITY_NAME,
+                    $addresses->count(),
+                    $addresses,
+                    null,
+                    $criteria,
+                    $context
+                ),
+            ],
+            new CustomerAddressDefinition(),
+        );
+
+        $options = [
+            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
+        ];
+
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($salesChannel->getId(), $options)
+            ->willReturn($baseContext);
+
+        $factory = new SalesChannelContextFactory(
+            $customerRepository,
+            static::createStub(EntityRepository::class),
+            $addressRepository,
+            static::createStub(EntityRepository::class),
+            static::createStub(TaxDetector::class),
+            [],
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            $baseSalesChannelContextFactory,
+        );
+
+        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+
+        $generatedCustomer = $generatedContext->getCustomer();
+        static::assertNotNull($generatedCustomer);
+        static::assertSame($expectsBillingAddress, $generatedCustomer->getActiveBillingAddress() !== null);
+        static::assertSame($expectsShippingAddress, $generatedCustomer->getActiveShippingAddress() !== null);
+
+        if (!$expectsShippingAddress) {
+            static::assertSame($baseShippingLocation, $generatedContext->getShippingLocation());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{list<'billing'|'shipping'>, bool, bool}>
+     */
+    public static function danglingDefaultAddressProvider(): iterable
+    {
+        yield 'dangling default billing address' => [['billing'], false, true];
+        yield 'dangling default shipping address' => [['shipping'], true, false];
+        yield 'both default addresses dangling' => [['billing', 'shipping'], false, false];
     }
 }

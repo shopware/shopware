@@ -374,7 +374,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(wrapper.vm.flowSequenceRepository.sync).toHaveBeenCalledTimes(1);
     });
 
-    it('should refetch the flow with the page criteria in updateSequences to preserve the entity origin', async () => {
+    it('should refetch the flow with the page criteria when saving an existing flow', async () => {
         global.activeAclRoles = ['flow.editor'];
         const wrapper = await createWrapper({}, {}, ID_FLOW);
         await flushPromises();
@@ -393,18 +393,14 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             getOrigin: () => flow,
         });
 
-        // Reduce the store sequences to the state onSave() would produce, so the shared
-        // flow_sequence sync mocks receive the ids they expect.
-        wrapper.vm.removeAllSelectors();
-
         const getSpy = jest.spyOn(wrapper.vm.flowRepository, 'get');
 
-        await wrapper.vm.updateSequences();
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
 
-        // The refetch must use the page criteria so the origin matches the entity the
-        // page loaded, otherwise ChangesetGenerator silently drops changes on
-        // associations that were only present in the criteria (e.g. plugin extensions).
         expect(getSpy).toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api, wrapper.vm.flowCriteria);
+        expect(getSpy).not.toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api);
     });
 
     it('should not able to saving flow template', async () => {

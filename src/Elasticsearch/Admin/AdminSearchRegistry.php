@@ -122,11 +122,13 @@ class AdminSearchRegistry implements EventSubscriberInterface
             while ($ids = $iterator->fetch()) {
                 $ids = array_values($ids);
 
+                $message = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, [], true);
+
                 // we provide no queue when the data is sent by the admin
                 if ($indexingBehavior->getNoQueue()) {
-                    $this->__invoke(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
+                    $this->__invoke($message);
                 } else {
-                    $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
+                    $this->queue->dispatch($message);
                 }
 
                 $this->dispatcher->dispatch(new ProgressAdvancedEvent(\count($ids)));
@@ -135,7 +137,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $this->dispatcher->dispatch(new ProgressFinishedEvent($indexer->getName()));
         }
 
-        $this->swapAlias($indices);
+        // when the messages were handled inline the indices are complete already, so their aliases swap right here.
+        // Queued runs are still being written to and are promoted by AdminCreateAliasTask once they finish.
+        $this->swapFinishedAliases();
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
@@ -159,9 +163,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
             }
         }
 
-        /** @var array<string, string> $indices */
-        $indices = $this->connection->fetchAllKeyValue('SELECT `alias`, `index` FROM admin_elasticsearch_index_task');
-        if ($indices === []) {
+        $targets = $this->getWriteTargets();
+        if ($targets === []) {
             return;
         }
 
@@ -176,17 +179,49 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 continue;
             }
 
-            $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, $deletedIds);
+            $alias = $this->adminEsHelper->getIndex($indexer->getName());
 
-            // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
-            if ($isSalesChannelSource) {
-                $this->queue->dispatch($msg);
+            // while an indexing run is in progress an entity has two indices: the one the alias currently serves and
+            // the one being built. Both receive the update, otherwise it is either invisible until the alias swaps
+            // or discarded with the index it was written to.
+            foreach ($targets[$alias] ?? [] as $index) {
+                $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), [$alias => $index], $ids, $deletedIds);
+
+                // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
+                if ($isSalesChannelSource) {
+                    $this->queue->dispatch($msg);
+
+                    continue;
+                }
+
+                // otherwise we invoke the message handler directly
+                $this->__invoke($msg);
+            }
+        }
+    }
+
+    /**
+     * Promotes every index that finished its indexing run to its alias and removes the index it replaces. Indices
+     * that are still being written to keep a remaining document count above zero and are left alone.
+     */
+    public function swapFinishedAliases(): void
+    {
+        foreach ($this->getFinishedTargets() as $alias => $indices) {
+            if (!$this->client->indices()->existsAlias(['name' => $alias])) {
+                $this->promote($alias, $this->newest($indices), []);
 
                 continue;
             }
 
-            // otherwise we invoke the message handler directly
-            $this->__invoke($msg);
+            $live = array_keys($this->client->indices()->getAlias(['name' => $alias]));
+
+            $finished = array_values(array_diff($indices, $live));
+
+            if ($finished === []) {
+                continue;
+            }
+
+            $this->promote($alias, $this->newest($finished), $live);
         }
     }
 
@@ -226,6 +261,36 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'body' => $mapping,
             ]);
         }
+    }
+
+    /**
+     * Two runs can finish before either was promoted. The rows are ordered by index name, whose suffix is the
+     * creation timestamp, so the last one is the newest.
+     *
+     * @param non-empty-list<string> $indices
+     */
+    private function newest(array $indices): string
+    {
+        return $indices[array_key_last($indices)];
+    }
+
+    /**
+     * @param array<string> $outdated indices the alias served so far
+     */
+    private function promote(string $alias, string $index, array $outdated): void
+    {
+        $this->putAlias($index, $alias);
+
+        foreach ($outdated as $previous) {
+            $this->client->indices()->delete(['index' => $previous]);
+        }
+
+        // drops the rows of the replaced indices and of any run that finished but lost the promotion, which leaves
+        // those indices unused
+        $this->connection->executeStatement(
+            'DELETE FROM admin_elasticsearch_index_task WHERE `alias` = :alias AND `index` != :index',
+            ['alias' => $alias, 'index' => $index]
+        );
     }
 
     private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
@@ -287,6 +352,52 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
             throw ElasticsearchException::indexingError($errors);
         }
+
+        if (!$message->isIndexingRun()) {
+            return;
+        }
+
+        // counted down only after a successful write, so a failing batch keeps the alias on the previous index
+        // instead of promoting an incomplete one
+        $this->connection->executeStatement(
+            'UPDATE admin_elasticsearch_index_task SET `doc_count` = `doc_count` - :count WHERE `index` = :index',
+            ['count' => \count($ids), 'index' => $indices[$alias]]
+        );
+    }
+
+    /**
+     * @return array<string, non-empty-list<string>> indices to write to, keyed by alias
+     */
+    private function getWriteTargets(): array
+    {
+        return $this->groupByAlias(
+            $this->connection->fetchAllAssociative('SELECT `alias`, `index` FROM admin_elasticsearch_index_task')
+        );
+    }
+
+    /**
+     * @return array<string, non-empty-list<string>> indices whose indexing run completed, keyed by alias
+     */
+    private function getFinishedTargets(): array
+    {
+        return $this->groupByAlias(
+            $this->connection->fetchAllAssociative('SELECT `alias`, `index` FROM admin_elasticsearch_index_task WHERE `doc_count` <= 0 ORDER BY `index`')
+        );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return array<string, non-empty-list<string>>
+     */
+    private function groupByAlias(array $rows): array
+    {
+        $targets = [];
+        foreach ($rows as $row) {
+            $targets[(string) $row['alias']][] = (string) $row['index'];
+        }
+
+        return $targets;
     }
 
     /**
@@ -298,7 +409,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
      */
     private function createIndices(array $entities): array
     {
-        $indexTasks = [];
         $indices = [];
         foreach ($entities as $entityName) {
             $indexer = $this->getIndexer($entityName);
@@ -313,28 +423,22 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
             $this->create($indexer, $index, $alias);
 
+            // rows of earlier runs that never finished are dropped, which leaves their indices unused. Finished
+            // rows stay, so refresh() keeps writing to the index the alias serves until this run is promoted.
+            $this->connection->executeStatement(
+                'DELETE FROM admin_elasticsearch_index_task WHERE `entity` = :entity AND `index` != :index AND `doc_count` > 0',
+                ['entity' => $indexer->getEntity(), 'index' => $index]
+            );
+
             $iterator = $indexer->getIterator();
-            $indexTasks[] = [
+
+            $this->connection->insert('admin_elasticsearch_index_task', [
                 'id' => Uuid::randomBytes(),
                 '`entity`' => $indexer->getEntity(),
                 '`index`' => $index,
                 '`alias`' => $alias,
                 '`doc_count`' => $iterator->fetchCount(),
-            ];
-        }
-
-        if ($indices === []) {
-            return $indices;
-        }
-
-        $this->connection->executeStatement(
-            'DELETE FROM admin_elasticsearch_index_task WHERE `entity` IN (:entities)',
-            ['entities' => $entities],
-            ['entities' => ArrayParameterType::STRING]
-        );
-
-        foreach ($indexTasks as $task) {
-            $this->connection->insert('admin_elasticsearch_index_task', $task);
+            ]);
         }
 
         return $indices;
@@ -356,13 +460,14 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
             $entities[] = $indexer->getEntity();
 
-            $iterator = $indexer->getIterator();
+            // create() attached the alias right away because it did not exist, so this index is live from the start
+            // and has no indexing run to wait for
             $indexTasks[] = [
                 'id' => Uuid::randomBytes(),
                 '`entity`' => $indexer->getEntity(),
                 '`index`' => $index,
                 '`alias`' => $alias,
-                '`doc_count`' => $iterator->fetchCount(),
+                '`doc_count`' => 0,
             ];
         }
 
@@ -431,33 +536,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
 
         $this->putAlias($index, $alias);
-    }
-
-    /**
-     * @param array<string, string> $indices
-     */
-    private function swapAlias(array $indices): void
-    {
-        foreach ($indices as $alias => $index) {
-            if (!$this->client->indices()->existsAlias(['name' => $alias])) {
-                $this->putAlias($index, $alias);
-
-                continue;
-            }
-
-            $current = $this->client->indices()->getAlias(['name' => $alias]);
-
-            if (!isset($current[$index])) {
-                $this->putAlias($index, $alias);
-            }
-
-            unset($current[$index]);
-            $current = array_keys($current);
-
-            foreach ($current as $value) {
-                $this->client->indices()->delete(['index' => $value]);
-            }
-        }
     }
 
     private function putAlias(string $index, string $alias): void

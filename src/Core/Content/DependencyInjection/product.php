@@ -81,6 +81,7 @@ use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
 use Shopware\Core\Content\Product\IsNewDetector;
+use Shopware\Core\Content\Product\ProductAvailabilityTwigFunction;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
@@ -308,6 +309,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GaranLabelDurationFormatter::class),
             service('product.repository'),
             service(GaranLabelResolver::class),
+        ])
+        ->tag('twig.extension');
+
+    $services->set(ProductAvailabilityTwigFunction::class)
+        ->args([
+            service('product.repository'),
         ])
         ->tag('twig.extension');
 

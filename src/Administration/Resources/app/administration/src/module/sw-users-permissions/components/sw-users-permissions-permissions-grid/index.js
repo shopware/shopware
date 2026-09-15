@@ -4,6 +4,16 @@
 import template from './sw-users-permissions-permissions-grid.html.twig';
 import './sw-users-permissions-permissions-grid.scss';
 
+// Mirrors the order of the main navigation; unknown parents follow alphabetically, "other" is last.
+const PARENT_ORDER = [
+    'catalogues',
+    'orders',
+    'customers',
+    'content',
+    'marketing',
+    'settings',
+];
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -73,12 +83,7 @@ export default {
                         privilege.parent,
                     ];
                 }, [])
-                .sort((a, b) => {
-                    const labelA = this.$t(`sw-privileges.permissions.parents.${a || 'other'}`);
-                    const labelB = this.$t(`sw-privileges.permissions.parents.${b || 'other'}`);
-
-                    return labelA.localeCompare(labelB);
-                });
+                .sort((a, b) => this.compareParents(a, b));
         },
 
         usedDependencies() {
@@ -110,6 +115,31 @@ export default {
     },
 
     methods: {
+        compareParents(a, b) {
+            const keyA = a || 'other';
+            const keyB = b || 'other';
+
+            const rank = (key) => {
+                if (key === 'other') {
+                    return PARENT_ORDER.length + 1;
+                }
+
+                const index = PARENT_ORDER.indexOf(key);
+
+                return index === -1 ? PARENT_ORDER.length : index;
+            };
+
+            const rankDiff = rank(keyA) - rank(keyB);
+            if (rankDiff !== 0) {
+                return rankDiff;
+            }
+
+            const labelA = this.$t(`sw-privileges.permissions.parents.${keyA}`);
+            const labelB = this.$t(`sw-privileges.permissions.parents.${keyB}`);
+
+            return labelA.localeCompare(labelB);
+        },
+
         changePermission(permissionKey, permissionRole) {
             const identifier = `${permissionKey}.${permissionRole}`;
 

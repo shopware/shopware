@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -120,6 +121,30 @@ class CookieControllerTest extends TestCase
 
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+    }
+
+    public function testLogConsentStoresNothingWhileLoggingIsOff(): void
+    {
+        // The default storage is "none", the route still answers so a beacon never fails
+        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], '{"consentId": "visitor-a", "consentAction": "accept_all"}');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(0, (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM `cookie_consent_log`'));
+    }
+
+    public function testLogConsentRejectsInvalidPayload(): void
+    {
+        $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], '{"consentId": "visitor-a", "consentAction": "invalid"}');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testConsentLogRouteIsNotExposedToTheStorefrontWhileLoggingIsOff(): void
+    {
+        $this->browser->request('GET', $_SERVER['APP_URL'] . '/');
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        static::assertStringNotContainsString('frontend.cookie.consent.log', (string) $this->browser->getResponse()->getContent());
     }
 
     public function testConsentOffcanvasRouteRendersWithParameters(): void

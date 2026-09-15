@@ -227,6 +227,10 @@
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
                     'frontend.cookie.groups': '{{ path('frontend.cookie.groups') }}',
+                    {# Omitted while consent logging is off, so the banner does not send a beacon the route discards #}
+                    {% if shopware.cookieConsentLogEnabled|default(false) %}
+                        'frontend.cookie.consent.log': '{{ path('frontend.cookie.consent.log') }}',
+                    {% endif %}
                     'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
                     'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
                     'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',

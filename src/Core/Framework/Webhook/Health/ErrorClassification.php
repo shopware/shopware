@@ -16,6 +16,8 @@ enum ErrorClassification: string
     case TransientRateLimit = 'transient_rate_limit';
     case TransientRedirect = 'transient_redirect';
     case NonTransientPayload = 'non_transient_payload';
+    case NonTransientAuth = 'non_transient_auth';
+    case NonTransientEndpoint = 'non_transient_endpoint';
 
     /**
      * @param int $statusCode 0 when no HTTP response was received
@@ -28,6 +30,8 @@ enum ErrorClassification: string
             $statusCode >= 300 && $statusCode < 400 => self::TransientRedirect,
             $statusCode === 429 => self::TransientRateLimit,
             $statusCode === 404, $statusCode === 408, $statusCode >= 500 && $statusCode < 600 => self::TransientServer,
+            $statusCode === 401, $statusCode === 403 => self::NonTransientAuth,
+            $statusCode === 410 => self::NonTransientEndpoint,
             default => self::NonTransientPayload,
         };
     }

@@ -768,6 +768,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         extractSlotOverrides(origin, changes) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.extractSlotOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             const slotOverrides = {};
 
             if (changes === null) {
@@ -813,6 +818,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         getCmsPageOverrides() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.getCmsPageOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             if (this.cmsPage === null) {
                 return null;
             }
@@ -828,6 +838,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         deleteSpecifcKeys(sections) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.deleteSpecifcKeys() is deprecated. Will be removed without replacement.',
+            );
+
             if (!sections) {
                 return;
             }

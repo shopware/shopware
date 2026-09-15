@@ -82,6 +82,8 @@ export default function conditionService() {
 
     /**
      * @deprecated tag:v6.8.0 - remove from stream & deprecation list
+     * @deprecationGuard static-only - A descriptor read by the deprecation notice itself, not a
+     * callable boundary; guarding it would fire on rendering the notice.
      */
     const productStatesDeprecation = {
         version: 'v6.8.0',

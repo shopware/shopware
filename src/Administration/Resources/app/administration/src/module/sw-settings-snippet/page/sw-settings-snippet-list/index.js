@@ -423,6 +423,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         inlineSaveSuccessMessage(key) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-snippet-list.inlineSaveSuccessMessage() is deprecated. Will be removed without replacement.',
+            );
+
             const messageSaveSuccess = this.$t('sw-settings-snippet.list.messageSaveSuccess', { key }, this.queryIdCount);
 
             this.createNotificationSuccess({
@@ -540,6 +545,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         createSuccessMessage(item) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-snippet-list.createSuccessMessage() is deprecated. Will be removed without replacement.',
+            );
+
             const message = this.$t(
                 'sw-settings-snippet.list.resetSuccessMessage',
                 {

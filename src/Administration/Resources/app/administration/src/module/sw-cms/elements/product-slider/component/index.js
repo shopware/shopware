@@ -57,6 +57,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, is not used anymore
          */
         navArrowsClasses() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-el-product-slider.navArrowsClasses is deprecated. Will be removed, is not used anymore.',
+            );
+
             if (this.hasNavigationArrows) {
                 return [`has--arrow-${this.element.config.navigationArrows.value}`];
             }

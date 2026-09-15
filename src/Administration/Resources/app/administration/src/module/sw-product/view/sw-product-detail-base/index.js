@@ -66,6 +66,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
          */
         productStates() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-base.productStates is deprecated. Will be removed, use `productType` instead.',
+            );
+
             return Shopware.Store.get('swProductDetail').productStates;
         },
 

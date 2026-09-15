@@ -182,6 +182,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed. Use `Element.contains()` instead.
          */
         computePath(event) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-select-base.computePath() is deprecated. Use `Element.contains()` instead.',
+            );
+
             const path = [];
             let target = event.target;
 

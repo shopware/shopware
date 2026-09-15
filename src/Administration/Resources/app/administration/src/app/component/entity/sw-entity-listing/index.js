@@ -48,6 +48,10 @@ export default {
             type: Array,
             required: false,
             default: null,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use `dataSource` prop instead to align with parent component.',
+            },
         },
 
         dataSource: {

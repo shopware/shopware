@@ -580,6 +580,17 @@ The hand-rolled deprecation warnings in the Administration now use the guard, so
 A new `sw-deprecation-rules/no-manual-deprecation-notices` ESLint rule rejects new ones. Where a removal version genuinely does not exist yet, such as the legacy Twig override shim and deprecated extension position identifiers, the notice stays a warning and records why on the line.
 
 The deprecation plugin also detects a supplied prop more accurately: passing a deprecated prop at its default value, or writing a camelCase prop with its kebab-case attribute name in a template, is now reported.
+### Every deprecated Administration API now carries its guard
+
+The guard above is applied across the Administration: deprecated global `Shopware.*` APIs, registered services and exported functions, deprecated components and props, and deprecated component `methods` and `computed` members — including use through `this.$super(...)`. Types, styles, `data`, store state and getters, watchers, `provide`/`inject` and Twig markup stay static-only.
+
+Run your extension's tests with the next-major feature flag enabled to find your own remaining uses before the removal:
+
+```bash
+FEATURE_ALL=major
+```
+
+A new `sw-deprecation-rules/require-deprecation-guard` ESLint rule keeps this in place: a public deprecated symbol needs either a guard or a recorded reason why it cannot carry one.
 
 ## Storefront
 

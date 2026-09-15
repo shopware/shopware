@@ -32,6 +32,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement
+     * @deprecationGuard static-only - A lifecycle hook Vue calls for every instance, so a guard here
+     * would report the page itself rather than a caller that can migrate. The deprecated work it
+     * triggers is guarded in `getUserConfig`.
      */
     created() {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
@@ -137,6 +140,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async getUserConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-index.getUserConfig() is deprecated. Will be removed without replacement.',
+            );
+
             const config = (await Shopware.Service('userConfigService').search(['settings.hideRenameBanner']))?.data?.[
                 'settings.hideRenameBanner'
             ] as { value?: boolean } | undefined;
@@ -148,6 +156,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async onCloseSettingRenameBanner() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-index.onCloseSettingRenameBanner() is deprecated. Will be removed without replacement.',
+            );
+
             this.hideSettingRenameBanner = true;
 
             await Shopware.Service('userConfigService').upsert({

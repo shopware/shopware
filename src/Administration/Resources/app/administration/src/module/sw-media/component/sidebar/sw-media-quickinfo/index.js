@@ -248,6 +248,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use `onSave` instead
          */
         async onSaveCustomFields(item) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-quickinfo.onSaveCustomFields() is deprecated. Use `onSave` instead.',
+            );
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

@@ -60,6 +60,11 @@ export default {
     computed: {
         /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail-product-comparison.isAgenticCommerce is deprecated. Will be removed.',
+            );
+
             return this.salesChannel?.typeId === Defaults.agenticCommerceTypeId;
         },
 

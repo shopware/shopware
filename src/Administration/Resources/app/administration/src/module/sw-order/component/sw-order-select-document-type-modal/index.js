@@ -33,6 +33,11 @@ export const REQUIRES_CREDIT_ITEMS = [
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
     inject: [
         'repositoryFactory',
     ],
@@ -91,7 +96,11 @@ export default {
             return (
                 new Criteria(1, 100)
                     .addSorting(Criteria.sort('name', 'ASC'))
-                    /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+                    /**
+                     * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
+                     * @deprecationGuard static-only - Marks the filter, not the getter; the getter is the
+                     * current implementation and guarding it would report every caller.
+                     */
                     .addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]))
             );
         },

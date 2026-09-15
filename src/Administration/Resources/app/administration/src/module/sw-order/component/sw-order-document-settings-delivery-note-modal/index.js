@@ -8,6 +8,11 @@ import template from './sw-order-document-settings-delivery-note-modal.html.twig
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
     emits: [
         'loading-document',
         'loading-preview',

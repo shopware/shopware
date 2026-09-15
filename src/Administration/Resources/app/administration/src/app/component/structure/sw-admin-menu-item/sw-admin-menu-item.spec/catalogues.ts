@@ -17,7 +17,7 @@ export default {
         {
             id: 'sw-product',
             moduleType: 'core',
-            label: 'sw-product.general.mainMenuItemGeneral',
+            label: 'sw-product.general.mainMenuItemOverview',
             color: 'var(--sw-color-module-green-default)',
             path: 'sw.product.index',
             icon: 'regular-products',
@@ -44,7 +44,7 @@ export default {
             path: 'sw.category.index',
             label: 'sw-category.general.mainMenuItemIndex',
             parent: 'sw-catalogue',
-            position: 20,
+            position: 25,
             children: [],
             level: 2,
         },

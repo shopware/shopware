@@ -128,6 +128,8 @@ class InfoControllerTest extends TestCase
         static::assertTrue($settings['enableHtmlSanitizer']);
         static::assertArrayHasKey('minSearchTermLength', $settings);
         static::assertSame(2, $settings['minSearchTermLength']);
+        static::assertArrayHasKey('hideUpdateModule', $settings);
+        static::assertFalse($settings['hideUpdateModule']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -271,6 +273,21 @@ class InfoControllerTest extends TestCase
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
+    public function testConfigReturnsHideUpdateModuleWhenEnabled(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $response = $this->createController(hideUpdateModule: true)->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('hideUpdateModule', $data['settings']);
+        static::assertTrue($data['settings']['hideUpdateModule']);
+    }
+
     #[DataProvider('aclProtectedRouteProvider')]
     public function testRouteRequiresMessageQueueStatsReadPrivilege(string $routeName): void
     {
@@ -291,7 +308,7 @@ class InfoControllerTest extends TestCase
     /**
      * @param list<string> $adminWorkerTransports
      */
-    private function createController(array $adminWorkerTransports = ['slow']): InfoController
+    private function createController(array $adminWorkerTransports = ['slow'], bool $hideUpdateModule = false): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -306,6 +323,7 @@ class InfoControllerTest extends TestCase
             'shopware.media.enable_url_upload_feature' => true,
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
+            'shopware.auto_update.hide_module' => $hideUpdateModule,
         ]);
 
         return new InfoController(

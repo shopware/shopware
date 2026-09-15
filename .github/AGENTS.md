@@ -20,7 +20,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 |---|---|
 | `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
-| `integration-major.yml` | the same with `FEATURE_ALL: major` |
+| `integration-major.yml` | the same, plus Jest, once per in-flight major (`FEATURE_ALL: v6.8.0.0`) |
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
 | `acceptance.yml` | Playwright acceptance runs |
@@ -47,7 +47,10 @@ Three mechanisms decide how much runs:
 - **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
   `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
   applies the relevant PHP and Administration JS labels automatically when the diff
-  touches major feature flags. Nightly and manual runs ignore the labels.
+  touches major feature flags. Nightly and manual runs ignore the labels. Each arm
+  runs one leg per major that has not shipped yet, so no lane mixes two majors; the
+  lanes come from `feature.yaml` via `.github/bin/lib/feature-flags.php` and need no
+  upkeep in the workflows.
 - **`markdown-only-changes`** — a first job in each heavy workflow that
   short-circuits docs-only PRs.
 
@@ -63,6 +66,25 @@ live in [`.github/aw/README.md`](aw/README.md).
 
 Locally: `composer lint:actions` runs the workflow linters,
 `cd .github/bin/js && node --test` runs the automation-script tests.
+
+## Every workflow also runs in shopware-private
+
+`sync.yml` force-pushes trunk and every maintenance branch to
+`shopware/shopware-private`, so every workflow file lands there and fires on that
+repository's own pushes, pull requests, issues and schedules. Decide which side a
+new or changed workflow belongs on, and make the decision explicit:
+
+- **Both repositories** — the octo-sts identity has to allow the mirror. The
+  policies live in
+  [`shopware/.github`](https://github.com/shopware/.github/tree/main/.github/chainguard);
+  `subject_pattern: repo:shopware/shopware(-private)?:.*` is the convention
+  (`ShopwareBackport`, `ShopwareDownstream`, `ShopwareNightly`).
+- **Public repository only** — guard the job with
+  `if: github.repository == 'shopware/shopware'`. Without it the mirrored run
+  fails at octo-sts with `Failed to get a token`, and any script that resolves an
+  issue or PR number against `shopware/shopware` acts on an unrelated item.
+
+No linter can decide this: the subject pattern lives in another repository.
 
 ## Fix it at the lowest layer that covers everyone
 

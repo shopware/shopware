@@ -200,13 +200,10 @@ readonly class MediaUploadService
         $criteria->addFilter(new EqualsFilter('mediaId', $mediaId));
         $criteria->addFilter(new PrefixFilter('path', 'http'));
 
-        $thumbnailIds = $this->thumbnailRepository->searchIds($criteria, $context)->getIds();
-
-        if ($thumbnailIds === []) {
+        $deletePayload = $this->thumbnailRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($deletePayload === []) {
             return;
         }
-
-        $deletePayload = \array_map(static fn (string $id) => ['id' => $id], $thumbnailIds);
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($deletePayload): void {
             $this->thumbnailRepository->delete($deletePayload, $context);

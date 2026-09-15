@@ -171,6 +171,37 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.vm.customer.addresses.first().company).toBe('Acme GmbH');
     });
 
+    it('refuses a business customer without a contact person while the settings require one', async () => {
+        const save = jest.fn(() => Promise.resolve());
+
+        wrapper = await createWrapper({
+            repositoryMocks: {
+                customerRepositoryMock: {
+                    create: () => ({
+                        id: '1',
+                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                    }),
+                    save,
+                },
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.customer.accountType = 'business';
+        wrapper.vm.customer.company = 'Acme GmbH';
+        wrapper.vm.customer.firstName = '';
+        wrapper.vm.customer.lastName = ' ';
+
+        const result = await wrapper.vm.onSave();
+
+        expect(result).toBe(false);
+        expect(save).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['firstName'])).toBeInstanceOf(
+            ShopwareError,
+        );
+        expect(Shopware.Store.get('error').getApiErrorFromPath('customer', '1', ['lastName'])).toBeInstanceOf(ShopwareError);
+    });
+
     it('leaves the names alone while the settings keep the contact person', async () => {
         const save = jest.fn(() => Promise.resolve());
 
@@ -366,6 +397,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                 password: 'shopware',
                 salesChannelId: 'a7921464677a4ef591683d144beecd24',
                 company: 'Shopware',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
             },
         });
 
@@ -409,6 +442,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
                 password: 'shopware',
                 salesChannelId: 'a7921464677a4ef591683d144beecd24',
                 company: 'Shopware',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
             },
         });
 

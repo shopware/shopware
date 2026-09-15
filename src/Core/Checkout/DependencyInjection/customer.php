@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryD
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
+use Shopware\Core\Checkout\Customer\Api\CompanyAccountNameFieldsController;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
 use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTask;
@@ -507,6 +508,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ])
         ->tag('shopware.entity_indexer', ['priority' => 100]);
+
+    $services->set(CompanyAccountNameFieldsController::class)
+        ->public()
+        ->args([
+            service(CompanyAccountNameFields::class),
+        ]);
 
     $services->set(ConvertGuestController::class)
         ->public()

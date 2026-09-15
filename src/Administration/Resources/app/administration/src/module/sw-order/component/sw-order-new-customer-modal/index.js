@@ -153,6 +153,14 @@ export default {
                 : true;
         },
 
+        validContactPersonFields() {
+            if (!this.contactPersonRequired) {
+                return true;
+            }
+
+            return Boolean(this.customer?.firstName?.trim().length && this.customer?.lastName?.trim().length);
+        },
+
         languageRepository() {
             return this.repositoryFactory.create('language');
         },
@@ -237,6 +245,11 @@ export default {
 
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            if (!this.validContactPersonFields) {
+                this.createErrorMessageForContactPerson();
                 hasError = true;
             }
 
@@ -356,7 +369,27 @@ export default {
 
             if (this.customer?.id) {
                 errorStore.removeApiError(`customer.${this.customer.id}.email`);
+                errorStore.removeApiError(`customer.${this.customer.id}.firstName`);
+                errorStore.removeApiError(`customer.${this.customer.id}.lastName`);
             }
+        },
+
+        createErrorMessageForContactPerson() {
+            [
+                'firstName',
+                'lastName',
+            ].forEach((field) => {
+                if (this.customer[field]?.trim().length) {
+                    return;
+                }
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `customer.${this.customer.id}.${field}`,
+                    error: new Shopware.Classes.ShopwareError({
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
+                    }),
+                });
+            });
         },
 
         createErrorMessageForCompanyField() {

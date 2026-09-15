@@ -103,7 +103,6 @@ Shopware.Service('privileges')
                     'order_delivery_position:create',
                     'mail_template_type:update',
                     'customer:update',
-                    'system_config:read',
                     'api_proxy_switch-customer',
                 ],
                 dependencies: [

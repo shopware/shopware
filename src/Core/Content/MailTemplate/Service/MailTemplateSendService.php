@@ -9,10 +9,8 @@ use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Component\Mime\Email;
 
 /**
@@ -24,8 +22,6 @@ class MailTemplateSendService
     public function __construct(
         private readonly AbstractMailService $mailService,
         private readonly MailDataProvider $mailDataProvider,
-        private readonly AbstractTranslator $translator,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
     ) {
     }
 
@@ -77,34 +73,6 @@ class MailTemplateSendService
             $orderId,
         );
 
-        $injected = $this->injectTranslator($context, $mailPayload->salesChannelId);
-
-        try {
-            return $this->mailService->send($data, $context, $templateData);
-        } finally {
-            if ($injected) {
-                $this->translator->resetInjection();
-            }
-        }
-    }
-
-    private function injectTranslator(Context $context, ?string $salesChannelId): bool
-    {
-        if ($salesChannelId === null) {
-            return false;
-        }
-
-        if ($this->translator->getSnippetSetId() !== null) {
-            return false;
-        }
-
-        $this->translator->injectSettings(
-            $salesChannelId,
-            $context->getLanguageId(),
-            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
-            $context
-        );
-
-        return true;
+        return $this->mailService->send($data, $context, $templateData);
     }
 }

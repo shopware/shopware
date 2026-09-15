@@ -92,8 +92,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(MailService::class),
             service(MailDataProvider::class),
-            service(Translator::class),
-            service(LanguageLocaleCodeProvider::class),
         ]);
 
     $services->set(MailTemplateContentBuilder::class);

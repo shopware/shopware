@@ -146,7 +146,9 @@ The codebase uses ESLint rules to enforce deprecation standards:
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 ```
 
-This rule ensures proper handling of deprecated features and prevents inappropriate usage.
+`private-feature-declarations` requires every new export to be `@private` or annotated for a future
+private move. `require-deprecation-guard` requires a public deprecated symbol to guard its own use
+boundary.
 
 ### Runtime Deprecation Guards
 
@@ -166,6 +168,11 @@ production build logs the error and keeps rendering.
 A `majorFlag` that is not registered, like the typo `V6_8_0` or the minor `V6_7_5_0`, can never become
 active. It logs a console error instead of the warning. So does a `deprecated` option that is no version,
 like `true`.
+
+`sw-deprecation-rules/require-deprecation-guard` fails a build when a public deprecated symbol has
+neither a guard nor a recorded `@deprecationGuard static-only - <reason>`. See
+[ADR: Administration JavaScript deprecation guards](../../../../../../../adr/2026-08-10-administration-javascript-deprecation-guards.md)
+for the classification and the full list of static-only categories.
 
 Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
 sides of a flag. A test that asserts a warning spies on `console.warn`.

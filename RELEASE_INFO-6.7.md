@@ -819,6 +819,18 @@ The hand-rolled deprecation warnings in the Administration now go through `Shopw
 
 Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
 
+### Every deprecated Administration API now carries its guard
+
+The guard above is applied across the Administration: deprecated global `Shopware.*` APIs, registered services and exported functions, deprecated components and props, and deprecated component `methods` and `computed` members — including use through `this.$super(...)`. Types, styles, `data`, store state and getters, watchers, `provide`/`inject` and Twig markup stay static-only.
+
+Run your extension's tests with the next-major feature flag enabled to find your own remaining uses before the removal:
+
+```bash
+FEATURE_ALL=major
+```
+
+A new `sw-deprecation-rules/require-deprecation-guard` ESLint rule keeps this in place: a public deprecated symbol needs either a guard or a recorded reason why it cannot carry one.
+
 ## Storefront
 
 ### Category Twig function removal postponed to 6.9

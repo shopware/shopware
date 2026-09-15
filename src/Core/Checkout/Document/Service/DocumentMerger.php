@@ -10,13 +10,13 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -41,6 +41,7 @@ final class DocumentMerger
         private readonly DocumentGenerator $documentGenerator,
         private readonly Fpdi $fpdi,
         private readonly Filesystem $filesystem,
+        private readonly DocumentFileNameBuilder $fileNameBuilder,
     ) {
     }
 
@@ -80,7 +81,7 @@ final class DocumentMerger
         }
 
         try {
-            $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
+            $fileName = $this->fileNameBuilder->build($documents) . '.' . PdfRenderer::FILE_EXTENSION;
             $renderedDocument = new RenderedDocument(name: $fileName);
 
             return $this->mergeWithFpdi($documents, $context, $renderedDocument);
@@ -92,7 +93,7 @@ final class DocumentMerger
     private function createRenderedDocument(DocumentEntity $document, string $fileBlob): RenderedDocument
     {
         $fileExtension = $this->resolveFileType($document);
-        $fileName = $document->getDocumentMediaFile()?->getFileName() ?? Random::getAlphanumericString(32);
+        $fileName = $document->getDocumentMediaFile()?->getFileName() ?? $this->fileNameBuilder->build(new DocumentCollection([$document]));
         $contentType = $document->getDocumentMediaFile()?->getMimeType() ?? $this->getContentType($fileExtension);
 
         $renderedDocument = new RenderedDocument(
@@ -269,7 +270,7 @@ final class DocumentMerger
             return null;
         }
 
-        $fileName = Random::getAlphanumericString(32) . '.zip';
+        $fileName = $this->fileNameBuilder->build($documents) . '.zip';
 
         $renderedDocument = new RenderedDocument(
             name: $fileName,

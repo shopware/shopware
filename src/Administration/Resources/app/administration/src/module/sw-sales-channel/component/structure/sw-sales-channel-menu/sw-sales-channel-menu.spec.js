@@ -670,13 +670,13 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     });
 
     describe('module color', () => {
-        const brandColor = 'var(--sw-color-module-brand-default)';
+        const moduleColor = 'var(--sw-color-module-neutral-default)';
         let getModuleByEntityName;
 
         beforeEach(() => {
             getModuleByEntityName = jest
                 .spyOn(Shopware.Module, 'getModuleByEntityName')
-                .mockReturnValue({ manifest: { color: brandColor } });
+                .mockReturnValue({ manifest: { color: moduleColor } });
         });
 
         afterEach(() => {
@@ -692,8 +692,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
             expect(getModuleByEntityName).toHaveBeenCalledWith('sales_channel');
             expect(wrapper.vm.buildMenuTree.map((entry) => entry.color)).toEqual([
-                brandColor,
-                brandColor,
+                moduleColor,
+                moduleColor,
             ]);
         });
 
@@ -701,7 +701,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
             const wrapper = await createWrapper([headlessSalesChannel]);
             await flushPromises();
 
-            expect(wrapper.vm.moreItemsEntry.color).toBe(brandColor);
+            expect(wrapper.vm.moreItemsEntry.color).toBe(moduleColor);
         });
 
         it('should leave the rows without a color when the module is not registered', async () => {

@@ -109,14 +109,31 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function documentNumberAlreadyExistsException(string $number = '', string $documentType = ''): self
+    public static function documentNumberAlreadyExistsException(string $number = ''): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
-            $documentType !== ''
-                ? \sprintf('Document number %s has already been allocated for document type "%s".', $number, $documentType)
-                : \sprintf('Document number %s has already been allocated.', $number),
+            \sprintf('Document number %s has already been allocated.', $number),
+            [
+                '$number' => $number,
+            ],
+        );
+    }
+
+    /**
+     * Adding an optional $documentType parameter to
+     * {@see self::documentNumberAlreadyExistsException()} directly is a BC break
+     * (Roave flags added parameters even with a default value), since that
+     * method already shipped without one. Naming the document type instead
+     * needs its own method.
+     */
+    public static function documentNumberAlreadyExistsExceptionForType(string $number, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_NUMBER_ALREADY_EXISTS,
+            \sprintf('Document number %s has already been allocated for document type "%s".', $number, $documentType),
             [
                 '$number' => $number,
                 '$documentType' => $documentType,

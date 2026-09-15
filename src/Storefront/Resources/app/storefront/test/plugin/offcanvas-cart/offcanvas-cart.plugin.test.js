@@ -1,4 +1,5 @@
 import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin';
+import FocusHandler from 'src/helper/focus-handler.helper';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
 /**
@@ -16,7 +17,7 @@ jest.mock('src/service/http-client.service', () => {
                 <a class="cart-item-label" href="#">Kek product</a>
 
                 <form action="/checkout/line-item/change-quantity/uuid12345">
-                    <select name="quantity" class="js-offcanvas-cart-change-quantity">
+                    <select name="quantity" class="js-offcanvas-cart-change-quantity" data-focus-id="line-item-offcanvas-quantity-uuid12345">
                         <option value="1" selected="selected">1</option>
                         <option value="2" >2</option>
                     </select>
@@ -27,8 +28,8 @@ jest.mock('src/service/http-client.service', () => {
                 <a class="cart-item-label" href="#">Weird product with huge quantity</a>
 
                 <form action="/checkout/line-item/change-quantity/uuid555">
-                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1" data-focus-id="quantity-uuid555">
-                    <button type="button" class="js-btn-plus" data-focus-id="quantity-up-uuid555">+</button>
+                    <input type="number" name="quantity" class="js-offcanvas-cart-change-quantity-number" min="1" max="150" step="1" value="1" data-focus-id="line-item-offcanvas-quantity-uuid555">
+                    <button type="button" class="js-btn-plus" data-focus-id="line-item-offcanvas-quantity-up-uuid555">+</button>
                 </form>
             </div>
         </div>
@@ -60,6 +61,21 @@ describe('OffCanvasCartPlugin tests', () => {
 
     let plugin;
 
+    function createPlugin(options) {
+        document.body.innerHTML = '<div class="header-cart" data-off-canvas-cart="true"><a class="header-cart-btn">€ 0,00</a></div>';
+
+        const el = document.querySelector('.header-cart');
+
+        if (options) {
+            el.setAttribute('data-off-canvas-cart-options', JSON.stringify(options));
+        }
+
+        const instance = new OffCanvasCartPlugin(el, {}, 'OffCanvasCart');
+        instance.$emitter.publish = jest.fn();
+
+        return instance;
+    }
+
     function flushPromises() {
         // Let a finished response pass through the callback before the next queued request starts.
         return new Promise(resolve => jest.requireActual('timers').setImmediate(resolve));
@@ -71,12 +87,7 @@ describe('OffCanvasCartPlugin tests', () => {
             'frontend.cart.offcanvas': '/checkout/offcanvas',
         };
 
-        window.focusHandler = {
-            saveFocusState: jest.fn(),
-            resumeFocusState: jest.fn(),
-        };
-
-        document.body.innerHTML = '<div class="header-cart"><a class="header-cart-btn">€ 0,00</a></div>';
+        window.focusHandler = new FocusHandler();
 
         window.PluginManager = {
             initializePlugins: jest.fn(),
@@ -96,18 +107,16 @@ describe('OffCanvasCartPlugin tests', () => {
             },
         };
 
-        const el = document.querySelector('.header-cart');
-
         fireRequestSpy = jest.spyOn(OffCanvasCartPlugin.prototype, '_fireRequest');
 
-        plugin = new OffCanvasCartPlugin(el);
-        plugin.$emitter.publish = jest.fn();
+        plugin = createPlugin();
 
         jest.useFakeTimers();
     });
 
     afterEach(() => {
         fireRequestSpy.mockClear();
+        jest.clearAllTimers();
         jest.useRealTimers();
     });
 
@@ -167,6 +176,42 @@ describe('OffCanvasCartPlugin tests', () => {
 
         // Verify updated content after quantity change
         expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
+    });
+
+    test.each([
+        ['enabled for delayed changes', { autoFocus: true }, true, false],
+        ['enabled for committed changes', { autoFocus: true }, true, true],
+        ['disabled', { autoFocus: false }, false, false],
+        ['omitted', undefined, false, false],
+    ])('restores quantity focus only when the header autoFocus option is enabled: %s', async (description, options, shouldRestoreFocus, submitImmediately) => {
+        plugin = createPlugin(options);
+        plugin.el.dispatchEvent(new Event('click', { bubbles: true }));
+        jest.runOnlyPendingTimers();
+
+        const quantitySelector = '[data-focus-id="line-item-offcanvas-quantity-uuid555"]';
+        const quantityInput = document.querySelector(quantitySelector);
+        const response = document.querySelector('.offcanvas').cloneNode(true);
+        response.querySelector(quantitySelector).setAttribute('value', '2');
+
+        jest.spyOn(plugin.client, 'post').mockImplementation((url, data, callback) => callback(response.innerHTML));
+
+        quantityInput.focus();
+        expect(document.activeElement).toBe(quantityInput);
+
+        quantityInput.value = '2';
+        quantityInput.dispatchEvent(new CustomEvent('change', { bubbles: true, detail: { submitImmediately } }));
+
+        if (!submitImmediately) {
+            jest.advanceTimersByTime(800);
+        }
+        await plugin._requestQueue;
+
+        const updatedQuantityInput = document.querySelector(quantitySelector);
+
+        expect(plugin.client.post).toHaveBeenCalledTimes(1);
+        expect(updatedQuantityInput).not.toBe(quantityInput);
+        expect(updatedQuantityInput.value).toBe('2');
+        expect(document.activeElement).toBe(shouldRestoreFocus ? updatedQuantityInput : document.body);
     });
 
     test('does not submit a number input change withheld from the form', () => {
@@ -235,17 +280,24 @@ describe('OffCanvasCartPlugin tests', () => {
     });
 
     test('restores focus to the element focused when the delayed request fires', async () => {
-        plugin.options.autoFocus = true;
+        plugin = createPlugin({ autoFocus: true });
         document.querySelector('.header-cart').dispatchEvent(new Event('click', { bubbles: true }));
         jest.runOnlyPendingTimers();
 
         const input = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+        const buttonSelector = '[data-focus-id="line-item-offcanvas-quantity-up-uuid555"]';
+        const button = document.querySelector(buttonSelector);
+        const response = document.querySelector('.offcanvas').innerHTML;
+        jest.spyOn(plugin.client, 'post').mockImplementation((url, data, callback) => callback(response));
+
         input.dispatchEvent(new Event('change', { bubbles: true }));
-        document.querySelector('.js-btn-plus').focus();
+        button.focus();
         jest.advanceTimersByTime(800);
         await plugin._requestQueue;
 
-        expect(window.focusHandler.saveFocusState).toHaveBeenCalledWith('offcanvas-cart', '[data-focus-id="quantity-up-uuid555"]');
+        const updatedButton = document.querySelector(buttonSelector);
+        expect(updatedButton).not.toBe(button);
+        expect(document.activeElement).toBe(updatedButton);
     });
 
     test('applies removal and quantity mutations in order and snapshots the submitted quantity', async () => {

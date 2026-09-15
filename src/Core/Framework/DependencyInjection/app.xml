@@ -327,9 +327,15 @@
             <argument type="collection">
                 <argument key="timeout">5</argument>
                 <argument key="connect_timeout">1</argument>
+                <argument key="proxy" type="collection"/>
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
+                        <call method="after">
+                            <argument>allow_redirects</argument>
+                            <argument type="service" id="shopware.app_system.guzzle.security_middleware"/>
+                            <argument>app_system_http_security</argument>
+                        </call>
                         <call method="push">
                             <argument type="service" id="shopware.app_system.guzzle.middleware"/>
                         </call>
@@ -338,16 +344,16 @@
             </argument>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Http\PinningAppSystemHttpClient" decorates="shopware.app_system.guzzle">
-            <argument type="service" id="Shopware\Core\Framework\App\Http\PinningAppSystemHttpClient.inner"/>
-            <argument type="service" id="shopware.app_system.target_validator"/>
+        <service id="shopware.app_system.trusted_url_resolver" class="Shopware\Core\Content\Media\File\TrustedUrlResolver">
+            <argument/>
+            <argument>true</argument>
+            <argument>%shopware.app_system.allowed_private_ip_addresses%</argument>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="shopware.app_system.target_validator" class="Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator">
+        <service id="shopware.app_system.guzzle.security_middleware" class="Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware">
+            <argument type="service" id="shopware.app_system.trusted_url_resolver"/>
             <argument>%shopware.app_system.allow_unencrypted_traffic%</argument>
-            <argument>%shopware.app_system.allowed_private_ip_addresses%</argument>
-            <argument type="service" id="shopware.app_system.dns_resolver" on-invalid="null"/>
-            <argument>true</argument>
         </service>
 
         <service id="shopware.app_system.guzzle.middleware" class="Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware">

@@ -109,6 +109,7 @@
                         id="sw-media-gallery-preview-{{ loop.index }}"
                         data-media-id="{{ loop.index }}"
                         {% if showFullScreenGallery %}
+                            type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#{{ lightboxId }}"
                             tabindex="0"

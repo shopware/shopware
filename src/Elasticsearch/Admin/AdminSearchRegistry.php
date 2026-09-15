@@ -140,12 +140,24 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
+        // only index entities that are written in the live version
+        if (!$this->adminEsHelper->isEnabled() || $event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
 
-        $indexers = $this->getIndexersArray();
-        if ($indexers === []) {
+        $work = [];
+        foreach ($this->getIndexersArray() as $indexer) {
+            $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
+            $ids = array_values(array_diff($indexer->getUpdatedIds($event), $deletedIds));
+
+            if ($ids === [] && $deletedIds === []) {
+                continue;
+            }
+
+            $work[] = [$indexer, $ids, $deletedIds];
+        }
+
+        if ($work === []) {
             return;
         }
 
@@ -167,15 +179,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         $isSalesChannelSource = $event->getContext()->getSource() instanceof SalesChannelApiSource;
 
-        foreach ($indexers as $indexer) {
-            $ids = $indexer->getUpdatedIds($event);
-            $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
-            $ids = array_values(array_diff($ids, $deletedIds));
-
-            if ($ids === [] && $deletedIds === []) {
-                continue;
-            }
-
+        foreach ($work as [$indexer, $ids, $deletedIds]) {
             $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, $deletedIds);
 
             // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
@@ -226,24 +230,6 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 'body' => $mapping,
             ]);
         }
-    }
-
-    private function isIndexedEntityWritten(EntityWrittenContainerEvent $event): bool
-    {
-        // only index entities that are written in the live version
-        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
-            return false;
-        }
-
-        foreach ($this->indexer as $indexer) {
-            $ids = $event->getPrimaryKeys($indexer->getEntity());
-
-            if ($ids !== []) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function push(AbstractAdminIndexer $indexer, AdminSearchIndexingMessage $message): void

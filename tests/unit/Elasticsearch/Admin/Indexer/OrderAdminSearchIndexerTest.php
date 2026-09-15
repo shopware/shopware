@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -176,6 +178,71 @@ class OrderAdminSearchIndexerTest extends TestCase
         );
 
         static::assertSame([$orderId], $indexer->getUpdatedIds($event));
+    }
+
+    #[TestDox('A document write queues its order for reindexing without an order write in the event')]
+    public function testGetUpdatedIdsForDocumentWrite(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(DocumentDefinition::ENTITY_NAME, [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['orderId' => $orderId, 'config' => ['documentNumber' => '1000']],
+                        DocumentDefinition::ENTITY_NAME,
+                        EntityWriteResult::OPERATION_INSERT,
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$orderId], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    #[TestDox('A document write without an order queues nothing')]
+    public function testGetUpdatedIdsForDocumentWriteWithoutOrder(): void
+    {
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(DocumentDefinition::ENTITY_NAME, [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['orderId' => null, 'config' => ['documentNumber' => '1000']],
+                        DocumentDefinition::ENTITY_NAME,
+                        EntityWriteResult::OPERATION_INSERT,
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    #[TestDox('A config-only document update queues nothing, its order id is not in the payload')]
+    public function testGetUpdatedIdsForConfigOnlyDocumentUpdate(): void
+    {
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(DocumentDefinition::ENTITY_NAME, [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['config' => ['documentNumber' => '1000']],
+                        DocumentDefinition::ENTITY_NAME,
+                        EntityWriteResult::OPERATION_UPDATE,
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
     }
 
     private function getConnection(): Connection

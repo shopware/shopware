@@ -194,7 +194,7 @@ class AdminSearchRegistryTest extends TestCase
             new EntityWrittenEvent('promotion', [
                 new EntityWriteResult(
                     'c1a28776116d4431a2208eb2960ec340',
-                    [],
+                    ['active' => true],
                     'promotion',
                     EntityWriteResult::OPERATION_INSERT
                 ),

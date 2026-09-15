@@ -2,24 +2,15 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @extends EntityCollection<DocumentEntity>
- *
- * @codeCoverageIgnore
- */
-#[Package('after-sales')]
-class DocumentCollection extends EntityCollection
-{
-    public function getApiAlias(): string
+if (!class_exists(\Shopware\Core\Checkout\DocumentV2\DocumentCollection::class)) {
+    /**
+     * @deprecated tag:v6.9.0 - compatibility alias, this file is deleted together with document generation v1.
+     * Use \Shopware\Core\Checkout\DocumentV2\DocumentCollection instead.
+     */
+    #[Package('after-sales')]
+    class DocumentCollection extends \Shopware\Core\Checkout\DocumentV2\DocumentCollection
     {
-        return 'document_collection';
-    }
-
-    protected function getExpectedClass(): string
-    {
-        return DocumentEntity::class;
     }
 }

@@ -76,9 +76,12 @@ The `document_type` and `document_type_translation` entities are deprecated with
 
 ### Relocated classes
 
-The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names (annotated with `#[NamespaceChange]`):
+The following classes survive the removal of document generation v1 and have moved into the
+`Shopware\Core\Checkout\DocumentV2` namespace. Their previous fully qualified names keep working until 6.9 as class
+aliases, so `instanceof` checks and type declarations against them stay valid and extensions can address v1 and v2
+side by side. Update your imports to the new names.
 
-| Current location | Location from 6.9 |
+| Previous location | Current location |
 |---|---|
 | `DocumentEntity` | `DocumentV2\DocumentEntity` |
 | `DocumentDefinition` | `DocumentV2\DocumentDefinition` |
@@ -90,9 +93,9 @@ The following classes survive v1 and move into the `Shopware\Core\Checkout\Docum
 | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
 | `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
 | `Renderer\RenderedDocument` | `DocumentV2\Struct\RenderedDocument` |
+| `Service\ReferenceInvoiceLoader` | `DocumentV2\Service\ReferenceInvoiceLoader` |
 | `SalesChannel\AbstractDocumentRoute` | `DocumentV2\SalesChannel\AbstractDocumentRoute` |
 | `SalesChannel\DocumentRoute` | `DocumentV2\SalesChannel\DocumentRoute` |
-| `Service\ReferenceInvoiceLoader` | `DocumentV2\Service\ReferenceInvoiceLoader` |
 
 ## Document generation v2 experimental public surface
 

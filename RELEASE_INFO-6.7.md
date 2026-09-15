@@ -2,6 +2,50 @@
 
 ## Features
 
+### System configuration tabs
+
+With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
+
+**Example usage:**
+```xml
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <tab>
+        <name>product</name>
+        <title>Product</title>
+        <title lang="de-DE">Produkt</title>
+
+        <card>
+            <title>Listing settings</title>
+            <title lang="de-DE">Listing-Einstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInListing</name>
+                <label>Display buy buttons in listings</label>
+                <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+
+    <tab>
+        <name>cart</name>
+        <title>Cart</title>
+        <title lang="de-DE">Warenkorb</title>
+
+        <card>
+            <title>Cart settings</title>
+            <title lang="de-DE">Warenkorbeinstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInCart</name>
+                <label>Display buy buttons in cart</label>
+                <label lang="de-DE">Kaufen-Buttons im Warenkorb anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+</config>
+```
+
 ### Browser login for CLI tools and other public OAuth clients
 
 The Admin API now supports the OAuth 2.0 authorization code grant with PKCE for registered public clients such as CLI tools and native apps. Users sign in to the Administration and approve access in the browser. The client receives access and refresh tokens with the approving user's permissions, without storing the user's password or an integration secret.
@@ -94,6 +138,14 @@ Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legac
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
+
+### System config schema endpoints now require system config read access
+
+The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
+### Deprecation of `ConfigurationService` class
+
+Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
 
 ### Extensions can change the API CORS header lists
 

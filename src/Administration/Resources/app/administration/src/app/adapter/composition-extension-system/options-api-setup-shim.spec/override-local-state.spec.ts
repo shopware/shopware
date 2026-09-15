@@ -43,7 +43,8 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim - 
             template: `
                 <sw-block name="sw-shim-local-block" :data="$dataScope">
                     <template #default="{ __swOverride }">
-                        <margin-hint :margin="__swOverride[namespace].margin" />
+                    <template #default="{ __swOverride: { [namespace]: { margin } } }">
+                        <margin-hint :margin="margin" />
                     </template>
                 </sw-block>`,
             data() {

@@ -94,12 +94,20 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     public function salesChannelLoaded(SalesChannelEntityLoadedEvent $event): void
     {
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+        $hideCloseoutOutOfStock = $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $salesChannelId
+        );
+
         foreach ($event->getEntities() as $product) {
             $price = $product->get('cheapestPrice');
 
             if ($price instanceof CheapestPriceContainer) {
                 $product->assign([
-                    'cheapestPrice' => $price->resolve($event->getContext()),
+                    'cheapestPrice' => $hideCloseoutOutOfStock
+                        ? $price->resolveExcludingHiddenCloseoutVariants($event->getContext())
+                        : $price->resolve($event->getContext()),
                     'cheapestPriceContainer' => $price,
                 ]);
             }

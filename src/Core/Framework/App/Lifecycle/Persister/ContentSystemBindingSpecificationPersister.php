@@ -36,7 +36,7 @@ class ContentSystemBindingSpecificationPersister
     /**
      * The app's element-type directory, scanned for inline `bindings:` sections. Own copy of the convention
      * string {@see \Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister} and
-     * {@see \Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass}
+     * {@see \Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemCompilerPass}
      * also declare; each consumer owns its copy by convention.
      */
     private const TYPES_DIRECTORY = 'Resources/content-system/types';
@@ -68,7 +68,7 @@ class ContentSystemBindingSpecificationPersister
         // Serialize concurrent same-app persists: read the existing set, compute the delta, and write it
         // as one lock-held unit, so a racing install cannot diff against a stale snapshot and leave a
         // superset of the intended final state.
-        $lock = $this->lockFactory->createLock('content_system_binding_persist_' . $appId, 5.0);
+        $lock = $this->lockFactory->createLock('content_system_binding_persist_' . $appId, 15.0);
         $lock->acquire(true);
 
         try {

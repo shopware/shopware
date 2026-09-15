@@ -19,9 +19,12 @@ export default class ProductListing extends ShopwareComponent {
 
         // Create the debounced load function.
         this.debouncedLoad = this.debounce(async () => {
-            const productGrid = this.el.querySelector('.sw-product-listing__grid');
+            const productGridContainer = this.el.querySelector('.sw-product-listing__grid');
+            const productGrid = productGridContainer.querySelector('.sw-grid-container__inner');
             const pagination = this.el.querySelector('.sw-product-listing__pagination');
-            productGrid.classList.add('is--loading');
+            const counter = this.el.querySelector('.sw-product-listing__counter');
+
+            productGrid?.classList.add('is--loading');
 
             const location = new URL(window.location);
             const params = { ...this.activeParams };
@@ -33,10 +36,16 @@ export default class ProductListing extends ShopwareComponent {
             const doc = this.domParser.parseFromString(html, 'text/html');
             const grid = doc.querySelector('.sw-product-listing__grid');
             const pagi = doc.querySelector('.sw-product-listing__pagination');
+            const freshCounter = doc.querySelector('.sw-product-listing__counter');
 
-            productGrid.replaceWith(grid);
+            productGridContainer.replaceWith(grid);
             pagination.replaceWith(pagi);
-            productGrid.classList.remove('is--loading');
+
+            if (counter && freshCounter) {
+                counter.replaceWith(freshCounter);
+            }
+
+            productGrid?.classList.remove('is--loading');
         }, 200);
 
         this.getStateFromUrl();
@@ -154,7 +163,8 @@ export default class ProductListing extends ShopwareComponent {
     }
 
     changeLayout(layout) {
-        const grid = this.el.querySelector('.sw-product-listing__grid');
+        const gridContainer = this.el.querySelector('.sw-product-listing__grid');
+        const grid = gridContainer.querySelector('.sw-grid-container__inner');
         const productCards = grid.querySelectorAll('.sw-product-card');
         const gridClasses = this.options.layoutGridClasses;
         const layoutClasses = Object.keys(this.options.layoutGridClasses).map(layout => `is--layout-${layout}`);

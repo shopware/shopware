@@ -9,8 +9,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
@@ -21,8 +22,8 @@ use Symfony\Component\DependencyInjection\Definition;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ContentSystemElementTypeCompilerPass::class)]
-class ContentSystemElementTypeCompilerPassTest extends TestCase
+#[CoversClass(ContentSystemCompilerPass::class)]
+class ContentSystemCompilerPassTest extends TestCase
 {
     /**
      * Fixtures root directory. Sub-directories mirror the directory layout expected by the compiler pass.
@@ -35,11 +36,11 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
      */
     private const FIXTURES_DIR = __DIR__ . '/fixtures';
 
-    private ContentSystemElementTypeCompilerPass $pass;
+    private ContentSystemCompilerPass $pass;
 
     protected function setUp(): void
     {
-        $this->pass = new ContentSystemElementTypeCompilerPass();
+        $this->pass = new ContentSystemCompilerPass();
     }
 
     #[TestDox('scans non-plugin bundles using the standard type directory path')]
@@ -179,6 +180,54 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         static::assertSame('TestApp', $app->getArgument(2));
     }
 
+    #[TestDox('feeds the preset loader the discovered preset directories across core, bundle, plugin, and dev-app')]
+    public function testFeedsPresetLoaderAcrossAllSources(): void
+    {
+        $container = $this->buildContainerWithBothLoaders('dev');
+        $container->setDefinition(YamlLayoutPresetLoader::class, new Definition(YamlLayoutPresetLoader::class));
+        $container->setParameter('kernel.bundles_metadata', [
+            'BundleA' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
+        ]);
+        $container->setParameter('kernel.active_plugins', [
+            FixturePluginWithCustomPresetDir::class => [
+                'name' => 'FixturePluginWithCustomPresetDir',
+                'path' => self::FIXTURES_DIR . '/test-plugin-custom',
+                'class' => FixturePluginWithCustomPresetDir::class,
+            ],
+        ]);
+        $container->setParameter('kernel.project_dir', self::FIXTURES_DIR . '/apps');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['path' => 'test-app', 'name' => 'TestApp']]);
+        $container->set(Connection::class, $connection);
+
+        $this->pass->process($container);
+
+        $presetDirs = $this->extractDirectories($container, YamlLayoutPresetLoader::class);
+
+        $core = $this->findBySource($presetDirs, 'core');
+        static::assertNotNull($core);
+        $corePath = $core->getArgument(1);
+        static::assertIsString($corePath);
+        static::assertStringEndsWith('ContentSystem/Layout/Preset/Definitions', $corePath);
+        static::assertSame('Sw', $core->getArgument(2));
+
+        $bundle = $this->findBySource($presetDirs, 'bundle:BundleA');
+        static::assertNotNull($bundle);
+        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/presets', $bundle->getArgument(1));
+        static::assertSame('Sw', $bundle->getArgument(2));
+
+        $plugin = $this->findBySource($presetDirs, 'plugin:FixturePluginWithCustomPresetDir');
+        static::assertNotNull($plugin);
+        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-presets', $plugin->getArgument(1));
+        static::assertSame('FixturePluginWithCustomPresetDir', $plugin->getArgument(2));
+
+        $app = $this->findBySource($presetDirs, 'app:TestApp');
+        static::assertNotNull($app);
+        static::assertSame(self::FIXTURES_DIR . '/apps/test-app/Resources/content-system/presets', $app->getArgument(1));
+        static::assertSame('TestApp', $app->getArgument(2));
+    }
+
     #[TestDox('uses custom type directory when plugin overrides default')]
     public function testUsesCustomTypeDirectoryWhenPluginOverridesDefault(): void
     {
@@ -219,12 +268,9 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         static::assertSame([], array_values($appSources));
     }
 
-    #[TestDox('does nothing when both loader services are absent')]
-    public function testRegistersNothingWhenBothLoaderServicesAreAbsent(): void
+    #[TestDox('does nothing when all loader services are absent')]
+    public function testRegistersNothingWhenAllLoaderServicesAreAbsent(): void
     {
-        // Neither YamlTypeLoader nor YamlBindingSpecificationLoader is defined, and no parameters are set at
-        // all: a missing guard would throw fetching kernel.bundles_metadata instead of returning early, so a
-        // regressed guard fails this test loudly rather than silently.
         $container = new ContainerBuilder();
         $definitionsBefore = $container->getDefinitions();
 
@@ -413,5 +459,16 @@ class FixturePluginWithCustomTypeDir extends Plugin
     public static function getContentTypeDirectory(): string
     {
         return 'custom-types';
+    }
+}
+
+/**
+ * @internal
+ */
+class FixturePluginWithCustomPresetDir extends Plugin
+{
+    public static function getLayoutPresetDirectory(): string
+    {
+        return 'custom-presets';
     }
 }

@@ -88,6 +88,42 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    /**
+     * The id that reaches this factory is the one that failed the domain rule, so it can hold a control
+     * character — and the message is written to logs as plain text, where a raw `\r` hides everything
+     * before it. The reason is irrelevant here; only the rendering of the id is under test.
+     */
+    #[DataProvider('printableIdProvider')]
+    #[TestDox('renders $_dataName without corrupting the message')]
+    public function testInvalidElementIdRendersAPrintableId(string $id, string $expectedId): void
+    {
+        $exception = ContentSystemException::invalidElementId($id, 'reads as an integer');
+
+        static::assertSame(
+            \sprintf('Element id "%s" is not accepted: it reads as an integer.', $expectedId),
+            $exception->getMessage()
+        );
+        static::assertSame($expectedId, $exception->getParameters()['id']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function printableIdProvider(): iterable
+    {
+        yield 'an ordinary id, unchanged' => ['hero', 'hero'];
+
+        yield 'a non-ASCII id, left intact rather than escaped to \u00e9' => ['héro', 'héro'];
+
+        yield 'a carriage return, which would otherwise rewind the log line' => ["hero\rfoot", 'hero\\rfoot'];
+
+        yield 'a line feed' => ["hero\nfoot", 'hero\\nfoot'];
+
+        yield 'a line separator, which addcslashes would have missed' => ["hero\u{2028}", 'hero\\u2028'];
+
+        yield 'an embedded quote, kept balanced' => ['"hero"', '\\"hero\\"'];
+    }
+
     #[TestDox('propagates previous throwable when loading element type fails')]
     public function testPreservesPreviousThrowableOnLoadFailed(): void
     {
@@ -124,7 +160,7 @@ class ContentSystemExceptionTest extends TestCase
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
-        yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'), true];
+        yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
     }
 
     /**
@@ -143,7 +179,7 @@ class ContentSystemExceptionTest extends TestCase
         // DAL write wraps it into an unconditional 400 and the draft routes answer 400 or 200 by catalogue
         // membership, so the one path where this status IS the response is the stored-column read.
         yield 'invalid element id' => [
-            ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'),
+            ContentSystemException::invalidElementId('12', 'reads as an integer'),
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
             '12',

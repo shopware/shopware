@@ -136,6 +136,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        preventDrag(event: Event): void {
+            event.stopPropagation();
+        },
+
         onSelectElement(): void {
             this.$emit('select-element', this.contentElement.id);
         },

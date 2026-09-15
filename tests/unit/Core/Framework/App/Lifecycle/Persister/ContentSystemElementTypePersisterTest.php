@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -35,6 +36,9 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
+use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -263,6 +267,130 @@ class ContentSystemElementTypePersisterTest extends TestCase
         static::assertSame([['id' => $this->ids->get('type-orphan')]], $repo->deletes[0]);
     }
 
+    #[TestDox('routes the upsert and delete through a single transaction')]
+    public function testWritesGoThroughOneTransaction(): void
+    {
+        $obsolete = $this->buildExistingEntity('type-old', 'DemoApp:Legacy');
+
+        $repo = new StaticEntityRepository([
+            new AppContentSystemElementTypeCollection([$obsolete]),
+            new AppContentSystemElementTypeCollection(),
+        ]);
+
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('transactional')
+            ->willReturnCallback(static function (\Closure $work) use ($repo) {
+                static::assertSame([], $repo->upserts);
+                static::assertSame([], $repo->deletes);
+
+                $work();
+
+                static::assertCount(1, $repo->upserts);
+                static::assertCount(1, $repo->deletes);
+
+                return null;
+            });
+
+        $this->buildPersister($repo, connection: $connection)
+            ->persist($this->buildContext($this->buildRealFilesystem()));
+
+        static::assertCount(1, $repo->upserts);
+        static::assertCount(1, $repo->deletes);
+    }
+
+    #[TestDox('holds the per-app lock from the existing-state read through cache invalidation')]
+    public function testHoldsLockAroundReconciliationAndInvalidation(): void
+    {
+        $lockHeld = false;
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturnCallback(
+            static function () use (&$lockHeld): bool {
+                $lockHeld = true;
+
+                return true;
+            }
+        );
+        $lock->expects($this->once())->method('release')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+                $lockHeld = false;
+            }
+        );
+
+        $lockFactory = static::createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('content_system_element_type_persist_' . $this->ids->get('app'), 15.0)
+            ->willReturn($lock);
+
+        $repo = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemElementTypeCollection {
+                static::assertTrue($lockHeld);
+
+                return new AppContentSystemElementTypeCollection();
+            },
+            static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemElementTypeCollection {
+                static::assertTrue($lockHeld);
+
+                return new AppContentSystemElementTypeCollection();
+            },
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->expects($this->once())->method('all')->willReturnCallback(
+            static function () use (&$lockHeld): array {
+                static::assertTrue($lockHeld);
+
+                return [];
+            }
+        );
+        $registry->expects($this->once())->method('invalidate')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+            }
+        );
+
+        $this->buildPersister($repo, registry: $registry, lockFactory: $lockFactory)
+            ->persist($this->buildContext($this->buildRealFilesystem()));
+
+        static::assertFalse($lockHeld);
+    }
+
+    #[TestDox('releases the lock and leaves the cache untouched when the transaction fails')]
+    public function testReleasesLockWhenTransactionFails(): void
+    {
+        $failure = new \RuntimeException('transaction failed');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willThrowException($failure);
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->never())->method('invalidate');
+
+        $repo = new StaticEntityRepository([
+            new AppContentSystemElementTypeCollection(),
+            new AppContentSystemElementTypeCollection(),
+        ]);
+
+        $this->expectExceptionObject($failure);
+        $this->buildPersister(
+            $repo,
+            registry: $registry,
+            connection: $connection,
+            lockFactory: $lockFactory,
+        )->persist($this->buildContext($this->buildRealFilesystem()));
+    }
+
     #[TestDox('returns early when loader returns empty and no existing types exist')]
     public function testEarlyReturnWhenBothEmpty(): void
     {
@@ -399,6 +527,8 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new ElementTypeCollisionDetector($registry),
             $registry,
             $this->serializer,
+            $this->runTransactionStub(),
+            new LockFactory(new InMemoryStore()),
         );
 
         try {
@@ -463,6 +593,8 @@ class ContentSystemElementTypePersisterTest extends TestCase
         StaticEntityRepository $repo,
         ?YamlTypeLoader $loader = null,
         ?AbstractContentSystemElementTypeRegistry $registry = null,
+        ?Connection $connection = null,
+        ?LockFactory $lockFactory = null,
     ): ContentSystemElementTypePersister {
         if ($registry === null) {
             $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
@@ -477,7 +609,21 @@ class ContentSystemElementTypePersisterTest extends TestCase
             $detector,
             $registry,
             $this->serializer,
+            $connection ?? $this->runTransactionStub(),
+            $lockFactory ?? new LockFactory(new InMemoryStore()),
         );
+    }
+
+    private function runTransactionStub(): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(static function (\Closure $work) {
+            $work();
+
+            return null;
+        });
+
+        return $connection;
     }
 
     private function buildContext(Filesystem $filesystem): AppPersistContext

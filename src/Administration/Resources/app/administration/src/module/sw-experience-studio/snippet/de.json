@@ -26,6 +26,11 @@
           "behaviour": "Verhalten"
         }
       }
+      "sw-product-listing": {
+        "panels": {
+          "sorting": "Sortierung"
+        }
+      }
     },
     "list": {
       "columnName": "Name",
@@ -114,6 +119,7 @@
           "content": "Inhalt",
           "commerce": "Commerce",
           "layout": "Layout",
+          "presets": "Vorlagen",
           "other": "Sonstige"
         }
       },

@@ -41,6 +41,7 @@ use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
+use Shopware\Core\Framework\Api\Cors\CorsHeaderProviderInterface;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -80,6 +81,7 @@ return [
             'messenger.receiver' => ReceiverInterface::class,
             'promotion.filter.picker' => FilterPickerInterface::class,
             'promotion.filter.sorter' => FilterSorterInterface::class,
+            'shopware.api.cors_header_provider' => CorsHeaderProviderInterface::class,
             'shopware.api.enum_provider' => FieldEnumProviderInterface::class,
             'shopware.app_script.twig.extension' => ExtensionInterface::class,
             'shopware.cart.collector' => CartDataCollectorInterface::class,

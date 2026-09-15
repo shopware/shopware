@@ -222,6 +222,7 @@ export default {
                 customer.lastName,
                 customer.firstName,
             ]
+                .map((part) => (part ?? '').trim())
                 .filter((part) => part)
                 .join(', ');
 

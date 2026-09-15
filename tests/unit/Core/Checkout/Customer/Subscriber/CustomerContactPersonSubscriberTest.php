@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -60,7 +61,7 @@ class CustomerContactPersonSubscriberTest extends TestCase
     public function testInsert(string $entity, array $payload, bool $valid): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociativeIndexed');
+        $connection->expects($this->never())->method('fetchAllAssociative');
 
         $event = $this->event($this->insert($entity, $payload));
 
@@ -107,8 +108,8 @@ class CustomerContactPersonSubscriberTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
-            ->method('fetchAllAssociativeIndexed')
-            ->willReturn([$id => $stored]);
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => $id] + $stored]);
 
         $event = $this->event($this->update(CustomerDefinition::ENTITY_NAME, $id, $payload));
 
@@ -143,8 +144,8 @@ class CustomerContactPersonSubscriberTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
-            ->method('fetchAllAssociativeIndexed')
-            ->willReturn([$id => $stored]);
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => $id] + $stored]);
 
         $event = $this->event($this->update($entity, $id, $payload));
 
@@ -169,10 +170,38 @@ class CustomerContactPersonSubscriberTest extends TestCase
         }
     }
 
+    public function testVersionedRowsAreJudgedByTheirOwnVersion(): void
+    {
+        $id = Uuid::randomHex();
+        $live = Defaults::LIVE_VERSION;
+        $draft = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['id' => $id, 'version_id' => $live, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null],
+                ['id' => $id, 'version_id' => $draft, 'first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'],
+            ]);
+
+        $event = $this->event(
+            $this->update(OrderCustomerDefinition::ENTITY_NAME, $id, ['first_name' => '', 'last_name' => ''], $live),
+            $this->update(OrderCustomerDefinition::ENTITY_NAME, $id, ['company' => null], $draft),
+        );
+
+        (new CustomerContactPersonSubscriber($connection))->validate($event);
+
+        $exceptions = $event->getExceptions()->getExceptions();
+
+        static::assertCount(1, $exceptions);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
+        static::assertCount(2, $exceptions[0]->getViolations());
+    }
+
     public function testUpdateWithoutANameFieldIsNotChecked(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociativeIndexed');
+        $connection->expects($this->never())->method('fetchAllAssociative');
 
         $event = $this->event($this->update(CustomerDefinition::ENTITY_NAME, Uuid::randomHex(), ['email' => 'ada@example.com']));
 
@@ -234,15 +263,18 @@ class CustomerContactPersonSubscriberTest extends TestCase
     /**
      * @param array<string, mixed> $payload
      */
-    private function update(string $entity, string $id, array $payload): UpdateCommand
+    private function update(string $entity, string $id, array $payload, ?string $versionId = null): UpdateCommand
     {
-        $bytes = Uuid::fromHexToBytes($id);
+        $primaryKey = ['id' => Uuid::fromHexToBytes($id)];
+        if ($versionId !== null) {
+            $primaryKey['version_id'] = Uuid::fromHexToBytes($versionId);
+        }
 
         return new UpdateCommand(
             $this->definition($entity),
             $payload,
-            ['id' => $bytes],
-            new EntityExistence($entity, ['id' => $bytes], true, false, false, []),
+            $primaryKey,
+            new EntityExistence($entity, $primaryKey, true, false, false, []),
             '/0'
         );
     }

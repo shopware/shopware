@@ -136,6 +136,33 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('module/sw-customer/page/sw-customer-list', () => {
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            'Lovelace, Ada',
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a company with whitespace names',
+            { firstName: ' ', lastName: '  ', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a surname alone',
+            { firstName: null, lastName: 'Lovelace', displayName: 'Lovelace' },
+            'Lovelace',
+        ],
+    ])('should name %s in the list', async (_name, customer, expected) => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.customerName(customer)).toBe(expected);
+    });
+
     it('should not be able to create a new customer', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

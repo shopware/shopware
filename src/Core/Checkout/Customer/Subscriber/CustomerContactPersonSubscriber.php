@@ -108,11 +108,30 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 
         foreach ($event->getCommandsForEntity($entity) as $command) {
             if ($command instanceof InsertCommand || ($command instanceof UpdateCommand && $command->hasAnyField(...self::NAME_FIELDS))) {
-                $commands[$command->getDecodedPrimaryKey()['id']] = $command;
+                $commands[self::commandKey($command)] = $command;
             }
         }
 
         return $commands;
+    }
+
+    private static function commandKey(WriteCommand $command): string
+    {
+        $id = strtolower($command->getDecodedPrimaryKey()['id']);
+        $versionId = $command->getPrimaryKey()['version_id'] ?? null;
+
+        return $versionId === null ? $id : $id . '-' . Uuid::fromBytesToHex($versionId);
+    }
+
+    /**
+     * @param array<string, string|null> $row
+     */
+    private static function rowKey(array $row): string
+    {
+        $id = strtolower((string) $row['id']);
+        $versionId = $row['version_id'] ?? null;
+
+        return $versionId === null ? $id : $id . '-' . strtolower($versionId);
     }
 
     /**
@@ -123,9 +142,11 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
     private function fetchStored(string $entity, array $commands, bool $hasAccountType): array
     {
         $ids = [];
-        foreach ($commands as $id => $command) {
+        $versioned = false;
+        foreach ($commands as $command) {
             if ($command instanceof UpdateCommand) {
-                $ids[] = $id;
+                $ids[] = $command->getDecodedPrimaryKey()['id'];
+                $versioned = $versioned || isset($command->getPrimaryKey()['version_id']);
             }
         }
 
@@ -134,14 +155,22 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
         }
 
         $columns = $hasAccountType ? '`first_name`, `last_name`, `company`, `account_type`' : '`first_name`, `last_name`, `company`';
+        if ($versioned) {
+            $columns .= ', LOWER(HEX(`version_id`)) AS `version_id`';
+        }
 
-        /** @var array<string, array<string, string|null>> $rows */
-        $rows = $this->connection->fetchAllAssociativeIndexed(
+        /** @var list<array<string, string|null>> $rows */
+        $rows = $this->connection->fetchAllAssociative(
             \sprintf('SELECT LOWER(HEX(`id`)) AS `id`, %s FROM `%s` WHERE `id` IN (:ids)', $columns, $entity),
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Uuid::fromHexToBytesList(array_unique($ids))],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        return $rows;
+        $stored = [];
+        foreach ($rows as $row) {
+            $stored[self::rowKey($row)] = $row;
+        }
+
+        return $stored;
     }
 }

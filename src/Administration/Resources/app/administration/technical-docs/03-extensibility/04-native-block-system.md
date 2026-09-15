@@ -166,7 +166,7 @@ When there are multiple overrides and none uses `<sw-block-parent />`, only the 
 Override blocks are rendered outside the component they extend, so they have no implicit access to its reactive state. State flows through the Shopware setup transform instead:
 
 - The owning component's data scope is wired to every named `<sw-block>` by the transform, which is how `<sw-block-parent />` content keeps rendering with the base component's state.
-- Inside `<sw-block extends>` content, an override references its **own setup bindings** directly — the transform detects the references and exposes them to the block content. Public base state is read through `useSwPreviousState()`:
+- Inside `<sw-block extends>` content, an override references its **own setup bindings** directly — the transform detects the references and rewrites them to read through the forwarded state object, which keeps them writable from the template. Public base state is read through `useSwPreviousState()`:
 
 ```vue
 <template>

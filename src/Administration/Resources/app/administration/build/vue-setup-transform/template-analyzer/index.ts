@@ -16,6 +16,7 @@ import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type ElementNode,
+    type TemplateReferenceOccurrence,
     collectTemplateReferences,
     getStaticSwBlockExtends,
     getStaticSwBlockName,
@@ -23,7 +24,7 @@ import {
     isSwBlockName,
 } from './template-references';
 import {
-    assertNoWritesToForwardedBindings,
+    assertNoWritesToPublicBindings,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     findOpeningTagAttributeEnd,
@@ -36,11 +37,16 @@ import {
  *
  * `publicNames` are declared override bindings, which keep their own name in the scope; `privateNames`
  * are everything else the content reads, which the lowerer files under the override namespace.
+ *
+ * `privateRewrites` are the places the content reads one of `privateNames`. Those are not destructured
+ * out of the scope but read through it, so a template write reaches the ref behind the value instead of
+ * a copy of it.
  */
 type OverrideSlotScope = {
     at: number;
     publicNames: string[];
     privateNames: string[];
+    privateRewrites: TemplateReferenceOccurrence[];
 };
 
 /**
@@ -129,17 +135,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
                 extendedBlockNames.push(extendedName);
             }
 
-            const { references, writeTargets } = collectTemplateReferences(element.children, new Set());
-
-            // Forwarded bindings are read-only in the slot; reject template writes to them.
-            assertNoWritesToForwardedBindings(
-                writeTargets,
-                new Set([
-                    ...analysis.runtimeBindingNames,
-                    ...analysis.runtimeInputAliasNames,
-                ]),
-                templateOffset,
-            );
+            const { references, occurrences, writeTargets } = collectTemplateReferences(element.children, new Set());
 
             const publicNames: string[] = [];
             const privateNames: string[] = [];
@@ -172,11 +168,24 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
                 privateNames.push(name);
             });
 
+            // Declared override bindings are the overridden component's state and reach the content as a
+            // copy of their value; only the override's own locals are read through the forwarded object.
+            assertNoWritesToPublicBindings(writeTargets, new Set(publicNames), templateOffset);
+
             if (publicNames.length > 0 || privateNames.length > 0) {
+                const forwarded = new Set(privateNames);
+
                 slotScopes.push({
                     at: template.contentStart + findOpeningTagAttributeEnd(template.content, element.loc.start.offset),
                     publicNames,
                     privateNames,
+                    privateRewrites: occurrences
+                        .filter((occurrence) => forwarded.has(occurrence.name))
+                        .map((occurrence) => ({
+                            ...occurrence,
+                            start: templateOffset + occurrence.start,
+                            end: templateOffset + occurrence.end,
+                        })),
                 });
             }
         }

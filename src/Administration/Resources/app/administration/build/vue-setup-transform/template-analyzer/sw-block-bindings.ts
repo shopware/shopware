@@ -124,27 +124,31 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
 }
 
 /**
- * Rejects writing to a forwarded override binding from `<sw-block extends>` content.
+ * Rejects writing to a declared override binding from `<sw-block extends>` content.
  *
- * A forwarded binding arrives in the block's slot scope ref-unwrapped, as a slot-scope local, so a
- * template write (`@click="count = count + 1"`, `count++`) assigns to that local and silently no-ops -
- * the identical line works in a base component, which makes it a nasty trap. Reject it and point the
- * author at mutating the value from a method in the override setup instead.
+ * A binding listed in `swDefineOverride({...})` is the *base component's* state once the override is
+ * applied, and the block's data scope hands it to the content ref-unwrapped, as a slot-scope local. A
+ * template write assigns to that local and silently no-ops. The override's own locals do not have this
+ * problem - they are read through the forwarded state object and stay writable - so the fix is either
+ * to write the base state from the override setup (`previousState.x.value = …`) or to keep the value
+ * in a local of your own.
  */
-function assertNoWritesToForwardedBindings(
+function assertNoWritesToPublicBindings(
     writeTargets: Map<string, number>,
-    forwardableNames: Set<string>,
+    publicNames: Set<string>,
     templateOffset: number,
 ): void {
     writeTargets.forEach((offset, name) => {
-        if (!forwardableNames.has(name)) {
+        if (!publicNames.has(name)) {
             return;
         }
 
         throw new ShopwareSetupTransformError(
-            `Cannot assign to "${name}" inside <sw-block extends> content: forwarded override bindings are read-only ` +
-                'there (the write targets a slot-scope local and has no effect). Mutate the value from a method defined ' +
-                'in the override setup and call that instead.',
+            `Cannot assign to "${name}" inside <sw-block extends> content: it is declared in ` +
+                "swDefineOverride(), which makes it the overridden component's state, and the block receives a " +
+                'copy of its value. Assign to previousState.' +
+                name +
+                '.value from the override setup instead.',
             templateOffset + offset,
         );
     });
@@ -235,7 +239,7 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
  * @private
  */
 export {
-    assertNoWritesToForwardedBindings,
+    assertNoWritesToPublicBindings,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     findOpeningTagAttributeEnd,

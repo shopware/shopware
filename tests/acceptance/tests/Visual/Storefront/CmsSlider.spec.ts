@@ -301,17 +301,17 @@ test(
         await expect(gallerySliderContainer).toBeVisible();
         await expect(gallerySliderImage).toBeVisible();
 
-        const [galleryItemBox, galleryImageBox] = await Promise.all([
+        const [
+            galleryItemBox,
+            galleryImageBox,
+        ] = await Promise.all([
             gallerySliderItem.boundingBox(),
             gallerySliderImage.boundingBox(),
         ]);
 
         expect(galleryItemBox).not.toBeNull();
         expect(galleryImageBox).not.toBeNull();
-        expect(galleryImageBox!.x - galleryItemBox!.x).toBeCloseTo(
-            (galleryItemBox!.width - galleryImageBox!.width) / 2,
-            0,
-        );
+        expect(galleryImageBox!.x - galleryItemBox!.x).toBeCloseTo((galleryItemBox!.width - galleryImageBox!.width) / 2, 0);
 
         await expect(StorefrontHome.page.locator('main .cms-section')).toHaveScreenshot(
             'Cms-Slider-Standard-Image-Gallery-Centered.png',

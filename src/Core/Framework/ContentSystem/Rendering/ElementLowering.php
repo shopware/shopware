@@ -20,20 +20,21 @@ use Symfony\Component\HttpFoundation\Request;
  * here because no other layer is in a position to do it: the data resolver sees one element at a time, and
  * the delivery resolver takes the loader values already collected.
  *
- * Ordering is the substance of this class. In FULL mode loading completes over the WHOLE forest before any
- * distribution starts, because a provider may hand a loaded value on to a child: process an element's
- * distribution before a later element has loaded, and the value that element was going to provide is not
- * there yet. That is why {@see ContextDeliveryResolver::resolve()} takes the loader values as an argument
- * rather than resolving them itself, and this class is what fills that argument.
+ * Ordering is the substance of this class. In FULL mode page-level data resolves first, then loading completes
+ * over the WHOLE forest before any distribution starts. The page-level values may supply root-scoped loader
+ * inputs, while a provider may hand a loaded value on to a child during the later distribution: process an
+ * element's distribution before a later element has loaded, and the value that element was going to provide
+ * is not there yet. That is why {@see ContextDeliveryResolver::resolve()} takes the loader values as an
+ * argument rather than resolving them itself, and this class is what fills that argument.
  *
  * THE PAGE-LEVEL DATA IS RESOLVED HERE TOO, and separately. It belongs to the rendering specification rather
  * than to any element, so it arrives as an argument beside the forest and is run once per render against the
  * {@see VirtualRootWrapper} element, whose placeholder values are what its loaders' `propertyReference` inputs
- * dereference against. The resulting map is handed to {@see ContextDeliveryResolver::resolve()} as the
- * root-ambient context, which is the only route by which it reaches an element. It is an explicit input on
- * that call rather than something read off the tree, so the partial prune cannot take root context with it.
- * The same map is also filed into the forest's loader values under the wrapper's own id, which on a partial
- * render that pruned the wrapper away addresses no element of that forest and is read by nothing.
+ * dereference against. The resulting map supplies each element's root-scoped loader inputs and is handed to
+ * {@see ContextDeliveryResolver::resolve()} as the root-ambient context. It is an explicit input rather than
+ * something read off the tree, so the partial prune cannot take root context with it. The same map is also
+ * filed into the forest's loader values under the wrapper's own id, which on a partial render that pruned the
+ * wrapper away addresses no element of that forest and is read by nothing.
  *
  * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
  * each slot's children load in declaration order. What that order buys is narrower than it looks:
@@ -81,7 +82,6 @@ final readonly class ElementLowering
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
 
-        $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
         $ambient = [];
 
         // No wrapper or no page-level requirements: nothing ambient to resolve.
@@ -93,7 +93,12 @@ final readonly class ElementLowering
                 $request,
                 $cacheContext,
             );
+        }
 
+        $ambientValues = array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient);
+        $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext, $ambientValues);
+
+        if ($virtualRoot !== null && $ambient !== []) {
             // Filed under the wrapper's id because that is the element these values were resolved against,
             // which keeps the map's "loader values by element id" contract true. The wrapper carries no data
             // requirements of its own, so this entry adds no rendered property to it and nothing loads twice.
@@ -105,7 +110,7 @@ final readonly class ElementLowering
         $deliveries = $this->deliveryResolver->resolve(
             $forest,
             $this->plainValues($loaderValues),
-            array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient),
+            $ambientValues,
         );
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
@@ -152,6 +157,7 @@ final readonly class ElementLowering
      * exist as null instead of being dropped.
      *
      * @param list<StoredElement> $forest
+     * @param array<string, mixed> $ambientContext
      *
      * @return array<string, array<string, ResolvedLoaderValue>> element id => requirement key => resolved value
      */
@@ -160,17 +166,19 @@ final readonly class ElementLowering
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
+        array $ambientContext,
     ): array {
         $values = [];
 
         foreach ($forest as $root) {
-            $this->collectLoaderValues($root, $context, $request, $cacheContext, $values);
+            $this->collectLoaderValues($root, $context, $request, $cacheContext, $ambientContext, $values);
         }
 
         return $values;
     }
 
     /**
+     * @param array<string, mixed> $ambientContext
      * @param array<string, array<string, ResolvedLoaderValue>> $values
      */
     private function collectLoaderValues(
@@ -178,9 +186,15 @@ final readonly class ElementLowering
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
+        array $ambientContext,
         array &$values,
     ): void {
-        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext);
+        $rootContext = $this->deliveryResolver->resolveRootContext(
+            $element,
+            $ambientContext,
+            new ContextDelivery($element->id),
+        );
+        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext, $rootContext->context);
 
         if ($resolved !== []) {
             $values[$element->id] = $resolved;
@@ -188,7 +202,7 @@ final readonly class ElementLowering
 
         foreach ($element->slots as $children) {
             foreach ($children as $child) {
-                $this->collectLoaderValues($child, $context, $request, $cacheContext, $values);
+                $this->collectLoaderValues($child, $context, $request, $cacheContext, $ambientContext, $values);
             }
         }
     }

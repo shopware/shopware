@@ -27,7 +27,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * filtering to the rendered union first would make it quietly stop delivering with nothing raising.
  *
  * A {@see ConsumerScope::Root} consumer is filled from the ambient map argument to {@see resolve()}, not by
- * the walk, so it receives at any depth with no intermediate wiring.
+ * the walk, so it receives at any depth with no intermediate wiring. {@see resolveRootContext()} exposes that
+ * tree-independent part separately for resolving an element's loader inputs.
  *
  * @internal
  */
@@ -67,6 +68,20 @@ final readonly class ContextDeliveryResolver
         }
 
         return new ContextDeliveryIndex($deliveries);
+    }
+
+    /**
+     * Resolves only the ambient, root-scoped context for one element. Unlike parent delivery this does not
+     * depend on loader values from another element, so callers may use it before the forest-wide walk.
+     *
+     * @param array<string, mixed> $ambientContext
+     */
+    public function resolveRootContext(
+        StoredElement $element,
+        array $ambientContext,
+        ContextDelivery $delivery,
+    ): ContextDelivery {
+        return $this->overlayRootContext($element, $ambientContext, $delivery);
     }
 
     /**

@@ -65,6 +65,8 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
@@ -886,6 +888,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('content_system.data_loader');
 
     $services->set(ProductListingLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductConfiguratorDataLoader::class)
+        ->args([service(ProductConfiguratorLoader::class)])
+        ->tag('content_system.data_loader');
+
+    $services->set(ProductConfiguratorLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');
 
     $services->set(CrossSellingDataLoader::class)

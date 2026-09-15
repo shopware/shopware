@@ -37,7 +37,9 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Subscriber\AppLifecycleWebhookHealthSubscriber;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
+use Shopware\Core\Framework\Webhook\Subscriber\WebhookActiveFlipSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
@@ -150,6 +152,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookOutboxStore::class),
             service(HealthConfig::class),
             service(SymfonyClockInterface::class),
+            service('logger'),
         ]);
 
     $services->set(MySQLWebhookReceiver::class)
@@ -281,6 +284,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(WebhookOutboxStore::class),
             param('shopware.webhook.failure_strategy'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(AppLifecycleWebhookHealthSubscriber::class)
+        ->args([
+            service(WebhookHealthService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(WebhookActiveFlipSubscriber::class)
+        ->args([
+            service(WebhookHealthService::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -80,7 +80,11 @@ function parseScript(script: string, lang: string, scriptOffset: number): BabelF
         const parserError = error as { pos?: unknown; message?: unknown };
         const offset = typeof parserError.pos === 'number' ? scriptOffset + parserError.pos : scriptOffset;
         const message = typeof parserError.message === 'string' ? parserError.message : String(error);
-        throw new ShopwareSetupTransformError(`Unable to parse Shopware setup script: ${message}`, offset);
+        // Drop Babel's block-relative coordinates; the transform resolves the absolute offset below.
+        throw new ShopwareSetupTransformError(
+            `Unable to parse Shopware setup script: ${message.replace(/\s*\(\d+:\d+\)$/, '')}`,
+            offset,
+        );
     }
 }
 

@@ -11,6 +11,7 @@
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
+import { attributeSourceOffset } from '../utils/attribute-source-offset';
 import type {
     DirectiveNode as CoreDirectiveNode,
     ElementNode as CoreElementNode,
@@ -30,7 +31,7 @@ import {
 type TemplateReferences = {
     references: Set<string>;
     /**
-     * Write targets mapped to the template offset of the expression that writes them, so a rejection can
+     * Write targets mapped to their original identifier offset in the template, so a rejection can
      * point at the author's `@click="count = 1"` rather than at the enclosing block.
      */
     writeTargets: Map<string, number>;
@@ -234,15 +235,18 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             collectDirectiveReferences(directive, childScope).forEach((name) => references.add(name));
 
-            // Assignment/update targets in a directive expression (e.g. `@click="count = count + 1"`).
+            // Explicit assignments/updates and the implicit assignment performed by v-model.
             if (directive.exp?.content) {
-                const expressionOffset = directive.exp.loc.start.offset;
+                const expression = directive.exp;
+                const expressionOffset = expression.loc.start.offset;
 
-                collectExpressionWriteTargets(directive.exp.content, childScope).forEach((name) => {
-                    if (!writeTargets.has(name)) {
-                        writeTargets.set(name, expressionOffset);
-                    }
-                });
+                collectExpressionWriteTargets(expression.content, childScope, directive.name === 'model').forEach(
+                    (offset, name) => {
+                        if (!writeTargets.has(name)) {
+                            writeTargets.set(name, expressionOffset + attributeSourceOffset(expression.loc.source, offset));
+                        }
+                    },
+                );
             }
 
             // Any slot directive - default, named (#item), or dynamic (#[name]) - is handled the same:

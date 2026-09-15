@@ -330,8 +330,8 @@ function collectBabelReferences(
  * write to a forwarded override binding silently no-ops. Member writes (`count.value = 1`) and nested
  * shadowing are out of scope; template-local names are filtered by the caller's scope.
  */
-function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<string> {
-    const targets = new Set<string>();
+function collectBabelWriteTargets(root: BabelNode): Map<string, number> {
+    const targets = new Map<string, number>();
 
     function visit(node: BabelNode | null | undefined): void {
         if (!node || typeof node.type !== 'string') {
@@ -339,11 +339,15 @@ function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<strin
         }
 
         if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
-            targets.add(node.left.name);
+            if (!targets.has(node.left.name)) {
+                targets.set(node.left.name, node.left.start ?? 0);
+            }
         }
 
         if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
-            targets.add(node.argument.name);
+            if (!targets.has(node.argument.name)) {
+                targets.set(node.argument.name, node.argument.start ?? 0);
+            }
         }
 
         childBabelNodes(node).forEach(visit);
@@ -355,19 +359,40 @@ function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<strin
 }
 
 /**
- * Returns the outer-scope identifiers one Vue expression writes to (assignment/update targets).
+ * Returns written identifiers and their first offset in the decoded expression, including implicit v-model writes.
  *
  * @param templateScope names already bound by the surrounding template (v-for aliases, slot props);
  *   a write to one of those is template-local, so it is filtered out of the result.
  */
-function collectExpressionWriteTargets(expression: string | undefined, templateScope: Set<string>): Set<string> {
+function collectExpressionWriteTargets(
+    expression: string | undefined,
+    templateScope: Set<string>,
+    isModel = false,
+): Map<string, number> {
     if (!expression || expression.trim() === '') {
-        return new Set<string>();
+        return new Map<string, number>();
     }
 
-    const targets = collectBabelWriteTargets(parseTemplateExpression(expression));
+    let root = parseTemplateExpression(expression);
+    const targets = collectBabelWriteTargets(root);
 
-    return new Set([...targets].filter((name) => !templateScope.has(name)));
+    // v-model implicitly assigns to its expression. TypeScript wrappers do not change its target.
+    if (isModel) {
+        while (
+            root.type === 'TSAsExpression' ||
+            root.type === 'TSTypeAssertion' ||
+            root.type === 'TSNonNullExpression' ||
+            root.type === 'TSSatisfiesExpression'
+        ) {
+            root = root.expression;
+        }
+
+        if (root.type === 'Identifier') {
+            targets.set(root.name, root.start ?? 0);
+        }
+    }
+
+    return new Map([...targets].filter(([name]) => !templateScope.has(name)));
 }
 
 /**

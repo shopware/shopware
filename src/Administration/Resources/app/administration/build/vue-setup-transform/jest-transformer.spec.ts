@@ -4,7 +4,6 @@
 
 import shopwareSetupVueTransformer from '../../test/transformer/shopwareSetupVueTransformer';
 import { stripIndent } from './index.spec/helpers';
-
 const browserslistDataWarning = {
     method: 'warn' as const,
     msg: 'Browserslist: browsers data',
@@ -21,6 +20,32 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
         if (warningIndex !== -1) {
             global.allowedErrors.splice(warningIndex, 1);
         }
+    });
+
+    it.each([
+        'process',
+        'getCacheKey',
+    ] as const)('formats author diagnostics for Jest through %s', (method) => {
+        const source = stripIndent`
+            <template>
+                <div />
+            </template>
+            <script setup>
+            const broken = { a: 1 b: 2 };
+            swDefinePublic({});
+            </script>
+        `;
+
+        let error: unknown;
+
+        try {
+            shopwareSetupVueTransformer[method](source, '/example/sw-broken.vue', { config: {} }, { instrument: false });
+        } catch (thrown) {
+            error = thrown;
+        }
+
+        expect(error).toHaveProperty('message', expect.stringContaining('/example/sw-broken.vue:5:23\n'));
+        expect(error).toHaveProperty('stack', expect.stringContaining('5  |  const broken = { a: 1 b: 2 };'));
     });
 
     it('applies the Shopware setup transform before delegating Vue files to vue-jest', () => {

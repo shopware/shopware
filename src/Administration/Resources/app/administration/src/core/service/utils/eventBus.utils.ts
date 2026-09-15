@@ -11,6 +11,7 @@ import type { ConsentEvent, ConsentEventName } from '../../consent/events';
  */
 interface Events extends Record<string | symbol, unknown> {
     'sw-product-detail-save-finish': undefined;
+    'sw-product-detail-save-success': undefined;
     'sw-language-switch-change-application-language': { languageId: EntityKey<'language'> };
     'sw-sales-channel-detail-sales-channel-change': undefined;
     'sw-sales-channel-detail-base-sales-channel-change': undefined;

@@ -8,7 +8,6 @@ import { mount } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
-import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -670,35 +669,48 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(actionMenu.attributes('side')).toBe('bottom');
     });
 
-    describe('module colors', () => {
+    describe('module color', () => {
+        const brandColor = 'var(--sw-color-module-brand-default)';
+        let getModuleByEntityName;
+
+        beforeEach(() => {
+            getModuleByEntityName = jest
+                .spyOn(Shopware.Module, 'getModuleByEntityName')
+                .mockReturnValue({ manifest: { color: brandColor } });
+        });
+
         afterEach(() => {
-            useModuleIconColors().enabled.value = false;
+            getModuleByEntityName.mockRestore();
         });
 
-        it('should leave the active state to the stylesheet by default', async () => {
+        it('should give the sales channel rows the color of the sales channel module', async () => {
+            const wrapper = await createWrapper([
+                headlessSalesChannel,
+                storeFrontWithStandardDomain,
+            ]);
+            await flushPromises();
+
+            expect(getModuleByEntityName).toHaveBeenCalledWith('sales_channel');
+            expect(wrapper.vm.buildMenuTree.map((entry) => entry.color)).toEqual([
+                brandColor,
+                brandColor,
+            ]);
+        });
+
+        it('should give the more items row the color of the sales channel module', async () => {
             const wrapper = await createWrapper([headlessSalesChannel]);
             await flushPromises();
 
-            expect(wrapper.find('.sw-sales-channel-menu').classes()).not.toContain('is--module-colored');
+            expect(wrapper.vm.moreItemsEntry.color).toBe(brandColor);
         });
 
-        it('should mark the menu as module colored so active rows drop the brand tint', async () => {
-            useModuleIconColors().enabled.value = true;
+        it('should leave the rows without a color when the module is not registered', async () => {
+            getModuleByEntityName.mockReturnValue(undefined);
 
             const wrapper = await createWrapper([headlessSalesChannel]);
             await flushPromises();
 
-            expect(wrapper.find('.sw-sales-channel-menu').classes()).toContain('is--module-colored');
-        });
-
-        it('should follow the preference while mounted', async () => {
-            const wrapper = await createWrapper([headlessSalesChannel]);
-            await flushPromises();
-
-            useModuleIconColors().enabled.value = true;
-            await flushPromises();
-
-            expect(wrapper.find('.sw-sales-channel-menu').classes()).toContain('is--module-colored');
+            expect(wrapper.vm.buildMenuTree[0].color).toBeUndefined();
         });
     });
 });

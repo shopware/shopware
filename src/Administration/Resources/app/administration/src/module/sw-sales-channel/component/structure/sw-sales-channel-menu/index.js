@@ -2,7 +2,6 @@
  * @sw-package discovery
  */
 
-import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
@@ -46,10 +45,10 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        salesChannelMenuClasses() {
-            // Sales channels have no module color, so their active rows follow the neutral look of
-            // the colored module rows while the preference is enabled
-            return { 'is--module-colored': useModuleIconColors().enabled.value };
+        salesChannelModuleColor() {
+            // The rows are built here instead of from the module navigation, so they pick up the
+            // module color themselves and follow the module icon color preference like the module rows
+            return Shopware.Module.getModuleByEntityName('sales_channel')?.manifest?.color;
         },
 
         canCreateSalesChannels() {
@@ -114,6 +113,7 @@ export default {
                         translated: true,
                     },
                     icon: salesChannel.type.iconName,
+                    color: this.salesChannelModuleColor,
                     children: [],
                     domainLink: this.getDomainLink(salesChannel),
                     active: salesChannel.active,
@@ -127,6 +127,7 @@ export default {
             return {
                 children: [],
                 icon: 'regular-eye',
+                color: this.salesChannelModuleColor,
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
             };

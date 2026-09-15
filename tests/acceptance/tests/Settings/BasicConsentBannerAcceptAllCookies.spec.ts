@@ -27,7 +27,8 @@ test('As a shop customer, I want to use an "Accept All Cookies" button in the ba
     await test.step('Reload page and verify additional cookies are set', async () => {
         await StorefrontHome.page.reload();
         const allCookies = await StorefrontHome.page.context().cookies();
-        ShopCustomer.expects(allCookies.length).toEqual(4);
+        // One entry per cookie of the default cookie groups, incl. the separate `vimeo-video` cookie.
+        ShopCustomer.expects(allCookies.length).toEqual(5);
     });
 
     await test.step('Verify cookie consent banner is no longer visible', async () => {

@@ -68,8 +68,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 
         $stored = $this->fetchStored($entity, $commands, $hasAccountType);
 
-        foreach ($commands as $id => $command) {
-            $payload = $command->getPayload();
+        foreach ($commands as $id => ['command' => $command, 'payload' => $payload]) {
             $row = $stored[$id] ?? [];
 
             $firstName = trim((string) ($payload['first_name'] ?? $row['first_name'] ?? ''));
@@ -100,16 +99,26 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, InsertCommand|UpdateCommand>
+     * @return array<string, array{command: InsertCommand|UpdateCommand, payload: array<string, mixed>}>
      */
     private function collectCommands(PreWriteValidationEvent $event, string $entity): array
     {
         $commands = [];
 
         foreach ($event->getCommandsForEntity($entity) as $command) {
-            if ($command instanceof InsertCommand || ($command instanceof UpdateCommand && $command->hasAnyField(...self::NAME_FIELDS))) {
-                $commands[self::commandKey($command)] = $command;
+            if (!$command instanceof InsertCommand && !($command instanceof UpdateCommand && $command->hasAnyField(...self::NAME_FIELDS))) {
+                continue;
             }
+
+            $key = self::commandKey($command);
+
+            if (isset($commands[$key])) {
+                $commands[$key]['payload'] = array_merge($commands[$key]['payload'], $command->getPayload());
+
+                continue;
+            }
+
+            $commands[$key] = ['command' => $command, 'payload' => $command->getPayload()];
         }
 
         return $commands;
@@ -135,7 +144,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, WriteCommand> $commands
+     * @param array<string, array{command: InsertCommand|UpdateCommand, payload: array<string, mixed>}> $commands
      *
      * @return array<string, array<string, string|null>>
      */
@@ -143,7 +152,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
     {
         $ids = [];
         $versioned = false;
-        foreach ($commands as $command) {
+        foreach ($commands as ['command' => $command]) {
             if ($command instanceof UpdateCommand) {
                 $ids[] = $command->getDecodedPrimaryKey()['id'];
                 $versioned = $versioned || isset($command->getPrimaryKey()['version_id']);

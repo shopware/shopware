@@ -198,6 +198,44 @@ class CustomerContactPersonSubscriberTest extends TestCase
         static::assertCount(2, $exceptions[0]->getViolations());
     }
 
+    public function testSeveralCommandsForOneRowAreFoldedBeforeValidation(): void
+    {
+        $id = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'private']]);
+
+        $event = $this->event(
+            $this->update(CustomerDefinition::ENTITY_NAME, $id, ['first_name' => '']),
+            $this->update(CustomerDefinition::ENTITY_NAME, $id, ['last_name' => '']),
+        );
+
+        (new CustomerContactPersonSubscriber($connection))->validate($event);
+
+        $this->assertOutcome($event, false);
+    }
+
+    public function testACompanySetByALaterCommandCountsForTheSameRow(): void
+    {
+        $id = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'business']]);
+
+        $event = $this->event(
+            $this->update(CustomerDefinition::ENTITY_NAME, $id, ['first_name' => '', 'last_name' => '']),
+            $this->update(CustomerDefinition::ENTITY_NAME, $id, ['company' => 'Acme GmbH']),
+        );
+
+        (new CustomerContactPersonSubscriber($connection))->validate($event);
+
+        $this->assertOutcome($event, true);
+    }
+
     public function testUpdateWithoutANameFieldIsNotChecked(): void
     {
         $connection = $this->createMock(Connection::class);

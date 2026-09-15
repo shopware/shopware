@@ -2,12 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonRowReader;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
@@ -60,12 +60,11 @@ class CustomerContactPersonSubscriberTest extends TestCase
     #[DataProvider('insertProvider')]
     public function testInsert(string $entity, array $payload, bool $valid): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
+        $rowReader = $this->reader([]);
 
         $event = $this->event($this->insert($entity, $payload));
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         $this->assertOutcome($event, $valid);
     }
@@ -106,14 +105,11 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => $id] + $stored]);
+        $rowReader = $this->reader([['id' => $id] + $stored]);
 
         $event = $this->event($this->update(CustomerDefinition::ENTITY_NAME, $id, $payload));
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         $this->assertOutcome($event, $valid);
     }
@@ -142,14 +138,11 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => $id] + $stored]);
+        $rowReader = $this->reader([['id' => $id] + $stored]);
 
         $event = $this->event($this->update($entity, $id, $payload));
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         $this->assertOutcome($event, $valid);
     }
@@ -176,20 +169,17 @@ class CustomerContactPersonSubscriberTest extends TestCase
         $live = Defaults::LIVE_VERSION;
         $draft = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['id' => $id, 'version_id' => $live, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null],
-                ['id' => $id, 'version_id' => $draft, 'first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'],
-            ]);
+        $rowReader = $this->reader([
+            ['id' => $id, 'version_id' => $live, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null],
+            ['id' => $id, 'version_id' => $draft, 'first_name' => '', 'last_name' => '', 'company' => 'Acme GmbH'],
+        ]);
 
         $event = $this->event(
             $this->update(OrderCustomerDefinition::ENTITY_NAME, $id, ['first_name' => '', 'last_name' => ''], $live),
             $this->update(OrderCustomerDefinition::ENTITY_NAME, $id, ['company' => null], $draft),
         );
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         $exceptions = $event->getExceptions()->getExceptions();
 
@@ -202,17 +192,14 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'private']]);
+        $rowReader = $this->reader([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'private']]);
 
         $event = $this->event(
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['first_name' => '']),
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['last_name' => '']),
         );
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         $this->assertOutcome($event, false);
     }
@@ -221,29 +208,25 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'business']]);
+        $rowReader = $this->reader([['id' => $id, 'first_name' => 'Ada', 'last_name' => 'Lovelace', 'company' => null, 'account_type' => 'business']]);
 
         $event = $this->event(
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['first_name' => '', 'last_name' => '']),
             $this->update(CustomerDefinition::ENTITY_NAME, $id, ['company' => 'Acme GmbH']),
         );
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         $this->assertOutcome($event, true);
     }
 
     public function testUpdateWithoutANameFieldIsNotChecked(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
+        $rowReader = $this->reader([]);
 
         $event = $this->event($this->update(CustomerDefinition::ENTITY_NAME, Uuid::randomHex(), ['email' => 'ada@example.com']));
 
-        (new CustomerContactPersonSubscriber($connection))->validate($event);
+        (new CustomerContactPersonSubscriber($rowReader))->validate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -252,7 +235,7 @@ class CustomerContactPersonSubscriberTest extends TestCase
     {
         $event = $this->event($this->insert(CustomerDefinition::ENTITY_NAME, ['first_name' => '', 'last_name' => '', 'account_type' => 'private'], '/3'));
 
-        (new CustomerContactPersonSubscriber(static::createStub(Connection::class)))->validate($event);
+        (new CustomerContactPersonSubscriber($this->reader([])))->validate($event);
 
         $exception = $event->getExceptions()->getExceptions()[0] ?? null;
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
@@ -275,6 +258,17 @@ class CustomerContactPersonSubscriberTest extends TestCase
 
         static::assertCount(1, $exceptions);
         static::assertInstanceOf(WriteConstraintViolationException::class, $exceptions[0]);
+    }
+
+    /**
+     * @param list<array<string, string|null>> $rows
+     */
+    private function reader(array $rows): CustomerContactPersonRowReader
+    {
+        $reader = static::createStub(CustomerContactPersonRowReader::class);
+        $reader->method('read')->willReturn($rows);
+
+        return $reader;
     }
 
     private function event(WriteCommand ...$commands): PreWriteValidationEvent

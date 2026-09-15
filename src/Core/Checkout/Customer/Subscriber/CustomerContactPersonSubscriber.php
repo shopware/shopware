@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -31,7 +29,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 
     private const NAME_FIELDS = ['first_name', 'last_name', 'company', 'account_type'];
 
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private readonly CustomerContactPersonRowReader $rowReader)
     {
     }
 
@@ -163,17 +161,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        $columns = $hasAccountType ? '`first_name`, `last_name`, `company`, `account_type`' : '`first_name`, `last_name`, `company`';
-        if ($versioned) {
-            $columns .= ', LOWER(HEX(`version_id`)) AS `version_id`';
-        }
-
-        /** @var list<array<string, string|null>> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            \sprintf('SELECT LOWER(HEX(`id`)) AS `id`, %s FROM `%s` WHERE `id` IN (:ids) FOR UPDATE', $columns, $entity),
-            ['ids' => Uuid::fromHexToBytesList(array_unique($ids))],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        $rows = $this->rowReader->read($entity, array_values(array_unique($ids)), $hasAccountType, $versioned);
 
         $stored = [];
         foreach ($rows as $row) {

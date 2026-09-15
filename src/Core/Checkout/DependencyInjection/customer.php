@@ -67,6 +67,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonRowReader;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerDisplayNameSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
@@ -232,9 +233,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerDisplayNameSubscriber::class)
         ->tag('kernel.event_subscriber');
 
-    $services->set(CustomerContactPersonSubscriber::class)
+    $services->set(CustomerContactPersonRowReader::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(CustomerContactPersonSubscriber::class)
+        ->args([
+            service(CustomerContactPersonRowReader::class),
         ])
         ->tag('kernel.event_subscriber');
 

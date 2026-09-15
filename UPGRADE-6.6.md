@@ -1,3 +1,7 @@
+# 6.6.10.25
+## Raised minimum version of `squirrelphp/twig-php-syntax`
+The minimum constraint of `squirrelphp/twig-php-syntax` was raised from `^1.11.0` to `^1.13.0`. Older releases still override Twig internals with signatures that are incompatible with the Twig versions required by Shopware (`twig/twig: ^3.26.0`).
+
 # 6.6.10.24
 ## EU harmonised guarantee labelling
 ### The legal guarantee notice is enabled by default

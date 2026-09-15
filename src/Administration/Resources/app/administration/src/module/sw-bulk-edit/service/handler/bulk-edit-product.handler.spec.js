@@ -118,9 +118,29 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         handler.products = [
             {
                 id: 'product_1',
+                taxId: 'tax_19',
                 price: [originalBasePrice],
             },
         ];
+        handler.calculatePriceService = {
+            calculatePrices: jest.fn((taxId, prices) => {
+                const calculated = {};
+
+                Object.keys(prices).forEach((productId) => {
+                    const { price, currencyId: priceCurrencyId } = prices[productId][0];
+
+                    calculated[productId] = {
+                        [priceCurrencyId]: {
+                            calculatedTaxes: [
+                                { tax: price - price / 1.19 },
+                            ],
+                        },
+                    };
+                });
+
+                return Promise.resolve(calculated);
+            }),
+        };
 
         const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
 
@@ -147,10 +167,13 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         const syncPayload = syncSpy.mock.calls[0][0];
         const productPayload = syncPayload['upsert-product'].payload[0];
 
+        // The base price was not entered, so it stays exactly as it is stored, even though the
+        // entered list price is recalculated with the tax rate of the product.
         expect(productPayload.price[0].gross).toBe(50);
         expect(productPayload.price[0].net).toBe(42.02);
         expect(productPayload.price[0].linked).toBe(true);
         expect(productPayload.price[0].listPrice.gross).toBe(100);
+        expect(productPayload.price[0].listPrice.net).toBe(84.033613445378);
     });
 
     it('should preserve base price fields (gross/net/linked) when only regulationPrice is changed', async () => {
@@ -201,6 +224,117 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         expect(productPayload.price[0].net).toBe(63.03);
         expect(productPayload.price[0].linked).toBe(true);
         expect(productPayload.price[0].regulationPrice.gross).toBe(150);
+    });
+
+    it('should recalculate the net price with the tax rate of each product', async () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const handler = getBulkEditProductHandler();
+
+        handler.getProducts = jest.fn().mockResolvedValue(undefined);
+        handler.products = [
+            {
+                id: 'product_1',
+                taxId: 'tax_19',
+                price: [
+                    { currencyId, gross: 5, net: 4.2, linked: true },
+                ],
+            },
+            {
+                id: 'product_2',
+                taxId: 'tax_0',
+                price: [
+                    { currencyId, gross: 5, net: 5, linked: true },
+                ],
+            },
+        ];
+        handler.calculatePriceService = {
+            calculatePrices: jest.fn((taxId, prices) => {
+                const taxRate = taxId === 'tax_19' ? 0.19 : 0;
+                const calculated = {};
+
+                Object.keys(prices).forEach((productId) => {
+                    const { price, currencyId: priceCurrencyId } = prices[productId][0];
+
+                    calculated[productId] = {
+                        [priceCurrencyId]: {
+                            calculatedTaxes: [
+                                { tax: price - price / (1 + taxRate) },
+                            ],
+                        },
+                    };
+                });
+
+                return Promise.resolve(calculated);
+            }),
+        };
+
+        const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
+
+        await handler.bulkEdit(
+            [
+                'product_1',
+                'product_2',
+            ],
+            [
+                {
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        { currencyId, gross: 11.9, net: 11.9, linked: true },
+                    ],
+                },
+            ],
+        );
+
+        expect(syncSpy.mock.calls[0][0]['upsert-product'].payload).toEqual([
+            {
+                id: 'product_1',
+                price: [
+                    { currencyId, gross: 11.9, net: 10, linked: true },
+                ],
+            },
+            {
+                id: 'product_2',
+                price: [
+                    { currencyId, gross: 11.9, net: 11.9, linked: true },
+                ],
+            },
+        ]);
+    });
+
+    it('should not recalculate the net price when the price is not linked', async () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const handler = getBulkEditProductHandler();
+
+        handler.getProducts = jest.fn().mockResolvedValue(undefined);
+        handler.products = [
+            {
+                id: 'product_1',
+                taxId: 'tax_19',
+                price: [
+                    { currencyId, gross: 5, net: 4.2, linked: true },
+                ],
+            },
+        ];
+        handler.calculatePriceService = { calculatePrices: jest.fn() };
+
+        const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
+
+        await handler.bulkEdit(
+            ['product_1'],
+            [
+                {
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        { currencyId, gross: 11.9, net: 9, linked: false },
+                    ],
+                },
+            ],
+        );
+
+        expect(handler.calculatePriceService.calculatePrices).not.toHaveBeenCalled();
+        expect(syncSpy.mock.calls[0][0]['upsert-product'].payload[0].price[0].net).toBe(9);
     });
 
     describe('test buildBulkSyncPayload', () => {

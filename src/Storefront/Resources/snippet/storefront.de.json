@@ -911,7 +911,7 @@
         "thumbnailNavScrollUp": "Nach oben scrollen",
         "thumbnailNavScrollLeft": "Nach links scrollen",
         "thumbnailNavScrollRight": "Nach rechts scrollen",
-        "thumbnailNavButtonAriaLabel": "Zeige Medienelement %index% von %total%",
+        "thumbnailNavButtonAriaLabel": "Medienelement %index% von %total%",
         "previousMedia": "Vorheriges Medienelement",
         "nextMedia": "Nächstes Medienelement"
       },

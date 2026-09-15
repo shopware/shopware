@@ -911,7 +911,7 @@
         "thumbnailNavScrollUp": "Scroll up",
         "thumbnailNavScrollLeft": "Scroll left",
         "thumbnailNavScrollRight": "Scroll right",
-        "thumbnailNavButtonAriaLabel": "Show media %index% of %total%",
+        "thumbnailNavButtonAriaLabel": "Media %index% of %total%",
         "previousMedia": "Previous media",
         "nextMedia": "Next media"
       },

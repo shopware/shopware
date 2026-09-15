@@ -12,7 +12,7 @@
         position-identifier="sw-flow-list-card"
     >
         <sw-entity-listing
-            v-if="isLoading || flows?.length"
+            v-if="isLoading || total > 0"
             class="sw-flow-list__grid"
             show-selection
             :show-settings="false"
@@ -150,7 +150,7 @@
 
         {% block sw_flow_list_empty_state %}
         <mt-empty-state
-            v-if="!isLoading && !flows?.length"
+            v-if="!isLoading && !total"
             class="sw-flow-list__empty-state"
             centered
             icon="regular-flow"

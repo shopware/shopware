@@ -33,7 +33,12 @@ const flowData = [
 let flowSearchMock;
 
 async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData, routeQuery = {}) {
-    flowSearchMock = jest.fn(() => Promise.resolve(customFlowData));
+    flowSearchMock = jest.fn(() => {
+        const result = [...customFlowData];
+        result.total = customFlowData.total ?? customFlowData.length;
+
+        return Promise.resolve(result);
+    });
 
     return mount(await wrapTestComponent('sw-flow-list', { sync: true }), {
         global: {
@@ -305,5 +310,16 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
         // a search without hits is not a first-time state, so it drops the "add a flow" wording
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-empty-state.messageNoResultSubline');
+    });
+
+    it('should keep the listing when the page is out of range', async () => {
+        const outOfRangePage = [];
+        outOfRangePage.total = 50;
+
+        const wrapper = await createWrapper(['flow.creator'], false, outOfRangePage);
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+        expect(wrapper.find('.sw-data-grid').exists()).toBe(true);
     });
 });

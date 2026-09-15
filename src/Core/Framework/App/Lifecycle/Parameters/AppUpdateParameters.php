@@ -13,7 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class AppUpdateParameters
 {
     public function __construct(
-        public bool $acceptPermissions = true
+        public bool $acceptPermissions = true,
+        public bool $strictValidation = false
     ) {
     }
 }

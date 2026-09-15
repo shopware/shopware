@@ -49,6 +49,32 @@ class HookableEventCollector implements ResetInterface
     }
 
     /**
+     * Events that exist on this system but which the given manifest may not subscribe to. A describer
+     * withholds an event by omitting it from describePermittedFor().
+     *
+     * @return list<string>
+     */
+    public function getRestrictedEventNames(Manifest $manifest): array
+    {
+        $restricted = [];
+
+        foreach ($this->hookableEventDescribers as $describer) {
+            $permitted = [];
+            foreach ($describer->describePermittedFor($manifest) as $eventDescription) {
+                $permitted[$eventDescription->eventName] = true;
+            }
+
+            foreach ($describer->describe() as $eventDescription) {
+                if (!isset($permitted[$eventDescription->eventName])) {
+                    $restricted[] = $eventDescription->eventName;
+                }
+            }
+        }
+
+        return array_values(array_unique($restricted));
+    }
+
+    /**
      * @return list<string>
      */
     public function getPrivilegesFromBusinessEventDefinition(BusinessEventDefinition $businessEventDefinition): array
@@ -146,7 +172,7 @@ class HookableEventCollector implements ResetInterface
         foreach ($this->hookableEventDescribers as $describer) {
             $describerClass = $describer::class;
 
-            foreach ($describer->describeForValidation($manifest) as $eventDescription) {
+            foreach ($describer->describePermittedFor($manifest) as $eventDescription) {
                 if (isset($events[$eventDescription->eventName])) {
                     throw WebhookException::duplicateDescribedEvent(
                         $eventDescription->eventName,

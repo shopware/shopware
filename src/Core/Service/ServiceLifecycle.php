@@ -210,7 +210,7 @@ class ServiceLifecycle
         try {
             $this->appManager->install(
                 $manifest,
-                new AppInstallParameters(activate: $entry->activateOnInstall),
+                new AppInstallParameters(activate: $entry->activateOnInstall, strictValidation: true),
                 Context::createDefaultContext()
             );
 
@@ -251,7 +251,7 @@ class ServiceLifecycle
         try {
             $this->appManager->update(
                 $manifest,
-                new AppUpdateParameters(),
+                new AppUpdateParameters(strictValidation: true),
                 $service->app,
                 $context
             );

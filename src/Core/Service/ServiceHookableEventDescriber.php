@@ -16,10 +16,10 @@ class ServiceHookableEventDescriber implements HookableEventDescriber
 {
     public function describe(): array
     {
-        return [];
+        return $this->getServiceEventDescriptions();
     }
 
-    public function describeForValidation(Manifest $manifest): array
+    public function describePermittedFor(Manifest $manifest): array
     {
         if (!$manifest->getMetadata()->isSelfManaged()) {
             return [];

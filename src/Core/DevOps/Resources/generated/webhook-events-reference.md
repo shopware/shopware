@@ -125,3 +125,4 @@
 |`consent.backend_data.revoked` | Fires when the backend_data consent is revoked. | `consent:backend_data:read` | 
 |`consent.product_analytics.accepted` | Fires when the product_analytics consent is accepted. | `consent:product_analytics:read` | 
 |`consent.product_analytics.revoked` | Fires when the product_analytics consent is revoked. | `consent:product_analytics:read` | 
+|`commercial_license.provided` | Fires when the current commercial license data is provided to services. | - | 

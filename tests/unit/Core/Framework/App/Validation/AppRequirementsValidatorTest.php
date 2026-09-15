@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
@@ -42,9 +43,7 @@ class AppRequirementsValidatorTest extends TestCase
         $manifest = $this->createMock(Manifest::class);
         $manifest->expects($this->once())->method('getRequirements')->willReturn(['test-requirement']);
 
-        $violations = $validator->validate($manifest);
-
-        static::assertSame([], $violations);
+        static::assertCount(0, $validator->validate($manifest, null));
     }
 
     public function testValidateWithUnsatisfiedRequirement(): void
@@ -70,13 +69,15 @@ class AppRequirementsValidatorTest extends TestCase
         $manifest->expects($this->once())->method('getRequirements')->willReturn(['test-requirement']);
         $validator = new AppRequirementsValidator([$requirement], static::createStub(LoggerInterface::class), 'prod');
 
-        $violations = $validator->validate($manifest);
+        $errors = $validator->validate($manifest, null);
 
-        static::assertCount(1, $violations);
-        static::assertInstanceOf(UnmetRequirement::class, $violations[0]);
-        static::assertSame('test-app', $violations[0]->appName);
-        static::assertSame('test-requirement', $violations[0]->requirementName);
-        static::assertSame('Fix the test requirement', $violations[0]->actionableResolution);
+        static::assertCount(1, $errors);
+        $error = $errors[0];
+        static::assertInstanceOf(UnmetRequirementError::class, $error);
+        static::assertSame(
+            'The app requirements are not met: App "test-app" - Requirement "test-requirement": Fix the test requirement',
+            $error->getMessage()
+        );
     }
 
     public function testValidateWithNotRequiredValidator(): void
@@ -106,9 +107,7 @@ class AppRequirementsValidatorTest extends TestCase
         $manifest = $this->createMock(Manifest::class);
         $manifest->expects($this->once())->method('getRequirements')->willReturn(['test-requirement']);
 
-        $violations = $validator->validate($manifest);
-
-        static::assertSame([], $violations);
+        static::assertCount(0, $validator->validate($manifest, null));
         static::assertSame(0, $requirement->validateCalls);
     }
 
@@ -174,12 +173,15 @@ class AppRequirementsValidatorTest extends TestCase
 
         $validator = new AppRequirementsValidator([$requirement1, $requirement2, $requirement3], static::createStub(LoggerInterface::class), 'prod');
 
-        $violations = $validator->validate($manifest);
+        $errors = $validator->validate($manifest, null);
 
-        static::assertCount(1, $violations);
-        static::assertSame('multi-app', $violations[0]->appName);
-        static::assertSame('requirement-2', $violations[0]->requirementName);
-        static::assertSame('Fix requirement 2', $violations[0]->actionableResolution);
+        static::assertCount(1, $errors);
+        $error = $errors[0];
+        static::assertInstanceOf(UnmetRequirementError::class, $error);
+        static::assertSame(
+            'The app requirements are not met: App "multi-app" - Requirement "requirement-2": Fix requirement 2',
+            $error->getMessage()
+        );
         static::assertSame(0, $requirement3->validateCalls);
     }
 
@@ -224,17 +226,16 @@ class AppRequirementsValidatorTest extends TestCase
 
         $validator = new AppRequirementsValidator([$requirement1, $requirement2], static::createStub(LoggerInterface::class), 'prod');
 
-        $violations = $validator->validate($manifest);
+        $errors = $validator->validate($manifest, null);
 
-        static::assertCount(2, $violations);
-
-        static::assertSame('violation-app', $violations[0]->appName);
-        static::assertSame('requirement-1', $violations[0]->requirementName);
-        static::assertSame('Fix requirement 1', $violations[0]->actionableResolution);
-
-        static::assertSame('violation-app', $violations[1]->appName);
-        static::assertSame('requirement-2', $violations[1]->requirementName);
-        static::assertSame('Fix requirement 2', $violations[1]->actionableResolution);
+        // every violation is reported through a single error
+        static::assertCount(1, $errors);
+        $error = $errors[0];
+        static::assertInstanceOf(UnmetRequirementError::class, $error);
+        static::assertSame(
+            'The app requirements are not met: App "violation-app" - Requirement "requirement-1": Fix requirement 1; App "violation-app" - Requirement "requirement-2": Fix requirement 2',
+            $error->getMessage()
+        );
     }
 
     public function testValidateSkipsInNonProdEnvironment(): void
@@ -268,7 +269,7 @@ class AppRequirementsValidatorTest extends TestCase
         $manifest = $this->createMock(Manifest::class);
         $manifest->expects($this->once())->method('getRequirements')->willReturn(['test-requirement']);
 
-        static::assertSame([], $validator->validate($manifest));
+        static::assertCount(0, $validator->validate($manifest, null));
         static::assertSame(0, $requirement->requiredCalls);
         static::assertSame(0, $requirement->validateCalls);
     }
@@ -316,6 +317,6 @@ class AppRequirementsValidatorTest extends TestCase
 
         $validator = new AppRequirementsValidator([$requirement], $logger, 'prod');
 
-        static::assertSame([], $validator->validate($manifest));
+        static::assertCount(0, $validator->validate($manifest, null));
     }
 }

@@ -17,33 +17,41 @@ use Shopware\Core\Service\ServiceHookableEventDescriber;
 #[CoversClass(ServiceHookableEventDescriber::class)]
 class ServiceHookableEventDescriberTest extends TestCase
 {
-    public function testDescribeDoesNotExposeServiceOnlyEventsGlobally(): void
+    public function testDescribeExposesServiceOnlyEventsSoTheyCanBeToldApartFromUnknownEvents(): void
     {
         $describer = new ServiceHookableEventDescriber();
 
-        static::assertSame([], $describer->describe());
+        static::assertEquals($this->expectedDescriptions(), $describer->describe());
     }
 
-    public function testDescribeForValidationDoesNotExposeServiceOnlyEventsForRegularApps(): void
+    public function testDescribePermittedForWithholdsServiceOnlyEventsFromRegularApps(): void
     {
         $describer = new ServiceHookableEventDescriber();
 
-        static::assertSame([], $describer->describeForValidation($this->createManifest()));
+        static::assertSame([], $describer->describePermittedFor($this->createManifest()));
     }
 
-    public function testDescribeForValidationExposesServiceOnlyEventsForServices(): void
+    public function testDescribePermittedForExposesServiceOnlyEventsForServices(): void
     {
         $describer = new ServiceHookableEventDescriber();
         $manifest = $this->createManifest();
         $manifest->getMetadata()->setSelfManaged(true);
 
-        static::assertEquals([
+        static::assertEquals($this->expectedDescriptions(), $describer->describePermittedFor($manifest));
+    }
+
+    /**
+     * @return list<HookableEventDescription>
+     */
+    private function expectedDescriptions(): array
+    {
+        return [
             new HookableEventDescription(
                 CommercialLicenseProvidedEvent::NAME,
                 'Fires when the current commercial license data is provided to services.',
                 []
             ),
-        ], $describer->describeForValidation($manifest));
+        ];
     }
 
     private function createManifest(): Manifest

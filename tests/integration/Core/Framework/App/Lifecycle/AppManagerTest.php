@@ -50,6 +50,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
  * @internal
@@ -268,7 +269,13 @@ class AppManagerTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
+        $error = new ConfigurationError(['test'], 'withInvalidConfig');
+        $this->expectExceptionObject(new AppException(
+            HttpResponse::HTTP_BAD_REQUEST,
+            AppException::INVALID_CONFIGURATION,
+            $error->getMessage(),
+            $error->getParameters()
+        ));
         $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
     }
 

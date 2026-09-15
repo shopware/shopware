@@ -230,6 +230,41 @@ class HookableEventCollectorTest extends TestCase
         );
     }
 
+    public function testGetRestrictedEventNamesReturnsWhatADescriberWithholds(): void
+    {
+        $hookableEventCollector = new HookableEventCollector(
+            $this->businessEventCollector,
+            $this->definitionRegistry,
+            [],
+            new \ArrayIterator([
+                new WithholdingHookableEventDescriber('restricted.event'),
+                new TestHookableEventDescriber('open.event', 'Open to everyone.', []),
+            ])
+        );
+
+        static::assertSame(
+            ['restricted.event'],
+            $hookableEventCollector->getRestrictedEventNames(Manifest::createFromXmlFile(self::MANIFEST_FIXTURE))
+        );
+    }
+
+    public function testGetRestrictedEventNamesIsEmptyWhenNothingIsWithheld(): void
+    {
+        $hookableEventCollector = new HookableEventCollector(
+            $this->businessEventCollector,
+            $this->definitionRegistry,
+            [],
+            new \ArrayIterator([
+                new TestHookableEventDescriber('open.event', 'Open to everyone.', []),
+            ])
+        );
+
+        static::assertSame(
+            [],
+            $hookableEventCollector->getRestrictedEventNames(Manifest::createFromXmlFile(self::MANIFEST_FIXTURE))
+        );
+    }
+
     private function createProductDefinition(): EntityDefinition
     {
         $definition = static::createStub(EntityDefinition::class);
@@ -288,10 +323,32 @@ class TestHookableEventDescriber implements HookableEventDescriber
         return [];
     }
 
-    public function describeForValidation(Manifest $manifest): array
+    public function describePermittedFor(Manifest $manifest): array
     {
         return [
             new HookableEventDescription($this->eventName, $this->description, $this->privileges),
         ];
+    }
+}
+
+/**
+ * @internal Test fixture: offers an event but permits no manifest to subscribe to it
+ */
+class WithholdingHookableEventDescriber implements HookableEventDescriber
+{
+    public function __construct(private readonly string $eventName)
+    {
+    }
+
+    public function describe(): array
+    {
+        return [
+            new HookableEventDescription($this->eventName, 'Restricted event.', []),
+        ];
+    }
+
+    public function describePermittedFor(Manifest $manifest): array
+    {
+        return [];
     }
 }

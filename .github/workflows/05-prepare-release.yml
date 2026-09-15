@@ -216,3 +216,28 @@ jobs:
         run: |
           echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.6.9999999.9999999-dev' }}"
+
+  update-milestones:
+    needs: split
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The job only reads the repository; npm ci fetches from the registry.
+          persist-credentials: false
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          TAG: ${{ github.ref_name }}
+          DRY_RUN: ${{ vars.UPDATE_MILESTONES_DRY_RUN || 'true' }}
+        with:
+          script: |
+            const { updateMilestonesOnRelease } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await updateMilestonesOnRelease({github, core, context, fetch})

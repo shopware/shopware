@@ -5,6 +5,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { ref } from 'vue';
 import type { VueWrapper } from '@vue/test-utils';
+import metaInfoPlugin from 'src/app/plugin/meta-info.plugin';
 import {
     CLASS_THIS_FIXTURE,
     CREATED_ASYNC_FIXTURE,
@@ -19,6 +20,7 @@ import {
     FUNCTION_FIXTURE,
     INJECTION_FIXTURE,
     MODULE_BINDING_FIXTURE,
+    META_INFO_FIXTURE,
     MODULE_IDENTITY_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
@@ -178,6 +180,38 @@ describe('SFC migration runtime equivalence', () => {
 
         expect(result.outcome).toBeDefined();
         expectConservative(result.outcome);
+    });
+
+    it('keeps document.title in sync the way the metaInfo option did', async () => {
+        const result = await convertFixture(META_INFO_FIXTURE);
+
+        expect(result.outcome).toBe('full');
+
+        const trace = async (wrapper: VueWrapper): Promise<string[]> => {
+            const seen = [document.title];
+
+            (wrapper.vm as unknown as { name: string }).name = 'Saved shirt';
+            await flushPromises();
+            seen.push(document.title);
+
+            wrapper.unmount();
+            document.title = 'after unmount';
+            await flushPromises();
+            seen.push(document.title);
+
+            return seen;
+        };
+
+        // Only the Options API side needs the plugin that reads the `metaInfo` option.
+        const original = await trace(mountOriginal(META_INFO_FIXTURE, { plugins: [metaInfoPlugin as never] }));
+        const generated = await trace(mountGenerated(META_INFO_FIXTURE, result));
+
+        expect(original).toEqual([
+            'Draft | Shopware',
+            'Saved shirt | Shopware',
+            'after unmount',
+        ]);
+        expect(generated).toEqual(original);
     });
 
     it('does not confuse class-local this with component this', async () => {

@@ -47,7 +47,6 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual(
                 expect.arrayContaining([
                     expect.stringContaining('inject'),
-                    expect.stringContaining('metaInfo'),
                     expect.stringContaining('shortcuts'),
                     expect.stringContaining('$device'),
                 ]),

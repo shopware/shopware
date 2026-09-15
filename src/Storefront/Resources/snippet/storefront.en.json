@@ -17,6 +17,7 @@
   "general": {
     "homeLink": "Home",
     "menuLink": "Menu",
+    "breadcrumbPlaceholder": "Breadcrumb not available",
     "star": "*",
     "grossTaxInformation": "Prices incl. VAT plus shipping costs",
     "grossTaxInformationShort": "incl. VAT plus shipping costs",

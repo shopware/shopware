@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -52,7 +53,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(LanguageLocaleCodeProvider::class)
         );
         $data = [
             'senderName' => 'Foo & Bar',
@@ -111,6 +113,11 @@ class MailServiceTest extends TestCase
             $systemConfig->set('core.basicInformation.email', $basicInformationEmail);
         }
 
+        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $languageLocaleProvider
+            ->method('getLocaleForLanguageId')
+            ->willReturn('en-GB');
+
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailService = new MailService(
             $this->createMock(DataValidator::class),
@@ -122,7 +129,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get('sales_channel.repository'),
             $systemConfig,
             $this->createMock(EventDispatcher::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $languageLocaleProvider
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -147,6 +155,8 @@ class MailServiceTest extends TestCase
                 $this->assertSame($data['subject'], $mail->getSubject());
                 $this->assertCount(1, $from);
                 $this->assertSame($data['senderMail'] ?? $expected, $from[0]->getAddress());
+
+                $this->assertSame('en-GB', $mail->getHeaders()->get('Content-Language')?->getBodyAsString());
 
                 return true;
             }));
@@ -173,7 +183,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             $eventDispatcher,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(LanguageLocaleCodeProvider::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -213,7 +224,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(LanguageLocaleCodeProvider::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -271,7 +283,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(LanguageLocaleCodeProvider::class)
         );
 
         $salesChannel = $this->createSalesChannel();

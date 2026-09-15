@@ -118,8 +118,10 @@ class ChangelogProcessor
                 'fixes' => [$pullRequest],
             ];
             $author = $this->findAuthor($pullRequest);
-            if ($author && !$this->isShopwareOrgMember($author['login'])) {
-                $fix['author'] = $author;
+            // GitHub Apps like the backport bot can never be org members, so they have to be
+            // excluded explicitly to not end up credited as external contributors.
+            if ($author && !$author['is_bot'] && !$this->isShopwareOrgMember($author['login'])) {
+                $fix['author'] = ['login' => $author['login']];
             }
 
             $fixes[] = $fix;
@@ -241,17 +243,23 @@ class ChangelogProcessor
     }
 
     /**
-     * @return array{login: string}
+     * @return array{login: string, is_bot: bool}|null
      */
     private function findAuthor(string $issueId): ?array
     {
         $result = shell_exec(\sprintf('gh pr view https://github.com/shopware/shopware/pull/%s --json author', escapeshellarg(ltrim($issueId, '#'))));
 
-        if ($result) {
-            return json_decode($result, true)['author'] ?? null;
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $author = json_decode($result, true)['author'] ?? null;
+
+        if (!isset($author['login'])) {
+            return null;
+        }
+
+        return ['login' => (string) $author['login'], 'is_bot' => (bool) ($author['is_bot'] ?? false)];
     }
 
     private function isShopwareOrgMember(string $login): bool

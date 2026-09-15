@@ -40,10 +40,10 @@
 
         <input-field type="bool">
             <name>findBestVariant</name>
-            <label>Preview best matching variant for search results</label>
-            <label lang="de-DE">Am besten zutreffende Variante in Suchergebnis anzeigen</label>
-            <helpText>Activate to ignore the "Storefront presentation > Product Listing" configuration of the product for the product search. Preview the best matching product variant as search result instead.</helpText>
-            <helpText lang="de-DE">Wenn aktiviert wird die "Storefront-Darstellung > Produktliste" Einstellung der Produkte für die Produktsuche ignoriert. Stattdessen wird die am besten zutreffende Produktvariante als Suchergebnis angezeigt</helpText>
+            <label>Preview best matching variant in search results and filtered listings</label>
+            <label lang="de-DE">Am besten passende Variante in Suchergebnissen und gefilterten Listen anzeigen</label>
+            <helpText>Activate to ignore the product's "Storefront presentation &gt; Product Listing" configuration in search results and filtered listings. The best matching product variant is shown instead. Deactivate to respect the configured main variant or parent product.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird die Einstellung des Produkts unter "Storefront-Darstellung &gt; Produktliste" in Suchergebnissen und gefilterten Listen ignoriert. Stattdessen wird die am besten passende Produktvariante angezeigt. Wenn deaktiviert, wird die konfigurierte Hauptvariante oder das Elternprodukt verwendet.</helpText>
         </input-field>
 
         <input-field type="bool">

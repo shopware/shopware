@@ -52,6 +52,7 @@ class Migration1783617451AddWebhookHealthModelTest extends TestCase
         $inactiveHealth = $this->fetchHealth($inactive);
         static::assertSame('disabled', $inactiveHealth['endpoint_state']);
         static::assertSame('escalation', $inactiveHealth['disabled_origin']);
+        static::assertNotNull($inactiveHealth['disabled_since']);
         static::assertNull($inactiveHealth['cooldown_until']);
 
         $degradedHealth = $this->fetchHealth($degraded);
@@ -154,7 +155,7 @@ class Migration1783617451AddWebhookHealthModelTest extends TestCase
     private function fetchHealth(string $webhookId): array
     {
         $row = $this->connection->fetchAssociative(
-            'SELECT endpoint_state, consecutive_transient_failures, cooldown_until, disabled_origin
+            'SELECT endpoint_state, consecutive_transient_failures, cooldown_until, disabled_since, disabled_origin
              FROM webhook_health WHERE webhook_id = :id',
             ['id' => $webhookId]
         );

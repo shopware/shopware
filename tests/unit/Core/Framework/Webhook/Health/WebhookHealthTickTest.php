@@ -64,10 +64,10 @@ class WebhookHealthTickTest extends TestCase
         $storage->expects($this->never())->method('set');
 
         $healthService = $this->createMock(WebhookHealthService::class);
-        $healthService->expects($this->once())->method('tick')->willThrowException($exception);
+        $healthService->expects($this->exactly(2))->method('tick')->willThrowException($exception);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects($this->exactly(2))
             ->method('error')
             ->with('Webhook health tick failed', ['exception' => $exception]);
 
@@ -75,6 +75,8 @@ class WebhookHealthTickTest extends TestCase
 
         $tick->run();
         $clock->modify('+59 seconds');
+        $tick->run();
+        $clock->modify('+1 second');
         $tick->run();
     }
 }

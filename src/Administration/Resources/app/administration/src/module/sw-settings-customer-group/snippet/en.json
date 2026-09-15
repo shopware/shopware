@@ -7,7 +7,9 @@
     },
     "list": {
       "columnName": "Name",
-      "columnDisplayGross": "Tax display"
+      "columnDisplayGross": "Tax display",
+      "columnPriceBasis": "Price basis",
+      "columnRegistrationActive": "Custom signup form"
     },
     "detail": {
       "cardTitle": "Customer group",

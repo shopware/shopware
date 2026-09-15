@@ -7,7 +7,9 @@
     },
     "list": {
       "columnName": "Name",
-      "columnDisplayGross": "Steuerdarstellung"
+      "columnDisplayGross": "Steuerdarstellung",
+      "columnPriceBasis": "Preisbasis",
+      "columnRegistrationActive": "Benutzerdefiniertes Registrierungsformular"
     },
     "detail": {
       "cardTitle": "Kundengruppe",
@@ -19,7 +21,7 @@
       "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
       "registrationForm": "Benutzerdefiniertes Registrierungsformular",
       "taxDisplay": {
-        "label": "Steueranzeige",
+        "label": "Steuerdarstellung",
         "grossLabel": "Brutto",
         "grossDescription": "Preise werden inklusive Steuer angezeigt.",
         "netLabel": "Netto",

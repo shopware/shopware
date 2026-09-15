@@ -45,7 +45,7 @@ final class CompanyAccountNameFields
         return $isBusinessAccount && !$this->areRequired($salesChannelId);
     }
 
-    public function relax(DataValidationDefinition $definition, bool $requireCompany): void
+    public function makeNamesOptional(DataValidationDefinition $definition, bool $requireCompany): void
     {
         foreach (self::NAME_FIELDS as $property) {
             $constraints = $definition->getProperty($property);

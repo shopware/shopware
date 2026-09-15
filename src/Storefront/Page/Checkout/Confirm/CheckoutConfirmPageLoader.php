@@ -117,7 +117,7 @@ class CheckoutConfirmPageLoader
             return;
         }
 
-        $this->companyAccountNameFields->relax($validation, requireCompany: false);
+        $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: false);
     }
 
     private function validateBillingAddress(

@@ -198,7 +198,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         }
 
         if ($namesAreOptional) {
-            $this->companyAccountNameFields->relax($validation, requireCompany: $isCreate);
+            $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: $isCreate);
         } elseif ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
             $validation->add('company', CompanyAccountNameFields::companyNotBlank());

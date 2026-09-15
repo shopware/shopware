@@ -93,7 +93,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             }
 
             if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
-                $this->companyAccountNameFields->relax($validation, requireCompany: true);
+                $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
                 $this->companyAccountNameFields->normalize($data, submittedOnly: true);
 
                 if (!$data->has('company')) {

@@ -77,7 +77,7 @@ class CompanyAccountNameFieldsTest extends TestCase
         static::assertFalse($data->has('lastName'));
     }
 
-    public function testRelaxKeepsEveryConstraintButNotBlankAndRequiresTheCompany(): void
+    public function testMakeNamesOptionalKeepsEveryConstraintButNotBlankAndRequiresTheCompany(): void
     {
         $length = new Length(max: 10);
         $regex = new Regex(pattern: '/^[a-z]+$/');
@@ -86,7 +86,7 @@ class CompanyAccountNameFieldsTest extends TestCase
         $validation->add('firstName', new NotBlank(), $length, $regex);
         $validation->add('lastName', new NotBlank(), $length);
 
-        $this->fields(true, false)->relax($validation, requireCompany: true);
+        $this->fields(true, false)->makeNamesOptional($validation, requireCompany: true);
 
         static::assertSame([$length, $regex], $validation->getProperty('firstName'));
         static::assertSame([$length], $validation->getProperty('lastName'));
@@ -94,22 +94,22 @@ class CompanyAccountNameFieldsTest extends TestCase
         static::assertInstanceOf(NotBlank::class, $validation->getProperty('company')[0]);
     }
 
-    public function testRelaxCanLeaveTheCompanyAlone(): void
+    public function testMakeNamesOptionalCanLeaveTheCompanyAlone(): void
     {
         $validation = new DataValidationDefinition('test');
         $validation->add('firstName', new NotBlank());
 
-        $this->fields(true, false)->relax($validation, requireCompany: false);
+        $this->fields(true, false)->makeNamesOptional($validation, requireCompany: false);
 
         static::assertSame([], $validation->getProperty('firstName'));
         static::assertSame([], $validation->getProperty('company'));
     }
 
-    public function testRelaxLeavesUntouchedPropertiesAlone(): void
+    public function testMakeNamesOptionalLeavesUntouchedPropertiesAlone(): void
     {
         $validation = new DataValidationDefinition('test');
 
-        $this->fields(true, false)->relax($validation, requireCompany: false);
+        $this->fields(true, false)->makeNamesOptional($validation, requireCompany: false);
 
         static::assertSame([], $validation->getProperties());
     }

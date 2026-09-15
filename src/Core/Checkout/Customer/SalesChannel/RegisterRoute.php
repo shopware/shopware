@@ -459,7 +459,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $validation = $this->addressValidationFactory->create($context);
 
         if ($isBillingAddress && $this->namesAreOptional($data, $context)) {
-            $this->companyAccountNameFields->relax($validation, requireCompany: true);
+            $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
         } elseif ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
             $validation->add('company', CompanyAccountNameFields::companyNotBlank());
@@ -509,7 +509,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($this->namesAreOptional($data, $context)) {
-            $this->companyAccountNameFields->relax($validation, requireCompany: false);
+            $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: false);
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

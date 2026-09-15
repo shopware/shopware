@@ -70,6 +70,20 @@ class KeyMappingPipe extends AbstractPipe
     }
 
     /**
+     * @param list<array<string, mixed>> $records
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function warmUp(Config $config, array $records): array
+    {
+        // the mapping is a pure transformation, so it can be applied ahead of the `out()` window
+        return array_map(
+            fn (array $record): array => iterator_to_array($this->out($config, $record)),
+            $records
+        );
+    }
+
+    /**
      * @param iterable<string, mixed> $record
      *
      * @return iterable<string, mixed>

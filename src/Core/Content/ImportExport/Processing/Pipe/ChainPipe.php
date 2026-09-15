@@ -29,6 +29,15 @@ class ChainPipe extends AbstractPipe
         yield from $generator;
     }
 
+    public function warmUp(Config $config, array $records): array
+    {
+        foreach (array_reverse($this->chain) as $pipe) {
+            $records = $pipe->warmUp($config, $records);
+        }
+
+        return $records;
+    }
+
     public function out(Config $config, iterable $record): iterable
     {
         $pipes = array_reverse($this->chain);

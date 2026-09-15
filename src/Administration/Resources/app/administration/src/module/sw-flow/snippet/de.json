@@ -21,7 +21,7 @@
       "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
       "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
       "emptyStateTitle": "Noch keine Flows",
-      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
+      "emptyStateSubTitle": "Flows führen automatisch Aktionen aus, wenn in Deinem Shop etwas passiert, zum Beispiel eine E-Mail nach einer Bestellung.",
       "unknownTrigger": "Unbekannter Auslöser"
     },
     "template": {

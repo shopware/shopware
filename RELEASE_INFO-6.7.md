@@ -280,6 +280,12 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
+### `MailService` renders mails with the snippets of their sales channel
+
+`MailService` now configures the translator for the mail's sales channel while it renders the subject and content. Previously the Flow Builder mail action and `SendMailTemplate` did this before calling it; now it applies to every mail sent through `MailService`.
+
+If you replace `AbstractMailService` without calling the decorated service, configure the translator in your implementation with `AbstractTranslator::injectSettings()` and `resetInjection()`. Because the settings only apply during rendering, listeners of `FlowSendMailActionEvent` and `MailBeforeValidateEvent` see the translator's default configuration.
+
 ## API
 
 ### OAuth authorization endpoint

@@ -72,12 +72,12 @@ The rule is both a configuration rule and an account type rule. Trunk decides pu
 
 ```php
 if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
-    $this->companyAccountNameFields->relax($validation);
+    $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
     $this->companyAccountNameFields->normalize($data);
 }
 ```
 
-`RegisterRoute`, `ChangeCustomerProfileRoute` and `UpsertAddressRoute` call it. `UpsertAddressRoute` also requires the customer to be a commercial one, because a private customer cannot relax an address the checkout later judges by the account. `CheckoutConfirmPageLoader` relaxes the names but does not require a company, so an address stored before the setting was switched on cannot block checkout.
+`RegisterRoute`, `ChangeCustomerProfileRoute` and `UpsertAddressRoute` call it. `UpsertAddressRoute` also requires the customer to be a commercial one, because a private customer cannot make the names of an address optional when the checkout later judges it by the account. `CheckoutConfirmPageLoader` makes the names optional but does not require a company, so an address stored before the setting was switched on cannot block checkout.
 
 ### Orders and documents
 

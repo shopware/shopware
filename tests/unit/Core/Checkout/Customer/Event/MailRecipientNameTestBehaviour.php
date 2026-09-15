@@ -36,12 +36,6 @@ trait MailRecipientNameTestBehaviour
             $build($person, $this->mailSalesChannelContext())->getMailStruct()->getRecipients(),
             'a contact person is still addressed by name'
         );
-
-        static::assertSame(
-            ['info@acme.example' => 'Ada Lovelace'],
-            $build($this->mailCustomer('Ada', 'Lovelace'), $this->mailSalesChannelContext())->getMailStruct()->getRecipients(),
-            'the display name is a runtime field, so an unresolved customer falls back to the person name'
-        );
     }
 
     private function mailCustomer(string $firstName, string $lastName): CustomerEntity

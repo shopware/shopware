@@ -49,7 +49,7 @@ class OrderCustomerEntity extends Entity
 
     protected string $orderVersionId;
 
-    protected ?string $displayName = null;
+    protected string $displayName = '';
 
     public function getEmail(): string
     {
@@ -189,19 +189,12 @@ class OrderCustomerEntity extends Entity
 
     public function getDisplayName(): string
     {
-        return $this->displayName ?? self::resolveDisplayName($this->firstName ?? '', $this->lastName ?? '', $this->company);
+        return $this->displayName;
     }
 
-    public function setDisplayName(?string $displayName): void
+    public function setDisplayName(string $displayName): void
     {
         $this->displayName = $displayName;
-    }
-
-    public static function resolveDisplayName(string $firstName, string $lastName, ?string $company): string
-    {
-        $personName = trim($firstName . ' ' . $lastName);
-
-        return $personName !== '' ? $personName : trim($company ?? '');
     }
 
     public function getBuyerName(): string

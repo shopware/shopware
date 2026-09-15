@@ -15,28 +15,15 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(OrderCustomerEntity::class)]
 class OrderCustomerEntityTest extends TestCase
 {
-    #[DataProvider('displayNameProvider')]
-    public function testDisplayName(string $firstName, string $lastName, ?string $company, string $expected): void
-    {
-        static::assertSame($expected, $this->customer($firstName, $lastName, $company)->getDisplayName());
-    }
-
-    #[DataProvider('displayNameProvider')]
-    public function testResolveDisplayName(string $firstName, string $lastName, ?string $company, string $expected): void
-    {
-        static::assertSame($expected, OrderCustomerEntity::resolveDisplayName($firstName, $lastName, $company));
-    }
-
-    public function testAnAssignedDisplayNameWinsOverTheLiveFields(): void
+    public function testDisplayNameIsEmptyUntilAssigned(): void
     {
         $customer = $this->customer('Ada', 'Lovelace', null);
+
+        static::assertSame('', $customer->getDisplayName());
+
         $customer->setDisplayName('Acme GmbH');
 
         static::assertSame('Acme GmbH', $customer->getDisplayName());
-
-        $customer->setDisplayName(null);
-
-        static::assertSame('Ada Lovelace', $customer->getDisplayName());
     }
 
     public function testDisplayNameOfAnEmptyEntity(): void
@@ -49,20 +36,6 @@ class OrderCustomerEntityTest extends TestCase
     public function testBuyerName(string $firstName, string $lastName, ?string $company, string $expected): void
     {
         static::assertSame($expected, $this->customer($firstName, $lastName, $company)->getBuyerName());
-    }
-
-    /**
-     * @return iterable<string, array{string, string, string|null, string}>
-     */
-    public static function displayNameProvider(): iterable
-    {
-        yield 'person name without a company' => ['Ada', 'Lovelace', null, 'Ada Lovelace'];
-        yield 'person name wins over the company' => ['Ada', 'Lovelace', 'Acme GmbH', 'Ada Lovelace'];
-        yield 'no contact person falls back to the company' => ['', '', 'Acme GmbH', 'Acme GmbH'];
-        yield 'a blank contact person falls back to the company' => ['  ', '  ', 'Acme GmbH', 'Acme GmbH'];
-        yield 'a single name is not padded' => ['', 'Lovelace', null, 'Lovelace'];
-        yield 'nothing at all stays empty' => ['', '', null, ''];
-        yield 'a blank company stays empty' => ['', '', '   ', ''];
     }
 
     /**

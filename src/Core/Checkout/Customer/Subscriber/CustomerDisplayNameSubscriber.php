@@ -33,7 +33,12 @@ class CustomerDisplayNameSubscriber implements EventSubscriberInterface
     {
         foreach ($event->getEntities() as $customer) {
             if ($customer instanceof CustomerEntity) {
-                $customer->assign(['displayName' => $customer->getDisplayName()]);
+                $customer->setDisplayName(self::resolve(
+                    $customer->getFirstName(),
+                    $customer->getLastName(),
+                    $customer->getCompany(),
+                    $customer->isBusinessAccount()
+                ));
 
                 continue;
             }
@@ -42,13 +47,24 @@ class CustomerDisplayNameSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $customer->assign(['displayName' => CustomerEntity::resolveDisplayName(
+            $customer->assign(['displayName' => self::resolve(
                 (string) $customer->get('firstName'),
                 (string) $customer->get('lastName'),
                 $customer->get('company'),
                 $customer->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             )]);
         }
+    }
+
+    private static function resolve(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
+    {
+        $personName = trim($firstName . ' ' . $lastName);
+
+        if ($personName !== '' || !$isBusinessAccount) {
+            return $personName;
+        }
+
+        return trim($company ?? '');
     }
 
     private function hasSources(PartialEntity $customer): bool

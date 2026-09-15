@@ -49,8 +49,41 @@ class OrderCustomerDisplayNameSubscriberTest extends TestCase
 
         (new OrderCustomerDisplayNameSubscriber())->loaded($event);
 
-        static::assertSame('Ada Lovelace', $person->get('displayName'));
-        static::assertSame('Acme GmbH', $company->get('displayName'));
+        static::assertSame('Ada Lovelace', $person->getDisplayName());
+        static::assertSame('Acme GmbH', $company->getDisplayName());
+    }
+
+    #[DataProvider('displayNameProvider')]
+    public function testLoadedResolvesTheName(string $firstName, string $lastName, ?string $company, string $expected): void
+    {
+        $customer = new OrderCustomerEntity();
+        $customer->setUniqueIdentifier('customer');
+        $customer->setFirstName($firstName);
+        $customer->setLastName($lastName);
+
+        if ($company !== null) {
+            $customer->setCompany($company);
+        }
+
+        $event = new EntityLoadedEvent(new OrderCustomerDefinition(), [$customer], Context::createDefaultContext());
+
+        (new OrderCustomerDisplayNameSubscriber())->loaded($event);
+
+        static::assertSame($expected, $customer->getDisplayName());
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string|null, string}>
+     */
+    public static function displayNameProvider(): iterable
+    {
+        yield 'person name without a company' => ['Ada', 'Lovelace', null, 'Ada Lovelace'];
+        yield 'person name wins over the company' => ['Ada', 'Lovelace', 'Acme GmbH', 'Ada Lovelace'];
+        yield 'no contact person falls back to the company' => ['', '', 'Acme GmbH', 'Acme GmbH'];
+        yield 'a blank contact person falls back to the company' => ['  ', '  ', 'Acme GmbH', 'Acme GmbH'];
+        yield 'a single name is not padded' => ['', 'Lovelace', null, 'Lovelace'];
+        yield 'nothing at all stays empty' => ['', '', null, ''];
+        yield 'a blank company stays empty' => ['', '', '   ', ''];
     }
 
     public function testPartialLoadedFillsTheEntity(): void

@@ -81,6 +81,7 @@ class MailStorerTest extends TestCase
         $customer->setId(Uuid::randomHex());
         $customer->setFirstName('bar');
         $customer->setLastName('foo');
+        $customer->setDisplayName('bar foo');
         $customer->setEmail('foo@bar.com');
         $order = new OrderEntity();
         $order->setOrderCustomer($customer);
@@ -105,6 +106,7 @@ class MailStorerTest extends TestCase
         $customer->setFirstName('');
         $customer->setLastName('');
         $customer->setCompany('Acme GmbH');
+        $customer->setDisplayName('Acme GmbH');
         $customer->setEmail('info@acme.example');
         $order = new OrderEntity();
         $order->setOrderCustomer($customer);
@@ -124,6 +126,7 @@ class MailStorerTest extends TestCase
         $customer->setId(Uuid::randomHex());
         $customer->setFirstName('bar');
         $customer->setLastName('foo');
+        $customer->setDisplayName('bar foo');
         $customer->setEmail('foo@bar.com');
         $customer->setSalesChannelId(TestDefaults::SALES_CHANNEL);
 

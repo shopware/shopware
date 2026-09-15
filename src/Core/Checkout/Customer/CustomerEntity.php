@@ -173,7 +173,7 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?UserEntity $updatedBy = null;
 
-    protected ?string $displayName = null;
+    protected string $displayName = '';
 
     public function __toString(): string
     {
@@ -187,26 +187,10 @@ class CustomerEntity extends Entity implements \Stringable
 
     public function getDisplayName(): string
     {
-        return $this->displayName ?? self::resolveDisplayName(
-            $this->firstName ?? '',
-            $this->lastName ?? '',
-            $this->company,
-            $this->isBusinessAccount()
-        );
+        return $this->displayName;
     }
 
-    public static function resolveDisplayName(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
-    {
-        $personName = trim($firstName . ' ' . $lastName);
-
-        if ($personName !== '' || !$isBusinessAccount) {
-            return $personName;
-        }
-
-        return trim($company ?? '');
-    }
-
-    public function setDisplayName(?string $displayName): void
+    public function setDisplayName(string $displayName): void
     {
         $this->displayName = $displayName;
     }

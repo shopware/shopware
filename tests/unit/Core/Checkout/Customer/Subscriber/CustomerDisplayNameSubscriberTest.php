@@ -112,7 +112,7 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $this->load($customer);
 
-        static::assertSame($expected, $customer->get('displayName'));
+        static::assertSame($expected, $customer->getDisplayName());
     }
 
     /**
@@ -161,7 +161,7 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $this->load($customer);
 
-        static::assertSame('Ada Lovelace', $customer->get('displayName'));
+        static::assertSame('Ada Lovelace', $customer->getDisplayName());
     }
 
     public function testLoadedFillsEveryCustomerInTheEvent(): void
@@ -179,8 +179,8 @@ class CustomerDisplayNameSubscriberTest extends TestCase
 
         $this->load($person, $company);
 
-        static::assertSame('Ada Lovelace', $person->get('displayName'));
-        static::assertSame('Analytical Engines', $company->get('displayName'));
+        static::assertSame('Ada Lovelace', $person->getDisplayName());
+        static::assertSame('Analytical Engines', $company->getDisplayName());
     }
 
     private function load(CustomerEntity ...$customers): void

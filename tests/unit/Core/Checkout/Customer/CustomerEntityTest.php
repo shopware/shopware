@@ -78,6 +78,7 @@ class CustomerEntityTest extends TestCase
         $customer->setSalutationId('salutation-id');
         $customer->setFirstName('Ada');
         $customer->setLastName('Lovelace');
+        $customer->setDisplayName('Ada Lovelace');
         $customer->setCompany('Analytical Engines');
         $customer->setEmail('ada@example.com');
         $customer->setTitle('Dr.');
@@ -136,6 +137,7 @@ class CustomerEntityTest extends TestCase
         static::assertSame('salutation-id', $customer->getSalutationId());
         static::assertSame('Ada', $customer->getFirstName());
         static::assertSame('Lovelace', $customer->getLastName());
+        static::assertSame('Ada Lovelace', $customer->getDisplayName());
         static::assertSame('Ada Lovelace', (string) $customer);
         static::assertSame('Analytical Engines', $customer->getCompany());
         static::assertSame('ada@example.com', $customer->getEmail());
@@ -198,47 +200,28 @@ class CustomerEntityTest extends TestCase
         static::assertTrue($customer->hasLegacyPassword());
     }
 
-    public function testAnAssignedDisplayNameWinsOverTheLiveFields(): void
+    public function testDisplayNameIsEmptyUntilAssigned(): void
     {
         $customer = new CustomerEntity();
         $customer->setFirstName('Ada');
         $customer->setLastName('Lovelace');
+
+        static::assertSame('', $customer->getDisplayName());
+
         $customer->setDisplayName('Analytical Engines');
 
         static::assertSame('Analytical Engines', $customer->getDisplayName());
-        static::assertSame('Analytical Engines', (string) $customer);
     }
 
     public function testTheStringRepresentationFollowsTheDisplayName(): void
     {
         $customer = new CustomerEntity();
-        $customer->setFirstName('Ada');
-        $customer->setLastName('Lovelace');
+
+        static::assertSame('', (string) $customer);
+
+        $customer->setDisplayName('Ada Lovelace');
 
         static::assertSame('Ada Lovelace', (string) $customer);
-
-        $customer->setFirstName('');
-        $customer->setLastName('');
-        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-        $customer->setCompany('Analytical Engines');
-
-        static::assertSame('Analytical Engines', (string) $customer);
-    }
-
-    public function testDisplayNameResolvesFromTheLiveFieldsUntilOneIsAssigned(): void
-    {
-        $customer = new CustomerEntity();
-
-        static::assertSame('', $customer->getDisplayName());
-
-        $customer->setFirstName('Ada');
-        $customer->setLastName('Lovelace');
-
-        static::assertSame('Ada Lovelace', $customer->getDisplayName());
-
-        $customer->setDisplayName(null);
-
-        static::assertSame('Ada Lovelace', $customer->getDisplayName());
     }
 
     /**

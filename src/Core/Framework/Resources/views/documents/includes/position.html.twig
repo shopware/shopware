@@ -54,15 +54,12 @@ All blocks of this template are available in the template which renders this tem
                             {% endfor %}
                         {% endif %}
 
-                        {% if lineItem.payload.features|length >=1  %}
-                            <br/>
+                        {% if lineItem.payload.features|length >=1 and config.displayPrices %}
                             {% for feature in lineItem.payload.features %}
                                 {% if feature.type == 'referencePrice' %}
+                                    <br/>
                                     {{ feature.value.purchaseUnit|sw_sanitize(null, true) }} {{ feature.value.unitName|sw_sanitize(null, true) }}
                                     ({{ feature.value.price|currency(currencyIsoCode, languageId) }}{{ "general.star"|trans }} / {{ feature.value.referenceUnit|sw_sanitize(null, true) }} {{ feature.value.unitName|sw_sanitize(null, true) }})
-                                    {% if lineItem.payload.features|last != feature %}
-                                        {{ " | " }}
-                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
                         {% endif %}

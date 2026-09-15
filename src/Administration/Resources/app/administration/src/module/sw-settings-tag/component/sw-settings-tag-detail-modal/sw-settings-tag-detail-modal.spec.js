@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
  * @sw-package inventory
  */
 
-async function createWrapper({ featureActive = false } = {}) {
+async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-settings-tag-detail-modal', {
             sync: true,
@@ -26,9 +26,6 @@ async function createWrapper({ featureActive = false } = {}) {
                     },
                     syncService: {
                         sync: jest.fn(),
-                    },
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                     },
                     acl: {
                         can: () => {
@@ -73,15 +70,16 @@ async function createWrapper({ featureActive = false } = {}) {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
-    it('should render the deprecated tabs when the major feature flag is inactive', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs with the expected item API when the major feature flag is active', async () => {
-        const wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs with the expected item API', async () => {
+        const wrapper = await createWrapper();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -100,8 +98,8 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
         expect(wrapper.find('.sw-tabs').exists()).toBe(false);
     });
 
-    it('should switch active content when meteor tabs emit a new active item', async () => {
-        const wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch active content when meteor tabs emit a new active item', async () => {
+        const wrapper = await createWrapper();
 
         await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'assignments');
         await wrapper.vm.$nextTick();

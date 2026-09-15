@@ -39,5 +39,15 @@ abstract class AbstractIncrementStorage
      */
     abstract public function set(string $configurationId, int $value): void;
 
+    /**
+     * @deprecated tag:v6.8.0 - Becomes abstract and has to be implemented with v6.8.0
+     *
+     * Raises the current increment state to at least the given value without lowering an existing higher state.
+     */
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $this->getDecorated()->increaseToAtLeast($configurationId, $value);
+    }
+
     abstract public function getDecorated(): self;
 }

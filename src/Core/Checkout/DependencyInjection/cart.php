@@ -117,6 +117,7 @@ use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
 use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -244,8 +245,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartLoadRoute::class)
         ->public()
         ->args([
-            service(CartPersister::class),
-            service(CartFactory::class),
             service(CartCalculator::class),
             service(TaxProviderProcessor::class),
         ]);
@@ -537,6 +536,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
+            service(DefinitionInstanceRegistry::class),
         ]);
 
     $services->set(TransactionProcessor::class);
@@ -575,6 +575,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Processor::class),
             service(CartRuleLoader::class),
             service(PromotionItemBuilder::class),
+            service(LineItemFactoryRegistry::class),
         ]);
 
     $services->set(CartRuleLoader::class)

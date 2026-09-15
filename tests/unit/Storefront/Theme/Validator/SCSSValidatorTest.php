@@ -13,7 +13,7 @@ use Shopware\Storefront\Theme\Validator\SCSSValidator;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(SCSSValidator::class)]
 class SCSSValidatorTest extends TestCase
 {

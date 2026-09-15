@@ -237,6 +237,67 @@ describe('scripts/extensionTooling e2e', () => {
     );
 
     it(
+        'gives a .vue SFC the same type-aware lint coverage as a .ts file through the real bridge',
+        async () => {
+            const cardPath = path.join(
+                projectRoot,
+                'custom/plugins/ZeroConfig/src/Resources/app/administration/src/component/sw-typed-card.vue',
+            );
+
+            // Exercises the four behaviours the .vue coverage must get right at once:
+            // an interpolation-only binding stays "used", a genuinely unused binding
+            // is flagged, and the type-aware rules resolve a deprecated call and a
+            // floating promise through the SFC's <script setup>.
+            writeFile(cardPath, [
+                '<template>',
+                '    <section>{{ shownOnly }}</section>',
+                '</template>',
+                '',
+                '<script setup lang="ts">',
+                "import { ref } from 'vue';",
+                '',
+                "const shownOnly = ref('hi');",
+                'const unusedBinding = ref(0);',
+                '',
+                '/** @deprecated tag:v6.8.0 - use fresh instead */',
+                'function stale(): number {',
+                '    return 1;',
+                '}',
+                '',
+                'async function work(): Promise<number> {',
+                '    return 2;',
+                '}',
+                '',
+                'function run(): void {',
+                '    stale();',
+                '    work();',
+                '}',
+                '',
+                'swDefinePublic({ shownOnly, run });',
+                '</script>',
+            ]);
+
+            try {
+                const check = await checkExtensions({ projectRoot, administrationRoot, only: 'ZeroConfig' });
+                const { output, status } = check.results[0].eslint;
+
+                expect(status).toBe('failed');
+                // The genuinely unused binding is flagged; the interpolation-only one is not.
+                expect(output).toContain("'unusedBinding'");
+                expect(output).not.toContain("'shownOnly'");
+                // Type-aware rules resolve through the SFC's typed script.
+                expect(output).toContain('no-deprecated');
+                expect(output).toContain('no-floating-promises');
+                // The no-unsafe family stays off, so fallback-`any` Vue surfaces do not flood.
+                expect(output).not.toContain('no-unsafe-');
+            } finally {
+                fs.rmSync(cardPath);
+            }
+        },
+        CHECK_TIMEOUT,
+    );
+
+    it(
         'makes vendor ESLint findings fatal only in strict vendor mode',
         async () => {
             const check = await checkExtensions({

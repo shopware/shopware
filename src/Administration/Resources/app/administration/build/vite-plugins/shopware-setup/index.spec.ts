@@ -5,6 +5,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import type { SourceMap } from 'rollup';
@@ -30,12 +31,14 @@ type ProbeResult = {
     base: ProbeSide;
     override: ProbeSide;
 };
+type HotUpdateModule = { id: string };
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
     resolveId(source: string, importer: string): Promise<string | null>;
     load(id: string): Promise<LoadedModule | null>;
     transform(code: string, id: string): Promise<LoadedModule | null>;
+    hotUpdate(options: { file: string; modules: HotUpdateModule[]; type: string }): HotUpdateModule[] | undefined;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
     generateBundle: unknown;
 };
@@ -130,16 +133,61 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
         const vueFile = await createVueFile(source, 'sw-cached-component.vue');
-        const transformSpy = jest.spyOn(fs, 'readFile');
+        // The plugin requires the shared transform through node's module cache, so spying on the
+        // cached export intercepts its calls.
+        const nodeRequire = createRequire(path.join(process.cwd(), 'package.json'));
+        const transformModule = nodeRequire(path.join(process.cwd(), 'build/vue-setup-transform/index.js')) as {
+            transformShopwareSetupSfc: (code: string, fileName: string) => unknown;
+        };
+        const transformSpy = jest.spyOn(transformModule, 'transformShopwareSetupSfc');
 
         const { loaded } = await resolveAndLoadVueFile(plugin, vueFile);
 
-        // resolveId + load together read (and therefore transform) the source exactly once; the second
-        // pass is served from the resolveId cache.
+        // One transform for resolveId + load; load only re-reads to verify the stash is current.
         expect(loaded).toHaveProperty('code');
-        expect(transformSpy.mock.calls.filter(([file]) => file === vueFile)).toHaveLength(1);
+        expect(
+            transformSpy.mock.calls.filter(
+                ([
+                    ,
+                    fileName,
+                ]) => fileName === vueFile,
+            ),
+        ).toHaveLength(1);
 
         transformSpy.mockRestore();
+    });
+
+    it('serves the current file content when the file changed after resolveId stashed its transform', async () => {
+        const plugin = createPlugin();
+        const vueFile = await createVueFile(
+            `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+            'sw-stale-stash-component.vue',
+        );
+        const context = {
+            resolve: jest.fn().mockResolvedValue({ id: vueFile }),
+        };
+        const resolvedId = await plugin.resolveId.call(
+            context,
+            `./${path.basename(vueFile)}`,
+            path.join(path.dirname(vueFile), 'entry.js'),
+        );
+
+        // Edit between resolveId (stash of the old content) and load - the issue #19469 shape where
+        // a stale stash made every edit arrive one save late in the dev server.
+        await fs.writeFile(
+            vueFile,
+            `<script setup>
+const countEdited = 2;
+swDefinePublic({ countEdited });
+</script>`,
+        );
+
+        const loaded = await plugin.load.call({ addWatchFile: jest.fn() }, resolvedId as string);
+
+        expect(loaded?.code).toContain('countEdited');
     });
 
     it('delegates .override.vue files to the shared override transform', async () => {
@@ -250,6 +298,68 @@ swDefinePublic({ count });
         await expect(plugin.transform(source, '/b/sw-my-component.vue')).rejects.toThrow(
             'Duplicate native setup base component name "sw-my-component"',
         );
+    });
+
+    describe('hot updates', () => {
+        function createHotUpdateContext(knownVirtualIds: string[]) {
+            return {
+                environment: {
+                    moduleGraph: {
+                        getModuleById: jest.fn((id: string) => (knownVirtualIds.includes(id) ? { id } : undefined)),
+                    },
+                },
+            };
+        }
+
+        it('maps a changed .vue file to its virtual module so the dev server invalidates it', () => {
+            const plugin = createPlugin();
+            const virtualId = '/example/sw-my-component.vue.shopware-setup.vue';
+            const context = createHotUpdateContext([virtualId]);
+            const otherModule = { id: '/example/other-module.ts' };
+
+            // Vite keys hot updates by changed file, and the real file never becomes a module - without
+            // this mapping an edit invalidated nothing (issue #19469).
+            const result = plugin.hotUpdate.call(context, {
+                file: '/example/sw-my-component.vue',
+                modules: [otherModule],
+                type: 'update',
+            });
+
+            // Appended to the modules Vite already considers affected, not substituted.
+            expect(result).toEqual([
+                otherModule,
+                { id: virtualId },
+            ]);
+        });
+
+        it('leaves a .vue file alone that was never redirected to a virtual module', () => {
+            const plugin = createPlugin();
+            const context = createHotUpdateContext([]);
+
+            // A plain SFC stays a real module; @vitejs/plugin-vue handles its hot update natively.
+            const result = plugin.hotUpdate.call(context, {
+                file: '/example/PlainComponent.vue',
+                modules: [],
+                type: 'update',
+            });
+
+            expect(result).toBeUndefined();
+        });
+
+        it('does not map a virtual module id onto itself', () => {
+            const plugin = createPlugin();
+            const context = createHotUpdateContext([]);
+
+            // The mapping's fixed point: the virtual id must not be mapped onto itself again.
+            const result = plugin.hotUpdate.call(context, {
+                file: '/example/sw-my-component.vue.shopware-setup.vue',
+                modules: [],
+                type: 'update',
+            });
+
+            expect(result).toBeUndefined();
+            expect(context.environment.moduleGraph.getModuleById).not.toHaveBeenCalled();
+        });
     });
 
     it('maps the written sourcemap back to the authored SFCs, for base and override alike', async () => {

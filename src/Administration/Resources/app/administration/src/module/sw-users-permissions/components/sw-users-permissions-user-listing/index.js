@@ -13,6 +13,7 @@ export default {
 
     inject: [
         'userService',
+        /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
         'loginService',
         'repositoryFactory',
         'acl',
@@ -39,9 +40,13 @@ export default {
             isLoading: false,
             itemToDelete: null,
             disableRouteParams: true,
+            /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
             confirmPassword: '',
             sortBy: 'username',
+            /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
             isConfirmingPassword: false,
+            isConfirmDeleteModalOpen: false,
+            isConfirmingPasswordModalOpen: false,
             showInvitationModal: false,
             isSso: false,
         };
@@ -167,6 +172,7 @@ export default {
 
         onDelete(user) {
             this.itemToDelete = user;
+            this.isConfirmDeleteModalOpen = true;
         },
 
         onUserInvited() {
@@ -189,7 +195,31 @@ export default {
             });
         },
 
-        async onConfirmDelete(user) {
+        onConfirmDelete(user) {
+            if (user.id === this.currentUser.id) {
+                this.createNotificationError({
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
+                });
+
+                this.onCloseDeleteModal();
+
+                return;
+            }
+
+            this.isConfirmDeleteModalOpen = false;
+
+            if (this.isSso) {
+                this.deleteUser({ ...Shopware.Context.api });
+
+                return;
+            }
+
+            this.isConfirmingPasswordModalOpen = true;
+        },
+
+        deleteUser(context) {
+            const user = this.itemToDelete;
             const username = `${user.firstName} ${user.lastName} `;
             const titleDeleteSuccess = this.$t('global.default.success');
             const messageDeleteSuccess = this.$t(
@@ -206,41 +236,7 @@ export default {
                 0,
             );
 
-            if (user.id === this.currentUser.id) {
-                this.createNotificationError({
-                    title: this.$t('global.default.error'),
-                    message: this.$t('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
-                });
-
-                this.onCloseDeleteModal();
-
-                return;
-            }
-
-            const context = { ...Shopware.Context.api };
-            if (!this.isSso) {
-                let verifiedToken;
-                try {
-                    this.isConfirmingPassword = true;
-                    verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
-                } catch (_e) {
-                    this.createNotificationError({
-                        message: this.$t(
-                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
-                        ),
-                    });
-                } finally {
-                    this.confirmPassword = '';
-                    this.isConfirmingPassword = false;
-                }
-
-                if (!verifiedToken) {
-                    return;
-                }
-
-                this.confirmPasswordModal = false;
-                context.authToken.access = verifiedToken;
-            }
+            this.isConfirmingPasswordModalOpen = false;
 
             this.userRepository
                 .delete(user.id, context)
@@ -258,10 +254,15 @@ export default {
                     });
                 });
 
-            this.onCloseDeleteModal();
+            this.itemToDelete = null;
+        },
+
+        onCloseConfirmPasswordModal() {
+            this.isConfirmingPasswordModalOpen = false;
         },
 
         onCloseDeleteModal() {
+            this.isConfirmDeleteModalOpen = false;
             this.itemToDelete = null;
         },
     },

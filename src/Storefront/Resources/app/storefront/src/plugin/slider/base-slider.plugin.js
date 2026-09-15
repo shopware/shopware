@@ -56,6 +56,8 @@ export default class BaseSliderPlugin extends Plugin {
     rebuild(viewport = ViewportDetection.getCurrentViewport(), resetIndex = false) {
         this._getSettings(viewport.toLowerCase());
 
+        const activeVideoState = this._captureActiveVideoState();
+
         // get the current index and use it as the start index
         try {
             if (this._slider && !resetIndex) {
@@ -68,7 +70,59 @@ export default class BaseSliderPlugin extends Plugin {
             // something went wrong
         }
 
+        this._restoreActiveVideoState(activeVideoState);
+
         this.$emitter.publish('rebuild');
+    }
+
+    /**
+     * Captures the playback position of a video on the currently active slide, since destroying and
+     * re-initialising the slider moves the slide markup and stops any video that was playing.
+     *
+     * @returns {{currentTime: number, wasPlaying: boolean}|null}
+     * @private
+     */
+    _captureActiveVideoState() {
+        if (!this._slider) {
+            return null;
+        }
+
+        const activeSlide = this.getActiveSlideElement();
+        const video = activeSlide ? activeSlide.querySelector('video') : null;
+
+        if (!video) {
+            return null;
+        }
+
+        return {
+            currentTime: video.currentTime,
+            wasPlaying: !video.paused,
+        };
+    }
+
+    /**
+     * Resumes video playback on the new active slide after a rebuild, using the previously captured state.
+     *
+     * @param {{currentTime: number, wasPlaying: boolean}|null} state
+     * @private
+     */
+    _restoreActiveVideoState(state) {
+        if (!state || !this._slider) {
+            return;
+        }
+
+        const activeSlide = this.getActiveSlideElement();
+        const video = activeSlide ? activeSlide.querySelector('video') : null;
+
+        if (!video) {
+            return;
+        }
+
+        video.currentTime = state.currentTime;
+
+        if (state.wasPlaying) {
+            video.play().catch(() => {});
+        }
     }
 
     /**
@@ -113,6 +167,10 @@ export default class BaseSliderPlugin extends Plugin {
 
     getActiveSlideElement() {
         const info = this._slider.getInfo();
+
+        if (!info.slideItems) {
+            return undefined;
+        }
 
         return info.slideItems[info.displayIndex];
     }

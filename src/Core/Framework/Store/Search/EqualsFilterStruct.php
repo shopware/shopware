@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class EqualsFilterStruct extends FilterStruct
@@ -14,6 +16,9 @@ class EqualsFilterStruct extends FilterStruct
 
     protected string $value;
 
+    /**
+     * @param array<string, string> $data
+     */
     public static function fromArray(array $data): FilterStruct
     {
         $filter = new EqualsFilterStruct();

@@ -1,0 +1,53 @@
+<sw-modal
+    class="sw-extension-bulk-uninstall-modal"
+    :title="title"
+    variant="small"
+    @modal-close="emitClose"
+>
+    <template #default>
+        <p>
+            {{ $t('sw-extension.my-extensions.bulk.uninstallModal.description') }}
+        </p>
+
+        <ul class="sw-extension-bulk-uninstall-modal__list">
+            <li
+                v-for="extension in extensions"
+                :key="extension.name"
+            >
+                {{ extension.label }}
+            </li>
+        </ul>
+
+        <p class="sw-extension-bulk-uninstall-modal__bold-paragraph">
+            {{ $t('sw-extension.my-extensions.bulk.uninstallModal.alert') }}
+        </p>
+
+        <p>
+            <mt-switch
+                v-model="removePluginData"
+                :label="$t('sw-extension.my-extensions.bulk.uninstallModal.labelRemovePluginData')"
+                :help-text="$t('sw-extension.my-extensions.bulk.uninstallModal.helpTextRemovePluginData')"
+            />
+        </p>
+    </template>
+
+    <template #modal-footer>
+        <mt-button
+            size="small"
+            :disabled="isLoading"
+            variant="secondary"
+            @click="emitClose"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+
+        <mt-button
+            variant="critical"
+            size="small"
+            :is-loading="isLoading"
+            @click="emitConfirm"
+        >
+            {{ $t('sw-extension.my-extensions.bulk.uninstallModal.buttonLabel') }}
+        </mt-button>
+    </template>
+</sw-modal>

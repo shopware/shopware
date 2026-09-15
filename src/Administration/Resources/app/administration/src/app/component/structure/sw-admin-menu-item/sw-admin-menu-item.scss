@@ -1,0 +1,273 @@
+@import "~scss/mixins";
+
+$nesting-line-offset: 18px;
+$nesting-line-indent: 36px;
+
+.sw-admin-menu__navigation-list-item {
+    .mt-collapsible-content[data-state="open"],
+    .mt-collapsible-content[data-state="closed"] {
+        animation-duration: 0.3s;
+        animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+}
+
+.sw-admin-menu__navigation-link {
+    color: var(--color-text-primary-default);
+    display: flex;
+    height: var(--scale-size-36);
+    align-items: center;
+    align-self: stretch;
+    justify-content: flex-start;
+    gap: var(--scale-size-10);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 var(--scale-size-6) 0 var(--scale-size-10);
+    text-decoration: none;
+    text-align: left;
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    cursor: pointer;
+    position: relative;
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius-s);
+
+    &:not(.router-link-active):hover {
+        background: var(--color-interaction-secondary-hover);
+    }
+
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
+        outline-offset: calc(-1 * var(--scale-size-2));
+    }
+
+    .mt-icon {
+        flex-shrink: 0;
+    }
+
+    .sw-admin-menu__navigation-link-label {
+        @include truncate;
+
+        flex-grow: 1;
+        text-align: left;
+        min-width: 0;
+    }
+}
+
+// Native button variants of the navigation link, dropping the user agent chrome
+.sw-admin-menu__navigation-item-row button.sw-admin-menu__navigation-link {
+    border: 0;
+    background: none;
+}
+
+.sw-admin-menu__navigation-item-row {
+    display: flex;
+    align-items: stretch;
+}
+
+.sw-admin-menu__navigation-link-expand-icon {
+    flex-shrink: 0;
+    color: var(--color-icon-primary-default);
+}
+
+.sw-admin-menu__navigation-link-expand-icon-box {
+    width: var(--scale-size-24);
+    height: var(--scale-size-24);
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.sw-admin-menu__sub-navigation-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.navigation-list-item--nested > .sw-admin-menu__sub-navigation-list {
+    margin-left: $nesting-line-offset;
+    position: relative;
+    padding-left: $nesting-line-indent - $nesting-line-offset - 1px;
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--color-border-secondary-default);
+        border-radius: 1px;
+    }
+}
+
+// Shorten the tree line when the last visible row is a closed leaf
+.navigation-list-item--nested:last-child > .sw-admin-menu__sub-navigation-list:has(
+> .sw-admin-menu__navigation-list-item:last-child:not(.is--entry-expanded)
+)::before {
+    bottom: var(--scale-size-12);
+}
+
+.navigation-list-item--nested > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link {
+    padding-left: $nesting-line-indent;
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: $nesting-line-offset;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--color-border-secondary-default);
+        border-radius: 1px;
+    }
+
+    // The transparent outline acts as a colour-swappable halo, so no extra element is needed
+    &::after {
+        content: "";
+        position: absolute;
+        left: $nesting-line-offset - 1px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 16px;
+        border-radius: 5px;
+        opacity: 0;
+        pointer-events: none;
+        outline: 4px solid transparent;
+    }
+
+    &:not(.router-link-active):hover::after {
+        opacity: 1;
+        background: var(--color-border-primary-default);
+        outline-color: var(--color-interaction-secondary-hover);
+    }
+
+    &.router-link-active::after {
+        opacity: 1;
+        background: var(--color-icon-brand-default);
+        outline-color: var(--color-background-brand-default);
+    }
+}
+
+.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link::after {
+        opacity: 1;
+        background: var(--color-border-primary-default);
+        outline-color: var(--color-elevation-surface-sunken);
+    }
+
+    > .sw-admin-menu__navigation-link:hover::after {
+        outline-color: var(--color-interaction-secondary-hover);
+    }
+}
+
+.navigation-list-item--nested:first-child > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link::before {
+        top: var(--scale-size-12);
+    }
+}
+
+.navigation-list-item--nested:last-child:not(.is--entry-expanded) > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link::before {
+        bottom: var(--scale-size-12);
+    }
+}
+
+.navigation-list-item__level-1 > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-background-brand-default);
+    }
+}
+
+.sw-admin-menu__navigation-link.router-link-active {
+    background: none;
+    color: var(--color-icon-brand-default);
+
+    .collapsible-text {
+        color: var(--color-icon-brand-default);
+    }
+
+    .sw-admin-menu__navigation-link-icon {
+        color: var(--color-icon-brand-default);
+    }
+}
+
+.sw-admin-menu__flyout-content .sw-admin-menu__navigation-link.router-link-active {
+    background: var(--color-background-brand-default);
+}
+
+.sw-admin-menu__navigation-list-item.is--flyout-enabled > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link {
+        color: var(--color-text-primary-default);
+        background: var(--color-interaction-secondary-hover);
+    }
+}
+
+.sw-admin-menu__navigation-list-item.is--entry-expanded {
+    .collapsible-text {
+        color: var(--color-text-primary-default);
+    }
+
+    & > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active .collapsible-text {
+        color: var(--color-icon-brand-default);
+    }
+}
+
+// With module colors the icon carries the accent, so the active row drops the brand tint for the
+// neutral hover grey. Level 1 only, the rows that actually show a colored icon.
+.navigation-list-item__level-1.is--module-colored > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-interaction-secondary-hover);
+        color: var(--color-text-primary-default);
+
+        .collapsible-text {
+            color: var(--color-text-primary-default);
+        }
+    }
+}
+
+// An active sub item picks up the same neutral background as its colored parent row and keeps
+// the regular text color, so only the marker signals the active state.
+.navigation-list-item__level-1.is--module-colored .navigation-list-item--nested {
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-interaction-secondary-hover);
+        color: var(--color-text-primary-default);
+
+        .collapsible-text {
+            color: var(--color-text-primary-default);
+        }
+
+        // The halo matches the row background so the line reads against it
+        &::after {
+            background: var(--sw-admin-menu-module-color, var(--color-icon-brand-default));
+            outline-color: var(--color-interaction-secondary-hover);
+        }
+    }
+}
+
+// Tree lines and indicators follow .hide-on-collapse timing, scoped to the toggle window
+.sw-admin-menu.is--toggling .navigation-list-item--nested {
+    > .sw-admin-menu__sub-navigation-list::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+        transition:
+            opacity 0.3s ease-in-out 0.1s,
+            visibility 0.3s ease-in-out 0.1s;
+    }
+}
+
+.sw-admin-menu.is--collapsed .navigation-list-item--nested {
+    > .sw-admin-menu__sub-navigation-list::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before,
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.05s ease-out,
+            visibility 0.05s ease-out;
+    }
+}

@@ -6,6 +6,8 @@ import normalizeFeatureFlag from '../_helper_/normalizeFeatureFlag';
 
 type EachTable = Parameters<jest.It['each']>[0];
 type TestCallback = (() => unknown) | ((done: jest.DoneCallback) => unknown);
+// jest's `.each(table)(...)` types its callback for the table row args; our helpers forward a plain
+// ProvidesCallback, so the returned registrar is cast to accept it. Runtime behaviour is unchanged.
 type EachRegister = (name: string, callback: jest.ProvidesCallback, timeout?: number) => void;
 // `.each` supports both an inline table and a tagged-template call — `each`a|b`(...)` — which JS
 // invokes as (strings, ...values). Forward every argument so interpolated values are not dropped.

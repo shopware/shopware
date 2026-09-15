@@ -18,7 +18,7 @@ use Shopware\Storefront\Theme\ThemeService;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeConfigTool::class)]
 class ThemeConfigToolTest extends TestCase
 {

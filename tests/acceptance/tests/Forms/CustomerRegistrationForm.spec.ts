@@ -21,6 +21,38 @@ test.describe('Customer Registration Form', () => {
     });
 
     test(
+        'As a customer, the registration privacy notice matches the checkbox configuration.',
+        {
+            tag: [
+                '@Form',
+                '@Registration',
+                '@Storefront',
+            ],
+        },
+        async ({ ShopCustomer, StorefrontAccountLogin, TestDataService }) => {
+            const privacyNotice = StorefrontAccountLogin.page.locator('.register-form .privacy-notice');
+            const dataProtectionCheckbox = privacyNotice.locator('input[name="acceptedDataProtection"]');
+
+            await TestDataService.setSystemConfig({
+                'core.loginRegistration.requireDataProtectionCheckbox': false,
+            });
+            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=disabled`);
+
+            await ShopCustomer.expects(dataProtectionCheckbox).toHaveCount(0);
+            await ShopCustomer.expects(privacyNotice).toContainText(/Please note|Bitte beachten/i);
+            await ShopCustomer.expects(StorefrontAccountLogin.registerButton).toContainText(/Register|Registrieren/i);
+
+            await TestDataService.setSystemConfig({
+                'core.loginRegistration.requireDataProtectionCheckbox': true,
+            });
+            await ShopCustomer.goesTo(`${StorefrontAccountLogin.url()}?privacy-checkbox=enabled`);
+
+            await ShopCustomer.expects(dataProtectionCheckbox).toBeVisible();
+            await ShopCustomer.expects(privacyNotice).not.toContainText(/Please note|Bitte beachten/i);
+        },
+    );
+
+    test(
         'As a customer, I can perform a registration without captcha protection.',
         {
             tag: [

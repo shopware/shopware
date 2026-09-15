@@ -41,6 +41,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
     private readonly array $config;
 
     /**
+     * @var array<string, AbstractAdminIndexer>|null
+     */
+    private ?array $indexers = null;
+
+    /**
      * @param iterable<AbstractAdminIndexer> $indexer
      * @param array<string, mixed> $config
      * @param array<string, mixed> $mapping
@@ -495,10 +500,14 @@ class AdminSearchRegistry implements EventSubscriberInterface
      */
     private function getIndexersArray(): array
     {
-        if ($this->indexer instanceof \Traversable) {
-            return iterator_to_array($this->indexer);
+        if ($this->indexers !== null) {
+            return $this->indexers;
         }
 
-        return $this->indexer;
+        $this->indexers = $this->indexer instanceof \Traversable
+            ? iterator_to_array($this->indexer)
+            : $this->indexer;
+
+        return $this->indexers;
     }
 }

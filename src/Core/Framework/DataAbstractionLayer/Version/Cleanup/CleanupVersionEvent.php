@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CleanupVersionEvent
 {

@@ -396,7 +396,6 @@ export default {
             const module = this.moduleFactory.getModuleRegistry().get(name);
             return {
                 name: module.manifest.icon,
-                color: module.manifest.color,
             };
         },
     },

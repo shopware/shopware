@@ -30,7 +30,11 @@ const flowData = [
     },
 ];
 
-async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData) {
+let flowSearchMock;
+
+async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData, routeQuery = {}) {
+    flowSearchMock = jest.fn(() => Promise.resolve(customFlowData));
+
     return mount(await wrapTestComponent('sw-flow-list', { sync: true }), {
         global: {
             plugins: [createPinia()],
@@ -76,9 +80,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => {
-                            return Promise.resolve(customFlowData);
-                        },
+                        search: flowSearchMock,
                         clone: jest.fn(() =>
                             Promise.resolve({
                                 id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
@@ -108,6 +110,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                     query: {
                         page: 1,
                         limit: 25,
+                        ...routeQuery,
                     },
                 },
                 $t: (key) => {
@@ -270,5 +273,12 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
             name: 'sw.flow.detail',
             params: { id: '0e6b005ca7a1440b8e87ac3d45ed5c9f' },
         });
+    });
+
+    it('should set the term of the route query to criteria', async () => {
+        await createWrapper([], false, flowData, { term: 'Order' });
+        await flushPromises();
+
+        expect(flowSearchMock).toHaveBeenLastCalledWith(expect.objectContaining({ term: 'Order' }));
     });
 });

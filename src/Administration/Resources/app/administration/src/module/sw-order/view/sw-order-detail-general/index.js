@@ -207,12 +207,16 @@ export default {
             ]);
         },
 
-        reloadEntityData() {
+        reloadEntityData(isSaved = true) {
             if (this.swOrderDetailOnReloadEntityData) {
-                this.swOrderDetailOnReloadEntityData();
+                this.swOrderDetailOnReloadEntityData(isSaved);
             } else {
-                this.$emit('reload-entity-data');
+                this.$emit('reload-entity-data', isSaved);
             }
+        },
+
+        discardLineItemEdit() {
+            this.reloadEntityData(false);
         },
 
         saveAndReload() {

@@ -69,7 +69,9 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection->executeStatement('DELETE FROM migration WHERE `class` LIKE "SwagManualMigrationTest%"');
         $connection->executeStatement('DELETE FROM plugin');
 
-        KernelLifecycleManager::bootKernel();
+        // shut down only: the next class boots its kernel lazily inside a test context,
+        // which recompiles without the test plugin added by this class
+        KernelLifecycleManager::ensureKernelShutdown();
     }
 
     protected function setUp(): void

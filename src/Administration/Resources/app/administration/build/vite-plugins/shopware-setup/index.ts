@@ -71,8 +71,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     const baseComponentFiles = new Map<string, string>();
     const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
     // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
-    // the matching load(). One-shot: load() deletes on read, so it can never serve stale output.
-    const resolvedTransforms = new Map<string, ShopwareSetupTransformResult>();
+    // the matching load(). Keyed by source content: Vite's import-analysis re-resolves watched files after
+    // every transform and re-stashes, so an entry can predate the user's next edit - reusing it unverified
+    // would serve every edit one save late.
+    const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
     // caveat: also rejections are cached
@@ -91,11 +93,13 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
      * plugin reads it itself. The in-hand-code variant is {@link transformSource}, used by `transform`
      * where Rollup already supplies the module code.
      */
-    async function transformFile(fileName: string): Promise<ShopwareSetupTransformResult | null> {
+    async function transformFile(
+        fileName: string,
+    ): Promise<{ source: string; result: ShopwareSetupTransformResult | null }> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
-        const code = await fs.readFile(fileName, 'utf8');
+        const source = await fs.readFile(fileName, 'utf8');
 
-        return transformShopwareSetupSfc(code, fileName);
+        return { source, result: transformShopwareSetupSfc(source, fileName) };
     }
 
     /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
@@ -173,7 +177,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 return null;
             }
 
-            const result = await transformFile(fileName);
+            const { source: fileSource, result } = await transformFile(fileName);
 
             if (!result) {
                 return null;
@@ -181,7 +185,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             const virtualFileName = virtualSourcemap.toVirtualFileName(fileName);
             virtualSourcemap.rememberOriginalFile(virtualFileName, fileName);
-            resolvedTransforms.set(fileName, result);
+            resolvedTransforms.set(fileName, { source: fileSource, result });
 
             return virtualFileName;
         },
@@ -211,9 +215,11 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // this virtual module in dev/watch mode.
             this.addWatchFile(originalFileName);
 
+            // Reuse the stash only for unchanged source - a stale entry would serve the previous version.
+            const source = await fs.readFile(originalFileName, 'utf8');
             const cached = resolvedTransforms.get(originalFileName);
             resolvedTransforms.delete(originalFileName);
-            const result = cached ?? (await transformFile(originalFileName));
+            const result = cached?.source === source ? cached.result : await transformSource(source, originalFileName);
 
             if (!result) {
                 return null;
@@ -248,6 +254,31 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 code: result.code,
                 map: result.map,
             };
+        },
+
+        /**
+         * Routes a change of a real `.vue` file to its virtual `.shopware-setup.vue` module.
+         *
+         * The module graph knows the SFC only under its virtual id, and Vite derives hot updates purely
+         * from `getModulesByFile(<changed file>)` - `addWatchFile` alone does not link file and module,
+         * so without this hook an edit invalidated nothing until the dev server was restarted.
+         * Returning the virtual module makes Vite invalidate it and push the update to the client.
+         */
+        hotUpdate({ file, modules }) {
+            if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
+                return undefined;
+            }
+
+            const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
+
+            if (!virtualModule) {
+                return undefined;
+            }
+
+            return [
+                ...modules,
+                virtualModule,
+            ];
         },
 
         watchChange(id, change) {

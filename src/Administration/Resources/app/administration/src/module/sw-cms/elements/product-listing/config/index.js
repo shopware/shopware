@@ -3,6 +3,8 @@ import './sw-cms-el-config-product-listing.scss';
 
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
+const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
+const { isEmpty } = Shopware.Utils.types;
 
 /**
  * @private
@@ -268,6 +270,9 @@ export default {
                 this.element.config.defaultSorting.value = this.defaultSorting.id;
             }
         },
+        'element.config.filters.value'() {
+            this.unpackFilters();
+        },
     },
 
     created() {
@@ -482,6 +487,7 @@ export default {
             const filters = this.element.config.filters.value;
 
             if (filters === null || filters === '') {
+                this.filters = [];
                 return;
             }
 
@@ -526,6 +532,45 @@ export default {
                     current,
                 ];
             }, []);
+        },
+
+        onFilterInheritanceRemove() {
+            const childConfig = this.contentEntity?.slotConfig?.[this.element.id];
+
+            if (!childConfig || has(childConfig, 'propertyWhitelist')) {
+                return;
+            }
+
+            const inherited = get(this.inheritedSlotConfig?.[this.element.id], 'propertyWhitelist') ?? {
+                source: 'static',
+                value: [],
+            };
+            set(childConfig, 'propertyWhitelist', cloneDeep(inherited));
+        },
+
+        onFilterInheritanceRestore() {
+            const contentEntity = this.contentEntity;
+            const slotConfig = contentEntity?.slotConfig;
+
+            if (slotConfig?.[this.element.id]) {
+                unset(slotConfig[this.element.id], 'propertyWhitelist');
+
+                if (isEmpty(slotConfig[this.element.id])) {
+                    unset(slotConfig, this.element.id);
+                }
+
+                if (isEmpty(slotConfig)) {
+                    set(contentEntity, 'slotConfig', null);
+                }
+            }
+
+            const inherited = get(this.inheritedSlotConfig?.[this.element.id], 'propertyWhitelist') ?? {
+                source: 'static',
+                value: [],
+            };
+            set(this.element.config, 'propertyWhitelist', cloneDeep(inherited));
+            this.unpackFilters();
+            this.sortProperties(this.properties);
         },
     },
 };

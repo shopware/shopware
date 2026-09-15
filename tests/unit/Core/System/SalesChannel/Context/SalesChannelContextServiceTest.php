@@ -6,10 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\RuleLoaderResult;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -33,7 +31,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(SalesChannelContextService::class)]
 class SalesChannelContextServiceTest extends TestCase
 {
@@ -70,26 +68,25 @@ class SalesChannelContextServiceTest extends TestCase
 
         $cart = new Cart($expiredToken);
         $cart->setRuleIds(['rule-1', 'rule-2']);
-        $result = new RuleLoaderResult($cart, new RuleCollection());
 
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $cartRuleLoader
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator
             ->expects($this->once())
-            ->method('loadByToken')
-            ->with($context, static::logicalNot(static::equalTo($expiredToken)))
-            ->willReturn($result);
+            ->method('calculateByToken')
+            ->with(static::logicalNot(static::equalTo($expiredToken)), $context)
+            ->willReturn($cart);
 
         $cartService = $this->createMock(CartService::class);
         $cartService
             ->expects($this->once())
             ->method('setCart')
-            ->with($result->getCart());
+            ->with($cart);
 
         $request = $this->setupSessionAndRequest();
 
         $service = new SalesChannelContextService(
             $factory,
-            $cartRuleLoader,
+            $cartCalculator,
             $persister,
             $cartService,
             static::createStub(EventDispatcherInterface::class),
@@ -130,26 +127,25 @@ class SalesChannelContextServiceTest extends TestCase
 
         $cart = new Cart($noneExpiringToken);
         $cart->setRuleIds(['rule-3', 'rule-4']);
-        $result = new RuleLoaderResult($cart, new RuleCollection());
 
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $cartRuleLoader
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator
             ->expects($this->once())
-            ->method('loadByToken')
-            ->with($context, $noneExpiringToken)
-            ->willReturn($result);
+            ->method('calculateByToken')
+            ->with($noneExpiringToken, $context)
+            ->willReturn($cart);
 
         $cartService = $this->createMock(CartService::class);
         $cartService
             ->expects($this->once())
             ->method('setCart')
-            ->with($result->getCart());
+            ->with($cart);
 
         $this->setupSessionAndRequest();
 
         $service = new SalesChannelContextService(
             $factory,
-            $cartRuleLoader,
+            $cartCalculator,
             $persister,
             $cartService,
             static::createStub(EventDispatcherInterface::class),
@@ -183,7 +179,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $service = new SalesChannelContextService(
             $factory,
-            static::createStub(CartRuleLoader::class),
+            static::createStub(CartCalculator::class),
             $persister,
             static::createStub(CartService::class),
             $eventDispatcher,
@@ -198,7 +194,7 @@ class SalesChannelContextServiceTest extends TestCase
     {
         $customerId = Uuid::randomHex();
         $token = Uuid::randomHex();
-        $result = new RuleLoaderResult(new Cart($token), new RuleCollection());
+        $cart = new Cart($token);
 
         $persister = static::createStub(SalesChannelContextPersister::class);
         $persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
@@ -218,21 +214,21 @@ class SalesChannelContextServiceTest extends TestCase
             ->with($token)
             ->willReturn($hasCart);
 
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartCalculator = $this->createMock(CartCalculator::class);
 
         if ($expectCalculation) {
-            $cartRuleLoader
+            $cartCalculator
                 ->expects($this->once())
-                ->method('loadByToken')
-                ->with($context, $token)
-                ->willReturn($result);
+                ->method('calculateByToken')
+                ->with($token, $context)
+                ->willReturn($cart);
 
             $cartService
                 ->expects($this->once())
                 ->method('setCart')
-                ->with($result->getCart());
+                ->with($cart);
         } else {
-            $cartRuleLoader
+            $cartCalculator
                 ->expects($this->never())
                 ->method(static::anything());
 
@@ -250,7 +246,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $service = new SalesChannelContextService(
             $factory,
-            $cartRuleLoader,
+            $cartCalculator,
             $persister,
             $cartService,
             static::createStub(EventDispatcherInterface::class),
@@ -277,7 +273,7 @@ class SalesChannelContextServiceTest extends TestCase
         $originalContext = new Context(new SystemSource());
         $originalContext->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('withPermissions')->willReturn(static::createStub(RuleLoaderResult::class));
+        $context->method('withPermissions')->willReturn(new Cart($token));
         $context->expects($this->once())
             ->method('addState')
             ->with(Context::ELASTICSEARCH_EXPLAIN_MODE);
@@ -303,7 +299,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $service = new SalesChannelContextService(
             $factory,
-            static::createStub(CartRuleLoader::class),
+            static::createStub(CartCalculator::class),
             $persister,
             static::createStub(CartService::class),
             $dispatcher,
@@ -349,10 +345,10 @@ class SalesChannelContextServiceTest extends TestCase
             ->method('setRuleIds')
             ->with($ruleIds);
 
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $cartRuleLoader
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator
             ->expects($this->never())
-            ->method('loadByToken');
+            ->method('calculateByToken');
         $cartService
             ->expects($this->never())
             ->method('setCart');
@@ -365,7 +361,7 @@ class SalesChannelContextServiceTest extends TestCase
 
         $service = new SalesChannelContextService(
             $factory,
-            $cartRuleLoader,
+            $cartCalculator,
             $persister,
             $cartService,
             static::createStub(EventDispatcherInterface::class),

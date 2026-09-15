@@ -36,10 +36,8 @@ function createHTTPClientWithSpies() {
 describe('core/factory/http.factory.js', () => {
     let httpClient;
     let mock;
-    let activeFeatureFlags;
 
     beforeEach(async () => {
-        activeFeatureFlags = [...global.activeFeatureFlags];
         /**
          * axios-client-mock does not work with request interceptors. So we enable our interceptor here
          */
@@ -47,10 +45,6 @@ describe('core/factory/http.factory.js', () => {
         httpClient = createHTTPClient();
         mock = new MockAdapter(httpClient);
         process.env.NODE_ENV = 'test';
-    });
-
-    afterEach(() => {
-        global.activeFeatureFlags = activeFeatureFlags;
     });
 
     it('should create a HTTP client with response interceptors', async () => {
@@ -246,8 +240,8 @@ describe('core/factory/http.factory.js', () => {
         expect(typeof httpClient.request).toBe('function');
     });
 
-    it('should use axios v0 by default before v6.8', async () => {
-        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
+    it.deprecated('v6.8.0.0')('should use axios v0 by default before v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -261,8 +255,8 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).not.toHaveBeenCalled();
     });
 
-    it('should opt in to axios v1 per request before v6.8', async () => {
-        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
+    it.deprecated('v6.8.0.0')('should opt in to axios v1 per request before v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -282,8 +276,8 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
-    it('should support the axios URL and config call form', async () => {
-        global.activeFeatureFlags = global.activeFeatureFlags.filter((flag) => flag !== 'V6_8_0_0');
+    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
+    it.deprecated('v6.8.0.0')('should support the axios URL and config call form', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request').mockResolvedValue({ data: { success: true } });
@@ -306,13 +300,7 @@ describe('core/factory/http.factory.js', () => {
         });
     });
 
-    it('should use axios v1 by default with v6.8', async () => {
-        global.activeFeatureFlags = [
-            ...new Set([
-                ...global.activeFeatureFlags,
-                'V6_8_0_0',
-            ]),
-        ];
+    it.activeFeatureFlags(['v6.8.0.0'])('should use axios v1 by default with v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
@@ -326,13 +314,7 @@ describe('core/factory/http.factory.js', () => {
         expect(axiosV1Request).toHaveBeenCalledTimes(1);
     });
 
-    it('should opt out to axios v0 per request with v6.8', async () => {
-        global.activeFeatureFlags = [
-            ...new Set([
-                ...global.activeFeatureFlags,
-                'V6_8_0_0',
-            ]),
-        ];
+    it.activeFeatureFlags(['v6.8.0.0'])('should opt out to axios v0 per request with v6.8', async () => {
         const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
         const axiosV0Request = jest.spyOn(axiosV0, 'request');
         const axiosV1Request = jest.spyOn(axiosV1Client, 'request');

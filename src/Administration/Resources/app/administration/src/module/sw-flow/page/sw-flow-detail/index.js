@@ -98,6 +98,9 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+
             return criteria;
         },
 
@@ -466,7 +469,7 @@ export default {
                 await this.flowSequenceRepository.syncDeleted(deletedSequenceIds);
             }
 
-            const updateFlow = await this.flowRepository.get(this.flowId, Context.api);
+            const updateFlow = await this.flowRepository.get(this.flowId, Context.api, this.flowCriteria);
 
             Object.keys(updateFlow).forEach((key) => {
                 if (key !== 'sequences') {

@@ -1,127 +1,114 @@
-import {
-    CrossBlockConditionTransformError,
-    normalizeCrossBlockConditionals,
-} from './template-transformer/normalize-cross-block-conditionals';
-
 /**
- * Twig is a line-oriented text format, not a language ts-morph understands.
- * Regex is the right tool here: every pattern (block tags, endblock, parent())
- * is a single fixed token that never nests inside JS expressions.
+ * @sw-package framework
  */
 
-const EXTENDS_RE = /\{%\s*extends\b[\s\S]*?%\}/;
-const TWIG_COMMENT_RE = /\{#([\s\S]*?)#\}/g;
-const ESLINT_DISABLE_TWIG = '<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->';
-const BLOCK_START_LINE_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/;
-const BLOCK_END_LINE_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/;
-const PARENT_LINE_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/;
-const TWIG_SYNTAX_RE = /\{%\s*(?:block|endblock|extends)\b|\{[{%]\s*parent\(?\)?\s*[%}]\}/;
-const UNSUPPORTED_TEMPLATE_ERROR = 'Twig template is not supported by the SFC migration codemod.';
-const UNSUPPORTED_EXTENDS_ERROR = 'Twig extends is not supported by the SFC migration codemod.';
-const UNSUPPORTED_EXTENDS_BLOCKER = 'twig extends';
-const UNSUPPORTED_COMMENT_SYNTAX_BLOCKER = 'twig syntax inside comment';
-const UNSUPPORTED_PARENT_BLOCKER = 'twig parent() without block';
-
-export class TemplateTransformError extends Error {
-    public constructor(
-        public readonly blockers: string[],
-        message = UNSUPPORTED_TEMPLATE_ERROR,
-    ) {
-        super(message);
-        this.name = 'TemplateTransformError';
-    }
-}
-
-function isTwigBlockMigrationLine(line: string): boolean {
-    return BLOCK_START_LINE_RE.test(line) || BLOCK_END_LINE_RE.test(line) || PARENT_LINE_RE.test(line);
-}
-
-function hasTwigSyntaxInComment(twigContent: string): boolean {
-    TWIG_COMMENT_RE.lastIndex = 0;
-
-    // Comments are converted before block replacements. A commented-out Twig
-    // block would otherwise become an HTML comment and then be migrated into
-    // real <sw-block> markup inside that comment.
-    return Array.from(twigContent.matchAll(TWIG_COMMENT_RE)).some((match) => TWIG_SYNTAX_RE.test(match[1] ?? ''));
-}
-
 /**
- * Converts a `.html.twig` file's content into a Vue `<template>` block.
+ * The Administration's twig layer only ever uses `{% block %}`, `{% parent %}` and `{# comments #}`
+ * (verified over all 994 templates), so the conversion is a handful of text replacements; anything
+ * else is reported as a blocker instead of being guessed at. The `:data` binding of `<sw-block>` is
+ * owned by the Shopware setup transform and must never be authored here.
  *
- * - `{% block name %}` → `<sw-block name="name" :data="$dataScope">`
- * - `{% endblock %}`  → `</sw-block>`
- * - `{{ parent() }}`  → `<sw-block-parent/>`
- * - `{% extends '…' %}` throws because template inheritance is unsupported
- * - Accompanying eslint-disable-next-line comments are removed
- * - Plain HTML / Vue expressions pass through unchanged
+ * Turning transparent twig blocks into real elements breaks `v-if` chains that span a block
+ * boundary, so root Twig comments leave the render tree through `move-root-comments.ts`, then
+ * `normalize-cross-block-conditionals.ts` runs, and `assert-single-root.ts` reads the finished markup
+ * last — the guards that normalization inserts are roots of their own, so the root tally is only
+ * correct once they exist.
  */
-export function transformTemplate(twigContent: string): { template: string } {
-    const BLOCK_START_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/g;
-    const BLOCK_END_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/g;
-    const PARENT_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/g;
 
-    const hasTwigBlocks = BLOCK_START_LINE_RE.test(twigContent);
+import { assertBlockSlots } from './assert-block-slots';
+import { assertSingleRoot } from './assert-single-root';
+import { hoistBlockSlots } from './hoist-block-slots';
+import { moveRootTwigCommentsOutOfTemplate, TWIG_COMMENT_MARKER } from './move-root-comments';
+import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
-    if (hasTwigSyntaxInComment(twigContent)) {
-        throw new TemplateTransformError([UNSUPPORTED_COMMENT_SYNTAX_BLOCKER]);
-    }
+type TemplateResult = {
+    template: string | null;
+    blockers: string[];
+    /** Reasons the template still converts but the draft needs a look; they downgrade it to partial. */
+    warnings?: string[];
+    /** Root Twig comments preserved outside `<template>`, where they do not become rendered roots. */
+    sfcComments?: string[];
+};
 
-    if (EXTENDS_RE.test(twigContent)) {
-        // Resolving Twig inheritance would require loading parent templates and
-        // merging block overrides. This codemod only transforms one component
-        // directory at a time, so inherited templates need manual migration.
-        throw new TemplateTransformError([UNSUPPORTED_EXTENDS_BLOCKER], UNSUPPORTED_EXTENDS_ERROR);
-    }
+const ESLINT_BLOCK_DISABLE =
+    /[^\S\n]*<!--\s*eslint-disable(?:-next-line)?\s+sw-deprecation-rules\/no-twigjs-blocks\s*-->\n?/g;
+const TWIG_COMMENT = /\{#([\s\S]*?)#\}/g;
+// `-->` and `--!>` both close an HTML comment, so a twig comment carrying either would end early
+// and spill its tail into rendered markup — output Vue parses without complaint, which puts it past
+// the validation gate. Separating the dashes from the `>` is the smallest edit that cannot form a
+// terminator; comments carry no behaviour, so altering one beats refusing the component over it.
+const HTML_COMMENT_END = /--!?>/g;
+const TWIG_BLOCK_START = /\{%-?\s*block\s+([\w-]+)\s*-?%\}/g;
+const TWIG_BLOCK_END = /\{%-?\s*endblock\s*-?%\}/g;
+const TWIG_PARENT = /\{\{\s*parent\(\)\s*\}\}|\{%-?\s*parent\s*-?%\}/g;
+const TWIG_PARENT_BLOCKER = '{% parent %} needs override output (the codemod only writes base components)';
 
-    if (!hasTwigBlocks && PARENT_LINE_RE.test(twigContent)) {
-        // `parent()` only has meaning inside a block override. Without a
-        // surrounding block it cannot be mapped to <sw-block-parent/> and would
-        // otherwise be emitted as a runtime Vue method call.
-        throw new TemplateTransformError([UNSUPPORTED_PARENT_BLOCKER]);
-    }
-
-    let body = twigContent;
-
-    // Convert Twig comments to HTML comments regardless of block usage
-    body = body.replace(TWIG_COMMENT_RE, (_, content) => `<!--${content}-->`);
-
-    const cleanedLines = body.split('\n').filter((line, index, lines) => {
-        const trimmed = line.trim();
-        const nextLine = lines[index + 1] ?? '';
-        const previousLine = lines[index - 1] ?? '';
-
-        // These disables targeted Twig syntax that no longer exists after
-        // migration; keeping them would suppress linting for the next Vue line.
-        if (
-            trimmed === ESLINT_DISABLE_TWIG &&
-            (isTwigBlockMigrationLine(nextLine) || isTwigBlockMigrationLine(previousLine))
-        ) {
-            return false;
-        }
-
-        return true;
-    });
-
-    body = cleanedLines.join('\n');
-
-    if (hasTwigBlocks) {
-        body = body
-            .split('\n')
-            .map((line) => line.replace(BLOCK_START_RE, '<sw-block name="$1" :data="$dataScope">'))
-            .map((line) => line.replace(BLOCK_END_RE, '</sw-block>'))
-            .map((line) => line.replace(PARENT_RE, '<sw-block-parent/>'))
-            .join('\n');
-        try {
-            body = normalizeCrossBlockConditionals(body);
-        } catch (err) {
-            if (err instanceof CrossBlockConditionTransformError) {
-                throw new TemplateTransformError(err.blockers, err.message);
-            }
-
-            throw err;
-        }
-    }
-
-    const transformed = `<template>\n${body}\n</template>`;
-    return { template: transformed };
+/** A twig comment body as HTML comment text that cannot terminate the comment before its end. */
+function commentText(body: string): string {
+    return body.replace(HTML_COMMENT_END, (terminator) => `-- ${terminator.slice(2)}`);
 }
+
+function transformTemplate(twig: string): TemplateResult {
+    // `{% parent %}` only means something in an override template. The codemod always writes
+    // `<name>.vue`, which the setup transform reads as a base component, where `<sw-block-parent />`
+    // renders nothing and the block name would be claimed from its real owner. `.match()` rather
+    // than `.test()`, because the regex is global and `.test()` carries `lastIndex` between calls.
+    if (twig.match(TWIG_PARENT)) {
+        return { template: null, blockers: [TWIG_PARENT_BLOCKER] };
+    }
+
+    const template = twig
+        .replace(ESLINT_BLOCK_DISABLE, '')
+        .replace(TWIG_COMMENT, (_match, body: string) => `<!--${TWIG_COMMENT_MARKER}${commentText(body)}-->`)
+        .replace(TWIG_BLOCK_START, '<sw-block name="$1">')
+        .replace(TWIG_BLOCK_END, '</sw-block>');
+
+    const leftoverTwig = template.match(/\{[%#][^\n]*/);
+
+    if (leftoverTwig) {
+        return { template: null, blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`] };
+    }
+
+    // Runs before the gate below, so a slot the conversion re-parented is repaired rather than refused.
+    const hoisted = hoistBlockSlots(template);
+
+    if (hoisted.blockers.length > 0) {
+        return { template: null, blockers: hoisted.blockers };
+    }
+
+    // Checked before the guard insertion below, so the blocker describes the authored shape.
+    const slotBlockers = assertBlockSlots(hoisted.template);
+
+    if (slotBlockers.length > 0) {
+        return { template: null, blockers: slotBlockers };
+    }
+
+    // A Twig comment rendered nothing. Preserve root comments as SFC comments outside `<template>`,
+    // otherwise Vue keeps them as rendered roots in development and changes `$el` into an anchor.
+    const rooted = moveRootTwigCommentsOutOfTemplate(hoisted.template);
+    const normalized = normalizeCrossBlockConditionals(rooted.template);
+
+    if (normalized.template === null) {
+        return normalized;
+    }
+
+    // Last, so the guards the normalization inserts count towards the root tally like any other node.
+    const warnings = assertSingleRoot(rooted.template, normalized.template);
+
+    return {
+        template: [
+            ...warnings.map(templateTodo),
+            normalized.template,
+        ].join('\n'),
+        blockers: normalized.blockers,
+        warnings,
+        sfcComments: rooted.sfcComments,
+    };
+}
+
+/** A template-level note, in the same shape the script transform uses for its own TODOs. */
+function templateTodo(warning: string): string {
+    return `<!-- TODO(sfc-migration) VERIFY: ${warning}. Give the twig a single top-level block to restore it. -->`;
+}
+
+export { transformTemplate, TWIG_PARENT_BLOCKER, type TemplateResult };

@@ -245,7 +245,10 @@ class DebugMcpCommand extends Command
     {
         $rows = [];
         $properties = $tool->inputSchema['properties'] ?? [];
-        $required = \is_array($tool->inputSchema['required']) ? $tool->inputSchema['required'] : [];
+        // the SDK's SchemaGenerator omits the 'required' key when no parameter is required,
+        // and third-party registrations may carry a non-array value there
+        // @phpstan-ignore nullCoalesce.unnecessary (the ToolInputSchema type alias claims the key always exists, contrary to the SchemaGenerator output)
+        $required = \is_array($tool->inputSchema['required'] ?? null) ? $tool->inputSchema['required'] : [];
 
         if (\is_array($properties)) {
             foreach ($properties as $paramName => $def) {

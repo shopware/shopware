@@ -134,16 +134,9 @@ export default {
 
         updateIntegration(integration) {
             this.isModalLoading = true;
-            const shouldSaveAdminFlag = this.shouldSaveAdminFlag(integration);
 
             this.integrationRepository
                 .save(integration)
-                .then(() => {
-                    return this.updateAdminFlagIfNecessary(integration, shouldSaveAdminFlag);
-                })
-                .then(() => {
-                    return this.getList();
-                })
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.onCloseDetailModal();
@@ -161,19 +154,12 @@ export default {
             }
 
             this.isModalLoading = true;
-            const integration = this.currentIntegration;
-            const shouldSaveAdminFlag = this.shouldSaveAdminFlag(integration);
 
             this.integrationRepository
-                .save(integration)
-                .then(() => {
-                    return this.updateAdminFlagIfNecessary(integration, shouldSaveAdminFlag);
-                })
-                .then(() => {
-                    return this.getList();
-                })
+                .save(this.currentIntegration)
                 .then(() => {
                     this.createSavedSuccessNotification();
+                    this.getList();
                 })
                 .catch(() => {
                     this.createSavedErrorNotification();
@@ -183,24 +169,6 @@ export default {
                         this.onCloseDetailModal();
                     });
                 });
-        },
-
-        shouldSaveAdminFlag(integration) {
-            if (!integration || typeof integration.getOrigin !== 'function') {
-                return false;
-            }
-
-            const origin = integration.getOrigin();
-
-            return Boolean(origin?.admin) !== Boolean(integration.admin);
-        },
-
-        updateAdminFlagIfNecessary(integration, shouldSaveAdminFlag) {
-            if (!shouldSaveAdminFlag) {
-                return Promise.resolve();
-            }
-
-            return this.integrationService.updateAdmin(integration.id, integration.admin);
         },
 
         createSavedSuccessNotification() {

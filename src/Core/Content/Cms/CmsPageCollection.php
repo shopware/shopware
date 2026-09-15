@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CmsPageEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class CmsPageCollection extends EntityCollection

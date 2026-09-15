@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -34,6 +35,7 @@ class EntityReadToolTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $entity = new ArrayEntity(['id' => 'prod-123', 'name' => 'Test Product']);
+        $entity->internalSetEntityData('product', new FieldVisibility([]));
         $collection = new EntitySearchResult(
             'product',
             1,

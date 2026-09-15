@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(SeoUrlRouteConfig::class)]
 class SeoUrlRouteConfigTest extends TestCase
 {

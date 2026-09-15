@@ -145,6 +145,24 @@ describe('build/vue-setup-transform SFC block detection', () => {
         );
     });
 
+    it('preserves the codemod module prelude marker beside setup code', () => {
+        const source = stripIndent`
+            <script data-sfc-migration-module>
+            export const moduleValue = 1;
+            </script>
+            <script setup>
+            const count = 1;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'marked-module.vue');
+
+        expect(result.code).toContain('<script data-sfc-migration-module>');
+        expect(result.code).toContain('export const moduleValue = 1;');
+        expect(result.code).toContain("name: 'marked-module'");
+    });
+
     it('skips transformation when Vue reports SFC parse errors', () => {
         const source = stripIndent`
             <template>

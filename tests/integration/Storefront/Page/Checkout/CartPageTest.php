@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 class CartPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

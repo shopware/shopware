@@ -563,7 +563,8 @@ class ThemeLifecycleService
     private function addParentTheme(StorefrontPluginConfiguration $configuration, array $themeData, Context $context): array
     {
         $lastNotSameTheme = null;
-        foreach (array_reverse($configuration->getConfigInheritance()) as $themeName) {
+        // configInheritance is ordered from least to most specific, the last entry is the nearest ancestor.
+        foreach ($configuration->getConfigInheritance() as $themeName) {
             if (
                 $themeName === '@' . StorefrontPluginRegistry::BASE_THEME_NAME
                 || $themeName === '@' . $themeData['technicalName']

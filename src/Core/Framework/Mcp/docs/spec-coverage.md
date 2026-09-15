@@ -2,6 +2,17 @@
 
 Reference spec: [Model Context Protocol server specification 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/server)
 
+Shopware serves the handshake era only. mcp/sdk 0.8 added the 2026-07-28 revision and serves it from
+the same endpoint by default, but both Shopware servers are pinned back to the handshake era with
+`Builder::withoutModernEra()` in `McpServerBuilderCompilerPass`. That era is stateless: it mints no
+`Mcp-Session-Id`, which the toolset session storage and the list-changed notifications are built on,
+and a handler returning an `InputRequiredResult` additionally needs a signed request-state key shared
+across every worker that might serve the retry. Adopting it is its own piece of work, not a
+side effect of a dependency bump.
+
+The same SDK release deprecated Roots, Sampling and Logging (SEP-2577, earliest removal 2027-07-28).
+Shopware exposes none of the three, so nothing here depends on them.
+
 This doc is the compact matrix for one question:
 
 - what the MCP server spec allows
@@ -29,7 +40,7 @@ The intent is clarity, not false certainty. Where the current state is not verif
 | Prompts | `prompts/list`, `prompts/get`, optional `notifications/prompts/list_changed`, paginated `prompts/list`, metadata like `title`, `description`, `icons`, prompt arguments | Core `shopware-context` prompt exists; app-backed prompts exist | clear | Audit pagination, `listChanged`, and whether prompt metadata should use more spec fields |
 | Resources | `resources/list`, `resources/read`, `resources/templates/list`, optional `resources/subscribe`, optional `resources/unsubscribe`, optional `notifications/resources/updated`, optional `notifications/resources/list_changed`, paginated list operations | Small fixed set of reference resources exists; app-backed resources exist; resources are treated as read-only reference data | partial | Audit `resources/templates/list`, subscriptions, update notifications, metadata fields, and real pagination behavior |
 | Utilities: Completion | `completion/complete` for prompt arguments and URI template arguments | Support is not documented clearly enough yet | unknown | Audit `symfony/mcp-bundle` and SDK support, then decide whether Shopware should expose domain-specific completions like entity names or state-machine actions |
-| Utilities: Logging | Declared `logging` capability, `logging/setLevel`, `notifications/message` with RFC 5424-style levels | Shopware has an `mcp` Monolog channel, but that is not yet a documented MCP logging utility story | partial | Decide whether Shopware wants real MCP logging utility support; keep product metrics on telemetry, not on log parsing |
+| Utilities: Logging | Declared `logging` capability, `logging/setLevel`, `notifications/message` with RFC 5424-style levels | Shopware has an `mcp` Monolog channel, which is a support tool, not the protocol utility | not planned | Deprecated upstream by SEP-2577 (earliest removal 2027-07-28). Do not build it; keep product metrics on telemetry, not on log parsing |
 | Utilities: Pagination | Opaque cursor pagination on `tools/list`, `prompts/list`, `resources/list`, `resources/templates/list` | Shopware already uses application-level pagination inside some tool payloads, but MCP list pagination is not documented clearly | partial | Verify which MCP list endpoints are actually paginated and align capability advertising and response objects |
 | Initialize capability advertisement | `initialize` should only advertise what the server actually supports | Current docs do not pin this down clearly enough | unknown | Audit actual advertised capabilities vs implementation and keep that check in CI or release verification |
 
@@ -69,7 +80,7 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 |---|---|---|
 | Central adoption metrics across installations | Shopware telemetry abstraction with OpenTelemetry-capable transports | Product and platform need centralized, comparable metrics |
 | Request-level support and debugging | Structured logs on the `mcp` channel | Logs are still useful for correlation and support trails |
-| MCP protocol logging utility | Optional later capability | Only add it if we actually need MCP `logging/setLevel` and `notifications/message` as protocol features |
+| MCP protocol logging utility | Dropped | SEP-2577 deprecated Logging in mcp/sdk 0.8 before Shopware ever adopted it. The question is closed: do not add `logging/setLevel` or `notifications/message` |
 
 ## Recommended next checks
 
@@ -77,6 +88,6 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 |---|---|---|
 | 1 | Audit actual `initialize` capability advertisement | No over-promising in capability flags |
 | 2 | Audit `tools/list`, `prompts/list`, `resources/list`, and `resources/templates/list` for pagination behavior | Honest docs and capability claims |
-| 3 | Decide whether Shopware wants real MCP logging utility support or only telemetry plus support logs | Clear logging story |
+| 3 | ~~Decide whether Shopware wants real MCP logging utility support~~ — answered by SEP-2577: telemetry plus support logs, no protocol logging | Clear logging story |
 | 4 | Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema` | Cleaner tool result contract |
 | 5 | Mirror the final matrix into official docs on `developer.shopware.com/docs` | One canonical public explanation |

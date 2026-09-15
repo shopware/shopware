@@ -23,6 +23,7 @@ export default class Feature {
     static init(flagConfig: { [featureName: string]: boolean }): void
     static getAll(): { [featureName: string]: boolean }
     static isActive(flagName: string): boolean
+    static triggerDeprecationOrThrow(majorFlag: string, message: string): void
 }
 ```
 
@@ -147,22 +148,29 @@ The codebase uses ESLint rules to enforce deprecation standards:
 
 This rule ensures proper handling of deprecated features and prevents inappropriate usage.
 
-### Runtime Deprecation Warnings
+### Runtime Deprecation Guards
 
-Deprecated functionality includes runtime warnings that can be controlled by feature flags:
+A deprecated public API guards the boundary where it is consumed. `triggerDeprecationOrThrow` warns in
+development while the major flag is inactive and throws once it is active, so a missed migration in
+core or in an extension fails in next-major mode instead of surviving to the removal:
 
 ```typescript
-// Example from vue.adapter.ts
-this.app.config.globalProperties.$tc = function (...args) {
-    if (window._features_.V6_8_0_0) {
-        console.warn(
-            'Deprecation Warning',
-            'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-        );
-    }
-    return i18n.global.t(...fixI18NParametersOrder(args));
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
+```
+
+Deprecated components and props are annotated declaratively instead. `src/app/plugin/deprecation.plugin.js`
+installs a global `created()` hook that guards a component when it is created and a prop when it is
+supplied:
+
+```js
+export default {
+    deprecated: { version: 'v6.8.0.0', comment: 'Use "mt-select" instead.' },
 };
 ```
+
+Under Jest the warning is suppressed (`Feature.emitDeprecations` is off), because the suite covers both
+sides of a flag on purpose and an unexpected `console.warn` fails a test. The next-major error is never
+suppressed.
 
 ## Coding Guidelines
 

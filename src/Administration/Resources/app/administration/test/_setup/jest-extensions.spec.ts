@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import { createActiveFeatureFlagsTest, createDeprecatedTest } from './jest-extensions';
 
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
+const pendingExpectedFailureSymbol = Symbol.for('shopware.pendingTestExpectsFailure');
 
 const defaultActiveFeatureFlags =
     (Reflect.get(globalThis, Symbol.for('shopware.defaultActiveFeatureFlags')) as string[] | undefined) ?? [];
@@ -19,9 +20,9 @@ function readPendingFeatureFlags(): string[] {
 }
 
 function createTestFunctionSpy() {
-    // `it.skip` carries `each` in real Jest, so the spy has to as well.
+    // `it.failing` carries `each` in real Jest, so the spy has to as well.
     return Object.assign(jest.fn(), {
-        skip: Object.assign(jest.fn(), { each: jest.fn(() => jest.fn()) }),
+        failing: Object.assign(jest.fn(), { each: jest.fn(() => jest.fn()) }),
         each: jest.fn(() => jest.fn()),
     }) as unknown as jest.It;
 }
@@ -33,20 +34,48 @@ describe('Jest feature flag extensions', () => {
         createDeprecatedTest(testFunction)('v99.0.0.0')('deprecated test', jest.fn());
 
         expect(testFunction).toHaveBeenCalledWith('deprecated test (removed in v99.0.0.0)', expect.any(Function), undefined);
-        expect(testFunction.skip).not.toHaveBeenCalled();
+        expect(testFunction.failing).not.toHaveBeenCalled();
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('skips a deprecated test when its major feature flag is active', () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('expects a deprecated test to fail when its major feature flag is active', () => {
         const testFunction = createTestFunctionSpy();
 
         createDeprecatedTest(testFunction)('v6.8.0.0')('deprecated test', jest.fn());
 
         expect(testFunction).not.toHaveBeenCalled();
-        expect(testFunction.skip).toHaveBeenCalledWith(
+        expect(testFunction.failing).toHaveBeenCalledWith(
             'deprecated test (removed in v6.8.0.0)',
             expect.any(Function),
             undefined,
         );
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('marks a deprecated test as expected to fail while it registers', () => {
+        const testFunction = createTestFunctionSpy();
+        let markedAtRegistration: unknown;
+        (testFunction.failing as unknown as jest.Mock).mockImplementation(() => {
+            markedAtRegistration = Reflect.get(globalThis, pendingExpectedFailureSymbol);
+        });
+
+        createDeprecatedTest(testFunction)('v6.8.0.0')('deprecated test', jest.fn());
+
+        // The console guard reads this through the environment, so it has to be set while Jest adds
+        // the test, not while the test runs.
+        expect(markedAtRegistration).toBe(true);
+        // The slot must not outlive the registration, or the next plain it() would inherit it.
+        expect(Reflect.has(globalThis, pendingExpectedFailureSymbol)).toBeFalsy();
+    });
+
+    it('does not mark a deprecated test whose removal flag is inactive', () => {
+        const testFunction = createTestFunctionSpy();
+        let markedAtRegistration: unknown;
+        (testFunction as unknown as jest.Mock).mockImplementation(() => {
+            markedAtRegistration = Reflect.get(globalThis, pendingExpectedFailureSymbol);
+        });
+
+        createDeprecatedTest(testFunction)('v99.0.0.0')('deprecated test', jest.fn());
+
+        expect(markedAtRegistration).toBeUndefined();
     });
 
     it('keeps the removal version unshortened in the suffix', () => {
@@ -93,12 +122,12 @@ describe('Jest feature flag extensions', () => {
         );
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('forwards each() to skip when the major feature flag is active', () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('forwards each() to failing when the major feature flag is active', () => {
         const testFunction = createTestFunctionSpy();
 
         createDeprecatedTest(testFunction)('v6.8.0.0').each([['first']])('handles %s', jest.fn());
 
-        expect(testFunction.skip.each).toHaveBeenCalledWith([['first']]);
+        expect(testFunction.failing.each).toHaveBeenCalledWith([['first']]);
         expect(testFunction.each).not.toHaveBeenCalled();
     });
 
@@ -195,7 +224,7 @@ describe('Jest feature flag extensions', () => {
             expect(Shopware.Feature.isActive('v6.8.0.0')).toBe(true);
         });
 
-        // @deprecated tag:v6.8.0 - Asserts the pre-major baseline, so it cannot run once v6.8 is the default.
+        // @deprecated tag:v6.8.0 - Asserts the pre-major baseline, so it has to fail once v6.8 is the default.
         it.deprecated('v6.8.0.0')('is not visible to Shopware.Feature without the helper', () => {
             expect(Shopware.Feature.isActive('v6.8.0.0')).toBe(false);
         });

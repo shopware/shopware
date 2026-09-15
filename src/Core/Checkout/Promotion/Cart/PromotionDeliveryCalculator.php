@@ -68,9 +68,6 @@ class PromotionDeliveryCalculator
 
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
-        // build exclusions list before reducing line items
-        $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
-
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
@@ -110,9 +107,7 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            $promotionId = $discountItem->getPayloadValue('promotionId');
-
-            if (\array_key_exists($promotionId, $exclusions)) {
+            if ($this->isExcluded($discountItem, $discountLineItems, $toCalculate, $context)) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
@@ -165,46 +160,59 @@ class PromotionDeliveryCalculator
     }
 
     /**
-     * This function builds a complete list of promotions
-     * that are excluded somehow.
-     * The validation which one to take will be done later.
-     *
-     * @return array<mixed, bool>
+     * Checks if a discount item is excluded by another promotion of higher priority.
      */
-    private function buildExclusions(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): array
+    private function isExcluded(LineItem $checkedItem, LineItemCollection $sortedDiscountItems, Cart $calculated, SalesChannelContext $context): bool
     {
-        // array that holds all excluded promotion ids.
-        // if a promotion has exclusions they are added on the stack
         $exclusions = [];
+        $checkedPromotionId = $checkedItem->getPayloadValue('promotionId');
+        $lineItems = $calculated->getLineItems();
 
-        foreach ($discountLineItems as $discountItem) {
-            // if we dont have a scope
-            // then skip it, it might not belong to us
+        foreach ($sortedDiscountItems as $discountItem) {
+            // if we dont have a scope: skip it, it might not belong to us
             if (!$discountItem->hasPayloadValue('discountScope')) {
                 continue;
             }
 
-            // if promotion is on exclusions stack it is ignored
-            if ($discountItem->hasPayloadValue('promotionId')) {
-                $promotionId = $discountItem->getPayloadValue('promotionId');
+            $priorityDiff = $discountItem->getPayloadValue('priority') - $checkedItem->getPayloadValue('priority');
 
-                // if promotion is on exclusions stack it is ignored
-                // this avoids cycles that both promotions exclude each other
-                if (isset($exclusions[$promotionId])) {
-                    continue;
-                }
+            if ($priorityDiff < 0) {
+                // collection is sorted by priority, from here on out there are only lower-priority items
+                break;
             }
 
-            // add all exclusions to the stack
+            $promotionId = $discountItem->getPayloadValue('promotionId');
+            if ($promotionId === null) {
+                // malformed discountItems without promotionId shouldn't be able to exclude anything
+                continue;
+            }
+
+            if ($promotionId === $checkedPromotionId) {
+                // within the same priority, enforce the loading order: whichever item is loaded first enforces its exclusions and can't be excluded by later items.
+                // if we'd continue instead, two same-priority promotions could exclude each other and neither would be added.
+                break;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            // this avoids cycles that both promotions exclude each other
+            if (isset($exclusions[$promotionId])) {
+                continue;
+            }
+
+            if (!$lineItems->exists($discountItem) && !$this->isRequirementValid($discountItem, $calculated, $context)) {
+                // $discountItem's requirements are not fulfilled (doesn't need to be checked if it was already added)
+                continue;
+            }
+
             foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                // check if the promotion is active by its conditions
-                if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                    $exclusions[$id] = true;
+                if ($id === $checkedPromotionId) {
+                    return true;
                 }
+                $exclusions[$id] = true;
             }
         }
 
-        return $exclusions;
+        return false;
     }
 
     /**

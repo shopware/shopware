@@ -12,6 +12,11 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
     inject: [
         'numberRangeService',
         'repositoryFactory',

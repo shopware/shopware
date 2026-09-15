@@ -227,6 +227,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         async createDocument(documentType, payload) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-bulk-edit-save-modal-process.createDocument() is deprecated. Removed with document generation v1.',
+            );
+
             if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
                 return this.createDocumentV2(documentType, payload);
             }
@@ -336,6 +341,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         getDocumentGenerationResult(response, documentType, requested) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-bulk-edit-save-modal-process.getDocumentGenerationResult() is deprecated. Removed with document generation v1.',
+            );
+
             const generatedDocuments = response?.data?.data;
 
             if (!Array.isArray(generatedDocuments)) {
@@ -357,6 +367,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         getFailedDocumentGenerationItems(errors, documentType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-bulk-edit-save-modal-process.getFailedDocumentGenerationItems() is deprecated. Removed with document generation v1.',
+            );
+
             return Object.entries(errors).map(
                 ([
                     orderId,

@@ -91,9 +91,19 @@ export default {
         /** @deprecated tag:v6.8.0 - isLoading will be removed, use loading.order instead */
         isLoading: {
             get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail.isLoading is deprecated. Use loading.order instead.',
+                );
+
                 return this.loading.order;
             },
             set(value) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail.isLoading is deprecated. Use loading.order instead.',
+                );
+
                 Store.get('swOrderDetail').setLoading([
                     'order',
                     value,
@@ -337,13 +347,23 @@ export default {
          * @deprecated tag:v6.8.0 - createdById will be removed (there is a template usage that needs to be removed as well)
          */
         updateCreatedById(createdById) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.updateCreatedById() is deprecated and createdById will be removed (there is a template usage that needs to be removed as well).',
+            );
+
             this.createdById = createdById;
         },
 
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        onChangeLanguage() {},
+        onChangeLanguage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onChangeLanguage() is deprecated. Will be removed without replacement.',
+            );
+        },
 
         saveEditsFinish() {
             this.isSaveSuccessful = false;
@@ -353,7 +373,12 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
-        onStartEditing() {},
+        onStartEditing() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onStartEditing() is deprecated. Will be removed without replacement.',
+            );
+        },
 
         async onSaveEdits() {
             Store.get('swOrderDetail').setLoading([
@@ -512,6 +537,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be replaced by `saveAndReload`
          */
         onSaveAndReload() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onSaveAndReload() is deprecated. Will be replaced by `saveAndReload`.',
+            );
+
             return this.saveAndReload();
         },
 
@@ -541,6 +571,11 @@ export default {
          * @deprecated tag:v6.8.0 - isLoading will be removed, use loading.order instead
          */
         onUpdateLoading(loadingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onUpdateLoading() is deprecated. Use loading.order instead.',
+            );
+
             this.isLoading = loadingValue;
         },
 
@@ -548,6 +583,11 @@ export default {
          * @deprecated tag:v6.8.0 - isEditing will be removed, use editing instead
          */
         onUpdateEditing(editingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail.onUpdateEditing() is deprecated. Use editing instead.',
+            );
+
             this.isEditing = editingValue;
         },
 

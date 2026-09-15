@@ -83,6 +83,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed together with listing mixin.
          */
         getList() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-index.getList() is deprecated. Will be removed together with listing mixin.',
+            );
+
             // Required by listing mixin
         },
 

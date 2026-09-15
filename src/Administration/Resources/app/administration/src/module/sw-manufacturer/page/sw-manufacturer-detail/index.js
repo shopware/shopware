@@ -199,6 +199,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         setMediaFromSidebar(media) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-manufacturer-detail.setMediaFromSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             this.manufacturer.mediaId = media.id;
         },
 
@@ -210,6 +215,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-manufacturer-detail.openMediaSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 

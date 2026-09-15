@@ -1253,6 +1253,22 @@ The method must raise the stored increment state to at least the given value wit
 
 # Administration
 
+## Deprecated JavaScript APIs failed instead of warning
+
+Deprecated Administration JavaScript APIs gained a runtime guard. While 6.7 was current, using one printed a development console warning naming the API, the migration and the call site. With the 6.8 major flag active — and therefore in 6.8 itself, before the removal landed — the same use threw:
+
+```
+Error: Tried to access deprecated functionality: sw-select-base.computePath() is deprecated. Use `Element.contains()` instead.
+```
+
+This covered deprecated global `Shopware.*` APIs, registered services and exported functions, deprecated components and props, and deprecated component `methods` and `computed` members, including use through `this.$super(...)`. Types, styles, `data`, store state and getters, watchers, `provide`/`inject` and Twig markup were not guarded.
+
+Run your extension's test suite with the 6.8 feature flag enabled to find every remaining use before upgrading:
+
+```bash
+FEATURE_ALL=major
+```
+
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.

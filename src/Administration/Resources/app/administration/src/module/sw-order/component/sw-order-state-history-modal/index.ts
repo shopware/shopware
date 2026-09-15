@@ -57,6 +57,10 @@ export default Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 
@@ -208,6 +212,8 @@ export default Component.wrapComponentConfig({
             return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
                 this.dataSource = this.buildStateHistory(fetchedEntries);
                 // @deprecated tag:v6.8.0 - Kept in sync only so `total` stays usable until it is removed.
+                // @deprecationGuard static-only - Writes the deprecated `total` data field; the read side
+                // is what a consumer would migrate, and `data` has no per-property hook.
                 this.total = this.dataSource.length;
                 return Promise.resolve(fetchedEntries);
             });

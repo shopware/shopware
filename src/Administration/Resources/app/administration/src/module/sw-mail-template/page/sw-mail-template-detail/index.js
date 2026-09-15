@@ -183,6 +183,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Method will be removed */
         hasTemplateData() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-detail.hasTemplateData is deprecated. Method will be removed.',
+            );
+
             return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
         },
 
@@ -547,6 +552,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Method will be removed */
         mailPreviewContent() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-detail.mailPreviewContent() is deprecated. Method will be removed.',
+            );
+
             const mailTemplate = { ...this.mailTemplate };
 
             if (mailTemplate.contentHtml) {
@@ -570,6 +580,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Method will be removed */
         replaceContent(string) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-detail.replaceContent() is deprecated. Method will be removed.',
+            );
+
             // Replace .at([index]), first -> `.[index]` to suitable with mail template data
             return string
                 .replace(/\.at\(([0-9]*)\)\./g, (matchs) => {

@@ -89,6 +89,11 @@ class MailApiService extends ApiService {
         mailTemplateId,
         documentIds = [],
     ) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'mailApiService.testMailTemplate() is deprecated. Will be removed without replacement.',
+        );
+
         return this.sendMailTemplate(
             recipient,
             recipient,
@@ -107,6 +112,11 @@ class MailApiService extends ApiService {
      * @deprecated tag:v6.8.0 - Will be removed.
      */
     buildRenderPreview(mailTemplateType, mailTemplate) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'mailApiService.buildRenderPreview() is deprecated. Will be removed without replacement.',
+        );
+
         const apiRoute = `/_action/${this.getApiBasePath()}/build`;
 
         return this.httpClient

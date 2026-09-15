@@ -2,16 +2,22 @@ import template from './sw-order-state-history-card.html.twig';
 
 /**
  * @sw-package checkout
- *
- * @deprecated tag:v6.8.0 - will be removed, no usages found
  */
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, no usages found
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed without replacement.',
+    },
 
     inject: [
         'swOrderDetailAskAndSaveEdits',

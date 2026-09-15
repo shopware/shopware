@@ -60,11 +60,13 @@ Shopware.Component.register('sw-order-inline-field', () => import('./component/s
 
 /**
  * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.register('sw-order-user-card', () => import('./component/sw-order-user-card'));
 Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.register(
     'sw-order-document-settings-modal',
@@ -72,6 +74,7 @@ Shopware.Component.register(
 );
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.extend(
     'sw-order-document-settings-invoice-modal',
@@ -80,6 +83,7 @@ Shopware.Component.extend(
 );
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.extend(
     'sw-order-document-settings-storno-modal',
@@ -88,6 +92,7 @@ Shopware.Component.extend(
 );
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.extend(
     'sw-order-document-settings-delivery-note-modal',
@@ -96,6 +101,7 @@ Shopware.Component.extend(
 );
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.extend(
     'sw-order-document-settings-credit-note-modal',
@@ -121,6 +127,7 @@ Shopware.Component.register('sw-order-create-promotion-modal', () => import('./c
 Shopware.Component.register('sw-order-create-general-info', () => import('./component/sw-order-create-general-info'));
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - The registered component carries the guard itself.
  */
 Shopware.Component.register(
     'sw-order-select-document-type-modal',

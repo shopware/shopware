@@ -146,7 +146,9 @@ The codebase uses ESLint rules to enforce deprecation standards:
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 ```
 
-This rule ensures proper handling of deprecated features and prevents inappropriate usage.
+`private-feature-declarations` requires every new export to be `@private` or annotated for a future
+private move. `require-deprecation-guard` requires a public deprecated symbol to guard its own use
+boundary.
 
 ### Runtime Deprecation Guards
 
@@ -154,7 +156,12 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 `majorFlag` is inactive it warns in development builds, once per message. Once the flag is active it throws:
 
 ```typescript
-Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
+// Example from vue.adapter.ts
+this.app.config.globalProperties.$tc = function (...args) {
+    Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
+
+    return i18n.global.t(...fixI18NParametersOrder(args));
+};
 ```
 
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
@@ -162,6 +169,11 @@ checks in a global `beforeCreate()` hook: a deprecated component on every creati
 whenever the parent supplies it. The message names the path of components that use it. As the error is
 thrown inside a Vue hook, Vue's error handling applies: a development build aborts the mount, a
 production build logs the error and keeps rendering.
+
+`sw-deprecation-rules/require-deprecation-guard` fails a build when a public deprecated symbol has
+neither a guard nor a recorded `@deprecationGuard static-only - <reason>`. See
+[ADR: Administration JavaScript deprecation guards](../../../../../../../adr/2026-08-10-administration-javascript-deprecation-guards.md)
+for the classification and the full list of static-only categories.
 
 Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
 sides of a flag. A test that asserts a warning spies on `console.warn`.

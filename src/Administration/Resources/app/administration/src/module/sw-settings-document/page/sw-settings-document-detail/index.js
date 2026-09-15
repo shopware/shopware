@@ -480,7 +480,11 @@ export default {
             return new Criteria(1, 25).addFilter(
                 Criteria.not('OR', [
                     Criteria.prefix('technicalName', 'zugferd_'),
-                    /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+                    /**
+                     * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
+                     * @deprecationGuard static-only - Marks the filter, not the getter; the getter is the
+                     * current implementation and guarding it would report every caller.
+                     */
                     Criteria.equals('technicalName', 'app_provided'),
                 ]),
             );
@@ -524,6 +528,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         countryRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-document-detail.countryRepository is deprecated. Will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('country');
         },
 
@@ -531,6 +540,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         documentTypeRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-document-detail.documentTypeRepository is deprecated. Will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('document_type');
         },
 
@@ -538,6 +552,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         documentBaseConfigSalesChannelRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-document-detail.documentBaseConfigSalesChannelRepository is deprecated. Will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('document_base_config_sales_channel');
         },
 
@@ -878,6 +897,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async loadAvailableSalesChannel() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-document-detail.loadAvailableSalesChannel() is deprecated. Will be removed without replacement.',
+            );
+
             this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500));
         },
 
@@ -885,6 +909,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         showOption(item) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-document-detail.showOption() is deprecated. Will be removed without replacement.',
+            );
+
             return item.id !== this.documentConfig.id;
         },
     },

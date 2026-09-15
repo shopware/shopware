@@ -14,7 +14,7 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 ## Deprecations
 
 - Mark deprecated Administration APIs with `@deprecated tag:vX.Y.Z - ...` and name the replacement.
-- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards).
+- Guard a deprecated public API at runtime where it is consumed, see [Runtime guards](#runtime-guards). `sw-deprecation-rules/require-deprecation-guard` enforces this.
 - Document the migration path when deprecating public Administration extension points.
 - Do not introduce new internal callers of deprecated APIs; move core/Admin code to the replacement.
 - When removing a flag, remove the legacy branch, flag configuration, obsolete tests, and stale documentation in the same change.
@@ -43,4 +43,15 @@ Component.register('sw-example', {
 });
 ```
 
-`@private` symbols and identifiers starting with `_` are no public contract and need no guard. See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).
+`@private` symbols and identifiers starting with `_` are no public contract and need no guard.
+
+Types, styles, tests, Twig markup, `data`, store `state` and `getters`, `watch`, `provide` and `inject` stay static-only. Anything else that cannot carry a guard has to record why, on the same annotation:
+
+```ts
+/**
+ * @deprecated tag:v6.8.0 - Will be removed
+ * @deprecationGuard static-only - Module-level import, there is no runtime use boundary.
+ */
+```
+
+See the [ADR](../../adr/2026-08-10-administration-javascript-deprecation-guards.md).

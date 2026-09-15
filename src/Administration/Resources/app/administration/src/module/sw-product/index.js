@@ -96,6 +96,8 @@ Shopware.Component.register(
 Shopware.Component.register('sw-product-layout-assignment', () => import('./component/sw-product-layout-assignment'));
 /**
  * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ * @deprecationGuard static-only - The registration is already flag-gated, and the component it
+ * registers carries the guard itself.
  */
 if (!Shopware.Feature.isActive('v6.8.0.0')) {
     Shopware.Component.register('sw-product-settings-mode', () => import('./component/sw-product-settings-mode'));

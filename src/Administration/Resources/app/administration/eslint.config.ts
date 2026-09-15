@@ -766,6 +766,25 @@ export default [
         },
     },
 
+    // Runtime side of the deprecation lifecycle, see
+    // adr/2026-08-10-administration-javascript-deprecation-guards.md
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        ignores: [
+            'src/**/*.spec.js',
+            'src/**/*.spec.ts',
+            'src/**/*.spec.vue',
+            'src/**/*.spec/**',
+        ],
+        rules: {
+            'sw-deprecation-rules/require-deprecation-guard': 'error',
+        },
+    },
+
     {
         files: ['build/vue-setup-transform/**/*.ts'],
         rules: {

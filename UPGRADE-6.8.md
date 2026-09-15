@@ -1300,6 +1300,21 @@ The deprecated custom-field set loader computed properties were removed from the
 These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
 
 `sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
+## Deprecated JavaScript APIs failed instead of warning
+
+Deprecated Administration JavaScript APIs gained a runtime guard. While 6.7 was current, using one printed a development console warning naming the API, the migration and the call site. With the 6.8 major flag active — and therefore in 6.8 itself, before the removal landed — the same use threw:
+
+```
+Error: Tried to access deprecated functionality: sw-select-base.computePath() is deprecated. Use `Element.contains()` instead.
+```
+
+This covered deprecated global `Shopware.*` APIs, registered services and exported functions, deprecated components and props, and deprecated component `methods` and `computed` members, including use through `this.$super(...)`. Types, styles, `data`, store state and getters, watchers, `provide`/`inject` and Twig markup were not guarded.
+
+Run your extension's test suite with the 6.8 feature flag enabled to find every remaining use before upgrading:
+
+```bash
+FEATURE_ALL=major
+```
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 

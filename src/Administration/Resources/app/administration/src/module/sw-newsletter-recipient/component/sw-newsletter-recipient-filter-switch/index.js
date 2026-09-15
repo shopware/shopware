@@ -10,6 +10,11 @@ import './sw-newsletter-recipient-filter-switch.scss';
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed without replacement.',
+    },
+
     emits: ['update:value'],
 
     props: {

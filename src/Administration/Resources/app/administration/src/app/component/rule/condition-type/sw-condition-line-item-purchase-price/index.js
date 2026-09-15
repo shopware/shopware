@@ -9,6 +9,11 @@ import './sw-condition-line-item-purchase-price.scss';
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Use sw-condition-generic instead.',
+    },
+
     inject: ['feature'],
 
     data() {

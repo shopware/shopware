@@ -11,7 +11,8 @@
       "activate": "Aktivieren",
       "deactivate": "Deaktivieren",
       "confirm": "Bestätigen",
-      "noteRequiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
+      "noteRequiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
+      "loading": "Wird geladen..."
     }
   },
   "general": {

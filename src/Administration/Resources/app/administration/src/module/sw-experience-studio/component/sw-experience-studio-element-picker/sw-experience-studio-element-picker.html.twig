@@ -44,10 +44,10 @@
                     <button
                         v-for="element in group.elements"
                         :key="element.name"
-                        v-tooltip="{ message: element.label }"
+                        v-tooltip="itemTooltip(element)"
                         class="sw-experience-studio-element-picker__item"
                         type="button"
-                        @click="onSelect(element.name)"
+                        @click="onSelect(element)"
                     >
                         <div class="sw-experience-studio-element-picker__icon-square">
                             <mt-icon

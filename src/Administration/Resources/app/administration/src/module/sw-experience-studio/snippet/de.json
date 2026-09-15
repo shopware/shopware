@@ -112,6 +112,7 @@
           "content": "Inhalt",
           "commerce": "Commerce",
           "layout": "Layout",
+          "presets": "Vorlagen",
           "other": "Sonstige"
         }
       },

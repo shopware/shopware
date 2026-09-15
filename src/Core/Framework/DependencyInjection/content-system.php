@@ -67,6 +67,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -473,6 +480,49 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('cache.system'),
         ]);
 
+    $services->set(LayoutPresetPayloadCompiler::class)
+        ->args([
+            service(DraftLayoutDecoder::class),
+            service(StoredElementCodec::class),
+        ]);
+
+    $services->set(LayoutPresetSpecificationSerializer::class);
+
+    $services->set(LayoutPresetNameResolver::class);
+
+    $services->set(YamlLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
+            service(LayoutPresetNameResolver::class),
+        ])
+        ->arg('$directories', [])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(DatabaseLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
+            service(Connection::class),
+            param('kernel.environment'),
+            service('logger'),
+        ])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            tagged_iterator('content_system.layout_preset_loader'),
+        ]);
+
+    $services->set(CachedContentSystemLayoutPresetRegistry::class)
+        ->decorate(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            service(CachedContentSystemLayoutPresetRegistry::class . '.inner'),
+            service('cache.system'),
+        ]);
+
     // Universal Style Option System
     $services->set(StyleOptionSpecificationSerializer::class);
 
@@ -747,6 +797,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+            service(ContentSystemLayoutPresetRegistry::class),
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)

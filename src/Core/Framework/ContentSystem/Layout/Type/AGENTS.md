@@ -13,7 +13,7 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 ## Source Code References
 
 - **Registry**: `Registry/AbstractContentSystemElementTypeRegistry` (abstract, decoration pattern), `Registry/ContentSystemElementTypeRegistry` (stateless aggregator), `Registry/CachedContentSystemElementTypeRegistry` (`cache.system` pool decorator)
-- **Compiler Pass**: `Framework/DependencyInjection/CompilerPass/ContentSystemElementTypeCompilerPass` (discovers from core, bundles, plugins, apps; injects the directory set into both `YamlTypeLoader` and the binding system's `YamlBindingSpecificationLoader`)
+- **Compiler Pass**: `Framework/DependencyInjection/CompilerPass/ContentSystemCompilerPass` (discovers from core, bundles, plugins, apps; injects the type-directory set into both `YamlTypeLoader` and the binding system's `YamlBindingSpecificationLoader`, and the parallel `Resources/content-system/presets` directory set into `Layout/Preset/Loader/YamlLayoutPresetLoader`)
 - **Loaders**: `Loader/AbstractContentSystemElementTypeLoader` (base contract), `Loader/YamlTypeLoader` (filesystem; also exposes `loadOverlayFromDirectory(directory, source, prefix): array<string, ContentSystemElementTypeSpecification>`, a registry-independent single-directory load keyed by resolved type name, see [Binding/docs/inline-bindings.md](../../Binding/docs/inline-bindings.md)), `Loader/DatabaseTypeLoader` (app types, prod only), `Loader/ElementTypeNameResolver` (path → name)
 - **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
 - **API Endpoint**: `Api/Controller/InfoController::getContentSystemElementTypes()` (`GET /api/_info/content-system-element-types.json`)

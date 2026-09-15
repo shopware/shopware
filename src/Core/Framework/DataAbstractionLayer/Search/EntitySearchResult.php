@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final
- *
  * @template TEntityCollection of EntityCollection
  *
  * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
@@ -532,6 +530,7 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
             $elements = new EntityCollection($elements);
         }
 
+        /** @phpstan-ignore return.type (A plain iterable is wrapped in a base EntityCollection, which cannot carry TEntityCollection. The method goes away with the collection API.) */
         return new static(
             $this->entity,
             $elements->count(),

@@ -295,6 +295,20 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
+### `EntitySearchResult` is no longer `@final`
+
+`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
+
+### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
+
+6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
+
+`ProductListingResult::fromSearchResult()` was added for that change. It is deprecated and removed in v6.8.0.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
+
+### `ProductListingResult::setPage()` and `setLimit()` are deprecated
+
+6.7.13.0 listed both as staying supported. That is withdrawn: they come from `EntitySearchResult` now and are removed in v6.8.0.0.
+
 ## API
 
 ### OAuth authorization endpoint

@@ -10,9 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -93,6 +91,6 @@ class CustomerTokenSubscriberTest extends TestCase
 
     private function sessionContextToken(): SessionContextTokenAccessor
     {
-        return new SessionContextTokenAccessor([], true, new StaticSystemConfigService(), new RouteScopeRegistry([new StoreApiRouteScope()]));
+        return new SessionContextTokenAccessor([], new StaticSystemConfigService());
     }
 }

@@ -20,8 +20,10 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -39,6 +41,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\EventListener\SessionListener;
@@ -58,7 +61,8 @@ class SessionContextTokenSubscriberTest extends TestCase
     {
         static::assertSame([
             KernelEvents::REQUEST => [['startSession', 40]],
-            KernelEvents::RESPONSE => [['protectSessionResolvedResponse', -1600]],
+            KernelEvents::CONTROLLER => [['resolveFromSession', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_CONTEXT_RESOLVE_PRE]],
+            KernelEvents::RESPONSE => [['stripContextToken', -1600]],
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
             SalesChannelContextResolvedEvent::class => 'onContextResolved',
@@ -275,7 +279,7 @@ class SessionContextTokenSubscriberTest extends TestCase
             ]);
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
             $request->setSession($session);
-            $accessor = new SessionContextTokenAccessor(['name' => 'session-'], true, new StaticSystemConfigService(), new RouteScopeRegistry([new StoreApiRouteScope()]));
+            $accessor = new SessionContextTokenAccessor(['name' => 'session-'], new StaticSystemConfigService());
             static::assertSame('expired', $accessor->read($request, $context->getSalesChannelId()));
 
             $subscriber = $this->subscriber([$request]);
@@ -370,18 +374,61 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame(0, $factoryCalls);
     }
 
-    public function testTheKillSwitchDoesNotAffectTheOwner(): void
+    public function testASessionSourcedRequestResolvesTheSessionsToken(): void
     {
-        $context = Generator::generateSalesChannelContext(token: 'logged-in');
-        $request = $this->ownerRequest($context->getSalesChannelId());
-        $request->setSession(new Session(new MockArraySessionStorage()));
-        $subscriber = $this->subscriber([$request], enabled: false);
+        $request = $this->sessionSourcedRequest([PlatformRequest::HEADER_CONTEXT_TOKEN => 'the-sessions-token']);
 
-        $subscriber->startSession($this->requestEvent($request));
-        static::assertNotNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->subscriber([$request])->resolveFromSession($this->controllerEvent($request));
 
-        $subscriber->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
-        static::assertSame('logged-in', $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame('the-sessions-token', $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertTrue($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+    }
+
+    public function testAStoreApiRequestWithoutTheSourceHeaderIsLeftAlone(): void
+    {
+        $request = $this->sessionSourcedRequest([PlatformRequest::HEADER_CONTEXT_TOKEN => 'the-sessions-token']);
+        $request->headers->remove(PlatformRequest::HEADER_CONTEXT_SOURCE);
+
+        $this->subscriber([$request])->resolveFromSession($this->controllerEvent($request));
+
+        static::assertFalse($request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+    }
+
+    public function testASessionSourcedRequestMustNotCarryATokenHeader(): void
+    {
+        $request = $this->sessionSourcedRequest([PlatformRequest::HEADER_CONTEXT_TOKEN => 'the-sessions-token']);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'an-explicit-token');
+
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the request also carries a sw-context-token header; declare either the session or an explicit token as context source, not both'
+        ));
+
+        $this->subscriber([$request])->resolveFromSession($this->controllerEvent($request));
+    }
+
+    public function testASessionSourcedRequestFailsWithoutASessionCookie(): void
+    {
+        $request = $this->sessionSourcedRequest([PlatformRequest::HEADER_CONTEXT_TOKEN => 'the-sessions-token']);
+        $request->cookies->remove('session-');
+
+        $this->expectExceptionObject(
+            RoutingException::sessionContextNotResolvable('the request carries no storefront session cookie')
+        );
+
+        $this->subscriber([$request])->resolveFromSession($this->controllerEvent($request));
+    }
+
+    public function testASessionSourcedRequestFailsWhenTheSessionHoldsNoToken(): void
+    {
+        $request = $this->sessionSourcedRequest([]);
+
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the session cookie does not resume a storefront session holding a context token for this sales channel'
+        ));
+
+        $this->subscriber([$request])->resolveFromSession($this->controllerEvent($request));
     }
 
     public function testAnAdminApiRequestCannotRotateTheStorefrontSession(): void
@@ -400,39 +447,6 @@ class SessionContextTokenSubscriberTest extends TestCase
         static::assertSame('storefront-session', $session->getId());
     }
 
-    public function testTheKillSwitchStopsBorrowers(): void
-    {
-        $context = Generator::generateSalesChannelContext(token: 'logged-in');
-        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
-        $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
-        $request->cookies->set('session-', 'resumable');
-        $session = $this->sessionWithId('resumable');
-        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'anonymous');
-        $request->setSession($session);
-
-        $this->subscriber([$request], enabled: false)
-            ->onCustomerLogin(new CustomerLoginEvent($context, new CustomerEntity(), 'logged-in'));
-
-        static::assertSame('anonymous', $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame('resumable', $session->getId());
-    }
-
-    public function testSessionResolvedStoreApiResponsesAreNeverSharedCacheable(): void
-    {
-        $request = new Request(attributes: [
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
-            SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION => true,
-        ]);
-        $response = new Response();
-        $response->headers->set('Cache-Control', 'public, s-maxage=1800');
-
-        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
-
-        static::assertTrue($response->headers->hasCacheControlDirective('private'));
-        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertFalse($response->headers->hasCacheControlDirective('public'));
-    }
-
     public function testSessionResolvedStoreApiResponsesOmitTheTokenHeader(): void
     {
         $request = new Request(attributes: [
@@ -443,22 +457,19 @@ class SessionContextTokenSubscriberTest extends TestCase
         $response = new Response();
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'the-shoppers-token');
 
-        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
+        $this->subscriber([$request])->stripContextToken($this->responseEvent($request, $response));
 
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testOtherStoreApiResponsesKeepTheirCacheHeadersAndToken(): void
+    public function testOtherStoreApiResponsesKeepTheirToken(): void
     {
         $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
         $response = new Response();
-        $response->headers->set('Cache-Control', 'public, s-maxage=1800');
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'a-client-managed-token');
 
-        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
+        $this->subscriber([$request])->stripContextToken($this->responseEvent($request, $response));
 
-        static::assertTrue($response->headers->hasCacheControlDirective('public'));
-        static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
         static::assertSame('a-client-managed-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
@@ -469,11 +480,11 @@ class SessionContextTokenSubscriberTest extends TestCase
             SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION => true,
         ]);
         $response = new Response();
-        $response->headers->set('Cache-Control', 'public, s-maxage=1800');
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'a-client-managed-token');
 
-        $this->subscriber([$request])->protectSessionResolvedResponse($this->responseEvent($request, $response));
+        $this->subscriber([$request])->stripContextToken($this->responseEvent($request, $response));
 
-        static::assertTrue($response->headers->hasCacheControlDirective('public'));
+        static::assertSame('a-client-managed-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     /**
@@ -512,22 +523,27 @@ class SessionContextTokenSubscriberTest extends TestCase
             ),
         );
 
-        $request = new Request(attributes: [
+        $attributes = [
             PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
             PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => Generator::generateSalesChannelContext(),
-            SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION => $fromSession,
-        ]);
+        ];
+
+        if ($fromSession) {
+            // exactly what resolveFromSession() sets, and ATTRIBUTE_NO_STORE is read with has()
+            $attributes[SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION] = true;
+            $attributes[PlatformRequest::ATTRIBUTE_NO_STORE] = true;
+        }
+
+        $request = new Request(attributes: $attributes);
         // matching the expected hash is what makes the route cacheable at all: on a mismatch
         // CacheResponseSubscriber bypasses the cache by itself
         $request->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a-context-hash');
         $event = $this->responseEvent($request, new Response());
 
         // Store API caching only exists behind CACHE_REWORK, so without it every route is uncacheable
-        Feature::fake(['CACHE_REWORK'], function () use ($cacheSubscriber, $event, $request): void {
-            // kernel.response order: CacheResponseSubscriber at -1500, ours at -1600
+        Feature::fake(['CACHE_REWORK'], function () use ($cacheSubscriber, $event): void {
             $cacheSubscriber->setResponseCache($event);
-            $this->subscriber([$request])->protectSessionResolvedResponse($event);
         });
 
         static::assertSame($expected, $event->getResponse()->headers->get('cache-control'));
@@ -547,10 +563,10 @@ class SessionContextTokenSubscriberTest extends TestCase
      * @param list<Request> $requests
      * @param array<string, mixed> $config
      */
-    private function subscriber(array $requests, array $config = [], bool $enabled = true): SessionContextTokenSubscriber
+    private function subscriber(array $requests, array $config = []): SessionContextTokenSubscriber
     {
         return new SessionContextTokenSubscriber(
-            new SessionContextTokenAccessor(['name' => 'session-'], $enabled, new StaticSystemConfigService($config), new RouteScopeRegistry([new StoreApiRouteScope(), new ApiRouteScope()])),
+            new SessionContextTokenAccessor(['name' => 'session-'], new StaticSystemConfigService($config)),
             new RequestStack($requests),
             new RouteScopeRegistry([new StoreApiRouteScope(), new ApiRouteScope()])
         );
@@ -573,6 +589,36 @@ class SessionContextTokenSubscriberTest extends TestCase
         $storage->setId($id);
 
         return new Session($storage);
+    }
+
+    /**
+     * @param array<string, string> $sessionData
+     */
+    private function sessionSourcedRequest(array $sessionData): Request
+    {
+        $session = $this->sessionWithId('a-resumable-session');
+        foreach ($sessionData as $key => $value) {
+            $session->set($key, $value);
+        }
+
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => 'a-sales-channel',
+            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        ], cookies: ['session-' => 'a-resumable-session']);
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION);
+        $request->setSession($session);
+
+        return $request;
+    }
+
+    private function controllerEvent(Request $request): ControllerEvent
+    {
+        return new ControllerEvent(
+            static::createStub(HttpKernelInterface::class),
+            static fn () => null,
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
     }
 
     private function requestEvent(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST): RequestEvent

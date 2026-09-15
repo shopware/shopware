@@ -320,9 +320,13 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ### Store API resolves the context from the storefront session on request
 
-A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session. A same-origin client rendered on a storefront page therefore shares the shopper's cart and login without handling a token; login, registration, logout and password changes made through such requests are written back into the session.
+A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session. A client rendered on a storefront page therefore shares the shopper's cart and login without handling a token; login, registration, logout and password changes made through such requests are written back into the session.
 
-The header is a contract: the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) when the session cannot be used, for example without a session cookie, on a cross-origin fetch, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header behave as before. The container parameter `shopware.routing.session_context_token.enabled` disables the behaviour; requests that still declare the header then fail with the same error.
+The session is only ever resumed, never created, so this needs a storefront: on a headless-only sales channel there is no session to share and the header always fails.
+
+The header is a contract: the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) when the session cannot be used, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header behave as before.
+
+Browser access stays constrained by the default CORS configuration, which excludes `sw-context-source` from the allowed headers and answers with `Access-Control-Allow-Origin: *` and no credentials, so a cross-origin page can send neither the opt-in header nor the session cookie. Deployments that widen CORS must keep `sw-context-source` out of the allowed headers, or the session cookie out of cross-origin reach.
 
 Session-resolved responses are always `private, no-store`, including on routes that are otherwise cacheable, and carry no `sw-context-token` response header. Clients do not need to manage a context token, but existing token fields in cart and context response bodies remain available, as they already are through `/checkout/cart.json` in the storefront. This is not a guarantee that same-origin scripts cannot read the token.
 

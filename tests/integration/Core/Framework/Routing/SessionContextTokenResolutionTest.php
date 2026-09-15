@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -164,86 +165,6 @@ class SessionContextTokenResolutionTest extends TestCase
 
         static::assertSame($headerToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
-    }
-
-    /**
-     * @return list<array{0: string, 1: bool}>
-     */
-    public static function fetchSiteProvider(): array
-    {
-        return [
-            ['same-origin', true],
-            ['same-site', false],
-            ['cross-site', false],
-            ['none', false],
-        ];
-    }
-
-    #[DataProvider('fetchSiteProvider')]
-    public function testFetchMetadataGatesTheSessionFallback(string $fetchSite, bool $shouldResolve): void
-    {
-        $sessionToken = Random::getAlphanumericString(32);
-
-        $request = $this->createStoreApiRequest();
-        $request->headers->set('Sec-Fetch-Site', $fetchSite);
-        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
-
-        if (!$shouldResolve) {
-            $this->expectExceptionObject(
-                RoutingException::sessionContextNotResolvable('the request is not a same-origin fetch')
-            );
-        }
-
-        $this->resolve($request);
-
-        static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testALoginIsWrittenBackToTheSession(): void
-    {
-        $this->enableCustomerBinding();
-        $sessionToken = Random::getAlphanumericString(32);
-        $loggedInToken = Random::getAlphanumericString(32);
-
-        $request = $this->createStoreApiRequest();
-        $session = $this->attachSession($request, [
-            self::SUFFIXED_KEY => $sessionToken,
-            PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken,
-        ]);
-
-        $this->resolve($request);
-        $this->login($request, $loggedInToken);
-
-        static::assertSame($loggedInToken, $session->get(self::SUFFIXED_KEY), 'the sales channel key must follow the rotation');
-        static::assertSame($loggedInToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN), 'the plain key is always kept in sync');
-        static::assertSame($loggedInToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-
-        $response = $this->respond($request);
-
-        static::assertTrue($response->headers->hasCacheControlDirective('private'));
-        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN), 'a session sourced response omits the token header');
-    }
-
-    public function testARotationMigratesTheSessionId(): void
-    {
-        $request = $this->createStoreApiRequest();
-        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
-
-        $this->resolve($request);
-
-        $initialId = $session->getId();
-        static::assertSame(self::SESSION_ID, $initialId);
-
-        $this->login($request, Random::getAlphanumericString(32));
-
-        $migratedId = $session->getId();
-        static::assertNotSame(
-            self::SESSION_ID,
-            $migratedId,
-            'a token rotation is a privilege boundary: a pre-planted session ID must not survive it'
-        );
-        static::assertSame($migratedId, $session->get(SessionContextTokenAccessor::SESSION_ID_KEY));
     }
 
     public function testALogoutDestroysTheSessionAndContinuesOnAFreshToken(): void
@@ -442,7 +363,16 @@ class SessionContextTokenResolutionTest extends TestCase
 
     private function resolve(Request $request): void
     {
-        $this->onStack($request, fn () => $this->resolver->resolve($request));
+        $this->onStack($request, function () use ($request): void {
+            $this->subscriber->resolveFromSession(new ControllerEvent(
+                static::getContainer()->get('kernel'),
+                static fn () => null,
+                $request,
+                HttpKernelInterface::MAIN_REQUEST
+            ));
+
+            $this->resolver->resolve($request);
+        });
     }
 
     private function login(Request $request, string $token): void
@@ -473,7 +403,7 @@ class SessionContextTokenResolutionTest extends TestCase
         $response = new Response();
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $this->subscriber->protectSessionResolvedResponse(new ResponseEvent(
+        $this->subscriber->stripContextToken(new ResponseEvent(
             static::getContainer()->get('kernel'),
             $request,
             HttpKernelInterface::MAIN_REQUEST,

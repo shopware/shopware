@@ -9,9 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -34,10 +35,10 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
     private const PRIORITY_START = 40;
 
     /**
-     * After CacheResponseSubscriber::setResponseCache (-1500), which rewrites Cache-Control wholesale,
-     * and after ResponseHeaderListener (0) has echoed the request's context token onto the response.
+     * After every listener that may put the context token onto the response, notably the Core
+     * ResponseHeaderListener (0) and the routes setting it themselves.
      */
-    private const PRIORITY_CACHE_CONTROL = -1600;
+    private const PRIORITY_STRIP_TOKEN = -1600;
 
     /**
      * @internal
@@ -55,8 +56,11 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
             KernelEvents::REQUEST => [
                 ['startSession', self::PRIORITY_START],
             ],
+            KernelEvents::CONTROLLER => [
+                ['resolveFromSession', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_CONTEXT_RESOLVE_PRE],
+            ],
             KernelEvents::RESPONSE => [
-                ['protectSessionResolvedResponse', self::PRIORITY_CACHE_CONTROL],
+                ['stripContextToken', self::PRIORITY_STRIP_TOKEN],
             ],
             CustomerLoginEvent::class => 'onCustomerLogin',
             CustomerLogoutEvent::class => 'onCustomerLogout',
@@ -72,7 +76,33 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->sessionContextToken->startForOwner($mainRequest, $event->getRequest());
+        $this->sessionContextToken->start($mainRequest, $event->getRequest());
+    }
+
+    /**
+     * Runs after SalesChannelAuthenticationListener (-2) established the sales channel and before
+     * context resolution (-10).
+     */
+    public function resolveFromSession(ControllerEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        if (!$this->isRequestScoped($request, StoreApiRouteScope::class)) {
+            return;
+        }
+
+        $token = $this->sessionContextToken->read(
+            $request,
+            (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)
+        );
+
+        if ($token === null) {
+            return;
+        }
+
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
     }
 
     public function onCustomerLogin(CustomerLoginEvent $event): void
@@ -105,7 +135,7 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
      * Session-sourced clients do not need a response token header. Existing response-body token
      * fields remain unchanged, so this does not make the token inaccessible to same-origin scripts.
      */
-    public function protectSessionResolvedResponse(ResponseEvent $event): void
+    public function stripContextToken(ResponseEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -117,9 +147,7 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $response = $event->getResponse();
-        $response->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        $this->denySharedCache($response);
+        $event->getResponse()->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry
@@ -135,22 +163,13 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // an /api request must not migrate the storefront session
+        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)
+            && !$this->isRequestScoped($mainRequest, StoreApiRouteScope::class)
+        ) {
+            return;
+        }
+
         $this->sessionContextToken->rotate($mainRequest, $salesChannelId, $token, $destroyOldSession);
-    }
-
-    /**
-     * The no-store policy of CacheResponseSubscriber carries no `private` directive.
-     */
-    private function denySharedCache(Response $response): void
-    {
-        $response->headers->remove('cache-control');
-
-        $response->setCache([
-            'private' => true,
-            'no_store' => true,
-            'no_cache' => true,
-            'must_revalidate' => true,
-            'max_age' => 0,
-        ]);
     }
 }

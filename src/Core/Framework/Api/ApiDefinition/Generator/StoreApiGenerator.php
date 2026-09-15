@@ -204,7 +204,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     'type' => 'string',
                     'enum' => ['session'],
                 ],
-                'description' => 'Set to `session` to resolve the context from the storefront session cookie of a same-origin request instead of a context token. Mutually exclusive with `sw-context-token`.',
+                'description' => 'Set to `session` to resolve the context from the storefront session cookie instead of a context token. Mutually exclusive with `sw-context-token`: sending both fails with HTTP 400 and `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE`, as does a session that cannot be resumed.',
             ]),
         ];
     }

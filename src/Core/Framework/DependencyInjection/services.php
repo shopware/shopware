@@ -177,9 +177,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
     $parameters->set('shopware.routing.registered_api_prefixes', []);
 
-    // Kill switch for the Store API side of the session context token handling, the storefront is unaffected
-    $parameters->set('shopware.routing.session_context_token.enabled', true);
-
     // Migration config
     $parameters->set('core.migration.directories', []);
 
@@ -725,9 +722,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SessionContextTokenAccessor::class)
         ->args([
             param('session.storage.options'),
-            param('shopware.routing.session_context_token.enabled'),
             service(SystemConfigService::class),
-            service(RouteScopeRegistry::class),
         ]);
 
     $services->set(SessionContextTokenSubscriber::class)
@@ -745,7 +740,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextService::class),
             service('event_dispatcher'),
             service(RouteScopeRegistry::class),
-            service(SessionContextTokenAccessor::class),
         ]);
 
     $services->set(ApiOrderCartService::class)

@@ -14,28 +14,22 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * The sales channel context token held in the PHP session.
  *
- * Owner: a storefront request (SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST), creates the
- * session and mints the first token. Borrower: a Store API request declaring
- * `sw-context-source: session`, may only resume an existing session.
+ * A storefront request (SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST) creates the session
+ * and mints the first token. A Store API request declaring `sw-context-source: session` may only
+ * resume an existing session, never create one.
  *
  * With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` the token lives under a
  * sales channel suffixed key; the plain key mirrors the channel currently browsed.
  *
  * @internal
- *
- * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Integration\Core\Framework\Routing\SessionContextTokenResolutionTest
  */
 #[Package('framework')]
 class SessionContextTokenAccessor
 {
-    use RouteScopeCheckTrait;
-
     public const CONTEXT_SOURCE_SESSION = 'session';
 
     /**
-     * Set on borrower requests, keeps the response out of shared caches.
+     * Set on Store API requests, keeps the response out of shared caches.
      */
     public const ATTRIBUTE_TOKEN_FROM_SESSION = 'sw-context-token-from-session';
 
@@ -49,65 +43,21 @@ class SessionContextTokenAccessor
 
     /**
      * @param array<string, mixed> $sessionOptions
-     * @param bool $enabled kill switch for the borrower role only, see `shopware.routing.session_context_token.enabled`
      */
     public function __construct(
         array $sessionOptions,
-        private readonly bool $enabled,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly RouteScopeRegistry $routeScopeRegistry
+        private readonly SystemConfigService $systemConfigService
     ) {
         $this->sessionName = (string) ($sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME);
     }
 
-    public function isOwner(Request $request): bool
+    public function start(Request $mainRequest, ?Request $currentRequest = null): void
     {
-        return (bool) $request->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
-    }
-
-    public function isRequested(Request $request): bool
-    {
-        return $request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) === self::CONTEXT_SOURCE_SESSION;
-    }
-
-    public function isEligible(Request $request): bool
-    {
-        return $this->isRequested($request) && $this->ineligibilityReason($request) === null;
-    }
-
-    /**
-     * Why a borrower may not use the session, null when it may. A session is only ever resumed, never
-     * created. Shared-cacheable routes are allowed: requests bypass the built-in cache and their
-     * responses are forced no-store.
-     */
-    public function ineligibilityReason(Request $request): ?string
-    {
-        if (!$this->enabled) {
-            return 'session context resolution is disabled (see shopware.routing.session_context_token.enabled)';
-        }
-
-        if (!$this->isRequestScoped($request, StoreApiRouteScope::class)) {
-            return 'the request is not a Store API request';
-        }
-
-        if ($request->cookies->get($this->sessionName) === null) {
-            return 'the request carries no storefront session cookie';
-        }
-
-        if (!$this->isSameOriginFetch($request)) {
-            return 'the request is not a same-origin fetch';
-        }
-
-        return null;
-    }
-
-    public function startForOwner(Request $mainRequest, ?Request $currentRequest = null): void
-    {
-        if (!$this->isOwner($mainRequest)) {
+        if (!$this->isStorefrontRequest($mainRequest)) {
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (the owner deliberately starts the storefront session here) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (the storefront deliberately starts its session here) */
         if (!$mainRequest->hasSession()) {
             return;
         }
@@ -139,26 +89,54 @@ class SessionContextTokenAccessor
         }
     }
 
+    /**
+     * Declaring the session as context source is a contract: an unusable session fails the request
+     * instead of falling back to a fresh token, which a session based client would only see as an
+     * empty cart.
+     *
+     * @return string|null null when the request does not declare the session as its context source
+     */
     public function read(Request $request, string $salesChannelId): ?string
     {
-        $session = $this->resumeForBorrower($request);
-
-        if ($session === null) {
+        if (!$this->isRequested($request)) {
             return null;
         }
 
-        try {
-            return $this->readToken($session, $this->normalize($salesChannelId));
-        } finally {
-            $this->release($session);
+        if ($request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            throw RoutingException::sessionContextNotResolvable(
+                'the request also carries a sw-context-token header; declare either the session or an explicit token as context source, not both'
+            );
         }
+
+        if ($request->cookies->get($this->sessionName) === null) {
+            throw RoutingException::sessionContextNotResolvable('the request carries no storefront session cookie');
+        }
+
+        $session = $this->resume($request);
+        $token = null;
+
+        if ($session !== null) {
+            try {
+                $token = $this->readToken($session, $salesChannelId);
+            } finally {
+                $this->release($session);
+            }
+        }
+
+        if ($token === null) {
+            throw RoutingException::sessionContextNotResolvable(
+                'the session cookie does not resume a storefront session holding a context token for this sales channel'
+            );
+        }
+
+        return $token;
     }
 
     /**
      * Regenerates the session ID with every rotation and leaves the session open: Symfony's
      * AbstractSessionListener only emits the new session cookie for a session that is still started.
      *
-     * @return bool whether the request is session sourced and the session was updated
+     * @return bool whether the request holds the session and it was updated
      */
     public function rotate(Request $request, string $salesChannelId, string $token, bool $destroyOldSession = false): bool
     {
@@ -168,7 +146,7 @@ class SessionContextTokenAccessor
             return false;
         }
 
-        // migrate() is a no-op on a closed session, and a borrower's was released after the read
+        // migrate() is a no-op on a closed session, and a Store API request's was released after the read
         if (!$session->isStarted()) {
             $session->start();
         }
@@ -176,34 +154,39 @@ class SessionContextTokenAccessor
         $session->migrate($destroyOldSession);
         $session->set(self::SESSION_ID_KEY, $session->getId());
         $request->attributes->set(self::ATTRIBUTE_SESSION_ID, $session->getId());
-        $this->writeToken($session, $this->normalize($salesChannelId), $token);
+        $this->writeToken($session, $salesChannelId, $token);
 
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
 
-        if (!$this->isOwner($request)) {
+        if (!$this->isStorefrontRequest($request)) {
             $request->attributes->set(self::ATTRIBUTE_TOKEN_FROM_SESSION, true);
         }
 
         return true;
     }
 
-    protected function getScopeRegistry(): RouteScopeRegistry
+    private function isStorefrontRequest(Request $request): bool
     {
-        return $this->routeScopeRegistry;
+        return (bool) $request->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
+    }
+
+    private function isRequested(Request $request): bool
+    {
+        return $request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) === self::CONTEXT_SOURCE_SESSION;
     }
 
     private function sessionFor(Request $request): ?SessionInterface
     {
-        if ($this->isOwner($request)) {
+        if ($this->isStorefrontRequest($request)) {
             return $request->hasSession(true) ? $request->getSession() : null;
         }
 
-        return $this->resumeForBorrower($request);
+        return $this->resume($request);
     }
 
-    private function resumeForBorrower(Request $request): ?SessionInterface
+    private function resume(Request $request): ?SessionInterface
     {
-        if (!$this->isEligible($request)) {
+        if (!$this->isRequested($request) || $request->cookies->get($this->sessionName) === null) {
             return null;
         }
 
@@ -242,12 +225,7 @@ class SessionContextTokenAccessor
             }
         }
 
-        return \is_string($salesChannelId) ? $this->normalize($salesChannelId) : null;
-    }
-
-    private function normalize(string $salesChannelId): ?string
-    {
-        return $salesChannelId !== '' ? $salesChannelId : null;
+        return \is_string($salesChannelId) && $salesChannelId !== '' ? $salesChannelId : null;
     }
 
     private function tokenKey(?string $salesChannelId): string
@@ -270,20 +248,6 @@ class SessionContextTokenAccessor
     {
         $session->set($this->tokenKey($salesChannelId), $token);
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-    }
-
-    /**
-     * An absent header means a non-browser client, not a cross-origin one.
-     */
-    private function isSameOriginFetch(Request $request): bool
-    {
-        $fetchSite = $request->headers->get('Sec-Fetch-Site');
-
-        if ($fetchSite === null || $fetchSite === '') {
-            return true;
-        }
-
-        return strtolower($fetchSite) === 'same-origin';
     }
 
     /**

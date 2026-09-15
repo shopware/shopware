@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Field;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -87,17 +88,40 @@ class ElementStylePersistenceTest extends TestCase
         static::assertTrue($this->readElement($id, $context)->style->isEmpty());
     }
 
-    #[TestDox('rejects a write whose style references an option not in the registry')]
-    public function testRejectsUnknownStyleOption(): void
+    /**
+     * @param array<string, string|int|float|bool|array<string, string|int|float|bool>> $style
+     */
+    #[DataProvider('unknownStyleOptionProvider')]
+    #[TestDox('rejects a write whose style references $_dataName')]
+    public function testRejectsUnknownStyleOption(array $style, string $optionName): void
     {
         $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('unknown-option-layout');
 
         try {
-            $this->repository()->create([$this->layout(null, ['not-a-real-option' => ['md' => 1]])], $context);
+            $this->repository()->create([$this->layout($layoutId, $style)], $context);
             static::fail('Expected the field serializer to reject the unknown style option.');
         } catch (WriteException $exception) {
-            static::assertStringContainsString('not-a-real-option', $exception->getMessage());
+            static::assertStringContainsString($optionName, $exception->getMessage());
         }
+
+        static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string|array<string, int>>, string}>
+     */
+    public static function unknownStyleOptionProvider(): iterable
+    {
+        yield 'an unknown option with a breakpoint value' => [
+            ['not-a-real-option' => ['md' => 1]],
+            'not-a-real-option',
+        ];
+
+        yield 'an unknown option with an empty string' => [
+            ['removed-plugin-option' => ''],
+            'removed-plugin-option',
+        ];
     }
 
     #[TestDox('rejects a write whose style value falls outside the declared range')]

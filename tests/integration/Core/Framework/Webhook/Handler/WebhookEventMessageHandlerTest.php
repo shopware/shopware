@@ -865,12 +865,14 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
-        ($this->webhookEventMessageHandler)($webhookEventMessage);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(0, $webhook->getErrorCount());
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(0, $webhook->getErrorCount());
+        });
     }
 
     /**
@@ -927,17 +929,19 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "fail"}'));
 
-        try {
-            ($this->webhookEventMessageHandler)($webhookEventMessage);
-        } catch (WebhookException) {
-            // expected
-        }
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookId): void {
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+            } catch (WebhookException) {
+                // expected
+            }
 
-        // error_count should remain unchanged -- handler only resets on success
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(3, $webhook->getErrorCount());
+            // error_count should remain unchanged -- handler only resets on success
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(3, $webhook->getErrorCount());
+        });
     }
 
     /**

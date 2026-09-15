@@ -22,7 +22,7 @@ function createProductListing() {
     const el = document.createElement('div');
     el.innerHTML = `
         <div class="sw-product-listing__grid">
-            <div class="sw-grid-container-inner">
+            <div class="sw-grid-container__inner">
                 <div class="sw-product-card"></div>
             </div>
         </div>

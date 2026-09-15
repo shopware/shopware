@@ -10,7 +10,24 @@
         icon="regular-envelope"
         :headline="$t('sw-mail-header-footer.list.emptyStateTitle')"
         :description="$t('sw-mail-header-footer.list.emptyStateSubTitle')"
-    />
+    >
+        <template #button>
+            {% block sw_mail_header_footer_list_grid_empty_state_button %}
+            <mt-button
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('mail_templates.creator'),
+                    showOnDisabledElements: true
+                }"
+                variant="primary"
+                :disabled="!acl.can('mail_templates.creator')"
+                @click="$router.push({ name: 'sw.mail.template.create_head_foot' })"
+            >
+                {{ $t('sw-mail-header-footer.list.buttonAddMailHeaderFooter') }}
+            </mt-button>
+            {% endblock %}
+        </template>
+    </mt-empty-state>
     {% endblock %}
 
     {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}

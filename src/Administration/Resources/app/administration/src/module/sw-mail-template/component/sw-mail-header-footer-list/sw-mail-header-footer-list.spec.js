@@ -64,7 +64,7 @@ const createWrapper = async (privileges = []) => {
             },
             stubs: {
                 'mt-card': {
-                    template: '<div><slot name="grid"></slot></div>',
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
                     props: [
@@ -252,5 +252,28 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
+
+    it('should offer the create action in the empty state', async () => {
+        const wrapper = await createWrapper(['mail_templates.creator']);
+        await flushPromises();
+
+        wrapper.vm.mailHeaderFooters = [];
+        await flushPromises();
+
+        const button = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(button.exists()).toBe(true);
+        expect(button.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should disable the create action of the empty state without create permission', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.mailHeaderFooters = [];
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__button .mt-button').attributes('disabled')).toBeDefined();
     });
 });

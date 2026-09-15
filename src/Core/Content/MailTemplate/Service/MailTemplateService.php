@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -35,6 +37,8 @@ class MailTemplateService
         private readonly MailDataSimulator $mailDataSimulator,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractTranslator $translator,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
     ) {
     }
 
@@ -70,6 +74,8 @@ class MailTemplateService
             $this->templateRenderer->enableTestMode();
         }
 
+        $injected = $this->injectTranslator($context, $simulateRequest->salesChannel?->getId());
+
         foreach ($simulateRequest->templateParts as $key => $content) {
             try {
                 $rendered = $this->templateRenderer->render(
@@ -83,6 +89,10 @@ class MailTemplateService
             } catch (\Throwable $e) {
                 $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
             }
+        }
+
+        if ($injected) {
+            $this->translator->resetInjection();
         }
 
         if (!$simulateRequest->strictRendering) {
@@ -125,6 +135,8 @@ class MailTemplateService
             );
         }
 
+        $injected = $this->injectTranslator($context, $request->salesChannel?->getId());
+
         foreach ($templateContent as $key => $value) {
             try {
                 $rendered = $this->templateRenderer->render(
@@ -138,6 +150,10 @@ class MailTemplateService
             } catch (\Throwable $e) {
                 $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
             }
+        }
+
+        if ($injected) {
+            $this->translator->resetInjection();
         }
 
         if (!$request->strictRendering) {
@@ -239,6 +255,26 @@ class MailTemplateService
             'contentHtml' => $mailTemplate->getContentHtml() ?? '',
             'contentPlain' => $mailTemplate->getContentPlain() ?? '',
         ];
+    }
+
+    private function injectTranslator(Context $context, ?string $salesChannelId): bool
+    {
+        if ($salesChannelId === null) {
+            return false;
+        }
+
+        if ($this->translator->getSnippetSetId() !== null) {
+            return false;
+        }
+
+        $this->translator->injectSettings(
+            $salesChannelId,
+            $context->getLanguageId(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
+            $context
+        );
+
+        return true;
     }
 
     private function shouldEscapeHtml(string $templatePart): bool

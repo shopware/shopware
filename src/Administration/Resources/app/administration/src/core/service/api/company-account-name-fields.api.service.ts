@@ -23,7 +23,7 @@ class CompanyAccountNameFieldsApiService extends ApiService {
                 headers: this.getBasicHeaders(),
             })
             .then((response) => ApiService.handleResponse(response))
-            .then((data) => Boolean((data as ContactPersonRequirement).contactPersonRequired))
+            .then((data) => Boolean(data.contactPersonRequired))
             .catch(() => true);
     }
 }

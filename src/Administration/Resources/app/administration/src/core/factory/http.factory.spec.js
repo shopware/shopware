@@ -637,6 +637,99 @@ describe('core/factory/http.factory.js', () => {
         });
     });
 
+    describe('storeSessionExpired notification', () => {
+        let notificationStore;
+        let notificationSpy;
+
+        beforeEach(() => {
+            notificationStore = Shopware.Store.get('notification');
+            notificationSpy = jest.spyOn(notificationStore, 'createNotification').mockImplementation(() => {});
+        });
+
+        afterEach(() => {
+            notificationSpy.mockRestore();
+        });
+
+        it.each([
+            ['FRAMEWORK__STORE_SESSION_EXPIRED'],
+            ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
+        ])('should show the session-expired notification exactly once when the retry also fails (%s)', async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth').reply(403, {
+                errors: [{ code: errorCode }],
+            });
+
+            await httpClient.get('/store-route-requiring-auth').catch(() => {});
+
+            expect(notificationSpy).toHaveBeenCalledTimes(1);
+            expect(notificationSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'warning' }),
+            );
+        });
+
+        it.each([
+            ['FRAMEWORK__STORE_SESSION_EXPIRED'],
+            ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
+        ])('should not show the session-expired notification when the retry succeeds (%s)', async (errorCode) => {
+            mock.onGet('/store-route-requiring-auth')
+                .replyOnce(403, { errors: [{ code: errorCode }] })
+                .onGet('/store-route-requiring-auth')
+                .replyOnce(200, {});
+
+            await httpClient.get('/store-route-requiring-auth');
+
+            expect(notificationSpy).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['FRAMEWORK__STORE_SESSION_EXPIRED'],
+            ['FRAMEWORK__STORE_SHOP_SECRET_INVALID'],
+        ])('should show the session-expired notification for a sync-api nested error without retrying (%s)', async (errorCode) => {
+            // The sync-api path calls handleErrorStates with error=null (no retry mechanism).
+            // The guard must still show the notification in this case.
+            mock.onPost('/_action/sync').reply(400, {
+                errors: [],
+                data: {
+                    entity_writes: {
+                        result: [
+                            {
+                                errors: [{ code: errorCode, status: '403' }],
+                            },
+                        ],
+                    },
+                },
+            });
+
+            await httpClient.post('/_action/sync', {}).catch(() => {});
+
+            expect(notificationSpy).toHaveBeenCalledTimes(1);
+            expect(notificationSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'warning' }),
+            );
+        });
+
+        it('should navigate via Shopware.Application.view.router when the Login action is clicked', async () => {
+            const pushSpy = jest.fn();
+            const originalView = Shopware.Application.view;
+            Shopware.Application.view = {
+                ...originalView,
+                router: { push: pushSpy },
+            };
+
+            mock.onGet('/store-route-requiring-auth').reply(403, {
+                errors: [{ code: 'FRAMEWORK__STORE_SESSION_EXPIRED' }],
+            });
+
+            await httpClient.get('/store-route-requiring-auth').catch(() => {});
+
+            const notificationCall = notificationSpy.mock.calls[0][0];
+            notificationCall.actions[0].method();
+
+            expect(pushSpy).toHaveBeenCalledWith({ name: 'sw.extension.my-extensions.account' });
+
+            Shopware.Application.view = originalView;
+        });
+    });
+
     describe('refreshTokenInterceptor', () => {
         let loginService;
         let originalShopwareService;

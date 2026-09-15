@@ -1,0 +1,11 @@
+name: "Image slider"
+description: "A media gallery configured as an image slider, without thumbnail navigation, magnifier, or fullscreen view."
+icon: "regular-image"
+layout:
+  - component: Sw:Media:Gallery
+    properties:
+      title: "Image slider"
+      showThumbnailNav: false
+      showMagnifier: false
+      showFullScreenGallery: false
+  

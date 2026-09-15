@@ -115,6 +115,10 @@
         }
     }
 
+    .sw-data-grid__cell--tags .sw-label {
+        flex-shrink: 0;
+    }
+
     .sw-data-grid__cell-value {
         overflow: hidden;
         text-overflow: ellipsis;

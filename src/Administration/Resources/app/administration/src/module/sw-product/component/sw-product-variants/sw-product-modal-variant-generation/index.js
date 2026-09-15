@@ -119,6 +119,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-modal-variant-generation.progressInPercentage is deprecated. Will be removed, no longer needed.',
+            );
+
             return this.actualProgress / (this.maxProgress * 100);
         },
 

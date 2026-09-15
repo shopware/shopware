@@ -24,6 +24,10 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use "match-reference-width" instead.',
+            },
         },
     },
 

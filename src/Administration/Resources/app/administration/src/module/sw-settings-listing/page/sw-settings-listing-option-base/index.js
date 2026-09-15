@@ -60,6 +60,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, is not used anymore
          */
         productSortingEntityCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-base.productSortingEntityCriteria is deprecated and will be removed, is not used anymore.',
+            );
+
             return new Criteria(1, 25);
         },
 

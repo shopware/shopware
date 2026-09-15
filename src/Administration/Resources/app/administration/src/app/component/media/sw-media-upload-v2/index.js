@@ -591,6 +591,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.
          */
         getUploadFailureMessage(task) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-upload-v2.getUploadFailureMessage() is deprecated. Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.',
+            );
+
             const detail = task?.error?.response?.data?.errors?.[0]?.detail;
 
             if (typeof detail === 'string' && detail.length > 0) {

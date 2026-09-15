@@ -164,6 +164,11 @@ function getWorker(): SharedWorker {
  * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
  */
 function enableWorkerNotificationListener(loginService: LoginService, context: ContextStore['api']) {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'enableWorkerNotificationListener() is deprecated. The increment-based message queue statistics are deprecated.',
+    );
+
     let workerNotificationListener = new WorkerNotificationListener(context);
 
     if (loginService.isLoggedIn()) {
@@ -207,6 +212,11 @@ function enableNotificationWorker(loginService: LoginService) {
  * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
  */
 function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'registerThumbnailMiddleware() is deprecated. The increment-based message queue statistics are deprecated.',
+    );
+
     const ids = {};
     factory.register('DalIndexingMessage', {
         name: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
@@ -461,6 +471,11 @@ function messageQueueNotification(
     },
     multiplier = 1,
 ) {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'messageQueueNotification() is deprecated. The increment-based message queue statistics are deprecated.',
+    );
+
     let notificationId = null;
     let didSendForegroundMessage = false;
 

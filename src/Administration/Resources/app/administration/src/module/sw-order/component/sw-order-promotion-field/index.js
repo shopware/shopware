@@ -123,6 +123,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         automaticPromotions() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.automaticPromotions is deprecated. Will be removed without replacement.',
+            );
+
             return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
         },
 
@@ -159,6 +164,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         hasAutomaticPromotions() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.hasAutomaticPromotions is deprecated. Will be removed without replacement.',
+            );
+
             return this.automaticPromotions.length > 0;
         },
 
@@ -166,6 +176,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         changesetGenerator() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.changesetGenerator is deprecated. Will be removed without replacement.',
+            );
+
             return new ChangesetGenerator();
         },
 
@@ -175,6 +190,11 @@ export default {
          * @returns {boolean}
          */
         hasOrderUnsavedChanges() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.hasOrderUnsavedChanges is deprecated. Will be removed without replacement.',
+            );
+
             return this.changesetGenerator.generate(this.order).changes !== null;
         },
 
@@ -220,6 +240,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         createdComponent() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.createdComponent() is deprecated. Will be removed without replacement.',
+            );
+
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
         },
 
@@ -235,6 +260,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         emitLoadingChange(state) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.emitLoadingChange() is deprecated. Will be removed without replacement.',
+            );
+
             Shopware.Store.get('swOrderDetail').setLoading([
                 'recalculation',
                 state,
@@ -265,6 +295,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         handleUnsavedOrderChangesResponse() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.handleUnsavedOrderChangesResponse() is deprecated. Will be removed without replacement.',
+            );
+
             this.createNotificationWarning({
                 message: this.$t('sw-order.detailBase.textUnsavedChanges', 0),
             });
@@ -287,6 +322,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
          */
         deleteAutomaticPromotions() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.deleteAutomaticPromotions() is deprecated. Will be removed without replacement. See `applyAutomaticPromotions` for an alternative.',
+            );
+
             if (this.automaticPromotions.length === 0) {
                 return Promise.resolve();
             }
@@ -310,6 +350,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
          */
         async toggleAutomaticPromotions(state) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.toggleAutomaticPromotions() is deprecated. Will be removed without replacement. See `applyAutomaticPromotions` for an alternative.',
+            );
+
             if (this.hasOrderUnsavedChanges) {
                 this.handleUnsavedOrderChangesResponse();
 
@@ -458,6 +503,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         getLineItemByPromotionCode(code) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-promotion-field.getLineItemByPromotionCode() is deprecated. Will be removed without replacement.',
+            );
+
             return this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === code;
             });

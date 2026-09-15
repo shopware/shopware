@@ -55,6 +55,9 @@ export default Component.wrapComponentConfig({
 
             /**
              * @deprecated tag:v6.8.0 - Will be removed
+             * @deprecationGuard static-only - Publishing the data set is core's own registration, not
+             * a use of it. The `deprecated` flag below is the boundary: the SDK reports it to the
+             * extension that reads the data set.
              */
             Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,

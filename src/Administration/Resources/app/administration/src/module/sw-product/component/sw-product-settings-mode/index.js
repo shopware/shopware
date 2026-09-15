@@ -12,6 +12,11 @@ import './sw-product-settings-mode.scss';
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Component will be removed. No longer used.',
+    },
+
     emits: [
         'settings-change',
         'settings-item-change',

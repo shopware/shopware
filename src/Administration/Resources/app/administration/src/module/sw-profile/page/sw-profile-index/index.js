@@ -308,6 +308,11 @@ export default {
          * @returns {boolean}
          */
         checkEmail() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-profile-index.checkEmail() is deprecated. Will be removed.',
+            );
+
             if (!this.user.email || !email(this.user.email)) {
                 this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
 

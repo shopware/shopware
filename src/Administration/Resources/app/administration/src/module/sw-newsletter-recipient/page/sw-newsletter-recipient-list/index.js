@@ -11,6 +11,8 @@ const {
  * @sw-package after-sales
  *
  * @deprecated tag:v6.8.0 - Will be private
+ * @deprecationGuard static-only - A visibility change, not a removal: the component keeps working and
+ * core keeps rendering it, so a guard at creation would report core's own use.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -83,6 +85,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -296,6 +303,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use dedicated "onTagSelectionChanged" function
          */
         handleTagFilter(filter) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.handleTagFilter() is deprecated. Use the dedicated "onTagSelectionChanged" function instead.',
+            );
+
             if (filter.length === 0) {
                 delete this.internalFilters.tags;
                 return;
@@ -312,6 +324,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use dedicated "on___SelectionChanged" function
          */
         handleBooleanFilter(filter) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.handleBooleanFilter() is deprecated. Use the dedicated "on___SelectionChanged" function instead.',
+            );
+
             if (!Array.isArray(this[filter.group])) {
                 this[filter.group] = [];
             }
@@ -338,6 +355,11 @@ export default {
          * @deprecated tag:v6.8.0 - Use dedicated "on___SelectionChanged" function
          */
         async onChange(filter) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-newsletter-recipient-list.onChange() is deprecated. Use the dedicated "on___SelectionChanged" function instead.',
+            );
+
             if (filter === null) {
                 filter = [];
             }

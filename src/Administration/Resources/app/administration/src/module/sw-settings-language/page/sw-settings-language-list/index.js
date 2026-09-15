@@ -208,6 +208,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         registerFilterSidebarItem(sidebarItem) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-language-list.registerFilterSidebarItem() is deprecated. Will be removed without replacement.',
+            );
+
             this.filterSidebarItem = sidebarItem;
         },
 
@@ -215,6 +220,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         openFilterSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-language-list.openFilterSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             if (!this.filterSidebarItem?.openContent) {
                 return;
             }

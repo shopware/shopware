@@ -232,17 +232,12 @@ export default Shopware.Mixin.register(
             },
 
             resetListing() {
+                this.page = 1;
+                this.term = undefined;
+
                 this.updateRoute({
-                    // @ts-expect-error
-                    name: this.$route.name,
-                    query: {
-                        limit: this.limit,
-                        page: this.page,
-                        term: this.term,
-                        sortBy: this.sortBy,
-                        sortDirection: this.sortDirection,
-                        naturalSorting: this.naturalSorting,
-                    },
+                    page: this.page,
+                    term: this.term,
                 });
             },
 

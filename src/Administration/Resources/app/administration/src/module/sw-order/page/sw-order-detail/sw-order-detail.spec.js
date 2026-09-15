@@ -195,6 +195,46 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBe(true);
     });
 
+    it('should not discard the version while it is being merged', async () => {
+        const lineItem = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+
+        wrapper = await createWrapper({
+            versionId: 'orderVersionId',
+            lineItems: [lineItem],
+            deliveries: [],
+        });
+
+        await flushPromises();
+
+        let resolveMerge;
+        const merging = new Promise((resolve) => {
+            resolveMerge = resolve;
+        });
+
+        wrapper.vm.orderRepository.mergeVersion = jest.fn(() => merging);
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
+
+        const saving = wrapper.vm.onSaveEdits();
+        await flushPromises();
+
+        expect(wrapper.vm.orderRepository.mergeVersion).toHaveBeenCalledWith('orderVersionId');
+        expect(wrapper.vm.hasNewVersionId).toBe(false);
+
+        window.dispatchEvent(new Event('pagehide'));
+
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
+
+        resolveMerge();
+        await saving;
+    });
+
     it('should not contain manual label', async () => {
         wrapper = await createWrapper();
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeFalsy();

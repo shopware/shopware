@@ -341,11 +341,12 @@ class StoreApiGeneratorTest extends TestCase
         $parameterNames = array_column($operation['parameters'], 'name');
         static::assertContains('page', $parameterNames);
         static::assertContains('limit', $parameterNames);
-        // sw-language-id is injected as a $ref by the generator, not as an inline parameter
+        // the shared headers are injected as a $ref by the generator, not as inline parameters
         $parameterRefs = array_column($operation['parameters'], '$ref');
         static::assertContains('#/components/parameters/swLanguageId', $parameterRefs);
+        static::assertContains('#/components/parameters/swContextSource', $parameterRefs);
         // but not left-overs of replaced parameter groups
-        static::assertCount(3, $operation['parameters']);
+        static::assertCount(4, $operation['parameters']);
     }
 
     public function testSwLanguageIdIsInjectedIntoEveryNonDeleteOperationOutsideInfo(): void
@@ -413,6 +414,58 @@ class StoreApiGeneratorTest extends TestCase
 
         static::assertTrue($assertedInjectedOperation, 'Schema should contain at least one non-DELETE operation outside /_info/ to test');
         static::assertTrue($assertedSkippedOperation, 'Schema should contain at least one DELETE or /_info/ operation to test');
+    }
+
+    public function testSwContextSourceIsInjectedIntoEveryOperationOutsideInfo(): void
+    {
+        $bundle = new BundleWithPredeclaredSwLanguageId();
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            new BundleSchemaPathCollection([$bundle]),
+        );
+
+        $schema = $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundle->getName(),
+        );
+
+        static::assertArrayHasKey('swContextSource', $schema['components']['parameters']);
+        static::assertSame(['session'], $schema['components']['parameters']['swContextSource']['schema']['enum']);
+
+        $assertedDeleteOperation = false;
+        $assertedSkippedOperation = false;
+
+        foreach ($schema['paths'] as $path => $pathDefinition) {
+            foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
+                if (!isset($pathDefinition[$method])) {
+                    continue;
+                }
+
+                $refs = array_column($pathDefinition[$method]['parameters'] ?? [], '$ref');
+                $hasHeader = \in_array('#/components/parameters/swContextSource', $refs, true);
+                $message = \sprintf('%s %s', strtoupper($method), $path);
+
+                if (str_starts_with((string) $path, '/_info/')) {
+                    $assertedSkippedOperation = true;
+                    static::assertFalse($hasHeader, $message . ' must not advertise sw-context-source');
+
+                    continue;
+                }
+
+                // unlike sw-language-id, a DELETE resolves a context too
+                $assertedDeleteOperation = $assertedDeleteOperation || $method === 'delete';
+                static::assertTrue($hasHeader, $message . ' should advertise sw-context-source');
+            }
+        }
+
+        static::assertTrue($assertedDeleteOperation, 'Schema should contain at least one DELETE operation outside /_info/ to test');
+        static::assertTrue($assertedSkippedOperation, 'Schema should contain at least one /_info/ operation to test');
     }
 
     public function testGetSchemaThrowsUnsupportedException(): void

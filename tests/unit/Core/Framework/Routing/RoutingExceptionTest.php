@@ -111,4 +111,14 @@ class RoutingExceptionTest extends TestCase
         static::assertSame(UnexpectedTypeException::class, $e::class);
         static::assertSame('Expected argument of type "valid", "int" given', $e->getMessage());
     }
+
+    public function testSessionContextNotResolvable(): void
+    {
+        $e = RoutingException::sessionContextNotResolvable('the request carries no storefront session cookie');
+
+        static::assertSame(RoutingException::class, $e::class);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(RoutingException::SESSION_CONTEXT_NOT_RESOLVABLE, $e->getErrorCode());
+        static::assertStringContainsString('the request carries no storefront session cookie', $e->getMessage());
+    }
 }

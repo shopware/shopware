@@ -43,6 +43,10 @@ use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -186,5 +190,15 @@ class Framework extends Bundle
         // The test verifies whether the Symfony fix resolves this and lets us remove this workaround safely.
         // @see \Shopware\Tests\Integration\Core\Framework\Adapter\Database\ReplicaConnectionResetterTest::testServicesResetterInitializesReplicaConnectionResetter()
         $this->container->get(ReplicaConnectionResetter::class);
+    }
+
+    protected function getActionEventClasses(): array
+    {
+        return [
+            WebhookActivatedEvent::class,
+            WebhookDegradedEvent::class,
+            WebhookSuspendedEvent::class,
+            WebhookDisabledEvent::class,
+        ];
     }
 }

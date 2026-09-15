@@ -73,7 +73,7 @@ class PromotionDeliveryCalculator
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
-        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
+        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -214,7 +214,7 @@ class PromotionDeliveryCalculator
      * if there are more than one fixed price lineItems the lowest fixed price discount lineItem is returned
      * if no fixed price discount lineItems are in collection all discounts are returned
      */
-    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
+    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
         $fixedPricesDiscountLineItems = $discountLineItems->filter(static function (LineItem $discountLineItem) {
@@ -232,6 +232,16 @@ class PromotionDeliveryCalculator
         // if there are no fixed price lineItems we may return all discount line items and calculate them
         if ($fixedPricesDiscountLineItems->count() === 0) {
             return $discountLineItems;
+        }
+
+        $applicableDiscountLineItems = $fixedPricesDiscountLineItems->filter(
+            fn (LineItem $discountLineItem) => $this->isRequirementValid($discountLineItem, $toCalculate, $context)
+        );
+
+        // a fixed price discount that does not apply to the current cart must not shadow an applicable one.
+        // if none of them applies we keep the previous selection, so the customer still gets the not eligible notice
+        if ($applicableDiscountLineItems->count() > 0) {
+            $fixedPricesDiscountLineItems = $applicableDiscountLineItems;
         }
 
         // if there is one fixed price lineItem we return the filtered collection and calculate it

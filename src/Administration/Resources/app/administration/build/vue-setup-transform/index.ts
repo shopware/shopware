@@ -35,22 +35,20 @@ type ShopwareSetupTransformResult = {
 };
 
 /**
- * Resolves absolute offsets against the original SFC, falling back to the script block when needed.
+ * Resolves the error's absolute offset against the original SFC. A position-less error is anchored
+ * to the script block so Vite and Jest still land in the right file region.
  */
 function withAuthorLocation(error: unknown, source: string, filename: string, block: ShopwareSetupBlock | null): unknown {
     if (!(error instanceof ShopwareSetupTransformError)) {
         return error;
     }
 
-    const located =
-        error.index === null && block ? new ShopwareSetupTransformError(error.message, block.contentStart) : error;
-
-    const diagnostic = resolveErrorSource(source, filename, located.index ?? 0, located.endIndex);
-    located.loc = diagnostic.loc;
+    const diagnostic = resolveErrorSource(source, filename, error.index ?? block?.contentStart ?? 0, error.endIndex);
+    error.loc = diagnostic.loc;
     // Vite may catch this in the importer; supply the frame so it cannot highlight that file instead.
-    located.frame = diagnostic.frame;
+    error.frame = diagnostic.frame;
 
-    return located;
+    return error;
 }
 
 /**

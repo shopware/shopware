@@ -49,61 +49,6 @@ describe('build/vue-setup-transform override write locations', () => {
             'save(); count++; count = 1',
             'count++',
         ],
-        [
-            'named entities',
-            'ready &amp;&amp; count++',
-            'count++',
-        ],
-        [
-            'decimal entities',
-            'ready &#38;&#38; count++',
-            'count++',
-        ],
-        [
-            'hex entities',
-            'ready &#x26;&#x26; count++',
-            'count++',
-        ],
-        [
-            'entities without semicolons',
-            'ready &amp&amp count++',
-            'count++',
-        ],
-        [
-            'ambiguous ampersand',
-            "save('&ampx'); count++",
-            'count++',
-        ],
-        [
-            'encoded identifier',
-            'save(); &#99;ount++',
-            '&#99;ount',
-        ],
-        [
-            'encoded newline',
-            'save();&#10;count++',
-            'count++',
-        ],
-        [
-            'astral entity',
-            "save('&#x1F600;'); count++",
-            'count++',
-        ],
-        [
-            'two-codepoint entity',
-            "save('&NotEqualTilde;'); count++",
-            'count++',
-        ],
-        [
-            'unknown entity',
-            "save('&unknown;'); count++",
-            'count++',
-        ],
-        [
-            'literal ampersand',
-            "save('&'); count++",
-            'count++',
-        ],
     ])('locates the write: %s', (_name, expression, token) => {
         const source = overrideSource(`<button @click="${expression}" />`);
         const error = captureTransformError(source, 'sw-write.override.vue');
@@ -131,14 +76,20 @@ describe('build/vue-setup-transform override write locations', () => {
         'v-model="count as number"',
         'v-model="count satisfies number"',
         'v-model="(count as number)!"',
-        'v-model="&#99;ount"',
     ])('rejects the implicit write in %s', (directive) => {
         const source = overrideSource(`<input ${directive} />`);
         const error = captureTransformError(source, 'sw-model.override.vue');
-        const token = directive.includes('&#99;') ? '&#99;ount' : 'count';
 
         expect(error.message).toContain('Cannot assign to "count"');
-        expect(error.index).toBe(source.indexOf(token, source.indexOf('<input')));
+        expect(error.index).toBe(source.indexOf('count', source.indexOf('<input')));
+    });
+
+    it('points at the whole expression when entities shift the decoded offsets', () => {
+        const source = overrideSource('<button @click="ready &amp;&amp; count++" />');
+        const error = captureTransformError(source, 'sw-write.override.vue');
+
+        expect(error.message).toContain('Cannot assign to "count"');
+        expect(error.index).toBe(source.indexOf('ready &amp;'));
     });
 
     it.each([

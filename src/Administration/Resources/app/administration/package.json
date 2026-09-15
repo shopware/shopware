@@ -178,7 +178,6 @@
     "dir-compare": "4.2.0",
     "docdash": "2.0.2",
     "dotenv": "16.4.7",
-    "entities": "4.5.0",
     "eslint": "9.39.3",
     "eslint-config-prettier": "9.1.0",
     "eslint-import-resolver-typescript": "4.4.4",

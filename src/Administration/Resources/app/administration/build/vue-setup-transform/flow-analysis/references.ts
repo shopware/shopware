@@ -338,16 +338,11 @@ function collectBabelWriteTargets(root: BabelNode): Map<string, number> {
             return;
         }
 
-        if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
-            if (!targets.has(node.left.name)) {
-                targets.set(node.left.name, node.left.start ?? 0);
-            }
-        }
+        const written =
+            node.type === 'AssignmentExpression' ? node.left : node.type === 'UpdateExpression' ? node.argument : null;
 
-        if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
-            if (!targets.has(node.argument.name)) {
-                targets.set(node.argument.name, node.argument.start ?? 0);
-            }
+        if (written?.type === 'Identifier' && !targets.has(written.name)) {
+            targets.set(written.name, written.start ?? 0);
         }
 
         childBabelNodes(node).forEach(visit);

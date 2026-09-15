@@ -4,6 +4,7 @@
 
 import shopwareSetupVueTransformer from '../../test/transformer/shopwareSetupVueTransformer';
 import { stripIndent } from './index.spec/helpers';
+
 const browserslistDataWarning = {
     method: 'warn' as const,
     msg: 'Browserslist: browsers data',

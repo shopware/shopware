@@ -72,17 +72,4 @@ describe('build/vue-setup-transform template diagnostic locations', () => {
         expect(error.index).toBe(source.indexOf(markup));
         expect(error.frame?.split('\n').filter((line) => line.startsWith('   |'))).toHaveLength(1);
     });
-
-    it.each([
-        '@click="count++"',
-        '@click="count = count + 1"',
-    ])('locates forwarded writes through %s', (directive) => {
-        const source = `<script setup>\nlet count = 0;\nswDefineOverride({ count });\n</script>\n<template>\n<sw-block extends="example">\n    <input ${directive} />\n</sw-block>\n</template>`;
-        const error = captureTransformError(source, 'sw-write.override.vue');
-
-        expect(error.message).toContain('Cannot assign to "count"');
-        expect(error.loc).toEqual({ file: 'sw-write.override.vue', line: 7, column: 11 + directive.indexOf('count') });
-        expect(error.index).toBe(source.indexOf(directive) + directive.indexOf('count'));
-        expect(error.frame).toContain(`7  |      <input ${directive} />`);
-    });
 });

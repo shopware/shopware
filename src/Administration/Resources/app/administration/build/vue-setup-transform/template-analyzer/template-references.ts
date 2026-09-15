@@ -11,7 +11,6 @@
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
-import { attributeSourceOffset } from '../utils/attribute-source-offset';
 import type {
     DirectiveNode as CoreDirectiveNode,
     ElementNode as CoreElementNode,
@@ -237,16 +236,16 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             // Explicit assignments/updates and the implicit assignment performed by v-model.
             if (directive.exp?.content) {
-                const expression = directive.exp;
-                const expressionOffset = expression.loc.start.offset;
+                const { content, loc } = directive.exp;
+                // Babel offsets are relative to the decoded value; with entities they no longer map onto
+                // the raw attribute, so the whole expression is pointed at instead.
+                const decoded = loc.source.includes('&');
 
-                collectExpressionWriteTargets(expression.content, childScope, directive.name === 'model').forEach(
-                    (offset, name) => {
-                        if (!writeTargets.has(name)) {
-                            writeTargets.set(name, expressionOffset + attributeSourceOffset(expression.loc.source, offset));
-                        }
-                    },
-                );
+                collectExpressionWriteTargets(content, childScope, directive.name === 'model').forEach((offset, name) => {
+                    if (!writeTargets.has(name)) {
+                        writeTargets.set(name, loc.start.offset + (decoded ? 0 : offset));
+                    }
+                });
             }
 
             // Any slot directive - default, named (#item), or dynamic (#[name]) - is handled the same:

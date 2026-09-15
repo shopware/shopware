@@ -7,7 +7,9 @@
       "deactivate": "Deaktivieren"
     },
     "exception": {
-      "service-list": "Fehler beim Laden der Services"
+      "service-list": "Fehler beim Laden der Services",
+      "service-registry": "Einige Informationen zu Shopware Services konnten nicht geladen werden. Du kannst Deine installierten Services weiterhin verwalten.",
+      "retry": "Erneut versuchen"
     },
     "sw-settings-services-hero": {
       "title": "Mach Deinen Shop zukunftssicher mit Shopware Services",

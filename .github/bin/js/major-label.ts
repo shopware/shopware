@@ -1,30 +1,37 @@
 /**
- * Label a pull request for the pending major release it affects.
+ * Label a pull request for the major releases it affects.
  *
- * Two labels, because the markers mean two different things. `major/<version>` says the
- * pull request changes what the major does: it documents an upgrade step, stabilises an
- * experimental API, narrows a signature, or moves a major feature flag.
+ * Two labels per major, because the markers mean two different things. `major/<version>`
+ * says the pull request changes what that major does: it documents an upgrade step,
+ * stabilises an experimental API, narrows a signature, or moves a major feature flag.
  * `major/<version>-cleanup` says it only leaves something behind to delete — an
- * `@deprecated tag:` annotation and nothing else. A pull request can earn both.
+ * `@deprecated tag:` annotation and nothing else. A pull request can earn both, and can
+ * earn labels for more than one major at once.
  *
  * Most work for the next major ships inside a `6.7.x` minor behind a flag that defaults to
  * off, so the milestone label — which records the version that ships a change — cannot
  * carry this. These labels are the orthogonal axis and must never be milestone labels.
  *
- * The target version is derived, never hardcoded: the lowest `vX.Y.0.0` flag registered
- * `major: true` with `default: false` is the major that has not shipped yet. Flags already
- * defaulting to true have flipped and are not pending.
+ * In-flight majors are derived exactly as the test lanes derive theirs: a `major: true`
+ * flag named after its version and still `default: false`. This is the TypeScript twin of
+ * `shopware_in_flight_majors()` in `.github/bin/lib/feature-flags.php`; the two must agree,
+ * or a major would get a lane without a label or the reverse. Registering the next major
+ * flag adds its labels with nothing to maintain here.
+ *
+ * Signals that name no version — the unversioned major flags, an edit to the registry, a
+ * path in `major-paths.yml` — belong to the nearest major, because that is the one that
+ * flips them.
  *
  * Known gap: a pull request that changes flagged behaviour inside a shared file without
- * touching the flag line carries no marker and no path. `.github/major-paths.yml` closes
- * this for features that own a namespace; nothing closes it for the rest.
+ * touching the flag line carries no marker and no path. `major-paths.yml` closes this for
+ * features that own a namespace; nothing closes it for the rest.
  */
 
-export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packages/feature.yaml';
-export const MAJOR_PATHS_PATH = '.github/major-paths.yml';
+import { EXCLUDED_PATH_PREFIX, FEATURE_REGISTRY_PATH, splitDiffByFile } from './auto-label-major-tests.ts';
 
-/** Tooling quotes flag names and version strings without changing major behavior. */
-export const EXCLUDED_PATH_PREFIX = '.github/';
+export { FEATURE_REGISTRY_PATH };
+
+export const MAJOR_PATHS_PATH = '.github/major-paths.yml';
 
 export type FeatureFlag = {
     name: string;
@@ -35,11 +42,6 @@ export type FeatureFlag = {
 export type MajorLabels = {
     behaviour: boolean;
     cleanup: boolean;
-};
-
-type DiffFileSection = {
-    path: string;
-    section: string;
 };
 
 type PullRequestDetectionContext = {
@@ -123,17 +125,17 @@ export function pendingMajorFlags(flags: FeatureFlag[]): string[] {
     return flags.filter((flag) => flag.major && !flag.default).map((flag) => flag.name);
 }
 
-/** `v6.8.0.0` -> `6.8`. Null when no major version flag is pending. */
-export function resolveTargetMajor(flags: FeatureFlag[]): string | null {
-    const versions = pendingMajorFlags(flags)
-        .map((name) => name.match(/^v(\d+)\.(\d+)\.0\.0$/))
+/**
+ * The majors that have not shipped, oldest first — `['6.8', '6.9']`.
+ * Mirrors `shopware_in_flight_majors()`, including its "named after its version" rule.
+ */
+export function resolveInFlightMajors(flags: FeatureFlag[]): string[] {
+    return pendingMajorFlags(flags)
+        .map((name) => name.match(/^v(\d+)\.(\d+)\.\d+\.\d+$/i))
         .filter((match): match is RegExpMatchArray => match !== null)
-        .map((match) => ({ major: Number(match[1]), minor: Number(match[2]) }))
-        .sort((a, b) => a.major - b.major || a.minor - b.minor);
-
-    const next = versions.at(0);
-
-    return next ? `${next.major}.${next.minor}` : null;
+        .map((match) => [Number(match[1]), Number(match[2])] as const)
+        .sort(([aMajor, aMinor], [bMajor, bMinor]) => aMajor - bMajor || aMinor - bMinor)
+        .map(([major, minor]) => `${major}.${minor}`);
 }
 
 export function parseMajorPaths(mapYaml: string): string[] {
@@ -177,17 +179,6 @@ export function globToRegExp(glob: string): RegExp {
     return new RegExp(`^${pattern}$`);
 }
 
-function splitDiffByFile(diff: string): DiffFileSection[] {
-    return diff
-        .split(/^diff --git /m)
-        .slice(1)
-        .map((section) => {
-            const path = section.match(/^a\/\S+ b\/(\S+)/);
-
-            return { path: path ? path[1] : '', section };
-        });
-}
-
 function changedLines(section: string): string[] {
     return section
         .split('\n')
@@ -204,8 +195,10 @@ export function evaluateMajorLabels(options: {
     flags: FeatureFlag[];
     targetMajor: string;
     majorPaths: string[];
+    /** The nearest in-flight major owns every signal that names no version. */
+    isNextMajor: boolean;
 }): MajorLabels {
-    const { diff, flags, targetMajor, majorPaths } = options;
+    const { diff, flags, targetMajor, majorPaths, isNextMajor } = options;
     const files = splitDiffByFile(diff).filter(({ path }) => path && !path.startsWith(EXCLUDED_PATH_PREFIX));
 
     if (files.length === 0) {
@@ -213,30 +206,31 @@ export function evaluateMajorLabels(options: {
     }
 
     const version = escapeRegExp(targetMajor);
-    const flagNames = pendingMajorFlags(flags).map(escapeRegExp);
-    const pathMatchers = majorPaths.map(globToRegExp);
+    const versionFlag = escapeRegExp(`v${targetMajor}.0.0`);
+    const unversionedFlags = isNextMajor
+        ? pendingMajorFlags(flags)
+              .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag))
+              .map(escapeRegExp)
+        : [];
+    const flagAlternatives = [versionFlag, ...unversionedFlags].join('|');
+    const pathMatchers = isNextMajor ? majorPaths.map(globToRegExp) : [];
 
     // `(?!\d)` keeps v6.8.0 from matching a v6.8.01 that a future scheme might introduce
-    const flagAlternatives = flagNames.join('|');
     const behaviourLineMarkers = [
         new RegExp(`stableVersion:v${version}\\.0(?!\\d)`),
         new RegExp(`version:\\s*'v${version}\\.0'`),
         // A flag name only counts where a consuming construct delimits it. Backtick-wrapped
         // prose is deliberately excluded: release notes describe flags without changing them.
-        ...(flagNames.length > 0
-            ? [
-                  new RegExp(`['"](${flagAlternatives})['"]`),
-                  new RegExp(`<flag>(${flagAlternatives})</flag>`),
-                  new RegExp(`\\b(${flagAlternatives})\\s*:`),
-              ]
-            : []),
+        new RegExp(`['"](${flagAlternatives})['"]`),
+        new RegExp(`<flag>(${flagAlternatives})</flag>`),
+        new RegExp(`\\b(${flagAlternatives})\\s*:`),
     ];
     const cleanupLineMarker = new RegExp(`tag:v${version}\\.0(?!\\d)`);
 
     const behaviourPath = files.some(
         ({ path }) =>
             path === `UPGRADE-${targetMajor}.md` ||
-            path === FEATURE_REGISTRY_PATH ||
+            (isNextMajor && path === FEATURE_REGISTRY_PATH) ||
             pathMatchers.some((matcher) => matcher.test(path)),
     );
 
@@ -260,6 +254,21 @@ export function labelNamesFor(targetMajor: string, labels: MajorLabels): string[
     }
 
     return names;
+}
+
+export function labelsForDiff(options: {
+    diff: string;
+    flags: FeatureFlag[];
+    majorPaths: string[];
+}): string[] {
+    const { diff, flags, majorPaths } = options;
+
+    return resolveInFlightMajors(flags).flatMap((targetMajor, index) =>
+        labelNamesFor(
+            targetMajor,
+            evaluateMajorLabels({ diff, flags, targetMajor, majorPaths, isNextMajor: index === 0 }),
+        ),
+    );
 }
 
 // All run conditions live here so they are unit-testable instead of an untestable YAML expression.
@@ -291,10 +300,10 @@ export async function detectMajorLabels(
     // Base ref, never the PR head: a fork must not be able to edit the registry or the path
     // map that judge it. A pull request that adds a flag is covered by the registry path hit.
     const flags = parseFeatureRegistry(readFile(FEATURE_REGISTRY_PATH));
-    const targetMajor = resolveTargetMajor(flags);
+    const majors = resolveInFlightMajors(flags);
 
-    if (!targetMajor) {
-        core.info('no pending major version flag in the registry, nothing to label');
+    if (majors.length === 0) {
+        core.info('no in-flight major in the registry, nothing to label');
 
         return [];
     }
@@ -307,14 +316,13 @@ export async function detectMajorLabels(
     });
 
     const majorPaths = parseMajorPaths(readFile(MAJOR_PATHS_PATH));
-    const evaluated = evaluateMajorLabels({ diff: String(diff), flags, targetMajor, majorPaths });
-    const wanted = labelNamesFor(targetMajor, evaluated);
+    const wanted = labelsForDiff({ diff: String(diff), flags, majorPaths });
     const missing = missingLabels(context, wanted);
 
     core.info(
         wanted.length === 0
-            ? `no ${targetMajor} markers in the diff`
-            : `${targetMajor} markers found: ${wanted.join(', ')}${missing.length === 0 ? ' (already applied)' : ''}`,
+            ? `no markers for ${majors.join(', ')} in the diff`
+            : `markers found: ${wanted.join(', ')}${missing.length === 0 ? ' (already applied)' : ''}`,
     );
 
     return missing;

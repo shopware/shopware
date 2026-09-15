@@ -5,11 +5,12 @@ import {
     evaluateMajorLabels,
     globToRegExp,
     labelNamesFor,
+    labelsForDiff,
     missingLabels,
     parseFeatureRegistry,
     parseMajorPaths,
     pendingMajorFlags,
-    resolveTargetMajor,
+    resolveInFlightMajors,
     shouldDetect,
 } from './major-label.ts';
 
@@ -57,7 +58,13 @@ index 0000000..1111111 100644
 ${hunk}`;
 
 const evaluate = (path: string, hunk: string) =>
-    evaluateMajorLabels({ diff: diffFor(path, hunk), flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS });
+    evaluateMajorLabels({
+        diff: diffFor(path, hunk),
+        flags: FLAGS,
+        targetMajor: '6.8',
+        majorPaths: PATHS,
+        isNextMajor: true,
+    });
 
 test('parseFeatureRegistry reads name, major and default per flag', () => {
     assert.deepEqual(FLAGS, [
@@ -72,11 +79,11 @@ test('pendingMajorFlags excludes flags that already default to true', () => {
     assert.deepEqual(pendingMajorFlags(FLAGS), ['v6.8.0.0', 'WEBHOOKS_REWORK']);
 });
 
-test('resolveTargetMajor derives the version from the pending major flag', () => {
-    assert.equal(resolveTargetMajor(FLAGS), '6.8');
+test('resolveInFlightMajors derives the version from the pending major flag', () => {
+    assert.deepEqual(resolveInFlightMajors(FLAGS), ['6.8']);
 });
 
-test('resolveTargetMajor picks the lowest pending major', () => {
+test('resolveInFlightMajors returns every unreleased major, oldest first', () => {
     const flags = parseFeatureRegistry(`shopware:
       feature:
         flags:
@@ -87,10 +94,10 @@ test('resolveTargetMajor picks the lowest pending major', () => {
             default: false
             major: true
 `);
-    assert.equal(resolveTargetMajor(flags), '6.8');
+    assert.deepEqual(resolveInFlightMajors(flags), ['6.8', '6.9']);
 });
 
-test('resolveTargetMajor returns null once every major flag has flipped', () => {
+test('resolveInFlightMajors is empty once every major flag has flipped', () => {
     const flags = parseFeatureRegistry(`shopware:
       feature:
         flags:
@@ -98,7 +105,7 @@ test('resolveTargetMajor returns null once every major flag has flipped', () => 
             default: true
             major: true
 `);
-    assert.equal(resolveTargetMajor(flags), null);
+    assert.deepEqual(resolveInFlightMajors(flags), []);
 });
 
 test('parseMajorPaths reads globs and ignores comments and empty lists', () => {
@@ -248,7 +255,7 @@ test('one pull request can earn both labels', () => {
         diffFor('UPGRADE-6.8.md', '+## The sorter changes') +
         '\n' +
         diffFor('src/Core/Content/Product/Sorter.php', '+     * @deprecated tag:v6.8.0 - use sortUsingLocaleCode');
-    const evaluated = evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS });
+    const evaluated = evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true });
     assert.deepEqual(evaluated, { behaviour: true, cleanup: true });
     assert.deepEqual(labelNamesFor('6.8', evaluated), ['major/6.8', 'major/6.8-cleanup']);
 });
@@ -267,7 +274,7 @@ test('a mixed diff still matches through the non-excluded file', () => {
         diffFor('.github/workflows/php.yml', '+  # v6.8.0.0 gate') +
         '\n' +
         diffFor('src/Core/Cart.php', "+        if (Feature::isActive('v6.8.0.0')) {");
-    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS }), {
+    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true }), {
         behaviour: true,
         cleanup: false,
     });
@@ -294,6 +301,7 @@ test('regex metacharacters in a version or flag name are matched literally', () 
         flags,
         targetMajor: '6.8',
         majorPaths: [],
+        isNextMajor: true,
     });
     assert.deepEqual(evaluated, { behaviour: false, cleanup: false });
 
@@ -303,6 +311,7 @@ test('regex metacharacters in a version or flag name are matched literally', () 
             flags,
             targetMajor: '6.8',
             majorPaths: [],
+            isNextMajor: true,
         }),
         { behaviour: true, cleanup: false },
     );
@@ -354,4 +363,86 @@ test('missingLabels drops labels the pull request already carries', () => {
     };
     assert.deepEqual(missingLabels(context, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
     assert.deepEqual(missingLabels(context, ['major/6.8']), []);
+});
+
+const TWO_MAJORS = parseFeatureRegistry(`shopware:
+  feature:
+    flags:
+      - name: v6.7.0.0
+        default: true
+        major: true
+      - name: v6.8.0.0
+        default: false
+        major: true
+      - name: v6.9.0.0
+        default: false
+        major: true
+      - name: WEBHOOKS_REWORK
+        default: false
+        major: true
+`);
+
+const labelsFor = (path: string, hunk: string) =>
+    labelsForDiff({ diff: diffFor(path, hunk), flags: TWO_MAJORS, majorPaths: PATHS });
+
+test('two in-flight majors: a 6.9 deprecation labels 6.9 alone', () => {
+    assert.deepEqual(labelsFor('src/Core/Framework/Feature.php', '+ * @deprecated tag:v6.9.0 - gone in 6.9'), [
+        'major/6.9-cleanup',
+    ]);
+});
+
+test('two in-flight majors: a 6.8 deprecation still labels 6.8 alone', () => {
+    assert.deepEqual(labelsFor('src/Core/Framework/Feature.php', '+ * @deprecated tag:v6.8.0 - gone in 6.8'), [
+        'major/6.8-cleanup',
+    ]);
+});
+
+test('two in-flight majors: each UPGRADE file labels its own major', () => {
+    assert.deepEqual(labelsFor('UPGRADE-6.9.md', '+## Later'), ['major/6.9']);
+    assert.deepEqual(labelsFor('UPGRADE-6.8.md', '+## Sooner'), ['major/6.8']);
+});
+
+test('two in-flight majors: a version flag labels the major it names', () => {
+    assert.deepEqual(labelsFor('src/Core/Cart.php', "+        if (Feature::isActive('v6.9.0.0')) {"), ['major/6.9']);
+});
+
+test('an unversioned flag belongs to the nearest major, not to every one', () => {
+    assert.deepEqual(labelsFor('src/Core/Cart.php', "+        if (Feature::isActive('WEBHOOKS_REWORK')) {"), [
+        'major/6.8',
+    ]);
+});
+
+test('a path map hit belongs to the nearest major', () => {
+    assert.deepEqual(labelsFor('src/Core/Checkout/DocumentV2/Generation/DocumentGenerator.php', '+        return $x;'), [
+        'major/6.8',
+    ]);
+});
+
+test('a registry edit belongs to the nearest major', () => {
+    assert.deepEqual(labelsFor(FEATURE_REGISTRY_PATH, '+      - name: BRAND_NEW_FLAG'), ['major/6.8']);
+});
+
+test('one pull request can earn labels for both majors', () => {
+    const diff =
+        diffFor('UPGRADE-6.8.md', '+## Sooner') +
+        '\n' +
+        diffFor('src/Core/Framework/Feature.php', '+ * @deprecated tag:v6.9.0 - gone in 6.9');
+    assert.deepEqual(labelsForDiff({ diff, flags: TWO_MAJORS, majorPaths: PATHS }), [
+        'major/6.8',
+        'major/6.9-cleanup',
+    ]);
+});
+
+test('labelsForDiff emits nothing when no major is in flight', () => {
+    const shipped = parseFeatureRegistry(`shopware:
+      feature:
+        flags:
+          - name: v6.8.0.0
+            default: true
+            major: true
+`);
+    assert.deepEqual(
+        labelsForDiff({ diff: diffFor('UPGRADE-6.8.md', '+## Anything'), flags: shipped, majorPaths: PATHS }),
+        [],
+    );
 });

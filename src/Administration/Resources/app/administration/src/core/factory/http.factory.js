@@ -6,6 +6,7 @@
 import Axios from 'axios';
 import AxiosV1 from 'axios-v1';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
+// @deprecated tag:v6.8.0 - Remove this import together with the `http-client-adapter` module.
 import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 
 /**
@@ -46,7 +47,7 @@ function createClient() {
         timeout: 30000, // 30 second timeout
     };
 
-    // Create both axios v0 and v1 instances
+    // @deprecated tag:v6.8.0 - Remove the axios 0.x instance below; `axiosV1` is the only remaining transport.
     const axiosV0 = Axios.create(baseConfig);
     const axiosV1 = AxiosV1.create(baseConfig);
 
@@ -79,7 +80,7 @@ function createClient() {
         requestCacheAdapterInterceptorV1(axiosV1);
     }
 
-    // Create adapters for both versions
+    // @deprecated tag:v6.8.0 - Remove both adapters together with the version routing below.
     const adapterV0 = createAxiosV0Adapter(axiosV0);
     const adapterV1 = createAxiosV1Adapter(axiosV1);
 
@@ -98,6 +99,8 @@ function createClient() {
         // 1. If useAxiosV1 is explicitly set (true/false), use that
         // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
         // 3. Fall back to v0 for backward compatibility
+        //
+        // @deprecated tag:v6.8.0 - Remove the two lines below and return `axiosV1.request(requestConfig)`.
         const shouldUseV1 = requestConfig?.useAxiosV1 ?? isV68 ?? false;
         const targetAdapter = shouldUseV1 ? adapterV1 : adapterV0;
 
@@ -117,16 +120,19 @@ function createClient() {
     dispatcher.putForm = (url, data, config = {}) => dispatcher(createFormConfig('put', url, data, config));
     dispatcher.patchForm = (url, data, config = {}) => dispatcher(createFormConfig('patch', url, data, config));
     dispatcher.getUri = (config = {}) => {
+        // @deprecated tag:v6.8.0 - Remove the version routing and return `axiosV1.getUri(config)`.
         const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
         return shouldUseV1 ? axiosV1.getUri(config) : axiosV0.getUri(config);
     };
 
-    // Add isCancel method that checks both adapters
+    // @deprecated tag:v6.8.0 - Probing both adapters goes away. Assign `AxiosV1.isCancel` instead, which the
+    // `HttpClient` contract requires but `AxiosV1.create()` does not put on the instance.
     dispatcher.isCancel = (value) => {
         return adapterV0.isCancel(value) || adapterV1.isCancel(value);
     };
 
-    // Keep CancelToken for backward compatibility with axios v0
+    // Survives the axios 0.x removal (the `HttpClient` contract declares it, axios 1.x still supports it), but
+    // must then be re-sourced: `Axios` here is the 0.x package.
     dispatcher.CancelToken = CancelToken;
 
     // Keep the public configuration surface independent of the selected axios version.
@@ -136,8 +142,14 @@ function createClient() {
     };
     dispatcher.defaults = createMirroredDefaults(axiosV0.defaults, axiosV1.defaults, isV68);
 
-    // Keep the former runtime escape hatches for extensions that already use them.
-    // They intentionally stay out of the TypeScript contract so new code uses the version-agnostic facade.
+    /**
+     * Runtime escape hatches to the concrete axios instances. They intentionally stay out of the
+     * TypeScript contract so new code uses the version-agnostic facade.
+     *
+     * @deprecated tag:v6.8.0 - All six properties will be removed. Use `httpClient` itself instead of
+     * `axiosV0`/`axiosV1`, `httpClient.interceptors` instead of `interceptorsV0`/`interceptorsV1`, and
+     * `httpClient.defaults` instead of `defaultsV0`/`defaultsV1`.
+     */
     dispatcher.axiosV0 = axiosV0;
     dispatcher.axiosV1 = axiosV1;
     dispatcher.interceptorsV0 = axiosV0.interceptors;
@@ -161,6 +173,10 @@ function createFormConfig(method, url, data, config) {
     };
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. With a single transport the facade exposes the axios
+ * interceptor managers directly, so nothing has to be mirrored.
+ */
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
     // Keep the public facade separate from Axios' internal interceptor stacks. The
     // initial handlers contain version-specific closures (notably the cache
@@ -242,10 +258,16 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
     };
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function cloneInterceptorHandler(handler) {
     return handler === null || handler === undefined ? handler : { ...handler };
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {
     const primaryDefaults = isV68 ? axiosV1Defaults : axiosV0Defaults;
     const secondaryDefaults = isV68 ? axiosV0Defaults : axiosV1Defaults;
@@ -257,6 +279,9 @@ function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {
     return createMirroredObject(primaryDefaults, secondaryDefaults, originalAdapters);
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function createMirroredObject(primary, secondary, originalAdapters = null) {
     return new Proxy(primary, {
         get(target, property) {
@@ -286,6 +311,9 @@ function createMirroredObject(primary, secondary, originalAdapters = null) {
     });
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function isObject(value) {
     return value !== null && typeof value === 'object';
 }
@@ -293,6 +321,8 @@ function isObject(value) {
 /**
  * Sets up an interceptor to handle automatic cache of same requests in short time amount
  * for Axios v0.x
+ *
+ * @deprecated tag:v6.8.0 - Will be removed with axios 0.x. Use `requestCacheAdapterInterceptorV1`.
  *
  * @param {AxiosInstance} client
  * @returns {AxiosInstance}

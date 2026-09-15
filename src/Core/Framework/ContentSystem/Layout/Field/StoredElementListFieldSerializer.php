@@ -222,14 +222,14 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
      */
     private function rejectIllFormedTree(StoredTree $tree): void
     {
-        $violations = $tree->validate();
+        $duplicates = $tree->duplicateElementIds();
 
-        if ($violations === []) {
+        if ($duplicates === []) {
             return;
         }
 
         throw ContentSystemException::invalidLayoutStructure(
-            $this->violationMapper->toConstraintViolationList($violations)
+            $this->violationMapper->fromDuplicateElementIds($duplicates)
         );
     }
 

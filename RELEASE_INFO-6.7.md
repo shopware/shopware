@@ -273,6 +273,8 @@ Settings > Basic information has a new *Shop owner's country* setting (`core.bas
 If the setting is empty, nothing changes: the exemption and the note keep checking the delivery country's pattern only.
 Independently of the setting, a customer counts as a business based on `accountType` instead of a non-empty `company`.
 
+The exemption applies for all product types: digital products follow the same delivery-country rules as goods.
+
 `store-api/account/register` and `store-api/account/change-profile` now accept a VAT ID of any EU member state when the billing country is an EU member state with *Check VAT ID pattern* enabled.
 
 For extension developers:

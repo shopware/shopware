@@ -38,14 +38,21 @@ The relaxation cannot depend on the sales channel settings, because a field defi
 
 ### Customer identity
 
-`CustomerDefinition` and `OrderCustomerDefinition` get a runtime field. The rule lives once per entity, in the getter, and a subscriber per entity copies it into the runtime field on `loaded` and `partial_loaded` so that it reaches the API responses. The `Runtime` flag names the source fields, so a partial read that asks for `displayName` pulls them in.
+`CustomerDefinition` and `OrderCustomerDefinition` get a runtime field. A subscriber per entity resolves the name on `loaded` and `partial_loaded` and writes it into the field, so that entities and API responses carry it; the getter returns the field as loaded, like every other runtime field. The `Runtime` flag names the source fields, so a partial read that asks for `displayName` pulls them in.
 
 ```php
 (new StringField('display_name', 'displayName'))
     ->addFlags(new ApiAware(), new Runtime(['firstName', 'lastName', 'company', 'accountType'])),
 
-// CustomerEntity
-public static function resolveDisplayName(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
+// CustomerDisplayNameSubscriber, on a hydrated entity
+$customer->setDisplayName(self::resolve(
+    $customer->getFirstName(),
+    $customer->getLastName(),
+    $customer->getCompany(),
+    $customer->isBusinessAccount()
+));
+
+private static function resolve(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
 {
     $personName = trim($firstName . ' ' . $lastName);
 
@@ -55,9 +62,6 @@ public static function resolveDisplayName(string $firstName, string $lastName, ?
 
     return trim($company ?? '');
 }
-
-// CustomerDisplayNameSubscriber, on a hydrated entity
-$customer->assign(['displayName' => $customer->getDisplayName()]);
 ```
 
 The company stands in only when there is no person name, so a commercial account that has a contact person keeps showing that person. `order_customer` has no account type, so its rule is the person name, else the company.

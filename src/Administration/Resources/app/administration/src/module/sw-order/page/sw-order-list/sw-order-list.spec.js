@@ -163,6 +163,14 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('src/module/sw-order/page/sw-order-list', () => {
+    it('should sort the name column by the company after the person name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.getOrderColumns().find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
+            'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
+        );
+    });
+
     it.each([
         [
             'a contact person',

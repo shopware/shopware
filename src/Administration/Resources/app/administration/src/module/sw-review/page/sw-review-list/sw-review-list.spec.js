@@ -77,6 +77,14 @@ async function createWrapper() {
 }
 
 describe('module/sw-review/page/sw-review-list', () => {
+    it('should sort the name column by the company after the person name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.columns.find((column) => column.property === 'user').dataIndex).toBe(
+            'customer.lastName,customer.firstName,customer.company',
+        );
+    });
+
     it.each([
         [
             'a contact person',

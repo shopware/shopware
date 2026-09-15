@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
@@ -528,7 +529,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VersionCommitDefinition::class),
             service(VersionCommitDataDefinition::class),
             service(VersionDefinition::class),
-            service('lock.factory'),
+            service(LockManager::class),
             service(ClockInterface::class),
         ]);
 

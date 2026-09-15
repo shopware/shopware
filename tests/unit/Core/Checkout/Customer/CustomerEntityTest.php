@@ -216,12 +216,14 @@ class CustomerEntityTest extends TestCase
     public function testTheStringRepresentationFollowsTheDisplayName(): void
     {
         $customer = new CustomerEntity();
-
-        static::assertSame('', (string) $customer);
-
-        $customer->setDisplayName('Ada Lovelace');
+        $customer->setFirstName('Ada');
+        $customer->setLastName('Lovelace');
 
         static::assertSame('Ada Lovelace', (string) $customer);
+
+        $customer->setDisplayName('Analytical Engines');
+
+        static::assertSame('Analytical Engines', (string) $customer);
     }
 
     /**

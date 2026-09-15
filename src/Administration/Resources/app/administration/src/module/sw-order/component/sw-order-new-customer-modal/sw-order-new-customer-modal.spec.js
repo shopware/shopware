@@ -168,6 +168,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         expect(wrapper.vm.customer.lastName).toBe('');
         expect(wrapper.vm.customer.addresses.first().firstName).toBe('');
         expect(wrapper.vm.customer.addresses.first().lastName).toBe('');
+        expect(wrapper.vm.customer.addresses.first().company).toBe('Acme GmbH');
     });
 
     it('leaves the names alone while the settings keep the contact person', async () => {

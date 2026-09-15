@@ -279,6 +279,10 @@ export default {
             this.customer.addresses.forEach((address) => {
                 address.firstName ??= '';
                 address.lastName ??= '';
+
+                if (!address.company?.trim()) {
+                    address.company = this.customer.company;
+                }
             });
         },
 

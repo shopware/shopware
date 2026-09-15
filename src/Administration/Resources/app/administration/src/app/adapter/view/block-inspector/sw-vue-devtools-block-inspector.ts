@@ -31,6 +31,8 @@ import useBlockContext from 'src/app/composables/use-block-context';
 import {
     collectMarkedBlocks,
     createBlockOverlay,
+    containedBlockTree,
+    documentBlockTree,
     enclosingBlockNames,
     findBlockElements,
     hideOverlayOnPageInteraction,
@@ -104,7 +106,11 @@ function buildState(blockName: string): CustomInspectorState {
             { key: 'Component', value: block.component },
             { key: 'Kind', value: block.kind === 'twig' ? 'Twig template block' : 'Native <sw-block>' },
             { key: 'Elements in DOM', value: elements.length },
-            { key: 'Enclosing blocks', value: enclosingBlockNames(elements[0]?.parentElement ?? null) },
+            {
+                key: 'Enclosing blocks',
+                // From the element itself, so outer blocks that start on the same element count too.
+                value: enclosingBlockNames(elements[0] ?? null).filter((name) => name !== block.name),
+            },
         ],
         Extensions: [
             { key: 'Twig overrides', value: countTwigOverrides(block) },
@@ -123,12 +129,29 @@ function routerOf(root: unknown): Router | undefined {
 }
 
 /**
+ * Whether a setup has already run. See the guard in `setupBlockInspector`.
+ */
+let isSetUp = false;
+
+/**
  * Adds the block inspector to the Shopware devtools plugin. `root` is the mounted root instance
  * the plugin was registered with; its router drives the rebuild of the tree on route changes.
+ *
+ * Runs once per page. The devtools call a plugin's setup function more than once - switching off
+ * their high performance mode on connect replays the registration - and every run used to build its
+ * own overlay and its own pick state. The devtools then called every registered tree handler with
+ * the same payload, so the run that had not seen the pick overwrote the tree of the run that had,
+ * and a picked block never reached the panel. Two frames were drawn on the page for the same reason.
  *
  * @private
  */
 export default function setupBlockInspector(api: DevtoolsPluginApi<unknown>, root?: unknown): void {
+    if (isSetUp) {
+        return;
+    }
+
+    isSetUp = true;
+
     const overlay = createBlockOverlay();
     let stopPicking: (() => void) | null = null;
     let refreshTimer: ReturnType<typeof setTimeout> | null = null;
@@ -170,7 +193,7 @@ export default function setupBlockInspector(api: DevtoolsPluginApi<unknown>, roo
                 // New generation: every node id changes, so the tree drops its old selection and
                 // lands on the picked block, which is sent as the first root node.
                 generation += 1;
-                pick = { blockName, enclosingBlockNames: enclosingBlockNames(element.parentElement) };
+                pick = { blockName, contained: containedBlockTree(element, blockName) };
 
                 api.sendInspectorTree(BLOCK_INSPECTOR_ID);
                 // Devtools v6 select and scroll through this call; v7 ignore it and rely on the tree.
@@ -204,8 +227,7 @@ export default function setupBlockInspector(api: DevtoolsPluginApi<unknown>, roo
             },
             {
                 icon: 'flash_off',
-                tooltip:
-                    'Remove the highlight and the picked block (a click or Escape in the page also removes the highlight)',
+                tooltip: 'Clear the picked block, show the whole tree again and remove the highlight',
                 action: (): void => {
                     stopPicking?.();
                     overlay.hide();
@@ -232,7 +254,11 @@ export default function setupBlockInspector(api: DevtoolsPluginApi<unknown>, roo
             return;
         }
 
-        payload.rootNodes = buildBlockTree(collectTreeBlocks(), { filter: payload.filter, generation, pick });
+        payload.rootNodes = buildBlockTree(documentBlockTree(), collectTreeBlocks(), {
+            filter: payload.filter,
+            generation,
+            pick,
+        });
     });
 
     api.on.getInspectorState((payload) => {

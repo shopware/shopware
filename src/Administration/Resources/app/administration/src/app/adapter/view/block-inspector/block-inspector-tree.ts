@@ -17,6 +17,7 @@
 
 import type { CustomInspectorNode, InspectorNodeTag } from '@vue/devtools-api';
 import type { InspectedBlockKind } from 'src/core/factory/block-inspector';
+import type { ContainedBlock } from './block-inspector-dom';
 
 /**
  * @private
@@ -51,20 +52,23 @@ export type TreeBlock = {
 };
 
 /**
- * The block the developer picked in the page, with the blocks enclosing it, innermost first.
+ * The block the developer picked in the page, with the blocks nested inside it.
  *
  * @private
  */
 export type BlockPick = {
     blockName: string;
-    enclosingBlockNames: string[];
+    contained: ContainedBlock[];
 };
 
 /**
  * @private
  */
 export type BlockTreeOptions = {
-    /** Case-insensitive filter over block and component names, from the devtools tree filter. */
+    /**
+     * Case-insensitive filter over block and component names, from the devtools tree filter. A block
+     * is kept when it matches or when one of the blocks inside it does, so a match stays reachable.
+     */
     filter?: string;
     /** Bumped on every pick so that all node ids change. */
     generation: number;
@@ -73,7 +77,6 @@ export type BlockTreeOptions = {
 
 const BLOCK_PREFIX = 'block:';
 const PICKED_PREFIX = 'picked:';
-const COMPONENT_PREFIX = 'component:';
 const GENERATION_SEPARATOR = '|';
 
 function nodeId(generation: number, prefix: string, name: string): string {
@@ -136,6 +139,27 @@ function matchesFilter(block: TreeBlock, query: string): boolean {
     return !query || block.name.toLowerCase().includes(query) || block.component.toLowerCase().includes(query);
 }
 
+function buildContainedNode(
+    block: ContainedBlock,
+    blocksByName: Map<string, TreeBlock>,
+    generation: number,
+): CustomInspectorNode {
+    return {
+        id: pickedNodeId(block.name, generation),
+        label: block.name,
+        tags: tagsOf(blocksByName.get(block.name)),
+        children: block.children.map((child) => buildContainedNode(child, blocksByName, generation)),
+    };
+}
+
+/**
+ * The picked block as it really sits in the page: the block itself with the blocks nested inside it.
+ * The blocks around it are not part of this node - the state panel lists them instead.
+ *
+ * While a pick is active this is the whole tree. The devtools select and expand the first root node
+ * on their own and offer a plugin no way to expand anything else, so focusing the tree on the picked
+ * block is what puts it in view - and it keeps the block from appearing twice.
+ */
 function buildPickedNode(pick: BlockPick, blocksByName: Map<string, TreeBlock>, generation: number): CustomInspectorNode {
     return {
         id: pickedNodeId(pick.blockName, generation),
@@ -144,23 +168,49 @@ function buildPickedNode(pick: BlockPick, blocksByName: Map<string, TreeBlock>, 
             TAG_PICKED,
             ...tagsOf(blocksByName.get(pick.blockName)),
         ],
-        children: pick.enclosingBlockNames
-            .filter((name) => name !== pick.blockName)
-            .map((name) => ({
-                id: pickedNodeId(name, generation),
-                label: name,
-                tags: tagsOf(blocksByName.get(name)),
-            })),
+        children: pick.contained.map((child) => buildContainedNode(child, blocksByName, generation)),
+    };
+}
+
+/** One hierarchy node, or null when neither it nor anything inside it matches the filter. */
+function buildHierarchyNode(
+    block: ContainedBlock,
+    blocksByName: Map<string, TreeBlock>,
+    generation: number,
+    query: string,
+): CustomInspectorNode | null {
+    const children = block.children
+        .map((child) => buildHierarchyNode(child, blocksByName, generation, query))
+        .filter((child): child is CustomInspectorNode => child !== null);
+
+    const metadata = blocksByName.get(block.name);
+    const matches = !query || (metadata ? matchesFilter(metadata, query) : block.name.toLowerCase().includes(query));
+
+    // A parent that does not match itself is kept as the path to a match below it.
+    if (!matches && children.length === 0) {
+        return null;
+    }
+
+    return {
+        id: blockNodeId(block.name, generation),
+        label: block.name,
+        tags: tagsOf(metadata),
+        children,
     };
 }
 
 /**
- * Builds the inspector tree: the picked block first, when there is one, then every block grouped
- * under the component that owns it, in the order the blocks were given.
+ * Builds the inspector tree: the blocks of the page nested the way they nest in the DOM, the way an
+ * element inspector shows a document. While a block is picked the tree is focused on that block,
+ * like focusing on a subtree in an element inspector; clearing the pick brings the page back.
  *
  * @private
  */
-export function buildBlockTree(blocks: TreeBlock[], options: BlockTreeOptions): CustomInspectorNode[] {
+export function buildBlockTree(
+    hierarchy: ContainedBlock[],
+    blocks: TreeBlock[],
+    options: BlockTreeOptions,
+): CustomInspectorNode[] {
     const { generation, pick = null } = options;
     const query = (options.filter ?? '').trim().toLowerCase();
     const blocksByName = new Map(
@@ -169,36 +219,12 @@ export function buildBlockTree(blocks: TreeBlock[], options: BlockTreeOptions): 
             block,
         ]),
     );
-    const componentNodes = new Map<string, CustomInspectorNode>();
-
-    blocks.forEach((block) => {
-        if (!matchesFilter(block, query)) {
-            return;
-        }
-
-        let componentNode = componentNodes.get(block.component);
-
-        if (!componentNode) {
-            componentNode = {
-                id: nodeId(generation, COMPONENT_PREFIX, block.component),
-                label: block.component,
-                children: [],
-            };
-            componentNodes.set(block.component, componentNode);
-        }
-
-        componentNode.children?.push({
-            id: blockNodeId(block.name, generation),
-            label: block.name,
-            tags: tagsOf(block),
-        });
-    });
-
-    const tree = Array.from(componentNodes.values());
 
     if (pick) {
-        tree.unshift(buildPickedNode(pick, blocksByName, generation));
+        return [buildPickedNode(pick, blocksByName, generation)];
     }
 
-    return tree;
+    return hierarchy
+        .map((block) => buildHierarchyNode(block, blocksByName, generation, query))
+        .filter((node): node is CustomInspectorNode => node !== null);
 }

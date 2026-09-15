@@ -85,6 +85,101 @@ export function findBlockElements(blockName: string, root: ParentNode = document
     return Array.from(root.querySelectorAll(`[${BLOCK_MARKER_ATTRIBUTE}~="${blockName}"]`));
 }
 
+/**
+ * A block with the blocks nested inside it.
+ *
+ * @private
+ */
+export type ContainedBlock = {
+    name: string;
+    children: ContainedBlock[];
+};
+
+/**
+ * Maps every block that starts on one of the elements to the block enclosing it.
+ *
+ * A block starts either on its own element or on an element it shares with outer blocks, so the
+ * enclosing chain of a starting element yields the parent of every block: the entry right after the
+ * block itself. Blocks are keyed by name, matching the rest of the inspector, so a name that starts
+ * in several places is recorded once, at its first occurrence in document order.
+ */
+function collectBlockParents(elements: Element[], namesOf: (element: Element) => string[]): Map<string, string | null> {
+    const parents = new Map<string, string | null>();
+
+    elements.forEach((element) => {
+        const chain = enclosingBlockNames(element);
+
+        namesOf(element).forEach((name) => {
+            if (parents.has(name)) {
+                return;
+            }
+
+            const chainIndex = chain.indexOf(name);
+            parents.set(name, chainIndex === -1 ? null : (chain[chainIndex + 1] ?? null));
+        });
+    });
+
+    return parents;
+}
+
+/** Turns a child-to-parent map into nested nodes, starting at the blocks whose parent is `parent`. */
+function nestBlocks(parents: Map<string, string | null>, parent: string | null): ContainedBlock[] {
+    const nested: ContainedBlock[] = [];
+
+    parents.forEach((value, name) => {
+        if (value === parent) {
+            nested.push({ name, children: nestBlocks(parents, name) });
+        }
+    });
+
+    return nested;
+}
+
+/**
+ * The blocks inside `blockName`, nested the way they nest in the DOM.
+ *
+ * @private
+ */
+export function containedBlockTree(element: Element, blockName: string): ContainedBlock[] {
+    const startElements: Element[] = [
+        element,
+        ...Array.from(element.querySelectorAll(`[${BLOCK_MARKER_ATTRIBUTE}]`)),
+    ];
+
+    const parents = collectBlockParents(startElements, (startElement) => {
+        const ownNames = blockNamesOf(startElement);
+        // On the picked element only the names nested inside the picked block count; everything
+        // after it in the marker encloses it.
+        const pickedIndex = ownNames.indexOf(blockName);
+
+        return startElement === element && pickedIndex !== -1 ? ownNames.slice(0, pickedIndex) : ownNames;
+    });
+
+    return nestBlocks(parents, blockName);
+}
+
+/**
+ * Every block currently in the page, nested the way the blocks nest in the DOM.
+ *
+ * The outermost blocks become the roots. Use it to show the blocks the way an element inspector
+ * shows the document.
+ *
+ * @private
+ */
+export function documentBlockTree(root: ParentNode = document): ContainedBlock[] {
+    const elements = Array.from(root.querySelectorAll(`[${BLOCK_MARKER_ATTRIBUTE}]`));
+    const parents = collectBlockParents(elements, blockNamesOf);
+
+    // A parent outside the scanned scope cannot be rendered, so such a block becomes a root itself.
+    parents.forEach((parent, name) => {
+        if (parent !== null && !parents.has(parent)) {
+            parents.set(name, null);
+        }
+    });
+
+    return nestBlocks(parents, null);
+}
+
 type Rect = { top: number; left: number; right: number; bottom: number };
 
 /**

@@ -8,6 +8,8 @@ import {
     createBlockOverlay,
     enclosingBlockNames,
     findBlockElements,
+    containedBlockTree,
+    documentBlockTree,
     findMarkedElement,
     hideOverlayOnPageInteraction,
     labelPosition,
@@ -93,6 +95,84 @@ describe('adapter/view/block-inspector/block-inspector-dom', () => {
                 'two',
                 'three',
             ]);
+        });
+    });
+
+    describe('containedBlockTree', () => {
+        it('nests the blocks inside a block the way their elements nest', () => {
+            render(
+                '<div id="outer" data-sw-block="b_outer"><p data-sw-block="b_inner"><b data-sw-block="b_leaf"></b></p></div>',
+            );
+
+            expect(containedBlockTree(document.getElementById('outer')!, 'b_outer')).toEqual([
+                { name: 'b_inner', children: [{ name: 'b_leaf', children: [] }] },
+            ]);
+        });
+
+        it('lists siblings next to each other', () => {
+            render('<div id="outer" data-sw-block="b_outer"><p data-sw-block="a"></p><p data-sw-block="b"></p></div>');
+
+            expect(containedBlockTree(document.getElementById('outer')!, 'b_outer')).toEqual([
+                { name: 'a', children: [] },
+                { name: 'b', children: [] },
+            ]);
+        });
+
+        it('treats blocks that share the element as nested, innermost first', () => {
+            render('<div id="el" data-sw-block="b_inner b_outer"></div>');
+            const element = document.getElementById('el')!;
+
+            expect(containedBlockTree(element, 'b_outer')).toEqual([{ name: 'b_inner', children: [] }]);
+            // Everything after the picked name in the marker encloses it, so nothing is inside.
+            expect(containedBlockTree(element, 'b_inner')).toEqual([]);
+        });
+
+        it('lists a block name that starts in several places only once', () => {
+            render('<div id="outer" data-sw-block="b_outer"><p data-sw-block="dup"></p><p data-sw-block="dup"></p></div>');
+
+            expect(containedBlockTree(document.getElementById('outer')!, 'b_outer')).toEqual([
+                { name: 'dup', children: [] },
+            ]);
+        });
+
+        it('is empty for a block without blocks inside it', () => {
+            render('<div id="leaf" data-sw-block="only"><span>text</span></div>');
+
+            expect(containedBlockTree(document.getElementById('leaf')!, 'only')).toEqual([]);
+        });
+    });
+
+    describe('documentBlockTree', () => {
+        it('nests every block of the page, outermost blocks as roots', () => {
+            render(
+                '<div data-sw-block="root_a"><p data-sw-block="inner_a"><b data-sw-block="leaf_a"></b></p></div>' +
+                    '<div data-sw-block="root_b"></div>',
+            );
+
+            expect(documentBlockTree()).toEqual([
+                { name: 'root_a', children: [{ name: 'inner_a', children: [{ name: 'leaf_a', children: [] }] }] },
+                { name: 'root_b', children: [] },
+            ]);
+        });
+
+        it('nests blocks that share an element, innermost last', () => {
+            render('<div data-sw-block="inner outer"><p data-sw-block="deep"></p></div>');
+
+            expect(documentBlockTree()).toEqual([
+                { name: 'outer', children: [{ name: 'inner', children: [{ name: 'deep', children: [] }] }] },
+            ]);
+        });
+
+        it('makes a block whose enclosing block is out of scope a root of its own', () => {
+            render('<div data-sw-block="outside"><section id="scope"><p data-sw-block="inside"></p></section></div>');
+
+            expect(documentBlockTree(document.getElementById('scope')!)).toEqual([{ name: 'inside', children: [] }]);
+        });
+
+        it('is empty without markers', () => {
+            render('<div><p>nothing marked</p></div>');
+
+            expect(documentBlockTree()).toEqual([]);
         });
     });
 

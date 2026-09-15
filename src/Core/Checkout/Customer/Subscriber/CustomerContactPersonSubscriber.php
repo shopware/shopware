@@ -161,7 +161,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 
         /** @var list<array<string, string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            \sprintf('SELECT LOWER(HEX(`id`)) AS `id`, %s FROM `%s` WHERE `id` IN (:ids)', $columns, $entity),
+            \sprintf('SELECT LOWER(HEX(`id`)) AS `id`, %s FROM `%s` WHERE `id` IN (:ids) FOR UPDATE', $columns, $entity),
             ['ids' => Uuid::fromHexToBytesList(array_unique($ids))],
             ['ids' => ArrayParameterType::BINARY]
         );

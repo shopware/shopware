@@ -524,6 +524,40 @@ class AssetServiceTest extends TestCase
         );
     }
 
+    #[DataProvider('missingManifestProvider')]
+    public function testCopyPreservesAssetsAfterDelayedDeletes(bool $force, bool $hasManifest): void
+    {
+        $adapter = new DelayedDeleteAdapter();
+        $filesystem = new Filesystem($adapter);
+        $privateFilesystem = $this->createFilesystem();
+        $assetService = $this->createAssetService($filesystem, $privateFilesystem);
+
+        if ($hasManifest) {
+            $assetService->copyAssetsFromBundle('ExampleBundle');
+            $adapter->completeDeletes();
+        }
+
+        $filesystem->write('bundles/example/test.txt', 'old content');
+        $filesystem->write('bundles/example/nested/obsolete.js', 'obsolete');
+        $filesystem->write('bundles/unrelated/keep.js', 'unrelated');
+
+        $assetService->copyAssetsFromBundle('ExampleBundle', $force);
+        $adapter->completeDeletes();
+
+        static::assertTrue($filesystem->fileExists('bundles/example/test.txt'));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+        static::assertFalse($filesystem->fileExists('bundles/example/nested/obsolete.js'));
+        static::assertSame('unrelated', $filesystem->read('bundles/unrelated/keep.js'));
+        static::assertTrue($privateFilesystem->fileExists('asset-manifest.json'));
+    }
+
+    public static function missingManifestProvider(): iterable
+    {
+        yield 'forced copy with an existing manifest' => [true, true];
+        yield 'forced copy without a manifest' => [true, false];
+        yield 'normal copy without a manifest' => [false, false];
+    }
+
     private function getBundle(): ExampleBundle
     {
         return new ExampleBundle(true, __DIR__ . '/_fixtures/ExampleBundle');
@@ -601,5 +635,41 @@ class CapturingWriteBatchAdapter extends InMemoryFilesystemAdapter implements Wr
                 $this->write($targetFile, $content, new Config());
             }
         }
+    }
+}
+
+/**
+ * A storage backend that acknowledges deletions before applying them.
+ *
+ * @internal
+ */
+class DelayedDeleteAdapter extends InMemoryFilesystemAdapter
+{
+    /**
+     * @var list<string>
+     */
+    private array $pendingDeletes = [];
+
+    public function deleteDirectory(string $path): void
+    {
+        foreach ($this->listContents($path, true) as $item) {
+            if ($item->isFile()) {
+                $this->delete($item->path());
+            }
+        }
+    }
+
+    public function delete(string $path): void
+    {
+        $this->pendingDeletes[] = $path;
+    }
+
+    public function completeDeletes(): void
+    {
+        foreach ($this->pendingDeletes as $path) {
+            parent::delete($path);
+        }
+
+        $this->pendingDeletes = [];
     }
 }

@@ -1,6 +1,4 @@
 {# @sw-package framework #}
-{% sw_deprecated input 'cookieGroup.snippet_description' replaced_by='cookieGroup.description' removed_in='v6.8.0.0' %}
-{% sw_deprecated input 'cookieGroup.snippet_name' replaced_by='cookieGroup.name' removed_in='v6.8.0.0' %}
 
 {% block cookie_configuration_group %}
 
@@ -10,8 +8,15 @@
                 parent: cookieGroup
             } only %}
 
-            {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.description %}
-            {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.name %}
+            {% if not feature('v6.8.0.0') %}
+                {% sw_deprecated input 'cookieGroup.snippet_description' replaced_by='cookieGroup.description' removed_in='v6.8.0.0' %}
+                {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.description %}
+                {% sw_deprecated input 'cookieGroup.snippet_name' replaced_by='cookieGroup.name' removed_in='v6.8.0.0' %}
+                {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.name %}
+            {% else %}
+                {% set snippetDescription = cookieGroup.description %}
+                {% set snippetName = cookieGroup.name %}
+            {% endif %}
 
             {% if cookieGroup.entries is not empty or snippetDescription %}
 

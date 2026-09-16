@@ -1,5 +1,4 @@
 {% sw_extends '@Storefront/storefront/component/address/addresses-base.html.twig' %}
-{% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
 
 {% if changeShipping %}
     {% set addressType = 'shipping' %}
@@ -11,14 +10,16 @@
     {% set defaultAddressId = context.customer.defaultBillingAddress.id %}
 {% endif %}
 
-{% set type = addressType %}
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% set type = addressType %}
+{% endif %}
 
 {% block address_base_default_address_item %}
     {% for address in  page.addresses %}
         {% if address.id == activeAddressId %}
             {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
                 addressType,
-                type: addressType,
                 activeAddressId,
                 defaultAddressId,
                 address
@@ -41,7 +42,6 @@
     {% if activeAddressId !== address.id %}
         {% sw_include '@Storefront/storefront/component/address/address-manager-item.html.twig' with {
             addressType,
-            type: addressType,
             activeAddressId,
             defaultAddressId,
             address

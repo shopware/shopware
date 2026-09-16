@@ -1,12 +1,13 @@
-{% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-
 {% if changeShipping %}
     {% set addressType = 'shipping' %}
 {% else %}
     {% set addressType = 'billing' %}
 {% endif %}
 
-{% set type = addressType %}
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% set type = addressType %}
+{% endif %}
 
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">

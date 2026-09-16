@@ -183,18 +183,10 @@ final class DeprecatedInputNodeVisitor implements NodeVisitorInterface
     private function collectDescriptors(ModuleNode $module, Environment $env): array
     {
         $descriptors = $this->collectInheritedDescriptors($module, $env);
-        $rootDeclarations = [];
-        $this->findRootDeclarations($module->getNode('body'), $rootDeclarations);
+        $declarations = [];
+        $this->findAllDeclarations($module, $declarations);
 
-        $allDeclarations = [];
-        $this->findAllDeclarations($module, $allDeclarations);
-        foreach ($allDeclarations as $declaration) {
-            if (!isset($rootDeclarations[\spl_object_id($declaration)])) {
-                DeprecatedInputSyntaxError::raise('The "sw_deprecated" tag must be declared at the template root.', $declaration->getTemplateLine(), $module->getSourceContext());
-            }
-        }
-
-        foreach ($rootDeclarations as $declaration) {
+        foreach ($declarations as $declaration) {
             $path = $declaration->getAttribute('path');
             if (!\is_string($path)) {
                 continue;
@@ -252,26 +244,6 @@ final class DeprecatedInputNodeVisitor implements NodeVisitorInterface
         $descriptors = $parentModule->getAttribute('shopware_deprecated_inputs');
 
         return \is_array($descriptors) ? $descriptors : [];
-    }
-
-    /**
-     * @param array<int, DeprecatedInputNode> $declarations
-     */
-    private function findRootDeclarations(Node $node, array &$declarations): void
-    {
-        if ($node instanceof DeprecatedInputNode) {
-            $declarations[\spl_object_id($node)] = $node;
-
-            return;
-        }
-
-        if (!$node instanceof BodyNode && !$node instanceof Nodes && $node::class !== Node::class) {
-            return;
-        }
-
-        foreach ($node as $child) {
-            $this->findRootDeclarations($child, $declarations);
-        }
     }
 
     /**

@@ -1,7 +1,11 @@
 {# @sw-package framework #}
-{% sw_deprecated input 'parent.snippet_name' replaced_by='parent.name' removed_in='v6.8.0.0' %}
 
-{% set parentName = parent.snippet_name ?? parent.name %}
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated input 'parent.snippet_name' replaced_by='parent.name' removed_in='v6.8.0.0' %}
+    {% set parentName = parent.snippet_name ?? parent.name %}
+{% else %}
+    {% set parentName = parent.name %}
+{% endif %}
 {% set name = parentName ? parentName|trans|sw_sanitize : parent.cookie %}
 {% set identifier = parent.cookie ? parent.cookie : name|replace({' ': '-'})|lower %}
 

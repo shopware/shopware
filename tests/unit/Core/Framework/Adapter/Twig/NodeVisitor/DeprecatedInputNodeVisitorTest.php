@@ -18,6 +18,7 @@ use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
+use Twig\TwigFunction;
 
 /**
  * @internal
@@ -73,12 +74,15 @@ class DeprecatedInputNodeVisitorTest extends TestCase
 
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
-{% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-{% set addressType = addressType ?? type %}{{ addressType }}
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% set addressType = addressType ?? type %}
+{% endif %}
+{{ addressType }}
 TWIG,
         ]);
 
-        static::assertSame('shipping', $twig->render('index.html.twig', ['type' => 'shipping']));
+        static::assertSame('shipping', \trim($twig->render('index.html.twig', ['type' => 'shipping'])));
     }
 
     public function testDoesNotReportWhenNullCoalescingUsesTheReplacement(): void
@@ -89,12 +93,15 @@ TWIG,
 
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
-{% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-{% set addressType = addressType ?? type %}{{ addressType }}
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% set addressType = addressType ?? type %}
+{% endif %}
+{{ addressType }}
 TWIG,
         ]);
 
-        static::assertSame('billing', $twig->render('index.html.twig', ['addressType' => 'billing', 'type' => 'shipping']));
+        static::assertSame('billing', \trim($twig->render('index.html.twig', ['addressType' => 'billing', 'type' => 'shipping'])));
     }
 
     public function testDefinedProbeDoesNotReportButFollowingReadDoes(): void
@@ -131,8 +138,15 @@ TWIG,
 
         $twig = new Environment(new ArrayLoader([
             'base.html.twig' => <<<'TWIG'
-{% sw_deprecated input 'child.snippet_name' replaced_by='child.name' removed_in='v6.8.0.0' %}
-{% block content %}{{ child.name }}{% endblock %}
+{% block content %}
+    {% if not feature('v6.8.0.0') %}
+        {% sw_deprecated input 'child.snippet_name' replaced_by='child.name' removed_in='v6.8.0.0' %}
+        {% set childName = child.snippet_name ?? child.name %}
+    {% else %}
+        {% set childName = child.name %}
+    {% endif %}
+    {{ childName }}
+{% endblock %}
 TWIG,
             '@Storefront/child.html.twig' => <<<'TWIG'
 {% sw_extends 'base.html.twig' %}
@@ -141,6 +155,7 @@ TWIG,
         ]), ['strict_variables' => true]);
         $twig->addExtension(new NodeExtension($templateFinder, static::createStub(TemplateScopeDetector::class)));
         $twig->addExtension(new DeprecatedInputExtension());
+        $twig->addFunction(new TwigFunction('feature', Feature::isActive(...)));
 
         static::assertSame('legacy', $twig->render('@Storefront/child.html.twig', [
             'child' => ['name' => 'current', 'snippet_name' => 'legacy'],
@@ -208,22 +223,30 @@ TWIG,
         ]));
     }
 
-    public function testRejectsDeclarationInsideBlock(): void
+    public function testFeatureGuardedBackfillIsSkippedWhenRemovalFlagIsActive(): void
     {
+        $this->setEnvVars(['V6_8_0_0' => true]);
+
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
 {% block content %}
-    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% if not feature('v6.8.0.0') %}
+        {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+        {% set addressType = addressType ?? type %}
+    {% endif %}
+    {{ addressType }}
 {% endblock %}
 TWIG,
         ]);
 
-        try {
-            $twig->load('index.html.twig');
-            static::fail('A nested input declaration should not compile.');
-        } catch (SyntaxError $exception) {
-            static::assertStringContainsString('must be declared at the template root', $exception->getMessage());
-        }
+        static::assertSame('billing', \trim($twig->render('index.html.twig', [
+            'addressType' => 'billing',
+            'type' => 'shipping',
+        ])));
     }
 
     public function testRejectsDuplicateInheritedDeclaration(): void
@@ -251,6 +274,7 @@ TWIG,
     {
         $twig = new Environment(new ArrayLoader($templates), ['strict_variables' => true]);
         $twig->addExtension(new DeprecatedInputExtension());
+        $twig->addFunction(new TwigFunction('feature', Feature::isActive(...)));
 
         return $twig;
     }

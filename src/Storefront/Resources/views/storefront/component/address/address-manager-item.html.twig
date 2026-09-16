@@ -1,5 +1,7 @@
-{% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-{% set addressType = addressType ?? type %}
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% set addressType = addressType ?? type %}
+{% endif %}
 
 <li class="col-12 col-lg-6 d-flex" data-address-id="{{ address.id }}" data-address-type="{{ addressType }}">
     <div class="p-3 border address-manager-select-address flex-fill">

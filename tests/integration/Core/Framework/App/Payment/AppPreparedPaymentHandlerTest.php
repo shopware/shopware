@@ -16,7 +16,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     public function testValidate(): void

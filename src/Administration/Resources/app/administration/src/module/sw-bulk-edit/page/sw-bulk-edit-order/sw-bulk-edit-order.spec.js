@@ -270,6 +270,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                             });
                         },
                     },
+                    documentV2Service: {},
+                    documentV2ApiService: {
+                        getAvailableTypes: () => Promise.resolve({ documentTypes: {} }),
+                    },
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
@@ -469,20 +473,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper = await createWrapper();
 
         const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');
+        const customFields = { customFieldName: 'custom field value' };
 
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-bulk-edit__custom-fields').vm.$emit('change', customFields);
+        await flushPromises();
 
-        await wrapper
-            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change.mt-field--checkbox__container input')
-            .setValue('checked');
-
-        await wrapper.vm.$nextTick();
-
-        expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
+        expect(spyOnCustomFieldsChange).toHaveBeenCalledWith(customFields);
         wrapper.vm.onCustomFieldsChange.mockRestore();
-        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName');
+        expect(wrapper.vm.bulkEditData.customFields.value).toEqual(customFields);
     });
 
     it('should call onChangeDocument when a document field changed is changed', async () => {
@@ -701,7 +701,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--color-purple-500)');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--sw-color-module-purple-default)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
@@ -805,6 +805,56 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
     });
+
+    function setInvoiceFileFormats(fileFormats) {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'invoice',
+            value: {
+                documentDate: '',
+                documentComment: null,
+                forceDocumentCreation: false,
+                fileFormats,
+            },
+        });
+    }
+
+    it('should disable the save action when a selected document generation type has no file formats', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+
+        setInvoiceFileFormats([]);
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
+
+        setInvoiceFileFormats(['pdf']);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+
+        global.activeFeatureFlags = [];
+    });
+
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK',
+        async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+            await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+
+            setInvoiceFileFormats([]);
+            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+        },
+    );
 
     it('should get latest order status correctly', async () => {
         wrapper = await createWrapper();

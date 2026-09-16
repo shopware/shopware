@@ -84,11 +84,46 @@ export default {
         hasHeaderLink() {
             return !!this.$slots['header-link'];
         },
+
+        rangeOptions() {
+            return this.availableRanges.map((range, index) => {
+                const vnode = this.$slots['range-option']?.({
+                    range,
+                    index,
+                });
+
+                return {
+                    value: range,
+                    label: this.extractSlotText(vnode) || range,
+                };
+            });
+        },
     },
 
     methods: {
         dispatchRangeUpdate() {
             this.$emit('sw-chart-card-range-update', this.selectedRange);
+        },
+
+        extractSlotText(vnodes) {
+            if (!Array.isArray(vnodes)) {
+                return '';
+            }
+
+            return vnodes
+                .map((vnode) => {
+                    if (typeof vnode === 'string' || typeof vnode === 'number') {
+                        return String(vnode);
+                    }
+
+                    if (Array.isArray(vnode.children)) {
+                        return this.extractSlotText(vnode.children);
+                    }
+
+                    return typeof vnode.children === 'string' ? vnode.children : '';
+                })
+                .join('')
+                .trim();
         },
     },
 };

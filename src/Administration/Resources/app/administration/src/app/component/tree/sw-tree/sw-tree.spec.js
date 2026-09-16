@@ -249,6 +249,21 @@ describe('src/app/component/tree/sw-tree', () => {
         });
     });
 
+    it('should move a category into the hovered folder after a delayed drag hover', async () => {
+        const wrapper = await createWrapper();
+        const home = wrapper.vm.treeItems.find((item) => item.data.name === 'Home');
+        const draggedCategory = home.children.find((item) => item.data.name === 'Health & Games');
+        const targetCategory = home.children.find((item) => item.data.name === 'Shoes');
+
+        wrapper.vm.startDrag({ item: draggedCategory });
+        wrapper.vm.moveDrag(draggedCategory, targetCategory, true);
+        wrapper.vm.endDrag();
+
+        expect(draggedCategory.parentId).toBe(targetCategory.id);
+        expect(targetCategory.children[0]).toBe(draggedCategory);
+        expect(wrapper.emitted('drag-end')[0][0].newParentId).toBe(targetCategory.id);
+    });
+
     it('should focus on the active tree item when focusin', async () => {
         const shoesId = getTreeItems().find((item) => item.name === 'Shoes').id;
 

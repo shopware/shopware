@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
@@ -25,6 +26,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -63,6 +66,8 @@ class MediaUploadServiceTest extends TestCase
 
     private FileUrlValidatorInterface&Stub $fileUrlValidator;
 
+    private TrustedUrlResolver $trustedUrlResolver;
+
     private MediaUploadService $mediaUploadService;
 
     private Context $context;
@@ -78,6 +83,7 @@ class MediaUploadServiceTest extends TestCase
         $this->httpClient = static::createStub(HttpClientInterface::class);
         $this->fileUrlValidator = static::createStub(FileUrlValidatorInterface::class);
         $this->fileUrlValidator->method('isValid')->willReturn(true);
+        $this->trustedUrlResolver = new TrustedUrlResolver(static fn (string $host): array => ['93.184.216.34']);
 
         $this->mediaUploadService = $this->buildService();
 
@@ -235,17 +241,7 @@ class MediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg'
         );
 
-        $response = static::createStub(ResponseInterface::class);
-        $response->method('getHeaders')->willReturn([
-            'content-length' => ['1024'],
-        ]);
-
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->with('HEAD', $url, ['max_redirects' => 0])
-            ->willReturn($response);
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
 
         $service = $this->buildService(httpClient: $httpClient);
 
@@ -281,15 +277,7 @@ class MediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg'
         );
 
-        $response = static::createStub(ResponseInterface::class);
-        $response->method('getHeaders')->willReturn([]);
-
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->with('HEAD', $url, ['max_redirects' => 0])
-            ->willReturn($response);
+        $httpClient = new MockHttpClient(new MockResponse('', []));
 
         $service = $this->buildService(httpClient: $httpClient);
 
@@ -336,16 +324,7 @@ class MediaUploadServiceTest extends TestCase
 
         $adminContext = Context::createDefaultContext($adminSource);
 
-        $response = static::createStub(ResponseInterface::class);
-        $response->method('getHeaders')->willReturn([
-            'content-length' => ['1024'],
-        ]);
-
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->willReturn($response);
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
 
         $service = $this->buildService(httpClient: $httpClient);
 
@@ -508,15 +487,7 @@ class MediaUploadServiceTest extends TestCase
             thumbnails: $thumbnails
         );
 
-        $response = static::createStub(ResponseInterface::class);
-        $response->method('getHeaders')->willReturn(['content-length' => ['1024']]);
-
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->with('HEAD', $url, ['max_redirects' => 0])
-            ->willReturn($response);
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
 
         $this->mediaThumbnailSizeRepository->addSearch([]);
 
@@ -585,6 +556,7 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailRepository,
             $this->mediaThumbnailSizeRepository,
             $validator,
+            $this->trustedUrlResolver,
         );
 
         $this->expectExceptionObject(MediaException::illegalUrl('http://10.0.0.1/image.jpg'));
@@ -622,22 +594,15 @@ class MediaUploadServiceTest extends TestCase
         $service->linkURL('http://10.0.0.1/image.jpg', $this->context, $params);
     }
 
-    public function testLinkUrlDisablesRedirects(): void
+    public function testLinkUrlDisablesRedirectsAndPinsValidatedIp(): void
     {
         $capturedOptions = [];
 
-        $response = static::createStub(ResponseInterface::class);
-        $response->method('getHeaders')->willReturn(['content-length' => ['12345']]);
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
 
-        $httpClient = $this->createMock(HttpClientInterface::class);
-        $httpClient
-            ->expects($this->once())
-            ->method('request')
-            ->willReturnCallback(function (string $method, string $url, array $options) use (&$capturedOptions, $response) {
-                $capturedOptions = $options;
-
-                return $response;
-            });
+            return new MockResponse('', ['response_headers' => ['content-length' => '12345']]);
+        });
 
         $params = new MediaUploadParameters();
         $params->mimeType = 'image/jpeg';
@@ -646,6 +611,26 @@ class MediaUploadServiceTest extends TestCase
 
         static::assertArrayHasKey('max_redirects', $capturedOptions);
         static::assertSame(0, $capturedOptions['max_redirects']);
+        static::assertArrayHasKey('resolve', $capturedOptions);
+        static::assertContains('93.184.216.34', $capturedOptions['resolve']);
+    }
+
+    public function testLinkUrlRejectsPrivateResolution(): void
+    {
+        $blockingResolver = new TrustedUrlResolver(static fn (string $host): array => ['10.0.0.1']);
+
+        $httpClient = new MockHttpClient(static function (): MockResponse {
+            self::fail('The HEAD request must not be issued for a private resolution');
+        });
+
+        $params = new MediaUploadParameters();
+        $params->mimeType = 'image/jpeg';
+
+        $service = $this->buildService(httpClient: $httpClient, trustedUrlResolver: $blockingResolver);
+
+        $this->expectExceptionObject(MediaException::illegalUrl('https://media.example.com/image.jpg'));
+
+        $service->linkURL('https://media.example.com/image.jpg', $this->context, $params);
     }
 
     public function testLinkUrlSkipsIpValidationWhenValidationDisabled(): void
@@ -658,6 +643,13 @@ class MediaUploadServiceTest extends TestCase
         $httpClient = static::createStub(HttpClientInterface::class);
         $httpClient->method('request')->willReturn($response);
 
+        // Both flags come from `shopware.media.enable_url_validation`, so a permissive service always
+        // travels with a resolver that permits private ranges.
+        $permissiveResolver = new TrustedUrlResolver(
+            static fn (string $host): array => ['10.0.0.1'],
+            rejectPrivateRanges: false,
+        );
+
         $service = new MediaUploadService(
             $this->mediaRepository,
             $this->fileFetcher,
@@ -667,6 +659,7 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailRepository,
             $this->mediaThumbnailSizeRepository,
             $fileUrlValidator,
+            $permissiveResolver,
             false,
         );
 
@@ -692,6 +685,7 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailRepository,
             $this->mediaThumbnailSizeRepository,
             $validator,
+            $this->trustedUrlResolver,
         );
 
         $thumbnails = new ExternalThumbnailCollection([
@@ -727,6 +721,7 @@ class MediaUploadServiceTest extends TestCase
         ?EventDispatcherInterface $eventDispatcher = null,
         ?HttpClientInterface $httpClient = null,
         ?FileUrlValidatorInterface $fileUrlValidator = null,
+        ?TrustedUrlResolver $trustedUrlResolver = null,
     ): MediaUploadService {
         $service = new MediaUploadService(
             $this->mediaRepository,
@@ -737,6 +732,7 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailRepository,
             $this->mediaThumbnailSizeRepository,
             $fileUrlValidator ?? $this->fileUrlValidator,
+            $trustedUrlResolver ?? $this->trustedUrlResolver,
         );
 
         $this->mediaUploadService = $service;

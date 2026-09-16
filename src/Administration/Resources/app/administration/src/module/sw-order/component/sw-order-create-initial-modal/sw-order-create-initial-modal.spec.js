@@ -136,6 +136,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             lineItems: [],
             deliveries: [],
         });
+        Shopware.Store.get('swOrder').setSendOrderConfirmationMail(true);
     });
 
     it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
@@ -347,6 +348,21 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.vm.disabledAutoPromotion).toBeTruthy();
     });
 
+    it('should able to get order confirmation mail value when it is toggled', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.findComponent(stubs['sw-tabs']).setData({
+            active: 'options',
+        });
+
+        expect(wrapper.vm.sendOrderConfirmationMail).toBeTruthy();
+
+        const optionsView = wrapper.findComponent('sw-order-create-options-stub');
+        optionsView.vm.$emit('send-order-confirmation-mail-toggle', false);
+
+        expect(wrapper.vm.sendOrderConfirmationMail).toBeFalsy();
+    });
+
     it('should able to get promotion codes change', async () => {
         const wrapper = await createWrapper();
 
@@ -407,6 +423,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
 
         const optionsView = wrapper.findComponent('sw-order-create-options-stub');
         optionsView.vm.$emit('auto-promotion-toggle', true);
+        optionsView.vm.$emit('send-order-confirmation-mail-toggle', false);
         optionsView.vm.$emit('promotions-change', ['DISCOUNT']);
         optionsView.vm.$emit('shipping-cost-change', 100);
 
@@ -416,6 +433,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         await flushPromises();
 
         expect(wrapper.emitted('order-preview')).toBeTruthy();
+        expect(Shopware.Store.get('swOrder').sendOrderConfirmationMail).toBeFalsy();
     });
 
     it('should update context when salesChannelContext change', async () => {

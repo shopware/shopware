@@ -1,3 +1,4 @@
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 
@@ -292,14 +293,35 @@ export default {
         },
 
         onClose() {
+            this.clearOwnApiErrors();
+
             this.$emit('close');
+        },
+
+        clearOwnApiErrors() {
+            const errorStore = Shopware.Store.get('error');
+
+            [
+                this.billingAddress?.id,
+                this.shippingAddress?.id,
+            ].forEach((addressId) => {
+                if (!addressId) {
+                    return;
+                }
+
+                errorStore.removeApiError(`customer_address.${addressId}.company`);
+            });
+
+            if (this.customer?.id) {
+                errorStore.removeApiError(`customer.${this.customer.id}.email`);
+            }
         },
 
         createErrorMessageForCompanyField() {
             Shopware.Store.get('error').addApiError({
                 expression: `customer_address.${this.billingAddress.id}.company`,
                 error: new Shopware.Classes.ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    code: EntityValidationService.ERROR_CODE_REQUIRED,
                 }),
             });
         },

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
@@ -65,6 +66,7 @@ class RecalculationService
         protected Processor $processor,
         private readonly CartRuleLoader $cartRuleLoader,
         private readonly PromotionItemBuilder $promotionItemBuilder,
+        private readonly LineItemFactoryRegistry $lineItemFactory,
     ) {
     }
 
@@ -123,21 +125,28 @@ class RecalculationService
     public function addProductToOrder(string $orderId, string $productId, int $quantity, Context $context): void
     {
         $this->validateProduct($productId, $context);
-        $lineItem = (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $quantity))
-            ->setRemovable(true)
-            ->setStackable(true);
 
         $order = $this->fetchOrder($orderId, $context);
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
         $cart = $this->orderConverter->convertToCart($order, $context);
+
+        $lineItem = $this->lineItemFactory->create([
+            'id' => $productId,
+            'referencedId' => $productId,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'quantity' => $quantity,
+        ], $salesChannelContext);
+
+        $knownLineItemIds = $cart->getLineItems()->getKeys();
         $cart->add($lineItem);
 
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 
-        $recalculatedLineItem = $recalculatedCart->get($lineItem->getId());
-        if ($recalculatedLineItem?->isShippingCostAware()) {
-            $this->addLineItemToDeliveryPosition($recalculatedLineItem, $recalculatedCart);
+        foreach ($this->resolveAddedLineItems($recalculatedCart, $lineItem->getId(), $knownLineItemIds) as $addedLineItem) {
+            if ($addedLineItem->isShippingCostAware()) {
+                $this->addLineItemToDeliveryPosition($addedLineItem, $recalculatedCart);
+            }
         }
 
         $conversionContext = $this->getOrderConversionContext()->setIncludeDeliveries(true);
@@ -344,6 +353,31 @@ class RecalculationService
         }
     }
 
+    /**
+     * @param list<string> $knownLineItemIds
+     *
+     * @return list<LineItem>
+     */
+    private function resolveAddedLineItems(Cart $cart, string $lineItemId, array $knownLineItemIds): array
+    {
+        return array_values(array_filter(
+            $cart->getLineItems()->getElements(),
+            static function (LineItem $item) use ($lineItemId, $knownLineItemIds): bool {
+                // the calculation kept the line item that was added
+                if ($item->getId() === $lineItemId) {
+                    return true;
+                }
+
+                // the calculation added the line item, the cart did not hold this id before
+                return !\in_array($item->getId(), $knownLineItemIds, true)
+                    // a discount or a surcharge is not delivered
+                    && $item->isGood()
+                    // a line item of the order is already part of a delivery
+                    && !$item->hasExtension(OrderConverter::ORIGINAL_ID);
+            }
+        ));
+    }
+
     private function addLineItemToDeliveryPosition(LineItem $item, Cart $cart): void
     {
         $delivery = $cart->getDeliveries()->getPrimaryDelivery(
@@ -450,7 +484,11 @@ class RecalculationService
 
             // validate cart against the context rules
             $validatedCart = $this->cartRuleLoader->loadByCart($live, $cart, $behavior)->getCart();
-            $validatedCart->addErrors(...$cart->getErrors()->filter(static fn (Error $error) => !$error->isPersistent()));
+            $validatedIds = $validatedCart->getErrors()->map(static fn (Error $error) => $error->getId());
+
+            $validatedCart->addErrors(...$cart->getErrors()->filter(
+                static fn (Error $error) => !$error->isPersistent() && !\in_array($error->getId(), $validatedIds, true)
+            ));
 
             return $validatedCart;
         });

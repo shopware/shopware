@@ -96,7 +96,7 @@ export default {
         },
 
         loadCurrencies() {
-            this.currencyRepository.search(new Criteria(1, 25)).then((searchResult) => {
+            this.currencyRepository.search(new Criteria(1, 500)).then((searchResult) => {
                 this.currencies = searchResult;
             });
         },

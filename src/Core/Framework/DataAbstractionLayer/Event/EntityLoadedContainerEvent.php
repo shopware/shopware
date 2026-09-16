@@ -7,9 +7,15 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class EntityLoadedContainerEvent extends NestedEvent
 {
+    /**
+     * @param list<NestedEvent> $events
+     */
     public function __construct(
         private readonly Context $context,
         private readonly array $events

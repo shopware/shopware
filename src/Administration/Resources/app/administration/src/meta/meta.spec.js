@@ -9,6 +9,9 @@ import { missingTests, positionIdentifiers, dataSetIds } from './baseline';
 import packageJson from '../../package.json';
 import blocksList from '../../blocks-list.json';
 import { extractBlocks } from '../../scripts/generate-block-list/extract-blocks';
+import { extractPositionIdentifiers } from '../../scripts/generate-position-identifier-list/extract-position-identifiers';
+import { extractDataSetIds } from '../../scripts/generate-data-set-list/extract-data-set-ids';
+import { isTemplateSourceFile, isDataSetSourceFile } from '../../scripts/public-api-source-files';
 
 // eslint-disable-next-line no-undef
 const allFiles = globSync(path.join(adminPath, 'src/**/*.*'));
@@ -48,10 +51,15 @@ const isTestAbleFile = (file) => {
 
     return true;
 };
+/**
+ * `testAbleFiles` stays `.js`/`.ts` only: it also feeds the "should have a spec file" guard, whose
+ * regex returns `null` for a `.vue` path.
+ */
 const testAbleFiles = allFiles.filter(isTestAbleFile);
-const templateFiles = allFiles.filter((file) => {
-    return file.endsWith('.html.twig');
-});
+const templateFiles = allFiles.filter(isTemplateSourceFile);
+const dataSetFiles = allFiles.filter(isDataSetSourceFile);
+
+const scan = (files, extract) => files.flatMap((file) => extract(fs.readFileSync(file, 'utf-8')));
 
 // eslint-disable-next-line no-undef
 const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
@@ -161,24 +169,7 @@ describe('Administration meta tests', () => {
 
     describe('check extension sdk public api', () => {
         it('should not break position identifiers', () => {
-            const result = [];
-            templateFiles.forEach((file) => {
-                const fileContent = fs.readFileSync(file, {
-                    encoding: 'utf-8',
-                });
-                if (!fileContent.includes('position-identifier="')) {
-                    return;
-                }
-
-                // Find all position identifiers in the file and add them to the result
-                [...fileContent.matchAll(/position-identifier="(.+)"/gm)]
-                    .map((match) => match[1])
-                    .forEach((match) => {
-                        if (match !== '' && match !== 'null') {
-                            result.push(match);
-                        }
-                    });
-            });
+            const result = scan(templateFiles, extractPositionIdentifiers);
 
             const missingPositionIdentifiers = positionIdentifiers.filter((pi) => !result.includes(pi));
             expect(
@@ -194,24 +185,7 @@ describe('Administration meta tests', () => {
         });
 
         it('should not break data sets', () => {
-            const result = [];
-            testAbleFiles.forEach((file) => {
-                const fileContent = fs.readFileSync(file, {
-                    encoding: 'utf-8',
-                });
-                if (!fileContent.includes('.publishData(')) {
-                    return;
-                }
-
-                // Find all data set ids in the file and add them to the result
-                [
-                    ...fileContent.matchAll(/\.publishData\(\{[^}]*?\bid\s*:\s*['"]([^'"]+)['"]/gm),
-                ]
-                    .map((match) => match[1])
-                    .forEach((match) => {
-                        result.push(match);
-                    });
-            });
+            const result = scan(dataSetFiles, extractDataSetIds);
 
             const missingDataSetIds = dataSetIds.filter((pi) => !result.includes(pi));
             expect(
@@ -227,7 +201,7 @@ describe('Administration meta tests', () => {
         });
 
         it('should not remove existing blocks', () => {
-            const blocks = extractBlocks(templateFiles);
+            const blocks = scan(templateFiles, extractBlocks);
             const removedBlocks = blocksList.filter((block) => !blocks.includes(block));
 
             expect(
@@ -237,7 +211,7 @@ describe('Administration meta tests', () => {
         });
 
         it('should have new blocks in the blocks list', () => {
-            const blocks = extractBlocks(templateFiles);
+            const blocks = scan(templateFiles, extractBlocks);
             const newBlocks = blocks.filter((block) => !blocksList.includes(block));
 
             expect(

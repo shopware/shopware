@@ -1,6 +1,6 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 const { Filter } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;

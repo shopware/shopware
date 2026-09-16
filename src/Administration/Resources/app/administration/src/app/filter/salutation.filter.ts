@@ -5,7 +5,7 @@
 const { Filter, Defaults } = Shopware;
 
 type SalutationType = {
-    id: string;
+    id: EntityKey<'salutation'>;
     salutationKey: string;
     displayName: string;
 };

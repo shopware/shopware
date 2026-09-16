@@ -1,7 +1,8 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 async function createWrapper(privileges = [], isSso = false) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
@@ -163,7 +164,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         await wrapper.find('.sw-profile--timezone .sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result');
+        const results = new DOMWrapper(document.body).findAll('.sw-select-result');
         const resultNames = results.map((result) => result.text());
 
         expect(resultNames).toContain('UTC');
@@ -178,5 +179,54 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
 
         expect(changeNewPasswordField).toBeNull();
         expect(changeNewPasswordConfirmField).toBeNull();
+    });
+
+    describe('module icon colors', () => {
+        it('should show the module icon color selection', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-profile--module-icon-colors').exists()).toBe(true);
+        });
+
+        it('should emit the chosen preference without applying it', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            await selectMtSelectOptionByText(
+                wrapper,
+                'sw-profile.index.optionModuleIconColorsColored',
+                '.sw-profile--module-icon-colors input',
+            );
+
+            expect(wrapper.emitted('user-module-icon-colors-change')[0][0]).toBe(true);
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        });
+
+        it('should preselect the neutral option', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.computedUserModuleIconColors).toBe('neutral');
+        });
+    });
+
+    describe('theme selection', () => {
+        it('should show the theme selection', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-profile--theme').exists()).toBe(true);
+        });
+
+        it('should emit the chosen theme without applying it', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            await selectMtSelectOptionByText(wrapper, 'Dark', '.sw-profile--theme input');
+
+            expect(wrapper.emitted('user-theme-change')[0][0]).toBe('dark');
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        });
     });
 });

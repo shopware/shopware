@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Event\BeforeSalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
@@ -168,6 +169,32 @@ class OrderConverterTest extends TestCase
                 null,
             ],
         ];
+    }
+
+    public function testConvertToOrderReferencesTheParentLineItemInTheWrittenVersion(): void
+    {
+        $versionId = Uuid::randomHex();
+
+        $parent = new LineItem('parent', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id');
+        $parent->setLabel('parent');
+        $parent->addChild((new LineItem('child', LineItem::DISCOUNT_LINE_ITEM, 'discount-id'))->setLabel('child'));
+
+        $cart = $this->getCart();
+        $cart->setLineItems(new LineItemCollection([$parent]));
+
+        $context = $this->getSalesChannelContext(true);
+        $context->assign(['context' => $context->getContext()->createWithVersionId($versionId)]);
+
+        $result = $this->orderConverter->convertToOrder($cart, $context, new OrderConversionContext());
+
+        $lineItems = [];
+        foreach ($result['lineItems'] as $lineItem) {
+            $lineItems[$lineItem['identifier']] = $lineItem;
+        }
+
+        static::assertSame($lineItems['parent']['id'], $lineItems['child']['parentId']);
+        static::assertSame($versionId, $lineItems['child']['parentVersionId']);
+        static::assertArrayNotHasKey('parentVersionId', $lineItems['parent']);
     }
 
     public function testConvertToOrderWithoutDeliveries(): void
@@ -878,7 +905,7 @@ class OrderConverterTest extends TestCase
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
-                    'orderAddress',
+                    'order_address',
                     1,
                     new EntityCollection($orderAddressRepositoryResultArray),
                     null,
@@ -906,7 +933,7 @@ class OrderConverterTest extends TestCase
             }
 
             return new EntitySearchResult(
-                'productDownload',
+                'product_download',
                 1,
                 new EntityCollection([$productDownload]),
                 null,

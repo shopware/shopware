@@ -17,6 +17,8 @@
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
 |`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
+|`document.generation.completed` | Triggers when a document is generated or uploaded for an order | - | {"documentId":"string","documentType":"string","documentNumber":"string","orderId":"string","orderVersionId":"string"}
+|`document.generation.deleted` | Triggers when a document is deleted | - | {"documentId":"string","documentNumber":"string","deletedAt":"string","orderId":"string","orderVersionId":"string"}
 |`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}

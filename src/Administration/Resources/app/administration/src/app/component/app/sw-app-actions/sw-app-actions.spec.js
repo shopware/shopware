@@ -76,7 +76,9 @@ describe('sw-app-actions', () => {
             'sw-modal': true,
             'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
             'sw-checkbox-field': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
         };
 
         router = createRouter();

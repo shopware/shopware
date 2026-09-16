@@ -192,10 +192,12 @@
     /* stylelint-enable selector-class-pattern */
 
     .icon {
+        vertical-align: middle;
         color: currentColor;
+        margin-top: -1px;
 
         svg {
-            top: 5px;
+            position: static;
         }
     }
 }

@@ -26,7 +26,10 @@ export default {
         'cacheApiService',
     ],
 
-    emits: ['update-list'],
+    emits: [
+        'update-list',
+        'select-change',
+    ],
 
     mixins: ['sw-extension-error'],
 
@@ -34,6 +37,16 @@ export default {
         extension: {
             type: Object,
             required: true,
+        },
+        selected: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        bulkLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -54,6 +67,10 @@ export default {
     },
 
     computed: {
+        showLoader() {
+            return this.isLoading || this.bulkLoading;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */

@@ -840,6 +840,10 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
+        if ($criteria->getIds() !== []) {
+            $ids = array_values(array_intersect($ids, $criteria->getIds()));
+        }
+
         if ($ids !== []) {
             $criteria->setIds($ids);
 
@@ -1041,6 +1045,10 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
+        if ($fieldCriteria->getIds() !== []) {
+            $ids = array_values(array_intersect($ids, $fieldCriteria->getIds()));
+        }
+
         if ($ids !== []) {
             // only read data when we have found mapped IDs
             // otherwise we would load the whole reference table
@@ -1222,7 +1230,7 @@ class EntityReader implements EntityReaderInterface
                 $grouped[$id] = [];
             }
 
-            if (empty($row['child_id'])) {
+            if ($row['child_id'] === null) {
                 continue;
             }
 

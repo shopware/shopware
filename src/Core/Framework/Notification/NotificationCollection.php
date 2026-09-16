@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 
 if (class_exists(AdminNotificationCollection::class)) {
     /**
+     * @codeCoverageIgnore
+     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
-    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationCollection but directly \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection.')]
+    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationCollection but directly \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection.', newParentClass: EntityCollection::class)]
     class NotificationCollection extends AdminNotificationCollection
     {
         protected function getExpectedClass(): string
@@ -25,6 +27,8 @@ if (class_exists(AdminNotificationCollection::class)) {
 } else {
     /**
      * @extends EntityCollection<NotificationEntity>
+     *
+     * @codeCoverageIgnore
      */
     #[Package('framework')]
     class NotificationCollection extends EntityCollection

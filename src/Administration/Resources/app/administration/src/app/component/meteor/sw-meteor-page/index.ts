@@ -54,6 +54,12 @@ export default Shopware.Component.wrapComponentConfig({
             default: false,
         },
 
+        hideSmartBar: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         fromLink: {
             type: Object as PropType<RouteLocationNamedRaw | null>,
             required: false,
@@ -72,6 +78,7 @@ export default Shopware.Component.wrapComponentConfig({
         pageClasses(): object {
             return {
                 'sw-meteor-page--full-width': this.fullWidth,
+                'sw-meteor-page--hide-smart-bar': this.hideSmartBar,
             };
         },
 
@@ -99,10 +106,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return this.tabItems[0]?.name ?? '';
-        },
-
-        pageColor(): string {
-            return this.module?.color ?? '#d8dde6';
         },
     },
 

@@ -23,7 +23,7 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\MockStorefront\MockStorefront;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ExtensionThemeDetectionSubscriber::class)]
 class ExtensionThemeDetectionSubscriberTest extends TestCase
 {

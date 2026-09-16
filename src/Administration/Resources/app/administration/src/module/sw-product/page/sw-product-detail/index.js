@@ -843,6 +843,7 @@ export default {
                         }
 
                         product.purchasePrices = this.getDefaultPurchasePrices();
+                        product._origin.purchasePrices = cloneDeep(product.purchasePrices);
                     }
 
                     if (product.propertyIds?.length > 0) {
@@ -938,6 +939,7 @@ export default {
                         }
 
                         parent.purchasePrices = this.getDefaultPurchasePrices();
+                        parent._origin.purchasePrices = cloneDeep(parent.purchasePrices);
                     }
 
                     if (parent.propertyIds?.length > 0) {
@@ -1259,14 +1261,14 @@ export default {
                 return;
             }
 
+            Shopware.Store.get('error').resetApiErrors();
+
+            Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+
             if (this.updateSeoPromises.length === 0) {
                 this.isSaveSuccessful = true;
 
                 return;
-            }
-
-            if (response === 'empty') {
-                response = 'success';
             }
 
             Shopware.Store.get('swProductDetail').setLoading([
@@ -1279,23 +1281,7 @@ export default {
                     Shopware.Utils.EventBus.emit('sw-product-detail-save-finish');
                 })
                 .then(() => {
-                    switch (response) {
-                        case 'empty': {
-                            this.isSaveSuccessful = true;
-                            Shopware.Store.get('error').resetApiErrors();
-                            break;
-                        }
-
-                        case 'success': {
-                            this.isSaveSuccessful = true;
-
-                            break;
-                        }
-
-                        default: {
-                            break;
-                        }
-                    }
+                    this.isSaveSuccessful = true;
                 })
                 .catch(() => Promise.resolve())
                 .finally(() => {

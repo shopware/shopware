@@ -16,6 +16,7 @@ async function createWrapper(customProps = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': true,
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
@@ -122,6 +123,15 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
 
         expect(Object.keys(wrapper.vm.selectedCustomFields)).toHaveLength(1);
         expect(wrapper.emitted().change).toBeTruthy();
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the change toggle with Meteor tabs', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-bulk-edit-custom-fields__change').exists()).toBe(true);
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(true);
+        expect(wrapper.find('.mt-tabs__custom-content .sw-bulk-edit-change-field__container').exists()).toBe(true);
     });
 
     it('should only emit selected custom fields when user toggle to the change type field', async () => {

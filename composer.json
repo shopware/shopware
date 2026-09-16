@@ -33,7 +33,8 @@
         },
         "phpstan/extension-installer": {
             "ignore": [
-                "composer/pcre"
+                "composer/pcre",
+                "shopwarelabs/phpstan-shopware"
             ]
         }
     },
@@ -202,16 +203,17 @@
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpdoc-parser": "^2.0.0",
-        "phpstan/phpstan": "2.2.8",
+        "phpstan/phpstan": "2.2.13",
         "phpstan/phpstan-deprecation-rules": "2.0.5",
         "phpstan/phpstan-phpunit": "2.0.18",
         "phpstan/phpstan-strict-rules": "2.0.12",
         "phpstan/phpstan-symfony": "2.0.20",
         "phpunit/phpunit": "^11.5.19",
         "predis/predis": "^2.2",
-        "rector/type-perfect": "2.1.4",
+        "rector/type-perfect": "2.2.0",
         "shipmonk/composer-dependency-analyser": "^1.8",
         "shopware/dev-tools": "^1.3",
+        "shopwarelabs/phpstan-shopware": "0.2.4",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~7.4.0",
         "symfony/doctrine-bridge": "~7.4.14",
@@ -249,6 +251,7 @@
     "scripts-descriptions": {
         "admin:check-extensions": "[EXPERIMENTAL] Type-checks and lints Administration extensions (interactive; -- --help for flags)",
         "admin:code-mods": "Run admin code mods",
+        "admin:codemod:sfc-migration": "Convert Options API Administration components into native setup SFCs (-- <path> [--write] [--replace-originals])",
         "admin:create:test": "Create a admin test blueprint",
         "admin:generate-blocks-list": "Generate the list of all blocks. Used to track block changes in the administration.",
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
@@ -336,6 +339,7 @@
         "stylelint:storefront:fix": "Code Style checks for all Storefront SCSS files and fixes them if possible",
         "translation:lint-filenames": "Validates snippet filesnames",
         "translation:lint-filenames:fix": "Validates snippet filesnames and migrates them if necessary",
+        "translation:metadata:delete": "Deletes the local Crowdin translation metadata lock file",
         "translation:install": "Downloads and installs translations from the translations GitHub repository",
         "translation:lint": "Validates existence of snippets in all core-supported languages",
         "translation:update": "Updates all installed translations from the translations GitHub repository",
@@ -346,6 +350,7 @@
     "scripts": {
         "admin:check-extensions": "@npm:admin:bin npm run extension-tooling:check --",
         "admin:code-mods": "@npm:admin run code-mods --",
+        "admin:codemod:sfc-migration": "@npm:admin run codemod:sfc-migration --",
         "admin:create:test": "@npm:admin run create-test",
         "admin:generate-blocks-list": "@npm:admin run generate-blocks-list",
         "admin:generate-data-set-list": [
@@ -534,6 +539,7 @@
         "setup": [
             "@composer install -o",
             "mkdir -p custom/plugins || true",
+            "@translation:metadata:delete",
             "@init:db",
             "@init:js",
             "@build:js",
@@ -583,6 +589,7 @@
         "stylelint:storefront:fix": "@npm:storefront run lint:scss-fix",
         "translation:lint-filenames": "php bin/shopware translation:lint-filenames",
         "translation:lint-filenames:fix": "php bin/shopware translation:lint-filenames --fix",
+        "translation:metadata:delete": "rm -f files/translation/crowdin-metadata.lock",
         "translation:install": "php bin/shopware translation:install",
         "translation:lint": "@php bin/shopware translation:validate",
         "translation:update": "php bin/shopware translation:update",

@@ -49,6 +49,7 @@ export default {
                 'default',
                 'small',
                 'large',
+                'x-large',
                 'full',
             ],
             validator(value) {
@@ -59,6 +60,7 @@ export default {
                     'default',
                     'small',
                     'large',
+                    'x-large',
                     'full',
                 ].includes(value);
             },
@@ -92,6 +94,12 @@ export default {
             type: Boolean,
             required: false,
             default: true,
+        },
+
+        zIndex: {
+            type: Number,
+            required: false,
+            default: null,
         },
     },
 

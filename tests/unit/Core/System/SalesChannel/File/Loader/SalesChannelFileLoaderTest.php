@@ -24,6 +24,47 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(SalesChannelFileLoader::class)]
 class SalesChannelFileLoaderTest extends TestCase
 {
+    public function testItPreviewsStoredTemplateOverridesWhenNoneAreSupplied(): void
+    {
+        $templatePath = 'files/agentic/llms.txt.twig';
+        $salesChannelId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $file = new SalesChannelFile('agentic', 'llms.txt', $templatePath, 'text/plain; charset=utf-8', $templatePath, []);
+        $configuration = new SalesChannelFileEntity();
+        $configuration->setTemplateOverrides(['Framework' => 'stored override']);
+
+        $discovery = $this->createMock(SalesChannelFileDiscovery::class);
+        $discovery->expects($this->once())->method('get')->with($templatePath)->willReturn($file);
+
+        $configurationLoader = $this->createMock(SalesChannelFileConfigurationLoader::class);
+        $configurationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with('agentic', 'llms.txt', $salesChannelId, $context)
+            ->willReturn($configuration);
+
+        $renderer = $this->createMock(SalesChannelFileRenderer::class);
+        $renderer
+            ->expects($this->once())
+            ->method('render')
+            ->with($file, static::isInstanceOf(SalesChannelContext::class), ['Framework' => 'stored override'])
+            ->willReturn('rendered content');
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
+        $salesChannelContext->method('getContext')->willReturn($context);
+
+        $result = (new SalesChannelFileLoader(
+            $discovery,
+            $configurationLoader,
+            $renderer,
+            static::createStub(CacheTagCollector::class),
+        ))->preview($templatePath, $salesChannelContext);
+
+        static::assertNotNull($result);
+        static::assertSame('rendered content', $result->content);
+    }
+
     public function testItTagsRenderedFilesWithSalesChannelFileConfigurationId(): void
     {
         $templatePath = 'files/agentic/llms.txt.twig';

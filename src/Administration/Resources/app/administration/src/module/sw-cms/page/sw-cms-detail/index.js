@@ -304,6 +304,12 @@ export default {
         ]),
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -323,7 +329,6 @@ export default {
                 path: 'page',
                 scope: this,
             });
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;

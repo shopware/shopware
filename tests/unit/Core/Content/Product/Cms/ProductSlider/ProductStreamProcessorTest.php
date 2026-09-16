@@ -128,6 +128,9 @@ class ProductStreamProcessorTest extends TestCase
         $groupingFilter = new NotEqualsFilter('displayGroup', null);
 
         static::assertEquals($groupingFilter, $filter);
+
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->getAssociation('options')->hasAssociation('group'));
     }
 
     public function testCollectSkipsGroupingWhenStreamDisplaysVariantsDirectly(): void

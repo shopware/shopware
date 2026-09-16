@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemGoodsTotalRule::class)]
 #[Group('rules')]
 class LineItemGoodsTotalRuleTest extends TestCase

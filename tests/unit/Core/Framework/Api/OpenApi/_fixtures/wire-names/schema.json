@@ -1,0 +1,30 @@
+{
+  "components": {
+    "schemas": {
+      "WireNames": {
+        "x-dto-namespace": "App\\DTO",
+        "type": "object",
+        "properties": {
+          "total-count-mode": {
+            "type": "integer"
+          },
+          "post-filter": {
+            "type": "string"
+          },
+          "camelCase": {
+            "type": "string"
+          },
+          "snake_case": {
+            "type": "string"
+          },
+          "quote'field": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "total-count-mode"
+        ]
+      }
+    }
+  }
+}

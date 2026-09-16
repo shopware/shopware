@@ -1,0 +1,53 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    review,
+    maxPoints = 5,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-product-reviews__item',
+} %}
+
+<article {{ attributes.defaults(attributeDefaults) }}>
+    {% block info %}
+        <div class="sw-product-reviews__item-info">
+            <p class="sw-product-reviews__item-date">
+                <small>{{ review.createdAt|format_date('long') }} {{ review.createdAt|format_time('short') }}</small>
+            </p>
+
+            <div class="sw-product-reviews__item-points">
+                <twig:Sw:Rating:Stars
+                    :stars="review.points"
+                    :maxStars="maxPoints"
+                    :allowHalf="true"
+                    altText="{{ 'detail.reviewRatingAltText'|trans({ '%points%': review.points, '%maxPoints%': maxPoints }) }}"
+                />
+            </div>
+
+            <p class="sw-product-reviews__item-title h5"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
+                {{ review.title }}
+            </p>
+        </div>
+    {% endblock %}
+
+    {% block content %}
+        <p class="sw-product-reviews__item-content"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
+            {{ review.content|nl2br }}
+        </p>
+    {% endblock %}
+
+    {% block comment %}
+        {% if review.comment %}
+            <div class="sw-product-reviews__item-comment">
+                <blockquote class="blockquote">
+                    <footer class="blockquote-footer">
+                        {{ 'detail.reviewCommentLabel'|trans|sw_sanitize }}{{ review.comment }}
+                    </footer>
+                </blockquote>
+            </div>
+        {% endif %}
+    {% endblock %}
+</article>

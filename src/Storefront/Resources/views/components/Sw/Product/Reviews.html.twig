@@ -1,0 +1,108 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    reviews = null,
+    slots = [],
+%}
+
+{% set reviewsPerPage = config('core.listing.reviewsPerPage') %}
+{% if reviewsPerPage <= 0 %}
+    {% set reviewsPerPage = 10 %}
+{% endif %}
+
+{% set matrix = reviews ? reviews.matrix : null %}
+{% set productReviewCount = reviews ? reviews.total : 0 %}
+{% set currentPage = reviews ? reviews.page : 1 %}
+{% set maxPoints = matrix ? matrix.maxPoints : 5 %}
+{% set totalPages = (productReviewCount / reviewsPerPage)|round(0, 'ceil') %}
+
+{# The reviews element re-renders through the product content route (parent id resolves its layout). The
+   path() result carries the shop base path and sales-channel prefix, so the JS never rebuilds the origin. #}
+{% set reviewsOptions = {
+    contentUrl: reviews ? path('frontend.content.layout', { path: 'product/' ~ (reviews.parentId ?: reviews.productId) }) : null,
+} %}
+
+{% set attributeDefaults = {
+    class: 'sw-product-reviews',
+    'data-component': 'Sw:Product:Reviews',
+    'data-component-options': reviewsOptions|json_encode,
+} %}
+
+<section {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        <div class="sw-product-reviews__inner">
+            {# Only this region is swapped on sort/filter/paginate; summary and filters are separate elements. #}
+            <div class="sw-product-reviews__results">
+                {% block counter %}
+                    {% if productReviewCount > 0 %}
+                        <hr>
+                        <p class="sw-product-reviews__counter text-end">
+                            <small><strong>{{ productReviewCount }}</strong> {{ 'detail.reviewCountAfter'|trans({ '%count%': productReviewCount })|sw_sanitize }}</small>
+                        </p>
+                    {% endif %}
+                {% endblock %}
+
+                {% block list %}
+                    {% if productReviewCount > 0 %}
+                        <twig:Slot name="list">
+                            <div class="sw-product-reviews__list">
+                                {% for review in reviews.entities %}
+                                    <twig:Sw:Product:Review :review="review" :maxPoints="maxPoints" />
+                                {% endfor %}
+                            </div>
+                        </twig:Slot>
+
+                        {% block pagination %}
+                            {% if totalPages > 1 %}
+                                <twig:Slot name="pagination">
+                                    <div class="sw-product-reviews__pagination">
+                                        <twig:Sw:Content:Pagination
+                                            :page="currentPage"
+                                            :totalPages="totalPages"
+                                            :total="productReviewCount"
+                                            :limit="reviewsPerPage"
+                                            scope="reviews"
+                                        />
+                                    </div>
+                                </twig:Slot>
+                            {% endif %}
+                        {% endblock %}
+                    {% else %}
+                        {% block empty %}
+                            <div class="sw-product-reviews__empty alert alert-info" role="alert">
+                                {{ 'detail.reviewListEmpty'|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+
+            {# Review submission form is its own element (issues #19523 / #19524); empty by default. #}
+            {% block form %}
+                <twig:Slot name="form"></twig:Slot>
+            {% endblock %}
+
+            {% block login %}
+                {% if not (context.customer and not context.customer.guest) %}
+                    <div class="sw-product-reviews__login card login-card">
+                        <div class="card-body">
+                            <h3 class="card-title">{{ 'detail.reviewLoginHeader'|trans|sw_sanitize }}</h3>
+                            <p class="sw-product-reviews__login-description">
+                                {{ 'detail.reviewLoginDescription'|trans|sw_sanitize }}
+                                <a href="{{ path('frontend.account.login.page') }}"
+                                   title="{{ 'detail.reviewRegisterLink'|trans|striptags }}">
+                                    {{ 'detail.reviewRegisterLink'|trans|sw_sanitize }}
+                                </a>
+                            </p>
+                            <a href="{{ path('frontend.account.login.page') }}" class="btn btn-primary">
+                                {{ 'account.loginSubmit'|trans|sw_sanitize }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+</section>

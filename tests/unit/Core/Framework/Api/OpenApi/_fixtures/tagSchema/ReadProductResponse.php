@@ -28,5 +28,6 @@ final class ReadProductResponse extends AbstractResponse
         #[Assert\Valid]
         public ?Product $product = null,
     ) {
+        parent::__construct();
     }
 }

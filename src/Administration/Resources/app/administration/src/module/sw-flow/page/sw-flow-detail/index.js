@@ -469,7 +469,7 @@ export default {
                 await this.flowSequenceRepository.syncDeleted(deletedSequenceIds);
             }
 
-            const updateFlow = await this.flowRepository.get(this.flowId, Context.api);
+            const updateFlow = await this.flowRepository.get(this.flowId, Context.api, this.flowCriteria);
 
             Object.keys(updateFlow).forEach((key) => {
                 if (key !== 'sequences') {

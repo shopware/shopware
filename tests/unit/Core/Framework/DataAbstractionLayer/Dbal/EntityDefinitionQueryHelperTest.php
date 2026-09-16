@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -141,6 +142,30 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'many to many' => ['product.categories.name', 'category'];
         yield 'many to one' => ['product.manufacturer.name', 'product_manufacturer'];
         yield 'nested' => ['product.categories.translated.customFields.test', 'category'];
+    }
+
+    public function testEscapeQuotesAValidIdentifier(): void
+    {
+        static::assertSame('`product`', EntityDefinitionQueryHelper::escape('product'));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedIdentifiers(): \Generator
+    {
+        yield 'backtick' => ['pro`duct'];
+        yield 'question mark' => ['pro?duct'];
+        yield 'colon' => ['pro:duct'];
+        yield 'control character' => ["pro\nduct"];
+    }
+
+    #[DataProvider('provideDisallowedIdentifiers')]
+    public function testEscapeRejectsDisallowedIdentifierChars(string $identifier): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidIdentifier($identifier));
+
+        EntityDefinitionQueryHelper::escape($identifier);
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

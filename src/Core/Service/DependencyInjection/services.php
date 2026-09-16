@@ -4,6 +4,7 @@ namespace Shopware\Core\Service\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
@@ -39,6 +40,7 @@ use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
 use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
+use Shopware\Core\Service\ServiceWebhookPolicy;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 use Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber;
 use Shopware\Core\Service\Subscriber\LicenseProviderSubscriber;
@@ -215,6 +217,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ServiceHookableEventDescriber::class)
         ->tag('shopware.hookable_event.describer');
+
+    $services->set(ServiceWebhookPolicy::class)
+        ->args([service(ActiveAppsLoader::class)])
+        ->tag('shopware.webhook.policy');
 
     $services->set(PermissionsService::class)
         ->args([

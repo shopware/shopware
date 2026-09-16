@@ -108,11 +108,26 @@ Decorators of `ClientRepository` or `ScopeRepository` should handle the new `aut
 
 `Shopware\Core\Framework\Api\OAuth\Client\ApiClient` accepts optional `$redirectUris` and `$grantTypes` constructor arguments and exposes `supportsGrantType()`. Existing constructor calls remain compatible; `getRedirectUri()` returns an empty array when no redirect URIs are configured.
 
+### New method `IdSearchResult::getPrimaryKeyData`
+
+The new `Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult::getPrimaryKeyData()` method returns IDs in repository write format.
+Single ID lists are formatted like this: `list<['id' => $id]>`.
+Composite primary keys remain unchanged.
+E.g: The returned array can then be passed directly to `EntityRepository::delete()`:
+
+```php
+$result = $repository->searchIds($criteria, $context);
+$repository->delete($result->getPrimaryKeyData(), $context);
+```
+
 ### GARAN guarantee duration is capped at 600 months
 
-`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. The Administration's product detail page enforces the same range.
+`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee.
+Writes now also have to stay at or below 600 months (50 years) and are otherwise rejected with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation.
+The Administration's product detail page enforces the same range.
 
-Values already stored above 600 months are untouched and keep rendering their label; they only have to be corrected the next time that product is written.
+Values already stored above 600 months are untouched and keep rendering their label;
+they only have to be corrected the next time that product is written.
 
 ### GARAN label in the order confirmation mail is sized and sits next to the line item
 
@@ -293,6 +308,10 @@ Changed snippets of an app reach the storefront on update: raise the manifest ve
 
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
 
+### Stale persisted sales channel context options are recovered
+
+When a sales channel no longer provides the language or currency saved for a context token, Store API and storefront requests now remove that stale saved option and continue with the sales channel default. Explicitly requested unavailable languages and currencies still return their existing errors.
+
 ### Store API context token response header is restricted on cacheable reads
 
 Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
@@ -320,6 +339,17 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### Update wizard recommends Shopware CLI
+
+The administration update wizard now asks you to choose an update method before starting the web installer. `shopware-cli project upgrade` is the recommended path for developers and managed deployments. The existing web installer flow remains available.
+
+On cluster setups (`shopware.deployment.cluster_setup: true`) the web installer is no longer offered: the update button in the wizard is disabled with a hint towards Shopware CLI, and `GET /api/_action/update/download-recovery` responds with `403` (`FRAMEWORK__UPDATE_CLUSTER_SETUP_NOT_SUPPORTED`).
+
+### Update module can be hidden from the Administration
+
+Operators who manage updates through Shopware CLI or their deployment pipeline can now remove the update module from the Administration entirely. Set `shopware.auto_update.hide_module: true` or the environment variable `SHOPWARE_AUTO_UPDATE_HIDE_MODULE=1` and the module is no longer registered: the "Shopware updates" settings item and its wizard route do not exist, and the update-available notification is suppressed. The flag is also exposed to API consumers as `settings.hideUpdateModule` in `GET /api/_info/config`.
+
+The update API endpoints enforce both flags server-side: all `GET /api/_action/update/*` endpoints respond with `403` (`FRAMEWORK__UPDATE_MODULE_HIDDEN`) while the module is hidden, and the mutating `download-recovery` and `deactivate-plugins` actions respond with `403` (`FRAMEWORK__AUTO_UPDATE_DISABLED`) while `shopware.auto_update.enabled` is `false`.
 ### Consent page for OAuth clients
 
 The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.
@@ -626,6 +656,56 @@ A static entry maps the given path to the script hook `storefront-<name>` on eve
 The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
 
 Two supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, and `seo_url.route_name` now allows 255 characters.
+
+# 6.7.14.1
+
+## Security Fixes
+
+### Self-service profile updates accept only an avatar link in `avatarMedia`
+
+`PATCH /api/_info/me` now accepts `avatarMedia` only in the form `{"id": "<media-id>"}`. Every other payload is rejected with a `403` and the error code `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+### Newsletter subscriptions respect double opt-in
+
+Newsletter subscription activation now consistently enforces the configured double-opt-in requirement.
+
+### Aggregation identifiers reject unsafe characters
+
+Aggregation names and range aggregation keys containing a backtick, question mark, colon, or control character are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400).
+### Password recovery and mail events are no longer delivered to webhooks
+
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` are no longer sent to webhooks and are removed from the generated webhook events reference. All of them stay available in Flow Builder.
+
+App manifests subscribing to them keep validating until 6.8, so such apps can still be installed and updated. Doing so triggers a deprecation; from 6.8 the manifest is rejected.
+
+An event opts out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
+
+### Session tokens and opt-in links are no longer sent to webhooks
+
+The following values are no longer part of the webhook payload of their event:
+
+- `contextToken` of `checkout.customer.login`
+- `confirmUrl` of `checkout.customer.double_opt_in_registration` and `checkout.customer.double_opt_in_guest_order`
+- `url` of `newsletter.register`
+
+They stay available in Flow Builder, so `{{ contextToken }}`, `{{ confirmUrl }}` and `{{ url }}` keep working in mail templates.
+
+A flow event value is kept out of webhook payloads by passing `[EventDataCollection::HIDDEN_FROM_WEBHOOK => true]` as the options argument of `EventDataCollection::add()`.
+
+### Customer confirmation hashes are no longer included in API responses
+
+Customer registration confirmation hashes are no longer included in API responses or webhook customer payloads. The internal registration confirmation flow is unchanged.
+
+## Core
+
+### `EventDataCollection` will become final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` will be declared `final` in Shopware 6.8.
+
+## API
+
+### User and integration cloning is no longer available
+
+`POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
 
 # 6.7.14.0
 

@@ -1,9 +1,9 @@
-import { test } from "@fixtures/AcceptanceTest";
+import { test } from '@fixtures/AcceptanceTest';
 
 test(
-    "As a shop customer, I want to see reviews of a product.",
+    'As a shop customer, I want to see reviews of a product.',
     {
-        tag: ["@Product", "@Reviews", "@Storefront"],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail }) => {
         const productWithRating1 = await TestDataService.createBasicProduct();
@@ -24,10 +24,10 @@ test(
         ).toBeVisible();
         await ShopCustomer.expects(
             StorefrontProductDetail.productReviewsLink,
-        ).toHaveText("2 Reviews");
+        ).toHaveText('2 Reviews');
         await ShopCustomer.expects(
             StorefrontProductDetail.reviewCounter,
-        ).toContainText("2 reviews");
+        ).toContainText('2 reviews');
         await ShopCustomer.expects(
             StorefrontProductDetail.reviewListingItems,
         ).toHaveCount(2);
@@ -35,9 +35,9 @@ test(
 );
 
 test(
-    "As a shop customer, I want to submit a review, so that I can share my experience with the product",
+    'As a shop customer, I want to submit a review, so that I can share my experience with the product',
     {
-        tag: ["@Product", "@Reviews", "@Storefront"],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({
         ShopCustomer,
@@ -50,12 +50,12 @@ test(
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
 
-        await test.step("Navigate to review tab within product detail page.", async () => {
+        await test.step('Navigate to review tab within product detail page.', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
         });
 
-        await test.step("Validate the empty state of the reviews tab.", async () => {
+        await test.step('Validate the empty state of the reviews tab.', async () => {
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewTeaserButton,
             ).toBeVisible();
@@ -65,14 +65,14 @@ test(
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewEmptyListingText,
             ).toContainText(
-                "No reviews found. Share your insights with others.",
+                'No reviews found. Share your insights with others.',
             );
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewTeaserText,
-            ).toHaveText("Leave a review!");
+            ).toHaveText('Leave a review!');
         });
 
-        await test.step("Login for review writing and validate the review form.", async () => {
+        await test.step('Login for review writing and validate the review form.', async () => {
             await ShopCustomer.presses(
                 StorefrontProductDetail.reviewTeaserButton,
             );
@@ -108,11 +108,11 @@ test(
                 await StorefrontProductDetail.reviewRatingPoints.count();
             for (let i = 0; i < starRatingPoints; i++) {
                 const expectedTexts = [
-                    "Unsatisfactory",
-                    "Acceptable",
-                    "Good",
-                    "Very good",
-                    "Excellent",
+                    'Unsatisfactory',
+                    'Acceptable',
+                    'Good',
+                    'Very good',
+                    'Excellent',
                 ];
                 await ShopCustomer.selectsRadioButton(
                     StorefrontProductDetail.reviewRatingPoints,
@@ -129,10 +129,10 @@ test(
             }
         });
 
-        await test.step("Create a review and validate the submitted review.", async () => {
+        await test.step('Create a review and validate the submitted review.', async () => {
             await ShopCustomer.selectsRadioButton(
                 StorefrontProductDetail.reviewRatingPoints,
-                "Very good",
+                'Very good',
             );
             const reviewContent = {
                 title: `${product.name} is a great choice`,
@@ -151,16 +151,16 @@ test(
             );
 
             const submitButtonLoadingIcon =
-                StorefrontProductDetail.reviewSubmitButton.locator(".loader");
+                StorefrontProductDetail.reviewSubmitButton.locator('.loader');
             await ShopCustomer.expects(submitButtonLoadingIcon).toBeVisible();
-            await submitButtonLoadingIcon.waitFor({ state: "hidden" });
+            await submitButtonLoadingIcon.waitFor({ state: 'hidden' });
 
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewSubmitMessage,
             ).toBeVisible();
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewCounter,
-            ).toContainText("1 review");
+            ).toContainText('1 review');
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewListingItems,
             ).toHaveCount(1);
@@ -176,13 +176,13 @@ test(
 
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewTeaserButton,
-            ).toContainText("Edit review");
+            ).toContainText('Edit review');
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewTeaserText,
-            ).toContainText("You have already reviewed this product!");
+            ).toContainText('You have already reviewed this product!');
         });
 
-        await test.step("Logout the customer and validate the submitted review is unpublished.", async () => {
+        await test.step('Logout the customer and validate the submitted review is unpublished.', async () => {
             await ShopCustomer.attemptsTo(Logout());
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
@@ -192,26 +192,26 @@ test(
             ).toBeVisible();
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewTeaserButton,
-            ).toContainText("Write review");
+            ).toContainText('Write review');
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewListingItems,
             ).toHaveCount(0);
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewEmptyListingText,
             ).toContainText(
-                "No reviews found. Share your insights with others.",
+                'No reviews found. Share your insights with others.',
             );
             await ShopCustomer.expects(
                 StorefrontProductDetail.reviewTeaserText,
-            ).toContainText("Leave a review!");
+            ).toContainText('Leave a review!');
         });
     },
 );
 
 test(
-    "As a shop customer, I want to filter reviews, so that I can find the content of a specific rating",
+    'As a shop customer, I want to filter reviews, so that I can find the content of a specific rating',
     {
-        tag: ["@Product", "@Reviews", "@Storefront"],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({
         ShopCustomer,
@@ -230,7 +230,7 @@ test(
             points: 2,
         });
 
-        await test.step("Validate the setup of the filters.", async () => {
+        await test.step('Validate the setup of the filters.', async () => {
             await ShopCustomer.goesTo(
                 StorefrontProductDetail.url(productWithRating1),
             );
@@ -241,71 +241,71 @@ test(
 
             const reviewFilterExcellent =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Excellent",
+                    'Excellent',
                 );
             await ShopCustomer.expects(
                 reviewFilterExcellent.reviewFilterOptionCheckbox,
             ).toBeDisabled();
             await ShopCustomer.expects(
                 reviewFilterExcellent.reviewFilterOptionText,
-            ).toHaveText("Excellent (0)");
+            ).toHaveText('Excellent (0)');
             await ShopCustomer.expects(
                 reviewFilterExcellent.reviewFilterOptionPercentage,
-            ).toHaveText("0%");
+            ).toHaveText('0%');
 
             const reviewFilterVeryGood =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Very good",
+                    'Very good',
                 );
             await ShopCustomer.expects(
                 reviewFilterVeryGood.reviewFilterOptionCheckbox,
             ).toBeDisabled();
             await ShopCustomer.expects(
                 reviewFilterVeryGood.reviewFilterOptionText,
-            ).toHaveText("Very good (0)");
+            ).toHaveText('Very good (0)');
             await ShopCustomer.expects(
                 reviewFilterVeryGood.reviewFilterOptionPercentage,
-            ).toHaveText("0%");
+            ).toHaveText('0%');
 
             const reviewFilterAcceptable =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Acceptable",
+                    'Acceptable',
                 );
             await ShopCustomer.expects(
                 reviewFilterAcceptable.reviewFilterOptionCheckbox,
             ).toBeEnabled();
             await ShopCustomer.expects(
                 reviewFilterAcceptable.reviewFilterOptionText,
-            ).toHaveText("Acceptable (2)");
+            ).toHaveText('Acceptable (2)');
             await ShopCustomer.expects(
                 reviewFilterAcceptable.reviewFilterOptionPercentage,
-            ).toHaveText("67%");
+            ).toHaveText('67%');
 
             const reviewFilterUnsatisfactory =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Unsatisfactory",
+                    'Unsatisfactory',
                 );
             await ShopCustomer.expects(
                 reviewFilterUnsatisfactory.reviewFilterOptionCheckbox,
             ).toBeEnabled();
             await ShopCustomer.expects(
                 reviewFilterUnsatisfactory.reviewFilterOptionText,
-            ).toHaveText("Unsatisfactory (1)");
+            ).toHaveText('Unsatisfactory (1)');
             await ShopCustomer.expects(
                 reviewFilterUnsatisfactory.reviewFilterOptionPercentage,
-            ).toHaveText("33%");
+            ).toHaveText('33%');
         });
 
-        await test.step("Validate the functionality of the filters.", async () => {
+        await test.step('Validate the functionality of the filters.', async () => {
             const reviewFilterAcceptable =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Acceptable",
+                    'Acceptable',
                 );
             await ShopCustomer.expects(
                 reviewFilterAcceptable.reviewFilterOptionCheckbox,
             ).not.toBeChecked();
             await ShopCustomer.attemptsTo(
-                SelectProductReviewOption("Acceptable"),
+                SelectProductReviewOption('Acceptable'),
             );
             await ShopCustomer.expects(
                 reviewFilterAcceptable.reviewFilterOptionCheckbox,
@@ -315,7 +315,7 @@ test(
             ).toHaveCount(2);
 
             await ShopCustomer.attemptsTo(
-                SelectProductReviewOption("Acceptable"),
+                SelectProductReviewOption('Acceptable'),
             );
             await ShopCustomer.expects(
                 reviewFilterAcceptable.reviewFilterOptionCheckbox,
@@ -323,13 +323,13 @@ test(
 
             const reviewFilterUnsatisfactory =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Unsatisfactory",
+                    'Unsatisfactory',
                 );
             await ShopCustomer.expects(
                 reviewFilterUnsatisfactory.reviewFilterOptionCheckbox,
             ).not.toBeChecked();
             await ShopCustomer.attemptsTo(
-                SelectProductReviewOption("Unsatisfactory"),
+                SelectProductReviewOption('Unsatisfactory'),
             );
             await ShopCustomer.expects(
                 reviewFilterUnsatisfactory.reviewFilterOptionCheckbox,
@@ -339,7 +339,7 @@ test(
             ).toHaveCount(1);
 
             await ShopCustomer.attemptsTo(
-                SelectProductReviewOption("Unsatisfactory"),
+                SelectProductReviewOption('Unsatisfactory'),
             );
             await ShopCustomer.expects(
                 reviewFilterUnsatisfactory.reviewFilterOptionCheckbox,
@@ -353,9 +353,9 @@ test(
 );
 
 test(
-    "As a shop customer, I want to filter reviews by rating, log in and come back to the product detail page.",
+    'As a shop customer, I want to filter reviews by rating, log in and come back to the product detail page.',
     {
-        tag: ["@Product", "@Reviews", "@Storefront"],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({
         ShopCustomer,
@@ -372,7 +372,7 @@ test(
         await TestDataService.createProductReview(product.id, { points: 2 });
         await TestDataService.createProductReview(product.id, { points: 1 });
 
-        await test.step("Navigate to review tab within product detail page.", async () => {
+        await test.step('Navigate to review tab within product detail page.', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.presses(StorefrontProductDetail.reviewsTab);
             await ShopCustomer.expects(
@@ -380,10 +380,10 @@ test(
             ).toHaveCount(5);
         });
 
-        await test.step("Filter down the reviews of the product by rating", async () => {
+        await test.step('Filter down the reviews of the product by rating', async () => {
             const reviewFilterRowOptions =
                 await StorefrontProductDetail.getReviewFilterRowOptionsByName(
-                    "Excellent (2)",
+                    'Excellent (2)',
                 );
             await ShopCustomer.expects(
                 reviewFilterRowOptions.reviewFilterOptionCheckbox,
@@ -399,7 +399,7 @@ test(
             ).toHaveCount(2);
         });
 
-        await test.step("Log in and comes back to the product detail page", async () => {
+        await test.step('Log in and comes back to the product detail page', async () => {
             await ShopCustomer.attemptsTo(
                 LoginViaReviewsTab(product, customer),
             );
@@ -409,7 +409,7 @@ test(
             ).toHaveCount(5);
 
             await ShopCustomer.expects(
-                StorefrontProductDetail.page.locator("h1"),
+                StorefrontProductDetail.page.locator('h1'),
             ).toContainText(product.name);
         });
     },

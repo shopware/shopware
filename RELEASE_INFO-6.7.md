@@ -548,6 +548,27 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ## Storefront
 
+### Structured deprecations for Storefront template inputs
+
+Storefront templates can declare a deprecated input or nested input path with the new `sw_deprecated` tag:
+
+```twig
+{% set addressType = addressType|default(null) %}
+{% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
+    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
+    {% set addressType = type %}
+{% endif %}
+```
+
+`removed_in` must be the exact registered major feature flag. Place the declaration and `sw_trigger_deprecation` call directly above the legacy backfill, and execute them only when that fallback is needed. The function delegates to `Feature::triggerDeprecationOrThrow()`: it emits a deprecation during the compatibility period and throws when the removal feature is active. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior. Use `message` instead of `replaced_by` when there is no direct replacement.
+
+### Deprecated `type` variable in address manager templates
+
+The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
+The old variable remains available during the transition and will be removed with Shopware 6.8.
+Themes and plugins that extend these templates should migrate to `addressType`.
+
 ### `robots.txt` allows crawling thumbnails
 
 The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.
@@ -1854,27 +1875,6 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 - While you still support the deprecated version, catch both classes, since they do not share a common parent.
 
 ## Storefront
-
-### Structured deprecations for Storefront template inputs
-
-Storefront templates can declare a deprecated input or nested input path with the new `sw_deprecated` tag:
-
-```twig
-{% set addressType = addressType|default(null) %}
-{% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
-    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-    {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
-    {% set addressType = type %}
-{% endif %}
-```
-
-`removed_in` must be the exact registered major feature flag. Place the declaration and `sw_trigger_deprecation` call directly above the legacy backfill, and execute them only when that fallback is needed. The function delegates to `Feature::triggerDeprecationOrThrow()`: it emits a deprecation during the compatibility period and throws when the removal feature is active. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior. Use `message` instead of `replaced_by` when there is no direct replacement.
-
-### Deprecated `type` variable in address manager templates
-
-The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.
-The old variable remains available during the transition and will be removed with Shopware 6.8.
-Themes and plugins that extend these templates should migrate to `addressType`.
 
 ### Form validation messages use Storefront snippets
 

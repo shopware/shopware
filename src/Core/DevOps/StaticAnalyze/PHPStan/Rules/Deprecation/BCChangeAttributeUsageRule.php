@@ -18,6 +18,7 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
@@ -112,6 +113,7 @@ class BCChangeAttributeUsageRule implements Rule
      */
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
+        private readonly ServiceMap $serviceMap,
         private readonly array $classAliases = ClassAliasRegistry::ALIASES,
     ) {
     }
@@ -319,6 +321,17 @@ class BCChangeAttributeUsageRule implements Rule
         if (!$previousMatchesCurrent || !$currentMatchesPrevious) {
             return [$this->error($line, \sprintf(
                 'ClassMoved on "%s": alias "%s" and "%s" do not resolve to the same runtime class.',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        if ($this->serviceMap->getService($currentClassName) !== null
+            && $this->serviceMap->getService($previousClassName)?->getAlias() !== $currentClassName
+        ) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the service alias "%s" => "%s".',
                 $symbol,
                 $previousClassName,
                 $currentClassName

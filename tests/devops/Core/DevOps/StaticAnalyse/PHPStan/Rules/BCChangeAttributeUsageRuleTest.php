@@ -3,10 +3,15 @@
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
+use PHPStan\Symfony\FakeServiceMap;
+use PHPStan\Symfony\ServiceMap;
+use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule;
+use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage;
 
 /**
  * @internal
@@ -16,6 +21,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class BCChangeAttributeUsageRuleTest extends RuleTestCase
 {
+    private ?ServiceMap $serviceMap = null;
+
+    /**
+     * @var array<non-empty-string, class-string>|null
+     */
+    private ?array $classAliases = null;
+
     #[RunInSeparateProcess]
     public function testStructurallyImpossibleBCChangesAreReported(): void
     {
@@ -177,8 +189,39 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         ]);
     }
 
+    #[RunInSeparateProcess]
+    public function testMovedServiceWithoutServiceAliasIsReported(): void
+    {
+        $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
+        require_once $fixture;
+
+        $previousClassName = 'Shopware\Tests\Legacy\UnregisteredClass';
+        class_alias(ClassMovedAttributeUsage::class, $previousClassName);
+
+        $this->classAliases = [$previousClassName => ClassMovedAttributeUsage::class];
+
+        /** @phpstan-ignore phpstanApi.constructor */
+        $factory = new XmlServiceMapFactory(__DIR__ . '/data/BCChangeAttributeUsageRule/services.xml');
+        /** @phpstan-ignore phpstanApi.method */
+        $this->serviceMap = $factory->create();
+
+        $this->analyse([$fixture], [
+            [
+                'ClassMoved on "ClassMovedAttributeUsage": register the service alias "Shopware\Tests\Legacy\UnregisteredClass" => "Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage".',
+                7,
+            ],
+        ]);
+    }
+
     protected function getRule(): Rule
     {
-        return new BCChangeAttributeUsageRule($this->createReflectionProvider());
+        /** @phpstan-ignore phpstanApi.constructor */
+        $serviceMap = $this->serviceMap ?? new FakeServiceMap();
+
+        return new BCChangeAttributeUsageRule(
+            $this->createReflectionProvider(),
+            $serviceMap,
+            $this->classAliases ?? ClassAliasRegistry::ALIASES,
+        );
     }
 }

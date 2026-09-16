@@ -4,8 +4,6 @@ icon: "regular-image"
 layout:
   - component: Sw:Media:Gallery
     properties:
-      title: "Image slider"
       showThumbnailNav: false
       showMagnifier: false
       showFullScreenGallery: false
-  

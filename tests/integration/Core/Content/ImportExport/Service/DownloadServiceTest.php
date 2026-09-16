@@ -4,11 +4,12 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
+use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -155,11 +156,12 @@ class DownloadServiceTest extends TestCase
         return new DownloadService(
             $fileSystem,
             $fileRepository,
-            $this->createMock(LoggerInterface::class),
             self::DEFAULT_STRATEGY,
             static::createStub(RateLimiter::class),
             '',
             new NativeClock(),
+            new Psr17Factory(),
+            new PrivateFileDownloadResponseGenerator(),
         );
     }
 }

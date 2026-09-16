@@ -4,15 +4,15 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Service;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\HeaderUtils;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -70,7 +69,6 @@ class DownloadServiceTest extends TestCase
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->method('temporaryUrl')->willReturn('');
         $fileSystem->expects($this->once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
         $fileSystem->expects($this->once())->method('fileSize')->willReturn(100);
 
@@ -105,16 +103,13 @@ class DownloadServiceTest extends TestCase
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/any/path'));
         $fileSystem->method('fileSize')->willReturn(100);
 
         if ($strategy === DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY) {
-            $stream = fopen('php://memory', 'r+');
+            $stream = fopen(__FILE__, 'r');
             static::assertIsResource($stream);
-            fwrite($stream, 'test');
-            rewind($stream);
             $fileSystem->expects($this->once())->method('readStream')->willReturn($stream);
-            $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
+            $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, __FILE__);
         } else {
             $fileSystem->expects($this->never())->method('readStream');
         }
@@ -153,7 +148,7 @@ class DownloadServiceTest extends TestCase
         ];
     }
 
-    public function testCreateFileResponseUsesTemporaryUrlWhenAvailable(): void
+    public function testCreateFileResponseStreamsPrivateFile(): void
     {
         $fileId = Uuid::randomHex();
         $fileEntity = (new ImportExportFileEntity())->assign([
@@ -167,22 +162,8 @@ class DownloadServiceTest extends TestCase
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->expects($this->once())->method('temporaryUrl')->with(
-            'export/foobar.txt',
-            static::isInstanceOf(\DateTimeImmutable::class),
-            [
-                'get_object_options' => [
-                    'ResponseContentDisposition' => HeaderUtils::makeDisposition(
-                        HeaderUtils::DISPOSITION_ATTACHMENT,
-                        'products.csv',
-                        'products.csv'
-                    ),
-                    'ResponseContentType' => 'text/csv',
-                ],
-            ]
-        )->willReturn('https://example.com/download');
-        $fileSystem->expects($this->never())->method('readStream');
-        $fileSystem->expects($this->never())->method('fileSize');
+        $fileSystem->expects($this->once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
+        $fileSystem->expects($this->once())->method('fileSize')->willReturn(100);
 
         $downloadService = $this->createDownloadService(
             fileSystem: $fileSystem,
@@ -191,7 +172,9 @@ class DownloadServiceTest extends TestCase
 
         $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken', '127.0.0.1');
 
-        AssertResponseHelper::assertResponseEquals(new RedirectResponse('https://example.com/download'), $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('text/csv', $response->headers->get('Content-Type'));
+        static::assertStringContainsString('products.csv', (string) $response->headers->get('Content-Disposition'));
     }
 
     /**
@@ -385,24 +368,23 @@ class DownloadServiceTest extends TestCase
     private function createDownloadService(
         ?FilesystemOperator $fileSystem = null,
         ?EntityRepository $fileRepository = null,
-        ?LoggerInterface $logger = null,
         string $localDownloadStrategy = self::DEFAULT_STRATEGY,
         string $localPathPrefix = '',
         ?RateLimiter $rateLimiter = null,
     ): DownloadService {
         $fileSystem ??= $this->createFileSystem();
         $fileRepository ??= $this->createFileRepository();
-        $logger ??= static::createStub(LoggerInterface::class);
         $rateLimiter ??= static::createStub(RateLimiter::class);
 
         return new DownloadService(
             $fileSystem,
             $fileRepository,
-            $logger,
             $localDownloadStrategy,
             $rateLimiter,
             $localPathPrefix,
-            new NativeClock()
+            new NativeClock(),
+            new Psr17Factory(),
+            new PrivateFileDownloadResponseGenerator(),
         );
     }
 

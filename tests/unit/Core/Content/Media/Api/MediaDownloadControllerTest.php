@@ -96,6 +96,27 @@ class MediaDownloadControllerTest extends TestCase
         );
     }
 
+    public function testPreparePrivateMediaDownloadReturnsBlobWithoutGeneratingResponse(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setPrivate(true);
+
+        $this->mediaRepository->addSearch(new MediaCollection([$media]));
+
+        $this->downloadResponseGenerator
+            ->expects($this->never())
+            ->method('getResponseByContext');
+
+        $response = $this->controller->prepareMediaDownload($mediaId, Context::createDefaultContext());
+
+        static::assertSame(
+            json_encode(['type' => 'blob'], \JSON_THROW_ON_ERROR),
+            $response->getContent()
+        );
+    }
+
     public function testPrepareMediaDownloadSignalsBlobFallbackWhenGeneratorNeedsLocalResponse(): void
     {
         $mediaId = Uuid::randomHex();

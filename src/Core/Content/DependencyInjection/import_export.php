@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand;
@@ -53,6 +54,7 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\MappingService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Framework\Api\Sync\SyncService;
@@ -163,11 +165,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.filesystem.private'),
             service('import_export_file.repository'),
-            service('logger'),
             param('shopware.filesystem.private_local_download_strategy'),
             service(RateLimiter::class),
             param('shopware.filesystem.private_local_path_prefix'),
             service(ClockInterface::class),
+            service(StreamFactoryInterface::class),
+            service(PrivateFileDownloadResponseGenerator::class),
         ]);
 
     $services->set(PrimaryKeyResolver::class)

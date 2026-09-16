@@ -612,6 +612,12 @@ A theme that lists several ancestors in the `configInheritance` of its `theme.js
 
 ## Hosting & Configuration
 
+### Private file downloads through Shopware
+
+Import/Export files, private media downloads from the Administration, and purchased digital products stored as private media are now delivered through Shopware instead of redirecting browsers to presigned object-storage URLs. Private S3-compatible storage endpoints only need to be reachable by Shopware. Public media downloads retain their existing behavior.
+
+The existing `shopware.filesystem.private_local_download_strategy` setting controls delivery. With the default `php` strategy, file contents pass through PHP, increasing application-server traffic and occupying PHP workers during downloads.
+
 ### Registering public OAuth clients
 
 Public OAuth clients that may use the authorization code grant are configured under `shopware.api.oauth_clients`. Shopware ships `shopware-cli` with the loopback redirect URIs `http://127.0.0.1/callback` and `http://[::1]/callback`. Loopback URIs accept any port (RFC 8252), all other redirect URIs must match exactly. Additional clients are added per project:

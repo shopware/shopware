@@ -3,13 +3,13 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Clock\ClockInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
-use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -19,9 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Component\HttpFoundation\HeaderUtils;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal
@@ -29,8 +27,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('fundamentals@after-sales')]
 class DownloadService
 {
-    private const EXPIRATION_TIME = '+120 minutes';
-
     /**
      * @internal
      *
@@ -39,11 +35,12 @@ class DownloadService
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly EntityRepository $fileRepository,
-        private readonly LoggerInterface $logger,
         private readonly string $localDownloadStrategy,
         private readonly RateLimiter $rateLimiter,
         private readonly string $localPathPrefix,
-        private readonly ClockInterface $clock
+        private readonly ClockInterface $clock,
+        private readonly StreamFactoryInterface $streamFactory,
+        private readonly PrivateFileDownloadResponseGenerator $privateFileDownloadResponseGenerator
     ) {
     }
 
@@ -84,66 +81,20 @@ class DownloadService
 
         $this->rateLimiter->reset(RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD, $cacheKey);
 
-        try {
-            $url = $this->filesystem->temporaryUrl(
-                $entity->getPath(),
-                $this->clock->now()->modify(self::EXPIRATION_TIME),
-                $this->getTemporaryUrlConfig($entity)
-            );
-
-            return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl $exception) {
-            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
-        } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
-        }
-
-        return $this->createResponse($entity, $fileId);
-    }
-
-    private function createResponse(ImportExportFileEntity $entity, string $fileId): Response
-    {
-        switch ($this->localDownloadStrategy) {
-            case DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY:
-                $location = $entity->getPath();
-
-                $stream = $this->filesystem->readStream($location);
+        return $this->privateFileDownloadResponseGenerator->createResponse(
+            streamProvider: function () use ($entity, $fileId): StreamInterface {
+                $stream = $this->filesystem->readStream($entity->getPath());
                 if (!\is_resource($stream)) {
                     throw ImportExportException::fileNotFound($fileId);
                 }
 
-                $location = stream_get_meta_data($stream)['uri'] ?? $location;
-
-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
-                $response->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
-
-                return $response;
-            case DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY:
-                $location = $entity->getPath();
-
-                if ($this->localPathPrefix !== '') {
-                    $location = $this->localPathPrefix . '/' . ltrim($location, '/');
-                }
-
-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
-                $response->headers->set(DownloadResponseGenerator::X_ACCEL_REDIRECT, $location);
-
-                return $response;
-            default:
-                return $this->createStreamedResponse($entity, $fileId);
-        }
-    }
-
-    private function createStreamedResponse(ImportExportFileEntity $entity, string $fileId): StreamedResponse
-    {
-        $stream = $this->filesystem->readStream($entity->getPath());
-        if (!\is_resource($stream)) {
-            throw ImportExportException::fileNotFound($fileId);
-        }
-
-        return new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-        }, Response::HTTP_OK, $this->getStreamHeaders($entity));
+                return $this->streamFactory->createStreamFromResource($stream);
+            },
+            headers: $this->getStreamHeaders($entity),
+            downloadStrategy: $this->localDownloadStrategy,
+            path: $entity->getPath(),
+            pathPrefix: $this->localPathPrefix,
+        );
     }
 
     /**
@@ -157,24 +108,6 @@ class DownloadService
             'Content-Disposition' => $downloadHeaders['Content-Disposition'],
             'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
             'Content-Type' => $downloadHeaders['Content-Type'],
-        ];
-    }
-
-    /**
-     * S3 temporary URLs use GetObject response overrides to preserve the download
-     * filename and content type after redirecting away from Shopware.
-     *
-     * @return array{get_object_options: array{ResponseContentDisposition: string, ResponseContentType: string}}
-     */
-    private function getTemporaryUrlConfig(ImportExportFileEntity $entity): array
-    {
-        $downloadHeaders = $this->getDownloadHeaders($entity);
-
-        return [
-            'get_object_options' => [
-                'ResponseContentDisposition' => $downloadHeaders['Content-Disposition'],
-                'ResponseContentType' => $downloadHeaders['Content-Type'],
-            ],
         ];
     }
 

@@ -46,6 +46,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
+use Shopware\Core\Content\Media\File\PrivateFileDownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
@@ -239,6 +240,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media.repository'),
         ]);
 
+    $services->set(PrivateFileDownloadResponseGenerator::class);
+
     $services->set(DownloadResponseGenerator::class)
         ->args([
             service('logger'),
@@ -249,6 +252,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractMediaUrlGenerator::class),
             service(ClockInterface::class),
             param('shopware.filesystem.private_local_path_prefix'),
+            service(PrivateFileDownloadResponseGenerator::class),
         ]);
     // endregion File Services
 

@@ -43,6 +43,11 @@ class MediaDownloadController extends AbstractController
     public function prepareMediaDownload(string $mediaId, Context $context): JsonResponse
     {
         $media = $this->getMedia($mediaId, $context);
+
+        if ($media->isPrivate()) {
+            return new JsonResponse(['type' => 'blob']);
+        }
+
         $response = $this->downloadResponseGenerator->getResponseByContext($media, $context);
 
         if ($response instanceof RedirectResponse) {

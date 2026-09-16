@@ -21,7 +21,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Package('discovery')]
 class DownloadResponseGenerator
@@ -42,7 +41,8 @@ class DownloadResponseGenerator
         private readonly string $localPrivateDownloadStrategy,
         private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
         private readonly ClockInterface $clock,
-        private readonly string $privateLocalPathPrefix = ''
+        private readonly string $privateLocalPathPrefix,
+        private readonly PrivateFileDownloadResponseGenerator $privateFileDownloadResponseGenerator
     ) {
     }
 
@@ -59,6 +59,10 @@ class DownloadResponseGenerator
         Context $context,
         string $expiration = self::EXPIRATION_TIME
     ): Response {
+        if ($media->isPrivate()) {
+            return $this->getDefaultResponse($media, $context);
+        }
+
         $fileSystem = $this->getFileSystem($media);
 
         $path = $media->getPath();
@@ -73,10 +77,10 @@ class DownloadResponseGenerator
             $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
         }
 
-        return $this->getDefaultResponse($media, $context, $fileSystem);
+        return $this->getDefaultResponse($media, $context);
     }
 
-    private function getDefaultResponse(MediaEntity $media, Context $context, FilesystemOperator $fileSystem): Response
+    private function getDefaultResponse(MediaEntity $media, Context $context): Response
     {
         if (!$media->isPrivate()) {
             $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
@@ -84,59 +88,18 @@ class DownloadResponseGenerator
             return new RedirectResponse((string) array_shift($url));
         }
 
-        switch ($this->localPrivateDownloadStrategy) {
-            case self::X_SENDFILE_DOWNLOAD_STRATEGY:
-                $location = $media->getPath();
-
-                $stream = $fileSystem->readStream($location);
-                if (\is_resource($stream)) {
-                    $location = stream_get_meta_data($stream)['uri'] ?? $location;
-                }
-
-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
-                $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
-
-                return $response;
-            case self::X_ACCEL_DOWNLOAD_STRATEGY:
-                $location = $media->getPath();
-
-                // Apply the path prefix if configured
-                if ($this->privateLocalPathPrefix !== '') {
-                    $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
-                }
-
-                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
-                $response->headers->set(self::X_ACCEL_REDIRECT, $location);
-
-                return $response;
-            default:
-                return $this->createStreamedResponse(
-                    $media,
-                    $context
+        return $this->privateFileDownloadResponseGenerator->createResponse(
+            streamProvider: function () use ($media, $context): StreamInterface {
+                return $context->scope(
+                    Context::SYSTEM_SCOPE,
+                    fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
                 );
-        }
-    }
-
-    private function createStreamedResponse(MediaEntity $media, Context $context): StreamedResponse
-    {
-        $stream = $context->scope(
-            Context::SYSTEM_SCOPE,
-            fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
+            },
+            headers: $this->getStreamHeaders($media),
+            downloadStrategy: $this->localPrivateDownloadStrategy,
+            path: $media->getPath(),
+            pathPrefix: $this->privateLocalPathPrefix,
         );
-
-        if (!$stream instanceof StreamInterface) {
-            throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
-        }
-
-        $stream = $stream->detach();
-
-        if (!\is_resource($stream)) {
-            throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
-        }
-
-        return new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-        }, Response::HTTP_OK, $this->getStreamHeaders($media));
     }
 
     private function getFileSystem(MediaEntity $media): FilesystemOperator

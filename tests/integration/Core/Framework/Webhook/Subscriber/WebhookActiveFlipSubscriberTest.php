@@ -14,12 +14,19 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
+use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -31,6 +38,8 @@ class WebhookActiveFlipSubscriberTest extends TestCase
 
     private const SUSPENDED_SINCE = '2026-06-01 12:00:00.000';
 
+    private const DISABLED_SINCE = '2026-06-02 12:00:00.000';
+
     private Connection $connection;
 
     private IdsCollection $ids;
@@ -40,6 +49,8 @@ class WebhookActiveFlipSubscriberTest extends TestCase
      */
     private EntityRepository $webhookRepository;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     private WebhookOutboxStore $outboxStore;
 
     protected function setUp(): void
@@ -47,14 +58,17 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
         $this->ids = new IdsCollection();
         $this->webhookRepository = static::getContainer()->get('webhook.repository');
+        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
         $this->outboxStore = static::getContainer()->get(WebhookOutboxStore::class);
     }
 
     public function testDeactivatingHealthyWebhookDisablesItWithOperatorOriginAndDropsTheBacklog(): void
     {
         $this->seedWebhook('wh', active: true, errorCount: 0);
-        static::assertFalse($this->hasHealthRow('wh'));
+        $this->seedHealth('wh', EndpointState::Healthy);
         $this->seedOutboxRow('evt-queued', 'wh', held: false);
+
+        $events = $this->captureDisabledEvents();
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
             $this->webhookRepository->update(
@@ -70,6 +84,44 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertSame(0, $this->fetchWebhookActive('wh'));
 
         $this->assertBacklogRowDropped('evt-queued');
+
+        $disabled = $events();
+        static::assertCount(1, $disabled);
+        static::assertSame($this->ids->get('wh'), $disabled[0]->webhookId);
+        static::assertSame(EndpointState::Healthy, $disabled[0]->fromState);
+        static::assertSame(DisabledOrigin::Operator, $disabled[0]->origin);
+    }
+
+    public function testDeactivatingDegradedWebhookDisablesItCancellingTheHeldBacklog(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 4);
+        $this->seedHealth('wh', EndpointState::Degraded, [
+            'consecutive_transient_failures' => 4,
+            'degraded_cycle_count' => 1,
+            'cooldown_until' => (new \DateTimeImmutable('+4 hours'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $this->seedOutboxRow('evt-held', 'wh', held: true);
+
+        $events = $this->captureDisabledEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => false]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Disabled->value, $health['endpoint_state']);
+        static::assertSame(DisabledOrigin::Operator->value, $health['disabled_origin']);
+        static::assertNull($health['cooldown_until']);
+
+        $this->assertBacklogRowDropped('evt-held');
+
+        $disabled = $events();
+        static::assertCount(1, $disabled);
+        static::assertSame(EndpointState::Degraded, $disabled[0]->fromState);
+        static::assertSame(DisabledOrigin::Operator, $disabled[0]->origin);
     }
 
     public function testDeactivatingSuspendedWebhookIsAnEchoAndChangesNothing(): void
@@ -81,6 +133,8 @@ class WebhookActiveFlipSubscriberTest extends TestCase
             'suspended_since' => self::SUSPENDED_SINCE,
         ]);
         $this->seedOutboxRow('evt-held', 'wh', held: true);
+
+        $events = $this->captureDisabledEvents();
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
             $this->webhookRepository->update(
@@ -98,13 +152,72 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertSame(
             WebhookEventLogDefinition::STATUS_PAUSED,
             $this->fetchDeliveryStatus('evt-held'),
-            'the held backlog must stay paused',
         );
+        static::assertCount(0, $events());
+    }
+
+    public function testDeactivatingEscalationDisabledWebhookKeepsTheEscalationOrigin(): void
+    {
+        $this->seedWebhook('wh', active: false, errorCount: 5);
+        $this->seedHealth('wh', EndpointState::Disabled, [
+            'consecutive_transient_failures' => 5,
+            'disabled_since' => self::DISABLED_SINCE,
+            'disabled_origin' => DisabledOrigin::Escalation->value,
+        ]);
+
+        $events = $this->captureDisabledEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => false]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Disabled->value, $health['endpoint_state']);
+        static::assertSame(
+            DisabledOrigin::Escalation->value,
+            $health['disabled_origin'],
+        );
+        static::assertSame(self::DISABLED_SINCE, $health['disabled_since']);
+        static::assertCount(0, $events());
+    }
+
+    public function testDeactivatingWebhookWithNoHealthRowInsertsDisabledRow(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 0);
+        static::assertFalse($this->hasHealthRow('wh'));
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => false]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Disabled->value, $health['endpoint_state']);
+        static::assertSame(DisabledOrigin::Operator->value, $health['disabled_origin']);
+        static::assertNotNull($health['disabled_since']);
+
+        // A late delivery result must not recreate a healthy row or repair the active mirror.
+        $this->seedOutboxRow('evt-trial', 'wh', held: false);
+        static::getContainer()->get(WebhookHealthService::class)
+            ->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1, $this->claimRunningEntry('evt-trial'));
+
+        static::assertSame(
+            EndpointState::Disabled->value,
+            (string) $this->fetchHealthRow('wh')['endpoint_state'],
+        );
+        static::assertSame(0, $this->fetchWebhookActive('wh'));
     }
 
     public function testDeactivationIsNoOpUnderFlagOff(): void
     {
         $this->seedWebhook('wh', active: true, errorCount: 0);
+
+        $events = $this->captureDisabledEvents();
 
         Feature::withFeatureDisabled('WEBHOOKS_REWORK', function (): void {
             $this->webhookRepository->update(
@@ -115,6 +228,7 @@ class WebhookActiveFlipSubscriberTest extends TestCase
 
         static::assertSame(0, $this->fetchWebhookActive('wh'));
         static::assertFalse($this->hasHealthRow('wh'));
+        static::assertCount(0, $events());
     }
 
     public function testActivatingSuspendedWebhookHealsItUnderFlagOn(): void
@@ -128,6 +242,8 @@ class WebhookActiveFlipSubscriberTest extends TestCase
             'suspended_since' => self::SUSPENDED_SINCE,
         ]);
         $this->seedHeldRow('evt-held', 'wh');
+
+        $events = $this->captureActivatedEvents();
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
             $this->webhookRepository->update(
@@ -149,35 +265,15 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertSame(0, $webhook['error_count']);
 
         $this->assertHeldRowResumed('evt-held');
-    }
 
-    public function testActivatingDegradedWebhookIsAnEchoAndDoesNotResetTheBreaker(): void
-    {
-        $cooldown = (new \DateTimeImmutable('+4 hours'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->seedWebhook('wh', active: true, errorCount: 4);
-        $this->seedHealth('wh', EndpointState::Degraded, [
-            'consecutive_transient_failures' => 4,
-            'degraded_cycle_count' => 1,
-            'cooldown_until' => $cooldown,
-        ]);
-        $this->seedHeldRow('held-event', 'wh');
-
-        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
-            $this->webhookRepository->update(
-                [['id' => $this->ids->get('wh'), 'active' => true]],
-                Context::createDefaultContext(),
-            );
-        });
-
-        $health = $this->fetchHealthRow('wh');
-        static::assertSame(EndpointState::Degraded->value, $health['endpoint_state']);
-        static::assertSame(4, (int) $health['consecutive_transient_failures']);
-        static::assertSame(1, (int) $health['degraded_cycle_count']);
-        static::assertSame($cooldown, $health['cooldown_until']);
+        $activated = $events();
+        static::assertCount(1, $activated);
+        static::assertSame($this->ids->get('wh'), $activated[0]->webhookId);
+        static::assertSame(EndpointState::Suspended, $activated[0]->fromState);
+        static::assertSame(WebhookActivationTrigger::Manual, $activated[0]->trigger);
         static::assertSame(
-            'paused',
-            $this->fetchDeliveryStatus('held-event'),
-            'the held backlog must stay paused',
+            self::SUSPENDED_SINCE,
+            $activated[0]->clearedSuspendedSince?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         );
     }
 
@@ -189,6 +285,8 @@ class WebhookActiveFlipSubscriberTest extends TestCase
             'disabled_since' => '2026-06-02 12:00:00.000',
             'disabled_origin' => DisabledOrigin::Operator->value,
         ]);
+
+        $events = $this->captureActivatedEvents();
 
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
             $this->webhookRepository->update(
@@ -202,7 +300,161 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertSame(0, (int) $health['consecutive_transient_failures']);
         static::assertNull($health['disabled_since']);
         static::assertNull($health['disabled_origin']);
-        static::assertSame(['active' => 1, 'error_count' => 0], $this->fetchBcColumns('wh'));
+
+        $webhook = $this->fetchBcColumns('wh');
+        static::assertSame(1, $webhook['active']);
+        static::assertSame(0, $webhook['error_count']);
+
+        $activated = $events();
+        static::assertCount(1, $activated);
+        static::assertSame(EndpointState::Disabled, $activated[0]->fromState);
+        static::assertSame(WebhookActivationTrigger::Manual, $activated[0]->trigger);
+        static::assertNull($activated[0]->clearedSuspendedSince);
+    }
+
+    public function testActivatingDegradedWebhookIsAnEchoAndDoesNotResetTheBreaker(): void
+    {
+        $cooldown = (new \DateTimeImmutable('+4 hours'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->seedWebhook('wh', active: true, errorCount: 4);
+        $this->seedHealth('wh', EndpointState::Degraded, [
+            'consecutive_transient_failures' => 4,
+            'degraded_cycle_count' => 1,
+            'cooldown_until' => $cooldown,
+        ]);
+        $this->seedHeldRow('held-event', 'wh');
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => true]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Degraded->value, $health['endpoint_state']);
+        static::assertSame(4, (int) $health['consecutive_transient_failures']);
+        static::assertSame(1, (int) $health['degraded_cycle_count']);
+        static::assertSame($cooldown, $health['cooldown_until']);
+        static::assertSame('paused', $this->fetchDeliveryStatus('held-event'));
+        static::assertCount(0, $events());
+    }
+
+    public function testActivatingAlreadyHealthyWebhookRepairsMirrorDriftAndStrandedHolds(): void
+    {
+        $this->seedWebhook('wh', active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Healthy);
+        $this->seedHeldRow('evt-stranded', 'wh');
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => true]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        static::assertCount(0, $events());
+        static::assertSame(EndpointState::Healthy->value, (string) $this->fetchHealthRow('wh')['endpoint_state']);
+
+        $webhook = $this->fetchBcColumns('wh');
+        static::assertSame(1, $webhook['active']);
+        static::assertSame(0, $webhook['error_count']);
+
+        $this->assertHeldRowResumed('evt-stranded');
+    }
+
+    public function testActivationIsNoOpUnderFlagOff(): void
+    {
+        $this->seedWebhook('wh', active: false, errorCount: 4);
+        $this->seedHealth('wh', EndpointState::Suspended, [
+            'consecutive_non_transient_failures' => 3,
+            'suspended_since' => self::SUSPENDED_SINCE,
+        ]);
+        $this->seedHeldRow('evt-held', 'wh');
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => true]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        static::assertCount(0, $events());
+        static::assertSame(
+            EndpointState::Suspended->value,
+            (string) $this->fetchHealthRow('wh')['endpoint_state'],
+        );
+        static::assertSame(
+            WebhookEventLogDefinition::STATUS_PAUSED,
+            $this->fetchDeliveryStatus('evt-held'),
+        );
+    }
+
+    public function testDeactivationDoesNotReactivate(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 4);
+        $this->seedHealth('wh', EndpointState::Suspended, [
+            'consecutive_non_transient_failures' => 3,
+            'suspended_since' => self::SUSPENDED_SINCE,
+        ]);
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => false]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        static::assertCount(0, $events());
+        static::assertSame(
+            EndpointState::Suspended->value,
+            (string) $this->fetchHealthRow('wh')['endpoint_state'],
+        );
+    }
+
+    /**
+     * @return \Closure(): list<WebhookDisabledEvent>
+     */
+    private function captureDisabledEvents(): \Closure
+    {
+        /** @var \ArrayObject<int, WebhookDisabledEvent> $captured */
+        $captured = new \ArrayObject();
+        $listener = static function (WebhookDisabledEvent $event) use ($captured): void {
+            $captured->append($event);
+        };
+        $this->eventDispatcher->addListener(WebhookDisabledEvent::class, $listener);
+
+        return function () use ($captured, $listener): array {
+            $this->eventDispatcher->removeListener(WebhookDisabledEvent::class, $listener);
+
+            return array_values($captured->getArrayCopy());
+        };
+    }
+
+    /**
+     * @return \Closure(): list<WebhookActivatedEvent>
+     */
+    private function captureActivatedEvents(): \Closure
+    {
+        /** @var \ArrayObject<int, WebhookActivatedEvent> $captured */
+        $captured = new \ArrayObject();
+        $listener = static function (WebhookActivatedEvent $event) use ($captured): void {
+            $captured->append($event);
+        };
+        $this->eventDispatcher->addListener(WebhookActivatedEvent::class, $listener);
+
+        return function () use ($captured, $listener): array {
+            $this->eventDispatcher->removeListener(WebhookActivatedEvent::class, $listener);
+
+            return array_values($captured->getArrayCopy());
+        };
     }
 
     private function seedWebhook(string $key, bool $active, int $errorCount): void
@@ -256,6 +508,14 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertNotNull($entry);
     }
 
+    private function claimRunningEntry(string $eventKey): OutboxEntry
+    {
+        $entry = $this->outboxStore->markRunning($this->ids->get($eventKey));
+        static::assertNotNull($entry, 'the seeded row must be claimable for the worker');
+
+        return $entry;
+    }
+
     private function assertBacklogRowDropped(string $eventKey): void
     {
         static::assertFalse(
@@ -263,7 +523,6 @@ class WebhookActiveFlipSubscriberTest extends TestCase
                 'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
                 ['id' => $this->ids->getBytes($eventKey)],
             ),
-            'the undelivered row must be deleted',
         );
 
         $log = $this->connection->fetchAssociative(
@@ -275,7 +534,6 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertSame(
             WebhookOutboxStore::DROP_REASON_DISABLED,
             $log['failure_reason'],
-            'the failure reason must identify a disabled webhook',
         );
     }
 
@@ -284,7 +542,6 @@ class WebhookActiveFlipSubscriberTest extends TestCase
         static::assertSame(
             WebhookEventLogDefinition::STATUS_PENDING_RETRY,
             $this->fetchDeliveryStatus($eventKey),
-            'the held delivery must become claimable',
         );
         static::assertSame(
             WebhookEventLogDefinition::STATUS_PENDING_RETRY,
@@ -292,7 +549,6 @@ class WebhookActiveFlipSubscriberTest extends TestCase
                 'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
                 ['id' => $this->ids->getBytes($eventKey)],
             ),
-            'the event log must mirror the delivery status',
         );
     }
 

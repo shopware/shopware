@@ -1,4 +1,4 @@
-# 6.7.15.0 (upcoming)
+# 6.7.16.0 (upcoming)
 
 ## Features
 
@@ -9,6 +9,10 @@ Tax display and price basis are now two independent customer group settings. The
 Leaving the field unset keeps the previous behaviour, where the display mode also decides the used price value. Manually maintained values of the non-authoritative flavour are ignored for display and calculation, but remain the sorting and filtering key in listings.
 
 The customer group detail page offers both settings separately. Plugins can decorate the new `Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector` to customize the selection, for example to apply charm-price rounding to derived gross prices. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+
+# 6.7.15.0 (upcoming)
+
+## Features
 
 ### Browser login for CLI tools and other public OAuth clients
 

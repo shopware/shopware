@@ -26,5 +26,6 @@ final class ApiInfoResponse extends AbstractResponse
     public function __construct(
         public ?string $version = null,
     ) {
+        parent::__construct();
     }
 }

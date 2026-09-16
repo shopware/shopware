@@ -33,5 +33,6 @@ final class ReadCartResponse extends AbstractResponse
         #[Assert\Valid]
         public ?array $lineItems = null,
     ) {
+        parent::__construct();
     }
 }

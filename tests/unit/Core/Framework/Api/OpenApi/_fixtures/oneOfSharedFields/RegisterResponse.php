@@ -26,5 +26,6 @@ final class RegisterResponse extends AbstractResponse
     public function __construct(
         public ?string $id = null,
     ) {
+        parent::__construct();
     }
 }

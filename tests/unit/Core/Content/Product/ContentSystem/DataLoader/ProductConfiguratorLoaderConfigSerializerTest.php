@@ -24,19 +24,19 @@ class ProductConfiguratorLoaderConfigSerializerTest extends TestCase
         static::assertSame([], $serializer->encode($serializer->decode([])));
     }
 
-    public function testRoundTripsPropertyConfig(): void
+    public function testRoundTripsProductIdConfig(): void
     {
         $serializer = new ProductConfiguratorLoaderConfigSerializer();
 
-        static::assertSame(['productProperty' => 'product'], $serializer->encode($serializer->decode(['productProperty' => 'product'])));
+        static::assertSame(['productId' => 'productId'], $serializer->encode($serializer->decode(['productId' => 'productId'])));
     }
 
-    public function testRejectsInvalidProperty(): void
+    public function testRejectsInvalidProductId(): void
     {
         $serializer = new ProductConfiguratorLoaderConfigSerializer();
 
-        static::expectExceptionObject(ProductException::invalidFieldValueType('productProperty', 'non-empty string', 'integer'));
-        $serializer->decode(['productProperty' => 42]);
+        static::expectExceptionObject(ProductException::invalidFieldValueType('productId', 'non-empty string', 'integer'));
+        $serializer->decode(['productId' => 42]);
     }
 
     public function testRejectsWrongConfigType(): void

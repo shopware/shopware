@@ -81,21 +81,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('primitive property', (string) $violations->get(0)->getMessage());
     }
 
-    #[TestDox('allows an object propertyReference config key to name a non-primitive property')]
-    public function testObjectPropertyReferenceMayNameNonPrimitiveProperty(): void
-    {
-        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec('object')]));
-
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'media']]],
-            inputs: [],
-        );
-
-        static::assertCount(0, $this->validateWith($dto, $validator));
-    }
-
     #[TestDox('resolves the declared type from the overlay when the registry does not carry it')]
     public function testResolvesTypeFromOverlayWhenRegistryLacksIt(): void
     {
@@ -507,11 +492,11 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         return new ContentSystemDataLoaderMap([], $specifications);
     }
 
-    private function loaderSpec(string $referencedType = 'string'): LoaderConfigSpecification
+    private function loaderSpec(): LoaderConfigSpecification
     {
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true, referencedType: $referencedType),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
         ]);
     }
 

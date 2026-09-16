@@ -891,7 +891,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('content_system.config_serializer');
 
     $services->set(ProductConfiguratorDataLoader::class)
-        ->args([service(ProductConfiguratorLoader::class)])
         ->tag('content_system.data_loader');
 
     $services->set(ProductConfiguratorLoaderConfigSerializer::class)

@@ -116,7 +116,7 @@ class DataLoaderConfigSerializerContractTest extends TestCase
         ];
         yield ProductConfiguratorDataLoader::SOURCE => [
             'source' => ProductConfiguratorDataLoader::SOURCE,
-            'config' => ['productProperty' => 'customProduct'],
+            'config' => ['productId' => 'productId'],
         ];
         yield ProductReviewDataLoader::SOURCE => [
             'source' => ProductReviewDataLoader::SOURCE,

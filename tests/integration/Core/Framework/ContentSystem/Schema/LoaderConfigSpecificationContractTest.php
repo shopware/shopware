@@ -207,7 +207,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
             'entity.property' => 'string',
             'entity_collection.property' => 'list<string>',
             'navigation.activeProperty' => 'string',
-            'product_configurator.productProperty' => 'object',
+            'product_configurator.productId' => 'string',
             'product_listing.associationOverride' => 'list<string>',
             'product_listing.property' => 'string',
             'product_review.associationOverride' => 'list<string>',

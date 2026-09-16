@@ -194,10 +194,6 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
                 continue;
             }
 
-            if ($configKey->referencedType === 'object') {
-                continue;
-            }
-
             $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceNotPrimitiveMessage)
                 ->setParameter('{{ configKey }}', $configKey->name)
                 ->setParameter('{{ property }}', $configured)

@@ -22,15 +22,15 @@ class ProductConfiguratorLoaderConfigSerializer extends AbstractContentDataLoade
 
     public function decode(array $data): AbstractContentDataLoaderConfig
     {
-        if (!\array_key_exists('productProperty', $data)) {
+        if (!\array_key_exists('productId', $data)) {
             return new ProductConfiguratorLoaderConfig();
         }
 
-        if (!\is_string($data['productProperty']) || $data['productProperty'] === '') {
-            throw ProductException::invalidFieldValueType('productProperty', 'non-empty string', \gettype($data['productProperty']));
+        if (!\is_string($data['productId']) || $data['productId'] === '') {
+            throw ProductException::invalidFieldValueType('productId', 'non-empty string', \gettype($data['productId']));
         }
 
-        return new ProductConfiguratorLoaderConfig($data['productProperty']);
+        return new ProductConfiguratorLoaderConfig($data['productId']);
     }
 
     public function encode(AbstractContentDataLoaderConfig $config): array

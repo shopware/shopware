@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type ProductConfiguratorLoaderConfigData array{productProperty?: non-empty-string}
+ * @phpstan-type ProductConfiguratorLoaderConfigData array{productId?: non-empty-string}
  *
  * @internal
  */
@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ProductConfiguratorLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
-     * @param non-empty-string|null $productProperty Element property containing the product
+     * @param non-empty-string|null $productId Element property containing the product ID
      */
-    public function __construct(public ?string $productProperty = null)
+    public function __construct(public ?string $productId = null)
     {
     }
 
@@ -25,6 +25,6 @@ final readonly class ProductConfiguratorLoaderConfig extends AbstractContentData
      */
     public function jsonSerialize(): array
     {
-        return $this->productProperty === null ? [] : ['productProperty' => $this->productProperty];
+        return $this->productId === null ? [] : ['productId' => $this->productId];
     }
 }

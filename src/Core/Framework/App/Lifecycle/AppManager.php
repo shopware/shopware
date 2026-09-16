@@ -248,7 +248,7 @@ class AppManager
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0.0 - remove this branch, only the block below remains
+            // @deprecated tag:v6.8.0 - remove this branch, only the block below remains
             $this->appRepository->update([['id' => $app->getId(), 'active' => true]], $context);
             // manually set active flag to true, so we don't need to re-fetch the app from DB
             $app->setActive(true);

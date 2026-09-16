@@ -7,11 +7,14 @@ use Psr\Clock\ClockInterface;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition;
 use Shopware\Core\Checkout\Document\Api\DocumentTypeTechnicalNameFkResolver;
 use Shopware\Core\Checkout\Document\Controller\DocumentController;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentGeneratorController;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -24,21 +27,21 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCancellationInvoiceR
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry as DocumentV2RendererRegistry;
-use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
-use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -58,10 +61,20 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
+    $services->set(DocumentDefinition::class)
+        ->tag('shopware.entity.definition')
+        ->tag('shopware.entity.hookable');
+
     $services->set(DocumentTypeDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(DocumentTypeTranslationDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(DocumentBaseConfigDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(DocumentBaseConfigSalesChannelDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(DocumentTemplateRenderer::class)
@@ -92,6 +105,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('country.repository'),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(ReferenceInvoiceLoader::class)
+        ->args([
+            service(Connection::class),
+        ]);
 
     $services->set(ZugferdEmbeddedService::class);
 

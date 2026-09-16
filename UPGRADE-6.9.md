@@ -4,10 +4,6 @@
 
 ## Document generation v1 removed
 
-The previous fully qualified names of the document classes that moved into `Shopware\Core\Checkout\DocumentV2`
-during 6.7 no longer resolve. The compatibility aliases and the shim files behind them were removed together with v1.
-`UPGRADE-6.7.md` ("Relocated classes") lists the mapping from the previous name to the current one.
-
 The legacy document generation implementation was removed together with the `DOCUMENT_GENERATION_REWORK` feature flag. Document generation v2 is now the only implementation. The full strategy is described in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).
 
 The complete list of removed classes, entities, and Administration components is in `UPGRADE-6.7.md` ("Document generation v1 deprecated for removal in Shopware 6.9", section 6.7.15.0). In addition:

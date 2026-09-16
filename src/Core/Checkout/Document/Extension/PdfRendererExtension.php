@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Extension;
 
-use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 

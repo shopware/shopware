@@ -95,23 +95,6 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
-### Document v1 survivors moved to the DocumentV2 namespace
-
-Thirteen classes of the legacy document domain survive the removal of document generation v1 and moved out of
-`Shopware\Core\Checkout\Document`. Update your imports:
-
-| Previous namespace | Current namespace |Add a comment on  lines R98 to R104Add diff commentMarkdown input:  edit mode selected.WritePreviewAdd a suggestionHeadingBold(command b) command⌘ bBItalic(command i) command⌘ iIQuote(command shift right angle bracket) command⌘ shift⇧ right angle bracket>Code(command e) command⌘ eELink(command k) command⌘ kKUnordered list(command 8) command⌘ 88Numbered list(command shift ampersand) command⌘ shift⇧ ampersand&Task list(command shift l) command⌘ shift⇧ lLMentionReferenceSlash commandsMore itemsSaved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a review
-|---|---|
-| `Shopware\Core\Checkout\Document` | `Shopware\Core\Checkout\DocumentV2` |
-| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig` |
-| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel` |
-| `Shopware\Core\Checkout\Document\Renderer` (`RenderedDocument` only) | `Shopware\Core\Checkout\DocumentV2\Struct` |
-| `Shopware\Core\Checkout\Document\SalesChannel` | `Shopware\Core\Checkout\DocumentV2\SalesChannel` |
-| `Shopware\Core\Checkout\Document\Service` (`ReferenceInvoiceLoader` only) | `Shopware\Core\Checkout\DocumentV2\Service` |
-
-The previous names keep working until 6.9 as class aliases, so `instanceof` checks and type declarations stay valid
-and an extension can address v1 and v2 side by side. `UPGRADE-6.7.md` lists the per-class mapping.
-
 ### Extensions can change the API CORS header lists
 
 The API answers CORS preflight requests with a fixed list of allowed and exposed headers, so a custom request header of an extension was rejected by the browser on cross-origin calls.

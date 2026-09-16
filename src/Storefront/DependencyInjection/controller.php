@@ -27,7 +27,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
-use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
+use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;

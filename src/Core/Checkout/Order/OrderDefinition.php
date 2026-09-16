@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;

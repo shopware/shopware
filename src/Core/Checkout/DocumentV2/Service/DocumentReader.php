@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Service;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
-use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
-use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

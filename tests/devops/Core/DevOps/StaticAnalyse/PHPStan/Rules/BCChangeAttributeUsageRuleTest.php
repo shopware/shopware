@@ -163,20 +163,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
-    public function testClassMoveWithoutRegisteredAliasIsReported(): void
-    {
-        $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
-        require_once $fixture;
-
-        $this->analyse([$fixture], [
-            [
-                'ClassMoved on "ClassMovedAttributeUsage": register the alias "Shopware\\Tests\\Legacy\\UnregisteredClass" => "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\PHPStan\\Rules\\data\\BCChangeAttributeUsageRule\\ClassMovedAttributeUsage" in ClassAliasRegistry::ALIASES.',
-                7,
-            ],
-        ]);
-    }
-
     protected function getRule(): Rule
     {
         return new BCChangeAttributeUsageRule($this->createReflectionProvider());

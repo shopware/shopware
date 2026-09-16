@@ -12,8 +12,6 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
@@ -66,9 +64,6 @@ class DomainExceptionRule implements Rule
         Migration1672931011ReviewFormMailTemplate::class => MigrationException::class,
         Migration1632721037OrderDocumentMailTemplate::class => MigrationException::class,
         StateMachineMigrationImporter::class => MigrationException::class,
-        // @deprecated tag:v6.9.0 - the route moved into DocumentV2 ahead of v1, but keeps throwing the v1 exception
-        // because its error codes are the documented Store API contract. Remove with document generation v1.
-        DocumentRoute::class => DocumentException::class,
     ];
 
     /**

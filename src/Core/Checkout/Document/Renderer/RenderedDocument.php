@@ -1,24 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Struct;
+namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
-#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Renderer\RenderedDocument')]
-class RenderedDocument extends Struct
+final class RenderedDocument extends Struct
 {
-    /**
-     * Mirrors DocumentFormat::PDF; constructor defaults must be constant expressions, so the enum cannot be called here.
-     */
-    private const FILE_EXTENSION = 'pdf';
-
-    private const FILE_CONTENT_TYPE = 'application/pdf';
-
     private string $template = '';
 
     private ?OrderEntity $order = null;
@@ -36,9 +28,9 @@ class RenderedDocument extends Struct
     public function __construct(
         private readonly string $number = '',
         private string $name = '',
-        private string $fileExtension = self::FILE_EXTENSION,
+        private string $fileExtension = PdfRenderer::FILE_EXTENSION,
         private readonly array $config = [],
-        private ?string $contentType = self::FILE_CONTENT_TYPE,
+        private ?string $contentType = PdfRenderer::FILE_CONTENT_TYPE,
         private string $content = ''
     ) {
     }
@@ -65,7 +57,7 @@ class RenderedDocument extends Struct
 
     public function getContentType(): string
     {
-        return $this->contentType ?? self::FILE_CONTENT_TYPE;
+        return $this->contentType ?? PdfRenderer::FILE_CONTENT_TYPE;
     }
 
     public function setContentType(?string $contentType): void

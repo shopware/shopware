@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;

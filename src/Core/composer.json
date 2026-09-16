@@ -10,8 +10,7 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "Framework/Deprecation/class_aliases.php"
+            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
         "psr-4": {
             "Shopware\\Core\\": ""

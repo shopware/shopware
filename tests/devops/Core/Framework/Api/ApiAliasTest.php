@@ -46,12 +46,6 @@ class ApiAliasTest extends TestCase
 
             $reflector = new \ReflectionClass($class);
 
-            if ($reflector->getName() !== $class) {
-                // A class alias resolves to the class it points at, so the same class would be counted twice. Only
-                // two distinct classes sharing an alias are a conflict.
-                continue;
-            }
-
             if ($reflector->isAbstract()) {
                 continue;
             }

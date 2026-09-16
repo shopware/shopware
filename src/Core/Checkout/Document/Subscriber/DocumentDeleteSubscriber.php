@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Document\Subscriber;
 
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
-use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
-use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Defaults;

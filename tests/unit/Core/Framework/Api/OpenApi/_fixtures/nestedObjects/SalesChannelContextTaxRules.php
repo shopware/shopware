@@ -10,22 +10,21 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class SalesChannelContextTaxRules extends AbstractDto
 {
+    public string $name;
+
     /**
      * @internal
      */
     public function __construct(
         #[Assert\NotNull]
         public float $taxRate,
-        public ?string $name = null,
     ) {
     }
 }

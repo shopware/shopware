@@ -10,7 +10,7 @@ abstract class AbstractDto
     /**
      * @var array<string, array<string, mixed>>|null
      */
-    public ?array $extensions = null;
+    public ?array $extensions;
 
     /**
      * @param array<string, mixed> $extension
@@ -57,14 +57,17 @@ abstract class AbstractDto
      */
     public function setExtensions(array $extensions): void
     {
-        $this->extensions = $extensions === [] ? null : $extensions;
+        $this->extensions = $extensions;
+        if ($extensions === []) {
+            unset($this->extensions);
+        }
     }
 
     public function removeExtension(string $name): void
     {
         unset($this->extensions[$name]);
-        if ($this->extensions === []) {
-            $this->extensions = null;
+        if (($this->extensions ?? []) === []) {
+            unset($this->extensions);
         }
     }
 }

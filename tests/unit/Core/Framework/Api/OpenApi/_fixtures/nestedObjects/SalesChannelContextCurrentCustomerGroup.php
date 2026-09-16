@@ -10,28 +10,28 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * Customer group of the current user
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class SalesChannelContextCurrentCustomerGroup extends AbstractDto
 {
+    /**
+     * Name of the group
+     */
+    public string $name;
+
+    /**
+     * Whether prices are displayed gross
+     */
+    public bool $displayGross;
+
     /**
      * @internal
      */
     public function __construct(
-        /**
-         * Name of the group
-         */
-        public ?string $name = null,
-        /**
-         * Whether prices are displayed gross
-         */
-        public ?bool $displayGross = null,
     ) {
     }
 }

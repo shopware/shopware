@@ -10,23 +10,23 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class NullableUnion extends AbstractDto
 {
+    public ?string $value;
+
+    /**
+     * Nullable count using type array
+     */
+    public ?int $count;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?string $value = null,
-        /**
-         * Nullable count using type array
-         */
-        public ?int $count = null,
     ) {
     }
 }

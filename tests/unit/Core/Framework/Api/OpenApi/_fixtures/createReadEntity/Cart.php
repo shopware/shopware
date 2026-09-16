@@ -11,7 +11,6 @@ namespace App\DTO;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,9 +18,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class Cart extends AbstractResponse
 {
+    /**
+     * @var list<LineItem> Initial line items to add to the cart
+     */
+    #[Assert\Valid]
+    public array $lineItems;
+
+    /**
+     * Date and time the cart was last modified
+     */
+    #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
+    public string $updatedAt;
+
     /**
      * @internal
      */
@@ -43,16 +53,6 @@ final class Cart extends AbstractResponse
         #[Assert\NotBlank]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
-        /**
-         * @var list<LineItem> Initial line items to add to the cart
-         */
-        #[Assert\Valid]
-        public ?array $lineItems = null,
-        /**
-         * Date and time the cart was last modified
-         */
-        #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
-        public ?string $updatedAt = null,
     ) {
         parent::__construct();
     }

@@ -4,14 +4,13 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-09-16 07:53:16
+ * Last generated: 2026-09-16 14:46:07
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -20,7 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @codeCoverageIgnore
  */
 #[Package('checkout')]
-#[JsonStreamable]
 final class ReadNewsletterRecipientStatusResponse extends AbstractResponse
 {
     /**

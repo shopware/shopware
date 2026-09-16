@@ -10,7 +10,6 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,9 +17,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class NavigationType extends AbstractDto
 {
+    /**
+     * Type of the link if type is link
+     */
+    #[Assert\Choice(choices: ['external', 'category', 'product', 'landing_page'])]
+    public string $linkType;
+
     /**
      * @internal
      */
@@ -37,11 +41,6 @@ final class NavigationType extends AbstractDto
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['frontend.navigation.page', 'frontend.landing.page', 'frontend.detail.page'])]
         public string $routeName,
-        /**
-         * Type of the link if type is link
-         */
-        #[Assert\Choice(choices: ['external', 'category', 'product', 'landing_page'])]
-        public ?string $linkType = null,
     ) {
     }
 }

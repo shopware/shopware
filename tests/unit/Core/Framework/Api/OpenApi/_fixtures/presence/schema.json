@@ -1,0 +1,17 @@
+{
+    "components": {
+        "schemas": {
+            "Presence": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "required": ["requiredValue", "requiredNullable"],
+                "properties": {
+                    "requiredValue": { "type": "string" },
+                    "requiredNullable": { "type": ["string", "null"] },
+                    "optionalValue": { "type": "string" },
+                    "optionalNullable": { "type": ["string", "null"] }
+                }
+            }
+        }
+    }
+}

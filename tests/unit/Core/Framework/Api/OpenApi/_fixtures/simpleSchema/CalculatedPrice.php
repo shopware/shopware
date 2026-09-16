@@ -10,20 +10,20 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class CalculatedPrice extends AbstractDto
 {
+    public float $unitPrice;
+
+    public float $totalPrice;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?float $unitPrice = null,
-        public ?float $totalPrice = null,
     ) {
     }
 }

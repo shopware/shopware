@@ -10,15 +10,40 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class CreateItemsRequest extends AbstractRequest
 {
+    /**
+     * @var list<int> Optional scores
+     */
+    #[Assert\All(new Assert\Type('int'))]
+    public array $scores;
+
+    /**
+     * @var list<bool> Boolean flags
+     */
+    #[Assert\Count(min: 1)]
+    #[Assert\All(new Assert\Type('bool'))]
+    public array $flags;
+
+    /**
+     * @var list<string> Non-blank strings
+     */
+    #[Assert\Count(min: 1)]
+    #[Assert\All([new Assert\Type('string'), new Assert\Length(min: 1)])]
+    public array $vatIds;
+
+    /**
+     * Untyped array
+     *
+     * @var array<string, mixed>
+     */
+    public array $untyped;
+
     /**
      * @internal
      */
@@ -37,29 +62,6 @@ final class CreateItemsRequest extends AbstractRequest
         #[Assert\Count(min: 2)]
         #[Assert\All(new Assert\Type('string'))]
         public array $ids,
-        /**
-         * @var list<int> Optional scores
-         */
-        #[Assert\All(new Assert\Type('int'))]
-        public ?array $scores = null,
-        /**
-         * @var list<bool> Boolean flags
-         */
-        #[Assert\Count(min: 1)]
-        #[Assert\All(new Assert\Type('bool'))]
-        public ?array $flags = null,
-        /**
-         * @var list<string> Non-blank strings
-         */
-        #[Assert\Count(min: 1)]
-        #[Assert\All([new Assert\Type('string'), new Assert\Length(min: 1)])]
-        public ?array $vatIds = null,
-        /**
-         * Untyped array
-         *
-         * @var array<string, mixed>
-         */
-        public ?array $untyped = null,
     ) {
     }
 }

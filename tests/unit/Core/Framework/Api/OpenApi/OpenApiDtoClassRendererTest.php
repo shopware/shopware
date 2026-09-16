@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 
+use App\DTO\ConstValues;
+use App\DTO\Presence;
 use App\DTO\WireNames;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -10,18 +12,19 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoType;
+use Shopware\Core\Framework\Api\Serializer\DtoNormalizer;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\JsonStreamer\JsonStreamWriter;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -30,12 +33,59 @@ use Symfony\Component\TypeInfo\Type;
 #[CoversClass(OpenApiDtoClassRenderer::class)]
 class OpenApiDtoClassRendererTest extends TestCase
 {
-    public function testGeneratedWireNamesWorkWithBothSerializers(): void
+    public function testGeneratedConstantsValidateWithoutDefaults(): void
+    {
+        require_once __DIR__ . '/_fixtures/constants/ConstValues.php';
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $dto = new ConstValues('fixed');
+
+        static::assertSame(['kind' => 'fixed'], get_object_vars($dto));
+        static::assertCount(0, $validator->validate($dto));
+
+        $dto->optionalKind = 'fixed';
+        $dto->enabled = false;
+        $dto->count = 0;
+        $dto->ratio = 1.0;
+        $dto->quoted = 'it\'s\\fixed';
+        static::assertCount(0, $validator->validate($dto));
+
+        $dto->kind = 'wrong';
+        $dto->optionalKind = 'wrong';
+        $dto->enabled = true;
+        $dto->count = 1;
+        $dto->ratio = 2.0;
+        $dto->quoted = 'wrong';
+        static::assertCount(6, $validator->validate($dto));
+    }
+
+    public function testOnlyRequiredPropertiesArePromotedConstructorParameters(): void
+    {
+        require_once __DIR__ . '/_fixtures/presence/Presence.php';
+        $reflection = new \ReflectionClass(Presence::class);
+
+        foreach ($reflection->getProperties() as $property) {
+            static::assertSame(
+                \in_array($property->getName(), ['requiredValue', 'requiredNullable'], true),
+                $property->isPromoted(),
+                $property->getName(),
+            );
+        }
+
+        $constructor = $reflection->getConstructor();
+        static::assertNotNull($constructor);
+        static::assertSame(
+            ['requiredValue', 'requiredNullable'],
+            array_map(static fn (\ReflectionParameter $parameter): string => $parameter->getName(), $constructor->getParameters()),
+        );
+        static::assertSame(2, $constructor->getNumberOfRequiredParameters());
+    }
+
+    public function testGeneratedWireNamesWorkWithSerializer(): void
     {
         require_once __DIR__ . '/_fixtures/wire-names/WireNames.php';
 
         $metadata = new ClassMetadataFactory(new AttributeLoader());
-        $serializer = new Serializer([new ObjectNormalizer($metadata, new MetadataAwareNameConverter($metadata))]);
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer($metadata, new MetadataAwareNameConverter($metadata)))], [new JsonEncoder()]);
         $data = [
             'total-count-mode' => 2,
             'post-filter' => 'filter',
@@ -48,10 +98,7 @@ class OpenApiDtoClassRendererTest extends TestCase
         static::assertInstanceOf(WireNames::class, $dto);
         static::assertSame(2, $dto->totalCountMode);
         static::assertSame('filter', $dto->postFilter);
-        static::assertSame(['extensions' => [], ...$data], $serializer->normalize($dto));
-
-        $json = (string) JsonStreamWriter::create()->write($dto, Type::object($dto::class));
-        static::assertSame($data, json_decode($json, true, flags: \JSON_THROW_ON_ERROR));
+        static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
     }
 
     public function testNativeEnumDefinitionIsRenderedAsBackedEnum(): void
@@ -257,10 +304,10 @@ class OpenApiDtoClassRendererTest extends TestCase
 
         $rendered = $this->renderDefinition($this->definitionByName($definitions, 'Criteria'));
 
-        static::assertStringContainsString('public TotalCountMode $totalCountMode = TotalCountMode::NONE,', $rendered);
+        static::assertStringContainsString('public TotalCountMode $totalCountMode = TotalCountMode::NONE;', $rendered);
     }
 
-    public function testStringConstIsRenderedAsPropertyDefault(): void
+    public function testRequiredPropertyRemainsRequiredWithSchemaConst(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([
             'openapi' => '3.1.0',
@@ -284,7 +331,8 @@ class OpenApiDtoClassRendererTest extends TestCase
 
         $response = $this->renderDefinition($this->definitionByName($definitions, 'Response'));
 
-        static::assertStringContainsString('public string $apiAlias = \'account_newsletter_recipient\',', $response);
+        static::assertStringContainsString('public string $apiAlias,', $response);
+        static::assertStringContainsString('#[Assert\\IdenticalTo(value: \'account_newsletter_recipient\')]', $response);
     }
 
     public function testReferencedMapSchemasAreRenderedAsTypedArrays(): void
@@ -326,9 +374,9 @@ class OpenApiDtoClassRendererTest extends TestCase
         $criteria = $this->renderDefinition($this->definitionByName($definitions, 'Criteria'));
 
         static::assertStringContainsString('@var array<string, Criteria>', $criteria);
-        static::assertStringContainsString('public ?array $associations = null,', $criteria);
+        static::assertStringContainsString('public array $associations;', $criteria);
         static::assertStringContainsString('@var array<string, list<string>>', $criteria);
-        static::assertStringContainsString('public ?array $includes = null,', $criteria);
+        static::assertStringContainsString('public array $includes;', $criteria);
         static::assertStringNotContainsString('public ?Associations $associations = null,', $criteria);
         static::assertSame(1, substr_count($criteria, '#[Assert\\Valid]'));
     }
@@ -388,7 +436,7 @@ class OpenApiDtoClassRendererTest extends TestCase
         $request = $this->renderDefinition($this->definitionByName($definitions, 'ReadNewsletterRecipientRequest'));
 
         static::assertStringContainsString('#[Assert\\Valid]', $request);
-        static::assertStringContainsString('public ?Criteria $criteria = null,', $request);
+        static::assertStringContainsString('public Criteria $criteria;', $request);
         static::assertStringNotContainsString('public ?array $sort = null,', $request);
         static::assertSame('Criteria', $this->definitionByName($definitions, 'Criteria')->name);
         static::assertSame('Sort', $this->definitionByName($definitions, 'Sort')->name);
@@ -525,13 +573,13 @@ class OpenApiDtoClassRendererTest extends TestCase
         $nestedCountAggregation = $this->renderDefinition($this->definitionByName($definitions, 'NestedCountAggregation'));
 
         static::assertStringContainsString('@var list<EqualsFilter|RangeFilter>', $criteria);
-        static::assertStringContainsString('public ?array $filter = null,', $criteria);
-        static::assertStringContainsString('public EqualsFilter|RangeFilter|null $query = null,', $criteria);
+        static::assertStringContainsString('public array $filter;', $criteria);
+        static::assertStringContainsString('public EqualsFilter|RangeFilter|null $query;', $criteria);
         static::assertStringContainsString('@var list<AverageAggregation|NestedCountAggregation>', $criteria);
         static::assertSame(3, substr_count($criteria, '#[Assert\\Valid]'));
         static::assertSame('AverageAggregation', $this->definitionByName($definitions, 'AverageAggregation')->name);
-        static::assertStringContainsString('public ?string $field = null,', $nestedCountAggregation);
-        static::assertStringContainsString('public ?AverageAggregation $aggregation = null,', $nestedCountAggregation);
+        static::assertStringContainsString('public string $field;', $nestedCountAggregation);
+        static::assertStringContainsString('public AverageAggregation $aggregation;', $nestedCountAggregation);
         static::assertNotContains('SubAggregations', array_map(
             static fn (OpenApiDtoDefinition $definition): string => $definition->name,
             $definitions,

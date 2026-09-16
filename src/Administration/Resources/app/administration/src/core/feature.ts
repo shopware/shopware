@@ -87,6 +87,8 @@ export function reportDeprecation(isMajorActive: boolean, message: string): void
 
     const callSite = resolveCallSite();
 
+    // The canonical emitter: this is the call every other deprecation notice routes through.
+    // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices
     warn('Deprecation', callSite ? `${message}\n    at ${callSite}` : message);
 }
 

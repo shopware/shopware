@@ -193,6 +193,55 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(message).toEqual(expect.stringContaining('6.4.0'));
     });
 
+    it('[prop] should guard a deprecated prop supplied at its default value', async () => {
+        component = createComponent({
+            customComponent: {
+                props: {
+                    examplePropertyTest: {
+                        type: String,
+                        required: false,
+                        deprecated: '6.4.0',
+                        default: 'Lorem ipsum',
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    examplePropertyTest: 'Lorem ipsum',
+                },
+            },
+        });
+
+        expect(guard).toHaveBeenCalledWith('V6_4_0_0', expect.stringContaining('examplePropertyTest'));
+    });
+
+    it('[prop] should guard a camelCase prop supplied with its kebab-case attribute name', async () => {
+        component = createComponent({
+            customComponent: {
+                template: '<deprecated-component example-property-test="value" />',
+            },
+
+            customGlobalOptions: {
+                stubs: {
+                    'deprecated-component': {
+                        name: 'deprecated-component',
+                        template: '<div></div>',
+                        props: {
+                            examplePropertyTest: {
+                                type: String,
+                                required: false,
+                                deprecated: '6.4.0',
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(guard).toHaveBeenCalledWith('V6_4_0_0', expect.stringContaining('examplePropertyTest'));
+    });
+
     it('[prop] should append the component trace, so two usage sites are reported separately', async () => {
         component = createComponent({
             customComponent: {

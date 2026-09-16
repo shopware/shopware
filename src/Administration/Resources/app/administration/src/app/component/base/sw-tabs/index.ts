@@ -36,12 +36,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return true;
             }
 
-            if (Shopware.Feature.isActive('V6_8_0_0')) {
-                Shopware.Utils.debug.warn(
-                    'sw-tabs',
-                    'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
-                );
-            }
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
+            );
 
             return false;
         },

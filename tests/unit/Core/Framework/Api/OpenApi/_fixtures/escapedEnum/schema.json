@@ -1,0 +1,15 @@
+{
+    "components": {
+        "schemas": {
+            "SpecialValue": {
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "type": "string",
+                "enum": [
+                    "foo'\\bar",
+                    "foo-bar"
+                ]
+            }
+        }
+    }
+}

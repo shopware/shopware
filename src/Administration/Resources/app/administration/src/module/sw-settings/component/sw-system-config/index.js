@@ -325,7 +325,43 @@ export default {
                 bind.config.helpText = this.$t('sw-settings.system-config.scssHelpText') + element.config.css;
             }
 
+            bind.config.disabled = bind.config.disabled || this.isElementDisabled(element);
+
             return bind;
+        },
+
+        getConfigValue(name) {
+            const currentConfig = this.actualConfigData[this.currentSalesChannelId] ?? {};
+
+            if (Object.prototype.hasOwnProperty.call(currentConfig, name)) {
+                return currentConfig[name];
+            }
+
+            return this.actualConfigData.null?.[name];
+        },
+
+        isElementDisabled(element) {
+            const dependency = element.config?.dependsOn;
+
+            return dependency !== undefined && this.getConfigValue(dependency) === false;
+        },
+
+        updateElementValue(element, props, value) {
+            props.updateCurrentValue(value);
+
+            if (value !== false) {
+                return;
+            }
+
+            this.config.forEach((card) => {
+                card.elements?.forEach((dependentElement) => {
+                    if (dependentElement.config?.dependsOn !== element.name) {
+                        return;
+                    }
+
+                    this.actualConfigData[this.currentSalesChannelId][dependentElement.name] = false;
+                });
+            });
         },
 
         getInheritWrapperBind(element) {
@@ -449,6 +485,7 @@ export default {
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
             bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
+            bind.disabled = bind.disabled || this.isElementDisabled(element);
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {
@@ -485,7 +522,7 @@ export default {
         getMeteorElementEventsHandler(element, mapInheritance) {
             const eventHandler = {};
 
-            eventHandler['update:value'] = mapInheritance?.updateCurrentValue;
+            eventHandler['update:value'] = (value) => this.updateElementValue(element, mapInheritance, value);
             eventHandler['inheritance-remove'] = mapInheritance?.removeInheritance;
             eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
 

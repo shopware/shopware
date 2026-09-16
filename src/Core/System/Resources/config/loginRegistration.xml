@@ -129,6 +129,7 @@
 
         <input-field type="bool">
             <name>nameFieldsRequiredForCompanyAccounts</name>
+            <dependsOn>core.loginRegistration.showNameFieldsForCompanyAccounts</dependsOn>
             <label>First and last name required for company accounts</label>
             <label lang="de-DE">Vor- und Nachname sind Pflichtfelder für Geschäftskonten</label>
             <helpText>A company account is identified by its company name. Turn this off to let commercial customers register without a contact person.</helpText>

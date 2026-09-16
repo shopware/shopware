@@ -88,7 +88,7 @@
                                     :disabled="props.isInherited"
                                     :value="props.currentValue"
                                     :error="getFieldError(element.name)"
-                                    @update:value="props.updateCurrentValue"
+                                    @update:value="updateElementValue(element, props, $event)"
                                 />
                             </template>
                         </sw-inherit-wrapper>

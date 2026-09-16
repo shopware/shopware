@@ -1620,4 +1620,95 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
         expect(wrapper.find('.test-scope-setup').text()).toBe('global');
     });
+
+    it('should disable a dependent field when its dependency is disabled', async () => {
+        const dependency = 'ConfigRenderer.config.showNameFields';
+        const dependent = 'ConfigRenderer.config.nameFieldsRequired';
+        const dependentElement = {
+            name: dependent,
+            type: 'bool',
+            config: {
+                dependsOn: dependency,
+            },
+        };
+
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        [dependency]: false,
+                    },
+                },
+            },
+            [
+                {
+                    title: { 'en-GB': 'Dependency card' },
+                    elements: [
+                        {
+                            name: dependency,
+                            type: 'bool',
+                            config: {},
+                        },
+                        dependentElement,
+                    ],
+                },
+            ],
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.getElementBind(dependentElement, {}).config.disabled).toBe(true);
+        expect(wrapper.vm.getMeteorElementBind(dependentElement, {}).disabled).toBe(true);
+    });
+
+    it('should keep a dependent field enabled and clear it when its dependency is disabled', async () => {
+        const dependency = 'ConfigRenderer.config.showNameFields';
+        const dependent = 'ConfigRenderer.config.nameFieldsRequired';
+        const config = [
+            {
+                title: { 'en-GB': 'Dependency card' },
+                elements: [
+                    {
+                        name: dependency,
+                        type: 'bool',
+                        config: {},
+                    },
+                    {
+                        name: dependent,
+                        type: 'bool',
+                        config: {
+                            dependsOn: dependency,
+                        },
+                    },
+                ],
+            },
+        ];
+
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        [dependency]: true,
+                        [dependent]: true,
+                    },
+                },
+            },
+            config,
+        );
+        await flushPromises();
+
+        const dependencyElement = config[0].elements[0];
+        const dependencyProps = {
+            updateCurrentValue: (value) => {
+                wrapper.vm.actualConfigData.null[dependency] = value;
+            },
+        };
+
+        expect(wrapper.vm.getElementBind(config[0].elements[1], {}).config.disabled).toBe(false);
+
+        wrapper.vm.updateElementValue(dependencyElement, dependencyProps, false);
+
+        expect(wrapper.vm.actualConfigData.null[dependency]).toBe(false);
+        expect(wrapper.vm.actualConfigData.null[dependent]).toBe(false);
+        expect(wrapper.vm.getElementBind(config[0].elements[1], {}).config.disabled).toBe(true);
+    });
 });

@@ -436,7 +436,7 @@ class StoreApiGeneratorTest extends TestCase
         );
 
         static::assertArrayHasKey('swContextSource', $schema['components']['parameters']);
-        static::assertSame(['session'], $schema['components']['parameters']['swContextSource']['schema']['enum']);
+        static::assertSame('session', $schema['components']['parameters']['swContextSource']['schema']['const']);
 
         $assertedDeleteOperation = false;
         $assertedSkippedOperation = false;

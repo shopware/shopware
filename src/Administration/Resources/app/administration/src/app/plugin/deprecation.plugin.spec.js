@@ -164,6 +164,35 @@ describe('app/plugins/deprecated.plugin', () => {
         expect(message).toEqual(expect.stringContaining('6.4.0'));
     });
 
+    it('[prop] should name the component, the property and the removal version in object notation', async () => {
+        component = createComponent({
+            customComponent: {
+                props: {
+                    examplePropertyTest: {
+                        type: String,
+                        required: false,
+                        deprecated: {
+                            version: '6.4.0',
+                        },
+                        default: 'Lorem ipsum',
+                    },
+                },
+            },
+
+            customOptions: {
+                props: {
+                    examplePropertyTest: 'Test',
+                },
+            },
+        });
+
+        const message = guard.mock.calls[0][1];
+
+        expect(message).toEqual(expect.stringContaining('base-component'));
+        expect(message).toEqual(expect.stringContaining('examplePropertyTest'));
+        expect(message).toEqual(expect.stringContaining('6.4.0'));
+    });
+
     it('[prop] should append the component trace, so two usage sites are reported separately', async () => {
         component = createComponent({
             customComponent: {

@@ -90,6 +90,7 @@ class ServiceSourceResolver implements Source
 
         try {
             $zipData = $this->client->fetchServiceZip($zipUrl);
+            $this->io->remove($destination);
             $this->io->mkdir($destination);
             foreach ($zipData as $chunk) {
                 $this->io->appendToFile($localZipLocation, $chunk->getContent());

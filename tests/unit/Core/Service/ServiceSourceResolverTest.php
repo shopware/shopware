@@ -20,6 +20,7 @@ use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Contracts\HttpClient\ChunkInterface;
 
 /**
@@ -121,6 +122,52 @@ class ServiceSourceResolverTest extends TestCase
         $result = $source->filesystemForVersion($appInfo);
 
         static::assertSame('/tmp/test/TestService', $result->location);
+    }
+
+    public function testFilesystemForVersionRemovesFilesFromPreviousVersion(): void
+    {
+        $filesystem = new Filesystem();
+        $temporaryDirectory = Path::join(sys_get_temp_dir(), 'service-source-resolver-' . Uuid::randomHex());
+        $serviceDirectory = Path::join($temporaryDirectory, 'TestService');
+        $staleFile = Path::join($serviceDirectory, 'stale-file.php');
+        $freshFile = Path::join($serviceDirectory, 'fresh-file.php');
+
+        $filesystem->dumpFile($staleFile, 'stale');
+
+        $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
+        $temporaryDirectoryFactory->method('path')->willReturn($temporaryDirectory);
+
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())
+            ->method('fetchServiceZip')
+            ->willReturn($this->createChunkGenerator(['new-version']));
+
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $appExtractor->expects($this->once())
+            ->method('extract')
+            ->willReturnCallback(static function () use ($filesystem, $staleFile, $freshFile, $serviceDirectory): string {
+                static::assertFileDoesNotExist($staleFile);
+                $filesystem->dumpFile($freshFile, 'fresh');
+
+                return $serviceDirectory;
+            });
+
+        try {
+            $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
+            $source->filesystemForVersion(new AppInfo(
+                'TestService',
+                '2.0.0',
+                'def456',
+                '2.0.0-def456',
+                'https://example.com/app.zip',
+                ['service_consent'],
+            ));
+
+            static::assertFileDoesNotExist($staleFile);
+            static::assertFileExists($freshFile);
+        } finally {
+            $filesystem->remove($temporaryDirectory);
+        }
     }
 
     public function testFilesystemWhenAppExists(): void
@@ -330,9 +377,15 @@ class ServiceSourceResolverTest extends TestCase
             ->willThrowException(new AppArchiveValidationFailure(400, 'INVALID_ARCHIVE', 'Invalid archive'));
 
         // Should still clean up the zip file even if extraction fails
-        $filesystem->expects($this->once())
+        $expectedRemovals = [
+            '/tmp/test/FailingExtraction',
+            '/tmp/test/FailingExtraction/FailingExtraction.zip',
+        ];
+        $filesystem->expects($this->exactly(2))
             ->method('remove')
-            ->with('/tmp/test/FailingExtraction/FailingExtraction.zip');
+            ->willReturnCallback(static function (string $path) use (&$expectedRemovals): void {
+                static::assertSame(array_shift($expectedRemovals), $path);
+            });
 
         $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
@@ -382,7 +435,7 @@ class ServiceSourceResolverTest extends TestCase
             ->method('appendToFile')
             ->willThrowException($underlyingException);
 
-        $filesystem->expects($this->once())
+        $filesystem->expects($this->exactly(2))
             ->method('remove')
             ->with('/tmp/test/WriteFailService');
 
@@ -446,9 +499,15 @@ class ServiceSourceResolverTest extends TestCase
             )
             ->willReturn(\sprintf('/tmp/test/%s', $appName));
 
-        $filesystem->expects($this->once())
+        $expectedRemovals = [
+            \sprintf('/tmp/test/%s', $appName),
+            \sprintf('/tmp/test/%s/%s.zip', $appName, $appName),
+        ];
+        $filesystem->expects($this->exactly(2))
             ->method('remove')
-            ->with(\sprintf('/tmp/test/%s/%s.zip', $appName, $appName));
+            ->willReturnCallback(static function (string $path) use (&$expectedRemovals): void {
+                static::assertSame(array_shift($expectedRemovals), $path);
+            });
     }
 
     /**

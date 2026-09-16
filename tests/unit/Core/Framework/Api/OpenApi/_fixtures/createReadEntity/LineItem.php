@@ -10,7 +10,6 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,9 +17,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class LineItem extends AbstractDto
 {
+    /**
+     * Display label
+     */
+    public string $label;
+
     /**
      * @internal
      */
@@ -36,10 +39,6 @@ final class LineItem extends AbstractDto
          */
         #[Assert\NotNull]
         public int $quantity,
-        /**
-         * Display label
-         */
-        public ?string $label = null,
     ) {
     }
 }

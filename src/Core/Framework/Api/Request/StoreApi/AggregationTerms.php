@@ -4,23 +4,35 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-14 11:56:12
+ * Last generated: 2026-09-16 14:46:07
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
 use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-#[JsonStreamable]
 final class AggregationTerms extends AbstractDto
 {
+    /**
+     * The number of terms to return
+     */
+    public float $limit;
+
+    /**
+     * @var list<Sort> Sorting the aggregation result.
+     */
+    #[Assert\Valid]
+    public array $sort;
+
+    #[Assert\Valid]
+    public AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange $aggregation;
+
     /**
      * @internal
      */
@@ -31,27 +43,16 @@ final class AggregationTerms extends AbstractDto
         #[Assert\NotBlank]
         public string $name,
         /**
-         * The field you want to aggregate over.
-         */
-        #[Assert\NotBlank]
-        public string $field,
-        /**
          * The type of aggregation
          */
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['terms'])]
-        public string $type = 'terms',
+        public string $type,
         /**
-         * The number of terms to return
+         * The field you want to aggregate over.
          */
-        public ?float $limit = null,
-        /**
-         * @var list<Sort> Sorting the aggregation result.
-         */
-        #[Assert\Valid]
-        public ?array $sort = null,
-        #[Assert\Valid]
-        public AggregationMetrics|AggregationEntity|AggregationFilter|AggregationTerms|AggregationHistogram|AggregationRange|null $aggregation = null,
+        #[Assert\NotBlank]
+        public string $field,
     ) {
     }
 }

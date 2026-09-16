@@ -4,23 +4,25 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-14 11:56:12
+ * Last generated: 2026-09-16 14:46:07
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
 
 use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-#[JsonStreamable]
 final class Sort extends AbstractDto
 {
+    public bool $naturalSorting;
+
+    public string $type;
+
     /**
      * @internal
      */
@@ -30,8 +32,6 @@ final class Sort extends AbstractDto
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['ASC', 'DESC'])]
         public string $order,
-        public ?bool $naturalSorting = null,
-        public ?string $type = null,
     ) {
     }
 }

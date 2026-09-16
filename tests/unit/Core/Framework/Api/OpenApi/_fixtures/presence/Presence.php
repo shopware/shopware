@@ -9,27 +9,25 @@
 
 namespace App\DTO;
 
-use Shopware\Core\Framework\Api\Response\AbstractResponse;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Category list
- *
  * @codeCoverageIgnore
  */
-final class ReadCategoriesResponse extends AbstractResponse
+final class Presence extends AbstractDto
 {
-    /**
-     * @var list<Category>
-     */
-    #[Assert\Valid]
-    public array $elements;
+    public string $optionalValue;
+
+    public ?string $optionalNullable;
 
     /**
      * @internal
      */
     public function __construct(
+        #[Assert\NotBlank]
+        public string $requiredValue,
+        public ?string $requiredNullable,
     ) {
-        parent::__construct();
     }
 }

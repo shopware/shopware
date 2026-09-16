@@ -10,7 +10,6 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,9 +17,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class SendContactMailRequest extends AbstractRequest
 {
+    /**
+     * Identifier of the salutation.
+     */
+    #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
+    public string $salutationId;
+
+    public string $firstName;
+
+    public string $lastName;
+
     /**
      * @internal
      */
@@ -40,13 +48,6 @@ final class SendContactMailRequest extends AbstractRequest
          */
         #[Assert\NotBlank]
         public string $comment,
-        /**
-         * Identifier of the salutation.
-         */
-        #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
-        public ?string $salutationId = null,
-        public ?string $firstName = null,
-        public ?string $lastName = null,
     ) {
     }
 }

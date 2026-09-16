@@ -10,24 +10,23 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class ErrorResponse extends AbstractDto
 {
+    /**
+     * @var list<Error>
+     */
+    #[Assert\Valid]
+    public array $errors;
+
     /**
      * @internal
      */
     public function __construct(
-        /**
-         * @var list<Error>
-         */
-        #[Assert\Valid]
-        public ?array $errors = null,
     ) {
     }
 }

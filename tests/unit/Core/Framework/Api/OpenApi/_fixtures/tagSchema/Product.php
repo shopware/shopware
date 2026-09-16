@@ -10,15 +10,16 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class Product extends AbstractDto
 {
+    #[Assert\Valid]
+    public Media $cover;
+
     /**
      * @internal
      */
@@ -28,8 +29,6 @@ final class Product extends AbstractDto
         public string $id,
         #[Assert\NotBlank]
         public string $name,
-        #[Assert\Valid]
-        public ?Media $cover = null,
     ) {
     }
 }

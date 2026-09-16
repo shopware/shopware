@@ -34,6 +34,7 @@ final readonly class OpenApiDtoProperty
         public ?string $arrayMapValueType = null,
         public bool $nativeEnum = false,
         public ?string $schemaName = null,
+        public string|int|float|bool|null $constValue = null,
     ) {
     }
 }

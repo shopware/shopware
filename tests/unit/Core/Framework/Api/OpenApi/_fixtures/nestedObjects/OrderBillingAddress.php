@@ -10,7 +10,6 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,9 +17,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class OrderBillingAddress extends AbstractDto
 {
+    /**
+     * Country details
+     */
+    #[Assert\Valid]
+    public OrderBillingAddressCountry $country;
+
     /**
      * @internal
      */
@@ -31,11 +35,6 @@ final class OrderBillingAddress extends AbstractDto
         public string $city,
         #[Assert\NotBlank]
         public string $zipcode,
-        /**
-         * Country details
-         */
-        #[Assert\Valid]
-        public ?OrderBillingAddressCountry $country = null,
     ) {
     }
 }

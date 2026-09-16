@@ -140,8 +140,11 @@ handleGet((data, additionalOptions) => {
             `The extension "${extension.name}" uses a deprecated data set "${data.id}". ${registeredDataSet.deprecationMessage}`,
         ];
         if (process.env.NODE_ENV !== 'production') {
+            // A data set carries no removal version, so there is no major flag to guard with.
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices
             Shopware.Utils.debug.error(...debugArgs);
         } else {
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices
             Shopware.Utils.debug.warn(...debugArgs);
         }
     }

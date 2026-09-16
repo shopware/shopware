@@ -91,7 +91,9 @@ class DeprecationPlugin {
                 if (!_instance) return;
 
                 const { props } = _instance.type;
-                const propsData = _instance.props;
+                // The raw vnode props, not the resolved ones: only these say whether the caller
+                // supplied the prop at all, rather than Vue having filled in its default.
+                const propsData = _instance.vnode.props ?? {};
 
                 const deprecatedProps = _this.getDeprecatedProps(props);
 
@@ -169,7 +171,8 @@ class DeprecationPlugin {
     }
 
     /**
-     * Returns the deprecated props which are in the usedProps
+     * Returns the deprecated props the caller actually supplied. A template writes a camelCase prop
+     * with its kebab-case attribute name, so both spellings have to be looked for.
      *
      * @param {Object} usedProps
      * @param {Object} deprecatedProps
@@ -184,28 +187,10 @@ class DeprecationPlugin {
                     prop,
                 ],
             ) => {
-                // The deprecated property exists in the current instance props
-                if (usedProps.hasOwnProperty(propKey)) {
-                    // If the deprecated property has a default?
-                    // Then it will also be in the current props with the default value
-                    if (prop.hasOwnProperty('default')) {
-                        // Only add the prop to the used deprecated props if the value differs from the default
-                        // Prop default function
-                        if (typeof prop.default === 'function' && prop.default() !== usedProps[propKey]) {
-                            acc[propKey] = prop.deprecated;
-                            return acc;
-                        }
+                const kebabCasePropKey = propKey.replace(/\B([A-Z])/g, '-$1').toLowerCase();
 
-                        // Prop default scalar value
-                        if (prop.default !== usedProps[propKey]) {
-                            acc[propKey] = prop.deprecated;
-                            return acc;
-                        }
-
-                        return acc;
-                    }
-
-                    acc[propKey] = prop;
+                if (usedProps.hasOwnProperty(propKey) || usedProps.hasOwnProperty(kebabCasePropKey)) {
+                    acc[propKey] = prop.deprecated;
                 }
 
                 return acc;

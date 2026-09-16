@@ -1,4 +1,11 @@
 .sw-settings-customer-group-detail {
+    .sw-settings-customer-group-detail__price-separator {
+        width: 100%;
+        margin: 24px 0;
+        border: 0;
+        border-top: 1px solid var(--color-border-primary-default);
+    }
+
     .sw-settings-customer-group-detail__registration-form-switch {
         margin-top: 0;
         margin-bottom: 0;

@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-14 11:56:12
+ * Last generated: 2026-09-16 09:53:22
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -12,6 +12,8 @@ namespace Shopware\Core\Framework\Api\Request\StoreApi;
 use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
+use Symfony\Component\JsonStreamer\Attribute\StreamedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -62,6 +64,8 @@ final class Criteria extends AbstractDto
          * @var list<SimpleFilter|EqualsFilter|MultiNotFilter|RangeFilter> Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https://shopware.stoplight.io/docs/store-api/docs/concepts/search-queries.md#post-filter)
          */
         #[Assert\Valid]
+        #[SerializedName('post-filter')]
+        #[StreamedName('post-filter')]
         public ?array $postFilter = null,
         /**
          * @var list<Sort> Sorting in the search result.
@@ -86,6 +90,8 @@ final class Criteria extends AbstractDto
         /**
          * Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)
          */
+        #[SerializedName('total-count-mode')]
+        #[StreamedName('total-count-mode')]
         public TotalCountMode $totalCountMode = TotalCountMode::NONE,
         /**
          * @var array<string, list<string>>

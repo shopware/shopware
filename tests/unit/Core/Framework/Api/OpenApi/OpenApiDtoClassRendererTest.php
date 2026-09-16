@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 
+use App\DTO\WireNames;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
@@ -14,6 +15,13 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\JsonStreamer\JsonStreamWriter;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
+use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\TypeInfo\Type;
 
 /**
  * @internal
@@ -22,6 +30,30 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoClassRenderer::class)]
 class OpenApiDtoClassRendererTest extends TestCase
 {
+    public function testGeneratedWireNamesWorkWithBothSerializers(): void
+    {
+        require_once __DIR__ . '/_fixtures/wire-names/WireNames.php';
+
+        $metadata = new ClassMetadataFactory(new AttributeLoader());
+        $serializer = new Serializer([new ObjectNormalizer($metadata, new MetadataAwareNameConverter($metadata))]);
+        $data = [
+            'total-count-mode' => 2,
+            'post-filter' => 'filter',
+            'camelCase' => 'unchanged',
+            'snake_case' => 'snake',
+            'quote\'field' => 'quoted',
+        ];
+
+        $dto = $serializer->denormalize($data, WireNames::class);
+        static::assertInstanceOf(WireNames::class, $dto);
+        static::assertSame(2, $dto->totalCountMode);
+        static::assertSame('filter', $dto->postFilter);
+        static::assertSame(['extensions' => [], ...$data], $serializer->normalize($dto));
+
+        $json = (string) JsonStreamWriter::create()->write($dto, Type::object($dto::class));
+        static::assertSame($data, json_decode($json, true, flags: \JSON_THROW_ON_ERROR));
+    }
+
     public function testNativeEnumDefinitionIsRenderedAsBackedEnum(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([

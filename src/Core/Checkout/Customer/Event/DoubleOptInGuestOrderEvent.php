@@ -37,7 +37,7 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
     }
 
     /**

@@ -47,6 +47,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
+    public const CLONE_PROTECTED = 'FRAMEWORK__CLONE_PROTECTED';
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
@@ -236,6 +237,19 @@ class DataAbstractionLayerException extends HttpException
             self::CANNOT_CREATE_NEW_VERSION,
             'Cannot create new version. {{ entity }} by id {{ id }} not found.',
             ['entity' => $entity, 'id' => $id]
+        );
+    }
+
+    public static function cloneProtected(string $entity, string $scope): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CLONE_PROTECTED,
+            'The entity "{{ entity }}" is clone protected for your scope "{{ scope }}".',
+            [
+                'entity' => $entity,
+                'scope' => $scope,
+            ],
         );
     }
 

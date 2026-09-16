@@ -6,8 +6,11 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\WebhookNotPermittedError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 
 /**
@@ -16,8 +19,10 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 #[Package('framework')]
 class HookableValidator extends AbstractManifestValidator
 {
-    public function __construct(private readonly HookableEventCollector $hookableEventCollector)
-    {
+    public function __construct(
+        private readonly HookableEventCollector $hookableEventCollector,
+        private readonly PolicyRegistry $policies,
+    ) {
     }
 
     public function validate(Manifest $manifest, Context $context): ErrorCollection
@@ -36,11 +41,18 @@ class HookableValidator extends AbstractManifestValidator
         $hookableEventNames = array_keys($hookableEventNamesWithPrivileges);
 
         $notHookable = [];
+        $notPermitted = [];
         $missingPermissions = [];
         foreach ($webhooks as $webhook) {
             // validate supported webhooks
             if (!\in_array($webhook->getEvent(), $hookableEventNames, true)) {
                 $notHookable[] = $webhook->getName() . ': ' . $webhook->getEvent();
+
+                continue;
+            }
+
+            if (!$this->policies->permitsSubscription($webhook->getEvent(), Subscriber::app($manifest))) {
+                $notPermitted[] = $webhook->getName() . ': ' . $webhook->getEvent();
 
                 continue;
             }
@@ -57,6 +69,10 @@ class HookableValidator extends AbstractManifestValidator
 
         if (!empty($notHookable)) {
             $errors->add(new NotHookableError($notHookable));
+        }
+
+        if ($notPermitted !== []) {
+            $errors->add(new WebhookNotPermittedError($notPermitted));
         }
 
         if (!empty($missingPermissions)) {

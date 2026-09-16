@@ -4,14 +4,20 @@ namespace Shopware\Tests\DevOps\Core\DevOps\Docs\Command\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DocsAppEventCommand::class)]
 class DocsAppEventCommandTest extends TestCase
 {
@@ -33,5 +39,19 @@ class DocsAppEventCommandTest extends TestCase
             . 'Run command docs:app-system-events to get new the webhook-events-reference.md file' . \PHP_EOL
             . 'This file also need to be uploaded to gitbook at /resources/references/app-reference/webhook-events-reference.md!'
         );
+    }
+
+    public function testDoesNotDocumentEventsDeniedByPolicies(): void
+    {
+        $renderedEvents = static::getContainer()->get(DocsAppEventCommand::class)->render();
+
+        foreach ([
+            UserRecoveryRequestEvent::EVENT_NAME,
+            CustomerAccountRecoverRequestEvent::EVENT_NAME,
+            MailBeforeSentEvent::EVENT_NAME,
+            MailBeforeValidateEvent::EVENT_NAME,
+        ] as $eventName) {
+            static::assertStringNotContainsString('`' . $eventName . '`', $renderedEvents);
+        }
     }
 }

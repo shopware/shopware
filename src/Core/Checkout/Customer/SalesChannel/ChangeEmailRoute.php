@@ -81,9 +81,9 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         $this->customerRepository->update([$customerData], $context->getContext());
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $customer->getId()));
-        $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getIds();
+        $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getPrimaryKeyData();
         if ($ids !== []) {
-            $this->customerRecoveryRepository->delete(array_map(static fn ($id) => ['id' => $id], $ids), $context->getContext());
+            $this->customerRecoveryRepository->delete($ids, $context->getContext());
         }
 
         return new SuccessResponse();
@@ -122,11 +122,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validations = $validation->getProperties();
 
-        if (!\array_key_exists($field, $validations)) {
-            return;
-        }
-
-        $fieldValidations = $validations[$field];
+        $fieldValidations = $validations[$field] ?? [];
 
         $equalityValidation = null;
 

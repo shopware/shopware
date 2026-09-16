@@ -63,6 +63,12 @@ class CookieProvider implements CookieProviderInterface
                 'expiration' => '30',
                 'value' => '1',
             ],
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesVimeoVideo',
+                'cookie' => 'vimeo-video',
+                'expiration' => '30',
+                'value' => '1',
+            ],
         ],
     ];
 

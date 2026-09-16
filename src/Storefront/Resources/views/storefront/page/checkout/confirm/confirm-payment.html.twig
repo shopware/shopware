@@ -1,6 +1,6 @@
 {% block page_checkout_confirm_payment_inner %}
     <div class="card checkout-card">
-        <div class="card-body">
+        <fieldset class="card-body">
             {% set paymentMethodInvalid = true %}
 
             {% for payment in page.paymentMethods %}
@@ -10,9 +10,9 @@
             {% endfor %}
 
             {% block page_checkout_confirm_payment_title %}
-                <div class="card-title">
+                <legend class="card-title">
                     {{ 'checkout.confirmPaymentMethod'|trans|sw_sanitize }}
-                </div>
+                </legend>
             {% endblock %}
 
             {% block page_checkout_change_payment_form %}
@@ -23,6 +23,6 @@
                     redirectParameters: {redirected: 0}|json_encode,
                 } %}
             {% endblock %}
-        </div>
+        </fieldset>
     </div>
 {% endblock %}

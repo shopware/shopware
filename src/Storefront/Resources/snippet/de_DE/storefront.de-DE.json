@@ -603,6 +603,8 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "cheapestPriceLabel": "Varianten ab",
+    "regularPriceLabel": "Regulärer Preis:",
+    "listPriceLabel": "Verkaufspreis:",
     "addToWishlist": "Zum Merkzettel hinzufügen",
     "removeFromWishlist": "Vom Merkzettel entfernen"
   },
@@ -792,6 +794,7 @@
     "groupComfortFeatures": "Komfortfunktionen",
     "groupComfortFeaturesWishlist": "Merkzettel",
     "groupComfortFeaturesYoutubeVideo": "YouTube-Video",
+    "groupComfortFeaturesVimeoVideo": "Vimeo-Video",
     "groupMarketing": "Marketing",
     "groupMarketingDescription": "Erlaubt es Google, personenbezogene Daten für Online-Werbung und Marketing zu sammeln.",
     "groupMarketingAdConsent": "Google Werbung und Marketing"
@@ -821,6 +824,7 @@
       },
       "quantitySelect": {
         "legend": "Produkt Anzahl: Gib den gewünschten Wert ein oder benutze die Schaltflächen um die Anzahl zu erhöhen oder zu reduzieren.",
+        "cartUpdateHint": "Das Ändern der Anzahl aktualisiert den Warenkorb.",
         "areaLiveText": "Anzahl für %product% ist %quantity%.",
         "label": "Anzahl",
         "labelWithProduct": "Anzahl von %product%",

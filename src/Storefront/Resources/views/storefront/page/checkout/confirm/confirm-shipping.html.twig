@@ -1,6 +1,6 @@
 {% block page_checkout_confirm_shipping_inner %}
     <div class="card checkout-card">
-        <div class="card-body">
+        <fieldset class="card-body">
             {% set shippingMethodInvalid = true %}
 
             {% for shipping in page.shippingMethods %}
@@ -10,9 +10,9 @@
             {% endfor %}
 
             {% block page_checkout_confirm_shipping_title %}
-                <div class="card-title">
+                <legend class="card-title">
                     {{ 'checkout.confirmShippingMethod'|trans|sw_sanitize }}
-                </div>
+                </legend>
             {% endblock %}
 
             {% block page_checkout_confirm_shipping_form %}
@@ -23,6 +23,6 @@
                     redirectParameters: {redirected: 0}|json_encode,
                 } %}
             {% endblock %}
-        </div>
+        </fieldset>
     </div>
 {% endblock %}

@@ -217,6 +217,10 @@ export default {
     },
 
     methods: {
+        avatarName(customer) {
+            return Shopware.Utils.string.avatarName(customer);
+        },
+
         customerName(customer) {
             const personName = [
                 customer.lastName,

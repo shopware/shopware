@@ -63,19 +63,7 @@ export default {
 
     computed: {
         avatarName() {
-            const firstName = (this.customer.firstName ?? '').trim();
-            const lastName = (this.customer.lastName ?? '').trim();
-
-            if (firstName !== '' || lastName !== '') {
-                return { firstName, lastName };
-            }
-
-            const parts = (this.customer.displayName ?? '').split(' ');
-
-            return {
-                firstName: parts[0] ?? '',
-                lastName: parts.length > 1 ? parts[parts.length - 1] : '',
-            };
+            return Shopware.Utils.string.avatarName(this.customer);
         },
 
         hasActionSlot() {

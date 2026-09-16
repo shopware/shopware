@@ -100,8 +100,8 @@
                     <mt-avatar
                         class="sw-customer-list__avatar"
                         :size="compact ? 's' : 'm'"
-                        :first-name="item.firstName"
-                        :last-name="item.lastName"
+                        :first-name="avatarName(item).firstName"
+                        :last-name="avatarName(item).lastName"
                     />
                 </template>
                 {% endblock %}

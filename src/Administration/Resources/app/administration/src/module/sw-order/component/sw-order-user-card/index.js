@@ -59,6 +59,10 @@ export default {
     },
 
     computed: {
+        avatarName() {
+            return Shopware.Utils.string.avatarName(this.currentOrder?.orderCustomer ?? {});
+        },
+
         countryRepository() {
             return this.repositoryFactory.create('country');
         },

@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedExtension;
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedAliasNodeVisitor;
-use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\Runtime\DeprecatedAlias;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
@@ -57,14 +57,17 @@ class DeprecatedExtensionTest extends TestCase
         Feature::$emitDeprecations = true;
     }
 
-    public function testRegistersParserAndDeprecationFunction(): void
+    public function testRegistersAliasSupportAndDeprecationFunction(): void
     {
         $extension = new DeprecatedExtension();
 
-        static::assertContainsOnlyInstancesOf(DeprecatedTokenParser::class, $extension->getTokenParsers());
         static::assertContainsOnlyInstancesOf(DeprecatedAliasNodeVisitor::class, $extension->getNodeVisitors());
         static::assertContainsOnlyInstancesOf(TwigFunction::class, $extension->getFunctions());
-        static::assertSame('sw_trigger_deprecation', $extension->getFunctions()[0]->getName());
+        static::assertSame(['deprecatedAlias', 'sw_trigger_deprecation'], \array_map(
+            static fn (TwigFunction $function): string => $function->getName(),
+            $extension->getFunctions(),
+        ));
+        static::assertEquals(new DeprecatedAlias('value'), $extension->deprecatedAlias('value'));
     }
 
     public function testTriggersDeprecationForInactiveRemovalFeature(): void
@@ -90,7 +93,7 @@ class DeprecatedExtensionTest extends TestCase
             'index.html.twig' => <<<'TWIG'
 {% set name = name|default(null) %}
 {% if not feature('v6.8.0.0') and name is null and snippet_name|default(null) is not null %}
-    {% sw_deprecated input 'snippet_name' replaced_by='name' removed_in='v6.8.0.0' %}
+    {# @deprecated tag:v6.8.0 - Use `name` instead of `snippet_name`. #}
     {% do sw_trigger_deprecation('v6.8.0.0', 'Use "name" instead.') %}
     {% set name = snippet_name %}
 {% endif %}

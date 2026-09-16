@@ -55,7 +55,7 @@ class DeprecatedAliasTest extends TestCase
 
     public function testPassesThroughRegularValues(): void
     {
-        static::assertSame('value', DeprecatedAlias::resolve('value'));
+        static::assertSame('value', DeprecatedAlias::resolve('value', 'type'));
     }
 
     public function testTriggersDeprecationBeforeReturningAliasValue(): void
@@ -63,20 +63,20 @@ class DeprecatedAliasTest extends TestCase
         $triggerer = $this->createMock(Triggerer::class);
         $triggerer->expects($this->once())
             ->method('deprecation')
-            ->with('', '', 'Use addressType instead.');
+            ->with('', '', 'The "type" Twig variable is deprecated.');
         Feature::$triggerer = $triggerer;
 
-        $alias = new DeprecatedAlias('billing', 'v6.8.0.0', 'Use addressType instead.');
+        $alias = new DeprecatedAlias('billing');
 
-        static::assertSame('billing', DeprecatedAlias::resolve($alias));
+        static::assertSame('billing', DeprecatedAlias::resolve($alias, 'type'));
     }
 
     public function testActiveRemovalFeatureRejectsAliasAccess(): void
     {
         $this->setEnvVars(['V6_8_0_0' => true]);
 
-        static::expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: Use addressType instead.'));
+        static::expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: The "type" Twig variable is deprecated.'));
 
-        DeprecatedAlias::resolve(new DeprecatedAlias('billing', 'v6.8.0.0', 'Use addressType instead.'));
+        DeprecatedAlias::resolve(new DeprecatedAlias('billing'), 'type');
     }
 }

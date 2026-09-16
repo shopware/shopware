@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedAliasNodeVisitor;
-use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\Runtime\DeprecatedAlias;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
@@ -16,11 +16,6 @@ use Twig\TwigFunction;
 #[Package('framework')]
 final class DeprecatedExtension extends AbstractExtension
 {
-    public function getTokenParsers(): array
-    {
-        return [new DeprecatedTokenParser()];
-    }
-
     /**
      * @return NodeVisitorInterface[]
      */
@@ -31,7 +26,15 @@ final class DeprecatedExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        return [new TwigFunction('sw_trigger_deprecation', $this->triggerDeprecationOrThrow(...))];
+        return [
+            new TwigFunction('deprecatedAlias', $this->deprecatedAlias(...)),
+            new TwigFunction('sw_trigger_deprecation', $this->triggerDeprecationOrThrow(...)),
+        ];
+    }
+
+    public function deprecatedAlias(mixed $value): DeprecatedAlias
+    {
+        return new DeprecatedAlias($value);
     }
 
     public function triggerDeprecationOrThrow(string $removedIn, string $message): void

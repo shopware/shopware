@@ -11,20 +11,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class DeprecatedAlias
 {
-    public function __construct(
-        public mixed $value,
-        public string $removedIn,
-        public string $message,
-    ) {
+    public function __construct(public mixed $value)
+    {
     }
 
-    public static function resolve(mixed $value): mixed
+    public static function resolve(mixed $value, string $name): mixed
     {
         if (!$value instanceof self) {
             return $value;
         }
 
-        Feature::triggerDeprecationOrThrow($value->removedIn, $value->message);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf('The "%s" Twig variable is deprecated.', $name));
 
         return $value->value;
     }

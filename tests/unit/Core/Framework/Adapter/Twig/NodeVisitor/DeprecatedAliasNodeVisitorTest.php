@@ -61,13 +61,14 @@ class DeprecatedAliasNodeVisitorTest extends TestCase
         $triggerer = $this->createMock(Triggerer::class);
         $triggerer->expects($this->exactly(2))
             ->method('deprecation')
-            ->with('', '', 'The "type" Twig variable is deprecated. Use "addressType" instead.');
+            ->with('', '', 'The "type" Twig variable is deprecated.');
         Feature::$triggerer = $triggerer;
 
         $twig = $this->createTwig([
             'base.html.twig' => <<<'TWIG'
 {% set addressType = 'billing' %}
-{% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+{% set type = deprecatedAlias(addressType) %}
 {% block content %}{% endblock %}
 TWIG,
             'child.html.twig' => <<<'TWIG'
@@ -88,7 +89,8 @@ TWIG,
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
 {% set addressType = 'billing' %}
-{% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+{% set type = deprecatedAlias(addressType) %}
 rendered
 TWIG,
         ]);
@@ -105,7 +107,8 @@ TWIG,
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
 {% set addressType = 'billing' %}
-{% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+{% set type = deprecatedAlias(addressType) %}
 {{ type is defined ? 'defined' : 'missing' }}
 TWIG,
         ]);
@@ -122,7 +125,8 @@ TWIG,
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
 {% set addressType = 'billing' %}
-{% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+{% set type = deprecatedAlias(addressType) %}
 {% set type = 'local' %}
 {{ type }}
 TWIG,
@@ -143,7 +147,8 @@ TWIG,
             'index.html.twig' => <<<'TWIG'
 {% set addressType = 'billing' %}
 {% if not feature('v6.8.0.0') %}
-    {% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+    {% set type = deprecatedAlias(addressType) %}
 {% endif %}
 {{ type|default('missing') }}
 TWIG,

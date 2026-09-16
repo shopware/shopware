@@ -12,12 +12,12 @@
             {% set snippetName = cookieGroup.name|default(null) %}
 
             {% if not feature('v6.8.0.0') and snippetDescription is null and cookieGroup.snippet_description|default(null) is not null %}
-                {% sw_deprecated input 'cookieGroup.snippet_description' replaced_by='cookieGroup.description' removed_in='v6.8.0.0' %}
+                {# @deprecated tag:v6.8.0 - Use `cookieGroup.description` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
                 {% do sw_trigger_deprecation('v6.8.0.0', 'The "cookieGroup.snippet_description" Twig input is deprecated. Use "cookieGroup.description" instead.') %}
                 {% set snippetDescription = cookieGroup.snippet_description %}
             {% endif %}
             {% if not feature('v6.8.0.0') and snippetName is null and cookieGroup.snippet_name|default(null) is not null %}
-                {% sw_deprecated input 'cookieGroup.snippet_name' replaced_by='cookieGroup.name' removed_in='v6.8.0.0' %}
+                {# @deprecated tag:v6.8.0 - Use `cookieGroup.name` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
                 {% do sw_trigger_deprecation('v6.8.0.0', 'The "cookieGroup.snippet_name" Twig input is deprecated. Use "cookieGroup.name" instead.') %}
                 {% set snippetName = cookieGroup.snippet_name %}
             {% endif %}

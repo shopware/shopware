@@ -27,5 +27,6 @@ class DeprecatedAliasExpressionTest extends TestCase
 
         static::assertStringContainsString('\\' . DeprecatedAlias::class . '::resolve(', $compiler->getSource());
         static::assertStringContainsString('($context["type"] ?? null)', $compiler->getSource());
+        static::assertStringContainsString(', "type")', $compiler->getSource());
     }
 }

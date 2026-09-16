@@ -17,7 +17,11 @@ final class DeprecatedAliasExpression extends AbstractExpression
 {
     public function __construct(AbstractExpression $expression)
     {
-        parent::__construct(['expression' => $expression], [], $expression->getTemplateLine());
+        parent::__construct(
+            ['expression' => $expression],
+            ['name' => $expression->getAttribute('name')],
+            $expression->getTemplateLine(),
+        );
     }
 
     public function compile(Compiler $compiler): void
@@ -25,6 +29,8 @@ final class DeprecatedAliasExpression extends AbstractExpression
         $compiler
             ->raw('\\' . DeprecatedAlias::class . '::resolve(')
             ->subcompile($this->getNode('expression'))
+            ->raw(', ')
+            ->string($this->getAttribute('name'))
             ->raw(')');
     }
 }

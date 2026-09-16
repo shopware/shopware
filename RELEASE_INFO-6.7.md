@@ -548,30 +548,31 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ## Storefront
 
-### Structured deprecations for Storefront template inputs and aliases
+### Runtime deprecations for Storefront template inputs and aliases
 
-Storefront templates can declare a deprecated input or nested input path with the new `sw_deprecated` tag:
+Mark deprecated Storefront template inputs with the existing `@deprecated` Twig comment. When a legacy fallback is detectable at runtime, call `sw_trigger_deprecation()` directly before applying it:
 
 ```twig
 {% set addressType = addressType|default(null) %}
 {% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
-    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
     {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
     {% set addressType = type %}
 {% endif %}
 ```
 
-`removed_in` must be the exact registered major feature flag. Place the declaration and `sw_trigger_deprecation` call directly above the legacy backfill, and execute them only when that fallback is needed. The function delegates to `Feature::triggerDeprecationOrThrow()`: it emits a deprecation during the compatibility period and throws when the removal feature is active. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior. Use `message` instead of `replaced_by` when there is no direct replacement.
+The first argument must be the exact registered major feature flag. The function delegates to `Feature::triggerDeprecationOrThrow()`. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior.
 
-Use an alias declaration when a template publishes an old variable name for extending templates:
+Wrap an explicitly published compatibility alias with `deprecatedAlias()`:
 
 ```twig
 {% if not feature('v6.8.0.0') %}
-    {% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+    {% set type = deprecatedAlias(addressType) %}
 {% endif %}
 ```
 
-The declaration supplies the compatibility value from `addressType`. It emits the deprecation only when `type` is read, so rendering the declaring template without using the alias does not produce a notice. Aliases and their replacements must be root variables.
+The wrapper emits the deprecation only when `type` is read, so rendering the declaring template without using the alias does not produce a notice.
 
 ### Deprecated `type` variable in address manager templates
 

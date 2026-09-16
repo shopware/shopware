@@ -2,7 +2,7 @@
 
 {% set parentName = parent.name|default(null) %}
 {% if not feature('v6.8.0.0') and parentName is null and parent.snippet_name|default(null) is not null %}
-    {% sw_deprecated input 'parent.snippet_name' replaced_by='parent.name' removed_in='v6.8.0.0' %}
+    {# @deprecated tag:v6.8.0 - Use `parent.name` instead of `parent.snippet_name`. Support for `parent.snippet_name` will be removed. #}
     {% do sw_trigger_deprecation('v6.8.0.0', 'The "parent.snippet_name" Twig input is deprecated. Use "parent.name" instead.') %}
     {% set parentName = parent.snippet_name %}
 {% endif %}

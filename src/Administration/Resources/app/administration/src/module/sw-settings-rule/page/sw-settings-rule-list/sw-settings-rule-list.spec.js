@@ -323,6 +323,17 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
     });
 
+    it('should keep the listing when the page is out of range', async () => {
+        const outOfRangePage = createRuleCollection([]);
+        outOfRangePage.total = 50;
+
+        const { wrapper } = await createWrapper(['rule.creator'], outOfRangePage);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-listing').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+    });
+
     it('should disable the empty state create action without the creator privilege', async () => {
         const { wrapper } = await createWrapper([], createRuleCollection([]));
         await flushPromises();

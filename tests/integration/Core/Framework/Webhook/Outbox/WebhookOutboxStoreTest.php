@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -717,6 +718,25 @@ class WebhookOutboxStoreTest extends TestCase
             $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $partitionKey]),
             'a delivery write must restart the stream cleanup grace period'
         );
+    }
+
+    public function testResumeDeliveriesLeavesTheBacklogHeldWhenTheWebhookIsNotHealthy(): void
+    {
+        $this->createWebhook('wh-1');
+        $this->connection->insert('webhook_health', [
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'endpoint_state' => EndpointState::Degraded->value,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-1', 'wh-1'))));
+
+        $this->store->resumeDeliveriesForWebhook($this->ids->get('wh-1'));
+
+        static::assertSame(WebhookEventLogDefinition::STATUS_PAUSED, $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        ));
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PAUSED);
     }
 
     /**

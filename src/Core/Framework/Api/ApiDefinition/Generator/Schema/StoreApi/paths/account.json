@@ -1148,7 +1148,7 @@
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "description": "URL of the storefront for that registration. Used in the double opt-in confirmation email. Only required and validated against the configured domains of the sales channel when double opt-in registration is enabled.",
                                         "type": "string"
                                     },
                                     "requestedGroupId": {
@@ -1156,10 +1156,10 @@
                                         "type": "string"
                                     },
                                     "billingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "shippingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "guest": {
                                         "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",

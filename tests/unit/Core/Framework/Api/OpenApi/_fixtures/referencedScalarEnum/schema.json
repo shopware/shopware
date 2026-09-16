@@ -1,0 +1,46 @@
+{
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {
+        "/account/newsletter-recipient": {
+            "get": {
+                "operationId": "readNewsletterRecipient",
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "status",
+                                        "priority"
+                                    ],
+                                    "properties": {
+                                        "status": {
+                                            "$ref": "#/components/schemas/NewsletterStatus"
+                                        },
+                                        "priority": {
+                                            "$ref": "#/components/schemas/Priority"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Priority": {
+                "type": "number",
+                "enum": [
+                    0.5,
+                    10.5,
+                    20.5
+                ]
+            }
+        }
+    }
+}

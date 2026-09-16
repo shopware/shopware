@@ -30,6 +30,14 @@ Shows a cookie permission alert at the bottom of the page.
 
 .cookie-permission-actions {
     gap: 0.5rem;
+
+    @include media-breakpoint-down(sm) {
+        .btn {
+            white-space: normal;
+            line-height: normal;
+            padding: var(--bs-btn-padding-x) calc(var(--bs-btn-padding-y) * 5);
+        }
+    }
 }
 
 @include media-breakpoint-up(md) {

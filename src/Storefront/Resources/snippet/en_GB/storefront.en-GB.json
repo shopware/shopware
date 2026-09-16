@@ -603,6 +603,8 @@
     "beforeListPrice": "",
     "afterListPrice": "",
     "cheapestPriceLabel": "Variants from",
+    "regularPriceLabel": "Regular price:",
+    "listPriceLabel": "Sale price:",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist"
   },
@@ -792,6 +794,7 @@
     "groupComfortFeatures": "Comfort features",
     "groupComfortFeaturesWishlist": "Wishlist",
     "groupComfortFeaturesYoutubeVideo": "YouTube video",
+    "groupComfortFeaturesVimeoVideo": "Vimeo video",
     "groupMarketing": "Marketing",
     "groupMarketingDescription": "Allows Google to collect personal data for online advertising and marketing.",
     "groupMarketingAdConsent": "Google Advertising"
@@ -821,6 +824,7 @@
       },
       "quantitySelect": {
         "legend": "Product Quantity: Enter the desired amount or use the buttons to increase or decrease the quantity.",
+        "cartUpdateHint": "Changing the quantity updates the cart.",
         "areaLiveText": "Quantity of %product% set to %quantity%.",
         "label": "Quantity",
         "labelWithProduct": "Quantity of %product%",

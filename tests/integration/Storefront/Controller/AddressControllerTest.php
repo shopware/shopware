@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -32,6 +34,7 @@ use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,6 +44,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AddressControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
     use StorefrontSalesChannelTestHelper;
@@ -1069,6 +1073,62 @@ class AddressControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    #[DataProvider('addressManagerFormProvider')]
+    public function testAddressManagerFormUsesTextInputTypes(string $addressType, bool $editAddress, bool $accessibilityTweaks): void
+    {
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
+
+        [$customerId] = $this->createCustomers();
+
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
+
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->setSession($this->getSession());
+        static::getContainer()->get('request_stack')->push($request);
+
+        $addressId = $editAddress ? $customer->getDefaultBillingAddressId() : null;
+        $response = static::getContainer()->get(AddressController::class)
+            ->addressManagerUpsert($request, new RequestDataBag(), $context, $customer, $addressId, $addressType);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $crawler = new Crawler((string) $response->getContent());
+
+        foreach (['firstName', 'lastName', 'street', 'zipcode', 'city', 'company', 'department'] as $field) {
+            $input = $crawler->filter(\sprintf('input[name="address[%s]"]', $field));
+            static::assertCount(1, $input);
+            static::assertSame('text', $input->attr('type'), $field . ' must use a valid text input type');
+        }
+
+        static::assertCount(0, $crawler->filter('input[type="billing"], input[type="shipping"]'));
+        static::assertStringContainsString(
+            'type=' . $addressType,
+            (string) $crawler->filter('#address-manager-modal-address-form')->attr('action')
+        );
+        static::assertSame($addressType, $crawler->filter('.address-form-create-cancel')->attr('data-address-type'));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool, bool}>
+     */
+    public static function addressManagerFormProvider(): iterable
+    {
+        foreach ([false, true] as $accessibilityTweaks) {
+            $suffix = $accessibilityTweaks ? ' with accessibility tweaks' : ' without accessibility tweaks';
+
+            yield 'create shipping address' . $suffix => [self::ADDRESS_TYPE_SHIPPING, false, $accessibilityTweaks];
+            yield 'create billing address' . $suffix => [self::ADDRESS_TYPE_BILLING, false, $accessibilityTweaks];
+            yield 'edit shipping address' . $suffix => [self::ADDRESS_TYPE_SHIPPING, true, $accessibilityTweaks];
+            yield 'edit billing address' . $suffix => [self::ADDRESS_TYPE_BILLING, true, $accessibilityTweaks];
+        }
     }
 
     private function login(): KernelBrowser

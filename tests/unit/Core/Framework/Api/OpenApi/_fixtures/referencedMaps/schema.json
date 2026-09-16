@@ -1,0 +1,35 @@
+{
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {},
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "type": "object",
+                "properties": {
+                    "associations": {
+                        "$ref": "#/components/schemas/Associations"
+                    },
+                    "includes": {
+                        "$ref": "#/components/schemas/Includes"
+                    }
+                }
+            },
+            "Associations": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/Criteria"
+                }
+            },
+            "Includes": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

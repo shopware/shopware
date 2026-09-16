@@ -1,0 +1,21 @@
+{
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {},
+    "components": {
+        "schemas": {
+            "Response": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "account_newsletter_recipient"
+                    }
+                },
+                "required": [
+                    "apiAlias"
+                ]
+            }
+        }
+    }
+}

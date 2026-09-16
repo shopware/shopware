@@ -1,0 +1,24 @@
+{
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "type": "object",
+                "properties": {
+                    "totalCountMode": {
+                        "$ref": "#/components/schemas/TotalCountMode"
+                    }
+                }
+            },
+            "TotalCountMode": {
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "type": "string",
+                "enum": [
+                    "none",
+                    "exact"
+                ],
+                "default": "none"
+            }
+        }
+    }
+}

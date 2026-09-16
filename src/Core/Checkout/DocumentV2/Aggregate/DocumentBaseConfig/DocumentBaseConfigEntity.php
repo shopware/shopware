@@ -8,12 +8,14 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity')]
 class DocumentBaseConfigEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -394,6 +396,3 @@ class DocumentBaseConfigEntity extends Entity
         $this->displayCustomerVatId = $displayCustomerVatId;
     }
 }
-
-/** @deprecated tag:v6.9.0 - compatibility alias */
-class_alias(DocumentBaseConfigEntity::class, 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity');

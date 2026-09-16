@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition')]
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'document_base_config_sales_channel';
@@ -65,6 +67,3 @@ class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
         ]);
     }
 }
-
-/** @deprecated tag:v6.9.0 - compatibility alias */
-class_alias(DocumentBaseConfigSalesChannelDefinition::class, 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition');

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection')]
 class DocumentBaseConfigSalesChannelCollection extends EntityCollection
 {
     public function getApiAlias(): string
@@ -23,6 +25,3 @@ class DocumentBaseConfigSalesChannelCollection extends EntityCollection
         return DocumentBaseConfigSalesChannelEntity::class;
     }
 }
-
-/** @deprecated tag:v6.9.0 - compatibility alias */
-class_alias(DocumentBaseConfigSalesChannelCollection::class, 'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection');

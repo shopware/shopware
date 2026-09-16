@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -30,6 +31,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\DocumentDefinition')]
 class DocumentDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'document';
@@ -97,6 +99,3 @@ class DocumentDefinition extends EntityDefinition
         ]);
     }
 }
-
-/** @deprecated tag:v6.9.0 - compatibility alias */
-class_alias(DocumentDefinition::class, 'Shopware\Core\Checkout\Document\DocumentDefinition');

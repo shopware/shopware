@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Renderer\RenderedDocument')]
 class RenderedDocument extends Struct
 {
     /**
@@ -155,6 +157,3 @@ class RenderedDocument extends Struct
         $this->parameters[$key] = $value;
     }
 }
-
-/** @deprecated tag:v6.9.0 - compatibility alias */
-class_alias(RenderedDocument::class, 'Shopware\Core\Checkout\Document\Renderer\RenderedDocument');

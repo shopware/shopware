@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
+use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -105,8 +107,13 @@ class BCChangeAttributeUsageRule implements Rule
         'Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\ProductReviewResult' => true,
     ];
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    /**
+     * @param array<non-empty-string, class-string> $classAliases
+     */
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly array $classAliases = ClassAliasRegistry::ALIASES,
+    ) {
     }
 
     public function getNodeType(): string
@@ -150,6 +157,9 @@ class BCChangeAttributeUsageRule implements Rule
             $specific = $this->validateClassLevel($attribute, $class, $classLine);
             if ($specific === [] && $attribute->getName() === ClassHierarchyChange::class) {
                 $specific = $this->validateClassHierarchyChange($attribute, $node->getClassReflection(), $methodNodes, $classLine);
+            }
+            if ($specific === [] && $attribute->getName() === ClassMoved::class) {
+                $specific = $this->validateClassMoved($attribute, $class, $classLine);
             }
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
@@ -261,6 +271,58 @@ class BCChangeAttributeUsageRule implements Rule
 
         if ($attribute->getName() === BecomesInternal::class && $this->isMarkedInternal($class->getDocComment())) {
             return [$this->error($line, \sprintf('BecomesInternal on "%s": the class is already @internal.', $symbol))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassMoved(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionClass $class, int $line): array
+    {
+        $previousClassName = $this->argument($attribute, 'previousClassName', 1);
+        $symbol = $class->getShortName();
+
+        if (!\is_string($previousClassName) || $previousClassName === '') {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": previousClassName must be a non-empty class name.',
+                $symbol
+            ))];
+        }
+
+        $currentClassName = $class->getName();
+        $registeredClassName = $this->classAliases[$previousClassName] ?? null;
+        if ($registeredClassName !== $currentClassName) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        if (!\class_exists($previousClassName, autoload: false)) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": alias "%s" is registered but was not loaded eagerly.',
+                $symbol,
+                $previousClassName
+            ))];
+        }
+
+        // @phpstan-ignore phpstanApi.runtimeReflection (this deliberately verifies the Composer runtime alias)
+        $previousMatchesCurrent = \is_a($previousClassName, $currentClassName, true);
+        // @phpstan-ignore phpstanApi.runtimeReflection (this deliberately verifies the Composer runtime alias)
+        $currentMatchesPrevious = \is_a($currentClassName, $previousClassName, true);
+        if (!$previousMatchesCurrent || !$currentMatchesPrevious) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": alias "%s" and "%s" do not resolve to the same runtime class.',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
         }
 
         return [];

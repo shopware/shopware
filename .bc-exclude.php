@@ -138,5 +138,20 @@ return [
         // Same move: the shim extends the surviving DocumentRoute, so the previous name of the abstract route is no
         // longer a literal ancestor in the sources. At runtime it still is, the alias makes the two names one class.
         'REMOVED: These ancestors of Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\DocumentRoute have been removed',
+
+        // The BC checker reads source declarations and cannot see the eagerly registered runtime aliases.
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\DocumentCollection has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\DocumentDefinition has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\DocumentEntity has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Renderer\RenderedDocument has been deleted', '/'),
     ],
 ];

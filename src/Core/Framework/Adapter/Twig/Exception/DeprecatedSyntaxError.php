@@ -10,7 +10,7 @@ use Twig\Source;
  * @internal
  */
 #[Package('framework')]
-final class DeprecatedInputSyntaxError extends SyntaxError
+final class DeprecatedSyntaxError extends SyntaxError
 {
     public static function invalid(string $message, int $line, ?Source $source): self
     {

@@ -11,8 +11,7 @@
 {% endif %}
 
 {% if not feature('v6.8.0.0') %}
-    {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-    {% set type = addressType %}
+    {% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
 {% endif %}
 
 {% block address_base_default_address_item %}

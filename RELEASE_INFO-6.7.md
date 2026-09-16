@@ -548,7 +548,7 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ## Storefront
 
-### Structured deprecations for Storefront template inputs
+### Structured deprecations for Storefront template inputs and aliases
 
 Storefront templates can declare a deprecated input or nested input path with the new `sw_deprecated` tag:
 
@@ -562,6 +562,16 @@ Storefront templates can declare a deprecated input or nested input path with th
 ```
 
 `removed_in` must be the exact registered major feature flag. Place the declaration and `sw_trigger_deprecation` call directly above the legacy backfill, and execute them only when that fallback is needed. The function delegates to `Feature::triggerDeprecationOrThrow()`: it emits a deprecation during the compatibility period and throws when the removal feature is active. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior. Use `message` instead of `replaced_by` when there is no direct replacement.
+
+Use an alias declaration when a template publishes an old variable name for extending templates:
+
+```twig
+{% if not feature('v6.8.0.0') %}
+    {% sw_deprecated alias 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+{% endif %}
+```
+
+The declaration supplies the compatibility value from `addressType`. It emits the deprecation only when `type` is read, so rendering the declaring template without using the alias does not produce a notice. Aliases and their replacements must be root variables.
 
 ### Deprecated `type` variable in address manager templates
 

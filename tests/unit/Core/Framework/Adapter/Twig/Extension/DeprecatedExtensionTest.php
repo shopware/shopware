@@ -4,8 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedInputExtension;
-use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedInputTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedExtension;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedAliasNodeVisitor;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedTokenParser;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
@@ -20,8 +21,8 @@ use Twig\TwigFunction;
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
 #[Package('framework')]
-#[CoversClass(DeprecatedInputExtension::class)]
-class DeprecatedInputExtensionTest extends TestCase
+#[CoversClass(DeprecatedExtension::class)]
+class DeprecatedExtensionTest extends TestCase
 {
     use EnvTestBehaviour;
 
@@ -58,9 +59,10 @@ class DeprecatedInputExtensionTest extends TestCase
 
     public function testRegistersParserAndDeprecationFunction(): void
     {
-        $extension = new DeprecatedInputExtension();
+        $extension = new DeprecatedExtension();
 
-        static::assertContainsOnlyInstancesOf(DeprecatedInputTokenParser::class, $extension->getTokenParsers());
+        static::assertContainsOnlyInstancesOf(DeprecatedTokenParser::class, $extension->getTokenParsers());
+        static::assertContainsOnlyInstancesOf(DeprecatedAliasNodeVisitor::class, $extension->getNodeVisitors());
         static::assertContainsOnlyInstancesOf(TwigFunction::class, $extension->getFunctions());
         static::assertSame('sw_trigger_deprecation', $extension->getFunctions()[0]->getName());
     }
@@ -73,7 +75,7 @@ class DeprecatedInputExtensionTest extends TestCase
             ->with('', '', 'Use the replacement input.');
         Feature::$triggerer = $triggerer;
 
-        (new DeprecatedInputExtension())->triggerDeprecationOrThrow('v6.8.0.0', 'Use the replacement input.');
+        (new DeprecatedExtension())->triggerDeprecationOrThrow('v6.8.0.0', 'Use the replacement input.');
     }
 
     public function testTemplateTriggersOnlyWhenUsingLegacyFallback(): void
@@ -95,7 +97,7 @@ class DeprecatedInputExtensionTest extends TestCase
 {{ name }}
 TWIG,
         ]));
-        $twig->addExtension(new DeprecatedInputExtension());
+        $twig->addExtension(new DeprecatedExtension());
         $twig->addFunction(new TwigFunction('feature', Feature::isActive(...)));
 
         static::assertSame('legacy', \trim($twig->render('index.html.twig', ['snippet_name' => 'legacy'])));

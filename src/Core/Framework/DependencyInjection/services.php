@@ -31,7 +31,7 @@ use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedInputExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\InstanceOfExtension;
@@ -606,7 +606,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(FeatureFlagExtension::class)
         ->tag('twig.extension');
 
-    $services->set(DeprecatedInputExtension::class)
+    $services->set(DeprecatedExtension::class)
         ->tag('twig.extension');
 
     $services->set(ConfigExtension::class)

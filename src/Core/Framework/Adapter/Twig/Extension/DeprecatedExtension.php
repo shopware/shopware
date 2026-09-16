@@ -2,21 +2,31 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedInputTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedAliasNodeVisitor;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedTokenParser;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
+use Twig\NodeVisitor\NodeVisitorInterface;
 use Twig\TwigFunction;
 
 /**
  * @internal
  */
 #[Package('framework')]
-final class DeprecatedInputExtension extends AbstractExtension
+final class DeprecatedExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
     {
-        return [new DeprecatedInputTokenParser()];
+        return [new DeprecatedTokenParser()];
+    }
+
+    /**
+     * @return NodeVisitorInterface[]
+     */
+    public function getNodeVisitors(): array
+    {
+        return [new DeprecatedAliasNodeVisitor()];
     }
 
     public function getFunctions(): array

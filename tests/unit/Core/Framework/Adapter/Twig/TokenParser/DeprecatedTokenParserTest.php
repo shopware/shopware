@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedInputExtension;
-use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedInputTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\Extension\DeprecatedExtension;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedTokenParser;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
@@ -19,8 +19,8 @@ use Twig\Loader\ArrayLoader;
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
 #[Package('framework')]
-#[CoversClass(DeprecatedInputTokenParser::class)]
-class DeprecatedInputTokenParserTest extends TestCase
+#[CoversClass(DeprecatedTokenParser::class)]
+class DeprecatedTokenParserTest extends TestCase
 {
     /**
      * @var array<string, FeatureFlagConfig>
@@ -44,11 +44,12 @@ class DeprecatedInputTokenParserTest extends TestCase
         Feature::registerFeatures($this->featureConfigBackup);
     }
 
-    public function testAcceptsRootAndDottedInputPaths(): void
+    public function testAcceptsRootAndDottedInputPathsAndRootAliases(): void
     {
         $twig = $this->createTwig(<<<'TWIG'
 {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
 {% sw_deprecated input 'child.snippet_name' message='Use the translated name.' removed_in='v6.8.0.0' %}
+{% sw_deprecated alias 'legacyType' replaced_by='addressType' removed_in='v6.8.0.0' %}
 TWIG);
 
         static::assertSame('', $twig->render('index.html.twig'));
@@ -72,9 +73,9 @@ TWIG);
      */
     public static function invalidDeclarationProvider(): iterable
     {
-        yield 'only input declarations are supported' => [
+        yield 'unsupported declaration kind' => [
             '{% sw_deprecated template replaced_by=\'new.html.twig\' removed_in=\'v6.8.0.0\' %}',
-            'currently supports only input declarations',
+            'supports only input and alias declarations',
         ];
         yield 'path must be literal' => [
             '{% sw_deprecated input type replaced_by=\'addressType\' removed_in=\'v6.8.0.0\' %}',
@@ -128,12 +129,28 @@ TWIG);
             '{% sw_deprecated input \'type\' replaced_by=\'addressType\' removed_in=\'v6.8.0.0\' removed_in=\'v6.8.0.0\' %}',
             'declared more than once',
         ];
+        yield 'alias must be a root variable' => [
+            '{% sw_deprecated alias \'child.type\' replaced_by=\'addressType\' removed_in=\'v6.8.0.0\' %}',
+            'literal root variable',
+        ];
+        yield 'alias replacement must be a root variable' => [
+            '{% sw_deprecated alias \'type\' replaced_by=\'address.type\' removed_in=\'v6.8.0.0\' %}',
+            'must be a literal root variable',
+        ];
+        yield 'alias requires a replacement' => [
+            '{% sw_deprecated alias \'type\' message=\'Use addressType.\' removed_in=\'v6.8.0.0\' %}',
+            'requires "replaced_by" and does not support "message"',
+        ];
+        yield 'alias replacement must differ' => [
+            '{% sw_deprecated alias \'type\' replaced_by=\'type\' removed_in=\'v6.8.0.0\' %}',
+            'replacement must differ from the deprecated alias',
+        ];
     }
 
     private function createTwig(string $template): Environment
     {
         $twig = new Environment(new ArrayLoader(['index.html.twig' => $template]));
-        $twig->addExtension(new DeprecatedInputExtension());
+        $twig->addExtension(new DeprecatedExtension());
 
         return $twig;
     }

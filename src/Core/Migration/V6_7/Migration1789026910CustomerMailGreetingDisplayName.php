@@ -19,6 +19,11 @@ class Migration1789026910CustomerMailGreetingDisplayName extends MigrationStep
 {
     use UpdateMailTrait;
 
+    /**
+     * The fixtures of customer.recovery.request and customer_register.double_opt_in are new: their shipped text
+     * lived only inline in Migration1570622696CustomerPasswordRecovery and
+     * Migration1572425108AddDoubleOptInRegistrationMailTemplate, and MailUpdate needs the whole body per language.
+     */
     private const MAIL_TYPES = [
         MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_ACCEPTED,
         MailTemplateTypes::MAILTYPE_CUSTOMER_GROUP_REGISTRATION_DECLINED,

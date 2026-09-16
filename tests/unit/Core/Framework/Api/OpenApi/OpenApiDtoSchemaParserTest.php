@@ -21,31 +21,7 @@ class OpenApiDtoSchemaParserTest extends TestCase
 {
     public function testPreservesSchemaNamesForPropertiesAndParameters(): void
     {
-        $definitions = (new OpenApiDtoSchemaParser())->parse([
-            'paths' => [
-                '/wire-names' => [
-                    'post' => [
-                        'operationId' => 'wireNames',
-                        'parameters' => [
-                            ['name' => 'query-name', 'in' => 'query', 'schema' => ['type' => 'string']],
-                        ],
-                        'requestBody' => [
-                            'content' => [
-                                'application/json' => [
-                                    'schema' => [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'body-name' => ['type' => 'string'],
-                                            'camelCase' => ['type' => 'string'],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
+        $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema('parameterWireNames/schema.json'));
 
         static::assertCount(1, $definitions);
         $names = [];
@@ -59,64 +35,38 @@ class OpenApiDtoSchemaParserTest extends TestCase
     {
         $this->expectException(FrameworkException::class);
 
-        (new OpenApiDtoSchemaParser())->parse([
-            'paths' => [
-                '/duplicate-properties' => [
-                    'post' => [
-                        'operationId' => 'duplicateProperties',
-                        'parameters' => [
-                            ['name' => 'limit', 'in' => 'query', 'schema' => ['type' => 'integer']],
-                            ['name' => 'foo-bar', 'in' => 'query', 'schema' => ['type' => 'string']],
-                            ['name' => 'fooBar', 'in' => 'query', 'schema' => ['type' => 'string']],
-                        ],
-                        'requestBody' => [
-                            'content' => [
-                                'application/json' => [
-                                    'schema' => [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'limit' => ['type' => 'integer'],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
+        (new OpenApiDtoSchemaParser())->parse($this->loadSchema('invalidSchemas/duplicateProperties.json'));
     }
 
     public function testComponentReferencedByResponseIsClassifiedAsResponse(): void
     {
-        $definitions = (new OpenApiDtoSchemaParser())->parseComponents([
-            'paths' => [
-                '/success' => [
-                    'get' => [
-                        'responses' => [
-                            '200' => [
-                                'content' => [
-                                    'application/json' => [
-                                        'schema' => ['$ref' => '#/components/schemas/SuccessResponse'],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            'components' => [
-                'schemas' => [
-                    'SuccessResponse' => [
-                        'type' => 'object',
-                        'properties' => ['success' => ['type' => 'boolean']],
-                    ],
-                ],
-            ],
-        ], ['SuccessResponse'], 'App\\Api');
+        $definitions = (new OpenApiDtoSchemaParser())->parseComponents($this->loadSchema('responseComponent/schema.json'), ['SuccessResponse'], 'App\\Api');
 
         static::assertCount(1, $definitions);
         static::assertSame(OpenApiDtoType::Response, $definitions[0]->type);
+    }
+
+    public function testReferencedRequestBodyGeneratesDependenciesWithoutComponentSchemas(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema('referencedRequestBody/schema.json'), includeComponentSchemas: false);
+
+        static::assertEqualsCanonicalizing(
+            ['ReadNewsletterRecipientRequest', 'Criteria', 'Sort', 'SortOptions'],
+            array_map(static fn (OpenApiDtoDefinition $definition): string => $definition->name, $definitions),
+        );
+    }
+
+    public function testSchemaVariantsGenerateDependenciesWithoutInlineSchemas(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema('schemaUnions/schema.json'), includeComponentSchemas: false);
+
+        $names = array_map(static fn (OpenApiDtoDefinition $definition): string => $definition->name, $definitions);
+        static::assertContains('Criteria', $names);
+        static::assertContains('EqualsFilter', $names);
+        static::assertContains('RangeFilter', $names);
+        static::assertContains('AverageAggregation', $names);
+        static::assertContains('NestedCountAggregation', $names);
+        static::assertNotContains('SubAggregations', $names);
     }
 
     public function testOpenApiFixturesProduceAdjacentDtoDefinitions(): void
@@ -124,7 +74,7 @@ class OpenApiDtoSchemaParserTest extends TestCase
         $parser = new OpenApiDtoSchemaParser();
         $filesystem = new Filesystem();
 
-        foreach (Finder::create()->directories()->depth(0)->sortByName()->in(__DIR__ . '/_fixtures') as $fixtureDirectory) {
+        foreach (Finder::create()->directories()->depth(0)->exclude('invalidSchemas')->sortByName()->in(__DIR__ . '/_fixtures') as $fixtureDirectory) {
             foreach (Finder::create()->files()->name('*.json')->sortByName()->in($fixtureDirectory->getPathname()) as $schemaFile) {
                 $schema = json_decode($filesystem->readFile($schemaFile->getPathname()), true, flags: \JSON_THROW_ON_ERROR);
                 static::assertIsArray($schema);
@@ -152,5 +102,16 @@ class OpenApiDtoSchemaParserTest extends TestCase
                 }
             }
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function loadSchema(string $fixture): array
+    {
+        $schema = json_decode((new Filesystem())->readFile(__DIR__ . '/_fixtures/' . $fixture), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertIsArray($schema);
+
+        return $schema;
     }
 }

@@ -95,6 +95,9 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Dompdf page count placeholder replaced for core and fallback fonts
+
+In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
 ### Extensions can change the API CORS header lists
 
 The API answers CORS preflight requests with a fixed list of allowed and exposed headers, so a custom request header of an extension was rejected by the browser on cross-origin calls.

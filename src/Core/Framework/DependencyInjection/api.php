@@ -9,8 +9,10 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Clock\ClockInterface;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -156,6 +158,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DTOResponseListener::class)
         ->args([
             service(JsonStreamWriter::class),
+            service('event_dispatcher'),
+            service(SeoUrlPlaceholderHandlerInterface::class),
+            service(MediaUrlPlaceholderHandlerInterface::class),
         ])
         ->tag('kernel.event_listener', ['event' => 'kernel.view', 'priority' => 1000]);
 

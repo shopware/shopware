@@ -2,11 +2,16 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
+use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\JsonStreamer\JsonStreamWriter;
 use Symfony\Component\TypeInfo\Type;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -16,6 +21,9 @@ final class DTOResponseListener
 {
     public function __construct(
         private readonly JsonStreamWriter $jsonStreamWriter,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler,
     ) {
     }
 
@@ -27,14 +35,28 @@ final class DTOResponseListener
             return;
         }
 
-        $json = $this->jsonStreamWriter->write(
+        $request = $event->getRequest();
+        if ($request->attributes->has('_route')) {
+            $this->dispatcher->dispatch($event, $request->attributes->get('_route') . '.encode');
+            $result = $event->getControllerResult();
+            if ($event->hasResponse() || !$result instanceof AbstractResponse) {
+                return;
+            }
+        }
+
+        $json = (string) $this->jsonStreamWriter->write(
             $result,
             Type::object($result::class),
-            [
-                'include_null_properties' => false,
-            ]
+            ['include_null_properties' => false]
         );
-        $response = new JsonResponse((string) $json, $result->getStatusCode(), $result->getHeaders(), json: true);
+
+        $content = $this->mediaUrlPlaceholderHandler->replace($json);
+        $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        if ($salesChannelContext instanceof SalesChannelContext) {
+            $content = $this->seoUrlPlaceholderHandler->replace($content, '', $salesChannelContext);
+        }
+
+        $response = new JsonResponse($content, $result->getStatusCode(), $result->getHeaders(), json: true);
         foreach ($result->getCookies() as $cookie) {
             $response->headers->setCookie($cookie);
         }

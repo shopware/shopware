@@ -10,7 +10,6 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,9 +17,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class CartCreate extends AbstractRequest
 {
+    /**
+     * @var list<LineItem> Initial line items to add to the cart
+     */
+    #[Assert\Valid]
+    public array $lineItems;
+
     /**
      * @internal
      */
@@ -30,11 +34,6 @@ final class CartCreate extends AbstractRequest
          */
         #[Assert\NotBlank]
         public string $name,
-        /**
-         * @var list<LineItem> Initial line items to add to the cart
-         */
-        #[Assert\Valid]
-        public ?array $lineItems = null,
     ) {
     }
 }

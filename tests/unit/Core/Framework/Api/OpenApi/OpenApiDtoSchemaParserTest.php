@@ -19,6 +19,42 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 class OpenApiDtoSchemaParserTest extends TestCase
 {
+    public function testPreservesSchemaNamesForPropertiesAndParameters(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'paths' => [
+                '/wire-names' => [
+                    'post' => [
+                        'operationId' => 'wireNames',
+                        'parameters' => [
+                            ['name' => 'query-name', 'in' => 'query', 'schema' => ['type' => 'string']],
+                        ],
+                        'requestBody' => [
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'body-name' => ['type' => 'string'],
+                                            'camelCase' => ['type' => 'string'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertCount(1, $definitions);
+        $names = [];
+        foreach ($definitions[0]->properties as $property) {
+            $names[$property->name] = $property->schemaName;
+        }
+        static::assertSame(['bodyName' => 'body-name', 'camelCase' => 'camelCase', 'queryName' => 'query-name'], $names);
+    }
+
     public function testDuplicateNormalizedPropertiesThrowException(): void
     {
         $this->expectException(FrameworkException::class);

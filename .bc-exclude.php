@@ -74,8 +74,8 @@ return [
         preg_quote('REMOVED: Class Shopware\Administration\Notification\NotificationCollection has been deleted', '/'),
         preg_quote('REMOVED: Class Shopware\Administration\Notification\NotificationDefinition has been deleted', '/'),
         preg_quote('REMOVED: Class Shopware\Administration\Notification\NotificationEntity has been deleted', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Framework\Notification\NotificationCollection have been removed: ["Shopware\\Administration\\Notification\\NotificationCollection"]', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Framework\Notification\NotificationEntity have been removed: ["Shopware\\Administration\\Notification\\NotificationEntity"]', '/'),
+        preg_quote('REMOVED: These ancestors of Shopware\Core\Framework\Notification\NotificationCollection have been removed:', '/'),
+        preg_quote('REMOVED: These ancestors of Shopware\Core\Framework\Notification\NotificationEntity have been removed:', '/'),
 
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.

@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-14 11:56:32
+ * Last generated: 2026-09-16 07:53:16
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[Package('checkout')]
 #[JsonStreamable]
-final class ReadNewsletterRecipientResponse extends AbstractResponse
+final class ReadNewsletterRecipientStatusResponse extends AbstractResponse
 {
     /**
      * @internal
@@ -33,5 +33,6 @@ final class ReadNewsletterRecipientResponse extends AbstractResponse
         #[Assert\NotNull]
         public NewsletterStatus $status,
     ) {
+        parent::__construct();
     }
 }

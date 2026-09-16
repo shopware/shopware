@@ -28,5 +28,6 @@ final class ReadProductResponse extends AbstractResponse
         public ?string $name = null,
         public ?float $price = null,
     ) {
+        parent::__construct();
     }
 }

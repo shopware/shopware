@@ -26,5 +26,6 @@ final class CreateItemsResponse extends AbstractResponse
     public function __construct(
         public ?int $created = null,
     ) {
+        parent::__construct();
     }
 }

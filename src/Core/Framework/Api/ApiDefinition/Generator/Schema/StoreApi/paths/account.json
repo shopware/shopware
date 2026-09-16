@@ -90,7 +90,7 @@
                 ]
             }
         },
-        "/v2/account/newsletter-recipient": {
+        "/account/newsletter-recipient-v2": {
             "get": {
                 "tags": [
                     "Profile",
@@ -101,7 +101,7 @@
                 "x-dto-package": "checkout",
                 "summary": "Fetch newsletter recipients",
                 "description": "Perform a filtered search for newsletter recipients.",
-                "operationId": "readNewsletterRecipient",
+                "operationId": "readNewsletterRecipientStatus",
                 "responses": {
                     "200": {
                         "description": "",

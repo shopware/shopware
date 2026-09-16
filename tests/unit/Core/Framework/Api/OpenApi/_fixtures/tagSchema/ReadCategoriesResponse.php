@@ -31,5 +31,6 @@ final class ReadCategoriesResponse extends AbstractResponse
         #[Assert\Valid]
         public ?array $elements = null,
     ) {
+        parent::__construct();
     }
 }

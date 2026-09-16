@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-14 11:56:12
+ * Last generated: 2026-09-16 07:53:16
  */
 
 namespace Shopware\Core\Framework\Api\Response\StoreApi;
@@ -26,5 +26,6 @@ final class SuccessResponse extends AbstractResponse
     public function __construct(
         public ?bool $success = null,
     ) {
+        parent::__construct();
     }
 }

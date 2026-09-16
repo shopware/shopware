@@ -29,5 +29,6 @@ final class ImitateCustomerLoginResponse extends AbstractResponse
          */
         public ?string $redirectUrl = null,
     ) {
+        parent::__construct();
     }
 }

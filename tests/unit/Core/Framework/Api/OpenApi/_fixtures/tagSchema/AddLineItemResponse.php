@@ -33,5 +33,6 @@ final class AddLineItemResponse extends AbstractResponse
         #[Assert\Valid]
         public ?array $lineItems = null,
     ) {
+        parent::__construct();
     }
 }

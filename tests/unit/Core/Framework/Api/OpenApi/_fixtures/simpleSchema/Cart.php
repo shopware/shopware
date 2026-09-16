@@ -45,5 +45,6 @@ final class Cart extends AbstractResponse
         public ?bool $active = null,
         public ?float $taxRate = null,
     ) {
+        parent::__construct();
     }
 }

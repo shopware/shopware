@@ -54,5 +54,6 @@ final class Cart extends AbstractResponse
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public ?string $updatedAt = null,
     ) {
+        parent::__construct();
     }
 }

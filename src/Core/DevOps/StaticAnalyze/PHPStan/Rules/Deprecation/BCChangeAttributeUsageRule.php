@@ -333,8 +333,11 @@ class BCChangeAttributeUsageRule implements Rule
             ))];
         }
 
-        if ($this->serviceMap->getService($currentClassName) !== null
-            && ($this->serviceMap->getService($previousClassName)?->getAlias() !== $currentClassName
+        $currentService = $this->serviceMap->getService($currentClassName);
+        $effectiveCurrentServiceId = $currentService?->getAlias() ?? $currentClassName;
+
+        if ($currentService !== null
+            && ($this->serviceMap->getService($previousClassName)?->getAlias() !== $effectiveCurrentServiceId
                 || !$this->isDeprecatedServiceAlias($previousClassName))
         ) {
             return [$this->error($line, \sprintf(

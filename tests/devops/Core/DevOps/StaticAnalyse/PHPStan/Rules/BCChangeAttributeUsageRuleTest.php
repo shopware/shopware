@@ -236,6 +236,26 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->analyse([$fixture], []);
     }
 
+    #[RunInSeparateProcess]
+    public function testMovedDecoratedServiceWithDeprecatedServiceAliasIsAccepted(): void
+    {
+        $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
+        require_once $fixture;
+
+        $previousClassName = 'Shopware\Tests\Legacy\UnregisteredClass';
+        class_alias(ClassMovedAttributeUsage::class, $previousClassName);
+
+        $this->classAliases = [$previousClassName => ClassMovedAttributeUsage::class];
+
+        $this->containerXmlPath = __DIR__ . '/data/BCChangeAttributeUsageRule/services-decorated.xml';
+        /** @phpstan-ignore phpstanApi.constructor */
+        $factory = new XmlServiceMapFactory($this->containerXmlPath);
+        /** @phpstan-ignore phpstanApi.method */
+        $this->serviceMap = $factory->create();
+
+        $this->analyse([$fixture], []);
+    }
+
     protected function getRule(): Rule
     {
         /** @phpstan-ignore phpstanApi.constructor */

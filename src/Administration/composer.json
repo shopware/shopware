@@ -4,9 +4,6 @@
     "type": "library",
     "license": "MIT",
     "autoload": {
-        "files": [
-            "Framework/Deprecation/class_aliases.php"
-        ],
         "psr-4": {
             "Shopware\\Administration\\": ""
         },

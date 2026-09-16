@@ -749,4 +749,88 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(afterSaveFn).toHaveBeenCalledTimes(1);
         expect(promiseResolved).toBe(true);
     });
+
+    it('should show the API error detail when onError receives an API error', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.onError({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            detail: 'The order total does not match the calculated total.',
+                        },
+                    ],
+                },
+            },
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageRecalculationError' + 'The order total does not match the calculated total.',
+        });
+    });
+
+    it('should show the plain snippet when onError receives an error without a response', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.onError(new Error('network down'));
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageRecalculationError',
+        });
+    });
+
+    it.each([
+        [
+            'onSaveEdits',
+            (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed')))),
+        ],
+        [
+            'onCancelEditing',
+            (vm) =>
+                (vm.orderRepository.deleteVersion = jest
+                    .fn()
+                    .mockResolvedValue([])
+                    .mockRejectedValueOnce(apiError('delete failed'))),
+        ],
+        [
+            'onRecalculateAndReload',
+            (vm) => (vm.orderService.recalculateOrder = jest.fn(() => Promise.reject(apiError('recalculate failed')))),
+        ],
+        [
+            'saveAndReload',
+            (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed')))),
+        ],
+    ])('should forward the real API error detail from %s to the notification', async (methodName, rejectWith) => {
+        wrapper = await createWrapper({
+            lineItems: [{ id: 'lineItem1' }],
+        });
+        await flushPromises();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+        rejectWith(wrapper.vm);
+
+        await wrapper.vm[methodName]();
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: expect.stringContaining('failed'),
+        });
+    });
 });
+
+function apiError(detail) {
+    return {
+        response: {
+            data: {
+                errors: [{ detail }],
+            },
+        },
+    };
+}

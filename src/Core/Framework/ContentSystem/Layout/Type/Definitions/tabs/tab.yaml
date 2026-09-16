@@ -1,0 +1,34 @@
+meta:
+  label: "Tab"
+  description: "A single tab of a tab panel. Its title becomes the navigation item, its content slot becomes the tab pane."
+  icon: "regular-folder"
+  category: "layout"
+  copilot:
+    summary: "Single tab of a tab panel."
+    hints:
+      - "Only useful inside the tabs slot of a Tab Panel."
+      - "The navigation item and the tab pane are connected automatically, no ids are needed."
+
+properties:
+  title:
+    type: string
+    translatable: true
+    title: "Title"
+    description: "Label of the navigation item belonging to this tab."
+    default: "Tab"
+    adminUI:
+      component: "text"
+      panel: "general"
+
+  active:
+    type: boolean
+    title: "Open by default"
+    description: "Whether this tab is the one shown when the page is opened."
+    default: false
+    adminUI:
+      panel: "general"
+      helpText: "Only one tab of a panel should be open by default. If none is, the first tab opens."
+
+slots:
+  - name: content
+    description: "Elements rendered inside this tab."

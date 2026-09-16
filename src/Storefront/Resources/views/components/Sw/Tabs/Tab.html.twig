@@ -1,0 +1,41 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{# `title` is rendered by Sw:Tabs:Panel, but must stay declared here so it does not land on the pane as an HTML title attribute. #}
+{% props
+    slots = [],
+    title = '',
+    active = false,
+%}
+
+{# The content element id pairs this pane with its navigation item in Sw:Tabs:Panel, so no authored ids are needed. #}
+{% set elementId = attributes.all()['data-element-id']|default(null) %}
+
+{% set paneCVA = cva({
+    base: 'sw-tab-pane tab-pane fade',
+    variants: {
+        active: {
+            'true': 'show active',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: paneCVA.apply({ active }),
+    role: 'tabpanel',
+    tabindex: '0',
+} %}
+
+{% if elementId %}
+    {% set attributeDefaults = attributeDefaults|merge({
+        id: 'sw-tab-pane-' ~ elementId,
+        'aria-labelledby': 'sw-tab-' ~ elementId,
+    }) %}
+{% endif %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        <twig:Slot name="content"></twig:Slot>
+    {% endblock %}
+</div>

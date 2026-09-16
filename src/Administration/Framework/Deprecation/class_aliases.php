@@ -2,6 +2,8 @@
 
 use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 
+// Runs while Composer initializes, before PHPUnit can start collecting coverage.
+// @codeCoverageIgnoreStart
 foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
     if (class_exists($previousClassName, autoload: false)) {
         continue;
@@ -9,3 +11,4 @@ foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName)
 
     class_alias($currentClassName, $previousClassName);
 }
+// @codeCoverageIgnoreEnd

@@ -7,7 +7,7 @@ index 470779f..61c1804 100644
      })();
 -
 +
-+    require_once getcwd() . '/src/Core/Framework/Deprecation/ClassAliasRegistry.php';
++    require_once __DIR__ . '/../../../../../../src/Core/Framework/Deprecation/ClassAliasRegistry.php';
 +    $classAliases = \Shopware\Core\Framework\Deprecation\ClassAliasRegistry::ALIASES;
 +
      class ExcludeExperimental implements  ClassBased\ClassBased, InterfaceBased\InterfaceBased, TraitBased\TraitBased, MethodBased\MethodBased, PropertyBased\PropertyBased, FunctionBased\FunctionBased

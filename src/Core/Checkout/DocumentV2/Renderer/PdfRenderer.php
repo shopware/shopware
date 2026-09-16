@@ -92,6 +92,9 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
      * Unicode TrueType fonts encode text in the CPDF stream as UTF-16BE (null-byte padded),
      * while built-in standard 14 AFM fonts (such as Helvetica, when external fonts are blocked
      * or fallback is used) encode text as single-byte strings. Both encodings are replaced.
+     *
+     * Verbatim port of the v1 implementation at
+     * {@see \Shopware\Core\Checkout\Document\Service\PdfRenderer::injectPageCount}.
      */
     private function injectPageCount(Dompdf $dompdf): void
     {

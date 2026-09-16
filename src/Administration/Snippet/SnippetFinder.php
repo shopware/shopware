@@ -4,6 +4,7 @@ namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -39,6 +40,8 @@ class SnippetFinder implements SnippetFinderInterface
         private readonly TranslationConfig $translationConfig,
         private readonly AbstractTranslationLoader $translationLoader,
         private readonly HtmlSanitizer $htmlSanitizer,
+        private readonly LoggerInterface $logger,
+        private readonly bool $debug,
     ) {
     }
 
@@ -242,8 +245,23 @@ class SnippetFinder implements SnippetFinderInterface
             } else {
                 $content = $this->translationReader->read($file->location);
             }
-            if ($content !== '') {
+
+            if ($content === '') {
+                continue;
+            }
+
+            try {
                 $snippets[] = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+            } catch (\JsonException $e) {
+                if ($this->debug) {
+                    throw SnippetException::invalidSnippetFile($file->location, $e);
+                }
+
+                // a single broken snippet file (e.g. from a plugin) must not take down the whole administration
+                $this->logger->error(
+                    \sprintf('The administration snippet file "%s" is invalid and was skipped: %s', $file->location, $e->getMessage()),
+                    ['exception' => $e]
+                );
             }
         }
 

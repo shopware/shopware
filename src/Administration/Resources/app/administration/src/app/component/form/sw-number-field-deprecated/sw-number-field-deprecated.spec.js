@@ -289,6 +289,18 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         await input.setValue('22,33');
         await input.trigger('change');
         expect(input.element.value).toBe('22.33');
+
+        await input.setValue('1.333,33');
+        await input.trigger('change');
+        expect(input.element.value).toBe('1333.33');
+
+        const secondWrapper = await createWrapper();
+        await flushPromises();
+
+        const secondInput = secondWrapper.find('input');
+        await secondInput.setValue('1,333.33');
+        await secondInput.trigger('change');
+        expect(secondInput.element.value).toBe('1333.33');
     });
 
     it('should round decimal places', async () => {

@@ -52,7 +52,7 @@
                     :disabled="!acl.can('mail_templates.creator') || undefined"
                     @click="onDuplicate(item.id)"
                 >
-                    {{ $t('sw-mail-template.list.contextMenuDuplicate') }}
+                    {{ $t('global.default.duplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>

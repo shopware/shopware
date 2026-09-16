@@ -39,6 +39,7 @@ class AddedFilterTest extends TestCase
                         'translationKey' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -48,6 +49,7 @@ class AddedFilterTest extends TestCase
                         'translationKey' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -61,6 +63,7 @@ class AddedFilterTest extends TestCase
                         'translationKey' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -70,6 +73,7 @@ class AddedFilterTest extends TestCase
                         'translationKey' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -86,6 +90,7 @@ class AddedFilterTest extends TestCase
                         'translationKey' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.bar' => [
                         'value' => '',
@@ -95,6 +100,7 @@ class AddedFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'firstSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -108,6 +114,7 @@ class AddedFilterTest extends TestCase
                         'translationKey' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bar' => [
                         'value' => '',
@@ -117,6 +124,7 @@ class AddedFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],

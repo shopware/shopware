@@ -7,17 +7,22 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * OAuth integrations should rely on {@see UserRepositoryInterface} instead of this concrete Shopware class.
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * Bcrypt hash for a static dummy password used to equalize timing when no user is found.
+     * Bcrypt hash for a static placeholder password used to equalize timing when no user is found.
      */
-    private const DUMMY_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+    private const PLACEHOLDER_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
 
     /**
      * @internal
@@ -41,7 +46,7 @@ class UserRepository implements UserRepositoryInterface
         }
 
         $builder = $this->connection->createQueryBuilder();
-        $user = $builder->select('user.id', 'user.password')
+        $user = $builder->select('user.id', 'user.password', 'user.active')
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)
@@ -49,11 +54,15 @@ class UserRepository implements UserRepositoryInterface
 
         if (!$user) {
             // Prevent user enumeration via timing attacks by always running password_verify().
-            $user = ['password' => self::DUMMY_PASSWORD_HASH];
+            $user = ['password' => self::PLACEHOLDER_PASSWORD_HASH];
             $password = 'invalid-password-will-always-fail';
         }
 
         if (!password_verify($password, (string) $user['password'])) {
+            return null;
+        }
+
+        if (!(bool) $user['active']) {
             return null;
         }
 

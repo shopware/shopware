@@ -9,8 +9,6 @@ use Shopware\Core\DevOps\DevOps;
 use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
 use Shopware\Core\DevOps\Docs\Script\HooksReferenceGenerator;
 use Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand;
-use Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand;
-use Shopware\Core\DevOps\System\Command\SystemRestoreDatabaseCommand;
 use Shopware\Core\DevOps\Test\Command\MakeCoverageTestCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -55,39 +53,28 @@ class DevOpsTest extends TestCase
             HooksReferenceGenerator::class,
         ];
 
-        $e2eOnlyServices = [
-            SystemDumpDatabaseCommand::class,
-            SystemRestoreDatabaseCommand::class,
-        ];
-
         yield 'production environment' => [
             'environment' => 'prod',
             'expectedServices' => $baseServices,
-            'unexpectedServices' => [...$e2eOnlyServices, MakeCoverageTestCommand::class],
+            'unexpectedServices' => [MakeCoverageTestCommand::class],
         ];
 
         yield 'test environment' => [
             'environment' => 'test',
             'expectedServices' => $baseServices,
-            'unexpectedServices' => [...$e2eOnlyServices, MakeCoverageTestCommand::class],
+            'unexpectedServices' => [MakeCoverageTestCommand::class],
         ];
 
         yield 'staging environment' => [
             'environment' => 'staging',
             'expectedServices' => $baseServices,
-            'unexpectedServices' => [...$e2eOnlyServices, MakeCoverageTestCommand::class],
-        ];
-
-        yield 'e2e environment' => [
-            'environment' => 'e2e',
-            'expectedServices' => [...$baseServices, ...$e2eOnlyServices],
             'unexpectedServices' => [MakeCoverageTestCommand::class],
         ];
 
         yield 'dev environment' => [
             'environment' => 'dev',
             'expectedServices' => [...$baseServices, MakeCoverageTestCommand::class],
-            'unexpectedServices' => $e2eOnlyServices,
+            'unexpectedServices' => [],
         ];
     }
 }

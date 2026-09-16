@@ -7,11 +7,10 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import LocaleFactory from 'src/core/factory/locale.factory';
 import MockAdapter from 'axios-mock-adapter';
-import type { AxiosInstance } from 'axios';
 
 function createSnippetApiService() {
     const context = Shopware.Context?.api || {};
-    const client = createHTTPClient(context) as AxiosInstance;
+    const client = createHTTPClient(context);
     const clientMock = new MockAdapter(client);
     const loginService = createLoginService(client, context);
     const snippetApiService = new SnippetApiService(client, loginService);
@@ -417,19 +416,19 @@ describe('core/service/api/snippet.api.service.ts', () => {
         it('should get locales correctly', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
-            clientMock.onGet('/_admin/locales').reply(200, [
-                'en-GB',
-                'de-DE',
-                'fr-FR',
-            ]);
+            clientMock.onGet('/_admin/locales').reply(200, {
+                'lang-id-1': 'en-GB',
+                'lang-id-2': 'de-DE',
+                'lang-id-3': 'fr-FR',
+            });
 
             const result = await snippetApiService.getLocales();
 
-            expect(result).toEqual([
-                'en-GB',
-                'de-DE',
-                'fr-FR',
-            ]);
+            expect(result).toEqual({
+                'lang-id-1': 'en-GB',
+                'lang-id-2': 'de-DE',
+                'lang-id-3': 'fr-FR',
+            });
         });
     });
 });

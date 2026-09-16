@@ -8,7 +8,11 @@ import './sw-theme-list-item.scss';
 export default {
     template,
 
-    emits: ['preview-image-change', 'item-click', 'theme-delete'],
+    emits: [
+        'preview-image-change',
+        'item-click',
+        'theme-delete',
+    ],
 
     props: {
         theme: {
@@ -68,7 +72,7 @@ export default {
 
     methods: {
         isActive() {
-            return this.theme && this.theme.salesChannels && this.theme.salesChannels.length > 0 || this.active;
+            return (this.theme && this.theme.salesChannels && this.theme.salesChannels.length > 0) || this.active;
         },
 
         onChangePreviewImage(theme) {

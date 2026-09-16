@@ -72,6 +72,18 @@
         {% endblock %}
     </sw-container>
 
+    {% block sw_product_basic_form_cover_image_description_hint %}
+    <mt-banner
+        v-if="!hideCoverImageDescriptionHint"
+        class="sw-product-basic-form__cover-image-description-hint"
+        variant="info"
+        closable
+        @close="onCloseCoverImageDescriptionHint"
+    >
+        {{ $t('sw-product.basicForm.hintCoverImageDescription') }}
+    </mt-banner>
+    {% endblock %}
+
     {% block sw_product_basic_form_description_field %}
     <sw-inherit-wrapper
         v-model:value="product.description"

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -15,6 +15,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -28,28 +29,29 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(ProductReviewSaveRoute::class)]
 class ProductReviewSaveRouteTest extends TestCase
 {
     /**
-     * @var MockObject&EntityRepository<ProductReviewCollection>
+     * @var Stub&EntityRepository<ProductReviewCollection>
      */
-    private MockObject&EntityRepository $repository;
+    private Stub&EntityRepository $repository;
 
-    private MockObject&DataValidator $validator;
+    private Stub&DataValidator $validator;
 
     private StaticSystemConfigService $config;
 
-    private MockObject&EventDispatcherInterface $eventDispatcher;
+    private Stub&EventDispatcherInterface $eventDispatcher;
 
-    private MockObject&ProductProvider $productProvider;
+    private Stub&ProductProvider $productProvider;
 
     private ProductReviewSaveRoute $route;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->validator = $this->createMock(DataValidator::class);
+        $this->repository = static::createStub(EntityRepository::class);
+        $this->validator = static::createStub(DataValidator::class);
         $this->config = new StaticSystemConfigService([
             'test' => [
                 'core.listing.showReview' => true,
@@ -60,8 +62,8 @@ class ProductReviewSaveRouteTest extends TestCase
                 'core.basicInformation.email' => 'noreply@example.com',
             ],
         ]);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->productProvider = $this->createMock(ProductProvider::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->productProvider = static::createStub(ProductProvider::class);
 
         $this->route = new ProductReviewSaveRoute(
             $this->repository,
@@ -100,10 +102,14 @@ class ProductReviewSaveRouteTest extends TestCase
         $salesChannelContext->expects($this->exactly(1))->method('getLanguageId')->willReturn($context->getLanguageId());
         $salesChannelContext->expects($this->exactly(4))->method('getContext')->willReturn($context);
 
-        $this->validator->expects($this->once())->method('getViolations')->willReturn(new ConstraintViolationList());
-        $this->productProvider->expects($this->once())->method('getData')->with($productId, $context)->willReturn($product);
+        $validator = $this->createMock(DataValidator::class);
+        $validator->expects($this->once())->method('getViolations')->willReturn(new ConstraintViolationList());
 
-        $this->repository
+        $productProvider = $this->createMock(ProductProvider::class);
+        $productProvider->expects($this->once())->method('getData')->with($productId, $context)->willReturn($product);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
             ->expects($this->once())
             ->method('upsert')
             ->with([
@@ -142,12 +148,21 @@ class ProductReviewSaveRouteTest extends TestCase
             $product
         );
 
-        $this->eventDispatcher
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with($event, ReviewFormEvent::EVENT_NAME);
 
-        $this->route->save($productId, $data, $salesChannelContext);
+        $route = new ProductReviewSaveRoute(
+            $repository,
+            $validator,
+            $this->config,
+            $eventDispatcher,
+            $productProvider
+        );
+
+        $route->save($productId, $data, $salesChannelContext);
     }
 
     public function testSaveReviewDeactivated(): void

@@ -10,12 +10,14 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilter
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter as DALFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PriceListingFilterHandler::class)]
 class PriceFilterHandlerTest extends TestCase
 {
@@ -25,7 +27,7 @@ class PriceFilterHandlerTest extends TestCase
         $request->setMethod($method);
 
         $handler = new PriceListingFilterHandler();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $result = $handler->create($request, $context);
 

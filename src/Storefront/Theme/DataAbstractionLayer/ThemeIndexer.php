@@ -19,7 +19,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeIndexer extends EntityIndexer
 {
     /**

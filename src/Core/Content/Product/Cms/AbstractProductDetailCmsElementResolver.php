@@ -53,10 +53,10 @@ abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElemen
             return null;
         }
 
-        $bestVariant = $searchResult->filterByProperty('parentId', $productId)->first();
+        $bestVariant = $searchResult->getEntities()->filterByProperty('parentId', $productId)->first();
 
         /** @var SalesChannelProductEntity|null $product */
-        $product = $bestVariant ?? $searchResult->get($productId);
+        $product = $bestVariant ?? $searchResult->getEntities()->get($productId);
 
         return $product;
     }
@@ -68,6 +68,7 @@ abstract class AbstractProductDetailCmsElementResolver extends AbstractCmsElemen
                 new EqualsFilter('product.parentId', $productId),
                 new EqualsFilter('id', $productId),
             ]))
+            ->addAssociation('properties.group')
             ->addGroupField(new FieldGrouping('displayGroup'));
 
         $criteria->setTitle('cms::product-detail-static');

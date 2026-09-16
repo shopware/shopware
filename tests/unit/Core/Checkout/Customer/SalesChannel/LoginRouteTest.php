@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(LoginRoute::class)]
 class LoginRouteTest extends TestCase
 {
@@ -49,7 +51,7 @@ class LoginRouteTest extends TestCase
         $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
 
         $route = new LoginRoute($accountService, $requestStack, $rateLimiter);
-        $route->login(new RequestDataBag(['email' => $email, 'password' => 'shopware']), $this->createMock(SalesChannelContext::class));
+        $route->login(new RequestDataBag(['email' => $email, 'password' => 'shopware']), static::createStub(SalesChannelContext::class));
 
         static::assertSame([[RateLimiter::LOGIN_ROUTE, $expectedCombinedKey]], $ensureAcceptedCalls);
         static::assertSame([
@@ -83,7 +85,7 @@ class LoginRouteTest extends TestCase
         $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
 
         $route = new LoginRoute($accountService, $requestStack, $rateLimiter);
-        $route->login(new RequestDataBag(['email' => $email, 'password' => 'shopware']), $this->createMock(SalesChannelContext::class));
+        $route->login(new RequestDataBag(['email' => $email, 'password' => 'shopware']), static::createStub(SalesChannelContext::class));
 
         static::assertSame([
             [RateLimiter::LOGIN_CLIENT, $ip],
@@ -101,7 +103,7 @@ class LoginRouteTest extends TestCase
         $requestStack->push(new Request(server: ['REMOTE_ADDR' => '10.0.0.1']));
 
         $route = new LoginRoute(
-            $this->createMock(AccountService::class),
+            static::createStub(AccountService::class),
             $requestStack,
             $rateLimiter,
         );
@@ -110,7 +112,7 @@ class LoginRouteTest extends TestCase
 
         $route->login(
             new RequestDataBag(['email' => 'test@example.com', 'password' => 'pw']),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
     }
 
@@ -129,7 +131,7 @@ class LoginRouteTest extends TestCase
 
         $response = $route->login(
             new RequestDataBag(['email' => 'test@example.com', 'password' => 'pw']),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         static::assertSame('test-token', $response->getToken());

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityWriteGateway::class)]
 class EntityWriteGatewayTest extends TestCase
 {
@@ -98,8 +100,8 @@ class EntityWriteGatewayTest extends TestCase
             100,
             new FakeConnection([]),
             $this->dispatcher,
-            $this->createMock(ExceptionHandlerRegistry::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            static::createStub(ExceptionHandlerRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class)
         );
     }
 
@@ -123,7 +125,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
+            static::createStub(ValidatorInterface::class),
             $this->createGateway()
         );
 

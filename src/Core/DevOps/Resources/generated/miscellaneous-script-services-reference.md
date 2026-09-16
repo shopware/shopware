@@ -125,7 +125,7 @@ The `acl` service allows you to check if your app has been granted the specified
 		        'ids': [ hook.productId ]
 		    } %}
 		
-		    {% set product = services.repository.search('product', criteria).first %}
+		    {% set product = services.repository.search('product', criteria).getEntities().first %}
 		    {% do page.addExtension('myProduct', product) %}
 		{% endif %}
         ```

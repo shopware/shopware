@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<container>
+    <services>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\BadTaggedService" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\BadTaggedService">
+            <tag name="test.mapped"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\GoodTaggedService" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\GoodTaggedService">
+            <tag name="test.mapped"/>
+            <tag name="test.union"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\InternalContractConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\InternalContractConsumer">
+            <argument type="tagged_iterator" tag="test.internal"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\LocatorConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\LocatorConsumer">
+            <argument type="service" id=".service_locator.test_mapped"/>
+        </service>
+        <service id=".service_locator.test_mapped" class="Symfony\Component\DependencyInjection\ServiceLocator">
+            <argument type="collection">
+                <argument key="mapped" type="service_closure" id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\GoodTaggedService"/>
+            </argument>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\MappedConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\MappedConsumer">
+            <argument type="tagged_iterator" tag="test.mapped"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnmappedConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnmappedConsumer">
+            <argument type="tagged_iterator" tag="test.unmapped"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnionMappedConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\UnionMappedConsumer">
+            <argument type="tagged_iterator" tag="test.union"/>
+        </service>
+        <service id="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\WrongMappedConsumer" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\WrongMappedConsumer">
+            <argument type="tagged_iterator" tag="test.mapped"/>
+        </service>
+    </services>
+</container>

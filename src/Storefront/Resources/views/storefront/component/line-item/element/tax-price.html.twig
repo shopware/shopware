@@ -16,7 +16,8 @@
                 &minus;
             {% endif %}
 
-            {{ calculatedTaxValue|abs|currency }}
+            {% set isoCode = page.order.currency.isoCode ?? context.currency.isoCode %}
+            {{ calculatedTaxValue|abs|currency(isoCode) }}
             <br>
         {% endfor %}
     {% endblock %}

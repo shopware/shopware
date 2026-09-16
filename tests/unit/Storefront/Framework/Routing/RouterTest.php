@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Router::class)]
 class RouterTest extends TestCase
 {

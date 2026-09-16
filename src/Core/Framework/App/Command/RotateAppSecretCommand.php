@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
@@ -17,15 +16,16 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:secret:rotate',
     description: 'Rotate the shared app secret and integration credentials for one or all apps.',
 )]
-#[Package('framework')]
 class RotateAppSecretCommand extends Command
 {
     /**
@@ -46,7 +46,7 @@ class RotateAppSecretCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
 
         $name = $input->getArgument('name');

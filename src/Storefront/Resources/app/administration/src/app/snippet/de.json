@@ -7,11 +7,14 @@
     "editContent": "Theme bearbeiten",
     "defaultTitle": "Kein Theme zugewiesen",
     "defaultAuthor": "Autor",
+    "pendingAssignment": {
+      "description": "\"{pendingThemeName}\" wird im Hintergrund kompiliert und ersetzt \"{liveThemeName}\" automatisch, sobald es bereit ist.",
+      "descriptionNoLiveTheme": "\"{pendingThemeName}\" wird im Hintergrund kompiliert und wird automatisch angewendet, sobald es bereit ist."
+    },
     "modal": {
       "modalTitleChange": "Theme wechseln",
       "textChangeTheme": "Möchtest Du wirklich das Theme wechseln? Dies kann die Darstellung Deines Shops verändern.",
-      "buttonChange": "Theme wechseln",
-      "buttonCancel": "Abbrechen"
+      "buttonChange": "Theme wechseln"
     }
   }
 }

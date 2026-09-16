@@ -12,6 +12,7 @@ use PHPUnit\Event\TestRunner\ExecutionFinished;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayload;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayloadCollection;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Gateway\DatadogGateway;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestRunnerExecutionF
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TestRunnerExecutionFinishedSubscriber::class)]
 class TestRunnerExecutionFinishedSubscriberTest extends TestCase
 {
@@ -107,14 +109,14 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
             0,
             0,
             0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            false,
+            false,
+            false,
+            0,
         );
         $snap = new Snapshot($time, $memory, $memory, $gc);
 

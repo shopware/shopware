@@ -62,7 +62,7 @@ class ShippingCityRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $billingCity): void
     {
         $cityName = 'kyln123';
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setCity($billingCity);
 
@@ -87,7 +87,7 @@ class ShippingCityRuleTest extends TestCase
             $this->expectException(CustomerException::class);
         }
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $shippingLocation = new ShippingLocation(new CountryEntity(), null, new CustomerAddressEntity());
         $salesChannelContext->method('getShippingLocation')->willReturn($shippingLocation);

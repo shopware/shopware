@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\MessageHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Message\LogPermissionToRegistryMessage;
 use Shopware\Core\Service\MessageHandler\LogConsentToRegistryHandler;
 use Shopware\Core\Service\Permission\ConsentState;
@@ -14,6 +15,7 @@ use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LogConsentToRegistryHandler::class)]
 class LogConsentToRegistryHandlerTest extends TestCase
 {

@@ -12,11 +12,8 @@ const appIntegration = {
     mcpAllowlist: null,
 };
 
-async function createWrapper(privileges = [], integrations = null, options = {}) {
+async function createWrapper(privileges = [], integrations = null) {
     const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
-    const saveMock = options.saveMock ?? jest.fn().mockResolvedValue();
-    const searchMock = options.searchMock ?? jest.fn().mockResolvedValue(defaultIntegrations);
-    const updateAdminMock = options.updateAdminMock ?? jest.fn().mockResolvedValue();
 
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
@@ -29,9 +26,13 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                             });
                         },
 
-                        search: searchMock,
+                        search: () => {
+                            return Promise.resolve(defaultIntegrations);
+                        },
 
-                        save: saveMock,
+                        save: () => {
+                            return Promise.resolve();
+                        },
 
                         delete: () => {
                             return Promise.resolve();
@@ -49,7 +50,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                     saveMcpAllowlist: () => {
                         return Promise.resolve();
                     },
-                    updateAdmin: updateAdminMock,
                 },
 
                 acl: {
@@ -60,10 +60,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
 
                         return privileges.includes(identifier);
                     },
-                },
-
-                feature: {
-                    isActive: (flag) => flag === 'MCP_SERVER',
                 },
             },
 
@@ -143,7 +139,7 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -232,70 +228,6 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
-    it('should update the admin flag through the integration service', async () => {
-        const integration = {
-            id: '44de136acf314e7184401d36406c1e90',
-            label: 'Test integration',
-            admin: true,
-            aclRoles: [],
-            getOrigin: () => {
-                return { admin: false };
-            },
-        };
-        const saveMock = jest.fn().mockResolvedValue();
-        const updateAdminMock = jest.fn().mockResolvedValue();
-        const searchMock = jest.fn().mockResolvedValue([integration]);
-
-        const wrapper = await createWrapper(
-            [
-                'admin',
-                'integration.editor',
-            ],
-            [integration],
-            {
-                saveMock,
-                searchMock,
-                updateAdminMock,
-            },
-        );
-
-        await wrapper.vm.updateIntegration(integration);
-        await flushPromises();
-
-        expect(saveMock).toHaveBeenCalledWith(integration);
-        expect(updateAdminMock).toHaveBeenCalledWith(integration.id, true);
-        expect(searchMock).toHaveBeenCalledTimes(2);
-    });
-
-    it('should not update the admin flag when it was not changed', async () => {
-        const integration = {
-            id: '44de136acf314e7184401d36406c1e90',
-            label: 'Test integration',
-            admin: false,
-            aclRoles: [],
-            getOrigin: () => {
-                return { admin: false };
-            },
-        };
-        const updateAdminMock = jest.fn().mockResolvedValue();
-
-        const wrapper = await createWrapper(
-            [
-                'admin',
-                'integration.editor',
-            ],
-            [integration],
-            {
-                updateAdminMock,
-            },
-        );
-
-        await wrapper.vm.updateIntegration(integration);
-        await flushPromises();
-
-        expect(updateAdminMock).not.toHaveBeenCalled();
-    });
-
     it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper([
             'integration.deleter',
@@ -308,8 +240,10 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         const deleteModal = wrapper.find('.sw-modal');
         expect(deleteModal.exists()).toBeTruthy();
 
-        const deleteButton = wrapper.findByText('button', 'sw-integration.detail.buttonDelete');
-        expect(deleteButton.text()).toBe('sw-integration.detail.buttonDelete');
+        const deleteButton = deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete');
+        expect(deleteButton.text()).toBe('global.default.delete');
         await deleteButton.trigger('click');
         await flushPromises();
 

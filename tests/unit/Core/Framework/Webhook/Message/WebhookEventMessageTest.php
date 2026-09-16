@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Message;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Test\Assert\Serialization;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookEventMessage::class)]
 class WebhookEventMessageTest extends TestCase
 {

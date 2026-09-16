@@ -1,3 +1,5 @@
+const FOCUS_TRAP_GUARD_CLASS = 'js-focus-trap-guard';
+
 /**
  * This class is used to make it easier to preserve the focus state.
  * It is used to set the focus back to a given element after displaying content in a modal.
@@ -16,6 +18,10 @@ export default class FocusHandler {
 
         // Stores different focus states.
         this._focusMap = new Map();
+
+        // Reference to the currently active focus-trap guard element.
+        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+        this._focusTrapGuard = null;
 
         this._focusAbleElements = `
             input:not([tabindex^="-"]):not([disabled]):not([type="hidden"]),
@@ -169,5 +175,48 @@ export default class FocusHandler {
         const result = this.getFocusableElements(parentNode);
 
         return result[result.length - 1];
+    }
+
+    /**
+     * Inserts a temporary focusable element directly after the given element to keep the Bootstrap
+     * focus-trap working when a modal/offcanvas is the last focusable markup before `</body>`.
+     * Without it, tabbing forward escapes the modal/offcanvas and the focus is lost.
+     *
+     * @internal
+     * @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+     * @param {HTMLElement} afterEl The element the focus-trap is applied to (e.g. modal or offcanvas).
+     * @return {HTMLElement|null}
+     */
+    _addFocusTrapGuard(afterEl) {
+        if (!afterEl || !afterEl.parentNode) {
+            return null;
+        }
+
+        // Ensure there is never more than one focus-trap guard at a time.
+        this._removeFocusTrapGuard();
+
+        const focusTrapGuard = document.createElement('div');
+        focusTrapGuard.setAttribute('tabindex', '0');
+        focusTrapGuard.classList.add(FOCUS_TRAP_GUARD_CLASS);
+
+        afterEl.insertAdjacentElement('afterend', focusTrapGuard);
+        this._focusTrapGuard = focusTrapGuard;
+
+        return focusTrapGuard;
+    }
+
+    /**
+     * Removes the focus-trap guard element that was added via `_addFocusTrapGuard`.
+     *
+     * @internal
+     * @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+     */
+    _removeFocusTrapGuard() {
+        if (!this._focusTrapGuard) {
+            return;
+        }
+
+        this._focusTrapGuard.remove();
+        this._focusTrapGuard = null;
     }
 }

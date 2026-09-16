@@ -31,12 +31,14 @@ class ConsentChangedSubscriberTest extends TestCase
 
     public function testConsentAccepted(): void
     {
-        $logger = $this->createMock(ConsentLogInterface::class);
-        $logger->method('log')->with(
-            ConsentStatus::ACCEPTED,
-            'test-consent',
-            'identifier-123',
-            'actor-456'
+        $logger = static::createStub(ConsentLogInterface::class);
+        $logger->method('log')->willReturnCallback(
+            function (ConsentStatus $action, string $consentName, ?string $identifier, string $actor): void {
+                static::assertSame(ConsentStatus::ACCEPTED, $action);
+                static::assertSame('test-consent', $consentName);
+                static::assertSame('identifier-123', $identifier);
+                static::assertSame('actor-456', $actor);
+            }
         );
 
         $event = new ConsentAcceptedEvent(
@@ -52,12 +54,14 @@ class ConsentChangedSubscriberTest extends TestCase
 
     public function testConsentRevoked(): void
     {
-        $logger = $this->createMock(ConsentLogInterface::class);
-        $logger->method('log')->with(
-            ConsentStatus::REVOKED,
-            'test-consent',
-            'identifier-123',
-            'actor-456'
+        $logger = static::createStub(ConsentLogInterface::class);
+        $logger->method('log')->willReturnCallback(
+            function (ConsentStatus $action, string $consentName, ?string $identifier, string $actor): void {
+                static::assertSame(ConsentStatus::REVOKED, $action);
+                static::assertSame('test-consent', $consentName);
+                static::assertSame('identifier-123', $identifier);
+                static::assertSame('actor-456', $actor);
+            }
         );
 
         $event = new ConsentRevokedEvent(

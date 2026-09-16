@@ -39,7 +39,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -56,7 +56,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_EQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -73,7 +73,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -90,7 +90,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -107,7 +107,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_LTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -124,7 +124,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -141,7 +141,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 99, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -158,7 +158,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_GTE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -175,7 +175,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 101, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope($this->lineItem, $context))
@@ -192,7 +192,7 @@ class LineItemUnitPriceRuleTest extends TestCase
     {
         $rule = (new LineItemUnitPriceRule())->assign(['amount' => 100, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope($this->lineItem, $context))

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -20,14 +21,14 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(ListAddressRoute::class)]
 #[Package('checkout')]
+#[CoversClass(ListAddressRoute::class)]
 class ListAddressRouteTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository<CustomerAddressCollection>
+     * @var Stub&SalesChannelRepository<CustomerAddressCollection>
      */
-    private MockObject&SalesChannelRepository $addressRepository;
+    private Stub&SalesChannelRepository $addressRepository;
 
     private CollectingEventDispatcher $eventDispatcher;
 
@@ -35,7 +36,7 @@ class ListAddressRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->addressRepository = $this->createMock(SalesChannelRepository::class);
+        $this->addressRepository = static::createStub(SalesChannelRepository::class);
         $this->eventDispatcher = new CollectingEventDispatcher();
 
         $this->route = new ListAddressRoute(
@@ -57,12 +58,14 @@ class ListAddressRouteTest extends TestCase
         $customer = $context->getCustomer();
         static::assertNotNull($customer);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $searchResult->method('getEntities')->willReturn(
             new CustomerAddressCollection([$context->getShippingLocation()->getAddress() ?? new CustomerAddressEntity()])
         );
 
-        $this->addressRepository->expects($this->once())
+        /** @var MockObject&SalesChannelRepository<CustomerAddressCollection> $addressRepository */
+        $addressRepository = $this->createMock(SalesChannelRepository::class);
+        $addressRepository->expects($this->once())
             ->method('search')
             ->with(
                 static::callback(static function (Criteria $criteria) {
@@ -74,7 +77,9 @@ class ListAddressRouteTest extends TestCase
             )
             ->willReturn($searchResult);
 
-        $response = $this->route->load($criteria, $context, $customer);
+        $route = new ListAddressRoute($addressRepository, $this->eventDispatcher);
+
+        $response = $route->load($criteria, $context, $customer);
 
         static::assertCount(1, $response->getAddressCollection());
 

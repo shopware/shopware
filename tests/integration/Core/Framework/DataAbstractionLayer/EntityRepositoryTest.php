@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -59,6 +60,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -93,7 +95,7 @@ class EntityRepositoryTest extends TestCase
 
         $result = $repository->search($criteria, Context::createDefaultContext());
 
-        static::assertCount(0, $result);
+        static::assertCount(0, $result->getEntities());
     }
 
     /**
@@ -485,11 +487,11 @@ class EntityRepositoryTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'locale.written', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'locale_translation.written', $listener);
 
@@ -528,10 +530,10 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertCount(1, $locale);
+        static::assertCount(1, $locale->getEntities());
 
-        static::assertTrue($locale->has($id));
-        $locale = $locale->get($id);
+        static::assertTrue($locale->getEntities()->has($id));
+        $locale = $locale->getEntities()->get($id);
         static::assertInstanceOf(LocaleEntity::class, $locale);
         static::assertSame('Test', $locale->getName());
     }
@@ -553,7 +555,7 @@ class EntityRepositoryTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'locale.loaded', $listener);
 
@@ -568,10 +570,10 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertCount(1, $locale);
+        static::assertCount(1, $locale->getEntities());
 
-        static::assertTrue($locale->has($id));
-        $locale = $locale->get($id);
+        static::assertTrue($locale->getEntities()->has($id));
+        $locale = $locale->getEntities()->get($id);
         static::assertInstanceOf(LocaleEntity::class, $locale);
         static::assertSame('Test', $locale->getName());
     }
@@ -611,11 +613,11 @@ class EntityRepositoryTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
@@ -641,10 +643,10 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($manufacturerCriteria->getLimit());
         static::assertNull($manufacturerCriteria->getOffset());
 
-        static::assertCount(2, $products);
+        static::assertCount(2, $products->getEntities());
 
-        static::assertTrue($products->has($id));
-        $product = $products->get($id);
+        static::assertTrue($products->getEntities()->has($id));
+        $product = $products->getEntities()->get($id);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('Test', $product->getName());
     }
@@ -660,23 +662,23 @@ class EntityRepositoryTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product.written', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_manufacturer.written', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'tax.written', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_price.written', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'rule.written', $listener);
 
@@ -742,15 +744,15 @@ class EntityRepositoryTest extends TestCase
             $context
         );
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'product_price.loaded', $listener);
 
@@ -785,9 +787,9 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($manufacturerCriteria->getLimit());
         static::assertNull($manufacturerCriteria->getOffset());
 
-        static::assertCount(2, $products);
+        static::assertCount(2, $products->getEntities());
 
-        $product = $products->get($id);
+        $product = $products->getEntities()->get($id);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame('Test', $product->getName());
     }
@@ -828,12 +830,12 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($criteria->getLimit());
         static::assertNull($criteria->getOffset());
 
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($id));
-        static::assertTrue($entities->has($newId));
+        static::assertCount(2, $entities->getEntities());
+        static::assertTrue($entities->getEntities()->has($id));
+        static::assertTrue($entities->getEntities()->has($newId));
 
-        $old = $entities->get($id);
-        $new = $entities->get($newId);
+        $old = $entities->getEntities()->get($id);
+        $new = $entities->getEntities()->get($newId);
 
         static::assertInstanceOf(CategoryEntity::class, $old);
         static::assertInstanceOf(CategoryEntity::class, $new);
@@ -1004,6 +1006,7 @@ class EntityRepositoryTest extends TestCase
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
+            'guest' => true,
             'lastName' => 'not',
             'firstName' => $matchTerm,
             'salutationId' => $salutation,
@@ -1046,12 +1049,12 @@ class EntityRepositoryTest extends TestCase
         static::assertNull($addressCriteria->getLimit());
         static::assertNull($addressCriteria->getOffset());
 
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($recordA));
-        static::assertTrue($entities->has($newId));
+        static::assertCount(2, $entities->getEntities());
+        static::assertTrue($entities->getEntities()->has($recordA));
+        static::assertTrue($entities->getEntities()->has($newId));
 
-        $old = $entities->get($recordA);
-        $new = $entities->get($newId);
+        $old = $entities->getEntities()->get($recordA);
+        $new = $entities->getEntities()->get($newId);
         static::assertInstanceOf(CustomerEntity::class, $old);
         static::assertInstanceOf(CustomerEntity::class, $new);
 
@@ -1283,12 +1286,12 @@ class EntityRepositoryTest extends TestCase
 
         $entities = $repository->search(new Criteria([$id, $newId]), $context);
 
-        static::assertCount(2, $entities);
-        static::assertTrue($entities->has($id));
-        static::assertTrue($entities->has($newId));
+        static::assertCount(2, $entities->getEntities());
+        static::assertTrue($entities->getEntities()->has($id));
+        static::assertTrue($entities->getEntities()->has($newId));
 
-        $old = $entities->get($id);
-        $new = $entities->get($newId);
+        $old = $entities->getEntities()->get($id);
+        $new = $entities->getEntities()->get($newId);
         static::assertInstanceOf(ProductEntity::class, $old);
         static::assertInstanceOf(ProductEntity::class, $new);
 
@@ -1498,6 +1501,49 @@ class EntityRepositoryTest extends TestCase
         foreach ($firstIds as $childrenId) {
             static::assertNotContains($childrenId, $secondIds);
         }
+    }
+
+    public function testPaginatedOneToManyAssociationCoversEveryChildExactlyOnce(): void
+    {
+        $id = Uuid::randomHex();
+
+        // All children share the same (non-unique) name, so the paginated read must rely on a deterministic
+        // tie-breaker (the primary key) to number rows; otherwise pages can overlap or skip children.
+        $children = array_fill(0, 20, ['name' => 'test', 'configurationId' => $id]);
+
+        $data = [
+            'id' => $id,
+            'name' => 'default folder',
+            'configuration' => [
+                'id' => $id,
+                'createThumbnails' => true,
+            ],
+            'children' => $children,
+        ];
+
+        $context = Context::createDefaultContext();
+        /** @var EntityRepository<MediaFolderCollection> $repository */
+        $repository = static::getContainer()->get('media_folder.repository');
+        $repository->create([$data], $context);
+
+        $pageSize = 3;
+        $seen = [];
+
+        for ($offset = 0; $offset < 20; $offset += $pageSize) {
+            $criteria = new Criteria([$id]);
+            $criteria->getAssociation('children')->setLimit($pageSize)->setOffset($offset);
+
+            $folder = $repository->search($criteria, $context)->getEntities()->get($id);
+            static::assertInstanceOf(MediaFolderEntity::class, $folder);
+            static::assertInstanceOf(MediaFolderCollection::class, $folder->getChildren());
+
+            foreach ($folder->getChildren()->getIds() as $childId) {
+                static::assertArrayNotHasKey($childId, $seen, 'Paginated one-to-many read returned an overlapping child');
+                $seen[$childId] = true;
+            }
+        }
+
+        static::assertCount(20, $seen, 'Paginated one-to-many read skipped or duplicated children');
     }
 
     public function testFilterConsistencyOnCriteriaObject(): void

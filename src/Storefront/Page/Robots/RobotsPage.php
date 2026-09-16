@@ -10,7 +10,7 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 /**
  * @codeCoverageIgnore Simple DTO with no business logic, tested indirectly through RobotsPageLoaderTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsPage extends Struct
 {
     protected DomainRuleCollection $domainRules;

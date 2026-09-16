@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Twig\Loader\FilesystemLoader;
@@ -14,6 +15,7 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigLoaderConfigCompilerPass::class)]
 class TwigLoaderConfigCompilerPassTest extends TestCase
 {

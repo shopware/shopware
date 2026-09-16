@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -25,21 +25,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(LineItemFactoryRegistry::class)]
 class LineItemFactoryRegistryTest extends TestCase
 {
-    private LineItemFactoryRegistry $service;
-
     private SalesChannelContext $context;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
+    private EventDispatcherInterface&Stub $eventDispatcher;
 
-    private LineItemFactoryInterface&MockObject $factory;
+    private LineItemFactoryInterface&Stub $factory;
 
     protected function setUp(): void
     {
-        $this->service = new LineItemFactoryRegistry(
-            [$this->factory = $this->createMock(LineItemFactoryInterface::class)],
-            $this->createMock(DataValidator::class),
-            $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class)
-        );
+        $this->factory = static::createStub(LineItemFactoryInterface::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $this->context = Generator::generateSalesChannelContext();
     }
 
@@ -47,9 +42,11 @@ class LineItemFactoryRegistryTest extends TestCase
     {
         $data = ['id' => 'test', 'type' => 'product', 'referencedId' => 'test'];
         $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
-        $this->factory->expects($this->once())->method('create')->with($data, $this->context)->willReturn($lineItem);
-        $returnedLineItem = $this->service->create($data, $this->context);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $factory->expects($this->once())->method('create')->with($data, $this->context)->willReturn($lineItem);
+        $service = $this->buildService(factory: $factory);
+        $returnedLineItem = $service->create($data, $this->context);
         static::assertSame($lineItem, $returnedLineItem);
     }
 
@@ -57,18 +54,22 @@ class LineItemFactoryRegistryTest extends TestCase
     {
         $data = ['type' => 'product', 'referencedId' => 'test'];
         $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
-        $this->factory->expects($this->once())->method('create')->willReturn($lineItem);
-        $returnedLineItem = $this->service->create($data, $this->context);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $factory->expects($this->once())->method('create')->willReturn($lineItem);
+        $service = $this->buildService(factory: $factory);
+        $returnedLineItem = $service->create($data, $this->context);
         static::assertSame($lineItem, $returnedLineItem);
     }
 
     public function testCreateWithUnsupportedType(): void
     {
         $data = ['id' => 'test', 'type' => 'product', 'referencedId' => 'test'];
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(false);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(false);
+        $service = $this->buildService(factory: $factory);
         $this->expectException(CartException::class);
-        $this->service->create($data, $this->context);
+        $service->create($data, $this->context);
     }
 
     public function testUpdate(): void
@@ -79,17 +80,20 @@ class LineItemFactoryRegistryTest extends TestCase
         $cart = new Cart('test');
         $cart->add($lineItem);
 
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
-        $this->eventDispatcher->expects($this->never())->method('dispatch');
-        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+        $factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
-        $this->service->update($cart, ['id' => $id], $this->context);
+        $service = $this->buildService(factory: $factory, eventDispatcher: $eventDispatcher);
+        $service->update($cart, ['id' => $id], $this->context);
     }
 
     public function testUpdateWithMissingLineItem(): void
     {
         $this->expectException(CartException::class);
-        $this->service->update(new Cart('test'), ['id' => Uuid::randomHex(), 'quantity' => 2], $this->context);
+        $this->buildService()->update(new Cart('test'), ['id' => Uuid::randomHex(), 'quantity' => 2], $this->context);
     }
 
     public function testUpdateLineItem(): void
@@ -100,11 +104,14 @@ class LineItemFactoryRegistryTest extends TestCase
 
         $cart = new Cart('test');
 
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
-        $this->eventDispatcher->expects($this->never())->method('dispatch');
-        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+        $factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
-        $this->service->updateLineItem($cart, ['id' => $id], $lineItem, $this->context);
+        $service = $this->buildService(factory: $factory, eventDispatcher: $eventDispatcher);
+        $service->updateLineItem($cart, ['id' => $id], $lineItem, $this->context);
     }
 
     public function testUpdateLineItemWithQuantityEvent(): void
@@ -115,11 +122,14 @@ class LineItemFactoryRegistryTest extends TestCase
 
         $cart = new Cart('test');
 
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
-        $this->eventDispatcher->expects($this->once())->method('dispatch');
-        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => 2, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $eventDispatcher->expects($this->once())->method('dispatch');
+        $factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => 2, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
-        $this->service->updateLineItem($cart, ['id' => $id, 'quantity' => 2], $lineItem, $this->context);
+        $service = $this->buildService(factory: $factory, eventDispatcher: $eventDispatcher);
+        $service->updateLineItem($cart, ['id' => $id, 'quantity' => 2], $lineItem, $this->context);
     }
 
     public function testUpdateLineItemWithQuantityEventAndSetBeforeUpdateQuantity(): void
@@ -134,12 +144,14 @@ class LineItemFactoryRegistryTest extends TestCase
         $beforeUpdateQuantity = $lineItem->getQuantity();
         $newQuantity = 2;
 
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
-        $this->factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => $newQuantity, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(true);
+        $factory->expects($this->once())->method('update')->with($lineItem, ['id' => $id, 'quantity' => $newQuantity, 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE], $this->context);
 
-        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $eventDispatcher->expects($this->once())->method('dispatch');
 
-        $this->eventDispatcher->expects($this->once())->method('dispatch')->with(
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
             static::callback(static function (BeforeLineItemQuantityChangedEvent $event) use ($beforeUpdateQuantity) {
                 static::assertSame($beforeUpdateQuantity, $event->getBeforeUpdateQuantity());
 
@@ -147,7 +159,8 @@ class LineItemFactoryRegistryTest extends TestCase
             })
         );
 
-        $this->service->updateLineItem($cart, ['id' => $id, 'quantity' => $newQuantity], $lineItem, $this->context);
+        $service = $this->buildService(factory: $factory, eventDispatcher: $eventDispatcher);
+        $service->updateLineItem($cart, ['id' => $id, 'quantity' => $newQuantity], $lineItem, $this->context);
     }
 
     public function testUpdateLineItemWithUnsupportedType(): void
@@ -158,8 +171,21 @@ class LineItemFactoryRegistryTest extends TestCase
         $cart = new Cart('test');
         $cart->add($lineItem);
 
-        $this->factory->expects($this->once())->method('supports')->with('product')->willReturn(false);
+        $factory = $this->createMock(LineItemFactoryInterface::class);
+        $factory->expects($this->once())->method('supports')->with('product')->willReturn(false);
+        $service = $this->buildService(factory: $factory);
         $this->expectException(CartException::class);
-        $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
+        $service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
+    }
+
+    private function buildService(
+        ?LineItemFactoryInterface $factory = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+    ): LineItemFactoryRegistry {
+        return new LineItemFactoryRegistry(
+            [$factory ?? $this->factory],
+            static::createStub(DataValidator::class),
+            $eventDispatcher ?? $this->eventDispatcher
+        );
     }
 }

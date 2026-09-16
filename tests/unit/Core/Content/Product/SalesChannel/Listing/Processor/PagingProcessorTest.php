@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingPr
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,13 +18,14 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PagingListingProcessor::class)]
 class PagingProcessorTest extends TestCase
 {
     #[DataProvider('prepareProvider')]
     public function testPrepare(Request $request, Criteria $criteria, int $expectedOffset, int $expectedLimit): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([
             'core.listing.productsPerPage' => 24,
@@ -88,7 +90,7 @@ class PagingProcessorTest extends TestCase
         $criteria->setLimit(24);
 
         $result = new ProductListingResult('foo', 100, new ProductCollection(), null, $criteria, Context::createDefaultContext());
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([
             'core.listing.productsPerPage' => 24,

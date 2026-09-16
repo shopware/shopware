@@ -55,7 +55,7 @@ export default {
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.mailer.selection',
@@ -71,7 +71,7 @@ export default {
                 },
                 {
                     key: 'configure',
-                    label: this.$t('sw-first-run-wizard.general.buttonNextPayPalInfo'),
+                    label: this.$t('global.default.configure'),
                     position: 'right',
                     variant: 'primary',
                     action: this.activatePayPalAndRedirect.bind(this),

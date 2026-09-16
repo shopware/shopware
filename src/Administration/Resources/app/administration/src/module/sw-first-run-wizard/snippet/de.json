@@ -4,8 +4,6 @@
             "mainMenuItemGeneral": "Ersteinrichtungs-Assistent",
             "buttonNext": "Weiter",
             "buttonSkip": "Überspringen",
-            "buttonNextPayPalInfo": "Konfigurieren",
-            "buttonBack": "Zurück",
             "buttonInstall": "Installieren",
             "buttonActivate": "Aktivieren",
             "buttonFinish": "Fertig",
@@ -36,8 +34,7 @@
             "localOptionHelptext": "Diese Option verwendet den Standard-Mailer Deines Systems (Sendmail).  Stelle sicher, dass Sendmail funktioniert und in Deiner eigenen Hosting-Umgebung grundsätzlich verfügbar ist.",
             "localOptionSubline": "(Sendmail)",
             "smtpOption": "Eigenen SMTP-Server konfigurieren",
-            "configurationNote": "Alle Mailing-Konfigurationen können auch später noch bearbeitet werden.",
-            "buttonConfigure": "Konfigurieren"
+            "configurationNote": "Alle Mailing-Konfigurationen können auch später noch bearbeitet werden."
         },
         "mailerSmtp": {
             "headline": "SMTP-Server"

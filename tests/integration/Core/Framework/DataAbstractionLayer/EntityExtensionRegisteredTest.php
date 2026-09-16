@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityExtensionRegisteredTest extends TestCase
 {
     use IntegrationTestBehaviour;

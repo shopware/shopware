@@ -14,17 +14,27 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 abstract class AbstractAppLifecycle
 {
+    /**
+     * Context state flag: when present on the deletion context,
+     * the app-uninstall flow must not trigger theme recompilation.
+     */
+    public const STATE_SKIP_THEME_COMPILATION = 'skip-theme-compilation';
+
     abstract public function getDecorated(): AbstractAppLifecycle;
 
     abstract public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void;
 
+    abstract public function activate(string $appId, Context $context): void;
+
+    abstract public function deactivate(string $appId, Context $context): void;
+
     /**
-     * @param array{id: string, roleId: string} $app
+     * @param array{id: string} $app
      */
     abstract public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void;
 
     /**
      * @param array{id: string} $app
      */
-    abstract public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void;
+    abstract public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void;
 }

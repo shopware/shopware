@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -14,6 +12,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -35,6 +35,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
+#[Package('inventory')]
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -138,6 +139,40 @@ class SeoUrlPersisterTest extends TestCase
         static::assertSame('fancy-path', $first->getSeoPathInfo());
     }
 
+    public function testGeneratedSeoUrlsWithDisallowedCharactersAreSanitised(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $fk = Uuid::randomHex();
+        // Valid percent-escapes (`rawurlencode(slugify(...))` output for
+        // non-ASCII slug configs) and query strings are URL-allowed and must
+        // survive; only sequences that break the storefront router are
+        // filtered (here the `#` and the stray `%`, see #13796).
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'caf%C3%A9/with#frag%/url?q=1',
+            ],
+        ];
+
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
+
+        $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        static::assertCount(1, $seoUrls);
+
+        $first = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $first);
+
+        $stored = $first->getSeoPathInfo();
+        static::assertDoesNotMatchRegularExpression(
+            ValidSeoPathInfo::DISALLOWED_CHARACTERS_PATTERN,
+            $stored,
+            'Persisted SEO path must not contain router-breaking characters'
+        );
+        static::assertSame('caf%C3%A9/with-frag-/url?q=1', $stored);
+    }
+
     public function testDuplicatesSameSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();
@@ -173,7 +208,6 @@ class SeoUrlPersisterTest extends TestCase
         static::assertSame($fk2, $first->getForeignKey());
     }
 
-    #[Depends('testDuplicatesSameSalesChannel')]
     public function testReturnToPreviousUrl(): void
     {
         $salesChannelId = Uuid::randomHex();
@@ -372,7 +406,6 @@ class SeoUrlPersisterTest extends TestCase
         static::assertTrue($seoUrl->getIsDeleted());
     }
 
-    #[Group('slow')]
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsNotDeleted(): void
     {
         $isActive = true;
@@ -755,6 +788,102 @@ class SeoUrlPersisterTest extends TestCase
         ], $context);
     }
 
+    public function testRestoreCanonicalDoesNotDuplicateAcrossSameLanguageSalesChannels(): void
+    {
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+        $this->ids = new IdsCollection();
+
+        $salesChannelAId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelAId, 'channel-a');
+        $salesChannelA = $this->salesChannelRepository->search(new Criteria([$salesChannelAId]), $context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannelA);
+
+        $salesChannelBId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelBId, 'channel-b');
+        $salesChannelB = $this->salesChannelRepository->search(new Criteria([$salesChannelBId]), $context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannelB);
+
+        $product = (new ProductBuilder($this->ids, 'p1'))
+            ->name('Old Name')
+            ->price(10)
+            ->visibility($salesChannelAId)
+            ->visibility($salesChannelBId)
+            ->build();
+        $productRepository->create([$product], $context);
+        $productId = $product['id'];
+
+        $template = '{{ product.translated.name }}';
+        $route = static::getContainer()->get(ProductPageSeoUrlRoute::class);
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$productId],
+            $this->seoUrlGenerator->generate([$productId], $template, $route, $context, $salesChannelA),
+            $salesChannelA
+        );
+
+        $productRepository->update([['id' => $productId, 'name' => 'Shared Name']], $context);
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$productId],
+            $this->seoUrlGenerator->generate([$productId], $template, $route, $context, $salesChannelA),
+            $salesChannelA
+        );
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$productId],
+            $this->seoUrlGenerator->generate([$productId], $template, $route, $context, $salesChannelB),
+            $salesChannelB
+        );
+
+        $sharedCriteria = new Criteria();
+        $sharedCriteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $sharedCriteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelBId));
+        $sharedCriteria->addFilter(new EqualsFilter('isCanonical', true));
+        $sharedCanonical = $this->seoUrlRepository->search($sharedCriteria, $context)->getEntities()->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $sharedCanonical);
+        $sharedPath = $sharedCanonical->getSeoPathInfo();
+
+        $otherProductId = Uuid::randomHex();
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$otherProductId],
+            [[
+                'foreignKey' => $otherProductId,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => $sharedPath,
+            ]],
+            $salesChannelA
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $criteria->addFilter(new EqualsFilter('isCanonical', true));
+        $canonicals = $this->seoUrlRepository->search($criteria, $context)->getEntities();
+
+        static::assertCount(2, $canonicals);
+
+        $canonicalChannelIds = [];
+        foreach ($canonicals as $canonical) {
+            static::assertSame($sharedPath, $canonical->getSeoPathInfo());
+            $canonicalChannelIds[] = $canonical->getSalesChannelId();
+        }
+        sort($canonicalChannelIds);
+
+        $expectedChannelIds = [$salesChannelAId, $salesChannelBId];
+        sort($expectedChannelIds);
+        static::assertSame($expectedChannelIds, $canonicalChannelIds);
+    }
+
     private function createLanguages(Context $context): void
     {
         $languages = [[
@@ -907,7 +1036,7 @@ class SeoUrlPersisterTest extends TestCase
                 (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1),
                 Context::createDefaultContext()
             )
-            ->first();
+            ->getEntities()->first();
 
         if ($salesChannel === null) {
             static::markTestSkipped('Sales channel with type of storefront is required');

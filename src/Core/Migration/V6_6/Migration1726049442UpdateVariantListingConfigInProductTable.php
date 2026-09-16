@@ -64,6 +64,6 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             return;
         }
 
-        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
+        $this->executeDdlStatement($connection, 'ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
     }
 }

@@ -9,11 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Provides a unified response envelope for MCP tools.
  *
@@ -66,13 +67,13 @@ abstract class McpToolResponse
             $response['_meta'] = $meta;
         }
 
-        $json = json_encode($response, \JSON_THROW_ON_ERROR);
+        $json = Json::encode($response);
         $size = \strlen($json);
 
         if ($size <= self::MAX_RESPONSE_SIZE) {
             if ($size >= self::RESPONSE_SIZE_HINT_THRESHOLD) {
                 $response['_meta'] = array_merge($meta, ['responseSize' => $size]);
-                $json = json_encode($response, \JSON_THROW_ON_ERROR);
+                $json = Json::encode($response);
             }
 
             return $json;
@@ -105,11 +106,11 @@ abstract class McpToolResponse
                     $oversizedMeta['query'] = $query;
                 }
 
-                return json_encode([
+                return Json::encode([
                     'success' => true,
                     'data' => null,
                     '_meta' => $oversizedMeta,
-                ], \JSON_THROW_ON_ERROR);
+                ]);
             }
         }
 
@@ -119,7 +120,7 @@ abstract class McpToolResponse
 
     protected function error(string $message): string
     {
-        return json_encode(['success' => false, 'error' => $message], \JSON_THROW_ON_ERROR);
+        return Json::encode(['success' => false, 'error' => $message]);
     }
 
     /**
@@ -147,11 +148,22 @@ abstract class McpToolResponse
     {
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
-                return $this->error(\sprintf('Missing privilege: %s', $privilege));
+                return $this->missingPrivilegesError([$privilege]);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Canonical error format for privilege denials — all tools must use this
+     * so clients can match on a single "Missing privilege:" prefix.
+     *
+     * @param non-empty-list<string> $privileges
+     */
+    protected function missingPrivilegesError(array $privileges): string
+    {
+        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)));
     }
 
     /**

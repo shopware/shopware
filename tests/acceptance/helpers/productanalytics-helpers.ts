@@ -63,7 +63,10 @@ const JSON_HEADERS = {
     'Content-Type': 'application/json',
 };
 
-const CONSENT_NAMES: ConsentName[] = ['backend_data', 'product_analytics'];
+const CONSENT_NAMES: ConsentName[] = [
+    'backend_data',
+    'product_analytics',
+];
 
 export function parseCapturedRequests(captured: CapturedRequest[]): ProductAnalyticsRequestPayload[] {
     const requests: ProductAnalyticsRequestPayload[] = [];
@@ -116,9 +119,7 @@ export function setupProductAnalyticsInterceptor() {
     };
 }
 
-export function setupConsentInterceptor(
-    statusOverrides: ConsentStatusOverride = {}
-) {
+export function setupConsentInterceptor(statusOverrides: ConsentStatusOverride = {}) {
     const consentStatuses: Record<ConsentName, ConsentStatus> = {
         backend_data: statusOverrides.backend_data ?? 'unset',
         product_analytics: statusOverrides.product_analytics ?? 'unset',
@@ -184,7 +185,6 @@ export function setupConsentInterceptor(
 }
 
 export async function removeSymfonyToolbar(page: Page): Promise<void> {
-
     await page.addStyleTag({
         content: `
                 .sf-toolbar {
@@ -262,21 +262,43 @@ async function fulfillError(route: Route, detail: string): Promise<void> {
     });
 }
 
+/**
+ * Moving the clock past 2026-10-05 makes the ui-shell-update-2026 announcement modal open for
+ * pre-release shops; mark it as seen so its backdrop never blocks a time-traveling test.
+ *
+ * @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+ */
+export async function markUiShellUpdateModalSeen(page: Page): Promise<void> {
+    await page.route('**/api/_info/config-me*', async (route) => {
+        if (route.request().method() !== 'GET') {
+            await route.fallback();
+            return;
+        }
+
+        const response = await route.fetch();
+        const body = (await response.json()) as { data?: Record<string, unknown> };
+        body.data = { ...(body.data ?? {}), 'core.uiShellUpdate2026ModalSeen': { seen: true } };
+
+        await route.fulfill({ response, json: body });
+    });
+}
+
 export async function waitForEventCount(
     getEvents: () => unknown[],
     expectedCount: number,
     options?: {
         timeout?: number;
         intervals?: number[];
-    }
+    },
 ) {
     await expect
-        .poll(
-            () => getEvents().length,
-            {
-                timeout: options?.timeout ?? 10_000,
-                intervals: options?.intervals ?? [1000, 2000, 3000],
-            }
-        )
+        .poll(() => getEvents().length, {
+            timeout: options?.timeout ?? 10_000,
+            intervals: options?.intervals ?? [
+                1000,
+                2000,
+                3000,
+            ],
+        })
         .toBe(expectedCount);
 }

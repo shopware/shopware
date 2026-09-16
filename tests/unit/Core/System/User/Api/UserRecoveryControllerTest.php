@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\User\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 #[CoversClass(UserRecoveryController::class)]
 class UserRecoveryControllerTest extends TestCase
 {
@@ -77,7 +79,7 @@ class UserRecoveryControllerTest extends TestCase
         $rateLimiter->expects($this->never())->method('resetIfConfigured');
 
         $controller = new UserRecoveryController(
-            $this->createMock(UserRecoveryService::class),
+            static::createStub(UserRecoveryService::class),
             $rateLimiter,
         );
 

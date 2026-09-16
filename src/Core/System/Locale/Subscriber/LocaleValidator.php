@@ -25,8 +25,8 @@ class LocaleValidator implements EventSubscriberInterface
 
     public function preWriteValidateEvent(PreWriteValidationEvent $event): void
     {
-        foreach ($event->getCommands() as $command) {
-            if ($command instanceof DeleteCommand || $command->getEntityName() !== LocaleDefinition::ENTITY_NAME) {
+        foreach ($event->getCommandsForEntity(LocaleDefinition::ENTITY_NAME) as $command) {
+            if ($command instanceof DeleteCommand) {
                 continue;
             }
 

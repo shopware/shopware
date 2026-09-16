@@ -16,11 +16,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:reset',
     description: 'Reset the elasticsearch index',
 )]
-#[Package('framework')]
 class ElasticsearchResetCommand extends Command
 {
     /**

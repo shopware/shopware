@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -190,6 +191,42 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         static::assertSame([], $container->getParameter('shopware.mcp.tool_privileges'));
     }
 
+    public function testAdvertisedToolsParameterIsAlwaysInitialized(): void
+    {
+        $container = new ContainerBuilder();
+
+        $pass = new McpToolDiscoveryCompilerPass();
+        $pass->process($container);
+
+        static::assertTrue($container->hasParameter('shopware.mcp.advertised_tools'));
+        static::assertSame([], $container->getParameter('shopware.mcp.advertised_tools'));
+    }
+
+    public function testDiscoveryGroupToolsAreAddedToAdvertisedToolsParameter(): void
+    {
+        $container = $this->createContainer();
+
+        $visible = new Definition(McpDiscoveryTestDiscoveryGroupTool::class);
+        $visible->addTag('mcp.tool');
+        $container->setDefinition('tool.visible', $visible);
+
+        $deferred = new Definition(McpDiscoveryTestCoreTool::class);
+        $deferred->addTag('mcp.tool');
+        $container->setDefinition('tool.deferred', $deferred);
+
+        $methodLevel = new Definition(McpDiscoveryTestMethodLevelDiscoveryGroupTool::class);
+        $methodLevel->addTag('mcp.tool');
+        $container->setDefinition('tool.method-level', $methodLevel);
+
+        $pass = new McpToolDiscoveryCompilerPass();
+        $pass->process($container);
+
+        static::assertSame(
+            ['shopware-discovery-visible-tool', 'shopware-discovery-method-visible-tool'],
+            $container->getParameter('shopware.mcp.advertised_tools'),
+        );
+    }
+
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
@@ -217,6 +254,32 @@ class McpDiscoveryTestCoreTool extends McpToolResponse
 #[McpTool(name: 'my-discovery-namespaced-tool', description: 'test namespaced tool')]
 class McpDiscoveryTestNamespacedTool extends McpToolResponse
 {
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'shopware-discovery-visible-tool', description: 'test visible tool')]
+#[McpToolGroup('discovery')]
+class McpDiscoveryTestDiscoveryGroupTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+class McpDiscoveryTestMethodLevelDiscoveryGroupTool extends McpToolResponse
+{
+    #[McpTool(name: 'shopware-discovery-method-visible-tool', description: 'test method visible tool')]
+    #[McpToolGroup('discovery')]
     public function __invoke(): string
     {
         return '';

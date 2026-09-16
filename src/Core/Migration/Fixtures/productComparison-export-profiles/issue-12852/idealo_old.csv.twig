@@ -1,0 +1,30 @@
+"{%- if product.categories.count > 0 -%}
+    {{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
+{%- endif -%}",{#- -#}
+"{{ product.manufacturer.translated.name ?? '' }}",{#- -#}
+"{{ product.translated.name }}",{#- -#}
+{% set price = product.calculatedPrice %}
+{%- if product.calculatedPrices.count > 0 -%}
+    {% set price = product.calculatedPrices.last %}
+{%- endif -%}
+"{{ price.unitPrice|currency }}",{#- -#}
+"{%- if price.referencePrice is not null -%}
+    {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
+{%- endif -%}",{#- -#}
+"{{ product.manufacturerNumber }}", {#- -#}
+"{{ product.ean }}",{#- -#}
+"{{ 4.95|currency }}",{#- Change to your delivery costs -#}
+"{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",{#- -#}
+"{%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
+    {{ "detail.deliveryTimeAvailable"|trans({'%name%': product.deliveryTime.translation('name')}) }}{#- -#}
+{%- elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime -%}
+    {{ "detail.deliveryTimeRestock"|trans({'%count%': product.restockTime,'%restockTime%': product.restockTime,'%name%': product.deliveryTime.translation('name')}) }}{#- -#}
+{%- else -%}
+    {{ "detail.soldOut"|trans }}{#- -#}
+{%- endif -%}",{#- -#}
+"{{ product.productNumber }}",{#- -#}
+"{% if product.cover is not null %}{{ product.cover.media.url }}{% endif %}",{#- -#}
+"{{ product.translated.description|striptags|raw|length > 300 ? product.translated.description|striptags|raw|slice(0,300) ~ '...' : product.translated.description|striptags|raw }}",{#- -#}
+"0.00",{#- Change or add your payment methods -#}
+"0.00",{#- Change or add your payment methods -#}
+"0.00"{#- Change or add your payment methods -#}

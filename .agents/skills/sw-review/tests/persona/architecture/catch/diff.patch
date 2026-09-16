@@ -1,0 +1,27 @@
+diff --git a/src/Core/Checkout/Cart/SalesChannel/CartService.php b/src/Core/Checkout/Cart/SalesChannel/CartService.php
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Core/Checkout/Cart/SalesChannel/CartService.php
++++ b/src/Core/Checkout/Cart/SalesChannel/CartService.php
+@@ -120,6 +120,22 @@ class CartService
+         return $cart;
+     }
+
++    public function enrichLineItemsWithLatestPrices(Cart $cart, SalesChannelContext $context): Cart
++    {
++        foreach ($cart->getLineItems() as $lineItem) {
++            $criteria = new Criteria([$lineItem->getReferencedId()]);
++            $product = $this->productRepository->search($criteria, $context->getContext())->first();
++
++            if ($product === null) {
++                continue;
++            }
++
++            $lineItem->setPrice($product->getCalculatedPrice());
++        }
++
++        return $cart;
++    }
++
+     public function recalculate(Cart $cart, SalesChannelContext $context): Cart
+     {
+         return $this->processor->process($cart->getData(), $cart, $context);

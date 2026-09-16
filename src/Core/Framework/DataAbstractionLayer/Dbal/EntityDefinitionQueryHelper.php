@@ -40,11 +40,26 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (str_contains($string, '`')) {
+        if (!self::isValidIdentifier($string)) {
             throw DataAbstractionLayerException::invalidIdentifier($string);
         }
 
         return '`' . $string . '`';
+    }
+
+    /**
+     * Rejects the characters that break out of the backtick quoting escape() applies: the backtick,
+     * plus question marks and colons (parsed as placeholders by PDO MySQL emulated prepares even
+     * inside backtick-quoted identifiers on PHP < 8.4) and control characters.
+     *
+     * @see https://www.php.net/manual/en/regexp.reference.unicode.php \p{Cc} matches control characters
+     */
+    public static function isValidIdentifier(string $identifier): bool
+    {
+        return !str_contains($identifier, '`')
+            && !str_contains($identifier, '?')
+            && !str_contains($identifier, ':')
+            && preg_match('/\p{Cc}/u', $identifier) !== 1;
     }
 
     /**
@@ -463,7 +478,11 @@ class EntityDefinitionQueryHelper
      *
      * @param array<string, mixed> $partial
      */
-    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = []): void
+    /**
+     * @param array<string, mixed> $partial
+     * @param list<string> $excludedFields
+     */
+    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = [], array $excludedFields = []): void
     {
         $translationDefinition = $definition->getTranslationDefinition();
 
@@ -477,6 +496,10 @@ class EntityDefinitionQueryHelper
         );
         if ($partial !== []) {
             $fields = $fields->filter(static fn (Field $field) => isset($partial[$field->getPropertyName()]));
+        }
+        if ($excludedFields !== []) {
+            // honor Criteria::excludeFields() for translated columns (e.g. product description)
+            $fields = $fields->filter(static fn (Field $field) => !\in_array($field->getPropertyName(), $excludedFields, true));
         }
 
         $translationChain = self::buildTranslationChain(

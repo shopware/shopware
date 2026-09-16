@@ -37,7 +37,7 @@ export default {
             return [
                 {
                     key: 'back',
-                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.defaults',

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -21,7 +22,8 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 #[CoversClass(DocumentNumberGenerator::class)]
 class DocumentNumberGeneratorTest extends TestCase
 {
-    public function testGenerateUsesDocumentNumberRangeTypeAndOrderSalesChannel(): void
+    #[DataProvider('generateProvider')]
+    public function testGenerateUsesDocumentNumberRangeTypeAndOrderSalesChannel(bool $preview): void
     {
         $context = Context::createDefaultContext();
         $salesChannelId = Uuid::randomHex();
@@ -29,7 +31,6 @@ class DocumentNumberGeneratorTest extends TestCase
 
         $generationRequest = new DocumentGenerationRequest(
             orderId: Uuid::randomHex(),
-            orderVersionId: Uuid::randomHex(),
             documentType: DocumentType::INVOICE,
             requestedFormats: [DocumentFormat::PDF],
         );
@@ -45,12 +46,21 @@ class DocumentNumberGeneratorTest extends TestCase
                 DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . DocumentType::INVOICE->value,
                 $context,
                 $salesChannelId,
-                false,
+                $preview,
             )
             ->willReturn($documentNumber);
 
         $generator = new DocumentNumberGenerator($numberRangeValueGenerator);
 
-        static::assertSame($documentNumber, $generator->generate($generationRequest, $order, $context));
+        static::assertSame($documentNumber, $generator->generate($generationRequest, $order, $context, $preview));
+    }
+
+    /**
+     * @return iterable<string, array{preview: bool}>
+     */
+    public static function generateProvider(): iterable
+    {
+        yield 'claim document number for persisted generation' => ['preview' => false];
+        yield 'preview document number without claiming it' => ['preview' => true];
     }
 }

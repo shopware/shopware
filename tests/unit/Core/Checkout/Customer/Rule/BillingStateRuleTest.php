@@ -54,7 +54,7 @@ class BillingStateRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $stateId): void
     {
         $countryIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setCountryStateId($stateId);
         $customer = new CustomerEntity();
@@ -77,7 +77,7 @@ class BillingStateRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setActiveBillingAddress(new CustomerAddressEntity());
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -92,7 +92,7 @@ class BillingStateRuleTest extends TestCase
         $address->setCountryStateId(Uuid::randomHex());
         $customer->setActiveBillingAddress($address);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -107,7 +107,7 @@ class BillingStateRuleTest extends TestCase
         $address->setCountryStateId(Uuid::randomHex());
         $customer->setActiveBillingAddress($address);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -122,7 +122,7 @@ class BillingStateRuleTest extends TestCase
         $address->setCountryStateId(Uuid::randomHex());
         $customer->setActiveBillingAddress($address);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -132,7 +132,7 @@ class BillingStateRuleTest extends TestCase
 
     public function testInvalidScope(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['stateIds' => ['id'], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }

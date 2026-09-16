@@ -34,7 +34,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class FlowGenerator implements DemodataGeneratorInterface
 {
     /**

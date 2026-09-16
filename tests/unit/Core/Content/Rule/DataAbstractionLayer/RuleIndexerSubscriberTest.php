@@ -22,7 +22,7 @@ class RuleIndexerSubscriberTest extends TestCase
     public function testRefreshPlugin(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader = static::createStub(CartRuleLoader::class);
         $clock = new MockClock('2026-01-13 12:00:00');
 
         $statement = $this->createMock(Statement::class);

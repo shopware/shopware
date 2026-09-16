@@ -289,11 +289,10 @@ General styling for cms elements
 @include media-breakpoint-down(lg) {
     .cms-element-product-listing-actions {
         flex-wrap: wrap;
-        justify-content: center;
+        row-gap: $spacer-sm;
 
         .sorting {
             width: 100%;
-            margin-top: 5px;
             margin-left: 0;
         }
     }

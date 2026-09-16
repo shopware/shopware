@@ -2,18 +2,29 @@
 <sw-entity-multi-select
     :entity-collection="collection"
     :context="context"
-    :criteria="criteria"
+    :criteria="selectCriteria"
     :disabled="disabled"
+    :display-variants="displayVariants"
     v-bind="$attrs"
     @update:entity-collection="updateIds"
 >
 
     {% block sw_entity_multi_id_select_label_property %}
-    <template #selection-label-property="{ item, index, labelProperty, valueProperty }">
+    <template #selection-label-property="{ item, index, labelProperty, valueProperty, getKey }">
         <slot
             name="selection-label-property"
-            v-bind="{ item, index, labelProperty, valueProperty }"
-        ></slot>
+            v-bind="{ item, index, labelProperty, valueProperty, getKey }"
+        >
+            <sw-product-variant-info
+                v-if="displayVariants"
+                :variations="item.variation"
+            >
+                {{ displayLabelProperty(item, labelProperty, getKey) }}
+            </sw-product-variant-info>
+            <template v-else>
+                {{ displayLabelProperty(item, labelProperty, getKey) }}
+            </template>
+        </slot>
     </template>
     {% endblock %}
 
@@ -28,7 +39,26 @@
         <slot
             name="result-label-property"
             v-bind="{ item, index, labelProperty, valueProperty, searchTerm, getKey, highlightSearchTerm }"
-        ></slot>
+        >
+            <sw-product-variant-info
+                v-if="displayVariants"
+                :variations="item.variation"
+                :highlighted="true"
+                :search-term="searchTerm"
+            >
+                {{ displayLabelProperty(item, labelProperty, getKey) }}
+            </sw-product-variant-info>
+            <template v-else>
+                <sw-highlight-text
+                    v-if="highlightSearchTerm"
+                    :text="displayLabelProperty(item, labelProperty, getKey)"
+                    :search-term="searchTerm"
+                />
+                <template v-else>
+                    {{ displayLabelProperty(item, labelProperty, getKey) }}
+                </template>
+            </template>
+        </slot>
     </template>
     {% endblock %}
 

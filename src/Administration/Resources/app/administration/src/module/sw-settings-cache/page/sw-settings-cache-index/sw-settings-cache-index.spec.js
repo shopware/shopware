@@ -9,6 +9,9 @@ const cacheInfo = {
         httpCache: true,
         environment: 'dev',
         cacheAdapter: 'fooBar',
+        indexers: {
+            'category.indexer': ['category.tree'],
+        },
     },
 };
 
@@ -72,7 +75,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
 
         const indexesSelectLabel = wrapper.find('.sw-settings-cache__indexers-select .sw-field__label label');
         const indexSelectPlaceholder = wrapper.find(
-            '.sw-settings-cache__indexers-select .sw-settings-cache__indexers-placeholder .sw-label__caption',
+            '.sw-settings-cache__indexers-select .sw-settings-cache__indexers-placeholder',
         );
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesSkipSelectLabel');
@@ -98,6 +101,17 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(mock).toHaveBeenCalledTimes(1);
     });
 
+    it('should clear the selected indexers', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.changeSelection(true, 'category.indexer');
+
+        await wrapper.findComponent('.sw-settings-cache__indexers-select').vm.$emit('clear');
+
+        expect(wrapper.vm.indexerSelection).toEqual([]);
+    });
+
     it('should send different values for skip and only on reindex', async () => {
         const indexMock = jest.fn(() => Promise.resolve());
 
@@ -120,16 +134,12 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
 
         await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
+        wrapper.vm.changeSelection(true, 'category.indexer');
+
         await button.trigger('click');
         await flushPromises();
 
         expect(indexMock).toHaveBeenCalledTimes(2);
-        expect(indexMock).toHaveBeenCalledWith(
-            [],
-            [
-                'category.indexer',
-                'category.tree',
-            ],
-        );
+        expect(indexMock).toHaveBeenCalledWith([], ['category.indexer']);
     });
 });

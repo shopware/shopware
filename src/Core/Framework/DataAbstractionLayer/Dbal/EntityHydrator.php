@@ -57,9 +57,13 @@ class EntityHydrator
     private static array $manyToOne = [];
 
     /**
-     * @var array<string, array<string, Field>>
+     * Keyed by the definition instance: multiple definition instances for the same entity name can
+     * coexist in one process (the test suite reboots kernels), and the cached fields carry the
+     * serializers and services of the container they were compiled in.
+     *
+     * @var \WeakMap<EntityDefinition, array<string, Field>>|null
      */
-    private static array $translatedFields = [];
+    private static ?\WeakMap $translatedFields = null;
 
     /**
      * @internal
@@ -341,9 +345,9 @@ class EntityHydrator
      */
     protected function getTranslatedFields(EntityDefinition $definition, array $fields): array
     {
-        $key = $definition->getEntityName();
-        if (isset(self::$translatedFields[$key])) {
-            return self::$translatedFields[$key];
+        $cache = self::$translatedFields ??= new \WeakMap();
+        if (isset($cache[$definition])) {
+            return $cache[$definition];
         }
 
         $translatedFields = [];
@@ -352,7 +356,7 @@ class EntityHydrator
             $translatedFields[$field->getPropertyName()] = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
         }
 
-        return self::$translatedFields[$key] = $translatedFields;
+        return $cache[$definition] = $translatedFields;
     }
 
     /**

@@ -5,27 +5,21 @@
     :title="$t('sw-settings-search.generalTab.labelSearchableContent')"
 >
     {% block sw_settings_search_searchable_content_title %}
-    <span class="sw-field sw-settings-search__searchable-content-title">
+    <p class="sw-settings-search__searchable-content-title">
         {{ $t('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
-    </span>
+    </p>
     {% endblock %}
 
     {% block sw_settings_search_searchable_actions %}
-    <sw-container
-        class="sw-field"
-        columns="repeat(auto-fit, minmax(calc(var(--scale-size-96) + var(--scale-size-4)), 1fr))"
-        align="center"
-        gap="0 var(--scale-size-30)"
-    >
+    <div class="sw-settings-search__searchable-content-actions">
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
             <mt-button
                 v-if="defaultTab !== tabNames.generalTab"
                 class="sw-settings-search__searchable-content-add-button"
-                ghost
                 size="small"
                 :disabled="!acl.can('product_search_config.creator')"
-                variant="secondary"
+                variant="primary"
                 @click="onAddNewConfig"
             >
                 {{ $t('sw-settings-search.generalTab.buttonAddContent') }}
@@ -38,46 +32,37 @@
                 class="sw-settings-search__searchable-content-reset-button"
                 size="small"
                 :disabled="isEnabledReset || !acl.can('product_search_config.editor')"
-                variant="secondary"
+                variant="critical"
                 @click="onResetToDefault"
             >
                 {{ $t('sw-settings-search.generalTab.buttonResetDefault') }}
             </mt-button>
             {% endblock %}
-        </div>
 
-        {% block sw_settings_search_searchable_show_example %}
-        {% block sw_settings_search_searchable_show_example_link %}
-        <div class="sw-settings-search__searchable-content-link-text">
-
+            {# @deprecated tag:v6.8.0 - Will be removed. #}
+            {% block sw_settings_search_searchable_show_example %}
+            {# @deprecated tag:v6.8.0 - Will be removed. #}
             {% block sw_settings_search_searchable_show_example_link_element %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-            <a
+            {% block sw_settings_search_searchable_show_example_link %}
+            <mt-button
                 class="sw-settings-search__searchable-content-show-example-link"
-                role="button"
-                tabindex="0"
+                variant="secondary"
                 @click="onShowExampleModal"
             >
                 {{ $t('sw-settings-search.generalTab.linkExample') }}
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="var(--scale-size-16)"
-                />
-            </a>
+            </mt-button>
             {% endblock %}
-
-            <router-link
-                :to="{ name: 'sw.settings.search.index.liveSearch' }"
-                class="sw-settings-search__searchable-content-rebuild-link"
-            >
-                {{ $t('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="var(--scale-size-16)"
-                />
-            </router-link>
+            {% endblock %}
+            {% endblock %}
         </div>
-        {% endblock %}
+
+        <mt-link
+            :to="{ name: 'sw.settings.search.index.liveSearch' }"
+            type="internal"
+            class="sw-settings-search__searchable-content-rebuild-link"
+        >
+            {{ $t('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
+        </mt-link>
 
         {% block sw_settings_search_searchable_show_example_modal %}
         <sw-settings-search-example-modal
@@ -85,43 +70,27 @@
             @modal-close="onCloseExampleModal"
         />
         {% endblock %}
-        {% endblock %}
-    </sw-container>
+    </div>
     {% endblock %}
 
     {% block sw_settings_search_searchable_content_tabs %}
-    <sw-tabs
-        :default-item="defaultTab"
-        position-identifier="sw-settings-search-searchable-content"
-    >
-        <template #default="{ active }">
-            {% block sw_settings_search_searchable_content_general_tab_title %}
-            <sw-tabs-item
-                v-bind="$props"
-                class="sw-settings-search__searchable-content-tab-title"
-                :name="tabNames.generalTab"
-                :active-tab="active"
-                @click="onChangeTab(tabNames.generalTab)"
-            >
-                {{ $t('sw-settings-search.generalTab.labelGeneralTab') }}
-            </sw-tabs-item>
-            {% endblock %}
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_settings_search_searchable_content_mt_tabs %}
+        <mt-tabs
+            class="sw-settings-search__searchable-content-tabs"
+            position-identifier="sw-settings-search-searchable-content"
+            :default-item="defaultTab"
+            :items="searchableContentTabs"
+            :small="true"
+            @new-item-active="onChangeTab"
+        />
+        {% endblock %}
 
-            <sw-tabs-item
-                v-bind="$props"
-                class="sw-settings-search__searchable-content-tab-title"
-                :name="tabNames.customTab"
-                :active-tab="active"
-                @click="onChangeTab(tabNames.customTab)"
-            >
-                {{ $t('sw-settings-search.generalTab.labelCustomFieldsTab') }}
-            </sw-tabs-item>
-        </template>
-
-        <template #content="{ active }">
-            {% block sw_settings_search_searchable_content_general_tab_item %}
+        {% block sw_settings_search_searchable_content_mt_content %}
+        <div class="sw-settings-search__searchable-content-tab-content">
+            {% block sw_settings_search_searchable_content_mt_general_tab_item %}
             <sw-settings-search-searchable-content-general
-                v-if="active === tabNames.generalTab"
+                v-if="defaultTab === tabNames.generalTab"
                 :is-empty="isListEmpty"
                 :is-loading="isLoading"
                 :columns="getProductSearchFieldColumns"
@@ -133,8 +102,9 @@
             />
             {% endblock %}
 
+            {% block sw_settings_search_searchable_content_mt_customfields_tab_item %}
             <sw-settings-search-searchable-content-customfields
-                v-if="active === tabNames.customTab"
+                v-if="defaultTab === tabNames.customTab"
                 :is-empty="isListEmpty"
                 :is-loading="isLoading"
                 :columns="getProductSearchFieldColumns"
@@ -145,8 +115,71 @@
                 @config-save="saveConfig"
                 @config-delete="deleteConfig"
             />
-        </template>
-    </sw-tabs>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            class="sw-settings-search__searchable-content-tabs"
+            :default-item="defaultTab"
+            position-identifier="sw-settings-search-searchable-content"
+        >
+            <template #default="{ active }">
+                {% block sw_settings_search_searchable_content_general_tab_title %}
+                <sw-tabs-item
+                    v-bind="$props"
+                    class="sw-settings-search__searchable-content-tab-title"
+                    :name="tabNames.generalTab"
+                    :active-tab="active"
+                    @click="onChangeTab(tabNames.generalTab)"
+                >
+                    {{ $t('sw-settings-search.generalTab.labelGeneralTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                <sw-tabs-item
+                    v-bind="$props"
+                    class="sw-settings-search__searchable-content-tab-title"
+                    :name="tabNames.customTab"
+                    :active-tab="active"
+                    @click="onChangeTab(tabNames.customTab)"
+                >
+                    {{ $t('sw-settings-search.generalTab.labelCustomFieldsTab') }}
+                </sw-tabs-item>
+            </template>
+
+            <template #content="{ active }">
+                {% block sw_settings_search_searchable_content_general_tab_item %}
+                <sw-settings-search-searchable-content-general
+                    v-if="active === tabNames.generalTab"
+                    :is-empty="isListEmpty"
+                    :is-loading="isLoading"
+                    :columns="getProductSearchFieldColumns"
+                    :repository="productSearchFieldRepository"
+                    :search-configs="searchConfigFields"
+                    :field-configs="fieldConfigs"
+                    @data-load="loadData"
+                    @config-save="saveConfig"
+                />
+                {% endblock %}
+
+                <sw-settings-search-searchable-content-customfields
+                    v-if="active === tabNames.customTab"
+                    :is-empty="isListEmpty"
+                    :is-loading="isLoading"
+                    :columns="getProductSearchFieldColumns"
+                    :repository="productSearchFieldRepository"
+                    :search-configs="searchConfigFields"
+                    @data-load="loadData"
+                    @config-add="onAddNewConfig"
+                    @config-save="saveConfig"
+                    @config-delete="deleteConfig"
+                />
+            </template>
+        </sw-tabs>
+    </template>
     {% endblock %}
 </mt-card>
 {% endblock %}

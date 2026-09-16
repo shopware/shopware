@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheHeadersService;
@@ -16,10 +19,13 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +67,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testGenerateCashHashWithItemsInCart(?CustomerEntity $customer, Cart $cart, bool $hasCookie, ?string $hashName = null): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
+        $salesChannelContext->expects($this->atLeastOnce())->method('getCustomer')->willReturn($customer);
         if ($customer !== null) {
             $salesChannelContext->expects($this->once())
                 ->method('getRuleIdsByAreas')
@@ -142,12 +148,162 @@ class CacheHeadersServiceTest extends TestCase
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
     }
 
+    public function testStorefrontCacheHashDoesNotContainLanguageId(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNull($event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStoreApiCacheHashContainsLanguageId(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStoreNonDefaultLanguageRequiresCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStoreApiHeaderProvidedLanguageDoesNotRequireCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+        // the header carries the effective language, it is part of the cache key instead of the hash
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'language-a');
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertNull($event);
+    }
+
+    public function testStoreApiHeaderWithDifferentCasingRequiresCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+        // language ids are matched byte-exact; a differently cased header is a different value,
+        // so it does not represents the correct language and the hash is required
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'LANGUAGE-A');
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStorefrontNonDefaultLanguageDoesNotRequireCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]);
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        // storefront language is carried by the domain URL, so custom language should not trigger hash generation
+        static::assertNull($event);
+    }
+
+    public function testNonDefaultShippingCountryRequiresCacheHash(): void
+    {
+        // an anonymous visitor can persist a shipping country via the context switch route;
+        // it is invisible to the cache key (any route scope), so it must trigger the cache hash
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext(Defaults::LANGUAGE_SYSTEM, 'country-tax-free'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+    }
+
+    public function testDefaultShippingCountryDoesNotRequireCacheHash(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext(Defaults::LANGUAGE_SYSTEM),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertNull($event);
+    }
+
+    public function testNonDefaultPaymentMethodRequiresCacheHash(): void
+    {
+        // switchable anonymously and rules (e.g. price rules) can condition on the payment method
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext(Defaults::LANGUAGE_SYSTEM, paymentMethodId: 'payment-invoice'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+    }
+
+    public function testNonDefaultShippingMethodRequiresCacheHash(): void
+    {
+        // switchable anonymously and rules (e.g. price rules) can condition on the shipping method
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext(Defaults::LANGUAGE_SYSTEM, shippingMethodId: 'shipping-express'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+    }
+
     public function testCurrencyChangeLeadsToDifferentCacheHash(): void
     {
         $request = new Request();
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign([
+            'currencyId' => Defaults::CURRENCY,
+            'countryId' => 'country-default',
+            'paymentMethodId' => 'payment-default',
+            'shippingMethodId' => 'shipping-default',
+        ]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $salesChannelContextMock->method('getShippingLocation')->willReturn(self::createShippingLocation());
+        $salesChannelContextMock->method('getPaymentMethod')->willReturn((new PaymentMethodEntity())->assign(['id' => 'payment-default']));
+        $salesChannelContextMock->method('getShippingMethod')->willReturn((new ShippingMethodEntity())->assign(['id' => 'shipping-default']));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
         $response = new Response();
@@ -157,7 +313,7 @@ class CacheHeadersServiceTest extends TestCase
         $cookies = $response->headers->getCookies();
         static::assertEmpty($cookies);
 
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
@@ -170,7 +326,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $firstHash = $cookies[0]->getValue();
 
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('bar');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
@@ -188,7 +344,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCacheCookieStaysTheSameIfEventPartsAreSortedDifferently(): void
     {
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -219,7 +375,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCacheCookieHasNoCacheValueIfSetInEvent(): void
     {
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -280,9 +436,17 @@ class CacheHeadersServiceTest extends TestCase
         );
 
         $request = new Request();
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign([
+            'currencyId' => Defaults::CURRENCY,
+            'countryId' => 'country-default',
+            'paymentMethodId' => 'payment-default',
+            'shippingMethodId' => 'shipping-default',
+        ]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $salesChannelContextMock->method('getShippingLocation')->willReturn(self::createShippingLocation());
+        $salesChannelContextMock->method('getPaymentMethod')->willReturn((new PaymentMethodEntity())->assign(['id' => 'payment-default']));
+        $salesChannelContextMock->method('getShippingMethod')->willReturn((new ShippingMethodEntity())->assign(['id' => 'shipping-default']));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
         $response = new Response();
@@ -312,5 +476,50 @@ class CacheHeadersServiceTest extends TestCase
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when custom cookie is different
         static::assertNotSame($firstHash, $secondHash);
+    }
+
+    private function createCacheHashContext(
+        string $languageId,
+        string $shippingCountryId = 'country-default',
+        string $paymentMethodId = 'payment-default',
+        string $shippingMethodId = 'shipping-default'
+    ): SalesChannelContext {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getCustomer')->willReturn(null);
+        $salesChannelContext->method('getRuleIds')->willReturn([]);
+        $salesChannelContext->method('getRuleIdsByAreas')->willReturn([]);
+        $salesChannelContext->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
+        $salesChannelContext->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $salesChannelContext->method('getLanguageId')->willReturn($languageId);
+        $salesChannelContext->method('getTaxState')->willReturn('gross');
+        $salesChannelContext->method('getShippingLocation')->willReturn(self::createShippingLocation($shippingCountryId));
+        $salesChannelContext->method('getPaymentMethod')->willReturn((new PaymentMethodEntity())->assign(['id' => $paymentMethodId]));
+        $salesChannelContext->method('getShippingMethod')->willReturn((new ShippingMethodEntity())->assign(['id' => $shippingMethodId]));
+        $salesChannelContext->method('getSalesChannel')->willReturn(
+            (new SalesChannelEntity())->assign([
+                'currencyId' => Defaults::CURRENCY,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'countryId' => 'country-default',
+                'paymentMethodId' => 'payment-default',
+                'shippingMethodId' => 'shipping-default',
+            ])
+        );
+
+        return $salesChannelContext;
+    }
+
+    private static function createShippingLocation(string $countryId = 'country-default'): ShippingLocation
+    {
+        return ShippingLocation::createFromCountry(
+            (new CountryEntity())->assign(['id' => $countryId])
+        );
+    }
+
+    private function createFilledCart(): Cart
+    {
+        $cart = new Cart('filled');
+        $cart->add(new LineItem('test', 'test', 'test'));
+
+        return $cart;
     }
 }

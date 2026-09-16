@@ -1,5 +1,8 @@
 {% block sw_settings_snippet_grid_sidebar %}
-<sw-sidebar class="sw-snippet-settings__sidebar">
+<sw-sidebar
+    class="sw-snippet-settings__sidebar"
+    @item-register="registerFilterSidebarItem"
+>
     {% block sw_settings_snippet_grid_sidebar_refresh %}
     <sw-sidebar-item
         icon="regular-undo"
@@ -10,21 +13,22 @@
 
     {% block sw_settings_snippet_grid_sidebar_filter %}
     <sw-sidebar-item
-        ref="filterSideBar"
         icon="regular-filter"
         :title="$t('sw-settings-snippet.list.titleSidebarItemFilter')"
         :badge="activeFilterNumber"
+        :tooltip-shortcut="['O', 'F']"
         @close-content="closeContent"
         @click="closeContent"
     >
         <template #headline-content>
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 v-if="activeFilterNumber"
                 class="sw-snippet-settings__sidebar-reset-all"
                 role="button"
                 tabindex="0"
                 @click="resetAll"
+                @keydown.enter.prevent="resetAll"
+                @keydown.space.prevent="resetAll"
             >
                 {{ $t('sw-sidebar-filter-panel.resetButton') }}
             </a>

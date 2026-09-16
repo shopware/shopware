@@ -13,8 +13,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(PayPaymentOrderCriteriaEvent::class)]
 #[Package('checkout')]
+#[CoversClass(PayPaymentOrderCriteriaEvent::class)]
 class PayPaymentOrderCriteriaEventTest extends TestCase
 {
     public function testEvent(): void

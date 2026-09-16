@@ -51,6 +51,21 @@ class Migration1763377570CreatePasswordChangeMailTemplateTest extends TestCase
 
         $mailTemplate = $connection->fetchAllAssociative('SELECT * FROM `mail_template` WHERE `mail_template_type_id` = :template', ['template' => $mailTemplateType[0]['id']]);
         static::assertCount(1, $mailTemplate);
+
+        $germanLanguageId = $connection->fetchOne(
+            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `locale`.`id` = `language`.`translation_code_id` WHERE `locale`.`code` = :iso',
+            ['iso' => 'de-DE']
+        );
+        static::assertIsString($germanLanguageId);
+
+        static::assertSame('Kunden-Passwort geändert', $connection->fetchOne(
+            'SELECT `name` FROM `mail_template_type_translation` WHERE `mail_template_type_id` = :typeId AND `language_id` = :languageId',
+            ['typeId' => $mailTemplateType[0]['id'], 'languageId' => $germanLanguageId]
+        ));
+        static::assertSame('Kunden-Passwort geändert', $connection->fetchOne(
+            'SELECT `subject` FROM `mail_template_translation` WHERE `mail_template_id` = :templateId AND `language_id` = :languageId',
+            ['templateId' => $mailTemplate[0]['id'], 'languageId' => $germanLanguageId]
+        ));
     }
 
     private function rollback(Connection $connection): void

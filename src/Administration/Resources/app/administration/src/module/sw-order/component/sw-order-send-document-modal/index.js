@@ -1,6 +1,6 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 const { Filter } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
@@ -172,8 +172,10 @@ export default {
 
             const localMailTemplate = { ...mailTemplate };
 
-            if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
-                localMailTemplate.mailTemplateType.templateData.order = this.order;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                if (localMailTemplate?.mailTemplateType?.templateData?.order && this?.order) {
+                    localMailTemplate.mailTemplateType.templateData.order = this.order;
+                }
             }
 
             const apiContext = {
@@ -263,14 +265,18 @@ export default {
         },
 
         loadTheLinksForA11y() {
-            if (!this.document?.documentA11yMediaFile) {
+            const a11yFileType =
+                this.document?.documentA11yMediaFile?.fileExtension ??
+                this.document?.documentFiles?.find((documentFile) => documentFile.documentFormat === 'html')?.documentFormat;
+
+            if (!a11yFileType) {
                 return;
             }
 
             this.a11yDocuments.push({
                 documentId: this.document.id,
                 deepLinkCode: this.document.deepLinkCode,
-                fileExtension: this.document.documentA11yMediaFile.fileExtension,
+                fileExtension: a11yFileType,
             });
         },
     },

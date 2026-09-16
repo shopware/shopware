@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-extension-card-bought {
     .sw-extension-card-bought__info-price-subscription {
         color: var(--color-text-primary-default);
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     .sw-extension-card-bought__info-price {
@@ -19,7 +17,7 @@
         display: inline-flex;
         align-items: center;
         margin-top: 2px;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
 
         .mt-icon {
             margin-right: 4px;

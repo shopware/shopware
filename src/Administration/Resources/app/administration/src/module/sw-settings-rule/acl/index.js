@@ -33,6 +33,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'promotion_discount:read',
                 'promotion_setgroup:read',
                 'app_script_condition:read',
+                'flow:read',
                 'flow_sequence:read',
                 'user_config:read',
                 'user_config:create',

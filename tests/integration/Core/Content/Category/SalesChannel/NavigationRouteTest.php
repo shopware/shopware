@@ -11,15 +11,18 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[Group('store-api')]
 class NavigationRouteTest extends TestCase
 {
@@ -330,7 +333,7 @@ class NavigationRouteTest extends TestCase
         static::assertTrue($found, 'Product SEO URL not found in response');
 
         $this->createSeoUrl(
-            'frontend.detail.page',
+            ProductPageSeoUrlRoute::ROUTE_NAME,
             '/detail/' . $productId,
             'custom-product-url',
             $productId
@@ -395,7 +398,7 @@ class NavigationRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('routeName', $routeName));
 
         $existingSeoUrls = $this->getContainer()->get('seo_url.repository')
-            ->search($criteria, Context::createDefaultContext());
+            ->search($criteria, Context::createDefaultContext())->getEntities();
 
         $data = [
             'salesChannelId' => $this->ids->get('sales-channel'),

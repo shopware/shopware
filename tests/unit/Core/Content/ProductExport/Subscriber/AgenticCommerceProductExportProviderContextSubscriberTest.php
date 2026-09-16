@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -24,6 +25,7 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(AgenticCommerceProductExportProviderContextSubscriber::class)]
 class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetSubscribedEvents(): void
     {
         static::assertSame(
@@ -32,6 +34,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextAddsProviderSpecificContext(): void
     {
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
@@ -60,6 +63,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         static::assertSame($salesChannelContext, $event->getContext()['context']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWithoutProviderKey(): void
     {
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
@@ -83,6 +87,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         static::assertArrayNotHasKey('provider', $event->getContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWhenContextIsIncomplete(): void
     {
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
@@ -100,6 +105,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
         static::assertSame(['productExport' => $event->getContext()['productExport']], $event->getContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendBodyContextDoesNothingWhenProviderIsNotRegistered(): void
     {
         $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(

@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-import-type ShopIdV1Config from ShopId
  * @phpstan-import-type ShopIdV2Config from ShopId
  */
-#[CoversClass(ShopId::class)]
 #[Package('framework')]
+#[CoversClass(ShopId::class)]
 class ShopIdTest extends TestCase
 {
     public function testCreatesShopIdFromValidV1Config(): void
@@ -43,8 +43,7 @@ class ShopIdTest extends TestCase
 
     public function testThrowsIfSystemConfigIsInvalid(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.');
+        $this->expectExceptionObject(AppException::invalidShopIdConfiguration());
 
         ShopId::fromSystemConfig(['foo' => 'bar']);
     }

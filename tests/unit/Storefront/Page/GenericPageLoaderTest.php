@@ -6,6 +6,7 @@ namespace Shopware\Tests\Unit\Storefront\Page;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -16,17 +17,18 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(GenericPageLoader::class)]
 class GenericPageLoaderTest extends TestCase
 {
     public function testLoad(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn('Shopware');
 
         $loader = new GenericPageLoader(
             $systemConfigService,
-            $this->createMock(EventDispatcherInterface::class)
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $request = new Request(attributes: [SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => 'en-GB']);

@@ -77,7 +77,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
         static::assertGreaterThanOrEqual(2, \count($data['data']));
 
         foreach ($data['data'] as $review) {
-            static::assertSame(1, $review['points']);
+            static::assertSame(1.0, $review['points']);
         }
     }
 

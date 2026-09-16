@@ -7,12 +7,11 @@ use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaPathStorageTest;
 
 /**
  * @codeCoverageIgnore
  *
- * @see MediaPathStorageTest
+ * @see \Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path\MediaPathStorageTest
  */
 #[Package('discovery')]
 class SqlMediaPathStorage implements MediaPathStorage

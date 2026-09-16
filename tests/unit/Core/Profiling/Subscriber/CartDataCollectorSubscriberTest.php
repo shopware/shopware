@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Subscriber\CartDataCollectorSubscriber;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CartDataCollectorSubscriber::class)]
 class CartDataCollectorSubscriberTest extends TestCase
 {
@@ -66,14 +68,14 @@ class CartDataCollectorSubscriberTest extends TestCase
         $currency->setId(Uuid::randomHex());
         $currency->setIsoCode('EUR');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $context = new Context(new SystemSource());
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCurrency')->willReturn($currency);
 
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, $cartToken);
 
-        $cartPersister = $this->createMock(AbstractCartPersister::class);
+        $cartPersister = static::createStub(AbstractCartPersister::class);
         $cartPersister->method('load')->willReturn($cart);
 
         $subscriber = new CartDataCollectorSubscriber($cartPersister);
@@ -96,11 +98,11 @@ class CartDataCollectorSubscriberTest extends TestCase
         $currency->setId(Uuid::randomHex());
         $currency->setIsoCode('EUR');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCurrency')->willReturn($currency);
 
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, $cartToken);
-        $cartPersister = $this->createMock(AbstractCartPersister::class);
+        $cartPersister = static::createStub(AbstractCartPersister::class);
         $cartPersister->method('load')->willReturn($cart);
 
         $subscriber = new CartDataCollectorSubscriber($cartPersister);
@@ -122,12 +124,12 @@ class CartDataCollectorSubscriberTest extends TestCase
         $currency->setId(Uuid::randomHex());
         $currency->setIsoCode('EUR');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCurrency')->willReturn($currency);
 
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, $cartToken);
 
-        $cartPersister = $this->createMock(AbstractCartPersister::class);
+        $cartPersister = static::createStub(AbstractCartPersister::class);
         $cartPersister->method('load')->willReturn($cart);
 
         $subscriber = new CartDataCollectorSubscriber($cartPersister);

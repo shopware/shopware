@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware Knowledge Capture"
+  short_description: "Route durable Shopware knowledge to the right home."
+  default_prompt: "Save this Shopware knowledge for later."

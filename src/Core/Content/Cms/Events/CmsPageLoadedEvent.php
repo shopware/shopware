@@ -5,8 +5,11 @@ namespace Shopware\Core\Content\Cms\Events;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,16 +20,22 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     protected CmsPageCollection $result;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $result type will be changed from `EntityCollection` to `CmsPageCollection`
-     *
      * @param CmsPageCollection $result
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'result', newType: CmsPageCollection::class)]
     public function __construct(
         protected Request $request,
         /* protected CmsPageCollection $result, */
         EntityCollection $result,
         protected SalesChannelContext $salesChannelContext,
     ) {
+        if (!$result instanceof CmsPageCollection) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Passing a plain EntityCollection as $result is deprecated, pass a CmsPageCollection instead.'
+            );
+        }
+
         $this->result = $result;
     }
 
@@ -36,10 +45,9 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be changed from `EntityCollection` to `CmsPageCollection`
-     *
      * @return CmsPageCollection
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: CmsPageCollection::class)]
     public function getResult(): EntityCollection /* CmsPageCollection */
     {
         return $this->result;

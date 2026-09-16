@@ -1,7 +1,6 @@
 /**
  * @sw-package fundamentals@framework
  */
-import './sw-users-permissions-role-view-general.scss';
 import template from './sw-users-permissions-role-view-general.html.twig';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -20,7 +19,13 @@ export default {
     props: {
         role: {
             type: Object,
-            required: true,
+            required: false,
+            default: null,
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -37,6 +42,14 @@ export default {
             'description',
         ]),
 
+        roleId() {
+            if (!this.role || this.role.isNew()) {
+                return null;
+            }
+
+            return this.role.id;
+        },
+
         integrationRepository() {
             return this.repositoryFactory.create('integration');
         },
@@ -46,42 +59,67 @@ export default {
         },
 
         shouldShowMcpHint() {
+            if (!this.role) {
+                return false;
+            }
+
             return !this.role.isNew() && this.mcpIntegrations.length > 0;
         },
     },
 
-    created() {
-        if (!this.role.isNew()) {
-            this.loadMcpIntegrations();
-        }
+    watch: {
+        roleId: {
+            immediate: true,
+            handler() {
+                this.loadMcpIntegrations();
+            },
+        },
     },
 
     methods: {
-        loadMcpIntegrations() {
+        async loadMcpIntegrations() {
+            if (!this.roleId) {
+                this.mcpIntegrations = [];
+                return;
+            }
+
             const criteria = new Criteria(1, 500);
+            const roleId = this.roleId;
 
             criteria.addFilter(Criteria.equals('admin', false));
             criteria.addFilter(Criteria.not('AND', [Criteria.equals('mcpAllowlist', null)]));
-            criteria.addFilter(Criteria.equals('aclRoles.id', this.role.id));
+            criteria.addFilter(Criteria.equals('aclRoles.id', roleId));
             criteria.addAssociation('aclRoles');
 
-            this.integrationRepository
-                .search(criteria)
-                .then((result) => {
-                    const elements = result.getElements ? Object.values(result.getElements()) : [...result];
-                    this.mcpIntegrations = elements.filter((i) => {
-                        const allowlist = i.mcpAllowlist;
-                        if (!allowlist) return false;
-                        return (
-                            Array.isArray(allowlist.tools) ||
-                            Array.isArray(allowlist.resources) ||
-                            Array.isArray(allowlist.prompts)
-                        );
-                    });
-                })
-                .catch(() => {
-                    this.mcpIntegrations = [];
+            try {
+                const result = await this.integrationRepository.search(criteria);
+
+                if (roleId !== this.roleId) {
+                    return;
+                }
+
+                const elements = result.getElements ? Object.values(result.getElements()) : [...result];
+
+                this.mcpIntegrations = elements.filter((integration) => {
+                    const allowlist = integration.mcpAllowlist;
+
+                    if (!allowlist) {
+                        return false;
+                    }
+
+                    return (
+                        Array.isArray(allowlist.tools) ||
+                        Array.isArray(allowlist.resources) ||
+                        Array.isArray(allowlist.prompts)
+                    );
                 });
+            } catch {
+                if (roleId !== this.roleId) {
+                    return;
+                }
+
+                this.mcpIntegrations = [];
+            }
         },
 
         onOpenMcpModal() {

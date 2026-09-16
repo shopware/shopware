@@ -40,7 +40,7 @@ class ProductExportEventListener implements EventSubscriberInterface
 
     public function afterWrite(EntityWrittenEvent $event): void
     {
-        foreach ($event->getWriteResults() as $writeResult) {
+        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
             if (!$this->productExportWritten($writeResult)) {
                 continue;
             }
@@ -53,6 +53,7 @@ class ProductExportEventListener implements EventSubscriberInterface
                     [
                         'id' => $primaryKey,
                         'generatedAt' => null,
+                        'nextGenerationAt' => null,
                         // Reset stuck runs when a user/admin edits the export
                         'isRunning' => false,
                     ],
@@ -75,8 +76,8 @@ class ProductExportEventListener implements EventSubscriberInterface
     private function productExportWritten(EntityWriteResult $writeResult): bool
     {
         return $writeResult->getEntityName() === ProductExportDefinition::ENTITY_NAME
-            && $writeResult->getOperation() !== EntityWriteResult::OPERATION_DELETE
             && !\array_key_exists('generatedAt', $writeResult->getPayload())
+            && !\array_key_exists('nextGenerationAt', $writeResult->getPayload())
             && !\array_key_exists('isRunning', $writeResult->getPayload());
     }
 }

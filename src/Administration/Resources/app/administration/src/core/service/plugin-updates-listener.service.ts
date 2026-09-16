@@ -40,15 +40,9 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
     }
 
     function createUpdatesAvailableNotification(): void {
-        const root = Shopware.Application.getApplicationRoot();
-
-        if (!root) {
-            throw new Error('could not find applicationRoot');
-        }
-
         const notification: NotificationType = {
-            title: root.$t('global.notification-center.plugin-updates-listener.updatesAvailableTitle'),
-            message: root.$t('global.notification-center.plugin-updates-listener.updatesAvailableMessage'),
+            title: 'global.notification-center.plugin-updates-listener.updatesAvailableTitle',
+            message: 'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
             variant: 'info',
             growl: true,
             system: true,

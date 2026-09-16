@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-category-entry-point-card {
     &__navigation-list {
         margin: 12px 0 30px;
@@ -9,6 +7,6 @@
     }
 
     &__navigation-entry {
-        line-height: $line-height-md;
+        line-height: var(--font-line-height-m);
     }
 }

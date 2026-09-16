@@ -68,24 +68,6 @@ export default {
             return values;
         },
 
-        currentError() {
-            let error = null;
-
-            Object.values(this.config).forEach((config) => {
-                if (error) {
-                    return;
-                }
-
-                const errorProperty = Shopware.Store.get('error').getApiError(this.condition, `value.${config.name}`);
-
-                if (errorProperty) {
-                    error = errorProperty;
-                }
-            });
-
-            return error;
-        },
-
         conditionClasses() {
             return {
                 'has--operator-first': this.config.length > 1 && this.config[0].name === 'operator',

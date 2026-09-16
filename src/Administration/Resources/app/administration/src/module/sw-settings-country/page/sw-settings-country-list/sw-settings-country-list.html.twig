@@ -138,7 +138,7 @@
                                 :disabled="!acl.can('country.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
-                                {{ $t('sw-settings-country.list.contextMenuDelete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -177,7 +177,7 @@
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
-                                        {{ $t('sw-settings-country.list.buttonDelete') }}
+                                        {{ $t('global.default.delete') }}
                                     </mt-button>
                                     {% endblock %}
                                 </template>

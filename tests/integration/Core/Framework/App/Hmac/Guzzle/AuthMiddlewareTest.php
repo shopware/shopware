@@ -13,15 +13,18 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AuthMiddlewareTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -89,6 +92,10 @@ class AuthMiddlewareTest extends TestCase
         static::assertNotNull($request);
 
         static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $request->getHeaders());
+
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
+        static::assertSame(['example.local:443:93.184.216.34'], $historyCollector->getHistory()[0]['options']['curl'][\CURLOPT_RESOLVE] ?? null);
     }
 
     public function testMissingRequiredResponseHeader(): void
@@ -96,7 +103,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = static::getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri('\'https://example.local\''));
+        $client->post(new Uri('https://example.local'));
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -112,7 +119,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = static::getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri('\'https://example.local\''), $optionsRequest);
+        $client->post(new Uri('https://example.local'), $optionsRequest);
     }
 
     public function testIncorrectAppContextInstanceOfOptionRequest(): void
@@ -123,7 +130,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = static::getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri('\'https://example.local\''), $optionsRequest);
+        $client->post(new Uri('https://example.local'), $optionsRequest);
     }
 
     public function testInCorrectAuthenticResponse(): void

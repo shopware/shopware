@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
@@ -23,10 +24,11 @@ readonly class HandshakeFactory
         private ShopIdProvider $shopIdProvider,
         private StoreClient $storeClient,
         private string $shopwareVersion,
+        private ClockInterface $clock,
     ) {
     }
 
-    public function create(Manifest $manifest, AppEntity $app): AppHandshakeInterface
+    public function create(Manifest $manifest, AppEntity $app, #[\SensitiveParameter] ?string $currentSecret = null): AppHandshakeInterface
     {
         $setup = $manifest->getSetup();
         $metadata = $manifest->getMetadata();
@@ -50,8 +52,10 @@ readonly class HandshakeFactory
             );
         }
 
-        // Get current app secret for re-registration (secret rotation)
-        $currentAppSecret = $app->getAppSecret();
+        // The secret the app currently holds, used to sign the re-registration's previous-signature.
+        // Normally this is the stored app_secret; recovery passes in the unconfirmed secret the app may
+        // already have switched to.
+        $currentAppSecret = $currentSecret ?? $app->getAppSecret();
 
         if ($privateSecret) {
             return new PrivateHandshake(
@@ -61,7 +65,8 @@ readonly class HandshakeFactory
                 $metadata->getName(),
                 $shopId,
                 $this->shopwareVersion,
-                $currentAppSecret
+                $this->clock,
+                $currentAppSecret,
             );
         }
 
@@ -72,7 +77,8 @@ readonly class HandshakeFactory
             $shopId,
             $this->storeClient,
             $this->shopwareVersion,
-            $currentAppSecret
+            $this->clock,
+            $currentAppSecret,
         );
     }
 }

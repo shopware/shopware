@@ -33,7 +33,6 @@ async function createWrapper(propsData = {}) {
                     productCustomFields: [],
                 },
                 stubs: {
-                    'sw-arrow-field': true,
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -57,7 +56,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
 
     it('should return correct options with json accessor', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.options).toEqual([
             {
@@ -65,19 +64,5 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
                 value: 'json.test',
             },
         ]);
-    });
-
-    it('should return gray arrow primary color without error', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.arrowPrimaryColor).toBe('#758ca3');
-    });
-
-    it('should return red arrow primary color with error', async () => {
-        const wrapper = await createWrapper({
-            hasError: true,
-        });
-
-        expect(wrapper.vm.arrowPrimaryColor).toBe('#de294c');
     });
 });

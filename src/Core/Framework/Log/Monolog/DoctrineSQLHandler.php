@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,6 +19,7 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
      */
     public function __construct(
         protected Connection $connection,
+        private readonly ClockInterface $clock,
         Level $level = Level::Debug,
         bool $bubble = true
     ) {
@@ -34,7 +36,7 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
             'context' => json_encode($record->context, \JSON_THROW_ON_ERROR),
             'extra' => json_encode($record->extra, \JSON_THROW_ON_ERROR),
             'updated_at' => null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         try {

@@ -104,6 +104,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_feature_set:delete',
                 'user_config:create',
                 'user_config:update',
+                'seo_url:update',
             ],
             dependencies: [
                 'product.viewer',

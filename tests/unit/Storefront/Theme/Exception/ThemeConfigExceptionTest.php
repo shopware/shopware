@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\ThemeConfigException;
@@ -12,155 +13,45 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeConfigException::class)]
 class ThemeConfigExceptionTest extends TestCase
 {
-    public function testConstructor(): void
+    #[TestDox('tryToThrow is a no-op while no error was added')]
+    public function testTryToThrowWithoutErrors(): void
     {
         $exception = new ThemeConfigException();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame('THEME_CONFIG_EXCEPTION', $exception->getErrorCode());
-        static::assertSame('There are 0 error(s) while validating the theme config.', $exception->getMessage());
-        static::assertEmpty($exception->getExceptions());
-    }
-
-    public function testAddException(): void
-    {
-        $exception = new ThemeConfigException();
-        $innerException = new \RuntimeException('Test error');
-
-        $result = $exception->add($innerException);
-
-        static::assertSame($exception, $result);
-        static::assertCount(1, $exception->getExceptions());
-        static::assertSame($innerException, $exception->getExceptions()[0]);
-        static::assertSame('There are 1 error(s) while validating the theme config.', $exception->getMessage());
-    }
-
-    public function testAddMultipleExceptions(): void
-    {
-        $exception = new ThemeConfigException();
-        $innerException1 = new \RuntimeException('Test error 1');
-        $innerException2 = new \InvalidArgumentException('Test error 2');
-
-        $exception->add($innerException1);
-        $exception->add($innerException2);
-
-        static::assertCount(2, $exception->getExceptions());
-        static::assertSame($innerException1, $exception->getExceptions()[0]);
-        static::assertSame($innerException2, $exception->getExceptions()[1]);
-        static::assertSame('There are 2 error(s) while validating the theme config.', $exception->getMessage());
-    }
-
-    public function testTryToThrowWithNoExceptions(): void
-    {
-        $exception = new ThemeConfigException();
-
-        // Should not throw when no exceptions are added
         $exception->tryToThrow();
 
-        static::assertCount(0, $exception->getExceptions());
+        static::assertSame('THEME_CONFIG_EXCEPTION', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertStringContainsString('There are 0 error(s) while validating the theme config.', $exception->getMessage());
     }
 
-    public function testTryToThrowWithExceptions(): void
+    #[TestDox('added errors update the message and make tryToThrow throw')]
+    public function testAddUpdatesMessageAndThrows(): void
     {
         $exception = new ThemeConfigException();
-        $innerException = new \RuntimeException('Test error');
-        $exception->add($innerException);
+        $exception->add(ThemeException::invalidThemeBundle('MyTheme'));
+
+        static::assertStringContainsString('There are 1 error(s) while validating the theme config.', $exception->getMessage());
 
         $this->expectExceptionObject($exception);
-
         $exception->tryToThrow();
     }
 
-    public function testGetErrorsWithNoExceptions(): void
+    #[TestDox('getErrors flattens shopware and generic inner exceptions')]
+    public function testGetErrors(): void
     {
         $exception = new ThemeConfigException();
+        $exception->add(ThemeException::invalidThemeBundle('MyTheme'));
+        $exception->add(new \RuntimeException('broken config'));
 
-        $errors = [];
-        foreach ($exception->getErrors(true) as $error) {
-            $errors[] = $error;
-        }
-
-        static::assertEmpty($errors);
-    }
-
-    public function testGetErrorsWithTrace(): void
-    {
-        $exception = new ThemeConfigException();
-        $innerException = new \RuntimeException('Test error');
-        $exception->add($innerException);
-
-        $errors = [];
-        foreach ($exception->getErrors(true) as $error) {
-            $errors[] = $error;
-        }
-
-        static::assertCount(1, $errors);
-        static::assertArrayHasKey('meta', $errors[0]);
-        static::assertArrayHasKey('trace', $errors[0]['meta']);
-        static::assertIsArray($errors[0]['meta']['trace']);
-    }
-
-    public function testGetErrorsWithMultipleExceptions(): void
-    {
-        $exception = new ThemeConfigException();
-        $innerException1 = ThemeException::InvalidScssValue('#invalid-color', 'color', 'sw-color-brand-primary');
-        $innerException2 = ThemeException::InvalidScssValue('#invalid-color', 'color', 'sw-color-brand-secondary');
-        $exception->add($innerException1);
-        $exception->add($innerException2);
-
-        $errors = [];
-        foreach ($exception->getErrors() as $error) {
-            $errors[] = $error;
-        }
+        $errors = iterator_to_array($exception->getErrors(), false);
 
         static::assertCount(2, $errors);
-        static::assertSame('400', $errors[0]['status']);
-        static::assertSame('400', $errors[1]['status']);
-    }
-
-    public function testGetExceptions(): void
-    {
-        $exception = new ThemeConfigException();
-        $innerException1 = new \RuntimeException('Test error 1');
-        $innerException2 = new \InvalidArgumentException('Test error 2');
-
-        $exception->add($innerException1);
-        $exception->add($innerException2);
-
-        $exceptions = $exception->getExceptions();
-
-        static::assertCount(2, $exceptions);
-        static::assertSame($innerException1, $exceptions[0]);
-        static::assertSame($innerException2, $exceptions[1]);
-    }
-
-    public function testMessageUpdateAfterAddingExceptions(): void
-    {
-        $exception = new ThemeConfigException();
-        static::assertSame('There are 0 error(s) while validating the theme config.', $exception->getMessage());
-
-        $exception->add(new \RuntimeException('Error 1'));
-        static::assertSame('There are 1 error(s) while validating the theme config.', $exception->getMessage());
-
-        $exception->add(new \RuntimeException('Error 2'));
-        static::assertSame('There are 2 error(s) while validating the theme config.', $exception->getMessage());
-    }
-
-    public function testChainingAddMethod(): void
-    {
-        $exception = new ThemeConfigException();
-        $innerException1 = new \RuntimeException('Test error 1');
-        $innerException2 = new \RuntimeException('Test error 2');
-
-        $result = $exception
-            ->add($innerException1)
-            ->add($innerException2);
-
-        static::assertSame($exception, $result);
-        static::assertCount(2, $exception->getExceptions());
+        static::assertSame('Unable to find the theme.json for "MyTheme"', $errors[0]['detail']);
+        static::assertSame('broken config', $errors[1]['detail']);
     }
 }

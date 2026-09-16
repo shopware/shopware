@@ -22,6 +22,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'content',
             productCollection: null,
             productStream: null,
             showProductStreamPreview: false,
@@ -34,6 +35,19 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },

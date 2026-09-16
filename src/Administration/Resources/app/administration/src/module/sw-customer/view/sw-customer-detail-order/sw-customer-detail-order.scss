@@ -1,6 +1,6 @@
 .sw-customer-detail-order {
-    .sw-empty-state {
-        position: relative;
+    &__empty-state {
+        margin-inline: auto;
     }
 
     .mt-card__toolbar {

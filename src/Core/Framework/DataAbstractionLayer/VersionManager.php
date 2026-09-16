@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -27,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -53,6 +56,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -74,7 +79,8 @@ class VersionManager
         private readonly VersionCommitDefinition $versionCommitDefinition,
         private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
         private readonly VersionDefinition $versionDefinition,
-        private readonly LockFactory $lockFactory
+        private readonly LockFactory $lockFactory,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -150,7 +156,7 @@ class VersionManager
         $versionContext = $context->createWithVersionId($versionId);
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
-        $this->eventDispatcher->dispatch($event);
+        $versionContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($event), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         $this->writeAuditLog($affected, $context, $versionId, true);
 
@@ -159,6 +165,11 @@ class VersionManager
 
     public function merge(string $versionId, WriteContext $writeContext): void
     {
+        $targetVersionId = $writeContext->getContext()->getVersionId();
+        if ($targetVersionId === $versionId) {
+            throw DataAbstractionLayerException::versionMergeSameVersion($versionId);
+        }
+
         // acquire a lock to prevent multiple merges of the same version
         $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
 
@@ -173,26 +184,26 @@ class VersionManager
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
 
-        // create context for live and version
+        // create context for source and target versions
         $versionContext = $writeContext->createWithVersionId($versionId);
-        $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
+        $targetContext = $writeContext->createWithVersionId($targetVersionId);
 
         $versionContext->addState(self::MERGE_SCOPE);
-        $liveContext->addState(self::MERGE_SCOPE);
+        $targetContext->addState(self::MERGE_SCOPE);
 
         // group all payloads by their action (insert, update, delete) and by their entity name
-        $writes = $this->buildWrites($commits);
+        $writes = $this->buildWrites($commits, $versionId, $targetVersionId);
 
         $this->eventDispatcher->dispatch($event = new BeforeVersionMergeEvent($writes));
         $writes = $event->filterWrites(static function ($operation) {
-            return !empty($operation);
+            return $operation !== [];
         });
 
         // execute writes and get access to the write result to dispatch events later on
-        $result = $this->executeWrites($writes, $liveContext);
+        $result = $this->executeWrites($writes, $targetContext);
 
-        // remove commits which reference the version and create a "merge commit" for the live version with all payloads
-        $this->updateVersionData($commits, $writeContext, $versionId);
+        // remove commits which reference the version and create a "merge commit" for the target version with all payloads
+        $this->updateVersionData($commits, $writeContext, $versionId, $targetVersionId);
 
         // delete all versioned records
         $this->deleteClones($commits, $versionContext, $versionId);
@@ -201,17 +212,17 @@ class VersionManager
         $lock->release();
 
         // dispatch events to trigger indexer and other subscribers
-        $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $liveContext->getContext(), []);
+        $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $targetContext->getContext(), []);
 
-        $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $liveContext->getContext(), []);
+        $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $targetContext->getContext(), []);
 
         if ($deletes->getEvents() !== null) {
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
-        $this->eventDispatcher->dispatch($writes);
+        $targetContext->getContext()->scope(Context::SYSTEM_SCOPE, fn () => $this->eventDispatcher->dispatch($writes), [Context::SYSTEM_SCOPE_DAL_WRITE_EVENT]);
 
         $versionContext->removeState(self::MERGE_SCOPE);
-        $liveContext->addState(self::MERGE_SCOPE);
+        $targetContext->removeState(self::MERGE_SCOPE);
     }
 
     /**
@@ -240,8 +251,12 @@ class VersionManager
         CloneBehavior $behavior,
         bool $writeAuditLog = false
     ): array {
+        if ($this->isCloneProtected($definition, $context->getContext())) {
+            throw DataAbstractionLayerException::cloneProtected($definition->getEntityName(), $context->getContext()->getScope());
+        }
+
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren());
+        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren(), $context->getContext());
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -260,16 +275,18 @@ class VersionManager
         $updatedAtField = $definition->getField('updatedAt');
 
         if ($createdAtField instanceof DateTimeField) {
-            $data['createdAt'] = new \DateTime();
+            $data['createdAt'] = $this->clock->now();
         }
 
         if ($updatedAtField instanceof DateTimeField) {
             if ($updatedAtField->getFlag(Required::class)) {
-                $data['updatedAt'] = new \DateTime();
+                $data['updatedAt'] = $this->clock->now();
             } else {
                 $data['updatedAt'] = null;
             }
         }
+
+        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext());
 
         $data = Feature::isActive('v6.8.0.0')
             ? $this->mergeOverwrites($definition, $data, $behavior->getOverwrites())
@@ -290,6 +307,42 @@ class VersionManager
     }
 
     /**
+     * @param array<string, mixed> $overwrites
+     */
+    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context): void
+    {
+        foreach ($overwrites as $propertyName => $value) {
+            $field = $definition->getFields()->get($propertyName);
+            $writeProtection = $field?->getFlag(WriteProtected::class);
+
+            if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
+                continue;
+            }
+
+            $message = 'This field is write-protected.';
+            $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
+
+            if ($allowedScopes !== '') {
+                $message .= ' (Got: "%s" scope and "%s" is required)';
+            }
+
+            throw DataAbstractionLayerException::invalidWriteConstraintViolation(
+                new ConstraintViolationList([
+                    new ConstraintViolation(
+                        \sprintf($message, $context->getScope(), $allowedScopes),
+                        $message,
+                        [$context->getScope(), $allowedScopes],
+                        $value,
+                        $propertyName,
+                        $value
+                    ),
+                ]),
+                '/' . $propertyName
+            );
+        }
+    }
+
+    /**
      * @param array<string, array<string, mixed|null>|null> $data
      *
      * @return array<string, array<string, mixed|null>|string|null>
@@ -307,12 +360,23 @@ class VersionManager
                 continue;
             }
 
+            // Autoloaded associations are not added to the clone criteria, but can still be present in the serialized entity.
+            if ($field instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($field), $context)) {
+                continue;
+            }
+
             // set data and payload cursor to root or extensions to simplify following if conditions
             $dataCursor = $data;
 
             $payloadCursor = &$payload;
 
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                continue;
+            }
+
+            // wasModifiedByUser is derived from the write scope and rejects explicit values;
+            // a clone is a fresh, system-created record, so let the serializer set it to false.
+            if ($field instanceof WasModifiedByUserField) {
                 continue;
             }
 
@@ -427,6 +491,22 @@ class VersionManager
         return $payload;
     }
 
+    private function isCloneProtected(EntityDefinition $definition, Context $context): bool
+    {
+        $protection = $definition->getProtections()->get(CloneProtection::class);
+
+        return $protection !== null && !$protection->isAllowed($context->getScope());
+    }
+
+    private function getCloneReferenceDefinition(AssociationField $field): EntityDefinition
+    {
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getToManyReferenceDefinition();
+        }
+
+        return $field->getReferenceDefinition();
+    }
+
     /**
      * @param array<string, array<EntityWriteResult>> $writtenEvents
      */
@@ -443,7 +523,7 @@ class VersionManager
 
         $commitId = Uuid::randomBytes();
 
-        $date = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $date = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $source = $writeContext->getContext()->getSource();
         $userId = $source instanceof AdminApiSource && $source->getUserId()
@@ -531,11 +611,23 @@ class VersionManager
      *
      * @return array<string, mixed>
      */
-    private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
+    private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId, ?string $sourceVersionId = null): array
     {
         $fields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
 
         foreach ($fields as $field) {
+            if ($field instanceof ReferenceVersionField && $sourceVersionId !== null) {
+                $propertyName = $field->getPropertyName();
+
+                if (\array_key_exists($propertyName, $payload)) {
+                    if ($payload[$propertyName] !== $sourceVersionId) {
+                        continue;
+                    }
+                } elseif ($field->getVersionReferenceDefinition() !== $definition->getParentDefinition()) {
+                    continue;
+                }
+            }
+
             $payload[$field->getPropertyName()] = $versionId;
         }
 
@@ -577,6 +669,7 @@ class VersionManager
         EntityDefinition $definition,
         Criteria $criteria,
         bool $cloneChildren,
+        Context $context,
         int $childCounter = 1
     ): void {
         // add all cascade delete associations
@@ -587,6 +680,10 @@ class VersionManager
         });
 
         foreach ($cascades as $cascade) {
+            if ($cascade instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($cascade), $context)) {
+                continue;
+            }
+
             $nested = $criteria->getAssociation($cascade->getPropertyName());
 
             if ($cascade instanceof ManyToManyAssociationField) {
@@ -621,12 +718,12 @@ class VersionManager
                 }
 
                 ++$childCounter;
-                $this->addCloneAssociations($reference, $nested, $cloneChildren, $childCounter);
+                $this->addCloneAssociations($reference, $nested, $cloneChildren, $context, $childCounter);
 
                 continue;
             }
 
-            $this->addCloneAssociations($reference, $nested, $cloneChildren);
+            $this->addCloneAssociations($reference, $nested, $cloneChildren, $context);
         }
     }
 
@@ -669,8 +766,14 @@ class VersionManager
      *
      * @return array<string, mixed>
      */
-    private function addTranslationToPayload(array $entityId, array $payload, EntityDefinition $definition, VersionCommitEntity $commit): array
-    {
+    private function addTranslationToPayload(
+        array $entityId,
+        array $payload,
+        EntityDefinition $definition,
+        VersionCommitEntity $commit,
+        string $sourceVersionId,
+        string $targetVersionId
+    ): array {
         $translationDefinition = $definition->getTranslationDefinition();
 
         if (!$translationDefinition) {
@@ -700,7 +803,7 @@ class VersionManager
                 continue;
             }
 
-            $translations[] = $this->addVersionToPayload($translation, $translationDefinition, Defaults::LIVE_VERSION);
+            $translations[] = $this->addVersionToPayload($translation, $translationDefinition, $targetVersionId, $sourceVersionId);
         }
 
         $payload['translations'] = $translations;
@@ -743,7 +846,7 @@ class VersionManager
     /**
      * @return array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>}
      */
-    private function buildWrites(VersionCommitCollection $commits): array
+    private function buildWrites(VersionCommitCollection $commits, string $sourceVersionId, string $targetVersionId): array
     {
         $writes = [
             'insert' => [],
@@ -766,14 +869,21 @@ class VersionManager
                         if ($payload === null || $payload === []) {
                             break;
                         }
-                        $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
-                        $payload = $this->addTranslationToPayload($data->getEntityId(), $payload, $definition, $commit);
+                        $payload = $this->addVersionToPayload($payload, $definition, $targetVersionId, $sourceVersionId);
+                        $payload = $this->addTranslationToPayload(
+                            $data->getEntityId(),
+                            $payload,
+                            $definition,
+                            $commit,
+                            $sourceVersionId,
+                            $targetVersionId
+                        );
                         $writes[$data->getAction()][$definition->getEntityName()][] = $payload;
 
                         break;
                     case 'delete':
                         $id = $data->getEntityId();
-                        $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
+                        $id = $this->addVersionToPayload($id, $definition, $targetVersionId, $sourceVersionId);
                         $writes['delete'][$definition->getEntityName()][] = $id;
 
                         break;
@@ -788,7 +898,7 @@ class VersionManager
     /**
      * @param array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>} $writes
      */
-    private function executeWrites(array $writes, WriteContext $liveContext): WriteResult
+    private function executeWrites(array $writes, WriteContext $targetContext): WriteResult
     {
         $operations = [];
 
@@ -808,10 +918,10 @@ class VersionManager
             return new WriteResult([], [], []);
         }
 
-        return $this->entityWriter->sync($operations, $liveContext);
+        return $this->entityWriter->sync($operations, $targetContext);
     }
 
-    private function updateVersionData(VersionCommitCollection $commits, WriteContext $writeContext, string $versionId): void
+    private function updateVersionData(VersionCommitCollection $commits, WriteContext $writeContext, string $versionId, string $targetVersionId): void
     {
         $new = [];
 
@@ -824,9 +934,9 @@ class VersionManager
                 $definition = $this->registry->getByEntityName($data->getEntityName());
 
                 $id = $data->getEntityId();
-                $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
+                $id = $this->addVersionToPayload($id, $definition, $targetVersionId, $versionId);
 
-                $payload = $this->addVersionToPayload($data->getPayload(), $definition, Defaults::LIVE_VERSION);
+                $payload = $this->addVersionToPayload($data->getPayload(), $definition, $targetVersionId, $versionId);
 
                 $new[] = [
                     'entityId' => $id,
@@ -835,17 +945,17 @@ class VersionManager
                     'integrationId' => $data->getIntegrationId(),
                     'entityName' => $data->getEntityName(),
                     'action' => $data->getAction(),
-                    'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ];
             }
         }
 
         $commit = [
-            'versionId' => Defaults::LIVE_VERSION,
+            'versionId' => $targetVersionId,
             'data' => $new,
             'userId' => $writeContext->getContext()->getSource() instanceof AdminApiSource ? $writeContext->getContext()->getSource()->getUserId() : null,
             'isMerge' => true,
-            'message' => 'merge commit ' . (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'message' => 'merge commit ' . $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         // create new version commit for merge commit

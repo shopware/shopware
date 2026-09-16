@@ -54,11 +54,17 @@ class LineItemPromotedRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->booleanField('isPromoted');
+            ->booleanField('isPromoted', [
+                'isMatchAny' => true,
+            ]);
     }
 
     private function isItemMatching(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         return (bool) $lineItem->getPayloadValue('markAsTopseller') === $this->isPromoted;
     }
 }

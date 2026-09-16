@@ -1,9 +1,11 @@
-import { mount } from '@vue/test-utils';
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
+import { DOMWrapper, mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import { DOCUMENT_MAIL_TEMPLATE_MAPPING } from './index';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 /**
  * @sw-package checkout
@@ -155,16 +157,6 @@ const mockMailTemplates = [
         mailTemplateType: {
             name: 'Invoice note',
             technicalName: 'invoice_mail',
-            templateData: {
-                order: {
-                    ...mockOrderWithoutCustomerName,
-                    orderCustomer: {
-                        email: 'personal@ema.il',
-                        firstName: 'Personal',
-                        lastName: 'Data',
-                    },
-                },
-            },
         },
         contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
         subject: 'Personal data from order',
@@ -296,7 +288,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await mailTemplateSelect.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe(mockMailTemplates[0].description);
+        expect(new DOMWrapper(document.body).get('.sw-select-result__result-item-description').text()).toBe(
+            mockMailTemplates[0].description,
+        );
     });
 
     it('should truncate mail template description', async () => {
@@ -311,7 +305,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        const text = wrapper.find('.sw-select-result__result-item-description').text();
+        const text = new DOMWrapper(document.body).get('.sw-select-result__result-item-description').text();
         expect(text).toHaveLength(160);
         expect(text.endsWith('...')).toBe(true);
     });
@@ -392,7 +386,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--1').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
@@ -410,7 +404,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.findByText('button', 'sw-order.documentSendModal.labelClose').trigger('click');
+        await wrapper.findByText('button', 'global.default.close').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
@@ -452,7 +446,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--2').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--2').trigger('click');
         await flushPromises();
 
         expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');
@@ -535,6 +529,31 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             deepLinkCode: '12345',
             fileExtension: 'html',
         });
+    });
+
+    it('should fall back to the V2 html document file for a11y links', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            document: {
+                ...mockDocuments[0],
+                documentA11yMediaFile: null,
+                documentFiles: [
+                    {
+                        documentFormat: 'html',
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.a11yDocuments).toEqual([
+            {
+                documentId: mockDocuments[0].id,
+                deepLinkCode: '12345',
+                fileExtension: 'html',
+            },
+        ]);
     });
 
     describe('auto select mail template by document type', () => {

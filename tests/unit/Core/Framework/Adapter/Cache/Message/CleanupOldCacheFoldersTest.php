@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Message;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CleanupOldCacheFolders::class)]
 class CleanupOldCacheFoldersTest extends TestCase
 {

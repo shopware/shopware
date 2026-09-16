@@ -24,7 +24,7 @@ class AppContextCreatorTest extends TestCase
     {
         $hook = new TestHook('test-hook', Context::createDefaultContext());
 
-        $appContextCreator = new AppContextCreator($this->createMock(Connection::class));
+        $appContextCreator = new AppContextCreator(static::createStub(Connection::class));
 
         $appContext = $appContextCreator->getAppContext(
             $hook,

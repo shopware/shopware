@@ -125,7 +125,7 @@ class ShippingMethodRepositoryTest extends TestCase
 
         $criteria = new Criteria([$this->shippingMethodId]);
 
-        $resultSet = $this->shippingRepository->search($criteria, $defaultContext);
+        $resultSet = $this->shippingRepository->search($criteria, $defaultContext)->getEntities();
 
         static::assertCount(0, $resultSet);
     }
@@ -152,13 +152,13 @@ class ShippingMethodRepositoryTest extends TestCase
     {
         $defaultContext = Context::createDefaultContext();
 
-        $result = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext);
+        $result = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext)->getEntities();
 
         static::assertEmpty($result);
     }
 
     /**
-     * @return array<array{id: string, bindShippingfree: bool, name: string, tax_type: null, availabilityRule: array<string, mixed>, deliveryTime: DeliveryTimeData}>
+     * @return array<array{id: string, bindShippingfree: bool, name: string, technicalName: string, tax_type: null, availabilityRule: array<string, mixed>, deliveryTime: DeliveryTimeData}>
      */
     private function createShippingMethodDummyArray(): array
     {

@@ -55,7 +55,7 @@ class SalesChannelLanguageLoaderTest extends TestCase
      */
     private function getConnectionMockObject(array $returnData = []): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn($returnData);
 

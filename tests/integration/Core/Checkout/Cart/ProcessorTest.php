@@ -356,6 +356,19 @@ class ProcessorTest extends TestCase
         }
     }
 
+    public function testProcessKeepsPersistedStateOfOriginalCart(): void
+    {
+        $cart = new Cart('test');
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+        static::assertFalse($calculated->isPersisted());
+
+        $cart->setPersisted(true);
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+        static::assertTrue($calculated->isPersisted());
+    }
+
     public function testProcessorsAndCollectorsAreSkippedIfCartIsEmpty(): void
     {
         $cart = new Cart('test');

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -12,29 +13,33 @@ use Shopware\Core\Framework\App\Api\AppPrivilegeController;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppPrivilegeController::class)]
 class AppPrivilegeControllerTest extends TestCase
 {
     private AppPrivilegeController $controller;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private Privileges&MockObject $privileges;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->privileges = $this->createMock(Privileges::class);
         $this->controller = new AppPrivilegeController($this->connection, $this->privileges);
     }
 
     public function testGetRequestedPrivilegesWithWrongSource(): void
     {
+        $this->privileges->expects($this->never())->method('getRequestedPrivilegesForAllApps');
+
         $this->expectExceptionObject(AppException::invalidContextSource(AdminApiSource::class, SystemSource::class));
 
         $context = Context::createDefaultContext();
@@ -43,6 +48,8 @@ class AppPrivilegeControllerTest extends TestCase
 
     public function testGetRequestedPrivilegesWhenNotLoggedIn(): void
     {
+        $this->privileges->expects($this->never())->method('getRequestedPrivilegesForAllApps');
+
         $this->expectExceptionObject(AppException::missingUserInContextSource(AdminApiSource::class));
 
         $context = Context::createDefaultContext(new AdminApiSource(null));
@@ -78,6 +85,8 @@ class AppPrivilegeControllerTest extends TestCase
 
     public function testAcceptPrivilegesWithWrongSource(): void
     {
+        $this->privileges->expects($this->never())->method('updatePrivileges');
+
         $this->expectExceptionObject(AppException::invalidContextSource(AdminApiSource::class, SystemSource::class));
 
         $context = Context::createDefaultContext();
@@ -88,6 +97,8 @@ class AppPrivilegeControllerTest extends TestCase
 
     public function testAcceptPrivilegesWhenNotLoggedIn(): void
     {
+        $this->privileges->expects($this->never())->method('updatePrivileges');
+
         $this->expectExceptionObject(AppException::missingUserInContextSource(AdminApiSource::class));
 
         $context = Context::createDefaultContext(new AdminApiSource(null));
@@ -105,8 +116,7 @@ class AppPrivilegeControllerTest extends TestCase
         // To trigger AppException::invalidPrivileges(), 'accept' or 'revoke' must be non-array
         $request = new Request(content: (string) json_encode(['accept' => 123])); // Changed from null to 123
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('For each accept, or revoke, expected a list of privileges in the format "category:read"'); // Changed to full message
+        $this->expectExceptionObject(AppException::invalidPrivileges());
 
         $this->controller->updatePrivileges($request, $context, 'app-id-1');
     }
@@ -120,8 +130,7 @@ class AppPrivilegeControllerTest extends TestCase
         // To trigger AppException::invalidPrivileges(), 'accept' or 'revoke' must be non-array
         $request = new Request(content: (string) json_encode(['accept' => false]));
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('For each accept, or revoke, expected a list of privileges in the format "category:read"'); // Changed to full message
+        $this->expectExceptionObject(AppException::invalidPrivileges());
 
         $this->controller->updatePrivileges($request, $context, 'app-id-1');
     }
@@ -130,41 +139,46 @@ class AppPrivilegeControllerTest extends TestCase
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->connection->expects($this->once())
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT LOWER(HEX(id)) FROM app WHERE name = ?', ['appName'])
             ->willReturn(false);
+        $controller = new AppPrivilegeController($connection, $this->privileges);
 
         $this->privileges->expects($this->never())->method('updatePrivileges');
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Could not find app with name "appName"');
+        $this->expectExceptionObject(AppException::notFoundByField('appName', 'name'));
 
         $request = new Request(content: (string) json_encode(['accept' => ['customer:read', 'customer:update']]));
-        $this->controller->updatePrivileges($request, $context, 'appName');
+        $controller->updatePrivileges($request, $context, 'appName');
     }
 
     public function testAcceptPrivileges(): void
     {
         $context = Context::createDefaultContext(new AdminApiSource('user-id'));
 
-        $this->connection->expects($this->once())
+        $connection = static::createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->with('SELECT LOWER(HEX(id)) FROM app WHERE name = ?', ['appName'])
             ->willReturn('app-id-1');
+        $controller = new AppPrivilegeController($connection, $this->privileges);
 
         $this->privileges->expects($this->once())
             ->method('updatePrivileges')
             ->with('app-id-1', ['customer:read', 'customer:update'], [], $context);
 
         $request = new Request(content: (string) json_encode(['accept' => ['customer:read', 'customer:update']]));
-        $response = $this->controller->updatePrivileges($request, $context, 'appName');
+        $response = $controller->updatePrivileges($request, $context, 'appName');
 
         static::assertSame(204, $response->getStatusCode());
     }
 
     public function testGetAcceptedPrivilegesWithWrongSource(): void
     {
+        $this->privileges->expects($this->never())->method('updatePrivileges');
+
         $this->expectExceptionObject(AppException::invalidContextSource(AdminApiSource::class, SystemSource::class));
 
         $context = Context::createDefaultContext();
@@ -174,6 +188,8 @@ class AppPrivilegeControllerTest extends TestCase
 
     public function testGetAcceptedPrivilegesWithMissingIntegration(): void
     {
+        $this->privileges->expects($this->never())->method('updatePrivileges');
+
         $this->expectExceptionObject(AppException::missingIntegration());
 
         $source = new AdminApiSource('AABB', null);
@@ -184,6 +200,8 @@ class AppPrivilegeControllerTest extends TestCase
 
     public function testGetAcceptedPrivileges(): void
     {
+        $this->privileges->expects($this->never())->method('updatePrivileges');
+
         $source = new AdminApiSource('AABB', 'CCDD');
         $source->setPermissions(['customer:read', 'customer:update']);
         $context = Context::createDefaultContext($source);
@@ -205,6 +223,8 @@ class AppPrivilegeControllerTest extends TestCase
 
     public function testGetAcceptedPrivilegesEmpty(): void
     {
+        $this->privileges->expects($this->never())->method('updatePrivileges');
+
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
         $response = $this->controller->getAcceptedPrivileges($context);

@@ -59,6 +59,15 @@
                                 <p class="finish-teaser">{{ 'checkout.finishInfoConfirmationMail'|trans|sw_sanitize }}</p>
                             {% endif %}
                         {% endblock %}
+
+                        {% block page_checkout_finish_create_account %}
+                        {% if context.customer.guest %}
+                            <div class="finish-create-account-container">
+                                <h5>{{ 'checkout.createAccountHeading'|trans|sw_sanitize }}</h5>
+                                <a class="btn btn-light" href="{{ url('frontend.account.convert.page') }}">{{ 'checkout.createAccountButton'|trans|sw_sanitize }}</a>
+                            </div>
+                        {% endif %}
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

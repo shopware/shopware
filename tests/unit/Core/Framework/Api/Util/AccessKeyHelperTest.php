@@ -25,8 +25,7 @@ class AccessKeyHelperTest extends TestCase
 
     public function testGenerateAccessKeyWithInvalidIdentifier(): void
     {
-        static::expectException(ApiException::class);
-        static::expectExceptionMessage('Given identifier for access key is invalid.');
+        $this->expectExceptionObject(ApiException::invalidAccessKeyIdentifier());
         AccessKeyHelper::generateAccessKey('invalid_identifier');
     }
 
@@ -39,8 +38,7 @@ class AccessKeyHelperTest extends TestCase
 
     public function testGenerateOriginWithInvalidAccessKey(): void
     {
-        static::expectExceptionMessage('Access key is invalid and could not be identified.');
-        static::expectException(ApiException::class);
+        $this->expectExceptionObject(ApiException::invalidAccessKey());
         AccessKeyHelper::getOrigin('invalid_access_key');
     }
 

@@ -10,7 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -20,7 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
@@ -115,13 +117,13 @@ class DeleteExpiredFilesServiceTest extends TestCase
 
         // Verify expired files are deleted
         foreach ($expiredIds as $id) {
-            $file = $this->fileRepository->search(new Criteria([$id]), $this->context)->first();
+            $file = $this->fileRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
             static::assertNull($file, "Expired file with ID {$id} should be deleted");
         }
 
         // Verify non-expired files still exist
         foreach ($nonExpiredIds as $id) {
-            $file = $this->fileRepository->search(new Criteria([$id]), $this->context)->first();
+            $file = $this->fileRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
             static::assertNotNull($file, "Non-expired file with ID {$id} should still exist");
         }
     }
@@ -162,10 +164,9 @@ class DeleteExpiredFilesServiceTest extends TestCase
     public function testDeleteFilesWithEmptyDatabase(): void
     {
         // Ensure no files exist
-        $allFiles = $this->fileRepository->searchIds(new Criteria(), $this->context)->getIds();
+        $allFiles = $this->fileRepository->searchIds(new Criteria(), $this->context)->getPrimaryKeyData();
         if ($allFiles !== []) {
-            $deleteData = array_map(static fn ($id) => ['id' => $id], $allFiles);
-            $this->fileRepository->delete($deleteData, $this->context);
+            $this->fileRepository->delete($allFiles, $this->context);
         }
 
         $count = $this->deleteExpiredFilesService->countFiles($this->context);

@@ -1,10 +1,8 @@
-@import "~scss/variables";
-
 .sw-extension-review {
     margin-bottom: 20px;
 
     &__headline {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         margin-bottom: 2px;
     }
 
@@ -18,7 +16,7 @@
 
     &__meta-data {
         color: var(--color-text-secondary-default);
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
     }
 
     &__comma:not(:last-child)::after {

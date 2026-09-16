@@ -13,10 +13,12 @@ use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaUrlGenerator::class)]
 #[CoversClass(AbstractMediaUrlGenerator::class)]
 class MediaUrlGeneratorTest extends TestCase

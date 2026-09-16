@@ -6,11 +6,13 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Assert\StrictEmpty;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StrictEmpty::class)]
 class StrictEmptyTest extends TestCase
 {

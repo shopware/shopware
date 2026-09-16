@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
@@ -9,6 +10,7 @@ import './sw-system-config.scss';
 const { Mixin } = Shopware;
 const {
     object,
+    types,
     string: { kebabCase },
 } = Shopware.Utils;
 const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
@@ -29,6 +31,13 @@ export default {
     template,
 
     inject: ['systemConfigApiService'],
+
+    /** @public */
+    provide() {
+        return {
+            swSystemConfigCurrentSalesChannelId: computed(() => this.currentSalesChannelId),
+        };
+    },
 
     emits: [
         'loading-changed',
@@ -69,6 +78,7 @@ export default {
             isLoading: false,
             config: {},
             actualConfigData: {},
+            initialConfigData: {},
             salesChannelModel: null,
             hasCssFields: false,
         };
@@ -118,12 +128,16 @@ export default {
 
     methods: {
         getFieldError(fieldName) {
-            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.salesChannelId, fieldName);
+            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.currentSalesChannelId, fieldName);
         },
 
         async createdComponent() {
             this.isLoading = true;
             try {
+                this.actualConfigData = {};
+                this.initialConfigData = {};
+                this.hasCssFields = false;
+
                 await this.readConfig();
                 await this.readAll();
             } catch (error) {
@@ -166,6 +180,7 @@ export default {
                 const values = await this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId);
 
                 this.actualConfigData[this.currentSalesChannelId] = values;
+                this.initialConfigData[this.currentSalesChannelId] = object.deepCopyObject(values);
             } finally {
                 this.isLoading = false;
             }
@@ -173,9 +188,79 @@ export default {
 
         saveAll() {
             this.isLoading = true;
-            return this.systemConfigApiService.batchSave(this.actualConfigData).finally(() => {
+
+            const changedConfigData = this.getChangedConfigData();
+            if (!this.hasConfigChanges(changedConfigData)) {
                 this.isLoading = false;
+                return Promise.resolve();
+            }
+
+            const additionalParams = this.hasCacheRelevantChanges(changedConfigData) ? { silent: false } : {};
+
+            return this.systemConfigApiService
+                .batchSave(changedConfigData, additionalParams)
+                .then(() => {
+                    this.initialConfigData = object.deepCopyObject(this.actualConfigData);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        getChangedConfigData() {
+            const changedConfigData = {};
+
+            Object.entries(this.actualConfigData).forEach((entry) => {
+                const salesChannelId = entry[0];
+                const config = entry[1];
+                const initialConfig = this.initialConfigData[salesChannelId] ?? {};
+                const changedConfig = {};
+
+                Object.entries(config).forEach((configEntry) => {
+                    const key = configEntry[0];
+                    const value = configEntry[1];
+
+                    if (types.isEqual(value, initialConfig[key])) {
+                        return;
+                    }
+
+                    changedConfig[key] = value;
+                });
+
+                if (this.hasConfigChanges(changedConfig)) {
+                    changedConfigData[salesChannelId] = changedConfig;
+                }
             });
+
+            return changedConfigData;
+        },
+
+        hasConfigChanges(configData) {
+            return Object.keys(configData).length > 0;
+        },
+
+        hasCacheRelevantChanges(changedConfigData) {
+            const cacheRelevantFieldNames = this.getCacheRelevantFieldNames();
+
+            return Object.values(changedConfigData).some((config) => {
+                return Object.keys(config).some((key) => {
+                    return cacheRelevantFieldNames.has(key);
+                });
+            });
+        },
+
+        getCacheRelevantFieldNames() {
+            const fieldNames = new Set();
+
+            this.config.forEach((card) => {
+                card.elements?.forEach((element) => {
+                    if (element.config?.cacheRelevant === true) {
+                        fieldNames.add(element.name);
+                    }
+                });
+            });
+
+            return fieldNames;
         },
 
         createErrorNotification(errors) {
@@ -357,6 +442,7 @@ export default {
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
             bind.config = { ...(element.config || {}) };
+            bind.error = this.getFieldError(element.name);
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);

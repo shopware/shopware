@@ -44,7 +44,7 @@ class OrderCustomFieldRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $this->rule->match($scope);
 
@@ -70,7 +70,7 @@ class OrderCustomFieldRuleTest extends TestCase
             self::CUSTOM_FIELD_NAME => 'my_invalid_value',
         ]]);
 
-        $scope = new FlowRuleScope($this->order, new Cart('test'), $this->createMock(SalesChannelContext::class));
+        $scope = new FlowRuleScope($this->order, new Cart('test'), static::createStub(SalesChannelContext::class));
 
         $this->rule->assign(
             [

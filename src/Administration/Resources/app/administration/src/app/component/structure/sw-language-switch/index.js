@@ -72,6 +72,14 @@ export default {
 
             return criteria;
         },
+
+        languageCacheKey() {
+            return [
+                'shared-data',
+                'active-languages',
+                Shopware.Context.api.languageId ?? 'default',
+            ];
+        },
     },
 
     created() {

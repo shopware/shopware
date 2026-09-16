@@ -6,12 +6,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<PublicServiceDecoratorRule>
  */
+#[Package('framework')]
 class PublicServiceDecoratorRuleTest extends RuleTestCase
 {
     public function testRule(): void

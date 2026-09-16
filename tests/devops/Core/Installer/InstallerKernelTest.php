@@ -5,6 +5,7 @@ namespace Shopware\Tests\DevOps\Core\Installer;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Installer\InstallerKernel;
@@ -15,6 +16,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 /**
  * @internal
  */
+#[Package('framework')]
 class InstallerKernelTest extends TestCase
 {
     use EnvTestBehaviour;

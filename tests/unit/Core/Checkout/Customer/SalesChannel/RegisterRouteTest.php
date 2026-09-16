@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -34,6 +36,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -47,6 +50,8 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -73,7 +78,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $customerEntity = new CustomerEntity();
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
@@ -129,18 +134,18 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
 
         $definition = new DataValidationDefinition('address.create');
 
-        $addressValidation = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidation = static::createStub(DataValidationFactoryInterface::class);
         $addressValidation->method('create')->willReturn($definition);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition->add('company', new NotBlank());
@@ -192,18 +197,18 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
 
         $definition = new DataValidationDefinition('address.create');
 
-        $addressValidation = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidation = static::createStub(DataValidationFactoryInterface::class);
         $addressValidation->method('create')->willReturn($definition);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
@@ -255,18 +260,18 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
 
         $definition = new DataValidationDefinition('address.create');
 
-        $addressValidation = $this->createMock(DataValidationFactoryInterface::class);
+        $addressValidation = static::createStub(DataValidationFactoryInterface::class);
         $addressValidation->method('create')->willReturn($definition);
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
@@ -317,7 +322,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $customerEntity = new CustomerEntity();
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
@@ -335,7 +340,7 @@ class RegisterRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
+        $customFieldMapper = new StoreApiCustomFieldMapper(static::createStub(Connection::class), [
             CustomerDefinition::ENTITY_NAME => [
                 ['name' => 'mapped', 'type' => 'int'],
             ],
@@ -373,7 +378,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $customerEntity = new CustomerEntity();
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
@@ -381,8 +386,7 @@ class RegisterRouteTest extends TestCase
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
-        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
-        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+        $salutationRepository = StaticEntityRepository::of(SalutationCollection::class, [[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -427,7 +431,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $customerEntity = new CustomerEntity();
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
@@ -435,8 +439,7 @@ class RegisterRouteTest extends TestCase
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
-        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
-        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+        $salutationRepository = StaticEntityRepository::of(SalutationCollection::class, [[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -497,8 +500,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -560,8 +563,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -622,8 +625,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -634,7 +637,7 @@ class RegisterRouteTest extends TestCase
         $country->setId($countryId);
         $country->setVatIdRequired(true);
 
-        $countryRepository = $this->createMock(SalesChannelRepository::class);
+        $countryRepository = static::createStub(SalesChannelRepository::class);
         $countryRepository
             ->method('search')
             ->willReturn(
@@ -695,30 +698,31 @@ class RegisterRouteTest extends TestCase
                 return true;
             }));
 
-        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $definitionFactory = static::createStub(DataValidationFactoryInterface::class);
         $definitionFactory
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
-        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService = static::createStub(DoubleOptInService::class);
         $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
 
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $dataValidator,
             $definitionFactory,
             $definitionFactory,
             $systemConfigService,
             $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
+            static::createStub(SalesChannelContextPersister::class),
             $countryRepository,
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -743,8 +747,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -754,7 +758,7 @@ class RegisterRouteTest extends TestCase
         $country = new CountryEntity();
         $country->setId($countryId);
 
-        $countryRepository = $this->createMock(SalesChannelRepository::class);
+        $countryRepository = static::createStub(SalesChannelRepository::class);
         $countryRepository
             ->method('search')
             ->willReturn(
@@ -806,30 +810,31 @@ class RegisterRouteTest extends TestCase
                 return true;
             }));
 
-        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $definitionFactory = static::createStub(DataValidationFactoryInterface::class);
         $definitionFactory
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
-        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService = static::createStub(DoubleOptInService::class);
         $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
 
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $dataValidator,
             $definitionFactory,
             $definitionFactory,
             $systemConfigService,
             $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
+            static::createStub(SalesChannelContextPersister::class),
             $countryRepository,
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -855,8 +860,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -915,27 +920,28 @@ class RegisterRouteTest extends TestCase
             }))
             ->willReturn($violations);
 
-        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $definitionFactory = static::createStub(DataValidationFactoryInterface::class);
         $definitionFactory
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $dataValidator,
             $definitionFactory,
             $definitionFactory,
             $systemConfigService,
             $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
+            static::createStub(SalesChannelContextPersister::class),
             $countryRepository,
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
             $definitionFactory,
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(DoubleOptInService::class),
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -1032,7 +1038,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
@@ -1085,6 +1091,315 @@ class RegisterRouteTest extends TestCase
         );
     }
 
+    public function testRegisterTrimsMappedAddressStringFields(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(true);
+
+        $result = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customerEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) {
+                static::assertCount(1, $create);
+                static::assertCount(2, $create[0]['addresses']);
+
+                $billingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['city'] === 'Berlin'
+                ))[0];
+                $shippingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['city'] === 'Hamburg'
+                ))[0];
+
+                static::assertSame('Dr.', $billingAddress['title']);
+                static::assertSame('Max', $billingAddress['firstName']);
+                static::assertSame('Mustermann', $billingAddress['lastName']);
+                static::assertSame('Main Street 1', $billingAddress['street']);
+                static::assertSame('12345', $billingAddress['zipcode']);
+                static::assertSame('Shopware', $billingAddress['company']);
+                static::assertSame('Core', $billingAddress['department']);
+                static::assertSame('123456', $billingAddress['phoneNumber']);
+                static::assertSame('Line 1', $billingAddress['additionalAddressLine1']);
+                static::assertSame('Line 2', $billingAddress['additionalAddressLine2']);
+                static::assertSame(['note' => '  keep custom field whitespace  '], $billingAddress['customFields']);
+
+                static::assertSame('Ms.', $shippingAddress['title']);
+                static::assertSame('Jane', $shippingAddress['firstName']);
+                static::assertSame('Doe', $shippingAddress['lastName']);
+                static::assertSame('Side Street 2', $shippingAddress['street']);
+                static::assertSame('54321', $shippingAddress['zipcode']);
+                static::assertSame('Shopware Storefront', $shippingAddress['company']);
+                static::assertSame('Design', $shippingAddress['department']);
+                static::assertSame('654321', $shippingAddress['phoneNumber']);
+                static::assertSame('Shipping Line 1', $shippingAddress['additionalAddressLine1']);
+                static::assertSame('Shipping Line 2', $shippingAddress['additionalAddressLine2']);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $dataValidator = static::createStub(DataValidator::class);
+        $dataValidator
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $addressValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $customFieldMapper = new StoreApiCustomFieldMapper(static::createStub(Connection::class), [
+            CustomerAddressDefinition::ENTITY_NAME => [
+                ['name' => 'note', 'type' => 'text'],
+            ],
+        ]);
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            addressValidationFactory: $addressValidationFactory,
+            customFieldMapper: $customFieldMapper,
+            customerRepository: $customerRepository
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'guest' => true,
+                'title' => '  Dr.  ',
+                'firstName' => "\nMax\t",
+                'lastName' => "\rMustermann ",
+                'billingAddress' => [
+                    'countryId' => Uuid::randomHex(),
+                    'street' => "\t Main Street 1 \n",
+                    'zipcode' => '  12345  ',
+                    'city' => "\rBerlin\n",
+                    'company' => "\tShopware ",
+                    'department' => "\nCore        ",
+                    'phoneNumber' => "\t123456\n",
+                    'additionalAddressLine1' => "\nLine 1 ",
+                    'additionalAddressLine2' => "\tLine 2\r",
+                    'customFields' => [
+                        'note' => '  keep custom field whitespace  ',
+                    ],
+                ],
+                'shippingAddress' => [
+                    'title' => "\nMs.\t",
+                    'firstName' => "\tJane ",
+                    'lastName' => "          Doe\n",
+                    'countryId' => Uuid::randomHex(),
+                    'street' => "\nSide Street 2           ",
+                    'zipcode' => "\t54321\n",
+                    'city' => "\nHamburg\r",
+                    'company' => "\tShopware Storefront\n",
+                    'department' => '    Design    ',
+                    'phoneNumber' => "\n654321 ",
+                    'additionalAddressLine1' => " Shipping Line 1\n",
+                    'additionalAddressLine2' => "\rShipping Line 2 ",
+                ],
+            ])),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    public function testUpdatesNewsletterSalesChannelIdsBeforeCustomerIsLoaded(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customerEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $createdCustomerId = null;
+        $calls = [];
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) use (&$createdCustomerId, &$calls) {
+                $calls[] = 'create';
+                $createdCustomerId = $create[0]['id'];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+        $customerRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function () use (&$calls, $result) {
+                static::assertSame(['create', 'update'], $calls);
+
+                return $result;
+            });
+
+        $customerNewsletterSalesChannelsUpdater = $this->createMock(CustomerNewsletterSalesChannelsUpdater::class);
+        $customerNewsletterSalesChannelsUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(static function (array $ids, bool $reverseUpdate) use (&$createdCustomerId, &$calls): void {
+                $calls[] = 'update';
+
+                static::assertNotNull($createdCustomerId);
+                static::assertSame([$createdCustomerId], $ids);
+                static::assertTrue($reverseUpdate);
+            });
+
+        $registerRoute = $this->createRegisterRoute(
+            customerRepository: $customerRepository,
+            customerNewsletterSalesChannelsUpdater: $customerNewsletterSalesChannelsUpdater
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData()),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    /**
+     * @param array<string, bool> $doubleOptInConfig
+     */
+    #[DataProvider('storefrontUrlValidationProvider')]
+    public function testStorefrontUrlIsOnlyValidatedWhenDoubleOptInIsEnabled(
+        array $doubleOptInConfig,
+        bool $isGuest,
+        bool $expectedToBeValidated
+    ): void {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => array_merge([
+                'core.loginRegistration.passwordMinLength' => '8',
+            ], $doubleOptInConfig),
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $properties = $this->captureValidatedProperties($systemConfigService, $isGuest);
+
+        static::assertSame($expectedToBeValidated, \array_key_exists('storefrontUrl', $properties));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, bool>, bool, bool}>
+     */
+    public static function storefrontUrlValidationProvider(): iterable
+    {
+        yield 'customer, double opt-in disabled' => [[], false, false];
+        yield 'customer, double opt-in enabled' => [['core.loginRegistration.doubleOptInRegistration' => true], false, true];
+        yield 'customer, only guest order double opt-in enabled' => [['core.loginRegistration.doubleOptInGuestOrder' => true], false, false];
+        yield 'guest, double opt-in disabled' => [[], true, false];
+        yield 'guest, guest order double opt-in enabled' => [['core.loginRegistration.doubleOptInGuestOrder' => true], true, true];
+        yield 'guest, only registration double opt-in enabled' => [['core.loginRegistration.doubleOptInRegistration' => true], true, false];
+    }
+
+    #[TestDox('storefrontUrl stays unvalidated for callers opting out, even with double opt-in enabled')]
+    public function testStorefrontUrlValidationCanStillBeSkippedByCaller(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+                'core.loginRegistration.doubleOptInRegistration' => true,
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $properties = $this->captureValidatedProperties($systemConfigService, false, false);
+
+        static::assertArrayNotHasKey('storefrontUrl', $properties);
+    }
+
+    #[TestDox('a sales channel without domains offers no valid choice, which is why the constraint must be conditional')]
+    public function testStorefrontUrlChoicesAreEmptyWithoutSalesChannelDomains(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+                'core.loginRegistration.doubleOptInRegistration' => true,
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $properties = $this->captureValidatedProperties($systemConfigService, false);
+
+        static::assertArrayHasKey('storefrontUrl', $properties);
+        static::assertInstanceOf(NotBlank::class, $properties['storefrontUrl'][0]);
+        static::assertInstanceOf(Choice::class, $properties['storefrontUrl'][1]);
+        static::assertSame([], $properties['storefrontUrl'][1]->choices);
+    }
+
+    /**
+     * @return array<string, array<Constraint>>
+     */
+    private function captureValidatedProperties(
+        StaticSystemConfigService $systemConfigService,
+        bool $isGuest,
+        bool $validateStorefrontUrl = true
+    ): array {
+        $definition = null;
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturnCallback(static function (array $data, DataValidationDefinition $used) use (&$definition): ConstraintViolationList {
+                $definition = $used;
+
+                return new ConstraintViolationList();
+            });
+
+        $accountValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $accountValidationFactory->method('create')->willReturnCallback(static fn () => new DataValidationDefinition());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            systemConfigService: $systemConfigService,
+            accountValidationFactory: $accountValidationFactory,
+            doubleOptInService: new DoubleOptInService(
+                static::createStub(EntityRepository::class),
+                new EventDispatcher(),
+                $systemConfigService,
+                static::createStub(EntityRepository::class),
+                new NativeClock(),
+            ),
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->getSalesChannel()->setDomains(new SalesChannelDomainCollection());
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'guest' => $isGuest,
+                'storefrontUrl' => 'https://example.com',
+            ])),
+            $salesChannelContext,
+            $validateStorefrontUrl
+        );
+
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+
+        return $definition->getProperties();
+    }
+
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */
@@ -1095,8 +1410,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $repository */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
@@ -1115,13 +1430,19 @@ class RegisterRouteTest extends TestCase
         ?StoreApiCustomFieldMapper $customFieldMapper = null,
         ?EntityRepository $salutationRepository = null,
         ?StaticSystemConfigService $systemConfigService = null,
-        EntityRepository|StaticEntityRepository|null $customerRepository = null
+        EntityRepository|StaticEntityRepository|null $customerRepository = null,
+        ?DataValidationFactoryInterface $accountValidationFactory = null,
+        ?DataValidationFactoryInterface $passwordValidationFactory = null,
+        ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null,
+        ?DoubleOptInService $doubleOptInService = null
     ): RegisterRoute {
-        $dataValidator ??= $this->createMock(DataValidator::class);
+        $dataValidator ??= static::createStub(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
-        $addressValidationFactory ??= $this->createMock(DataValidationFactoryInterface::class);
-        $customFieldMapper ??= $this->createMock(StoreApiCustomFieldMapper::class);
-        $salutationRepository ??= $this->createMock(EntityRepository::class);
+        $accountValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
+        $addressValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
+        $passwordValidationFactory ??= static::createStub(DataValidationFactoryInterface::class);
+        $customFieldMapper ??= static::createStub(StoreApiCustomFieldMapper::class);
+        $salutationRepository ??= static::createStub(EntityRepository::class);
         $systemConfigService ??= new StaticSystemConfigService([
             TestDefaults::SALES_CHANNEL => [
                 'core.loginRegistration.passwordMinLength' => '8',
@@ -1129,26 +1450,30 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
         $customerRepository ??= $this->createCustomerRepository();
+        $customerNewsletterSalesChannelsUpdater ??= static::createStub(CustomerNewsletterSalesChannelsUpdater::class);
 
-        $doubleOptInService = $this->createMock(DoubleOptInService::class);
-        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+        if ($doubleOptInService === null) {
+            $doubleOptInService = static::createStub(DoubleOptInService::class);
+            $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+        }
 
         return new RegisterRoute(
             $eventDispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $dataValidator,
-            $this->createMock(DataValidationFactoryInterface::class),
+            $accountValidationFactory,
             $addressValidationFactory,
             $systemConfigService,
             $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
+            static::createStub(SalesChannelContextPersister::class),
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
-            $this->createMock(DataValidationFactoryInterface::class),
+            static::createStub(DataValidationFactoryInterface::class),
             $doubleOptInService,
+            $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
         );
     }

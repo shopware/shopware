@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Uri;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
@@ -26,6 +27,7 @@ class QuerySigner
         private readonly LocaleProvider $localeProvider,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly InAppPurchase $inAppPurchase,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -39,7 +41,7 @@ class QuerySigner
         $unsignedUri = Uri::withQueryValues(new Uri($uri), [
             'shop-id' => $this->shopIdProvider->getShopId()->id,
             'shop-url' => $this->shopUrl,
-            'timestamp' => (string) (new \DateTime())->getTimestamp(),
+            'timestamp' => (string) $this->clock->now()->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
             'app-version' => $app->getVersion(),
             'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),

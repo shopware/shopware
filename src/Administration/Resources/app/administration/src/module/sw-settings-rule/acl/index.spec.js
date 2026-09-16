@@ -42,7 +42,7 @@ describe('src/module/sw-settings-rule/acl/index.js', () => {
     it('should privilege roles', () => {
         const roles = {
             viewer: {
-                privileges: 29,
+                privileges: 30,
                 dependencies: 0,
             },
             editor: {
@@ -72,5 +72,7 @@ describe('src/module/sw-settings-rule/acl/index.js', () => {
             expect(role.privileges).toHaveLength(roles[key].privileges);
             expect(role.dependencies).toHaveLength(roles[key].dependencies);
         });
+
+        expect(registered.viewer.privileges).toContain('flow:read');
     });
 });

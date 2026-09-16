@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,10 +25,13 @@ class ScriptResponseFactoryFacade
     public function __construct(
         private readonly RouterInterface $router,
         /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
+         * @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+         *
+         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be removed with v6.8.0 when render() is removed from this class)
          */
-        private readonly ?ScriptController $scriptController,
-        private readonly ?SalesChannelContext $salesChannelContext,
+        private readonly ?ScriptController $scriptController = null,
+        // @deprecated tag:v6.8.0 - only needed for the deprecated render() BC path.
+        protected readonly ?SalesChannelContext $salesChannelContext = null,
     ) {
     }
 
@@ -79,8 +83,10 @@ class ScriptResponseFactoryFacade
      * Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)
      * or if the Storefront-bundle is not installed.
      *
+     * @deprecated tag:v6.8.0 - Rendering Storefront templates through the core response service is deprecated. Type the response service as `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade` in Storefront script hooks and use this core facade without `render()` in admin-api/store-api hooks.
+     *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
-     * @param array<mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
+     * @param array<string, mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
      *
      * @return ScriptResponse The created response object with the rendered template as content, remember to assign it to the hook with `hook.setResponse()`.
      *
@@ -88,6 +94,11 @@ class ScriptResponseFactoryFacade
      */
     public function render(string $view, array $parameters = []): ScriptResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Rendering Storefront templates via the script `response` service is only supported in Storefront script hooks. The `render()` method will be removed from the core `response` service.'
+        );
+
         if ($this->scriptController === null) {
             throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
         }

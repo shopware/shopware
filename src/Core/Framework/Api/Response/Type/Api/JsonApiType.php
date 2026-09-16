@@ -111,7 +111,7 @@ class JsonApiType extends JsonFactoryBase
         $response = $this->serializer->encode(
             $criteria,
             $definition,
-            $searchResult,
+            $searchResult->getEntities(),
             $this->getApiBaseUrl($request),
             $rootNode
         );

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IndexerOffset::class)]
 class IndexerOffsetTest extends TestCase
 {

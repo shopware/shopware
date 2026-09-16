@@ -1,6 +1,7 @@
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
+import { getCartErrorMessage } from '../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -129,6 +130,35 @@ export default {
             return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
         },
 
+        orderDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const documentsTab = createRouteTab('sw-order.detail.tabDocuments', 'sw.order.detail.documents');
+
+            if (this.isOrderEditing) {
+                documentsTab.badge = 'warning';
+            }
+
+            return [
+                createRouteTab('sw-order.detail.tabGeneral', 'sw.order.detail.general'),
+                createRouteTab('sw-order.detail.tabDetails', 'sw.order.detail.details'),
+                documentsTab,
+            ];
+        },
+
         isOrderEditing() {
             return this.orderChanges || this.hasOrderDeepEdit || this.orderAddressIds?.length > 0;
         },
@@ -152,7 +182,11 @@ export default {
         orderCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('currency').addAssociation('orderCustomer.salutation').addAssociation('language');
+            criteria
+                .addAssociation('currency')
+                .addAssociation('orderCustomer.customer')
+                .addAssociation('orderCustomer.salutation')
+                .addAssociation('language');
 
             criteria
                 .getAssociation('lineItems')
@@ -224,6 +258,12 @@ export default {
     },
 
     beforeUnmount() {
+        window.removeEventListener('pagehide', this.onPageHide);
+
+        // Deselecting happens here and not in `beforeRouteLeave`, because leaving while editing
+        // is confirmed through the leave page warning, which resumes the navigation on its own.
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+
         this.beforeDestroyComponent();
     },
 
@@ -231,10 +271,11 @@ export default {
         if (this.isOrderEditing) {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
-        } else {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
-            next();
+
+            return;
         }
+
+        next();
     },
 
     created() {
@@ -249,7 +290,7 @@ export default {
                 scope: this,
             });
 
-            window.addEventListener('beforeunload', this.beforeDestroyComponent);
+            window.addEventListener('pagehide', this.onPageHide);
 
             Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
@@ -265,7 +306,15 @@ export default {
             });
         },
 
-        async beforeDestroyComponent() {
+        onPageHide(event) {
+            if (event.persisted) {
+                return;
+            }
+
+            this.beforeDestroyComponent(true);
+        },
+
+        beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
 
             if (this.hasNewVersionId) {
@@ -274,10 +323,14 @@ export default {
                 this.hasNewVersionId = false;
 
                 // clean up recently created version
-                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
-            }
+                if (useKeepalive) {
+                    this.orderRepository.deleteVersionWithKeepalive(this.orderId, oldVersionContext.versionId);
 
-            window.removeEventListener('beforeunload', this.beforeDestroyComponent);
+                    return;
+                }
+
+                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
+            }
         },
 
         /**
@@ -343,14 +396,14 @@ export default {
                     this.hasOrderDeepEdit = false;
                     this.promotionsToDelete = [];
                     this.deliveryDiscountsToDelete = [];
-                    return this.orderRepository.mergeVersion(this.order.versionId, this.versionContext);
+                    return this.orderRepository.mergeVersion(this.order.versionId);
                 })
                 .then(() => this.createNewVersionId())
                 .then(() => {
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    this.onError('error', error);
+                    this.onError(error);
                 })
                 .finally(() => {
                     Store.get('swOrderDetail').setLoading([
@@ -407,12 +460,12 @@ export default {
             this.hasNewVersionId = false;
 
             return this.orderRepository
-                .deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext)
+                .deleteVersion(this.orderId, oldVersionContext.versionId)
                 .then(() => {
                     this.hasOrderDeepEdit = false;
                 })
                 .catch((error) => {
-                    this.onError('error', error);
+                    this.onError(error);
                 })
                 .finally(() => {
                     this.missingProductLineItems = [];
@@ -446,7 +499,7 @@ export default {
                     .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
-                this.onError('error', error);
+                this.onError(error);
             } finally {
                 Store.get('swOrderDetail').setLoading([
                     'recalculation',
@@ -475,7 +528,7 @@ export default {
                 }
                 await this.reloadEntityData();
             } catch (error) {
-                this.onError('error', error);
+                this.onError(error);
             } finally {
                 Store.get('swOrderDetail').setLoading([
                     'recalculation',
@@ -521,6 +574,8 @@ export default {
         onLeaveModalConfirm() {
             this.isDisplayingLeavePageWarning = false;
 
+            Store.get('swOrderDetail').editing = false;
+
             this.$nextTick(() => {
                 this.nextRoute();
             });
@@ -543,7 +598,7 @@ export default {
             this.hasNewVersionId = false;
 
             return this.orderRepository
-                .createVersion(this.orderId, this.versionContext)
+                .createVersion(this.orderId)
                 .then((newContext) => {
                     this.hasNewVersionId = true;
 
@@ -592,8 +647,10 @@ export default {
                 return;
             }
 
-            Object.values(response.data.errors).forEach(({ level, message }) => {
-                switch (level) {
+            Object.values(response.data.errors).forEach((error) => {
+                const message = getCartErrorMessage(error);
+
+                switch (error.level) {
                     case 0: {
                         this.createNotificationInfo({ message });
                         break;

@@ -29,13 +29,13 @@ class StateMachineActionControllerTest extends TestCase
         $this->expectExceptionObject(new MissingPrivilegeException(['order:update']));
 
         $controller = new StateMachineActionController(
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(StateMachineRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
         );
         $controller->transitionState(
             new Request(),
             Context::createDefaultContext(new AdminApiSource(null)),
-            $this->createMock(ResponseFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
             'order',
             '1234',
             'process',
@@ -47,8 +47,8 @@ class StateMachineActionControllerTest extends TestCase
         $this->expectExceptionObject(new MissingPrivilegeException(['order:read']));
 
         $controller = new StateMachineActionController(
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(StateMachineRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
         );
         $controller->getAvailableTransitions(
             new Request(),
@@ -82,7 +82,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $controller = new StateMachineActionController(
             $stateMachineRegistry,
-            $this->createMock(DefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
         );
 
         $request = new Request(query: ['stateFieldName' => 'abc'], request: ['internalComment' => 'def']);
@@ -90,7 +90,7 @@ class StateMachineActionControllerTest extends TestCase
         $controller->transitionState(
             $request,
             $context,
-            $this->createMock(ResponseFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
             'order',
             '1234',
             'process',

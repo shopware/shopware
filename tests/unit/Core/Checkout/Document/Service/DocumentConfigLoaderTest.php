@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -121,7 +120,6 @@ class DocumentConfigLoaderTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $configRepository */
         $configRepository = new StaticEntityRepository(
             [new EntitySearchResult(
                 'document_base_config',
@@ -135,7 +133,6 @@ class DocumentConfigLoaderTest extends TestCase
         );
 
         Feature::fake($activeFeatures, function () use ($configRepository, $context, $expectedLogoUrl): void {
-            /** @var StaticEntityRepository<CountryCollection> $countryRepository */
             $countryRepository = new StaticEntityRepository([], new CountryDefinition());
 
             $loader = new DocumentConfigLoader(

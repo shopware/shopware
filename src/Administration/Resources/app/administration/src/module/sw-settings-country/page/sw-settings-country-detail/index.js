@@ -6,7 +6,6 @@ import './sw-settings-country-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,6 +15,7 @@ export default {
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
+        'feature',
     ],
 
     mixins: [
@@ -65,16 +65,8 @@ export default {
     },
 
     computed: {
-        currentUserId() {
-            return Shopware.Store.get('session').currentUser.id;
-        },
-
         countryRepository() {
             return this.repositoryFactory.create('country');
-        },
-
-        userConfigRepository() {
-            return this.repositoryFactory.create('user_config');
         },
 
         identifier() {
@@ -93,6 +85,30 @@ export default {
             return this.isNewCountry ? this.acl.can('country.creator') : this.acl.can('country.editor');
         },
 
+        countryTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const routePrefix = this.isNewCountry ? 'sw.settings.country.create' : 'sw.settings.country.detail';
+
+            return [
+                createRouteTab('sw-settings-country.page.generalTab', `${routePrefix}.general`),
+                createRouteTab('sw-settings-country.page.stateTab', `${routePrefix}.state`),
+                createRouteTab('sw-settings-country.page.addressHandlingTab', `${routePrefix}.address-handling`),
+            ];
+        },
+
         tooltipSave() {
             if (!this.allowSave) {
                 return {
@@ -108,15 +124,6 @@ export default {
                 message: `${systemKey} + S`,
                 appearance: 'light',
             };
-        },
-
-        userConfigCriteria() {
-            return new Criteria(1, 25).addFilter(
-                Criteria.multi('AND', [
-                    Criteria.equals('userId', this.currentUserId),
-                    Criteria.equals('key', 'setting-country'),
-                ]),
-            );
         },
 
         ...mapPropertyErrors('country', ['name']),
@@ -174,23 +181,19 @@ export default {
             });
         },
 
-        loadUserConfig() {
-            return this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((userConfigs) => {
-                if (userConfigs.length === 0) {
-                    this.userConfig = this.userConfigRepository.create(Shopware.Context.api);
-                    this.userConfig.userId = this.currentUserId;
-                    this.userConfig.key = 'setting-country';
-                    this.userConfig.value = [];
-                    return;
-                }
-                this.userConfig = userConfigs.first();
-                this.userConfigValues = this.userConfig.value[this.countryId];
+        async loadUserConfig() {
+            this.userConfig = {
+                key: 'setting-country',
+                value:
+                    (await Shopware.Service('userConfigService').search(['setting-country']))?.data?.['setting-country'] ||
+                    [],
+            };
+            this.userConfigValues = this.userConfig.value[this.countryId];
 
-                if (!this.userConfigValues) {
-                    this.userConfig.value[this.countryId] = {};
-                    this.userConfigValues = this.userConfig.value[this.countryId];
-                }
-            });
+            if (!this.userConfigValues) {
+                this.userConfig.value[this.countryId] = {};
+                this.userConfigValues = this.userConfig.value[this.countryId];
+            }
         },
 
         saveFinish() {
@@ -207,9 +210,13 @@ export default {
                 .save(this.country, Shopware.Context.api)
                 .then(() => {
                     if (userConfigValue && Object.keys(userConfigValue).length > 0) {
-                        this.userConfigRepository.save(this.userConfig, Shopware.Context.api).then(() => {
-                            this.loadUserConfig();
-                        });
+                        Shopware.Service('userConfigService')
+                            .upsert({
+                                'setting-country': this.userConfig.value,
+                            })
+                            .then(() => {
+                                this.loadUserConfig();
+                            });
                     }
                     this.loadEntityData();
                     this.isLoading = false;

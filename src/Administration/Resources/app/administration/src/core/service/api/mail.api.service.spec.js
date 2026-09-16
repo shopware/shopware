@@ -72,6 +72,46 @@ describe('mailApiService', () => {
             expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/send`);
             expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
         });
+
+        const sendWithoutTemplateData = async () => {
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.sendMailTemplate(
+                'test@example.com',
+                'Test User',
+                {
+                    contentHtml: '<p>Test</p>',
+                    contentPlain: 'Test',
+                    subject: 'Test Subject',
+                    senderMail: 'sender@example.com',
+                    senderName: 'Sender',
+                    mailTemplateType: {
+                        templateData: {
+                            order: {
+                                id: 'order-id',
+                            },
+                        },
+                    },
+                },
+                { getIds: jest.fn().mockReturnValue([]) },
+                'sales-channel-id',
+            );
+
+            return JSON.parse(clientMock.history.post[0].data).mailTemplateData;
+        };
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the persisted template-data fallback.
+        it.deprecated('v6.8.0.0')('falls back to persisted mail template type data', async () => {
+            await expect(sendWithoutTemplateData()).resolves.toEqual({
+                order: {
+                    id: 'order-id',
+                },
+            });
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('does not fall back to persisted mail template type data', async () => {
+            await expect(sendWithoutTemplateData()).resolves.toBeNull();
+        });
     });
 
     describe('buildRenderPreview', () => {

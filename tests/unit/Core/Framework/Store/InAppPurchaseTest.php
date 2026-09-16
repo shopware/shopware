@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 /**
  * @internal
  */
-#[CoversClass(InAppPurchase::class)]
 #[Package('checkout')]
+#[CoversClass(InAppPurchase::class)]
 class InAppPurchaseTest extends TestCase
 {
     public function testAll(): void

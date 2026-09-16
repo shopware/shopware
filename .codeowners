@@ -1,6 +1,15 @@
-# Use this file for more fine-grained control over code ownership, if the default CODEOWNERS file is not sufficient.
+# Single source of truth for code ownership in this repository, evaluated by the codeowners-plus action
+# (see .github/workflows/codeowner.yml). GitHub's native .github/CODEOWNERS is intentionally left empty.
 # See the docs for more information: https://github.com/marketplace/actions/codeowners-plus#codeowners-file-spec
+#
+# Prefixes:
+#   (none) required owner - a review from this team is required
+#   &      additional required owner on top of the resolved owner
+#   ?      optional owner - team is pinged in a comment, but does not block the merge
+#
+# Note: patterns are relative to the directory of this file, so recursive matches need `**`.
 
+# discovery
 ? src/Administration/Resources/app/administration/src/module/sw-category/** @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-cms/** @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/module/sw-landing-page/** @shopware/product-cc-discovery
@@ -14,3 +23,37 @@
 ? src/Administration/Resources/app/administration/src/module/sw-settings-snippet/** @shopware/product-cc-discovery
 ? src/Administration/Resources/app/administration/src/app/component/media/** @shopware/product-cc-discovery
 ? src/Storefront/Resources/views/storefront/element/cms-element-** @shopware/product-cc-discovery
+
+# after-sales
+? src/Core/Framework/Resources/views/documents/** @shopware/product-cc-after-sales
+? src/Core/Checkout/Document/** @shopware/product-cc-after-sales
+? src/Core/Checkout/DocumentV2/** @shopware/product-cc-after-sales
+? src/Core/Content/Flow/** @shopware/product-cc-after-sales
+? src/Core/Content/MailTemplate/** @shopware/product-cc-after-sales
+? src/Core/Content/Mail/** @shopware/product-cc-after-sales
+? src/Core/Content/Newsletter/** @shopware/product-cc-after-sales
+? src/Core/Content/ImportExport/** @shopware/product-cc-after-sales
+? src/Core/Content/RevocationRequest/** @shopware/product-cc-after-sales
+? src/Core/Content/Shared/MailFlow/** @shopware/product-cc-after-sales
+? src/Core/Content/Product/SalesChannel/Review/** @shopware/product-cc-after-sales
+? src/Core/Framework/Rule/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-flow/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/app/component/rule/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-mail-template/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-newsletter-recipient/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-settings-document/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-settings-mailer/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-settings-newsletter/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-review/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-dashboard/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-import-export/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-settings-rule/** @shopware/product-cc-after-sales
+? src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/** @shopware/product-cc-after-sales
+tests/integration/Core/Checkout/Document/Renderer/_snapshots/** @shopware/product-cc-after-sales
+tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/** @shopware/product-cc-after-sales
+
+# product-operations
+.github/** @shopware/product-operations
+
+# ctrl-alt-elite
+src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite

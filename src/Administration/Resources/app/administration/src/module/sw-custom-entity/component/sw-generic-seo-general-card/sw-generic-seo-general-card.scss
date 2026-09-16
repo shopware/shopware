@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-generic-seo-general-card {
     .sw-generic-seo-general-card__google-preview-header {
         padding-bottom: 8px;
     }
 
     .sw-generic-seo-general-card__google-preview {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         padding: 32px;
 
         &-link {

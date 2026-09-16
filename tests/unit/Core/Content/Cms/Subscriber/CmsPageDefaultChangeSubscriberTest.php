@@ -2,13 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Cms\Subscriber;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -185,10 +183,9 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
      */
     private function getBeforeDeleteEvent(array $cmsPageIds, string $versionId): EntityDeleteEvent
     {
-        $event = $this->createMock(EntityDeleteEvent::class);
+        $event = static::createStub(EntityDeleteEvent::class);
         $event
             ->method('getIds')
-            ->with(CmsPageDefinition::ENTITY_NAME)
             ->willReturn($cmsPageIds);
 
         $context = new Context(
@@ -206,12 +203,11 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
      */
     private function getConnectionMock(array $configurations = []): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         foreach ($configurations as $config) {
             $connection
                 ->method($config['method'])
-                ->with(...$config['with'])
                 ->willReturn($config['willReturn']);
         }
 
@@ -224,17 +220,8 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
             ['configuration_value' => json_encode(['_value' => $id], \JSON_THROW_ON_ERROR)],
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')
-            ->with(
-                'SELECT DISTINCT configuration_value FROM system_config WHERE configuration_key IN (:configKeys);',
-                [
-                    'configKeys' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys,
-                ],
-                [
-                    'configKeys' => ArrayParameterType::STRING,
-                ]
-            )
             ->willReturn($config);
 
         return $connection;

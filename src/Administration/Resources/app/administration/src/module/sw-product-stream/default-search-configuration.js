@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const defaultSearchConfiguration = {
@@ -13,6 +9,7 @@ const defaultSearchConfiguration = {
 };
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default defaultSearchConfiguration;

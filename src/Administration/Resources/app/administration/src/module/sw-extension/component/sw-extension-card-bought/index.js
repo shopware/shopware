@@ -2,6 +2,14 @@ import template from './sw-extension-card-bought.html.twig';
 import './sw-extension-card-bought.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 
+const DATE_ONLY_FORMAT = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: undefined,
+    minute: undefined,
+};
+
 /**
  * @sw-package checkout
  * @private
@@ -38,7 +46,27 @@ export default {
         },
 
         priceInfo() {
-            return this.extension?.storeLicense?.paymentText ?? '';
+            const license = this.extension?.storeLicense;
+
+            if (!license) {
+                return '';
+            }
+
+            const paymentText = license.paymentText ?? '';
+            const firstDateOfFullCharging = license.discountInformation?.firstDateOfFullCharging ?? null;
+
+            if (!firstDateOfFullCharging || !paymentText) {
+                return paymentText;
+            }
+
+            const formattedDate = this.dateFilter(firstDateOfFullCharging, DATE_ONLY_FORMAT);
+            const apiDate = firstDateOfFullCharging.split('T')[0];
+
+            return paymentText.replace(apiDate, formattedDate);
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
 
         detailLink() {
@@ -57,7 +85,7 @@ export default {
                 return null;
             }
 
-            const localDateString = new Date(expirationDate).toLocaleDateString();
+            const localDateString = this.dateFilter(expirationDate, DATE_ONLY_FORMAT);
 
             // Show different text when it's a test phase instead of a rent
             if (this.extension?.storeLicense?.variant === 'test' && !this.extension?.storeLicense?.expired) {

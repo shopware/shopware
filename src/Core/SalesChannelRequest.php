@@ -15,6 +15,11 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE = 'sw-maintenance';
 
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST = 'sw-maintenance-ip-allowlist';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST instead.
+     */
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST = 'sw-maintenance-ip-whitelist';
 
     /**

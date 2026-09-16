@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
@@ -46,13 +47,10 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertSame('cartLineItemCreationDate', $this->rule->getName());
     }
 
-    /**
-     * This test verifies that we have 2 constraints.
-     * One for the date and one for the operators.
-     */
     public function testConstraints(): void
     {
         $expectedOperators = [
+            Rule::OPERATOR_BETWEEN,
             Rule::OPERATOR_NEQ,
             Rule::OPERATOR_GTE,
             Rule::OPERATOR_LTE,
@@ -76,12 +74,27 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
     }
 
+    public function testBetweenConstraints(): void
+    {
+        $rule = new LineItemCreationDateRule(
+            operator: Rule::OPERATOR_BETWEEN,
+        );
+
+        $constraints = $rule->getConstraints();
+
+        static::assertEquals(
+            RuleConstraints::dateBetween(),
+            $constraints['lineItemCreationDate']
+        );
+    }
+
     /**
-     * @return array<string, array<bool|string>>
+     * @return array<string, list<bool|string|null>>
      */
     public static function getMatchValues(): array
     {
         return [
+            'EQ - null' => [false, null, null, Rule::OPERATOR_EQ],
             'EQ - positive 1' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
             'EQ - positive 2' => [true, '2020-02-06', '2020-02-06', Rule::OPERATOR_EQ],
             'EQ - negative' => [false, '2020-02-05 00:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
@@ -101,18 +114,14 @@ class LineItemCreationDateRuleTest extends TestCase
         ];
     }
 
-    /**
-     * This test verifies that our rule works correctly
-     * with all the different operators and values.
-     */
     #[DataProvider('getMatchValues')]
-    public function testRuleMatching(bool $expected, string $itemCreated, string $ruleDate, string $operator): void
+    public function testRuleMatching(bool $expected, ?string $itemCreated, ?string $ruleDate, string $operator): void
     {
         $lineItem = $this->createLineItemWithCreatedDate($itemCreated);
 
         $scope = new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['lineItemCreationDate' => $ruleDate, 'operator' => $operator]);
@@ -126,7 +135,7 @@ class LineItemCreationDateRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         // Rule without date
@@ -147,7 +156,7 @@ class LineItemCreationDateRuleTest extends TestCase
     {
         $scope = new LineItemScope(
             new LineItem(Uuid::randomHex(), 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['lineItemCreationDate' => 'invalid-date-value-text']);
@@ -162,7 +171,7 @@ class LineItemCreationDateRuleTest extends TestCase
         $this->rule->assign(['lineItemCreationDate' => '2020-02-06 00:00:00', 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new CheckoutRuleScope(
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -186,7 +195,7 @@ class LineItemCreationDateRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -211,7 +220,7 @@ class LineItemCreationDateRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -239,7 +248,7 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertFalse(
             $lineItemCreationDateRule->match(new LineItemScope(
                 $lineItem,
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             ))
         );
     }
@@ -251,10 +260,39 @@ class LineItemCreationDateRuleTest extends TestCase
         $result = $lineItemCreationDateRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
+        static::assertSame(
+            RuleConfig::OPERATOR_SET_DATE,
+            $result['operatorSet']['operators']
+        );
     }
 
-    private function createLineItemWithCreatedDate(string $createdAt): LineItem
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemCreationDateRule(Rule::OPERATOR_NEQ, '2020-01-01 12:00:00');
+
+        $lineItem = self::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+    }
+
+    private function createLineItemWithCreatedDate(?string $createdAt): LineItem
     {
         return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
     }

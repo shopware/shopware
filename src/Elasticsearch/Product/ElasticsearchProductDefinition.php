@@ -54,8 +54,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::buildTextFieldConfig());
-        $languageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true));
-        $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
+        $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::buildTextFieldConfig(lengthNorm: true));
+        $technicalLanguageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true));
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
@@ -71,11 +71,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFieldsWithExact,
+            'name' => $technicalLanguageFieldsWithExact,
+            'parent' => ElasticsearchFieldBuilder::nested([
+                'name' => $technicalLanguageFieldsWithExact,
+            ]),
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $languageFieldsWithExact,
+            'customSearchKeywords' => $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true, lengthNorm: true)),
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
@@ -108,14 +111,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true),
+            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::buildTextFieldConfig(withExact: true),
+            'ean' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::buildTextFieldConfig(withExact: true),
+            'productNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
@@ -139,9 +142,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ...$visibilities,
         ];
 
+        // @deprecated tag:v6.8.0 - `product.states` is removed in v6.8, so the field is dropped from the mapping
         if (Feature::isActive('v6.8.0.0')) {
-            unset($properties['categoriesRo']);
-            unset($properties['visibilities']);
             unset($properties['states']);
         }
 
@@ -223,6 +225,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
             $names = ElasticsearchFieldMapper::translated(field: 'name', items: $translation);
             $names = $this->fillFallbackTranslation($languageMapping, $names);
+            $parentNames = ElasticsearchFieldMapper::translated(field: 'parentName', items: $translation);
+            $parentNames = $this->fillFallbackTranslation($languageMapping, $parentNames);
 
             $customFields = $this->mapCustomFields(
                 variantCustomFields: ElasticsearchFieldMapper::translated(field: 'customFields', items: $translation, stripText: false),
@@ -324,6 +328,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'states' => ElasticsearchIndexingUtils::parseJson($item, 'states'),
                 'customFields' => $customFields,
                 'name' => $names,
+                'parent' => $item['parentId'] !== null ? [
+                    'id' => $item['parentId'],
+                    '_count' => 1,
+                    'name' => $parentNames,
+                ] : null,
                 'description' => ElasticsearchFieldMapper::translated(field: 'description', items: $translation),
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
@@ -332,9 +341,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ...$visibilitiesFlatten,
             ];
 
+            // @deprecated tag:v6.8.0 - `product.states` is removed in v6.8, so it is not indexed
             if (Feature::isActive('v6.8.0.0')) {
-                unset($documents[$id]['categoriesRo']);
-                unset($documents[$id]['visibilities']);
                 unset($documents[$id]['states']);
             }
         }
@@ -395,7 +403,7 @@ SELECT
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
     LOWER(HEX(p.parent_id)) as parentId,
     p.child_count as childCount,
-    p.type
+    p.type#states#
 
 FROM product p
     LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
@@ -407,63 +415,11 @@ WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR
 
 GROUP BY p.id
 SQL;
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $baseSql = <<<'SQL'
-SELECT
-    LOWER(HEX(p.id)) AS id,
-    IFNULL(p.active, pp.active) AS active,
-    p.available AS available,
-    #tags#,
-    #visibilities#,
-    IFNULL(p.manufacturer_number, pp.manufacturer_number) AS manufacturerNumber,
-    IFNULL(p.available_stock, pp.available_stock) AS availableStock,
-    IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
-    p.product_number as productNumber,
-    pp.product_number as parentProductNumber,
-    p.sales,
-    LOWER(HEX(p.manufacturer)) AS productManufacturerId,
-    LOWER(HEX(p.delivery_time_id)) as deliveryTimeId,
-    IFNULL(p.shipping_free, pp.shipping_free) AS shippingFree,
-    IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
-    LOWER(HEX(IFNULL(p.product_media_id, pp.product_media_id))) AS coverId,
-    IFNULL(p.weight, pp.weight) AS weight,
-    IFNULL(p.length, pp.length) AS length,
-    IFNULL(p.height, pp.height) AS height,
-    IFNULL(p.width, pp.width) AS width,
-    IFNULL(p.release_date, pp.release_date) AS releaseDate,
-    IFNULL(p.created_at, pp.created_at) AS createdAt,
-    IFNULL(p.category_tree, pp.category_tree) AS categoryTree,
-    IFNULL(p.category_ids, pp.category_ids) AS categoryIds,
-    IFNULL(p.option_ids, pp.option_ids) AS optionIds,
-    IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
-    IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
-    IFNULL(p.stream_ids, pp.stream_ids) AS streamIds,
-    LOWER(HEX(IFNULL(p.tax_id, pp.tax_id))) AS taxId,
-    IFNULL(p.stock, pp.stock) AS stock,
-    IFNULL(p.ean, pp.ean) AS ean,
-    IFNULL(p.mark_as_topseller, pp.mark_as_topseller) AS markAsTopseller,
-    p.auto_increment as autoIncrement,
-    p.display_group as displayGroup,
-    IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
-    LOWER(HEX(p.parent_id)) as parentId,
-    p.child_count as childCount,
-    p.type,
-    p.states
-
-FROM product p
-    LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
-    LEFT JOIN product_visibility ON(product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = p.version_id)
-    LEFT JOIN product_tag ON (product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id)
-    LEFT JOIN tag ON tag.id = product_tag.tag_id
-
-WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL OR JSON_EXTRACT(`p`.`variant_listing_config`, "$.displayParent") = 1)
-
-GROUP BY p.id
-SQL;
-        }
 
         $baseMapping = [
+            // @deprecated tag:v6.8.0 - the `product.states` column is removed in v6.8 (see Migration1763125892),
+            // so it can only be selected while the column still exists
+            '#states#' => Feature::isActive('v6.8.0.0') ? '' : ",\n    p.states",
             '#tags#' => SqlHelper::objectArray([
                 'name' => 'tag.name',
                 'id' => 'LOWER(HEX(tag.id))',
@@ -492,6 +448,7 @@ SQL;
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(product_main.name, product_parent.name) AS name,
+    product_parent.name AS parentName,
     IFNULL(product_main.description, product_parent.description) AS description,
     IFNULL(product_main.meta_title, product_parent.meta_title) AS metaTitle,
     IFNULL(product_main.meta_description, product_parent.meta_description) AS metaDescription,

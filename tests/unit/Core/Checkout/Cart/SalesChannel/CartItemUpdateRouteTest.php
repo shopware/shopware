@@ -36,17 +36,17 @@ class CartItemUpdateRouteTest extends TestCase
             ->method('update');
 
         $route = new CartItemUpdateRoute(
-            $this->createMock(AbstractCartPersister::class),
-            $this->createMock(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(CartCalculator::class),
             $lineItemFactory,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $cartLocker
         );
 
         $route->change(
             new Request([], ['items' => [['id' => 'test', 'quantity' => 2]]]),
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 }

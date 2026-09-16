@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHo
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Facade\RequestFacadeFactory;
-use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
@@ -26,7 +25,7 @@ use Shopware\Storefront\Page\Page;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontHook extends Hook implements SalesChannelContextAware, StoppableHook
 {
     use ScriptResponseAwareTrait;
@@ -85,7 +84,7 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
             SystemConfigFacadeHookFactory::class,
             SalesChannelRepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
-            ScriptResponseFactoryFacadeHookFactory::class,
+            StorefrontScriptResponseFactoryFacadeHookFactory::class,
             RequestFacadeFactory::class,
         ];
     }

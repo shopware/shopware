@@ -24,8 +24,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemProductStatesRule::class)]
-#[Package('checkout')]
 class LineItemProductStatesRuleTest extends TestCase
 {
     private LineItemProductStatesRule $rule;
@@ -84,7 +84,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithStates($states),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -114,7 +114,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -127,7 +127,7 @@ class LineItemProductStatesRuleTest extends TestCase
             'productState' => State::IS_DOWNLOAD,
         ]);
 
-        $match = $this->rule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class)));
+        $match = $this->rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }

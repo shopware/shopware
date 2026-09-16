@@ -2,6 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-settings-basic-information.html.twig';
+import './sw-settings-basic-information.scss';
 
 const { Mixin } = Shopware;
 

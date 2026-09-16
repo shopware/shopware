@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Service\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLogoutEvent;
 use Shopware\Core\Service\LifecycleManager;
@@ -15,19 +15,14 @@ use Shopware\Core\Service\Subscriber\ShopwareAccountSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopwareAccountSubscriber::class)]
 class ShopwareAccountSubscriberTest extends TestCase
 {
-    private LifecycleManager&MockObject $manager;
-
-    private ShopwareAccountSubscriber $subscriber;
-
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->manager = $this->createMock(LifecycleManager::class);
-        $this->subscriber = new ShopwareAccountSubscriber($this->manager);
         $this->context = Context::createDefaultContext();
     }
 
@@ -35,24 +30,26 @@ class ShopwareAccountSubscriberTest extends TestCase
     {
         $event = new ShopwareAccountLoginEvent($this->context);
 
-        $this->manager
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ShopwareAccountRequirement::NAME, $this->context);
 
-        $this->subscriber->syncAccountRequirement($event);
+        (new ShopwareAccountSubscriber($manager))->syncAccountRequirement($event);
     }
 
     public function testSyncAccountRequirementOnLogout(): void
     {
         $event = new ShopwareAccountLogoutEvent($this->context);
 
-        $this->manager
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ShopwareAccountRequirement::NAME, $this->context);
 
-        $this->subscriber->syncAccountRequirement($event);
+        (new ShopwareAccountSubscriber($manager))->syncAccountRequirement($event);
     }
 
     public function testSubscribedEvents(): void

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Test\TestCaseHelper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReflectionHelper::class)]
 class ReflectionHelperTest extends TestCase
 {

@@ -6,15 +6,15 @@ $base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     display: flex;
     height: 100%;
     padding: 0;
-    background-color: var(--color-gray-50);
+    background-color: var(--color-background-secondary-default);
 
     .sw-product-variants-delivery-order__groups {
-        background-color: var(--color-white);
+        background-color: var(--color-background-primary-default);
         font-size: var(--font-size-xs);
         flex-basis: calc(#{$base-size} + var(--scale-size-40) * 5 + var(--scale-size-20));
         height: 100%;
         overflow: auto;
-        border-right: var(--scale-size-1) solid var(--color-gray-300);
+        border-right: var(--scale-size-1) solid var(--color-border-secondary-default);
 
         .sw-tree {
             border-width: 0;

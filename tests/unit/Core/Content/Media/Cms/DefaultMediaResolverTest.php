@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Cms;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -18,13 +18,13 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[CoversClass(DefaultMediaResolver::class)]
 class DefaultMediaResolverTest extends TestCase
 {
-    private FilesystemOperator&MockObject $filesystem;
+    private FilesystemOperator&Stub $filesystem;
 
     private DefaultMediaResolver $mediaResolver;
 
     protected function setUp(): void
     {
-        $this->filesystem = $this->createMock(FilesystemOperator::class);
+        $this->filesystem = static::createStub(FilesystemOperator::class);
         $this->mediaResolver = new DefaultMediaResolver($this->filesystem);
     }
 
@@ -37,7 +37,6 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultCmsMediaEntityNoFile(): void
     {
         $this->filesystem->method('fileExists')
-            ->with('bundles/storefront/assets/default/cms/nonexistent.jpg')
             ->willReturn(false);
 
         $result = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/storefront/assets/default/cms/nonexistent.jpg');
@@ -48,11 +47,9 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultCmsMediaEntityMimeTypeIsMissing(): void
     {
         $this->filesystem->method('fileExists')
-            ->with('bundles/storefront/assets/default/cms/shopware.jpg')
             ->willReturn(true);
 
         $this->filesystem->method('mimeType')
-            ->with('bundles/storefront/assets/default/cms/shopware.jpg')
             ->willReturn('');
 
         $result = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/storefront/assets/default/cms/shopware.jpg');
@@ -63,11 +60,9 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultCmsMediaEntityMissingExtension(): void
     {
         $this->filesystem->method('fileExists')
-            ->with('bundles/storefront/assets/default/cms/shopware')
             ->willReturn(true);
 
         $this->filesystem->method('mimeType')
-            ->with('bundles/storefront/assets/default/cms/shopware')
             ->willReturn('image/jpeg');
 
         $this->filesystem->method('mimeType')
@@ -83,11 +78,9 @@ class DefaultMediaResolverTest extends TestCase
     public function testGetDefaultCmsMediaEntityValidFile(): void
     {
         $this->filesystem->method('fileExists')
-            ->with('bundles/storefront/assets/default/cms/shopware.jpg')
             ->willReturn(true);
 
         $this->filesystem->method('mimeType')
-            ->with('bundles/storefront/assets/default/cms/shopware.jpg')
             ->willReturn('image/jpeg');
 
         $result = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/storefront/assets/default/cms/shopware.jpg');

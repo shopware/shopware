@@ -77,7 +77,7 @@ class SnippetExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SnippetException::SNIPPET_NO_LOCALES_ARGUMENT_PROVIDED, $exception->getErrorCode());
-        static::assertSame('The --locales argument must not be empty.', $exception->getMessage());
+        static::assertSame('At least one locale must be provided.', $exception->getMessage());
     }
 
     public function testInvalidLocalesProvided(): void
@@ -157,6 +157,30 @@ class SnippetExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(SnippetException::SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL, $exception->getErrorCode());
         static::assertSame('The repository URL "http://localhost:8000" is invalid: Invalid URL', $exception->getMessage());
+    }
+
+    public function testLanguageNotAvailableInSalesChannel(): void
+    {
+        $exception = SnippetException::languageNotAvailableInSalesChannel('language-id', 'sales-channel-id');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_LANGUAGE_NOT_AVAILABLE_IN_SALES_CHANNEL, $exception->getErrorCode());
+        static::assertSame(
+            'The language "language-id" is not available for sales channel "sales-channel-id".',
+            $exception->getMessage()
+        );
+    }
+
+    public function testTooManyPrefixes(): void
+    {
+        $exception = SnippetException::tooManyPrefixes(51, 50);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_TOO_MANY_PREFIXES, $exception->getErrorCode());
+        static::assertSame(
+            'Too many snippet prefixes requested: 51 given, at most 50 are allowed.',
+            $exception->getMessage()
+        );
     }
 
     public function testTranslationMetadataDownloadFailed(): void

@@ -4,6 +4,14 @@ import './sw-media-library.scss';
 const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const getDefaultMediaSorting = () => {
+    if (Feature.isActive('v6.8.0.0')) {
+        return { sortBy: 'createdAt', sortDirection: 'desc' };
+    }
+
+    return { sortBy: 'fileName', sortDirection: 'asc' };
+};
+
 /**
  * @sw-package discovery
  */
@@ -123,8 +131,7 @@ export default {
             currentFolder: null,
             parentFolder: null,
             presentation: 'medium-preview',
-            sorting: { sortBy: 'fileName', sortDirection: 'asc' },
-            folderSorting: { sortBy: 'name', sortDirection: 'asc' },
+            sorting: getDefaultMediaSorting(),
         };
     },
 
@@ -245,7 +252,7 @@ export default {
 
         nextFoldersCriteria() {
             const criteria = new Criteria(this.pageFolder, this.limit)
-                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
+                .addSorting(Criteria.sort('name', 'asc'))
                 .setTerm(this.term);
 
             if (!this.term) {
@@ -281,7 +288,6 @@ export default {
         },
 
         sorting() {
-            this.mapFolderSorting();
             this.refreshList();
         },
 
@@ -372,22 +378,6 @@ export default {
             while (!this.allLoaded && this.items.length + this.subFolders.length !== loadedCount) {
                 loadedCount = this.items.length + this.subFolders.length;
                 await this.loadItems();
-            }
-        },
-
-        mapFolderSorting() {
-            switch (this.sorting.sortBy) {
-                case 'createdAt':
-                    this.folderSorting.sortBy = 'createdAt';
-                    this.folderSorting.sortDirection = this.sorting.sortDirection;
-                    break;
-                case 'fileName':
-                    this.folderSorting.sortBy = 'name';
-                    this.folderSorting.sortDirection = this.sorting.sortDirection;
-                    break;
-                default:
-                    this.folderSorting.sortBy = 'name';
-                    this.folderSorting.sortDirection = 'asc';
             }
         },
 

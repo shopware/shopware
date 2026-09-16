@@ -194,7 +194,7 @@ error', $exception->getMessage());
 
     public function testPaymentHandlerTypeUnsupported(): void
     {
-        $class = $this->createMock(AbstractPaymentHandler::class);
+        $class = static::createStub(AbstractPaymentHandler::class);
         $exception = PaymentException::paymentHandlerTypeUnsupported($class, PaymentHandlerType::RECURRING);
 
         static::assertSame('The payment handler ' . $class::class . ' does not support the payment handler type RECURRING.', $exception->getMessage());

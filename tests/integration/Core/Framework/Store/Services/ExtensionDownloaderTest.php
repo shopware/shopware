@@ -56,8 +56,7 @@ class ExtensionDownloaderTest extends TestCase
 
         $context = $this->createAdminStoreContext();
 
-        static::expectException(PluginException::class);
-        static::expectExceptionMessage('Store is not available');
+        $this->expectExceptionObject(PluginException::storeNotAvailable());
         $this->extensionDownloader->download('TestApp', $context);
     }
 

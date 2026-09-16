@@ -18,9 +18,15 @@ class MailCreationState
 
     protected bool $mailTemplateExists = true;
 
-    protected ?string $enLanguageByteId;
+    /**
+     * @var list<string>
+     */
+    protected array $englishLanguageByteIds = [];
 
-    protected ?string $deLanguageByteId;
+    /**
+     * @var list<string>
+     */
+    protected array $germanLanguageByteIds = [];
 
     public function getMailTemplateTypeByteId(): ?string
     {
@@ -62,33 +68,45 @@ class MailCreationState
         $this->mailTemplateExists = false;
     }
 
-    public function hasEnLanguageByteId(): bool
+    /**
+     * @return list<string>
+     */
+    public function getEnglishLanguageByteIds(): array
     {
-        return $this->enLanguageByteId !== null;
+        return $this->englishLanguageByteIds;
     }
 
-    public function getEnLanguageByteId(): ?string
+    /**
+     * @param list<string> $englishLanguageByteIds
+     */
+    public function setEnglishLanguageByteIds(array $englishLanguageByteIds): void
     {
-        return $this->enLanguageByteId;
+        $this->englishLanguageByteIds = $this->uniqueLanguageByteIds($englishLanguageByteIds);
     }
 
-    public function setEnLanguageByteId(?string $enLanguageByteId): void
+    /**
+     * @return list<string>
+     */
+    public function getGermanLanguageByteIds(): array
     {
-        $this->enLanguageByteId = $enLanguageByteId;
+        return $this->germanLanguageByteIds;
     }
 
-    public function hasDeLanguageByteId(): bool
+    /**
+     * @param list<string> $germanLanguageByteIds
+     */
+    public function setGermanLanguageByteIds(array $germanLanguageByteIds): void
     {
-        return $this->deLanguageByteId !== null;
+        $this->germanLanguageByteIds = $this->uniqueLanguageByteIds($germanLanguageByteIds);
     }
 
-    public function getDeLanguageByteId(): ?string
+    /**
+     * @param list<string> $languageByteIds
+     *
+     * @return list<string>
+     */
+    private function uniqueLanguageByteIds(array $languageByteIds): array
     {
-        return $this->deLanguageByteId;
-    }
-
-    public function setDeLanguageByteId(?string $deLanguageByteId): void
-    {
-        $this->deLanguageByteId = $deLanguageByteId;
+        return array_values(array_unique($languageByteIds));
     }
 }

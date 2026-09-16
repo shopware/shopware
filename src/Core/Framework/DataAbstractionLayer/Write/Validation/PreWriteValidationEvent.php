@@ -41,6 +41,17 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
         return $this->commands;
     }
 
+    /**
+     * @return list<WriteCommand>
+     */
+    public function getCommandsForEntity(string $entity): array
+    {
+        return array_values(array_filter(
+            $this->commands,
+            static fn (WriteCommand $command): bool => $command->getEntityName() === $entity
+        ));
+    }
+
     public function getExceptions(): WriteException
     {
         return $this->writeContext->getExceptions();

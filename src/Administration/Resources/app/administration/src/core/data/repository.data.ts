@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
@@ -12,6 +12,12 @@ import type EntityDefinition from './entity-definition.data';
 
 type options = {
     [key: string]: unknown;
+};
+
+type RepositoryCacheOptions = {
+    cacheKey: unknown[];
+    ttl?: number;
+    forceReload?: boolean;
 };
 
 type IdSearchResult = {
@@ -59,12 +65,12 @@ type ErrorResponse = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default class Repository<EntityName extends keyof EntitySchema.Entities> {
+export default class Repository<EntityName extends keyof EntitySchema.EntityKeys> {
     route: string;
 
     entityName: EntityName;
 
-    httpClient: AxiosInstance;
+    httpClient: HttpClient;
 
     hydrator: EntityHydrator;
 
@@ -79,7 +85,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     constructor(
         route: string,
         entityName: EntityName,
-        httpClient: AxiosInstance,
+        httpClient: HttpClient,
         hydrator: EntityHydrator,
         changesetGenerator: ChangesetGenerator,
         entityFactory: EntityFactory,
@@ -104,7 +110,12 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Sends a search request to the server to find entity ids for the provided criteria.
      */
-    searchIds(criteria: Criteria, context = Shopware.Context.api): Promise<IdSearchResult> {
+    searchIds(
+        criteria: Criteria,
+        contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
+        cacheOptions?: RepositoryCacheOptions,
+    ): Promise<IdSearchResult> {
+        const { context, cache } = this.resolveReadOptions(contextOrOptions, cacheOptions);
         const headers = this.buildHeaders(context);
 
         let url = `/search-ids${this.route}`;
@@ -113,15 +124,22 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             url += `?title=${criteria.getTitle()}`;
         }
 
-        return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
-            return response.data as IdSearchResult;
+        return this.runCachedRead(cache, () => {
+            return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
+                return response.data as IdSearchResult;
+            });
         });
     }
 
     /**
      * Sends a search request for the repository entity.
      */
-    search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection<EntityName>> {
+    search(
+        criteria: Criteria,
+        contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
+        cacheOptions?: RepositoryCacheOptions,
+    ): Promise<EntityCollection<EntityName>> {
+        const { context, cache } = this.resolveReadOptions(contextOrOptions, cacheOptions);
         const headers = this.buildHeaders(context);
 
         let url = `/search${this.route}`;
@@ -130,20 +148,40 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             url += `?title=${criteria.getTitle()}`;
         }
 
-        return this.httpClient.post(url, criteria.parse(), { headers }).then((response) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
+        return this.runCachedRead(cache, () => {
+            return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
+            });
         });
     }
 
     /**
      * Short hand to fetch a single entity from the server
      */
-    get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity<EntityName> | null> {
+    get(
+        id: EntityKey<EntityName>,
+        contextOrOptions: apiContext | RepositoryCacheOptions = Shopware.Context.api,
+        criteriaOrOptions: Criteria | RepositoryCacheOptions | null = null,
+        cacheOptions?: RepositoryCacheOptions,
+    ): Promise<Entity<EntityName> | null> {
+        let context = contextOrOptions;
+        let criteria = criteriaOrOptions instanceof Criteria ? criteriaOrOptions : null;
+        let cache = cacheOptions;
+
+        if (this.isCacheOptions(criteriaOrOptions)) {
+            cache = criteriaOrOptions;
+        }
+
+        if (this.isCacheOptions(contextOrOptions)) {
+            context = Shopware.Context.api;
+            cache = contextOrOptions;
+        }
+
         criteria = criteria || new Criteria(1, 1);
         criteria.setIds([id]);
 
-        return this.search(criteria, context).then((result) => {
+        return this.search(criteria, context as apiContext, cache).then((result) => {
             return result.get(id);
         });
     }
@@ -153,7 +191,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * If the entity is marked as new, the repository will send a POST create. Updates will be send as PATCH request.
      * Deleted associations will be send as additional request
      */
-    save(entity: Entity<EntityName>, context = Shopware.Context.api): Promise<void | AxiosResponse> {
+    save(entity: Entity<EntityName>, context = Shopware.Context.api): Promise<void | HttpResponse> {
         if (this.options.useSync === true) {
             return this.saveWithSync(entity, context);
         }
@@ -164,7 +202,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * @private
      */
-    async saveWithRest(entity: Entity<EntityName>, context: apiContext): Promise<void | AxiosResponse> {
+    async saveWithRest(entity: Entity<EntityName>, context: apiContext): Promise<void | HttpResponse> {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (!this.options.keepApiErrors) {
@@ -178,7 +216,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * @private
      */
-    async saveWithSync(entity: Entity<EntityName>, context: apiContext): Promise<void | AxiosResponse> {
+    async saveWithSync(entity: Entity<EntityName>, context: apiContext): Promise<void | HttpResponse> {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (entity.isNew()) {
@@ -211,36 +249,40 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
             this.errorResolver.resetApiErrors();
         }
 
-        return this.httpClient.post('_action/sync', operations, { headers }).catch((errorResponse: ErrorResponse) => {
-            const errors: Error[] = [];
-            const result = errorResponse?.response?.data?.errors ?? [];
+        return this.httpClient
+            .post('_action/sync', operations, this.buildRequestConfig(headers))
+            .catch((errorResponse: ErrorResponse) => {
+                const errors: Error[] = [];
+                const result = errorResponse?.response?.data?.errors ?? [];
 
-            result.forEach((error) => {
-                if (error?.source?.pointer?.startsWith('/write/')) {
-                    error.source.pointer = error.source.pointer.substring(6);
-                    errors.push(error);
-                }
-            });
+                result.forEach((error) => {
+                    if (error?.source?.pointer?.startsWith('/write/')) {
+                        error.source.pointer = error.source.pointer.substring(6);
+                        errors.push(error);
+                    }
+                });
 
-            this.errorResolver.handleWriteErrors([{ entity, changes }], {
-                errors,
+                this.errorResolver.handleWriteErrors([{ entity, changes }], {
+                    errors,
+                });
+                throw errorResponse;
             });
-            throw errorResponse;
-        });
     }
 
     /**
      * Clones an existing entity
      */
-    clone(entityId: string, behavior: $TSDangerUnknownObject, context = Shopware.Context.api): Promise<unknown> {
+    clone(
+        entityId: EntityKey<EntityName>,
+        behavior: $TSDangerUnknownObject,
+        context = Shopware.Context.api,
+    ): Promise<unknown> {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
         return this.httpClient
-            .post(`/_action/clone${this.route}/${entityId}`, behavior, {
-                headers: this.buildHeaders(context),
-            })
+            .post(`/_action/clone${this.route}/${entityId}`, behavior, this.buildRequestConfig(this.buildHeaders(context)))
             .then((response) => {
                 return response.data as unknown;
             });
@@ -331,7 +373,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                         payload,
                     },
                 },
-                { headers },
+                this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
                 if ((data as { success: boolean }).success === false) {
@@ -406,20 +448,20 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * where the base route contains already the owner key, e.g. /product/{id}/categories
      * The provided id contains the associated entity id.
      */
-    assign(id: string, context = Shopware.Context.api): Promise<AxiosResponse> {
+    assign(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
-        return this.httpClient.post(`${this.route}`, { id }, { headers });
+        return this.httpClient.post(`${this.route}`, { id }, this.buildRequestConfig(headers));
     }
 
     /**
      * Sends a delete request for the provided id.
      */
-    delete(id: string, context = Shopware.Context.api): Promise<AxiosResponse> {
+    delete(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         const url = `${this.route}/${id}`;
-        return this.httpClient.delete(url, { headers }).catch((errorResponse: ErrorResponse) => {
+        return this.httpClient.delete(url, this.buildRequestConfig(headers)).catch((errorResponse: ErrorResponse) => {
             const errors = errorResponse?.response?.data?.errors?.map((error) => {
                 return { error, id, entityName: this.entityName };
             });
@@ -483,7 +525,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                         payload,
                     },
                 },
-                { headers },
+                this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
                 if ((data as { success: boolean }).success === false) {
@@ -521,7 +563,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * Creates a new entity for the local schema.
      * To Many association are initialed with a collection with the corresponding remote api route
      */
-    create(context = Shopware.Context.api, id: string | null = null): Entity<EntityName> {
+    create(context = Shopware.Context.api, id: EntityKey<EntityName> | null = null): Entity<EntityName> {
         return this.entityFactory.create(this.entityName, id, context) as unknown as Entity<EntityName>;
     }
 
@@ -531,14 +573,14 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * If no version name provided, the server names the new version with `draft %date%`.
      */
     createVersion(
-        entityId: string,
+        entityId: EntityKey<EntityName>,
         context = Shopware.Context.api,
-        versionId: string | null = null,
+        versionId: EntityKey<'version'> | null = null,
         versionName: string | null = null,
     ): Promise<apiContext> {
         const headers = this.buildHeaders(context);
         const params: {
-            versionId?: string;
+            versionId?: EntityKey<'version'>;
             versionName?: string;
         } = {};
 
@@ -551,35 +593,74 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
 
         const url = `_action/version/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, params, { headers }).then((response: AxiosResponse<{ versionId: string }>) => {
-            return {
-                ...context,
-                ...{ versionId: response.data.versionId },
-            };
-        });
+        return this.httpClient
+            .post<{ versionId: EntityKey<'version'> }>(url, params, this.buildRequestConfig(headers))
+            .then((response) => {
+                return {
+                    ...context,
+                    ...{ versionId: response.data.versionId },
+                };
+            });
     }
 
     /**
      * Sends a request to the server to merge all changes of the provided version id.
      * The changes are squashed into a single change and the remaining version will be removed.
      */
-    mergeVersion(versionId: string, context = Shopware.Context.api): Promise<AxiosResponse> {
+    mergeVersion(versionId: EntityKey<'version'>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         const url = `_action/version/merge/${this.entityName.replace(/_/g, '-')}/${versionId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, this.buildRequestConfig(headers));
     }
 
     /**
      * Deletes the provided version from the server. All changes to this version are reverted
      */
-    deleteVersion(entityId: string, versionId: string, context = Shopware.Context.api): Promise<AxiosResponse> {
+    deleteVersion(
+        entityId: EntityKey<EntityName>,
+        versionId: EntityKey<'version'>,
+        context = Shopware.Context.api,
+    ): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, this.buildRequestConfig(headers));
+    }
+
+    /**
+     * Deletes the provided version with a request the browser can continue while the page is unloading.
+     */
+    deleteVersionWithKeepalive(
+        entityId: EntityKey<EntityName>,
+        versionId: EntityKey<'version'>,
+        context = Shopware.Context.api,
+    ): Promise<Response | HttpResponse> {
+        if (typeof fetch !== 'function') {
+            return this.deleteVersion(entityId, versionId, context);
+        }
+
+        const headers = Object.fromEntries(
+            Object.entries(this.buildHeaders(context)).map(
+                ([
+                    name,
+                    value,
+                ]) => [
+                    name,
+                    String(value),
+                ],
+            ),
+        );
+        const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
+
+        return fetch(this.httpClient.getUri({ url, useAxiosV1: true }), {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({}),
+            keepalive: true,
+        });
     }
 
     /**
@@ -589,22 +670,24 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         entity: Entity<EntityName>,
         changes: Changeset,
         context = Shopware.Context.api,
-    ): Promise<AxiosResponse | void> {
+    ): Promise<HttpResponse | void> {
         const headers = this.buildHeaders(context);
 
         if (entity.isNew()) {
             changes = changes || {};
             Object.assign(changes, { id: entity.id });
 
-            return this.httpClient.post(`${this.route}`, changes, { headers }).catch((errorResponse: ErrorResponse) => {
-                const errors = errorResponse?.response?.data?.errors;
-                if (!errors) {
-                    return;
-                }
+            return this.httpClient
+                .post(`${this.route}`, changes, this.buildRequestConfig(headers))
+                .catch((errorResponse: ErrorResponse) => {
+                    const errors = errorResponse?.response?.data?.errors;
+                    if (!errors) {
+                        return;
+                    }
 
-                this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
-                throw errorResponse;
-            });
+                    this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
+                    throw errorResponse;
+                });
         }
 
         if (typeof changes === 'undefined' || changes === null) {
@@ -612,7 +695,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }
 
         return this.httpClient
-            .patch(`${this.route}/${entity.id}`, changes, { headers })
+            .patch(`${this.route}/${entity.id}`, changes, this.buildRequestConfig(headers))
             .catch((errorResponse: ErrorResponse) => {
                 const errors = errorResponse?.response?.data?.errors;
                 if (!errors) {
@@ -629,13 +712,15 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Process the deletion queue
      */
-    sendDeletions(queue: DeletionQueue, context = Shopware.Context.api): Promise<AxiosResponse[]> {
+    sendDeletions(queue: DeletionQueue, context = Shopware.Context.api): Promise<HttpResponse[]> {
         const headers = this.buildHeaders(context);
         const requests = queue.map((deletion) => {
-            return this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers }).catch((errorResponse) => {
-                this.errorResolver.handleDeleteError(errorResponse);
-                throw errorResponse;
-            });
+            return this.httpClient
+                .delete(`${deletion.route}/${deletion.key}`, this.buildRequestConfig(headers))
+                .catch((errorResponse) => {
+                    this.errorResolver.handleDeleteError(errorResponse);
+                    throw errorResponse;
+                });
         });
 
         return Promise.all(requests);
@@ -721,6 +806,13 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         };
     }
 
+    private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
+        return {
+            headers,
+            useAxiosV1: true,
+        };
+    }
+
     /**
      * @private
      */
@@ -754,5 +846,39 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         });
 
         return operations;
+    }
+
+    private resolveReadOptions(
+        contextOrOptions: apiContext | RepositoryCacheOptions,
+        cacheOptions?: RepositoryCacheOptions,
+    ): { context: apiContext; cache?: RepositoryCacheOptions } {
+        if (this.isCacheOptions(contextOrOptions)) {
+            return {
+                context: Shopware.Context.api,
+                cache: contextOrOptions,
+            };
+        }
+
+        return {
+            context: contextOrOptions,
+            cache: cacheOptions,
+        };
+    }
+
+    private runCachedRead<T>(cacheOptions: RepositoryCacheOptions | undefined, fn: () => Promise<T>): Promise<T> {
+        if (!cacheOptions) {
+            return fn();
+        }
+
+        return Shopware.Service('cacheService').query({
+            key: cacheOptions.cacheKey,
+            fn,
+            ttl: cacheOptions.ttl,
+            forceReload: cacheOptions.forceReload,
+        });
+    }
+
+    private isCacheOptions(value: unknown): value is RepositoryCacheOptions {
+        return typeof value === 'object' && value !== null && Array.isArray((value as RepositoryCacheOptions).cacheKey);
     }
 }

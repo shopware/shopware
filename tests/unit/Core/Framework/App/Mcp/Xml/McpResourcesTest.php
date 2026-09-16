@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(McpResources::class)]
 #[Package('framework')]
+#[CoversClass(McpResources::class)]
 class McpResourcesTest extends TestCase
 {
     public function testFromXmlParsesMultipleResources(): void

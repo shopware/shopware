@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Persists large tool results in the DB for the duration of an MCP session.
  * Each stored result is scoped to a session ID so it cannot be read by other sessions.
@@ -21,6 +23,7 @@ class ToolResultCacheStorage
      */
     public function __construct(
         private readonly Connection $connection,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -36,7 +39,7 @@ class ToolResultCacheStorage
             'session_id' => $sessionId,
             'mime_type' => $mimeType,
             'content' => $content,
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         return Uuid::fromBytesToHex($id);

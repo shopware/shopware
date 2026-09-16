@@ -7,7 +7,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\UnableToDeleteFile;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -29,7 +29,7 @@ class MediaFileCleanupServiceTest extends TestCase
 
     private FilesystemOperator $filesystemPrivate;
 
-    private ThumbnailService&MockObject $thumbnailService;
+    private ThumbnailService&Stub $thumbnailService;
 
     private CollectingMessageBus $messageBus;
 
@@ -37,16 +37,17 @@ class MediaFileCleanupServiceTest extends TestCase
     {
         $this->filesystemPublic = new Filesystem(new InMemoryFilesystemAdapter());
         $this->filesystemPrivate = new Filesystem(new InMemoryFilesystemAdapter());
-        $this->thumbnailService = $this->createMock(ThumbnailService::class);
+        $this->thumbnailService = static::createStub(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
     }
 
     public function testRemoveOldMediaDataDeletesPublicFile(): void
     {
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $service = new MediaFileCleanupService(
             $this->filesystemPublic,
             $this->filesystemPrivate,
-            $this->thumbnailService,
+            $thumbnailService,
             $this->messageBus,
             false,
         );
@@ -61,7 +62,7 @@ class MediaFileCleanupServiceTest extends TestCase
         $media->setPrivate(false);
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->thumbnailService->expects($this->once())
+        $thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
             ->with($media, $context);
 
@@ -98,10 +99,11 @@ class MediaFileCleanupServiceTest extends TestCase
 
     public function testRemoveOldMediaDataSkipsWithNoFile(): void
     {
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $service = new MediaFileCleanupService(
             $this->filesystemPublic,
             $this->filesystemPrivate,
-            $this->thumbnailService,
+            $thumbnailService,
             $this->messageBus,
             false,
         );
@@ -113,7 +115,7 @@ class MediaFileCleanupServiceTest extends TestCase
         $media->setId('media-3');
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->thumbnailService->expects($this->never())
+        $thumbnailService->expects($this->never())
             ->method('deleteThumbnails');
 
         $service->removeOldMediaData($media, Context::createDefaultContext());
@@ -131,10 +133,11 @@ class MediaFileCleanupServiceTest extends TestCase
             }
         });
 
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $service = new MediaFileCleanupService(
             $throwingFilesystem,
             $this->filesystemPrivate,
-            $this->thumbnailService,
+            $thumbnailService,
             $this->messageBus,
             false,
         );
@@ -146,7 +149,7 @@ class MediaFileCleanupServiceTest extends TestCase
         $media->setPrivate(false);
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->thumbnailService->expects($this->once())
+        $thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
             ->with($media, $context);
 
@@ -155,10 +158,11 @@ class MediaFileCleanupServiceTest extends TestCase
 
     public function testRemoveOldMediaDataSkipsThumbnailsWhenRemote(): void
     {
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $service = new MediaFileCleanupService(
             $this->filesystemPublic,
             $this->filesystemPrivate,
-            $this->thumbnailService,
+            $thumbnailService,
             $this->messageBus,
             true,
         );
@@ -171,7 +175,7 @@ class MediaFileCleanupServiceTest extends TestCase
         $media->setPrivate(false);
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->thumbnailService->expects($this->never())
+        $thumbnailService->expects($this->never())
             ->method('deleteThumbnails');
 
         $service->removeOldMediaData($media, Context::createDefaultContext());
@@ -181,10 +185,11 @@ class MediaFileCleanupServiceTest extends TestCase
 
     public function testDeleteThumbnailsDelegatesToService(): void
     {
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $service = new MediaFileCleanupService(
             $this->filesystemPublic,
             $this->filesystemPrivate,
-            $this->thumbnailService,
+            $thumbnailService,
             $this->messageBus,
             false,
         );
@@ -193,7 +198,7 @@ class MediaFileCleanupServiceTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-6');
 
-        $this->thumbnailService->expects($this->once())
+        $thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
             ->with($media, $context);
 
@@ -202,10 +207,11 @@ class MediaFileCleanupServiceTest extends TestCase
 
     public function testDeleteThumbnailsSkipsWhenRemote(): void
     {
+        $thumbnailService = $this->createMock(ThumbnailService::class);
         $service = new MediaFileCleanupService(
             $this->filesystemPublic,
             $this->filesystemPrivate,
-            $this->thumbnailService,
+            $thumbnailService,
             $this->messageBus,
             true,
         );
@@ -213,7 +219,7 @@ class MediaFileCleanupServiceTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-7');
 
-        $this->thumbnailService->expects($this->never())
+        $thumbnailService->expects($this->never())
             ->method('deleteThumbnails');
 
         $service->deleteThumbnails($media, Context::createDefaultContext());

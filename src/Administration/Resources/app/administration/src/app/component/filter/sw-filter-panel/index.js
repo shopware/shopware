@@ -40,6 +40,7 @@ export default {
             activeFilters: {},
             filterChanged: false,
             storedFilters: null,
+            storedFiltersRequestId: 0,
         };
     },
 
@@ -106,14 +107,21 @@ export default {
 
     methods: {
         createdComponent() {
+            const requestId = this.storedFiltersRequestId + 1;
+            this.storedFiltersRequestId = requestId;
+
             Shopware.Service('filterService')
                 .getStoredFilters(this.storeKey)
                 .then((filters) => {
+                    if (requestId !== this.storedFiltersRequestId || this.filterChanged) {
+                        return;
+                    }
+
                     this.activeFilters = {};
-                    this.storedFilters = filters;
+                    this.storedFilters = filters ?? {};
 
                     this.listFilters.forEach((filter) => {
-                        const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
+                        const criteria = this.storedFilters[filter.name] ? this.storedFilters[filter.name].criteria : null;
                         if (criteria) {
                             this.activeFilters[filter.name] = criteria;
                         }
@@ -123,18 +131,23 @@ export default {
 
         updateFilter(name, filter, value) {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
+
             this.activeFilters[name] = filter;
             this.storedFilters[name] = { value: value, criteria: filter };
         },
 
         resetFilter(name) {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
+
             delete this.activeFilters[name];
             this.storedFilters[name] = { value: null, criteria: null };
         },
 
         resetAll() {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
             this.activeFilters = {};
 
             Object.values(this.storedFilters).forEach((el) => {

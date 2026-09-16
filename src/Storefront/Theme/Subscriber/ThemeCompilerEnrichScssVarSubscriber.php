@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
 {
     /**
@@ -93,10 +93,6 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        if (!\is_string($element['value'] ?? $element['defaultValue'])) {
-            return false;
-        }
-
-        return true;
+        return \is_string($element['value'] ?? $element['defaultValue']);
     }
 }

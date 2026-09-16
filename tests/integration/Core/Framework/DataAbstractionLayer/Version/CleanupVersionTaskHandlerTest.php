@@ -5,7 +5,9 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +16,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class CleanupVersionTaskHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -54,6 +57,36 @@ class CleanupVersionTaskHandlerTest extends TestCase
         $data = static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version_commit_data');
         static::assertCount(1, $data);
         static::assertContains($ids->get('version-1'), $data);
+    }
+
+    public function testCleanupKeepsVersionsProtectedByEventListener(): void
+    {
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM version');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM version_commit');
+
+        $ids = new IdsCollection();
+        $date = new \DateTime();
+        $date->modify('-31 days');
+        $this->createVersion($ids->create('protected-version'), $date);
+
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $eventDispatcher->addListener(CleanupVersionEvent::class, static function (CleanupVersionEvent $event) use ($ids, $date): void {
+            static::assertTrue($date <= $event->getCleanupTime());
+            $event->addProtectedVersionId('invalid-version-id');
+            $event->addProtectedVersionId($ids->get('protected-version'));
+            $event->addProtectedVersionId($ids->get('protected-version'));
+        });
+
+        $this->handler->run();
+
+        static::assertSame(
+            [$ids->get('protected-version')],
+            static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM version')
+        );
+        static::assertSame(
+            [$ids->get('protected-version')],
+            static::getContainer()->get(Connection::class)->fetchFirstColumn('SELECT LOWER(HEX(version_id)) FROM version_commit')
+        );
     }
 
     private function createVersion(string $id, \DateTime $date): void

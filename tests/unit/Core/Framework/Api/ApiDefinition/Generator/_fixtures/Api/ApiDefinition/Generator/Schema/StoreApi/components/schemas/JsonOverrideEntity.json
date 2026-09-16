@@ -1,0 +1,29 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "JsonOverrideEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "jsonOnlyField": {
+                        "type": "string",
+                        "description": "This field only exists in the JSON schema"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["active", "inactive"]
+                    }
+                }
+            }
+        }
+    }
+}

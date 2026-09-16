@@ -53,6 +53,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         creator: {
             privileges: [
                 'customer:create',
+                'number_range:read',
             ],
             dependencies: [
                 'customer.viewer',

@@ -14,8 +14,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
 #[Package('inventory')]
+#[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
 final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
     /**

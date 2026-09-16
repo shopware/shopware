@@ -13,7 +13,7 @@
         .sw-property-search__tree-selection__group_grid {
             padding-top: 10px;
             border-radius: 0 0 0 $border-radius-default;
-            border-right: 1px solid $color-gray-300;
+            border-right: 1px solid var(--color-border-secondary-default);
         }
 
         .sw-grid-column .sw-grid__cell-content {
@@ -23,7 +23,7 @@
 
         .sw-grid-column.is-selected {
             .sw-grid__cell-content {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
                 font-weight: 900;
             }
         }
@@ -37,7 +37,7 @@
         }
 
         .sw-grid-column {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
         }
 
         .sw-grid-row {
@@ -72,7 +72,7 @@
         }
 
         .sw-grid__pagination {
-            background-color: $color-white;
+            background-color: var(--color-background-primary-default);
 
             .mt-icon {
                 margin: 0;
@@ -133,9 +133,9 @@
         position: absolute;
         z-index: $z-index-flyout;
         border-radius: $border-radius-default;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         background-clip: padding-box;
-        box-shadow: 0 1px 6px 0 lighten($color-darkgray-200, 30%);
+        box-shadow: 0 1px 6px 0 var(--color-elevation-shadow-default);
     }
 
     .sw-property-search__search-field {
@@ -143,8 +143,8 @@
 
         &-container {
             padding: 30px;
-            border-bottom: 1px solid #d8dde6;
-            background-color: $color-gray-100;
+            border-bottom: 1px solid var(--color-border-secondary-default);
+            background-color: var(--color-background-secondary-default);
         }
     }
 

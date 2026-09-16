@@ -10,7 +10,12 @@ export const CreateCustomField = base.extend<{ CreateCustomField: Task }, Fixtur
                 if (satisfies(InstanceMeta.version, '<6.7')) {
                     await AdminCustomFieldDetail.customFieldTypeSelectionList.selectOption(customFieldTypeText);
                 } else {
-                    await (await AdminCustomFieldDetail.getSelectFieldListitem(AdminCustomFieldDetail.customFieldTypeSelectionList, customFieldTypeText)).click();
+                    await (
+                        await AdminCustomFieldDetail.getSelectFieldListitem(
+                            AdminCustomFieldDetail.customFieldTypeSelectionList,
+                            customFieldTypeText,
+                        )
+                    ).click();
                 }
                 await AdminCustomFieldDetail.customFieldTechnicalNameInput.fill(customFieldName);
                 await AdminCustomFieldDetail.customFieldLabelEnglishGBInput.fill(customFieldName);

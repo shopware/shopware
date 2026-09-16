@@ -17,8 +17,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelSeoUrlDefinition::class)]
 #[Package('inventory')]
+#[CoversClass(SalesChannelSeoUrlDefinition::class)]
 class SalesChannelSeoUrlDefinitionTest extends TestCase
 {
     public function testProcessCriteriaAddsDefaultFilters(): void

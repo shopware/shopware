@@ -11,8 +11,8 @@ namespace Shopware\Core\Framework\Log;
  * if the above valid types / domains are changed, please also update them here:
  * src/Administration/Resources/app/administration/eslint-rules/core-rules/require-package-annotation.js
  */
-#[\Attribute(\Attribute::TARGET_CLASS)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';

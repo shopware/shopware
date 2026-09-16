@@ -41,7 +41,11 @@ class ShippingCountryRule extends Rule
             return false;
         }
 
-        $countryId = $scope->getSalesChannelContext()
+        $countryId = $scope->getSalesChannelContext()->getCustomer() === null
+            ? $scope->getCustomer()?->getActiveShippingAddress()?->getCountryId()
+            : null;
+
+        $countryId ??= $scope->getSalesChannelContext()
             ->getShippingLocation()
             ->getCountry()
             ->getId();
@@ -72,7 +76,7 @@ class ShippingCountryRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('countryIds', CountryDefinition::ENTITY_NAME, true);
     }
 }

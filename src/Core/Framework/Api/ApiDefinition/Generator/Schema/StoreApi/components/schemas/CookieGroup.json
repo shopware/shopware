@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.2.0",
   "info": [],
   "paths": [],
   "components": {
@@ -30,19 +30,27 @@
           },
           "apiAlias": {
             "type": "string",
-            "enum": [
-              "cookie_group"
-            ]
+            "const": "cookie_group"
           }
         },
         "not": {
           "allOf": [
             {
+              "properties": {
+                "cookie": {
+                  "type": "string"
+                }
+              },
               "required": [
                 "cookie"
               ]
             },
             {
+              "properties": {
+                "entries": {
+                  "$ref": "#/components/schemas/CookieEntryCollection"
+                }
+              },
               "required": [
                 "entries"
               ]

@@ -1,114 +1,208 @@
 {% block sw_cms_el_config_form %}
-<sw-tabs
-    position-identifier="sw-cms-element-config-form"
-    class="sw-cms-el-config-form__tabs"
-    default-item="content"
->
+<template v-if="feature.isActive('v6.8.0.0')">
+    {% block sw_cms_el_config_form_mt_tabs %}
+    <mt-tabs
+        position-identifier="sw-cms-element-config-form"
+        class="sw-cms-el-config-form__tabs"
+        :default-item="activeTab"
+        :items="tabs"
+        :small="true"
+        @new-item-active="activeTab = $event"
+    />
+    {% endblock %}
 
-    <template #default="{ active }">
-        {% block sw_cms_el_config_form_tab_content %}
-        <sw-tabs-item
-            :title="$t('sw-cms.elements.general.config.tab.content')"
-            name="content"
-            :active-tab="active"
-        >
-            {{ $t('sw-cms.elements.general.config.tab.content') }}
-        </sw-tabs-item>
-        {% endblock %}
-
-        {% block sw_cms_el_form_config_tab_options %}
-        <sw-tabs-item
-            v-if="requireConfigTab"
-            :title="$t('sw-cms.elements.general.config.tab.settings')"
-            name="options"
-            :active-tab="active"
-        >
-            {{ $t('sw-cms.elements.general.config.tab.settings') }}
-        </sw-tabs-item>
-        {% endblock %}
-    </template>
-
-    <template
-        #content="{ active }"
+    {% block sw_cms_el_form_config_mt_content %}
+    <sw-container
+        v-if="activeTab === 'content'"
+        class="sw-cms-el-config-form__tab-content"
     >
-        {% block sw_cms_el_form_config_content %}
-        <sw-container
-            v-if="active === 'content'"
-            class="sw-cms-el-config-form__tab-content"
+
+        {% block sw_cms_el_form_config_mt_content_form_type %}
+        <sw-cms-inherit-wrapper
+            field="type"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.type')"
         >
+            <template #default="{ isInherited }">
+                <mt-select
+                    v-model="element.config.type.value"
+                    :options="formTypeOptions"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
 
-            {% block sw_cms_el_form_config_content_form_type %}
-            <sw-cms-inherit-wrapper
-                field="type"
-                :element="element"
-                :label="$t('sw-cms.elements.form.config.label.type')"
+        {% block sw_cms_el_form_config_mt_content_form_title %}
+        <sw-cms-inherit-wrapper
+            field="title"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.title')"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model="element.config.title.value"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_cms_el_form_config_mt_content_form_confirmation_text %}
+        <sw-cms-inherit-wrapper
+            v-if="requireConfigTab"
+            field="confirmationText"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.confirmationText')"
+        >
+            <template #default="{ isInherited }">
+                <mt-textarea
+                    v-model="element.config.confirmationText.value"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_cms_el_form_config_mt_options %}
+    <sw-container
+        v-if="activeTab === 'options' && requireConfigTab"
+        class="sw-cms-el-config-form__tab-options"
+    >
+        <sw-cms-inherit-wrapper
+            field="mailReceiver"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.receiverEmail')"
+        >
+            <template #default="{ isInherited }">
+                <sw-tagged-field
+                    v-model:value="element.config.mailReceiver.value"
+                    :class="getLastMailClass"
+                    name="mailReceiver"
+                    placeholder="john@doe.com"
+                    :disabled="isInherited"
+                    @update:value="updateMailReceiver"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+    </sw-container>
+    {% endblock %}
+</template>
+
+<template v-else>
+    <sw-tabs
+        position-identifier="sw-cms-element-config-form"
+        class="sw-cms-el-config-form__tabs"
+        default-item="content"
+    >
+
+        <template #default="{ active }">
+            {% block sw_cms_el_config_form_tab_content %}
+            <sw-tabs-item
+                :title="$t('sw-cms.elements.general.config.tab.content')"
+                name="content"
+                :active-tab="active"
             >
-                <template #default="{ isInherited }">
-                    <mt-select
-                        v-model="element.config.type.value"
-                        :options="formTypeOptions"
-                        :disabled="isInherited"
-                    />
-                </template>
-            </sw-cms-inherit-wrapper>
+                {{ $t('sw-cms.elements.general.config.tab.content') }}
+            </sw-tabs-item>
             {% endblock %}
 
-            {% block sw_cms_el_form_config_content_form_title %}
-            <sw-cms-inherit-wrapper
-                field="title"
-                :element="element"
-                :label="$t('sw-cms.elements.form.config.label.title')"
-            >
-                <template #default="{ isInherited }">
-                    <mt-text-field
-                        v-model="element.config.title.value"
-                        :disabled="isInherited"
-                    />
-                </template>
-            </sw-cms-inherit-wrapper>
-            {% endblock %}
-
-            {% block sw_cms_el_form_config_content_form_confirmation_text %}
-            <sw-cms-inherit-wrapper
+            {% block sw_cms_el_form_config_tab_options %}
+            <sw-tabs-item
                 v-if="requireConfigTab"
-                field="confirmationText"
-                :element="element"
-                :label="$t('sw-cms.elements.form.config.label.confirmationText')"
+                :title="$t('sw-cms.elements.general.config.tab.settings')"
+                name="options"
+                :active-tab="active"
             >
-                <template #default="{ isInherited }">
-                    <mt-textarea
-                        v-model="element.config.confirmationText.value"
-                        :disabled="isInherited"
-                    />
-                </template>
-            </sw-cms-inherit-wrapper>
+                {{ $t('sw-cms.elements.general.config.tab.settings') }}
+            </sw-tabs-item>
             {% endblock %}
-        </sw-container>
-        {% endblock %}
+        </template>
 
-        {% block sw_cms_el_form_config_options %}
-        <sw-container
-            v-else-if="active === 'options' && requireConfigTab"
-            class="sw-cms-el-config-form__tab-options"
+        <template
+            #content="{ active }"
         >
-            <sw-cms-inherit-wrapper
-                field="mailReceiver"
-                :element="element"
-                :label="$t('sw-cms.elements.form.config.label.receiverEmail')"
+            {% block sw_cms_el_form_config_content %}
+            <sw-container
+                v-if="active === 'content'"
+                class="sw-cms-el-config-form__tab-content"
             >
-                <template #default="{ isInherited }">
-                    <sw-tagged-field
-                        v-model:value="element.config.mailReceiver.value"
-                        :class="getLastMailClass"
-                        name="mailReceiver"
-                        placeholder="john@doe.com"
-                        :disabled="isInherited"
-                        @update:value="updateMailReceiver"
-                    />
-                </template>
-            </sw-cms-inherit-wrapper>
-        </sw-container>
-        {% endblock %}
-    </template>
-</sw-tabs>
+
+                {% block sw_cms_el_form_config_content_form_type %}
+                <sw-cms-inherit-wrapper
+                    field="type"
+                    :element="element"
+                    :label="$t('sw-cms.elements.form.config.label.type')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-select
+                            v-model="element.config.type.value"
+                            :options="formTypeOptions"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
+                {% endblock %}
+
+                {% block sw_cms_el_form_config_content_form_title %}
+                <sw-cms-inherit-wrapper
+                    field="title"
+                    :element="element"
+                    :label="$t('sw-cms.elements.form.config.label.title')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-text-field
+                            v-model="element.config.title.value"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
+                {% endblock %}
+
+                {% block sw_cms_el_form_config_content_form_confirmation_text %}
+                <sw-cms-inherit-wrapper
+                    v-if="requireConfigTab"
+                    field="confirmationText"
+                    :element="element"
+                    :label="$t('sw-cms.elements.form.config.label.confirmationText')"
+                >
+                    <template #default="{ isInherited }">
+                        <mt-textarea
+                            v-model="element.config.confirmationText.value"
+                            :disabled="isInherited"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_cms_el_form_config_options %}
+            <sw-container
+                v-else-if="active === 'options' && requireConfigTab"
+                class="sw-cms-el-config-form__tab-options"
+            >
+                <sw-cms-inherit-wrapper
+                    field="mailReceiver"
+                    :element="element"
+                    :label="$t('sw-cms.elements.form.config.label.receiverEmail')"
+                >
+                    <template #default="{ isInherited }">
+                        <sw-tagged-field
+                            v-model:value="element.config.mailReceiver.value"
+                            :class="getLastMailClass"
+                            name="mailReceiver"
+                            placeholder="john@doe.com"
+                            :disabled="isInherited"
+                            @update:value="updateMailReceiver"
+                        />
+                    </template>
+                </sw-cms-inherit-wrapper>
+            </sw-container>
+            {% endblock %}
+        </template>
+    </sw-tabs>
+</template>
 {% endblock %}

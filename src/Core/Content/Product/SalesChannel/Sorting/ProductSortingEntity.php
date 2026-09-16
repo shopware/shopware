@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
@@ -30,10 +31,9 @@ class ProductSortingEntity extends Entity
     protected bool $locked;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
-     *
      * @return array<FieldSorting>
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'fallbackSorting', parameterType: '?' . FieldSorting::class, defaultValue: null)]
     public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
         $fallbackSorting = \func_num_args() === 1 ? func_get_arg(0) : null;

@@ -24,7 +24,7 @@ function resolveHook<T extends (...args: never[]) => unknown>(
     return hook?.handler;
 }
 
-function createMockServer(port: number): MockServer {
+function createMockServer(port: number, origin?: string): MockServer {
     const watcher = new EventEmitter() as EventEmitter & { add: ReturnType<typeof vi.fn> };
     watcher.add = vi.fn();
 
@@ -42,7 +42,7 @@ function createMockServer(port: number): MockServer {
 
     const server = {
         config: {
-            server: { port },
+            server: { port, origin },
             logger: {
                 info: vi.fn(),
                 warn: vi.fn(),
@@ -251,5 +251,45 @@ describe('devImportMapPlugin', () => {
         expect(next).toHaveBeenCalledOnce();
         expect(res.headers['Content-Type']).toBeUndefined();
         expect(res.body).toBe('');
+    });
+
+    it('prefers configured Vite origin for dev map URLs', async () => {
+        const pluginRoot = path.join(fixtureRoot, 'fourth-project');
+        const viteRoot = path.join(pluginRoot, 'src/Storefront/Resources/app/storefront');
+        const componentsRoot = path.join(pluginRoot, 'src/Storefront/Resources/views/components');
+        const varRoot = path.join(pluginRoot, 'var');
+        fs.mkdirSync(path.join(viteRoot, 'src'), { recursive: true });
+        fs.mkdirSync(path.join(componentsRoot, 'Sw/Header'), { recursive: true });
+        fs.mkdirSync(varRoot, { recursive: true });
+
+        fs.writeFileSync(path.join(viteRoot, 'src/shopware.ts'), 'export const test = true;');
+        fs.writeFileSync(path.join(componentsRoot, 'Sw/Header/Navbar.css'), '.navbar { color: red; }');
+        fs.writeFileSync(path.join(varRoot, 'plugins.json'), JSON.stringify({
+            Storefront: {
+                basePath: 'src/Storefront',
+                technicalName: 'storefront',
+            },
+        }));
+        fs.writeFileSync(path.join(varRoot, 'theme-files.json'), JSON.stringify({ themeId: 'test-theme-id' }));
+
+        const plugin = devImportMapPlugin(pluginRoot);
+        const server = createMockServer(5183, 'http://host.docker.internal:5183/');
+        (resolveHook(plugin.configResolved) as ((...args: unknown[]) => unknown) | undefined)?.call({}, { root: viteRoot } as never);
+        (resolveHook(plugin.configureServer) as ((...args: unknown[]) => unknown) | undefined)?.call({}, server);
+        server.httpServer.emit('listening');
+
+        const flagFile = path.join(pluginRoot, 'var/cache/storefront_components.dev.json');
+        await waitUntil(() => {
+            expect(fs.existsSync(flagFile)).toBe(true);
+        });
+
+        const devMap = JSON.parse(fs.readFileSync(flagFile, 'utf-8')) as {
+            imports: Record<string, string>;
+            styles: string[];
+        };
+
+        expect(devMap.imports['shopware']).toBe('http://host.docker.internal:5183/src/shopware.ts');
+        expect(devMap.styles).toContain('http://host.docker.internal:5183/theme-scss/all.css');
+        expect(devMap.styles).toContain('http://host.docker.internal:5183/__sw-comp-css/Sw/Header/Navbar.css');
     });
 });

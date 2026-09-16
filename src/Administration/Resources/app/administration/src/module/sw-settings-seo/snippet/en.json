@@ -3,8 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "SEO",
       "descriptionTextModule": "Manage SEO settings.",
-      "textHeadline": "SEO",
-      "buttonSave": "Save"
+      "textHeadline": "SEO"
     }
   },
   "sw-settings-seo-entity-detail": {
@@ -25,13 +24,18 @@
       "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
       "textUrlNoEntitiesForPreview": "No {entity} available.",
       "textUrlPreviewEmptyTemplate": "The template is empty, SEO URLs for {entity} won't be generated.",
-      "headlineInfoMessageBoxEmptyProperties": "Info",
-      "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity."
+      "textInfoMessageBoxEmptyProperties": "When using variables, make sure that data is available in all respective fields of the entities (products, landing pages or categories). If variables refer to empty fields, no SEO URLs will be created for the corresponding entity.",
+      "headlineExternalStorefrontRequired": "External storefront domain required",
+      "textExternalStorefrontRequired": "For headless sales channels, SEO URLs are only generated for domains that are marked as an external storefront. Add such a domain to the sales channel to enable SEO URLs.",
+      "linkExternalStorefrontDomain": "Open sales channel settings"
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page",
       "frontend-navigation-page": "Category page",
-      "frontend-landing-page": "Landing page"
+      "frontend-landing-page": "Landing page",
+      "store-api-product-detail": "Product detail page",
+      "store-api-category-detail": "Category page",
+      "store-api-landing-page-detail": "Landing page"
     }
   },
   "sw-seo-url": {
@@ -39,7 +43,8 @@
     "labelSalesChannelSelect": "Sales Channel",
     "labelSeoPathInfo": "SEO path",
     "textEmptySeoUrls": "There are no SEO URLs yet.",
-    "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to a headless Sales Channel.",
+    "textSeoUrlsNotSupported": "SEO URLs cannot be assigned to this type of Sales Channel.",
+    "errorInvalidCharacters": "The SEO path contains characters that are not allowed in URLs (for example #, \\ or a stray %).",
     "labelMainCategory": "Main category",
     "placeholderMainCategory": "Choose a main category..."
   }

@@ -67,7 +67,7 @@ class LineItemDimensionWeightRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_WEIGHT]);
     }
 
@@ -76,6 +76,10 @@ class LineItemDimensionWeightRule extends Rule
      */
     private function matchWeightDimension(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {

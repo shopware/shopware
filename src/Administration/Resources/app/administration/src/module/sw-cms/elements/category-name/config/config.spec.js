@@ -45,6 +45,7 @@ async function createWrapper(propsOverride) {
                     </div>
                 `,
                     },
+                    'mt-tabs': true,
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
@@ -90,6 +91,7 @@ describe('module/sw-cms/elements/category-name/config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity('category');
         Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_list',
         });

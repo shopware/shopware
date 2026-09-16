@@ -167,7 +167,7 @@
                                     params: { id: item.id, edit: 'edit' }
                                 }"
                             >
-                                {{ $t('sw-settings-tax.list.contextMenuEdit') }}
+                                {{ $t('global.default.edit') }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -178,7 +178,7 @@
                                 :disabled="!acl.can('tax.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
-                                {{ $t('sw-settings-tax.list.contextMenuDelete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -217,7 +217,7 @@
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
-                                        {{ $t('sw-settings-tax.list.buttonDelete') }}
+                                        {{ $t('global.default.delete') }}
                                     </mt-button>
                                     {% endblock %}
                                 </template>

@@ -8,7 +8,7 @@
     }
 } %}
 
-{% set product = services.store.search('product', criteria).first %}
+{% set product = services.store.search('product', criteria).getEntities().first %}
 
 {% do page.addExtension('myProduct', product) %}
 {% do page.addExtension('myManufacturer', product.manufacturer) %}

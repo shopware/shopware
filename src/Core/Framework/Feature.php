@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, majorVersion?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
 class Feature
@@ -22,7 +23,12 @@ class Feature
     public static bool $emitDeprecations = true;
 
     /**
-     * @var array<bool>
+     * @internal
+     */
+    public static ?Triggerer $triggerer = null;
+
+    /**
+     * @var array<string, true>
      */
     private static array $silent = [];
 
@@ -122,6 +128,9 @@ class Feature
      * With FEATURE_ALL you can activate either all minor or all major features.
      * FEATURE_ALL=1, FEATURE_ALL=minor or any other truthy values except 'false' equals minor
      * FEATURE_ALL=major puts it into major mode
+     * FEATURE_ALL=v6.8.0.0 puts it into major mode for a single target major: major flags arriving
+     * in v6.8.0.0 or earlier are active, later ones stay off. While two majors are in flight, this
+     * is what lets a test run validate one major's release state without the next one bleeding in.
      *
      * The specific feature configuration in the environment is always the highest priority, no matter the FEATURE_ALL configuration.
      */
@@ -134,7 +143,7 @@ class Feature
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
-            trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
+            (self::$triggerer ??= new Triggerer())->error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
         // Specific configurations are higher priority then FEATURE_ALL
@@ -142,18 +151,21 @@ class Feature
             return self::getFeatureInEnv($feature);
         }
 
-        $featureAll = EnvironmentHelper::getVariable('FEATURE_ALL', '');
+        $featureAll = (string) EnvironmentHelper::getVariable('FEATURE_ALL', '');
 
         // If FEATURE_ALL has any truthy value
-        if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
+        if (self::isTrue($featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
             // If feature is not major and is have set active, return the active state
             if (!self::getConfiguration($feature, 'major') && self::hasConfiguration($feature, 'active')) {
                 return self::getConfiguration($feature, 'active');
             }
 
+            $targetMajor = self::majorVersion($featureAll);
+
             // Should only enable major flags
-            if ($featureAll === Feature::ALL_MAJOR) {
-                return self::getConfiguration($feature, 'major');
+            if ($featureAll === Feature::ALL_MAJOR || $targetMajor !== null) {
+                return self::getConfiguration($feature, 'major')
+                    && ($targetMajor === null || self::arrivesInMajor($feature, $targetMajor));
             }
 
             // Enable all minor flags
@@ -266,11 +278,19 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
     {
-        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
+        if (!self::$emitDeprecations) {
             return;
         }
 
-        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
+        if (isset(self::$silent[$majorFlag])) {
+            return;
+        }
+
+        if (self::isActive($majorFlag)) {
+            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        }
+
+        if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
             throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
 
@@ -284,12 +304,12 @@ class Feature
         }
 
         if ($introducedIn === null) {
-            trigger_deprecation('', '', $message);
+            (self::$triggerer ??= new Triggerer())->deprecation('', '', $message);
 
             return;
         }
 
-        trigger_deprecation('shopware/core', $introducedIn, $message);
+        (self::$triggerer ??= new Triggerer())->deprecation('shopware/core', $introducedIn, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
@@ -438,6 +458,36 @@ class Feature
     private static function isTrue(string $value): bool
     {
         return $value && $value !== 'false';
+    }
+
+    /**
+     * The major a flag arrives in is either encoded in its name (`v6.8.0.0`) or declared explicitly
+     * via `majorVersion` for flags that are not named after their major (`JSON_LD_DATA`).
+     */
+    private static function arrivesInMajor(string $feature, string $targetMajor): bool
+    {
+        $declared = self::$registeredFeatures[$feature]['majorVersion'] ?? null;
+        $arrivesIn = self::majorVersion($feature) ?? ($declared === null ? null : self::majorVersion($declared));
+
+        // A major flag that names no target major belongs to every major, so it stays on in all of them.
+        if ($arrivesIn === null) {
+            return true;
+        }
+
+        return \version_compare($arrivesIn, $targetMajor, '<=');
+    }
+
+    /**
+     * Turns a version-shaped flag name or FEATURE_ALL value (`v6.8.0.0`, `V6_8_0_0`) into a
+     * comparable version, or null when it is not version-shaped (`major`, `minor`, `1`, ...).
+     */
+    private static function majorVersion(string $value): ?string
+    {
+        if (!\preg_match('/^V?(\d+(?:_\d+){1,3})$/', self::normalizeName($value), $matches)) {
+            return null;
+        }
+
+        return \str_replace('_', '.', $matches[1]);
     }
 
     private static function denormalize(string $name): string

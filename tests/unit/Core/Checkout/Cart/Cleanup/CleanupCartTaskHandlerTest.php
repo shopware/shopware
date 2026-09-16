@@ -13,8 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CleanupCartTaskHandler::class)]
 #[Package('checkout')]
+#[CoversClass(CleanupCartTaskHandler::class)]
 class CleanupCartTaskHandlerTest extends TestCase
 {
     public function testHandle(): void
@@ -25,8 +25,8 @@ class CleanupCartTaskHandlerTest extends TestCase
             ->with(30);
 
         $handler = new CleanupCartTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $cartPersister,
             30
         );

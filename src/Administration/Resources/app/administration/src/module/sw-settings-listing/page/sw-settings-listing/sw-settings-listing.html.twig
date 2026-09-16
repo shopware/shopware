@@ -42,7 +42,7 @@
             @update:process-success="saveFinish"
             @click="onSave"
         >
-            {{ $t('sw-settings-listing.general.buttonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -166,7 +166,6 @@
 
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_add_product_option %}
                             <mt-button
-                                ghost
                                 size="small"
                                 variant="secondary"
                                 @click="onAddNewProductSortingOption"
@@ -211,7 +210,6 @@
 
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_edit %}
                             <sw-context-menu-item
-                                :disabled="item.locked"
                                 @click="onEditProductSortingOption(item.id)"
                             >
                                 {{ $t('global.default.edit') }}
@@ -220,8 +218,9 @@
 
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
                             <sw-context-menu-item
+                                v-tooltip="getProductSortingOptionDeleteTooltip(item)"
                                 variant="danger"
-                                :disabled="item.locked || isItemDefaultSorting(item.id)"
+                                :disabled="!allowProductSortingOptionDelete(item)"
                                 @click="toBeDeletedProductSortingOption = item"
                             >
                                 {{ $t('global.default.delete') }}

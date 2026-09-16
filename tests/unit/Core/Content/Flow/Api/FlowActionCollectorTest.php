@@ -26,8 +26,8 @@ class FlowActionCollectorTest extends TestCase
 {
     public function testCollect(): void
     {
-        $addCustomerTag = new AddCustomerTagAction($this->createMock(EntityRepository::class));
-        $removeOrderTag = new RemoveOrderTagAction($this->createMock(EntityRepository::class));
+        $addCustomerTag = new AddCustomerTagAction(static::createStub(EntityRepository::class));
+        $removeOrderTag = new RemoveOrderTagAction(static::createStub(EntityRepository::class));
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->once())->method('dispatch');

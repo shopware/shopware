@@ -27,7 +27,10 @@ export default {
         'removeSwPageSidebarOffset',
     ],
 
-    emits: ['item-click'],
+    emits: [
+        'item-click',
+        'item-register',
+    ],
 
     props: {
         propagateWidth: {
@@ -158,6 +161,8 @@ export default {
 
             item.registerToggleActiveListener(this.setItemActive);
             item.registerCloseContentListener(this.closeSidebar);
+
+            this.$emit('item-register', item);
         },
 
         setItemActive(clickedItem) {

@@ -11,6 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed
+ */
 #[Package('after-sales')]
 class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
 {
@@ -19,6 +24,11 @@ class DocumentTypeTranslationDefinition extends EntityTranslationDefinition
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
+    }
+
+    public function getCollectionClass(): string
+    {
+        return DocumentTypeTranslationCollection::class;
     }
 
     public function getEntityClass(): string

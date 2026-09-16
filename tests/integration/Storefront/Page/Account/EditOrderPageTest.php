@@ -15,6 +15,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class EditOrderPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -95,6 +97,23 @@ class EditOrderPageTest extends TestCase
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
 
         static::assertCount(0, $page->getPaymentMethods());
+    }
+
+    public function testEditOrderPageSelectsThePaymentMethodOfTheOrder(): void
+    {
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $orderId = $this->placeRandomOrder($context);
+        $orderPaymentMethodId = $context->getPaymentMethod()->getId();
+
+        // the customer selected another payment method after the order was placed
+        $context->assign(['paymentMethod' => $this->createCustomPaymentMethod($context, [])]);
+
+        $request = new Request();
+        $request->attributes->set('orderId', $orderId);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertSame($orderPaymentMethodId, $page->getSelectedPaymentMethodId());
     }
 
     public function testEditPageNotAvailableOrderIsPaid(): void

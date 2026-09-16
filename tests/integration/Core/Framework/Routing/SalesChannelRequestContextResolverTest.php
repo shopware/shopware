@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
@@ -36,6 +37,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
+#[Package('framework')]
 class SalesChannelRequestContextResolverTest extends TestCase
 {
     use CustomerTestTrait;
@@ -422,6 +424,10 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $this->createSalesChannel([
             'id' => $this->ids->create('sales-channel'),
+            'currencies' => [
+                ['id' => Defaults::CURRENCY],
+                ['id' => $usdCurrencyId],
+            ],
             'domains' => [
                 [
                     'id' => $this->ids->get('eur-domain'),

@@ -300,7 +300,7 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string}>
+     * @return iterable<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string, addLoginPrompt?: bool}>
      */
     public static function createRedirectUrlTestDataProvider(): iterable
     {
@@ -344,7 +344,7 @@ class LoginConfigServiceTest extends TestCase
      */
     public function createLoginConfigService(array $rawConfig): LoginConfigService
     {
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturnCallback(static function ($name, $parameter) {
             return $name . '?' . \http_build_query($parameter);
         });

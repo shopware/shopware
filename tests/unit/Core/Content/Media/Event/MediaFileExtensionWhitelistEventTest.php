@@ -8,11 +8,13 @@ use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MediaFileExtensionWhitelistEvent::class)]
 class MediaFileExtensionWhitelistEventTest extends TestCase
 {
@@ -22,6 +24,17 @@ class MediaFileExtensionWhitelistEventTest extends TestCase
         $event = new MediaFileExtensionWhitelistEvent(['jpg'], $context);
 
         static::assertSame($context, $event->getContext());
+    }
+
+    public function testSetWhitelistReplacesTheWhitelist(): void
+    {
+        $event = new MediaFileExtensionWhitelistEvent(['jpg'], Context::createDefaultContext());
+
+        static::assertSame(['jpg'], $event->getWhitelist());
+
+        $event->setWhitelist(['jpg', 'png']);
+
+        static::assertSame(['jpg', 'png'], $event->getWhitelist());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

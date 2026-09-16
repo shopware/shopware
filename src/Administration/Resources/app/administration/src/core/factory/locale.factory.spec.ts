@@ -4,11 +4,31 @@
 
 import LocaleFactory from 'src/core/factory/locale.factory';
 
+const originalNavigatorLanguage = navigator.language;
+const originalNavigatorLanguages = navigator.languages;
+
+function setBrowserLanguages(language: string, languages: string[] = [language]) {
+    Object.defineProperty(window.navigator, 'language', {
+        value: language,
+        configurable: true,
+    });
+    Object.defineProperty(window.navigator, 'languages', {
+        value: languages,
+        configurable: true,
+    });
+}
+
 describe('core/factory/locale.factory.ts', () => {
     beforeEach(() => {
         // Clear the locale registry before each test
         const registry = LocaleFactory.getLocaleRegistry();
         registry.clear();
+
+        LocaleFactory.setSystemFallbackLocale(null);
+
+        window.localStorage.removeItem('sw-admin-locale');
+
+        setBrowserLanguages(originalNavigatorLanguage, [...originalNavigatorLanguages]);
 
         // Reset Shopware.Snippet mock
         Object.defineProperty(Shopware, 'Snippet', {
@@ -392,6 +412,45 @@ describe('core/factory/locale.factory.ts', () => {
             const registry2 = LocaleFactory.getLocaleRegistry();
 
             expect(registry1).toBe(registry2);
+        });
+    });
+
+    describe('getLastKnownLocale', () => {
+        it('should prefer the stored locale over the browser locale', () => {
+            LocaleFactory.setSystemFallbackLocale('de-DE');
+
+            window.localStorage.setItem('sw-admin-locale', 'fr-FR');
+
+            expect(LocaleFactory.getLastKnownLocale()).toBe('fr-FR');
+        });
+
+        it('should prefer the browser locale when it is registered', () => {
+            setBrowserLanguages('de-DE');
+
+            LocaleFactory.setSystemFallbackLocale('fr-FR');
+            LocaleFactory.register('en-GB', {});
+            LocaleFactory.register('de-DE', {});
+
+            expect(LocaleFactory.getLastKnownLocale()).toBe('de-DE');
+        });
+
+        it('should fall back to english when the browser locale is not registered', () => {
+            setBrowserLanguages('es-ES');
+
+            LocaleFactory.setSystemFallbackLocale('de-DE');
+            LocaleFactory.register('en-GB', {});
+            LocaleFactory.register('de-DE', {});
+
+            expect(LocaleFactory.getLastKnownLocale()).toBe('en-GB');
+        });
+
+        it('should fall back to the system locale when neither browser nor english are registered', () => {
+            setBrowserLanguages('es-ES');
+
+            LocaleFactory.setSystemFallbackLocale('de-DE');
+            LocaleFactory.register('de-DE', {});
+
+            expect(LocaleFactory.getLastKnownLocale()).toBe('de-DE');
         });
     });
 });

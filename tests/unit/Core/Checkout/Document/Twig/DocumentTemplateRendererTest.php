@@ -6,20 +6,27 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
+use Twig\Extension\CoreExtension;
+use Twig\Extra\Intl\IntlExtension;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
-#[CoversClass(DocumentTemplateRenderer::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentTemplateRenderer::class)]
 class DocumentTemplateRendererTest extends TestCase
 {
     private static bool $rendererParameterEventCalled = false;
@@ -47,13 +54,91 @@ class DocumentTemplateRendererTest extends TestCase
 
         $documentTemplateRenderer = new DocumentTemplateRenderer(
             $templateFinder,
-            $this->createMock(Environment::class),
-            $this->createMock(Translator::class),
-            $this->createMock(SalesChannelContextFactory::class),
+            static::createStub(TwigEnvironment::class),
+            static::createStub(Translator::class),
+            static::createStub(SalesChannelContextFactory::class),
             $eventDispatcher,
         );
 
         $salesChannelId = Uuid::randomHex();
         $documentTemplateRenderer->render('view', [], Context::createDefaultContext(), $salesChannelId, Uuid::randomHex(), 'en-GB');
+    }
+
+    public function testRenderUsesSalesChannelBusinessTimeZone(): void
+    {
+        $twig = $this->createTwig('{{ testDate|format_date(pattern="yyyy-MM-dd", locale="en-GB") }}');
+
+        $renderer = $this->createRenderer($twig, 'Europe/Berlin');
+
+        $result = $renderer->render(
+            'view',
+            ['testDate' => new \DateTimeImmutable('2026-01-01 23:30:00', new \DateTimeZone('UTC'))],
+            Context::createDefaultContext(),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            'en-GB'
+        );
+
+        static::assertSame('2026-01-02', $result);
+        static::assertSame('UTC', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
+    }
+
+    public function testRenderKeepsCurrentTimeZoneWithoutBusinessTimeZone(): void
+    {
+        $twig = $this->createTwig('{{ testDate|format_date(pattern="yyyy-MM-dd", locale="en-GB") }}');
+
+        $renderer = $this->createRenderer($twig, null);
+
+        $result = $renderer->render(
+            'view',
+            ['testDate' => new \DateTimeImmutable('2026-01-01 23:30:00', new \DateTimeZone('UTC'))],
+            Context::createDefaultContext(),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            'en-GB'
+        );
+
+        static::assertSame('2026-01-01', $result);
+        static::assertSame('UTC', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
+    }
+
+    private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
+    {
+        $templateFinder = static::createStub(TemplateFinder::class);
+        $templateFinder->method('find')->willReturnArgument(0);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setBusinessTimeZone($businessTimeZone);
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
+
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
+        $contextFactory->method('create')->willReturn($salesChannelContext);
+
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        return new DocumentTemplateRenderer(
+            $templateFinder,
+            $twig,
+            static::createStub(AbstractTranslator::class),
+            $contextFactory,
+            $eventDispatcher,
+        );
+    }
+
+    private function createTwig(string $template): TwigEnvironment
+    {
+        $twig = new TwigEnvironment(new ArrayLoader([
+            'view' => $template,
+        ]));
+        $twig->addExtension(new IntlExtension());
+
+        /** @var CoreExtension $coreExtension */
+        $coreExtension = $twig->getExtension(CoreExtension::class);
+        $coreExtension->setTimezone('UTC');
+
+        return $twig;
     }
 }

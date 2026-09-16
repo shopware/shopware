@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class QueueTestBehaviourTest extends TestCase
 {
     use KernelTestBehaviour;

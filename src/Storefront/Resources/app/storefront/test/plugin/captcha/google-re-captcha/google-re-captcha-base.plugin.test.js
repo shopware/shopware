@@ -374,6 +374,50 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         });
     });
 
+    describe('AJAX response handling', () => {
+        beforeEach(() => {
+            googleReCaptchaBasePlugin._executeGoogleReCaptchaInitialization();
+        });
+
+        test('_onFormAjaxResponse re-enables submitting and resets the captcha', () => {
+            googleReCaptchaBasePlugin._formSubmitting = true;
+            const resetSpy = jest.spyOn(googleReCaptchaBasePlugin, 'resetGreCaptcha');
+
+            googleReCaptchaBasePlugin._onFormAjaxResponse();
+
+            expect(googleReCaptchaBasePlugin._formSubmitting).toBe(false);
+            expect(resetSpy).toHaveBeenCalledTimes(1);
+        });
+
+        test.each([
+            'onFormResponse',
+            'onAfterAjaxSubmit',
+        ])('resets the captcha when the form emits "%s"', (eventName) => {
+            googleReCaptchaBasePlugin._formSubmitting = true;
+            const resetSpy = jest.spyOn(googleReCaptchaBasePlugin, 'resetGreCaptcha');
+
+            googleReCaptchaBasePlugin._form.dispatchEvent(new CustomEvent(eventName));
+
+            expect(googleReCaptchaBasePlugin._formSubmitting).toBe(false);
+            expect(resetSpy).toHaveBeenCalledTimes(1);
+        });
+
+        test('base resetGreCaptcha is a no-op that does not throw', () => {
+            expect(() => googleReCaptchaBasePlugin.resetGreCaptcha()).not.toThrow();
+        });
+
+        test('destroy removes the response listeners', () => {
+            const resetSpy = jest.spyOn(googleReCaptchaBasePlugin, 'resetGreCaptcha');
+            const form = googleReCaptchaBasePlugin._form;
+
+            googleReCaptchaBasePlugin.destroy();
+            form.dispatchEvent(new CustomEvent('onFormResponse'));
+            form.dispatchEvent(new CustomEvent('onAfterAjaxSubmit'));
+
+            expect(resetSpy).not.toHaveBeenCalled();
+        });
+    });
+
     describe('_submitInvisibleForm validation', () => {
         beforeEach(() => {
             googleReCaptchaBasePlugin._executeGoogleReCaptchaInitialization();

@@ -4,7 +4,7 @@
  */
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
-import getBlockDataScope from './get-block-data-scope';
+import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 async function createWrapper({
     extensions = '',
@@ -18,7 +18,7 @@ async function createWrapper({
         {
             template: `
             <div class="component-root">
-                <sw-block name="test-extension-point" :data="$dataScope()">
+                <sw-block name="test-extension-point" :data="$dataScope">
                     ${defaultContent}
                 </sw-block>
             </div>
@@ -41,9 +41,7 @@ async function createWrapper({
         },
         {
             global: {
-                mocks: {
-                    $dataScope: getBlockDataScope,
-                },
+                plugins: [createDataScopeFixture()],
             },
         },
     );
@@ -355,6 +353,37 @@ describe('sw-block', () => {
         expect(wrapper.find('.default-content').text()).toBe('abc');
     });
 
+    it('updates parent override content when a nested override triggers its own reactive state', async () => {
+        const { wrapper } = await createWrapper({
+            extraData: {
+                firstCount: 1,
+                secondCount: 10,
+            },
+            extensions: `
+                <sw-block extends="test-extension-point">
+                    <sw-block-parent/>
+                    <p class="first-count">{{ firstCount }}</p>
+                    <button class="first-increment" @click="firstCount += 1">Increment first</button>
+                </sw-block>
+                <sw-block extends="test-extension-point">
+                    <sw-block-parent/>
+                    <p class="second-count">{{ secondCount }}</p>
+                    <button class="second-increment" @click="secondCount += 1">Increment second</button>
+                </sw-block>
+            `,
+        });
+
+        await wrapper.get('.first-increment').trigger('click');
+
+        expect(wrapper.get('.first-count').text()).toBe('2');
+        expect(wrapper.get('.second-count').text()).toBe('10');
+
+        await wrapper.get('.second-increment').trigger('click');
+
+        expect(wrapper.get('.first-count').text()).toBe('2');
+        expect(wrapper.get('.second-count').text()).toBe('11');
+    });
+
     it('has access to the component data scope', async () => {
         const { wrapper } = await createWrapper({
             extraData: {
@@ -409,7 +438,7 @@ describe('sw-block', () => {
             const wrapper = await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
+                        <sw-block :name="blockName" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -421,7 +450,9 @@ describe('sw-block', () => {
                     },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        plugins: [createDataScopeFixture()],
+                    },
                 },
             );
 
@@ -437,7 +468,7 @@ describe('sw-block', () => {
             await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
+                        <sw-block :name="blockName" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -449,7 +480,9 @@ describe('sw-block', () => {
                     },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        plugins: [createDataScopeFixture()],
+                    },
                 },
             );
 

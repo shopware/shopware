@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-type MessageData array{
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityIndexingMessage::class)]
 class EntityIndexingMessageTest extends TestCase
 {

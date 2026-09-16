@@ -3,12 +3,13 @@
 namespace Shopware\Core\Maintenance\User\Command;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\System\User\UserCollection;
@@ -18,17 +19,20 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'user:list',
     description: 'List current users',
 )]
-#[Package('framework')]
 class UserListCommand extends Command
 {
+    use OutputFormatTrait;
+
     /**
      * @param EntityRepository<UserCollection> $userRepository
      */
@@ -39,13 +43,28 @@ class UserListCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('json', null, InputOption::VALUE_NONE, 'Return users as json');
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        /** @deprecated tag:v6.8.0 - Use `--format json` instead */
+        $this->addOption('json', null, InputOption::VALUE_NONE, '[DEPRECATED] Use `--format json` instead.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+
+        if ($input->getOption('json')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--json" option of the "user:list" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
+            );
+            $input->setOption('format', self::FORMAT_JSON);
+        }
+
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        if ($format === null) {
+            return self::INVALID;
+        }
 
         $criteria = new Criteria();
         $criteria->addAssociation('aclRoles');
@@ -53,7 +72,7 @@ class UserListCommand extends Command
 
         $result = $this->userRepository->search($criteria, $context);
 
-        if ($input->getOption('json')) {
+        if ($format === self::FORMAT_JSON) {
             $output->write(json_encode($this->mapUsersToJson($result->getEntities()), \JSON_THROW_ON_ERROR));
 
             return self::SUCCESS;

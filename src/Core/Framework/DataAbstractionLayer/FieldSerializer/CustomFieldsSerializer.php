@@ -46,7 +46,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             return;
         }
 
-        if (empty($attributes)) {
+        if ($attributes === []) {
             yield $field->getStorageName() => '{}';
 
             return;
@@ -109,43 +109,43 @@ class CustomFieldsSerializer extends JsonFieldSerializer
      */
     private function extractJsonUpdate(array $data, EntityExistence $existence, WriteParameterBag $parameters): void
     {
-        foreach ($data as $storageName => $attributes) {
-            $entityName = $existence->getEntityName();
-            if (!$entityName) {
-                continue;
-            }
+        $entityName = $existence->getEntityName();
+        if (!$entityName) {
+            return;
+        }
 
-            $definition = $this->definitionRegistry->getByEntityName($entityName);
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
 
-            $pks = array_combine(
+        $pks = array_combine(
+            array_keys($existence->getPrimaryKey()),
+            array_map(
+                static function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
+                    $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
+                    $field = $definition->getFields()->getByStorageName($pkFieldStorageName);
+
+                    if (!$field instanceof Field) {
+                        return $pkFieldValue;
+                    }
+
+                    return $field->getSerializer()->encode(
+                        $field,
+                        $existence,
+                        new KeyValuePair(key: $field->getPropertyName(), value: $pkFieldValue, isRaw: true),
+                        $parameters,
+                    )->current();
+                },
                 array_keys($existence->getPrimaryKey()),
-                array_map(
-                    static function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
-                        $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
-                        /** @var Field|null $field */
-                        $field = $definition->getFields()->getByStorageName($pkFieldStorageName);
-                        if (!$field) {
-                            return $pkFieldValue;
-                        }
+            ),
+        );
 
-                        return $field->getSerializer()->encode(
-                            $field,
-                            $existence,
-                            new KeyValuePair($field->getPropertyName(), $pkFieldValue, true),
-                            $parameters,
-                        )->current();
-                    },
-                    array_keys($existence->getPrimaryKey()),
-                ),
-            );
-
+        foreach ($data as $storageName => $attributes) {
             $jsonUpdateCommand = new JsonUpdateCommand(
-                $definition,
-                $storageName,
-                $attributes,
-                $pks,
-                $existence,
-                $parameters->getPath()
+                definition: $definition,
+                storageName: $storageName,
+                payload: $attributes,
+                primaryKey: $pks,
+                existence: $existence,
+                path: $parameters->getPath()
             );
 
             $identifier = WriteCommandQueue::hashedPrimary(

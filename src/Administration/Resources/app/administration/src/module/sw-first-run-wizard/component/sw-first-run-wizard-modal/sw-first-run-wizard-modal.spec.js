@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package fundamentals@after-sales
  */
@@ -396,7 +398,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
+        const closeButton = wrapper.find('[aria-label="global.default.close"]');
 
         expect(closeButton.exists()).toBe(false);
     });
@@ -406,7 +408,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         const wrapper = await createWrapper();
         await flushPromises();
-        const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
+        const closeButton = wrapper.find('[aria-label="global.default.close"]');
 
         expect(closeButton.exists()).toBe(true);
     });
@@ -417,7 +419,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
+        const closeButton = wrapper.find('[aria-label="global.default.close"]');
 
         jest.spyOn(wrapper.vm.$router, 'push');
 
@@ -438,7 +440,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
         wrapper.vm.onExtensionActivated();
-        const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
+        const closeButton = wrapper.find('[aria-label="global.default.close"]');
 
         jest.spyOn(wrapper.vm.$router, 'push');
 
@@ -461,7 +463,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         await flushPromises();
 
         jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
-        const closeButton = wrapper.find('[aria-label="global.sw-modal.labelClose"]');
+        const closeButton = wrapper.find('[aria-label="global.default.close"]');
 
         jest.spyOn(wrapper.vm.$router, 'push');
 

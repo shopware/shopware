@@ -6,10 +6,9 @@ const {
 const { ShopwareError } = Shopware.Classes;
 
 /**
- * @internal
+ * @private
  * @sw-package framework
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     name: 'sw-user-sso-invitation-modal',
     template,

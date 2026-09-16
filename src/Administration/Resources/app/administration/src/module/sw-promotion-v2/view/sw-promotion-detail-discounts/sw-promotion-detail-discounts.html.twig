@@ -13,7 +13,6 @@
                 showOnDisabledElements: true
             }"
             :is-loading="isLoading"
-            ghost
             :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
             variant="secondary"
             @click="onAddDiscount"

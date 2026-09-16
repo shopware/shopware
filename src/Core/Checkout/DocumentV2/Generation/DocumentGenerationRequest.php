@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\Clock;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 final readonly class DocumentGenerationRequest
@@ -28,12 +28,13 @@ final readonly class DocumentGenerationRequest
      */
     public function __construct(
         public string $orderId,
-        public string $orderVersionId,
         DocumentType|string $documentType,
         array $requestedFormats,
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
         ?string $documentDate = null,
+        public ?string $deliveryDate = null,
+        public ?string $referencedDocumentId = null,
     ) {
         $this->documentDate = $documentDate ?? Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
@@ -48,12 +49,13 @@ final readonly class DocumentGenerationRequest
     {
         return new self(
             $this->orderId,
-            $this->orderVersionId,
             $this->documentType,
             $this->requestedFormats,
             $documentNumber,
             $this->documentComment,
             $this->documentDate,
+            $this->deliveryDate,
+            $this->referencedDocumentId,
         );
     }
 }

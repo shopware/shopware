@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\TokenParser\IconTokenParser;
 use Twig\Extension\AbstractExtension;
 
-#[Package('framework')]
+#[Package('discovery')]
 class IconExtension extends AbstractExtension
 {
     /**

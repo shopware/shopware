@@ -138,7 +138,7 @@ MyPlugin/
   src/
     Resources/
       config/
-        services.xml
+        services.php
       views/
         components/
           Button/

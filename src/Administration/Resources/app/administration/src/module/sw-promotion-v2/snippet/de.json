@@ -12,7 +12,7 @@
             "columnName": "Name",
             "columnValidFrom": "Gültig von",
             "columnValidUntil": "Gültig bis",
-            "titleEmpty": "Noch keine Rabattaktionen.",
+            "titleEmpty": "Noch keine Rabattaktionen",
             "descriptionEmpty": "Steigere Deinen Umsatz durch Rabatte auf Deine Produkte und Leistungen.",
             "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
             "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
@@ -100,6 +100,7 @@
                             "labelCodeAmount": "Anzahl der Aktionscodes",
                             "notComplexEnoughException": "Die angeforderte Anzahl von Aktionscodes konnte nicht erstellt werden. Stelle sicher, dass das Muster ausreichend komplex ist. Um zu gewährleisten, dass die Aktionscodes ausreichend zufällig sind, dürfen höchstens 50% aller möglichen Codes generiert werden.",
                             "alreadyInUseException": "Das gewählte Code-Muster existiert bereits in einer anderen Aktion. Bitte gebe ein anderes Muster an.",
+                            "invalidPatternException": "Das Code-Muster muss mindestens eine Variable enthalten (%s oder %d).",
                             "unknownErrorCode": "Beim Generieren von Promotion-Codes ist etwas schiefgelaufen. Bitte verwende die Entwickler-Tools für weitere Informationen."
                         }
                     }
@@ -117,10 +118,13 @@
                     "placeholderPromotionSalesChannel": "Verkaufskanal hinzufügen ...",
                     "labelCustomerSelect": "Kunden-Regeln",
                     "placeholderCustomerSelect": "Wähle Kunden-Regeln aus ...",
+                    "helpTextCustomerSelect": "Wenn eine Kunden-Regel die Einlösung verhindert und kein Kunde angemeldet ist, wird automatisch ein Login-Hinweis angezeigt. Für alle anderen Fälle kann eine individuelle Meldung über ein Storefront-Snippet mit dem Schlüssel \"checkout.promotion-not-eligible-{ruleId}\" hinterlegt werden.",
                     "labelCartConditionSelect": "Warenkorb-Regeln",
                     "placeholderCartConditionSelect": "Wähle Warenkorb-Regeln aus ...",
+                    "helpTextCartConditionSelect": "Um eine individuelle Fehlermeldung anzuzeigen, wenn eine Warenkorb-Regel die Einlösung verhindert, kann ein Storefront-Snippet mit dem Schlüssel \"checkout.promotion-not-eligible-{ruleId}\" angelegt werden.",
                     "labelOrderConditionSelect": "Bestellungs-Regeln",
-                    "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ..."
+                    "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ...",
+                    "helpTextOrderConditionSelect": "Um eine individuelle Fehlermeldung anzuzeigen, wenn eine Bestellungs-Regel die Einlösung verhindert, kann ein Storefront-Snippet mit dem Schlüssel \"checkout.promotion-not-eligible-{ruleId}\" angelegt werden."
                 },
                 "setgroups": {
                     "switchGroupsEnabled": "Aktion auf Produkt-Sets anwenden",
@@ -216,7 +220,6 @@
                 },
                 "pricesModal": {
                     "advancedPricesHeader": "Erweiterte Preise",
-                    "closeModal": "Schließen",
                     "labelCurrency": "Währung",
                     "labelPrice": "Wert",
                     "linkAdvancedPrices": "Erweiterte Preisansicht öffnen"
@@ -284,7 +287,6 @@
                     "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
                     "pricesModal": {
                         "advancedPricesHeader": "Erweiterte Preise",
-                        "closeModal": "Schließen",
                         "labelCurrency": "Währung",
                         "labelPrice": "Wert"
                     }

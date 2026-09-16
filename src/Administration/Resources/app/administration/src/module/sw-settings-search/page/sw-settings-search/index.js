@@ -13,6 +13,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -71,6 +72,30 @@ export default {
 
         allowSave() {
             return this.acl.can('product_search_config.editor') || this.acl.can('product_search_config.creator');
+        },
+
+        settingsSearchTabs() {
+            const createRouteTab = (label, routeName, callback) => {
+                const route = {
+                    name: routeName,
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        callback?.();
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-settings-search.page.generalTab', 'sw.settings.search.index.general', () => {
+                    this.onTabChange();
+                }),
+                createRouteTab('sw-settings-search.page.liveSearchTab', 'sw.settings.search.index.liveSearch'),
+            ];
         },
 
         tooltipSave() {

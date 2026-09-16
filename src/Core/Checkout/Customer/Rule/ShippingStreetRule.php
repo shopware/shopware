@@ -35,7 +35,10 @@ class ShippingStreetRule extends Rule
             return false;
         }
 
-        if (!$location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
+        $location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()
+            ?? $scope->getCustomer()?->getActiveShippingAddress();
+
+        if (!$location) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

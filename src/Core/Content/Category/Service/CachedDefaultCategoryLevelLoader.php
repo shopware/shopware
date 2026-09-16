@@ -79,16 +79,24 @@ class CachedDefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInte
             return $this->inner->loadLevels($rootId, $rootLevel, $context, $criteria, $depth);
         }
 
+        $fresh = null;
+
         $compressed = $this->cache->get(
             $cacheKey,
-            function (ItemInterface $item) use ($rootId, $rootLevel, $context, $criteria, $depth): string {
+            function (ItemInterface $item) use ($rootId, $rootLevel, $context, $criteria, $depth, &$fresh): string {
                 $item->tag(self::CACHE_TAG);
 
-                return CacheValueCompressor::compress(
-                    $this->inner->loadLevels($rootId, $rootLevel, $context, $criteria, $depth),
-                );
+                $fresh = $this->inner->loadLevels($rootId, $rootLevel, $context, $criteria, $depth);
+
+                return CacheValueCompressor::compress($fresh);
             }
         );
+
+        // the levels were built in this call, return them directly instead of
+        // uncompressing the cache payload that was just compressed from them
+        if ($fresh instanceof CategoryCollection) {
+            return $fresh;
+        }
 
         $categories = CacheValueCompressor::uncompress($compressed);
         \assert($categories instanceof CategoryCollection);

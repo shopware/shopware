@@ -83,3 +83,20 @@ The sliding direction can be left or right.
         }
     }
 }
+
+@include media-breakpoint-down(sm) {
+    .offcanvas {
+        &.offcanvas-start .offcanvas-close {
+            gap: $spacer-sm;
+        }
+
+        .offcanvas-close {
+            white-space: normal;
+            line-height: normal;
+
+            .icon {
+                flex: 0 0 auto;
+            }
+        }
+    }
+}

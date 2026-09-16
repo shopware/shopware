@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Service\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallServicesTask::class)]
 class InstallServicesTaskTest extends TestCase
 {

@@ -12,10 +12,7 @@
       "columnTemplate": "Template",
       "columnDescription": "Description",
       "buttonAddEssentialCharacteristics": "Create new",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted.",
-      "buttonDelete": "Delete"
+      "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted."
     },
     "detail": {
       "textHeadline": "New template",
@@ -28,7 +25,6 @@
       "labelValues": "Values",
       "placeholderName": "Enter a template name...",
       "placeholderDescription": "Enter a description...",
-      "buttonSave": "Save",
       "notificationErrorMessage": "An error occurred while saving your product essential characteristic template.",
       "labelCreateNew": "Add values"
     },

@@ -5,11 +5,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Increment;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class MySQLIncrementerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -18,7 +21,7 @@ class MySQLIncrementerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mysqlIncrementer = new MySQLIncrementer(static::getContainer()->get(Connection::class));
+        $this->mysqlIncrementer = new MySQLIncrementer(static::getContainer()->get(Connection::class), new NativeClock());
         $this->mysqlIncrementer->setPool('user-activity-pool');
     }
 
@@ -29,13 +32,13 @@ class MySQLIncrementerTest extends TestCase
         $list = $this->mysqlIncrementer->list('test-user-1');
 
         static::assertNotNull($list['sw.product.index']);
-        static::assertSame('1', $list['sw.product.index']['count']);
+        static::assertSame(1, $list['sw.product.index']['count']);
 
         $this->mysqlIncrementer->increment('test-user-1', 'sw.product.index');
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('2', $list['sw.product.index']['count']);
+        static::assertSame(2, $list['sw.product.index']['count']);
     }
 
     public function testDecrement(): void
@@ -46,13 +49,13 @@ class MySQLIncrementerTest extends TestCase
         $list = $this->mysqlIncrementer->list('test-user-1');
 
         static::assertNotNull($list['sw.product.index']);
-        static::assertSame('2', $list['sw.product.index']['count']);
+        static::assertSame(2, $list['sw.product.index']['count']);
 
         $this->mysqlIncrementer->decrement('test-user-1', 'sw.product.index');
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('1', $list['sw.product.index']['count']);
+        static::assertSame(1, $list['sw.product.index']['count']);
     }
 
     public function testList(): void
@@ -63,9 +66,9 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('2', array_values($list)[0]['count']);
+        static::assertSame(2, array_values($list)[0]['count']);
         static::assertSame('sw.product.index', array_values($list)[0]['key']);
-        static::assertSame('1', array_values($list)[1]['count']);
+        static::assertSame(1, array_values($list)[1]['count']);
 
         // List will return in DESC order of record's count
         $this->mysqlIncrementer->increment('test-user-1', 'sw.order.index');
@@ -73,9 +76,9 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('3', array_values($list)[0]['count']);
+        static::assertSame(3, array_values($list)[0]['count']);
         static::assertSame('sw.order.index', array_values($list)[0]['key']);
-        static::assertSame('2', array_values($list)[1]['count']);
+        static::assertSame(2, array_values($list)[1]['count']);
     }
 
     public function testReset(): void
@@ -91,22 +94,22 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('0', $list['sw.product.index']['count']);
+        static::assertSame(0, $list['sw.product.index']['count']);
 
         $this->mysqlIncrementer->increment('test-user-1', 'sw.order.index');
         $this->mysqlIncrementer->increment('test-user-1', 'sw.product.index');
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('1', $list['sw.product.index']['count']);
-        static::assertSame('1', $list['sw.order.index']['count']);
+        static::assertSame(1, $list['sw.product.index']['count']);
+        static::assertSame(1, $list['sw.order.index']['count']);
 
         $this->mysqlIncrementer->reset('test-user-1', 'sw.order.index');
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertSame('1', $list['sw.product.index']['count']);
-        static::assertSame('0', $list['sw.order.index']['count']);
+        static::assertSame(1, $list['sw.product.index']['count']);
+        static::assertSame(0, $list['sw.order.index']['count']);
     }
 
     public function testDeleteKeys(): void
@@ -127,7 +130,7 @@ class MySQLIncrementerTest extends TestCase
                 'pool' => 'user-activity-pool',
                 'cluster' => 'test-user-1',
                 'key' => 'sw.product.create',
-                'count' => '1',
+                'count' => 1,
             ],
         ], $list);
     }

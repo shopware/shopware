@@ -4,12 +4,12 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -94,7 +94,6 @@ class CheckoutControllerTest extends TestCase
      * @param string|float|int|bool|null $customerComment
      */
     #[DataProvider('customerComments')]
-    #[Group('slow')]
     public function testOrderCustomerComment($customerComment, ?string $savedCustomerComment): void
     {
         $order = $this->performOrder($customerComment);
@@ -343,7 +342,7 @@ class CheckoutControllerTest extends TestCase
     {
         /** @var EntityRepository<ShippingMethodCollection> */
         $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $shippingMethods = $shippingMethodRepository->search(new Criteria(), Context::createDefaultContext());
+        $shippingMethods = $shippingMethodRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         $standardShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_standard')->first()?->getId();
         $expressShippingMethodId = $shippingMethods->filter(static fn (ShippingMethodEntity $sm) => $sm->getTechnicalName() === 'shipping_express')->first()?->getId();
         static::assertNotNull($standardShippingMethodId, 'Standard shipping method not found');
@@ -351,7 +350,7 @@ class CheckoutControllerTest extends TestCase
 
         /** @var EntityRepository<PaymentMethodCollection> */
         $paymentMethodRepository = static::getContainer()->get('payment_method.repository');
-        $paymentMethods = $paymentMethodRepository->search(new Criteria(), Context::createDefaultContext());
+        $paymentMethods = $paymentMethodRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         $cashOnDeliveryPaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_cashpayment')->first()?->getId();
         $paidInAdvancePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_prepayment')->first()?->getId();
         $invoicePaymentMethodId = $paymentMethods->filter(static fn (PaymentMethodEntity $pm) => $pm->getTechnicalName() === 'payment_invoicepayment')->first()?->getId();
@@ -528,7 +527,7 @@ class CheckoutControllerTest extends TestCase
             '/checkout/cart'
         );
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -555,6 +554,38 @@ class CheckoutControllerTest extends TestCase
         static::assertCount(1, $crawler->filterXPath('//button[@id="addProductButton"]'));
         static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionInput" and not(@required)]'));
         static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotion"]'));
+    }
+
+    public function testCartJsonLoadsTheCartOnce(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+
+        $loadedCarts = [];
+        $tracker = static function (CartLoadedEvent $event) use (&$loadedCarts): void {
+            $loadedCarts[] = $event->getCart()->getToken();
+        };
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $dispatcher->addListener(CartLoadedEvent::class, $tracker);
+
+        try {
+            $browser->request('GET', '/checkout/cart.json');
+        } finally {
+            $dispatcher->removeListener(CartLoadedEvent::class, $tracker);
+        }
+
+        static::assertCount(1, $loadedCarts);
+
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['lineItems']);
+        static::assertNotEmpty($response['hash']);
     }
 
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void

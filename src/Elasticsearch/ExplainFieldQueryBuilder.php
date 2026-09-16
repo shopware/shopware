@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch;
 
 use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -39,10 +40,24 @@ class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
             return $query;
         }
 
+        // Text fields produce a DisMax whose individual clauses are already
+        // named with their match type by FieldQueryBuilder — don't add a
+        // second, type-less name on top of it.
+        if ($query instanceof DisMaxQuery) {
+            return $query;
+        }
+
+        // A nested / leaf field query is named at the field level, so its matched-query
+        // score already carries the field weight (the query's boost is the field ranking).
+        // A text field's DisMax (handled above) instead names its individual clauses, whose
+        // scores are the raw relevance without the field weight. Flag the difference so the
+        // preview can put every field on the same footing when it draws the bars.
         $explainPayload = json_encode([
             'field' => $config->getField(),
             'term' => $token,
             'ranking' => $config->getRanking(),
+            'type' => $config->isPhrase() ? 'phrase' : 'exact',
+            'weighted' => true,
         ]);
 
         if ($query instanceof NestedQuery) {

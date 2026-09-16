@@ -15,6 +15,8 @@ import './sw-notifications.scss';
 export default {
     template,
 
+    mixins: [Shopware.Mixin.getByName('notification-translation')],
+
     inject: ['feature'],
 
     props: {

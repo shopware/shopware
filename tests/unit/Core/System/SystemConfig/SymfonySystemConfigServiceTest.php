@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SymfonySystemConfigService::class)]
 class SymfonySystemConfigServiceTest extends TestCase
 {

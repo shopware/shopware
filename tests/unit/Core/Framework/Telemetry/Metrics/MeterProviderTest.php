@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Telemetry\Metrics;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\MeterProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MeterProvider::class)]
 class MeterProviderTest extends TestCase
 {
@@ -22,7 +24,7 @@ class MeterProviderTest extends TestCase
     protected function setUp(): void
     {
         $this->container = $this->createMock(ContainerInterface::class);
-        $this->meter = $this->createMock(Meter::class);
+        $this->meter = static::createStub(Meter::class);
     }
 
     public function testBindMeter(): void

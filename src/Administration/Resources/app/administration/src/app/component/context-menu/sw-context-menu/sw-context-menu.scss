@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-context-menu-color-border: var(--color-border-primary-default);
+$sw-context-menu-color-border: var(--color-border-secondary-default);
 $sw-context-menu-color-text: var(--color-text-primary-default);
 $sw-context-menu-color-active: var(--color-interaction-primary-default);
 $sw-context-menu-z-index: $z-index-context-menu;
@@ -28,7 +28,7 @@ $sw-context-menu-z-index: $z-index-context-menu;
         border: 1px solid $sw-context-menu-color-border;
         border-radius: 4px;
         text-align: left;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: $sw-context-menu-color-text;
         position: relative;
 

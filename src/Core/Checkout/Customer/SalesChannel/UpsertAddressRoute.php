@@ -33,10 +33,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
 {
+    use CustomerAddressDataNormalizerTrait;
     use CustomerAddressValidationTrait;
 
     /**
@@ -120,6 +121,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];
+
+        $addressData = $this->trimAddressFields($addressData);
 
         if ($data->get('customFields') instanceof RequestDataBag) {
             $addressData['customFields'] = $this->storeApiCustomFieldMapper->map(

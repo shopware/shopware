@@ -9,6 +9,7 @@ use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * @internal
  */
+#[Package('framework')]
 class NotificationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -72,7 +74,7 @@ class NotificationRepositoryTest extends TestCase
             return;
         }
 
-        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context);
+        $result = $this->notificationRepository->search(new Criteria([$id]), $this->context)->getEntities();
 
         /** @var NotificationEntity $notification */
         $notification = $result->get($id);

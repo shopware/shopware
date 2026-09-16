@@ -50,7 +50,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern?: bool, validVat?: bool}
- * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool}
+ * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, fileTypes: array<string>}
  */
 #[Package('after-sales')]
 #[CoversClass(InvoiceRenderer::class)]
@@ -77,10 +77,10 @@ class InvoiceRendererTest extends TestCase
 
         $documentConfigSearchResult = $this->createDocumentConfigSearchResult($config, $context);
 
-        $documentConfigRepository = $this->createMock(EntityRepository::class);
+        $documentConfigRepository = static::createStub(EntityRepository::class);
         $documentConfigRepository->method('search')->willReturn($documentConfigSearchResult);
 
-        $documentConfigLoaderMock = new DocumentConfigLoader($documentConfigRepository, $this->createMock(EntityRepository::class));
+        $documentConfigLoaderMock = new DocumentConfigLoader($documentConfigRepository, static::createStub(EntityRepository::class));
 
         $ordersLanguageId = [
             [
@@ -88,13 +88,13 @@ class InvoiceRendererTest extends TestCase
                 'ids' => $orderId,
             ],
         ];
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn($ordersLanguageId);
 
-        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock = static::createStub(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         if (isset($orderSettings['shouldCheckVatIdPattern']) && $orderSettings['shouldCheckVatIdPattern']) {
             $validator->method('validate')->willReturnCallback(static function () use ($orderSettings) {
                 if ($orderSettings['validVat'] ?? false) {
@@ -119,10 +119,10 @@ class InvoiceRendererTest extends TestCase
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
-            $this->createMock(DocumentFileRendererRegistry::class),
+            static::createStub(DocumentFileRendererRegistry::class),
             $validator,
             new NativeClock()
         );
@@ -180,12 +180,12 @@ class InvoiceRendererTest extends TestCase
             ],
         ];
 
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn($ordersLanguageId);
 
         $userCallCount = 0;
 
-        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock = static::createStub(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturnCallback(static function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
             ++$userCallCount;
 
@@ -206,12 +206,12 @@ class InvoiceRendererTest extends TestCase
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
-            new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class)),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(ValidatorInterface::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(ValidatorInterface::class),
             new NativeClock()
         );
 
@@ -245,7 +245,7 @@ class InvoiceRendererTest extends TestCase
         $orderCollection = new OrderCollection([$order]);
         $orderSearchResult = new EntitySearchResult(OrderDefinition::ENTITY_NAME, 1, $orderCollection, null, new Criteria(), $context);
 
-        $connectionMock = $this->createMock(Connection::class);
+        $connectionMock = static::createStub(Connection::class);
         $connectionMock->method('fetchAllAssociative')->willReturn([
             [
                 'language_id' => Defaults::LANGUAGE_SYSTEM,
@@ -253,19 +253,19 @@ class InvoiceRendererTest extends TestCase
             ],
         ]);
 
-        $orderRepositoryMock = $this->createMock(EntityRepository::class);
+        $orderRepositoryMock = static::createStub(EntityRepository::class);
         $orderRepositoryMock->method('search')->willReturn($orderSearchResult);
 
-        $documentConfigLoaderMock = new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class));
+        $documentConfigLoaderMock = new DocumentConfigLoader(static::createStub(EntityRepository::class), static::createStub(EntityRepository::class));
 
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(ValidatorInterface::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(ValidatorInterface::class),
             new NativeClock()
         );
 

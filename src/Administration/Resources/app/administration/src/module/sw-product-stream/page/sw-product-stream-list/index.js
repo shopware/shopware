@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
 
@@ -9,6 +5,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {

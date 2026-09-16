@@ -4,7 +4,6 @@
       "mainMenuItemGeneral": "Shopware Account",
       "textHeadline": "Shopware Account",
       "description": "Change your Shopware Account settings here.",
-      "buttonSave": "Save",
       "messageSaveSuccess": "Your Shopware Account information have been saved."
     },
     "detail": {

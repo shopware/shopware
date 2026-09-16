@@ -61,6 +61,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(validator('default')).toBe(true);
         expect(validator('small')).toBe(true);
         expect(validator('large')).toBe(true);
+        expect(validator('x-large')).toBe(true);
         expect(validator('full')).toBe(true);
         expect(validator('not-existing')).toBe(false);
     });
@@ -69,6 +70,7 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         'default',
         'small',
         'large',
+        'x-large',
         'full',
     ])('should set correct variant class for %s', async (variant) => {
         await wrapper.setProps({
@@ -76,6 +78,18 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         });
 
         expect(wrapper.get('.sw-modal').classes(`sw-modal--${variant}`)).toBe(true);
+    });
+
+    it('should apply a custom z-index to the modal', async () => {
+        await wrapper.setProps({
+            zIndex: 2000,
+        });
+
+        expect(wrapper.get('.sw-modal').element.style.zIndex).toBe('2000');
+    });
+
+    it('should not apply an inline z-index when no custom value is provided', async () => {
+        expect(wrapper.get('.sw-modal').element.style.zIndex).toBe('');
     });
 
     it('should have has--header class if showHeader option is true', async () => {
@@ -134,6 +148,10 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     });
 
     it('should close the modal when using ESC key', async () => {
+        await wrapper.setProps({
+            closable: true,
+        });
+
         await wrapper.get('.sw-modal__dialog').trigger('keyup.esc');
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
@@ -141,6 +159,16 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     it('should not close the modal when using ESC key when the event does not come from the modal dialog', async () => {
         await wrapper.get('.test-input').trigger('keyup.esc');
+
+        expect(wrapper.emitted('modal-close')).toBeUndefined();
+    });
+
+    it('should not close the modal when using ESC key if closable option is false', async () => {
+        await wrapper.setProps({
+            closable: false,
+        });
+
+        await wrapper.get('.sw-modal__dialog').trigger('keyup.esc');
 
         expect(wrapper.emitted('modal-close')).toBeUndefined();
     });

@@ -31,6 +31,25 @@ class JsonApiEncoder
     private array $serializeCache = [];
 
     /**
+     * Tracks which entity (id/type) has been serialized through which relationship path.
+     * Key format: "{id}-{type}-{relationshipPath}"
+     *
+     * @var array<string, true>
+     */
+    private array $processedEntityPaths = [];
+
+    /**
+     * Holds the relationship path of the entity currently being serialized.
+     *
+     * This is kept as encoder state instead of being threaded through the
+     * serializeEntity()/serializeRelationships() signatures, which are protected
+     * and may be overridden by third-party code (adding parameters would be a BC break).
+     * It is saved and restored around every recursive descent, so it always reflects
+     * the path of the active recursion frame.
+     */
+    private string $currentRelationshipPath = '';
+
+    /**
      * @template TEntityCollection of EntityCollection
      *
      * @param TEntityCollection|Entity|null $data
@@ -42,6 +61,8 @@ class JsonApiEncoder
     public function encode(Criteria $criteria, EntityDefinition $definition, $data, string $baseUrl, array $metaData = []): string
     {
         $this->serializeCache = [];
+        $this->processedEntityPaths = [];
+        $this->currentRelationshipPath = '';
         $result = new JsonApiEncodingResult($baseUrl);
 
         if (!$data instanceof EntityCollection && !$data instanceof Entity) {
@@ -60,12 +81,13 @@ class JsonApiEncoder
 
     protected function serializeEntity(ResponseFields $fields, Entity $entity, EntityDefinition $definition, JsonApiEncodingResult $result, bool $isRelationship = false): void
     {
-        if ($result->containsInData($entity->getUniqueIdentifier(), $definition->getEntityName())
-            || ($isRelationship && $result->containsInIncluded($entity->getUniqueIdentifier(), $definition->getEntityName()))
-        ) {
+        $relationshipPath = $this->currentRelationshipPath;
+
+        if (isset($this->processedEntityPaths[$entity->getUniqueIdentifier() . '-' . $definition->getEntityName() . '-' . $relationshipPath])) {
             return;
         }
 
+        $this->processedEntityPaths[$entity->getUniqueIdentifier() . '-' . $definition->getEntityName() . '-' . $relationshipPath] = true;
         $self = $result->getBaseUrl() . '/' . $this->camelCaseToSnailCase($definition->getEntityName()) . '/' . $entity->getUniqueIdentifier();
 
         $serialized = clone $this->createSerializedEntity($fields, $definition, $result);
@@ -86,6 +108,7 @@ class JsonApiEncoder
 
     protected function serializeRelationships(ResponseFields $fields, Record $record, Entity $entity, JsonApiEncodingResult $result): void
     {
+        $relationshipPath = $this->currentRelationshipPath;
         $relationships = $record->getRelationships();
 
         foreach ($relationships as $propertyName => &$relationship) {
@@ -101,6 +124,8 @@ class JsonApiEncoder
                 continue;
             }
 
+            $this->currentRelationshipPath = $relationshipPath === '' ? $propertyName : ($relationshipPath . '.' . $propertyName);
+
             if ($relationData instanceof EntityCollection || \is_array($relationData)) {
                 foreach ($relationData as $sub) {
                     $this->serializeEntity($fields, $sub, $relationship['tmp']['definition'], $result, true);
@@ -111,6 +136,9 @@ class JsonApiEncoder
 
             $this->serializeEntity($fields, $relationData, $relationship['tmp']['definition'], $result, true);
         }
+        unset($relationship);
+
+        $this->currentRelationshipPath = $relationshipPath;
 
         $record->setRelationships($relationships);
     }
@@ -227,6 +255,8 @@ class JsonApiEncoder
             return;
         }
 
+        $relationshipPath = $this->currentRelationshipPath;
+
         $extension = new Record($serialized->getId(), 'extension');
 
         $serialized->addRelationship('extensions', [
@@ -245,6 +275,8 @@ class JsonApiEncoder
 
             /** @var EntityDefinition $definition */
             $definition = $value['tmp']['definition'];
+
+            $this->currentRelationshipPath = $relationshipPath === '' ? ('extensions.' . $property) : ($relationshipPath . '.extensions.' . $property);
 
             $association = $entity->getExtension((string) $property);
             if ($value['data'] === null) {
@@ -283,6 +315,8 @@ class JsonApiEncoder
 
             $extension->addRelationship((string) $property, $relationship);
         }
+
+        $this->currentRelationshipPath = $relationshipPath;
 
         $result->addIncluded($extension);
     }

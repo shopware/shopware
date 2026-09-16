@@ -47,6 +47,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        /**
+         * Whether matching variants are grouped, mirroring the product stream's "display as group" setting.
+         */
+        displayAsGroup: {
+            required: false,
+            type: Boolean,
+            default: true,
+        },
     },
 
     data() {
@@ -64,10 +72,6 @@ export default {
     computed: {
         productRepository() {
             return this.repositoryFactory.create('product');
-        },
-
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
         },
 
         salesChannelRepository() {
@@ -183,7 +187,17 @@ export default {
         },
 
         loadSystemDefaultCurrency() {
-            return this.currencyRepository.get(Context.app.systemCurrencyId, Context.api);
+            return this.repositoryFactory
+                .create('currency')
+                .get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'system-currency',
+                        Shopware.Context.app.systemCurrencyId,
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                });
         },
 
         loadProducts() {
@@ -193,20 +207,20 @@ export default {
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');
             this.criteria.addAssociation('options.group');
-            this.criteria.addGroupField('displayGroup');
-            this.criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('displayGroup', null),
-                ]),
-            );
 
             return this.salesChannelRepository
                 .searchIds(this.salesChannelCriteria)
                 .then(({ data }) => {
-                    return this.productStreamPreviewService.preview(data.at(0), this.criteria, [], {
-                        'sw-currency-id': Context.app.systemCurrencyId,
-                        'sw-inheritance': true,
-                    });
+                    return this.productStreamPreviewService.preview(
+                        data.at(0),
+                        this.criteria,
+                        [],
+                        {
+                            'sw-currency-id': Context.app.systemCurrencyId,
+                            'sw-inheritance': true,
+                        },
+                        this.displayAsGroup,
+                    );
                 })
                 .then((result) => {
                     this.products = Object.values(result.elements);

@@ -19,8 +19,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal only for use by the app-system
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class AppActionController extends AbstractController
 {
     public function __construct(

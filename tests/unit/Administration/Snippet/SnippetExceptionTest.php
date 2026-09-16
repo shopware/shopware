@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetException::class)]
 class SnippetExceptionTest extends TestCase
 {
@@ -36,6 +38,18 @@ class SnippetExceptionTest extends TestCase
         static::assertSame(SnippetException::SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION, $exception->getErrorCode());
         static::assertSame('The following snippet file must always be provided when providing snippets: languageId', $exception->getMessage());
         static::assertSame(['defaultLanguage' => 'languageId'], $exception->getParameters());
+    }
+
+    public function testInvalidSnippetFile(): void
+    {
+        $previous = new \JsonException('Syntax error');
+        $exception = SnippetException::invalidSnippetFile('/some/path/administration.json', $previous);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(SnippetException::SNIPPET_INVALID_FILE_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('The administration snippet file "/some/path/administration.json" is invalid: Syntax error', $exception->getMessage());
+        static::assertSame(['filePath' => '/some/path/administration.json', 'message' => 'Syntax error'], $exception->getParameters());
+        static::assertSame($previous, $exception->getPrevious());
     }
 
     public function testExtendOrOverwriteCore(): void

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\ProductListingPageOutOfRangeSubscriber;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductListingPageOutOfRangeSubscriber::class)]
 class ProductListingPageOutOfRangeSubscriberTest extends TestCase
 {
@@ -75,7 +77,7 @@ class ProductListingPageOutOfRangeSubscriberTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             ProductException::pageOutOfRange(5, 1),
@@ -145,7 +147,7 @@ class ProductListingPageOutOfRangeSubscriberTest extends TestCase
         $request->attributes->set(RequestTransformer::ORIGINAL_REQUEST_URI, $originalUri);
 
         return new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $exception,

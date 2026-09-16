@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('checkout')]
 class CheckoutFinishPageLoader
 {
     /**
@@ -117,7 +117,8 @@ class CheckoutFinishPageLoader
             ->addAssociation('lineItems.cover')
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
-            ->addAssociation('billingAddress.countryState');
+            ->addAssociation('billingAddress.countryState')
+            ->addAssociation('currency');
 
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria
@@ -143,7 +144,7 @@ class CheckoutFinishPageLoader
         }
 
         /** @var OrderEntity|null $order */
-        $order = $searchResult->get($orderId);
+        $order = $searchResult->getEntities()->get($orderId);
 
         if (!$order) {
             throw OrderException::orderNotFound($orderId);

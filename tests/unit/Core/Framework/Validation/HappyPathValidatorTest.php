@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -16,6 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HappyPathValidator::class)]
 class HappyPathValidatorTest extends TestCase
 {
@@ -28,7 +30,7 @@ class HappyPathValidatorTest extends TestCase
             $inner->expects($this->never())->method('validate');
         } else {
             $inner->expects($this->atLeastOnce())->method('validate')->willReturn(new ConstraintViolationList([
-                $this->createMock(ConstraintViolationInterface::class),
+                static::createStub(ConstraintViolationInterface::class),
             ]));
         }
 

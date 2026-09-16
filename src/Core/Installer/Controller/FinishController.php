@@ -4,6 +4,7 @@ namespace Shopware\Core\Installer\Controller;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -23,6 +24,7 @@ class FinishController extends InstallerController
         private readonly SystemLocker $systemLocker,
         private readonly Client $client,
         private readonly string $appUrl,
+        private readonly ClockInterface $clock,
         private readonly string $adminPathName = 'admin',
     ) {
     }
@@ -75,7 +77,7 @@ class FinishController extends InstallerController
                 Cookie::create(
                     'bearerAuth',
                     json_encode($loginTokenData, \JSON_THROW_ON_ERROR),
-                    time() + $responseData['expires_in'],
+                    $this->clock->now()->getTimestamp() + $responseData['expires_in'],
                     $cookiePath,
                     $appUrlInfo['host'] ?? null,
                     httpOnly: false

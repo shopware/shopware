@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\App\Url;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Terminal;
 
 /**
@@ -19,7 +19,7 @@ class AppUrlVerificationPrinter
     ) {
     }
 
-    public function print(ShopwareStyle $io, VerificationState $state, bool $manual = false): void
+    public function print(SymfonyStyle $io, VerificationState $state, bool $manual = false): void
     {
         $io->title('App URL Verification Status');
 

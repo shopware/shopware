@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Snippet\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Struct\LintedTranslationFileOptions;
@@ -13,16 +12,17 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:lint-filenames',
     description: 'Ensures translations have a country-agnostic translation file as a base, to provide country-agnostic language layer support (e.g. de.json for de-DE.json).
     For more information, see our documentation: https://developer.shopware.com/docs/concepts/translations/fallback-language-selection.html#migration-and-linting-via-command',
 )]
-#[Package('discovery')]
 class LintTranslationFilesCommand extends Command
 {
     public function __construct(
@@ -71,7 +71,7 @@ class LintTranslationFilesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $options = LintedTranslationFileOptions::fromInputInterface($input);
 
         $lintedFileStruct = $this->fileLinter->checkTranslationFiles($options);
@@ -85,7 +85,7 @@ class LintTranslationFilesCommand extends Command
     }
 
     private function hydrateFixingCollection(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         LintedTranslationFileStruct $lintedFileStruct,
     ): LintedTranslationFileStruct {
         foreach ($lintedFileStruct->getFixableFiles()->getMapping() as $targetPath => $fileOptions) {
@@ -108,7 +108,7 @@ class LintTranslationFilesCommand extends Command
     }
 
     private function renderOutput(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         LintedTranslationFileStruct $lintedFileStruct,
         LintedTranslationFileOptions $lintedFileOptions,
     ): int {
@@ -147,7 +147,7 @@ class LintTranslationFilesCommand extends Command
     }
 
     private function renderDomainTable(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         string $domain,
         LintedTranslationFileStruct $lintedFileStruct,
     ): void {
@@ -191,7 +191,7 @@ class LintTranslationFilesCommand extends Command
     }
 
     private function renderIssuesTable(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         LintedTranslationFileStruct $lintedFileStruct,
     ): void {
         $issuesCollection = $lintedFileStruct->getFixableFiles();
@@ -220,7 +220,7 @@ class LintTranslationFilesCommand extends Command
     }
 
     private function renderFixedTable(
-        ShopwareStyle $io,
+        SymfonyStyle $io,
         LintedTranslationFileStruct $lintedFileStruct
     ): void {
         $fixedTable = $io->createTable()

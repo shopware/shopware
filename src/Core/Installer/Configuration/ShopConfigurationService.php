@@ -4,28 +4,42 @@ namespace Shopware\Core\Installer\Configuration;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
+use Shopware\Core\Installer\InstallerException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
- * as the sole purpose of this class is to configure the DB according to the configuration
+ * @codeCoverageIgnore
  *
- * @phpstan-import-type Shop from ShopConfigurationController
+ * @see \Shopware\Tests\Integration\Core\Installer\Configuration\ShopConfigurationServiceTest
+ *
+ * @phpstan-type Shop array{
+ *     name: string,
+ *     locale: string,
+ *     currency: string,
+ *     additionalCurrencies: null|list<string>,
+ *     country: string,
+ *     email: string,
+ *     host: string,
+ *     basePath: string,
+ *     schema: string,
+ *     blueGreenDeployment: bool
+ * }
  */
 #[Package('framework')]
 class ShopConfigurationService
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -42,13 +56,19 @@ class ShopConfigurationService
      */
     private function performUpdate(array $shop, Connection $connection): void
     {
-        if (empty($shop['locale']) || empty($shop['host'])) {
-            throw new \RuntimeException('Please fill in all required fields. (shop configuration)');
+        $locale = $shop['locale'] ?? '';
+        if (!\is_string($locale) || $locale === '') {
+            throw InstallerException::shopConfigurationRequiredValueMissing('locale');
         }
 
-        $shopConfigurator = new ShopConfigurator($connection, $this->eventDispatcher);
+        $host = $shop['host'] ?? '';
+        if (!\is_string($host) || $host === '') {
+            throw InstallerException::shopConfigurationRequiredValueMissing('host');
+        }
+
+        $shopConfigurator = new ShopConfigurator($connection, $this->eventDispatcher, $this->clock);
         $shopConfigurator->updateBasicInformation($shop['name'], $shop['email']);
-        $shopConfigurator->setDefaultLanguage($shop['locale']);
+        $shopConfigurator->setDefaultLanguage($locale);
         $shopConfigurator->setDefaultCurrency($shop['currency']);
 
         $this->deleteAllSalesChannelCurrencies($connection);
@@ -97,7 +117,7 @@ class ShopConfigurationService
                 $shippingMethod,
                 $countryId,
                 $this->getCustomerGroupId($connection),
-                (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -105,7 +125,7 @@ class ShopConfigurationService
             'INSERT INTO sales_channel_translation (sales_channel_id, language_id, `name`, created_at)
              VALUES (?, UNHEX(?), ?, ?)',
             [
-                $newId, Defaults::LANGUAGE_SYSTEM, $shop['name'], (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                $newId, Defaults::LANGUAGE_SYSTEM, $shop['name'], $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -173,7 +193,7 @@ SQL;
             'url' => 'http://' . $shop['host'] . $shop['basePath'],
             'currencyId' => $currencyId,
             'snippetSetId' => $snippetSetId,
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         StatementHelper::executeStatement($insertSalesChannel, [
@@ -183,20 +203,18 @@ SQL;
             'url' => 'https://' . $shop['host'] . $shop['basePath'],
             'currencyId' => $currencyId,
             'snippetSetId' => $snippetSetId,
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 
     private function getFirstActiveShippingMethodId(Connection $connection): string
     {
-        return $connection
-            ->fetchOne('SELECT id FROM shipping_method WHERE `active` = 1 ORDER BY position');
+        return $connection->fetchOne('SELECT id FROM shipping_method WHERE `active` = 1 ORDER BY position');
     }
 
     private function getFirstActivePaymentMethodId(Connection $connection): string
     {
-        return $connection
-            ->fetchOne('SELECT id FROM payment_method WHERE `active` = 1 ORDER BY position');
+        return $connection->fetchOne('SELECT id FROM payment_method WHERE `active` = 1 ORDER BY position');
     }
 
     private function getLanguageId(string $iso, Connection $connection): ?string
@@ -217,11 +235,11 @@ SQL;
             [$currencyName]
         );
 
-        if (!$fetchCurrencyId) {
-            throw new \RuntimeException('Currency with iso-code ' . $currencyName . ' not found');
+        if (!\is_string($fetchCurrencyId) || $fetchCurrencyId === '') {
+            throw InstallerException::currencyNotFound($currencyName);
         }
 
-        return (string) $fetchCurrencyId;
+        return $fetchCurrencyId;
     }
 
     private function getSnippetSet(string $iso, Connection $connection): ?string
@@ -236,8 +254,8 @@ SQL;
     {
         $fetchCountryId = $connection->fetchOne('SELECT id FROM country WHERE LOWER(iso3) = LOWER(?)', [$iso]);
 
-        if (!$fetchCountryId) {
-            throw new \RuntimeException('Country with iso-code ' . $iso . ' not found');
+        if (!\is_string($fetchCountryId) || $fetchCountryId === '') {
+            throw InstallerException::countryNotFound($iso);
         }
 
         return $fetchCountryId;

@@ -10,9 +10,12 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -75,6 +78,8 @@ class PromotionProcessor implements CartProcessorInterface
             /** @var LineItemCollection $discountLineItems */
             $discountLineItems = $data->get(self::DATA_KEY);
 
+            $this->preservePinnedSetPromotions($discountLineItems, $toCalculate, $behavior);
+
             if ($toCalculate->getPrice()->getTotalPrice() === 0.0) {
                 // We'll only display the `PromotionsOnCartPriceZeroError` if a promotion code is input and the cart price is zero. Auto-promotions are not considered in this case.
                 $discountPromotionsWithCode = $discountLineItems->filter(static fn (LineItem $lineItem) => !$lineItem->hasPayloadValue('promotionCodeType') || $lineItem->getPayloadValue('promotionCodeType') !== PromotionItemBuilder::PROMOTION_TYPE_GLOBAL);
@@ -99,5 +104,55 @@ class PromotionProcessor implements CartProcessorInterface
 
             $this->promotionCalculator->calculate($items, $original, $toCalculate, $context, $behavior);
         }, 'cart');
+    }
+
+    private function preservePinnedSetPromotions(LineItemCollection $discountLineItems, Cart $calculated, CartBehavior $behavior): void
+    {
+        $pinManual = $behavior->hasPermission(CheckoutPermissions::PIN_MANUAL_PROMOTIONS);
+        $pinAutomatic = $behavior->hasPermission(CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS);
+
+        if (!$pinManual && !$pinAutomatic) {
+            return;
+        }
+
+        foreach ($discountLineItems as $lineItem) {
+            $isPinned = $lineItem->getReferencedId() ? $pinManual : $pinAutomatic;
+
+            if (!$isPinned || !$this->hasSerializedSetGroupRules($lineItem)) {
+                continue;
+            }
+
+            $calculated->add($lineItem);
+        }
+    }
+
+    private function hasSerializedSetGroupRules(LineItem $lineItem): bool
+    {
+        if (!$lineItem->hasPayloadValue('discountScope') || !$lineItem->hasPayloadValue('setGroups')) {
+            return false;
+        }
+
+        $scope = $lineItem->getPayloadValue('discountScope');
+        if (!\in_array($scope, [PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::SCOPE_SETGROUP], true)) {
+            return false;
+        }
+
+        $groups = $lineItem->getPayloadValue('setGroups');
+        if (!\is_array($groups)) {
+            return false;
+        }
+
+        foreach ($groups as $group) {
+            if (!\is_array($group)) {
+                return true;
+            }
+
+            $rules = $group['rules'] ?? null;
+            if ($rules !== null && $rules !== [] && !$rules instanceof RuleCollection) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

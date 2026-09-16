@@ -4,103 +4,121 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\Requirement\ServiceRequirement;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequirementsValidator::class)]
 class RequirementsValidatorTest extends TestCase
 {
-    public function testIsValidSetReturnsTrueWhenAllRequirementsAreKnown(): void
+    public function testSatisfiedWhenAllRequirementsOfTheGateAreMet(): void
     {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(true),
-            'shopware_account' => $this->createRequirement(true),
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'services_enabled' => $this->requirement(Gate::INSTALLATION, true),
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, true),
         ]));
 
-        static::assertTrue($validator->isValidSet(['service_consent', 'shopware_account']));
+        static::assertTrue($requirements->isSatisfied(['services_enabled', 'service_consent'], Gate::INSTALLATION));
     }
 
-    public function testIsValidSetReturnsFalseWhenRequirementIsUnknown(): void
+    public function testUnsatisfiedWhenARequirementOfTheGateIsNotMet(): void
     {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(true),
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'services_enabled' => $this->requirement(Gate::INSTALLATION, false),
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, true),
         ]));
 
-        static::assertFalse($validator->isValidSet(['service_consent', 'unknown_requirement']));
+        static::assertFalse($requirements->isSatisfied(['services_enabled', 'service_consent'], Gate::INSTALLATION));
     }
 
-    public function testIsSatisfiedReturnsTrueWhenAllMet(): void
+    public function testRequirementsOfAnotherGateAreIgnored(): void
     {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(true),
-            'shopware_account' => $this->createRequirement(true),
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'services_enabled' => $this->requirement(Gate::INSTALLATION, true),
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, false),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account']);
-
-        static::assertTrue($validator->isSatisfied($app));
+        // service_consent is a Privileges requirement and not satisfied, but for the Installation gate it doesn't count
+        static::assertTrue($requirements->isSatisfied(['services_enabled', 'service_consent'], Gate::INSTALLATION));
+        // ...and for the Privileges gate it does
+        static::assertFalse($requirements->isSatisfied(['services_enabled', 'service_consent'], Gate::PRIVILEGES));
     }
 
-    public function testIsSatisfiedReturnsFalseWhenAnyNotMet(): void
+    public function testUnknownRequirementIsNeverSatisfied(): void
     {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(true),
-            'shopware_account' => $this->createRequirement(false),
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account']);
-
-        static::assertFalse($validator->isSatisfied($app));
+        static::assertFalse($requirements->isSatisfied(['service_consent', 'mystery'], Gate::INSTALLATION));
+        static::assertFalse($requirements->isSatisfied(['service_consent', 'mystery'], Gate::PRIVILEGES));
     }
 
-    public function testIsSatisfiedReturnsFalseForUnknown(): void
+    public function testNoneGatedRequirementGatesNeitherEvenWhenUnsatisfied(): void
     {
-        $validator = new RequirementsValidator(new \ArrayIterator([
-            'service_consent' => $this->createRequirement(true),
+        // a recognised marker requirement: known (so it doesn't count as unknown), but gates nothing
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'a_marker' => $this->requirement(Gate::NONE, false),
         ]));
 
-        $app = $this->createApp(['service_consent', 'unknown_requirement']);
-
-        static::assertFalse($validator->isSatisfied($app));
+        static::assertTrue($requirements->isSatisfied(['a_marker'], Gate::INSTALLATION));
+        static::assertTrue($requirements->isSatisfied(['a_marker'], Gate::PRIVILEGES));
     }
 
-    /**
-     * @param list<string> $requirements
-     */
-    private function createApp(array $requirements): AppEntity
+    public function testStateChangePermittedWhenAllRequirementsPermitIt(): void
     {
-        $sourceConfig = [
-            'version' => '1.0.0',
-            'hash' => 'a453f',
-            'revision' => '1.0.0-a453f',
-            'zip-url' => 'https://example.com/zip',
-            'hash-algorithm' => 'sha256',
-            'min-shop-supported-version' => '6.6.0.0',
-            'requirements' => $requirements,
-        ];
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'services_enabled' => $this->requirement(Gate::INSTALLATION, true),
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, true),
+        ]));
 
-        $app = new AppEntity();
-        $app->assign([
-            'id' => 'app-' . bin2hex(random_bytes(4)),
-            'name' => 'TestApp',
-            'selfManaged' => true,
-            'sourceConfig' => $sourceConfig,
-            'active' => true,
-            'requestedPrivileges' => ['some:privilege'],
-        ]);
-
-        return $app;
+        static::assertTrue($requirements->permitsStateChange(['services_enabled', 'service_consent']));
+        static::assertTrue($requirements->permitsStateChange([]));
     }
 
-    private function createRequirement(bool $satisfied): ServiceRequirement
+    public function testStateChangeNotPermittedWhenAnyRequirementForbidsIt(): void
     {
-        return new class($satisfied) implements ServiceRequirement {
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, true),
+            'shopware_account' => $this->requirement(Gate::PRIVILEGES, true, permitsStateChange: false),
+        ]));
+
+        static::assertFalse($requirements->permitsStateChange(['service_consent', 'shopware_account']));
+        static::assertTrue($requirements->permitsStateChange(['service_consent']));
+    }
+
+    public function testStateChangePermissionIsIndependentOfSatisfaction(): void
+    {
+        // the policy is about who controls the state, not about whether the requirement is currently met
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'shopware_account' => $this->requirement(Gate::PRIVILEGES, false, permitsStateChange: false),
+        ]));
+
+        static::assertFalse($requirements->permitsStateChange(['shopware_account']));
+    }
+
+    public function testStateChangeNotPermittedForUnknownRequirement(): void
+    {
+        // fail closed: a service declaring a requirement we don't model is never manually togglable
+        $requirements = new RequirementsValidator(new \ArrayIterator([
+            'service_consent' => $this->requirement(Gate::PRIVILEGES, true),
+        ]));
+
+        static::assertFalse($requirements->permitsStateChange(['service_consent', 'mystery']));
+    }
+
+    private function requirement(Gate $gate, bool $satisfied, bool $permitsStateChange = true): ServiceRequirement
+    {
+        return new class($gate, $satisfied, $permitsStateChange) implements ServiceRequirement {
             public function __construct(
+                private readonly Gate $gate,
                 private readonly bool $satisfied,
+                private readonly bool $permitsStateChange,
             ) {
             }
 
@@ -109,9 +127,19 @@ class RequirementsValidatorTest extends TestCase
                 return 'test';
             }
 
+            public function getGate(): Gate
+            {
+                return $this->gate;
+            }
+
             public function isSatisfied(): bool
             {
                 return $this->satisfied;
+            }
+
+            public function permitsStateChange(): bool
+            {
+                return $this->permitsStateChange;
             }
         };
     }

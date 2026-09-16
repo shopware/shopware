@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { colonToDot, isPrivilegeGranted } from 'src/core/helper/mcp-privilege.helper';
+import { colonToDot, isPrivilegeGranted, computePrivilegeChips } from 'src/core/helper/mcp-privilege.helper';
 
 describe('colonToDot', () => {
     it('converts read → viewer', () => {
@@ -27,6 +27,11 @@ describe('colonToDot', () => {
     it('returns null for dynamic chip placeholder', () => {
         expect(colonToDot('<entity>:read')).toBeNull();
     });
+
+    it('returns null for nullish input instead of throwing', () => {
+        expect(colonToDot(undefined)).toBeNull();
+        expect(colonToDot(null)).toBeNull();
+    });
 });
 
 describe('isPrivilegeGranted', () => {
@@ -48,5 +53,50 @@ describe('isPrivilegeGranted', () => {
 
     it('returns false for dynamic chip placeholders that have no matching entry', () => {
         expect(isPrivilegeGranted('<entity>:read', [])).toBe(false);
+    });
+
+    it('returns false for nullish chips instead of throwing', () => {
+        expect(isPrivilegeGranted(undefined, ['product.viewer'])).toBe(false);
+        expect(isPrivilegeGranted(null, ['product.viewer'])).toBe(false);
+    });
+});
+
+describe('computePrivilegeChips', () => {
+    it('returns an empty list for nullish required privileges', () => {
+        expect(computePrivilegeChips(null)).toStrictEqual([]);
+        expect(computePrivilegeChips(undefined)).toStrictEqual([]);
+    });
+
+    it('drops nullish static privilege entries', () => {
+        expect(
+            computePrivilegeChips({
+                static: [
+                    'product:read',
+                    undefined,
+                    null,
+                    'order:update',
+                ],
+            }),
+        ).toStrictEqual([
+            'product:read',
+            'order:update',
+        ]);
+    });
+
+    it('expands entity/operation pairs into dynamic chips', () => {
+        expect(
+            computePrivilegeChips({
+                static: ['product:read'],
+                entityParam: 'entity',
+                operations: [
+                    'read',
+                    'update',
+                ],
+            }),
+        ).toStrictEqual([
+            'product:read',
+            '<entity>:read',
+            '<entity>:update',
+        ]);
     });
 });

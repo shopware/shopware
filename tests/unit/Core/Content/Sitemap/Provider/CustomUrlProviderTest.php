@@ -18,76 +18,88 @@ class CustomUrlProviderTest extends TestCase
 {
     public function testGetUrlsReturnsNoUrls(): void
     {
-        $configHandlerStub = $this->createMock(ConfigHandler::class);
-        $configHandlerStub->method('get')
-            ->with(ConfigHandler::CUSTOM_URLS_KEY)
-            ->willReturn([]);
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
+            static function (string $key): array {
+                static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+                return [];
+            }
+        );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         static::assertSame([], $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     public function testGetUrlsReturnsAllUrlsForSalesChannel(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $configHandlerStub = $this->createMock(ConfigHandler::class);
-        $configHandlerStub->method('get')
-            ->with(ConfigHandler::CUSTOM_URLS_KEY)
-            ->willReturn([
-                [
-                    'url' => 'foo',
-                    'lastMod' => new \DateTimeImmutable(),
-                    'changeFreq' => 'weekly',
-                    'priority' => 0.5,
-                    'salesChannelId' => 2,
-                ], [
-                    'url' => 'bar',
-                    'lastMod' => new \DateTimeImmutable(),
-                    'changeFreq' => 'weekly',
-                    'priority' => 0.5,
-                    'salesChannelId' => $salesChannelContext->getSalesChannelId(),
-                ],
-            ]);
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
+            static function (string $key) use ($salesChannelContext): array {
+                static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+                return [
+                    [
+                        'url' => 'foo',
+                        'lastMod' => new \DateTimeImmutable(),
+                        'changeFreq' => 'weekly',
+                        'priority' => 0.5,
+                        'salesChannelId' => 2,
+                    ], [
+                        'url' => 'bar',
+                        'lastMod' => new \DateTimeImmutable(),
+                        'changeFreq' => 'weekly',
+                        'priority' => 0.5,
+                        'salesChannelId' => $salesChannelContext->getSalesChannelId(),
+                    ],
+                ];
+            }
+        );
+
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         static::assertCount(1, $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
     public function testGetUrlsReturnsAllUrlsForSalesChannelIdNull(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $configHandlerStub = $this->createMock(ConfigHandler::class);
-        $configHandlerStub->method('get')
-            ->with(ConfigHandler::CUSTOM_URLS_KEY)
-            ->willReturn([
-                [
-                    'url' => 'foo',
-                    'lastMod' => new \DateTimeImmutable(),
-                    'changeFreq' => 'weekly',
-                    'priority' => 0.5,
-                    'salesChannelId' => 2,
-                ], [
-                    'url' => 'bar',
-                    'lastMod' => new \DateTimeImmutable(),
-                    'changeFreq' => 'weekly',
-                    'priority' => 0.5,
-                    'salesChannelId' => null,
-                ], [
-                    'url' => 'fooBar',
-                    'lastMod' => new \DateTimeImmutable(),
-                    'changeFreq' => 'weekly',
-                    'priority' => 0.5,
-                    'salesChannelId' => null,
-                ],
-            ]);
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
+            static function (string $key): array {
+                static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+                return [
+                    [
+                        'url' => 'foo',
+                        'lastMod' => new \DateTimeImmutable(),
+                        'changeFreq' => 'weekly',
+                        'priority' => 0.5,
+                        'salesChannelId' => 2,
+                    ], [
+                        'url' => 'bar',
+                        'lastMod' => new \DateTimeImmutable(),
+                        'changeFreq' => 'weekly',
+                        'priority' => 0.5,
+                        'salesChannelId' => null,
+                    ], [
+                        'url' => 'fooBar',
+                        'lastMod' => new \DateTimeImmutable(),
+                        'changeFreq' => 'weekly',
+                        'priority' => 0.5,
+                        'salesChannelId' => null,
+                    ],
+                ];
+            }
+        );
+
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         $urls = $customUrlProvider->getUrls($salesChannelContext, 100)->getUrls();
 
@@ -99,28 +111,32 @@ class CustomUrlProviderTest extends TestCase
 
     public function testGetUrlsReturnsNoUrlsWrongSalesChannelId(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
-        $configHandlerStub = $this->createMock(ConfigHandler::class);
-        $configHandlerStub->method('get')
-            ->with(ConfigHandler::CUSTOM_URLS_KEY)
-            ->willReturn([
-                [
-                    'url' => 'foo',
-                    'lastMod' => new \DateTimeImmutable(),
-                    'changeFreq' => 'weekly',
-                    'priority' => 0.5,
-                    'salesChannelId' => 2,
-                ],
-            ]);
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler->expects($this->once())->method('get')->willReturnCallback(
+            static function (string $key): array {
+                static::assertSame(ConfigHandler::CUSTOM_URLS_KEY, $key);
 
-        $customUrlProvider = $this->getCustomUrlProvider($configHandlerStub);
+                return [
+                    [
+                        'url' => 'foo',
+                        'lastMod' => new \DateTimeImmutable(),
+                        'changeFreq' => 'weekly',
+                        'priority' => 0.5,
+                        'salesChannelId' => 2,
+                    ],
+                ];
+            }
+        );
+
+        $customUrlProvider = $this->getCustomUrlProvider($configHandler);
 
         static::assertEmpty($customUrlProvider->getUrls($salesChannelContext, 100)->getUrls());
     }
 
-    private function getCustomUrlProvider(ConfigHandler $configHandlerStub): CustomUrlProvider
+    private function getCustomUrlProvider(ConfigHandler $configHandler): CustomUrlProvider
     {
-        return new CustomUrlProvider($configHandlerStub);
+        return new CustomUrlProvider($configHandler);
     }
 }

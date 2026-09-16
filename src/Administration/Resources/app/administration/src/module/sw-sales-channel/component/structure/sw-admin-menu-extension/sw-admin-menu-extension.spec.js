@@ -39,6 +39,9 @@ async function createWrapper() {
                 appModulesService: {
                     fetchAppModules: () => Promise.resolve([]),
                 },
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({}),
+                },
                 customEntityDefinitionService: {
                     getMenuEntries: () => {
                         return [];

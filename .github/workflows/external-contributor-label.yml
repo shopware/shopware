@@ -13,11 +13,16 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const pullRequestNumber = context.payload.pull_request.number;
             const contribLabel = process.env.CONTRIBUTOR_LABEL;
+            const allowedBotUsers = [
+                "BOT_kgDOCV3tAw", // octo-sts
+                "BOT_kgDODjoiJw", // shopware-octo-sts-app
+                "BOT_kgDODoqSag"  // shopware-octo-sts-app-2
+            ];
 
             let hasWriteAccess = false;
 
@@ -29,7 +34,7 @@ jobs:
             if (permissionLevel.status !== 200) {
               core.info(`Failed to get permission level for "${context.actor}", assuming no write access.`);
             } else {
-              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission) || permissionLevel?.data?.user.node_id == "BOT_kgDOCV3tAw";
+              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission) || allowedBotUsers.includes(permissionLevel?.data?.user.node_id);
             }
 
             if (hasWriteAccess) {

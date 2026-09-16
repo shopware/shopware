@@ -63,7 +63,7 @@ class AffiliateCodeRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = (new AffiliateCodeRule())->match($scope);
 

@@ -10,9 +10,11 @@
 
         {% block sw_settings_listing_option_criteria_card_toolbar_select %}
         <sw-single-select
+            class="sw-settings-listing-option-criteria-grid__criteria-select"
             :value="selectedCriteria"
             :options="criteriaOptions"
             :placeholder="$t('sw-settings-listing.base.criteria.selectPlaceholder')"
+            :disabled="productSortingEntity.locked"
             value-property="value"
             label-property="label"
             show-clearable-button
@@ -26,10 +28,11 @@
     <sw-data-grid
         v-if="productSortingEntity && productSortingEntity.fields.length > 0"
         ref="dataGrid"
+        class="sw-settings-listing-option-criteria-grid__data-grid"
         :columns="productSortingEntityColumns"
         :data-source="sortedProductSortingFields"
-        :show-actions="true"
-        :allow-inline-edit="true"
+        :show-actions="!productSortingEntity.locked"
+        :allow-inline-edit="!productSortingEntity.locked"
         :compact-mode="false"
         :show-selection="false"
         plain-appearance

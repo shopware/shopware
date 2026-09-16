@@ -56,14 +56,14 @@ class TranslationCommandHelperTest extends TestCase
         };
 
         $output = new BufferedOutput();
-        TranslationCommandHelper::executeLoadWithProgressBar($locales, $output, $callback);
+        TranslationCommandHelper::executeLoadWithProgressBar($locales, $output, 'Installing translations', $callback);
 
         static::assertSame($locales, $loadedLocales);
 
         $content = $output->fetch();
 
-        static::assertStringContainsString('1/3 -- Fetching translations for locale: en-GB', $content);
-        static::assertStringContainsString('3/3 -- Fetching translations for locale: fr-FR', $content);
+        static::assertStringContainsString('1/3 -- Installing translations for locale: en-GB', $content);
+        static::assertStringContainsString('3/3 -- Installing translations for locale: fr-FR', $content);
     }
 
     public function testPrintMetadataLoadingFailed(): void
@@ -96,5 +96,35 @@ class TranslationCommandHelperTest extends TestCase
 
         $content = $output->fetch();
         static::assertStringContainsString('The following locales are already up to date and will be skipped: de-DE, fr-FR', $content);
+    }
+
+    public function testPrintLocalesInstalledFromExistingFiles(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, ['de-DE', 'fr-FR']);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('The following locales are installed from their existing translation files, without downloading: de-DE, fr-FR', $content);
+    }
+
+    public function testPrintUnavailableLocales(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printUnavailableLocales($output, ['de-DE', 'fr-FR']);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('No translations are available for the following locales, they will not be installed: de-DE, fr-FR', $content);
+    }
+
+    public function testPrintLocalesWithoutFiles(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printLocalesWithoutFiles($output, ['de-DE', 'fr-FR']);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('No translation files are present for the following locales, they will not be installed: de-DE, fr-FR', $content);
     }
 }

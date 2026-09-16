@@ -10,13 +10,14 @@ use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelListCommand::class)]
 class SalesChannelListCommandTest extends TestCase
 {
@@ -30,7 +31,6 @@ class SalesChannelListCommandTest extends TestCase
         $salesChannel->setActive(true);
         $salesChannel->setMaintenance(false);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
 
         $command = new SalesChannelListCommand($salesChannelRepository);
@@ -50,5 +50,66 @@ class SalesChannelListCommandTest extends TestCase
 +----------------------------------+------+--------+-------------+------------------+-----------+------------------+------------+---------+
 ';
         static::assertSame(\sprintf($output, $id), $commandTester->getDisplay());
+    }
+
+    public function testFormatJsonOutput(): void
+    {
+        $id = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setUniqueIdentifier($id);
+        $salesChannel->setId($id);
+        $salesChannel->setActive(true);
+        $salesChannel->setMaintenance(false);
+
+        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
+
+        $command = new SalesChannelListCommand($salesChannelRepository);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--format' => 'json']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertJson($commandTester->getDisplay());
+        static::assertStringContainsString($id, $commandTester->getDisplay());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with `--output` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOutputJsonDeprecated(): void
+    {
+        $id = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setUniqueIdentifier($id);
+        $salesChannel->setId($id);
+        $salesChannel->setActive(true);
+        $salesChannel->setMaintenance(false);
+
+        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
+
+        $command = new SalesChannelListCommand($salesChannelRepository);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--output' => 'json']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertJson($commandTester->getDisplay());
+        static::assertStringContainsString($id, $commandTester->getDisplay());
+    }
+
+    public function testInvalidFormatReturnsError(): void
+    {
+        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([])], new SalesChannelDefinition());
+
+        $command = new SalesChannelListCommand($salesChannelRepository);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--format' => 'xml']);
+
+        static::assertSame(2, $commandTester->getStatusCode());
+        static::assertStringContainsString('Invalid format "xml"', $commandTester->getDisplay());
     }
 }

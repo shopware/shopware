@@ -79,11 +79,11 @@ export default {
         },
 
         cover() {
-            if (!this.product) {
+            if (this.productMedia.length === 0) {
                 return null;
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find((media) => media.id === coverId);
+            return this.productMedia.find((media) => media.id === coverId);
         },
 
         isStoreLoading() {
@@ -103,7 +103,7 @@ export default {
         },
 
         productMedia() {
-            if (!this.product) {
+            if (!this.product?.media) {
                 return [];
             }
             return this.product.media;
@@ -272,7 +272,7 @@ export default {
         isCover(productMedia) {
             const coverId = this.product.cover ? this.product.cover.id : this.product.coverId;
 
-            if (this.product.media.length === 0 || productMedia.isPlaceholder) {
+            if (this.productMedia.length === 0 || productMedia.isPlaceholder) {
                 return false;
             }
 

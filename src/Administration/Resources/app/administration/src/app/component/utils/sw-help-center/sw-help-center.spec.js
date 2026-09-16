@@ -1,59 +1,74 @@
 /**
  * @sw-package buyers-experience
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
+
+let SwShortcutOverview;
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-help-center-v2', { sync: true }), {
+        attachTo: document.body,
         global: {
+            provide: {
+                shortcutService: {
+                    isShortcutsDisabled: jest.fn(() => false),
+                    setShortcutsDisabled: jest.fn(),
+                },
+            },
             stubs: {
-                'sw-help-sidebar': true,
-                'sw-shortcut-overview': true,
-                'sw-extension-component-section': true,
+                'sw-shortcut-overview': SwShortcutOverview,
             },
         },
     });
 }
 
-describe('src/app/asyncComponent/utils/sw-help-center', () => {
+function menuItems() {
+    return new DOMWrapper(document.body).findAll('.mt-action-menu-item');
+}
+
+describe('src/app/component/utils/sw-help-center', () => {
     let wrapper;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
+        SwShortcutOverview = await wrapTestComponent('sw-shortcut-overview');
+    });
+
+    beforeEach(() => {
+        const store = Shopware.Store.get('adminHelpCenter');
+        store.showHelpSidebar = false;
+        store.showShortcutModal = false;
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+        document.body.innerHTML = '';
+        jest.restoreAllMocks();
+    });
+
+    it('should open the help center menu when the trigger is clicked', async () => {
         wrapper = await createWrapper();
-    });
+        await flushPromises();
 
-    it('should be able to open the help sidebar', async () => {
-        await wrapper.find('.sw-help-center__button').trigger('click');
-
-        expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeTruthy();
-    });
-
-    it('should be able to close the help sidebar', async () => {
-        await wrapper.find('.sw-help-center__button').trigger('click');
-
-        expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeTruthy();
-
-        Shopware.Store.get('adminHelpCenter').showHelpSidebar = false;
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeFalsy();
-    });
-
-    it('should be able to toggle the shortcut overview', async () => {
-        wrapper.vm.$refs.shortcutModal.onOpenShortcutOverviewModal = jest.fn();
+        expect(menuItems()).toHaveLength(0);
 
         await wrapper.find('.sw-help-center__button').trigger('click');
-        expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeTruthy();
-        wrapper.vm.$refs.helpSidebar.setFocusToSidebar = jest.fn();
+        await flushPromises();
 
-        Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
-        await wrapper.vm.$nextTick();
-        expect(wrapper.find('sw-shortcut-overview-stub').exists()).toBeTruthy();
-        expect(wrapper.vm.$refs.shortcutModal.onOpenShortcutOverviewModal).toHaveBeenCalled();
+        expect(Shopware.Store.get('adminHelpCenter').showHelpSidebar).toBe(true);
+        expect(menuItems().length).toBeGreaterThan(0);
+    });
 
-        Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
-        await wrapper.vm.$nextTick();
-        expect(wrapper.find('sw-shortcut-overview-stub').exists()).toBeTruthy();
-        expect(wrapper.vm.$refs.helpSidebar.setFocusToSidebar).toHaveBeenCalled();
+    it('should open the shortcut overview when the shortcut item is selected', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-help-center__button').trigger('click');
+        await flushPromises();
+
+        const items = menuItems();
+        await items.at(items.length - 1).trigger('click');
+        await flushPromises();
+
+        expect(Shopware.Store.get('adminHelpCenter').showShortcutModal).toBe(true);
     });
 });

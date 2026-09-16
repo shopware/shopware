@@ -44,19 +44,19 @@ import SwProductList from './page';
 export default {
   inject: ['repositoryFactory', 'acl'],
   mixins: [Mixin.getByName('notification')],
-  
+
   computed: {
     repository() {
       return this.repositoryFactory.create('product');
     },
     ...mapPropertyErrors('product', ['name'])
   },
-  
+
   methods: {
     async save() {
       await this.repository.save(this.entity, Shopware.Context.api);
       this.entity = await this.repository.get(this.entity.id, Shopware.Context.api);
-      this.createNotificationSuccess({ message: this.$tc('saved') });
+      this.createNotificationSuccess({ message: this.$t('saved') });
     }
   }
 };
@@ -94,7 +94,7 @@ const store = Shopware.Store.get('myStore');
 .sw-product-list {
   padding: var(--mt-spacing-4);
   color: var(--mt-color-text-primary);
-  
+
   &__header { }
   &__grid { }
 }

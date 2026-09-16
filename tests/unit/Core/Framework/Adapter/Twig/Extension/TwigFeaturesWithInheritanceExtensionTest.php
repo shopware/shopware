@@ -45,7 +45,7 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
 
     public function testGetTag(): void
     {
-        $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinder::class));
+        $extension = new TwigFeaturesWithInheritanceExtension(static::createStub(TemplateFinder::class));
         $functionNames = \array_map(
             static fn (TwigFunction $function) => $function->getName(),
             $extension->getFunctions(),
@@ -59,11 +59,11 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
     {
         $this->expectExceptionObject(new \RuntimeException('The first argument of the "sw_block" function must be an instance of AbstractExpression.'));
 
-        $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinder::class));
+        $extension = new TwigFeaturesWithInheritanceExtension(static::createStub(TemplateFinder::class));
         $extension->parseSwBlockFunction(
-            $this->createMock(Parser::class),
-            $this->createMock(AbstractExpression::class),
-            new Nodes([$this->createMock(Node::class)]),
+            static::createStub(Parser::class),
+            static::createStub(AbstractExpression::class),
+            new Nodes([static::createStub(Node::class)]),
             100
         );
     }
@@ -83,7 +83,7 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
         ]));
         $twig->addExtension(new NodeExtension(
             $templateFinder,
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateScopeDetector::class),
         ));
         $twig->addExtension(new TwigFeaturesWithInheritanceExtension($templateFinder));
 

@@ -14,7 +14,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1595492054SeoUrlTemplateData extends MigrationStep
 {
     public function getCreationTimestamp(): int

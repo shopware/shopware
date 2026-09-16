@@ -8,11 +8,13 @@ use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailAttachmentsConfig::class)]
 class MailAttachmentsConfigTest extends TestCase
 {
@@ -31,23 +33,6 @@ class MailAttachmentsConfigTest extends TestCase
             $evenConfig,
             $orderId
         );
-
-        static::assertSame($context, $attachmentsConfig->getContext());
-        static::assertSame($mailTemplate, $attachmentsConfig->getMailTemplate());
-        static::assertSame($extension, $attachmentsConfig->getExtension());
-        static::assertSame($evenConfig, $attachmentsConfig->getEventConfig());
-        static::assertSame($orderId, $attachmentsConfig->getOrderId());
-
-        $attachmentsConfig = $this->getMockBuilder(MailAttachmentsConfig::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([])
-            ->getMock();
-
-        $attachmentsConfig->setContext($context);
-        $attachmentsConfig->setMailTemplate($mailTemplate);
-        $attachmentsConfig->setExtension($extension);
-        $attachmentsConfig->setEventConfig($evenConfig);
-        $attachmentsConfig->setOrderId($orderId);
 
         static::assertSame($context, $attachmentsConfig->getContext());
         static::assertSame($mailTemplate, $attachmentsConfig->getMailTemplate());

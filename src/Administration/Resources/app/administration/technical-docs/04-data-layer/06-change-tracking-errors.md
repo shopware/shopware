@@ -259,7 +259,7 @@ async saveCustomerGroup() {
         // Errors are already processed and stored
         // No manual error handling needed for field-specific errors
         this.createNotificationError({
-            message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+            message: this.$t('sw-settings-customer-group.detail.notificationErrorMessage'),
         });
     } finally {
         this.isLoading = false;
@@ -357,7 +357,7 @@ export default {
                 // Field-specific errors are already processed and available
                 // via mapPropertyErrors computed properties
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+                    message: this.$t('sw-settings-customer-group.detail.notificationErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -413,7 +413,7 @@ export default {
                 
                 // Generic error handling
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessage'),
+                    message: this.$t('global.notification.notificationSaveErrorMessage'),
                 });
             }
         }

@@ -19,6 +19,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class HttpCacheKernel extends HttpCache
 {
+    final public const MAINTENANCE_ALLOWLIST_HEADER = 'sw-maintenance-allowlist';
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use MAINTENANCE_ALLOWLIST_HEADER instead.
+     */
     final public const MAINTENANCE_WHITELIST_HEADER = 'sw-maintenance-whitelist';
 
     /**
@@ -65,7 +70,8 @@ class HttpCacheKernel extends HttpCache
             $response = $this->getKernel()->handle($request, $type, $catch);
         }
 
-        if ($ips = $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
+        // @deprecated tag:v6.8.0 - the deprecated MAINTENANCE_WHITELIST_HEADER fallback will be removed
+        if ($ips = $response->headers->get(self::MAINTENANCE_ALLOWLIST_HEADER) ?? $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
             $ips = array_filter(explode(',', $ips));
 
             if (IpUtils::checkIp((string) $request->getClientIp(), $ips)) {
@@ -73,6 +79,8 @@ class HttpCacheKernel extends HttpCache
             }
         }
 
+        $response->headers->remove(self::MAINTENANCE_ALLOWLIST_HEADER);
+        // @deprecated tag:v6.8.0 - the deprecated MAINTENANCE_WHITELIST_HEADER removal will be removed
         $response->headers->remove(self::MAINTENANCE_WHITELIST_HEADER);
 
         $event = new BeforeSendResponseEvent($request, $response);

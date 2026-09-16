@@ -1,44 +1,78 @@
-@import "~scss/variables";
-
 .sw-cms-toolbar {
-    padding: 0 20px;
-    min-height: 81px;
-    border-bottom: 2px solid var(--color-border-primary-default);
+    padding: 0 var(--scale-size-12);
+    min-height: var(--scale-size-72);
+    border-bottom: 1px solid var(--color-border-secondary-default);
     display: grid;
-    grid-template-columns: 1fr 1fr auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    column-gap: var(--scale-size-8);
     align-items: center;
     align-content: center;
     z-index: 251;
     background-color: var(--color-elevation-surface-raised);
 
-    .sw-cms-toolbar__back-btn {
-        padding: 10px 20px;
+    // Bounded to keep clear of the tools, which overlay the row and center on the bar
+    .sw-cms-toolbar__title {
+        grid-area: 1 / 1;
+        max-width: calc(50cqw - 120px);
+    }
 
-        .mt-icon {
-            color: var(--color-icon-secondary-default);
-            transform: rotate(180deg);
+    .sw-cms-toolbar__tools {
+        grid-area: 1 / 1 / 2 / -1;
+        justify-self: center;
+    }
+
+    .sw-cms-toolbar__language-selection {
+        grid-area: 1 / 2;
+    }
+
+    .sw-cms-toolbar__actions {
+        grid-area: 1 / 3;
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-cms-toolbar__sidebar {
+        grid-area: 1 / 4;
+        margin-inline-start: var(--scale-size-8);
+    }
+
+    // Container-based: the expanded admin menu shrinks the page without a viewport change
+    @container sw-page (max-width: 1280px) {
+        grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+
+        .sw-cms-toolbar__title {
+            max-width: none;
         }
 
-        a:hover .mt-icon {
-            color: var(--color-text-primary-default);
+        .sw-cms-toolbar__tools {
+            grid-area: 1 / 2;
+            justify-self: end;
+        }
+
+        .sw-cms-toolbar__language-selection {
+            grid-area: 1 / 3;
+        }
+
+        .sw-cms-toolbar__actions {
+            grid-area: 1 / 4;
+        }
+
+        .sw-cms-toolbar__sidebar {
+            grid-area: 1 / 5;
         }
     }
 
     .sw-cms-toolbar__title h2 {
         color: var(--color-text-primary-default);
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-bottom: 0;
     }
 
-    .sw-cms-toolbar__actions {
-        text-align: center;
-
-        .sw-app-actions {
-            float: left;
-        }
+    .sw-cms-toolbar__language-selection .sw-language-switch {
+        margin-right: 0;
     }
 }

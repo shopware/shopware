@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallServicesTaskHandler::class)]
 class InstallServicesTaskHandlerTest extends TestCase
 {
@@ -19,11 +21,11 @@ class InstallServicesTaskHandlerTest extends TestCase
     {
         $manager = $this->createMock(LifecycleManager::class);
         $manager->expects($this->once())
-            ->method('install');
+            ->method('reconcile');
 
         $handler = new InstallServicesTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
             $manager,
         );
 

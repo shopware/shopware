@@ -10,6 +10,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('inventory')]
 class SeoException extends HttpException
@@ -101,5 +102,10 @@ class SeoException extends HttpException
     public static function invalidTemplate(string $message): ShopwareHttpException
     {
         return new InvalidTemplateException($message);
+    }
+
+    public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($givenType, $expectedType);
     }
 }

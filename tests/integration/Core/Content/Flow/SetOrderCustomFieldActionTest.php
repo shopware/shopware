@@ -87,7 +87,7 @@ class SetOrderCustomFieldActionTest extends TestCase
         $this->cancelOrder();
 
         /** @var OrderEntity $order */
-        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), Context::createDefaultContext())->first();
+        $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->ids->get('order')]), Context::createDefaultContext())->getEntities()->first();
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertSame($order->getCustomFields(), $expect);

@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Group('redis')]
+#[Package('framework')]
 class RedisInvalidatorStorageTest extends TestCase
 {
     private RedisInvalidatorStorage $storage;

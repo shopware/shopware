@@ -36,7 +36,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 {
     public function testCollectCreatesProductMediaCriteriaIfMappedMediaIsNotResolved(): void
     {
-        $resolver = new ImageSliderTypeDataResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageSliderTypeDataResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('slot-id');
@@ -56,7 +56,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testCollectSkipsProductMediaCriteriaIfMappedMediaIsResolved(): void
     {
-        $resolver = new ImageSliderTypeDataResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageSliderTypeDataResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('slot-id');
@@ -72,8 +72,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithStaticConfigStillCreatesMediaCriteria(): void
     {
-        $resolver = new ImageSliderTypeDataResolver($this->createMock(AbstractDefaultMediaResolver::class));
-        $context = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolver = new ImageSliderTypeDataResolver(static::createStub(AbstractDefaultMediaResolver::class));
+        $context = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('slot-id');
@@ -91,7 +91,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testEnrichUsesMappedProductMediaResult(): void
     {
-        $resolver = new ImageSliderTypeDataResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageSliderTypeDataResolver(static::createStub(AbstractDefaultMediaResolver::class));
         $context = $this->createEntityResolverContext(new ProductMediaCollection());
 
         $slot = new CmsSlotEntity();
@@ -128,9 +128,9 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $product->setMedia($productMedia);
 
         return new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $product
         );
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -13,33 +14,15 @@ class UrlEncoder
             return null;
         }
 
-        $urlInfo = parse_url($mediaUrl);
-
-        if (!\is_array($urlInfo)) {
+        try {
+            $uri = new Uri($mediaUrl);
+        } catch (\InvalidArgumentException) {
             return null;
         }
 
-        $path = self::encodePathSegments($urlInfo['path'] ?? '');
+        $path = self::encodePathSegments(rawurldecode($uri->getPath()));
 
-        if (isset($urlInfo['query'])) {
-            $path .= "?{$urlInfo['query']}";
-        }
-
-        $encodedPath = '';
-
-        if (isset($urlInfo['scheme'])) {
-            $encodedPath = "{$urlInfo['scheme']}://";
-        }
-
-        if (isset($urlInfo['host'])) {
-            $encodedPath .= "{$urlInfo['host']}";
-        }
-
-        if (isset($urlInfo['port'])) {
-            $encodedPath .= ":{$urlInfo['port']}";
-        }
-
-        return $encodedPath . $path;
+        return (string) $uri->withPath($path)->withFragment('');
     }
 
     public static function encodePathSegments(string $path): string

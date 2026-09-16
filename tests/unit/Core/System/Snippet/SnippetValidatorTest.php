@@ -18,9 +18,7 @@ class SnippetValidatorTest extends TestCase
 {
     public function testValidateShouldFindMissingSnippets(): void
     {
-        $snippetFileHandler = $this->getMockBuilder(SnippetFileHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
 
         $firstPath = 'storefront.de.json';
         $secondPath = 'storefront.en.json';
@@ -57,9 +55,7 @@ class SnippetValidatorTest extends TestCase
 
     public function testValidateShouldNotFindAnyMissingSnippets(): void
     {
-        $snippetFileHandler = $this->getMockBuilder(SnippetFileHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
 
         $firstPath = 'storefront.de.json';
         $secondPath = 'storefront.en.json';
@@ -79,9 +75,7 @@ class SnippetValidatorTest extends TestCase
 
     public function testValidateShouldFindInvalidPluralization(): void
     {
-        $snippetFileHandler = $this->getMockBuilder(SnippetFileHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
 
         $path = 'storefront.en.json';
         $snippetFileHandler->method('findStorefrontSnippetFiles')

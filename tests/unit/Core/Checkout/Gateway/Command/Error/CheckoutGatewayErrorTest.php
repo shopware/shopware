@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayError::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayError::class)]
 class CheckoutGatewayErrorTest extends TestCase
 {
     public function testConstruct(): void

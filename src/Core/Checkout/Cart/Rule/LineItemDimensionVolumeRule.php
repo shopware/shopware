@@ -60,7 +60,7 @@ class LineItemDimensionVolumeRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_VOLUME]);
     }
 
@@ -69,6 +69,10 @@ class LineItemDimensionVolumeRule extends Rule
      */
     private function matchVolumeDimension(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {

@@ -92,6 +92,7 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
             case 'image/jpeg':
                 $thumbnail->setImageFormat('jpeg');
                 $thumbnail->setImageCompressionQuality($quality);
+                $thumbnail->setInterlaceScheme(\Imagick::INTERLACE_JPEG);
 
                 break;
             case 'image/webp':

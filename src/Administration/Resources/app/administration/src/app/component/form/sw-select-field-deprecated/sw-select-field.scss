@@ -1,13 +1,3 @@
-@import "~scss/variables";
-
-$sw-select-field-color-text: $color-darkgray-200;
-$sw-select-field-color-text-disabled: $color-gray-300;
-$sw-select-field-color-focus: $color-shopware-brand-500;
-$sw-select-field-border-radius: $border-radius-default;
-$sw-select-field-color-background: $color-white;
-$sw-select-field-color-border: $color-gray-300;
-$sw-select-field-color-error: $color-crimson-500;
-
 .sw-field.sw-field--select {
     .sw-block-field__block {
         width: 100%;
@@ -19,7 +9,7 @@ $sw-select-field-color-error: $color-crimson-500;
             top: calc(50% - 10px);
             right: 12px;
             text-align: center;
-            color: $sw-select-field-color-text;
+            color: var(--color-icon-primary-default);
             pointer-events: none;
 
             .mt-icon {
@@ -46,31 +36,31 @@ $sw-select-field-color-error: $color-crimson-500;
     }
 
     .sw-field--select__placeholder-option {
-        color: lighten($sw-select-field-color-text, 25);
+        color: var(--color-text-secondary-default);
     }
 
     select {
         padding-right: 30px;
 
         option {
-            color: $sw-select-field-color-text;
-            background-color: $sw-select-field-color-background;
+            color: var(--color-text-primary-default);
+            background-color: var(--color-background-primary-default);
         }
 
         option:disabled {
-            color: $sw-select-field-color-text-disabled;
+            color: var(--color-text-primary-disabled);
         }
 
         &.is--placeholder {
-            color: lighten($sw-select-field-color-text, 25%);
+            color: var(--color-text-secondary-default);
         }
     }
 
     .sw-field--select__load-placeholder {
         height: 45px;
-        border-radius: $sw-select-field-border-radius;
-        border: 1px solid $sw-select-field-color-border;
-        background: $sw-select-field-color-background;
+        border-radius: var(--border-radius-xs);
+        border: 1px solid var(--color-border-primary-default);
+        background: var(--color-background-primary-default);
         appearance: none;
         user-select: none;
         position: relative;

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(BlockedShippingMethodSwitcher::class)]
 class BlockedShippingMethodSwitcherTest extends TestCase
 {
@@ -337,7 +339,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
             $salesChannel->setShippingMethodId('default-shipping-method-id');
         }
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getShippingMethod')->willReturn($this->shippingMethodCollection->get('original-shipping-method-id'));
@@ -347,17 +349,15 @@ class BlockedShippingMethodSwitcherTest extends TestCase
 
     private function getShippingMethodRoute(bool $dontReturnAnyOtherShippingMethod = false): ShippingMethodRoute
     {
-        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(ShippingMethodRoute::class);
 
         if ($dontReturnAnyOtherShippingMethod) {
             $shippingMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadShippingMethodsForAllBlocked(...));
         } else {
             $shippingMethodRoute
                 ->method('load')
-                ->withAnyParameters()
                 ->willReturnCallback($this->callbackLoadShippingMethods(...));
         }
 

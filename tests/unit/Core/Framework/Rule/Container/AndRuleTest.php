@@ -25,7 +25,7 @@ class AndRuleTest extends TestCase
     #[DataProvider('cases')]
     public function testRuleLogic(AndRule $rule, bool $matching): void
     {
-        $scope = $this->createMock(RuleScope::class);
+        $scope = static::createStub(RuleScope::class);
         static::assertSame($matching, $rule->match($scope));
     }
 

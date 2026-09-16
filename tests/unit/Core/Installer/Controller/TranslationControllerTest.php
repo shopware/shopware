@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\TranslationController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TranslationController::class)]
 class TranslationControllerTest extends TestCase
 {
@@ -48,6 +50,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunWithSuccessfulTranslation(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', ['en-GB', 'de-DE']);
         $request = Request::create('/installer/translation/run', 'POST');
@@ -71,6 +75,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunResponseStructure(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', ['en-GB']);
         $request = Request::create('/installer/translation/run', 'POST');
@@ -92,6 +98,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunSessionHandling(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', ['en-GB', 'de-DE', 'fr-FR']);
         $request = Request::create('/installer/translation/run', 'POST');
@@ -107,6 +115,8 @@ class TranslationControllerTest extends TestCase
 
     public function testRunWithEmptyLocales(): void
     {
+        $this->twig->expects($this->never())->method('render');
+
         $session = new Session(new MockArraySessionStorage());
         $session->set('SELECTED_LANGUAGES', []);
         $request = Request::create('/installer/translation/run', 'POST');

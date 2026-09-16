@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Webhook\Service\WebhookResult;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 final readonly class DeliveryResponse

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -31,6 +31,7 @@ final class AppFixture
         $app = new AppEntity();
         $app->setId($id ?? Uuid::randomHex());
         $app->setName($name);
+        $app->setLabel($name);
         $app->setPath($name);
         $app->setActive($active);
         $app->setAllowDisable($allowDisable);
@@ -38,6 +39,7 @@ final class AppFixture
         $app->setIntegrationId('integration-id');
         $app->setAclRoleId('acl-role-id');
         $app->setSourceType('static');
+        $app->setCreatedAt(new \DateTimeImmutable('2026-01-01 00:00:00'));
 
         return $app;
     }
@@ -47,7 +49,6 @@ final class AppFixture
      */
     public static function createAppRepository(AppEntity ...$apps): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection($apps)]);
 
         return $repository;
@@ -67,7 +68,6 @@ final class AppFixture
             'translationCode' => $localeEntity,
         ]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $repository */
         $repository = new StaticEntityRepository([new LanguageCollection([$languageEntity])]);
 
         return $repository;
@@ -78,8 +78,8 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
-        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, true);
+    ): AppPersistContext {
+        return self::createPersistContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale);
     }
 
     public static function createUpdateContext(
@@ -87,24 +87,22 @@ final class AppFixture
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
-    ): AppLifecycleContext {
-        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, false);
+    ): AppPersistContext {
+        return self::createPersistContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale);
     }
 
-    private static function createContext(
+    private static function createPersistContext(
         AppEntity $app,
         Manifest $manifest,
         Filesystem $fs,
-        string $defaultLocale,
-        bool $isInstall
-    ): AppLifecycleContext {
-        return new AppLifecycleContext(
+        string $defaultLocale
+    ): AppPersistContext {
+        return new AppPersistContext(
             manifest: $manifest,
             app: $app,
             context: Context::createDefaultContext(),
             appFilesystem: $fs,
             defaultLocale: $defaultLocale,
-            isInstall: $isInstall,
         );
     }
 }

@@ -1,0 +1,11 @@
+<ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+    <ram:LineTotalAmount>{{ sum.lineTotal|zugferd_decimal }}</ram:LineTotalAmount>
+    <ram:ChargeTotalAmount>{{ sum.chargeTotal|zugferd_decimal }}</ram:ChargeTotalAmount>
+    <ram:AllowanceTotalAmount>{{ sum.allowanceTotal|zugferd_decimal }}</ram:AllowanceTotalAmount>
+    <ram:TaxBasisTotalAmount>{{ sum.taxBasisTotal|zugferd_decimal }}</ram:TaxBasisTotalAmount>
+    <ram:TaxTotalAmount currencyID="{{ sum.currencyCode }}">{{ sum.taxTotal|zugferd_decimal }}</ram:TaxTotalAmount>
+    <ram:RoundingAmount>{{ sum.rounding|zugferd_decimal }}</ram:RoundingAmount>
+    <ram:GrandTotalAmount>{{ sum.grandTotal|zugferd_decimal }}</ram:GrandTotalAmount>
+    <ram:TotalPrepaidAmount>{{ sum.prepaid|zugferd_decimal }}</ram:TotalPrepaidAmount>
+    <ram:DuePayableAmount>{{ sum.duePayable|zugferd_decimal }}</ram:DuePayableAmount>
+</ram:SpecifiedTradeSettlementHeaderMonetarySummation>

@@ -1,11 +1,3 @@
-@import "~scss/variables";
-
-$sw-custom-field-list-color-label-link: $color-shopware-brand-500;
-$sw-custom-field-list-color-toolbar-background: $color-gray-100;
-$sw-custom-field-list-color-toolbar-bottom: $color-gray-300;
-$sw-custom-field-list-color-border: $color-crimson-500;
-$sw-custom-field-list-color-label-link: $color-shopware-brand-500;
-
 .sw-custom-field-list {
     .sw-empty-state {
         position: static;
@@ -21,14 +13,14 @@ $sw-custom-field-list-color-label-link: $color-shopware-brand-500;
 
     .sw-custom-field-list__toolbar {
         padding: 25px 35px;
-        background-color: $sw-custom-field-list-color-toolbar-background;
-        border-bottom: 1px solid $sw-custom-field-list-color-toolbar-bottom;
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-custom-field-list__delete-button.mt-button--square {
-            border-color: $sw-custom-field-list-color-border;
+            border-color: var(--color-border-critical-default);
 
             .mt-icon {
-                color: $sw-custom-field-list-color-border;
+                color: var(--color-icon-critical-default);
             }
 
             &.mt-button--disabled {
@@ -47,7 +39,7 @@ $sw-custom-field-list-color-label-link: $color-shopware-brand-500;
         cursor: pointer;
 
         &:hover {
-            color: $sw-custom-field-list-color-label-link;
+            color: var(--color-text-brand-default);
             text-decoration: underline;
         }
     }

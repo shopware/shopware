@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 $sw-context-menu-color-background-hover: var(--color-background-brand-default);
 $sw-context-menu-color-text: var(--color-text-primary-default);
 $sw-context-menu-color-active: var(--color-text-brand-default);
@@ -22,7 +20,7 @@ $sw-context-menu-color-warning: var(--color-text-attention-default);
     cursor: pointer;
 
     &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: var(--scale-size-2);
     }
 
@@ -97,7 +95,7 @@ $sw-context-menu-color-warning: var(--color-text-attention-default);
     }
 
     &.sw-context-menu-item--headline {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         cursor: default;
 
         &:hover {

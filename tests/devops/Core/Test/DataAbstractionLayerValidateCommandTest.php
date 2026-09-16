@@ -4,12 +4,14 @@ namespace Shopware\Tests\DevOps\Core\Test;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DataAbstractionLayerValidateCommandTest extends TestCase
 {
     use KernelTestBehaviour;

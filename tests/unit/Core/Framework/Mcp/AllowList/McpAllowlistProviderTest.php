@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpAllowlistProvider::class)]
 class McpAllowlistProviderTest extends TestCase
 {
@@ -26,9 +28,9 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertSame(['shopware-entity-search', 'shopware-entity-schema'], $result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertSame(['shopware-entity-search', 'shopware-entity-schema'], $result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testToolsForCurrentRequestDelegatesToForCurrentRequest(): void
@@ -57,9 +59,9 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result['tools']);
-        static::assertSame(['shopware://entities'], $result['resources']);
-        static::assertSame(['shopware-context'], $result['prompts']);
+        static::assertNull($result->tools);
+        static::assertSame(['shopware://entities'], $result->resources);
+        static::assertSame(['shopware-context'], $result->prompts);
     }
 
     public function testExpandsDirectDependenciesIntoToolAllowlist(): void
@@ -72,9 +74,9 @@ class McpAllowlistProviderTest extends TestCase
         ]);
 
         $result = $provider->forCurrentRequest();
-        static::assertNotNull($result['tools']);
-        static::assertContains('shopware-entity-search', $result['tools']);
-        static::assertContains('shopware-entity-schema', $result['tools']);
+        static::assertNotNull($result->tools);
+        static::assertContains('shopware-entity-search', $result->tools);
+        static::assertContains('shopware-entity-schema', $result->tools);
     }
 
     public function testExpandsTransitiveDependencies(): void
@@ -88,10 +90,10 @@ class McpAllowlistProviderTest extends TestCase
         ]);
 
         $result = $provider->forCurrentRequest();
-        static::assertNotNull($result['tools']);
-        static::assertContains('shopware-entity-delete', $result['tools']);
-        static::assertContains('shopware-entity-search', $result['tools']);
-        static::assertContains('shopware-entity-schema', $result['tools']);
+        static::assertNotNull($result->tools);
+        static::assertContains('shopware-entity-delete', $result->tools);
+        static::assertContains('shopware-entity-search', $result->tools);
+        static::assertContains('shopware-entity-schema', $result->tools);
     }
 
     public function testDoesNotDuplicateToolsAlreadyInAllowlist(): void
@@ -104,9 +106,9 @@ class McpAllowlistProviderTest extends TestCase
         ]);
 
         $result = $provider->forCurrentRequest();
-        static::assertNotNull($result['tools']);
-        static::assertSame(array_unique($result['tools']), $result['tools']);
-        static::assertCount(2, $result['tools']);
+        static::assertNotNull($result->tools);
+        static::assertSame(array_unique($result->tools), $result->tools);
+        static::assertCount(2, $result->tools);
     }
 
     public function testReturnsEmptyToolsArrayWhenToolsAllowlistIsEmptyJsonArray(): void
@@ -117,7 +119,7 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertSame([], $result['tools']);
+        static::assertSame([], $result->tools);
     }
 
     public function testReturnsUnrestrictedWhenNoRequest(): void
@@ -128,9 +130,9 @@ class McpAllowlistProviderTest extends TestCase
         );
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testReturnsUnrestrictedWhenNoAccessKey(): void
@@ -144,9 +146,9 @@ class McpAllowlistProviderTest extends TestCase
         );
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     /**
@@ -169,9 +171,9 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testForAccessKeyReturnsAllowlistForValidKey(): void
@@ -182,7 +184,7 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, new RequestStack());
 
         $result = $provider->forAccessKey('SWIA-test');
-        static::assertSame(['shopware-entity-search', 'shopware-entity-schema'], $result['tools']);
+        static::assertSame(['shopware-entity-search', 'shopware-entity-schema'], $result->tools);
     }
 
     public function testForAccessKeyExpandsDependencies(): void
@@ -195,9 +197,9 @@ class McpAllowlistProviderTest extends TestCase
         ]);
 
         $result = $provider->forAccessKey('SWIA-test');
-        static::assertNotNull($result['tools']);
-        static::assertContains('shopware-entity-delete', $result['tools']);
-        static::assertContains('shopware-entity-search', $result['tools']);
+        static::assertNotNull($result->tools);
+        static::assertContains('shopware-entity-delete', $result->tools);
+        static::assertContains('shopware-entity-search', $result->tools);
     }
 
     public function testForAccessKeyReturnsUnrestrictedWhenKeyNotFound(): void
@@ -208,9 +210,9 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, new RequestStack());
 
         $result = $provider->forAccessKey('SWIA-unknown');
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testReturnsNullForKeyWhenValueIsNonArrayNonNull(): void
@@ -221,9 +223,9 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testForAccessKeyReturnsUnrestrictedForInvalidJson(): void
@@ -234,7 +236,7 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, new RequestStack());
 
         $result = $provider->forAccessKey('SWIA-test');
-        static::assertNull($result['tools']);
+        static::assertNull($result->tools);
     }
 
     // --- Bearer JWT, client_credentials ---
@@ -258,9 +260,9 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
-        static::assertSame(['cc-tool'], $result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertSame(['cc-tool'], $result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     // --- forUserId / bearer JWT ---
@@ -269,7 +271,7 @@ class McpAllowlistProviderTest extends TestCase
     {
         $userId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{"tools":["bearer-tool"],"resources":null,"prompts":null}',
             'admin' => false,
@@ -285,9 +287,9 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
-        static::assertSame(['bearer-tool'], $result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertSame(['bearer-tool'], $result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testBearerJwtWithoutUserIdIsUnrestricted(): void
@@ -304,16 +306,16 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testAdminUserAlwaysUnrestrictedRegardlessOfAllowlist(): void
     {
         $userId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{"tools":["restricted-tool"],"resources":null,"prompts":null}',
             'admin' => true,
@@ -321,26 +323,26 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId($userId);
 
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testForUserIdReturnsUnrestrictedWhenUserNotFound(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
 
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testForUserIdReturnsUnrestrictedWhenAllowlistIsNull(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => null,
             'admin' => false,
@@ -348,12 +350,12 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
 
-        static::assertNull($result['tools']);
+        static::assertNull($result->tools);
     }
 
     public function testForUserIdReturnsUnrestrictedForInvalidJson(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{not-valid-json}',
             'admin' => false,
@@ -361,14 +363,14 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
 
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testForUserIdReturnsUnrestrictedWhenJsonIsNotArray(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '"just-a-string"',
             'admin' => false,
@@ -376,9 +378,9 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
 
-        static::assertNull($result['tools']);
-        static::assertNull($result['resources']);
-        static::assertNull($result['prompts']);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testUserAccessKeyPathLooksUpUserAndAppliesAllowlist(): void
@@ -386,7 +388,7 @@ class McpAllowlistProviderTest extends TestCase
         $userId = Uuid::randomHex();
         $userIdBytes = Uuid::fromHexToBytes($userId);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($userIdBytes);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => '{"tools":["user-key-tool"],"resources":null,"prompts":null}',
@@ -395,7 +397,7 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey('SWUAtestuseraccesskey00')))->forCurrentRequest();
 
-        static::assertSame(['user-key-tool'], $result['tools']);
+        static::assertSame(['user-key-tool'], $result->tools);
     }
 
     public function testUserAccessKeyReturnsUnrestrictedWhenKeyNotFound(): void
@@ -406,7 +408,7 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey('SWUAtestuseraccesskey00')))->forCurrentRequest();
 
-        static::assertNull($result['tools']);
+        static::assertNull($result->tools);
     }
 
     // --- Copilot intersection ---
@@ -416,7 +418,7 @@ class McpAllowlistProviderTest extends TestCase
         $appUserId = Uuid::randomHex();
         $appUserIdBytes = Uuid::fromHexToBytes($appUserId);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration allowlist: tools A + B
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-a","tool-b"],"resources":null,"prompts":null}');
@@ -437,14 +439,14 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         // Intersection: only tool-b is in both allowlists.
-        static::assertSame(['tool-b'], $result['tools']);
+        static::assertSame(['tool-b'], $result->tools);
     }
 
     public function testCopilotIntersectionWithNullIntegrationAllowlistUsesUserAllowlist(): void
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration has no allowlist (null = unrestricted).
         $connection->method('fetchOne')->willReturn(false);
         // User allowlist restricts to tool-a only.
@@ -463,14 +465,14 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         // null ∩ [tool-a] = [tool-a]
-        static::assertSame(['tool-a'], $result['tools']);
+        static::assertSame(['tool-a'], $result->tools);
     }
 
     public function testCopilotIntersectionWithNullUserAllowlistUsesIntegrationAllowlist(): void
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration restricts to tool-b.
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-b"],"resources":null,"prompts":null}');
@@ -490,14 +492,14 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         // [tool-b] ∩ null = [tool-b]
-        static::assertSame(['tool-b'], $result['tools']);
+        static::assertSame(['tool-b'], $result->tools);
     }
 
     public function testCopilotIntersectionWithBothNullIsUnrestricted(): void
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn(false);
         $connection->method('fetchAssociative')->willReturn([
             'mcp_allowlist' => null,
@@ -514,7 +516,7 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         // null ∩ null = null (unrestricted)
-        static::assertNull($result['tools']);
+        static::assertNull($result->tools);
     }
 
     public function testAppUserIdHeaderUuidIsPassedToUserLookup(): void
@@ -524,7 +526,7 @@ class McpAllowlistProviderTest extends TestCase
         $appUserId = Uuid::randomHex();
         $capturedParams = null;
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-a","tool-b"],"resources":null,"prompts":null}');
         $connection->method('fetchAssociative')
@@ -565,14 +567,14 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
-        static::assertSame(['integration-tool'], $result['tools']);
+        static::assertSame(['integration-tool'], $result->tools);
     }
 
     public function testCopilotIntersectionWithBothEmptyArrayIsEmpty(): void
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')
             ->willReturn('{"tools":[],"resources":null,"prompts":null}');
         $connection->method('fetchAssociative')->willReturn([
@@ -589,14 +591,14 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
-        static::assertSame([], $result['tools']);
+        static::assertSame([], $result->tools);
     }
 
     public function testCopilotAdminUserBypassesIntersection(): void
     {
         $appUserId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         // Integration restricts to tool-b only.
         $connection->method('fetchOne')
             ->willReturn('{"tools":["tool-b"],"resources":null,"prompts":null}');
@@ -616,7 +618,7 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         // [tool-b] ∩ null (admin bypass) = [tool-b]
-        static::assertSame(['tool-b'], $result['tools']);
+        static::assertSame(['tool-b'], $result->tools);
     }
 
     private function requestStackWithKey(string $accessKey = 'SWIAtestintegrationkey00'): RequestStack

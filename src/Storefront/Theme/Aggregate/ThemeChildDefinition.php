@@ -11,7 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class ThemeChildDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'theme_child';

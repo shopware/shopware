@@ -6,14 +6,14 @@ use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use OpenSearch\Client;
 use Psr\Http\Message\UriInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - will be considered internal from 6.8.0.0 onwards
- *
  * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ClientProfiler extends Client
 {
     /**
@@ -29,7 +29,62 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<string, mixed> $request
+     * @param array{
+     *     index?: mixed,
+     *     _source?: mixed,
+     *     _source_excludes?: mixed,
+     *     _source_includes?: mixed,
+     *     allow_no_indices?: bool,
+     *     allow_partial_search_results?: bool,
+     *     analyze_wildcard?: bool,
+     *     analyzer?: string,
+     *     batched_reduce_size?: int,
+     *     cancel_after_time_interval?: string,
+     *     ccs_minimize_roundtrips?: bool,
+     *     default_operator?: mixed,
+     *     df?: string,
+     *     docvalue_fields?: mixed,
+     *     expand_wildcards?: mixed,
+     *     explain?: bool,
+     *     from?: int,
+     *     ignore_throttled?: bool,
+     *     ignore_unavailable?: bool,
+     *     include_named_queries_score?: bool,
+     *     lenient?: bool,
+     *     max_concurrent_shard_requests?: int,
+     *     phase_took?: bool,
+     *     pre_filter_shard_size?: int,
+     *     preference?: string,
+     *     q?: string,
+     *     request_cache?: bool,
+     *     rest_total_hits_as_int?: bool,
+     *     routing?: mixed,
+     *     scroll?: string,
+     *     search_pipeline?: string,
+     *     search_type?: mixed,
+     *     seq_no_primary_term?: bool,
+     *     size?: int,
+     *     sort?: mixed,
+     *     stats?: mixed,
+     *     stored_fields?: mixed,
+     *     suggest_field?: string,
+     *     suggest_mode?: mixed,
+     *     suggest_size?: int,
+     *     suggest_text?: string,
+     *     terminate_after?: int,
+     *     timeout?: string,
+     *     track_scores?: bool,
+     *     track_total_hits?: mixed,
+     *     typed_keys?: bool,
+     *     verbose_pipeline?: bool,
+     *     version?: bool,
+     *     pretty?: bool,
+     *     human?: bool,
+     *     error_trace?: bool,
+     *     source?: string,
+     *     filter_path?: mixed,
+     *     body?: mixed
+     * } $request Copied from parent class. Also look there for possible PHPStan issues
      *
      * @return array<string, mixed>
      */
@@ -52,7 +107,23 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<string, mixed> $params
+     * @param array{
+     *     index?: mixed,
+     *     allow_partial_results?: bool,
+     *     ccs_minimize_roundtrips?: bool,
+     *     max_concurrent_searches?: int,
+     *     max_concurrent_shard_requests?: int,
+     *     pre_filter_shard_size?: int,
+     *     rest_total_hits_as_int?: bool,
+     *     search_type?: mixed,
+     *     typed_keys?: bool,
+     *     pretty?: bool,
+     *     human?: bool,
+     *     error_trace?: bool,
+     *     source?: string,
+     *     filter_path?: mixed,
+     *     body?: mixed
+     * } $params Copied from parent class. Also look there for possible PHPStan issues
      *
      * @return array<string, mixed>
      */
@@ -88,7 +159,24 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<string, mixed> $params
+     * @param array{
+     *     index?: string,
+     *     _source?: mixed,
+     *     _source_excludes?: mixed,
+     *     _source_includes?: mixed,
+     *     pipeline?: string,
+     *     refresh?: mixed,
+     *     require_alias?: bool,
+     *     routing?: string,
+     *     timeout?: string,
+     *     wait_for_active_shards?: mixed,
+     *     pretty?: bool,
+     *     human?: bool,
+     *     error_trace?: bool,
+     *     source?: string,
+     *     filter_path?: mixed,
+     *     body?: mixed
+     * } $params Copied from parent class. Also look there for possible PHPStan issues
      *
      * @return array<string, mixed>
      */
@@ -111,7 +199,19 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<string, mixed> $params
+     * @param array{
+     *     id?: string,
+     *     context?: string,
+     *     cluster_manager_timeout?: string,
+     *     master_timeout?: string,
+     *     timeout?: string,
+     *     pretty?: bool,
+     *     human?: bool,
+     *     error_trace?: bool,
+     *     source?: string,
+     *     filter_path?: mixed,
+     *     body?: mixed
+     * } $params Copied from parent class. Also look there for possible PHPStan issues
      *
      * @return array<string, mixed>
      */

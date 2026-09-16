@@ -6,6 +6,11 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
+const deviceMock = {
+    onResize: jest.fn(),
+    removeResizeListener: jest.fn(),
+};
+
 const mockNewsletterRecipient = [
     {
         email: 'test@example.com',
@@ -110,7 +115,7 @@ class MockRepositoryFactory {
 }
 const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient')));
 
-async function createWrapper(options = {}, customStubs = {}) {
+async function createWrapper(options = {}) {
     const { useSearchSpy = false } = options;
 
     const repositoryFactory = useSearchSpy
@@ -127,60 +132,11 @@ async function createWrapper(options = {}, customStubs = {}) {
         global: {
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"><slot name="grid"></slot></slot></div>',
+                    template: '<div><slot name="content"><slot name="grid"></slot></slot><slot name="sidebar"></slot></div>',
                 },
-                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'dataSource',
-                        'allowView',
-                        'allowEdit',
-                        'allowDelete',
-                        'allowInlineEdit',
-                    ],
-                    data() {
-                        return {
-                            isInlineEdit: false,
-                        };
-                    },
-                    template: `
-                    <div>
-                    <template v-for="item in (dataSource || items)">
-
-                        <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
-
-                            <template v-if="isInlineEdit">
-                                <sw-text-field class="sw-newsletter-recipient-list__inline-edit-first-name"
-                                               v-model="item.firstName"
-                                               :size="compact ? 'small' : 'default'">
-                                </sw-text-field>
-
-                                <sw-text-field class="sw-newsletter-recipient-list__inline-edit-last-name"
-                                               v-model="item.lastName"
-                                               :size="compact ? 'small' : 'default'">
-                                </sw-text-field>
-                            </template>
-
-                            <template v-else>
-                                {{ item.firstName }} {{ item.lastName }}
-                            </template>
-                        </template>
-                        <slot name="detail-action" v-bind="{ item }">
-                            <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
-                                                  :disabled="!allowEdit && !allowView">
-                            </sw-context-menu-item>
-                        </slot>
-                        <slot name="delete-action" v-bind="{ item, allowDelete }">
-                            <sw-context-menu-item class="sw-entity-listing__context-menu-edit-delete"
-                                                  :disabled="!allowDelete"
-                            >
-                            </sw-context-menu-item>
-                        </slot>
-                    </template>
-                    </div>`,
-                },
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                 'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
                 'sw-provide': await wrapTestComponent('sw-provide', { sync: true }),
                 'sw-container': true,
@@ -189,10 +145,12 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-text-field': true,
                 'sw-label': true,
                 'router-link': true,
-                'sw-sidebar-item': true,
+                'sw-sidebar': await wrapTestComponent('sw-sidebar', { sync: true }),
+                'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
+                'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
+                'mt-tooltip': true,
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
-                'sw-sidebar': true,
                 'sw-time-ago': true,
                 'sw-pagination': true,
                 'sw-bulk-edit-modal': true,
@@ -202,7 +160,6 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-button-group': true,
                 'sw-context-menu-divider': true,
                 'sw-data-grid-skeleton': true,
-                ...customStubs,
             },
             provide: {
                 repositoryFactory,
@@ -219,12 +176,15 @@ async function createWrapper(options = {}, customStubs = {}) {
                         return term && term.trim().length >= 1;
                     },
                 },
+                setSwPageSidebarOffset: () => {},
+                removeSwPageSidebarOffset: () => {},
             },
             mocks: {
+                $device: deviceMock,
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -238,36 +198,54 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         global.activeAclRoles = [];
     });
 
+    it('should register the open filters shortcut', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
+    });
+
+    it('should open the filter sidebar via the open-filters shortcut', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sidebar').classes()).not.toContain('is--opened');
+
+        wrapper.vm.openFilterSidebar();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sidebar').classes()).toContain('is--opened');
+    });
+
     it('should have no rights', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(false);
+        expect(listing.props('allowView')).toBe(false);
+        expect(listing.props('allowDelete')).toBe(false);
     });
 
     it('should be able to edit', async () => {
-        global.activeAclRoles = [
-            'newsletter_recipient.editor',
-        ];
+        global.activeAclRoles = ['newsletter_recipient.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(true);
+        expect(listing.props('allowDelete')).toBe(false);
     });
 
     it('should be able to delete', async () => {
-        global.activeAclRoles = [
-            'newsletter_recipient.deleter',
-        ];
+        global.activeAclRoles = ['newsletter_recipient.deleter'];
 
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).not.toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(false);
+        expect(listing.props('allowDelete')).toBe(true);
     });
 
     it('should be to edit and delete', async () => {
@@ -279,8 +257,9 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
-        expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes()).not.toContain('is--disabled');
+        const listing = wrapper.findComponent({ ref: 'swNewsletterRecipientGrid' });
+        expect(listing.props('allowEdit')).toBe(true);
+        expect(listing.props('allowDelete')).toBe(true);
     });
 
     it('should add query score to the criteria', async () => {
@@ -364,7 +343,6 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
@@ -380,12 +358,7 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
     });
 
     it('should sort by firstName when clicking the name column', async () => {
-        const wrapper = await createWrapper(
-            { useSearchSpy: true },
-            {
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
-            },
-        );
+        const wrapper = await createWrapper({ useSearchSpy: true });
         await wrapper.setData({
             disableRouteParams: true,
         });

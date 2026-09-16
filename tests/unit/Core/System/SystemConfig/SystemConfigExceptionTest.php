@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
@@ -13,6 +14,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigException::class)]
 class SystemConfigExceptionTest extends TestCase
 {

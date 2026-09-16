@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleCollection;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DumpClassSchemaCommand::class)]
 class DumpClassSchemaCommandTest extends TestCase
 {

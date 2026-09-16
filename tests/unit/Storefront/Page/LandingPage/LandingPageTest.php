@@ -20,10 +20,13 @@ class LandingPageTest extends TestCase
     {
         $page = new LandingPage();
         $entity = new LandingPageEntity();
+        $navigationId = 'navigation-id';
 
         $page->setLandingPage($entity);
+        $page->setNavigationId($navigationId);
 
         static::assertSame(LandingPageDefinition::ENTITY_NAME, $page->getEntityName());
         static::assertSame($entity, $page->getLandingPage());
+        static::assertSame($navigationId, $page->getNavigationId());
     }
 }

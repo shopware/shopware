@@ -1,0 +1,20 @@
+{
+  "persona": "security",
+  "tier": "cheap",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-sec-ignore",
+    "title": "chore(storefront): tweak login copy",
+    "body": "Updates the login title snippet.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/sec-ignore",
+    "additions": 1,
+    "deletions": 1,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": ["src/Storefront/Resources/snippet/en_GB/storefront.en-GB.json"]
+}

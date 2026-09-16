@@ -161,6 +161,8 @@ class FormControllerTest extends TestCase
         static::assertCount(1, $content);
         static::assertSame('danger', $type);
         static::assertSame(2, $messageCount);
+        static::assertStringContainsString('The input does not have the correct format.', (string) $content[0]['alert']);
+        static::assertStringNotContainsString('VIOLATION::INVALID_FORMAT_ERROR', (string) $content[0]['alert']);
     }
 
     public function testSendRevocationRequest(): void

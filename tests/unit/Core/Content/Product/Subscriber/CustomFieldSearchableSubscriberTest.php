@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -20,6 +21,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(CustomFieldSearchableSubscriber::class)]
 class CustomFieldSearchableSubscriberTest extends TestCase
 {
@@ -32,6 +34,8 @@ class CustomFieldSearchableSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->connection->expects($this->never())->method('executeStatement');
+
         $events = CustomFieldSearchableSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(EntityWrittenContainerEvent::class, $events);

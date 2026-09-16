@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRouteResponse;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(BreadcrumbRouteResponse::class)]
 class BreadcrumbRouteResponseTest extends TestCase
 {

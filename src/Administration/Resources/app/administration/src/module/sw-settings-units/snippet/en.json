@@ -14,8 +14,7 @@
     },
     "grid": {
       "columnName": "Product unit",
-      "columnShortCode": "Shorthand",
-      "contextMenuDelete": "Delete"
+      "columnShortCode": "Shorthand"
     },
     "empty-state": {
       "title": "No product units yet",

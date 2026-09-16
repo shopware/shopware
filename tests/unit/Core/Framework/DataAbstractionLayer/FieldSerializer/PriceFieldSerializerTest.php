@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -17,10 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContextFactory;
 use Symfony\Component\Validator\Mapping\Factory\BlackHoleMetadataFactory;
 use Symfony\Component\Validator\Validator\RecursiveValidator;
@@ -29,6 +34,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceFieldSerializer::class)]
 class PriceFieldSerializerTest extends TestCase
 {
@@ -38,7 +44,7 @@ class PriceFieldSerializerTest extends TestCase
     {
         $validator = new RecursiveValidator(
             new ExecutionContextFactory(
-                $this->createMock(TranslatorInterface::class)
+                static::createStub(TranslatorInterface::class)
             ),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
@@ -51,7 +57,7 @@ class PriceFieldSerializerTest extends TestCase
                     new ProductDefinition(),
                 ],
                 $validator,
-                $this->createMock(EntityWriteGateway::class)
+                static::createStub(EntityWriteGateway::class)
             )
         );
     }
@@ -340,6 +346,61 @@ class PriceFieldSerializerTest extends TestCase
         ]);
     }
 
+    #[DataProvider('nonArrayValueProvider')]
+    public function testSerializeNonArrayValueThrows(mixed $value): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/someId', $value),
+            ])
+        ));
+
+        $this->encode($value);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
+        yield 'zero, which a truthiness check would let through' => [0];
+        yield 'empty string, which a truthiness check would let through' => [''];
+        yield 'numeric string, which is not coerced into a price list' => ['12.50'];
+    }
+
+    public function testSerializeEmptyArrayStillRequiresDefaultCurrency(): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('No price for default currency defined', 'No price for default currency defined', [], '', '/test', []),
+            ])
+        ));
+
+        $this->encode([]);
+    }
+
+    /**
+     * `requiresValidation()` skips the whole validation block for a null value on an optional field, so
+     * the array check never sees it and clearing a price stays a plain null write.
+     */
+    public function testSerializeNullOnOptionalFieldYieldsNull(): void
+    {
+        static::assertNull($this->encode(null));
+    }
+
+    public function testSerializeNullOnRequiredFieldStillReportsBlank(): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should not be blank.', 'This value should not be blank.', [], null, '/someId', null),
+            ])
+        ));
+
+        $this->encode(null, (new PriceField('test', 'test'))->addFlags(new Required()));
+    }
+
     public function testDecodeIsBackwardCompatible(): void
     {
         $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"regulationPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
@@ -364,13 +425,10 @@ class PriceFieldSerializerTest extends TestCase
         static::assertNull($price->getPercentage());
     }
 
-    /**
-     * @param array<mixed>|PriceCollection $data
-     */
-    private function encode(array|PriceCollection $data): string
+    private function encode(mixed $data, ?PriceField $field = null): ?string
     {
-        $field = new PriceField('test', 'test');
-        $existence = new EntityExistence('test', ['someId' => true], true, false, false, []);
+        $field ??= new PriceField('test', 'test');
+        $existence = new EntityExistence('product', ['someId' => true], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
             new ProductDefinition(),

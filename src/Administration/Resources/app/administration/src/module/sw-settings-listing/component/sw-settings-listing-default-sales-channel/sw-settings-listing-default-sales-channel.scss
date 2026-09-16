@@ -6,6 +6,10 @@
         margin-bottom: var(--scale-size-20);
     }
 
+    &__select.sw-field {
+        margin-bottom: 0;
+    }
+
     &__options-container {
         display: flex;
         justify-content: space-between;

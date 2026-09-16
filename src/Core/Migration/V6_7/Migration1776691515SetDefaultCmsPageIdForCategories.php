@@ -29,17 +29,25 @@ class Migration1776691515SetDefaultCmsPageIdForCategories extends MigrationStep
         }
 
         $batchSize = 1000;
+        $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
+        // `cms_page_version_id` must be written together with `cms_page_id`.
+        // The composite foreign key (cms_page_id, cms_page_version_id) is not
+        // enforced while `cms_page_id` IS NULL, so affected rows may carry a
+        // stale, non-live version id. Setting only `cms_page_id` would then
+        // activate the FK against a non-existent (page, version) pair and fail.
         do {
             $affectedRows = $connection->executeStatement(
-                'UPDATE `category` SET `cms_page_id` = :cmsPageId WHERE `cms_page_id` IS NULL AND `type` = :type LIMIT :batchSize',
+                'UPDATE `category` SET `cms_page_id` = :cmsPageId, `cms_page_version_id` = :cmsPageVersionId WHERE `cms_page_id` IS NULL AND `type` = :type LIMIT :batchSize',
                 [
                     'cmsPageId' => Uuid::fromHexToBytes($cmsPageId),
+                    'cmsPageVersionId' => $liveVersionId,
                     'type' => CategoryDefinition::TYPE_PAGE,
                     'batchSize' => $batchSize,
                 ],
                 [
                     'cmsPageId' => ParameterType::BINARY,
+                    'cmsPageVersionId' => ParameterType::BINARY,
                     'type' => ParameterType::STRING,
                     'batchSize' => ParameterType::INTEGER,
                 ]

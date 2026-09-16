@@ -18,6 +18,7 @@ export default {
         'repositoryFactory',
         'acl',
         'configService',
+        'mediaService',
     ],
 
     emits: ['media-open'],
@@ -44,6 +45,7 @@ export default {
         return {
             isMediaLoading: false,
             fileAcceptedExtensions: [],
+            fileAcceptedMimeTypesByExtension: {},
         };
     },
 
@@ -107,7 +109,8 @@ export default {
     methods: {
         async createdComponent() {
             this.configService.getConfig().then((result) => {
-                this.fileAcceptedExtensions = result.settings.private_allowed_extensions;
+                this.fileAcceptedExtensions = result.settings.private_allowed_extensions ?? [];
+                this.fileAcceptedMimeTypesByExtension = result.settings.private_allowed_mime_types_by_extension ?? {};
             });
         },
 
@@ -194,6 +197,44 @@ export default {
             this.productMedia.forEach((medium, index) => {
                 medium.position = index;
             });
+        },
+
+        downloadMedia(download) {
+            this.mediaService
+                .prepareDownloadMedia(download.media.id)
+                .then((downloadConfig) => {
+                    if (downloadConfig.type === 'external') {
+                        this.triggerDownload(downloadConfig.url);
+
+                        return;
+                    }
+
+                    return this.mediaService.downloadMedia(download.media.id).then((data) => {
+                        const url = window.URL.createObjectURL(data);
+                        this.triggerDownload(url, this.getFileName(download));
+                        URL.revokeObjectURL(url);
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                    });
+                });
+        },
+
+        triggerDownload(url, fileName = null) {
+            const link = document.createElement('a');
+            link.href = url;
+
+            if (fileName) {
+                link.download = fileName;
+            } else {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
+
+            link.dispatchEvent(new MouseEvent('click'));
+            link.remove();
         },
     },
 };

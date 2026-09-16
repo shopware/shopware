@@ -96,7 +96,7 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
 #}
 
 {% if ariaLive is not defined %}
-    {% set ariaLive = 'polite' %}
+    {% set ariaLive = type in ['danger', 'warning'] ? 'assertive' : 'polite' %}
 {% endif %}
 
 {% block utilities_alert %}

@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<container>
+    <services>
+        <service id="Shopware\Core\Framework\Example\CoreServiceInCore" class="Shopware\Core\Framework\Example\CoreServiceInCore"/>
+        <service id="Shopware\Core\Framework\Example\XmlCoreService" class="Shopware\Core\Framework\Example\XmlCoreService"/>
+        <service id="Shopware\Core\Framework\Example\PhpCoreService" class="Shopware\Core\Framework\Example\PhpCoreService"/>
+        <service id="Shopware\Core\Framework\Example\CoreContract" class="Shopware\Storefront\Framework\Example\StorefrontImplementation"/>
+        <service id="Shopware\Core\Framework\Example\CoreAlias" alias="Shopware\Core\Framework\Example\XmlCoreService"/>
+    </services>
+</container>

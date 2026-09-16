@@ -71,16 +71,33 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         visibleOptions(): Array<'backend_data' | 'product_analytics'> {
-            return this.showStoreDataConsent
-                ? [
-                      'backend_data',
-                      'product_analytics',
-                  ]
-                : ['product_analytics'];
+            const options: Array<'backend_data' | 'product_analytics'> = [];
+
+            if (this.showStoreDataConsent) {
+                options.push('backend_data');
+            }
+
+            if (this.showUserDataConsent) {
+                options.push('product_analytics');
+            }
+
+            return options;
         },
 
         showSingleOptionActions() {
-            return !this.showStoreDataConsent;
+            return this.visibleOptions.length === 1;
+        },
+
+        optOutInfoSnippet() {
+            return this.showSingleOptionActions
+                ? 'sw-settings-usage-data.consent-modal.opt-out-info.single-option-snippet'
+                : 'sw-settings-usage-data.consent-modal.opt-out-info.snippet';
+        },
+
+        optOutInfoLink() {
+            return this.showUserDataConsent
+                ? 'sw-settings-usage-data.consent-modal.opt-out-info.profile'
+                : 'sw-settings-usage-data.consent-modal.opt-out-info.settings';
         },
 
         showStoreDataConsent() {
@@ -91,8 +108,15 @@ export default Shopware.Component.wrapComponentConfig({
             return this.acl.can('system.system_config');
         },
 
+        showUserDataConsent() {
+            return this.acl.can('user.update_profile');
+        },
+
         showSavePreferences() {
-            return this.showStoreDataConsent && (this.storeDataConsent || this.userDataConsent);
+            return (
+                this.visibleOptions.length > 1 &&
+                (this.storeDataConsent || (this.showUserDataConsent && this.userDataConsent))
+            );
         },
     },
 
@@ -107,10 +131,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         trackDecisionEventForVisibleOptions(storeDataConsent: boolean, userDataConsent: boolean) {
             const eventProps: ConsentEvents['consent_modal_decision'] = {
-                product_analytics: {
-                    status: userDataConsent ? 'accepted' : 'revoked',
-                    changed: userDataConsent !== this.initialUserDataConsent,
-                },
                 time_spent_on_modal: this.getModalTimeSpentInSeconds(),
             };
 
@@ -118,6 +138,13 @@ export default Shopware.Component.wrapComponentConfig({
                 eventProps.backend_data = {
                     status: storeDataConsent ? 'accepted' : 'revoked',
                     changed: storeDataConsent !== this.initialStoreDataConsent,
+                };
+            }
+
+            if (this.showUserDataConsent) {
+                eventProps.product_analytics = {
+                    status: userDataConsent ? 'accepted' : 'revoked',
+                    changed: userDataConsent !== this.initialUserDataConsent,
                 };
             }
 
@@ -137,10 +164,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         async giveSingleOptionConsent(done: () => void) {
             this.sharesAll = true;
-            this.userDataConsent = true;
+
+            if (this.showStoreDataConsent) {
+                this.storeDataConsent = true;
+            }
+
+            if (this.showUserDataConsent) {
+                this.userDataConsent = true;
+            }
 
             try {
-                await this.updateConsents(this.storeDataConsent, true);
+                await this.updateConsents(this.storeDataConsent, this.userDataConsent);
             } finally {
                 this.sharesAll = false;
                 done();
@@ -149,10 +183,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         async declineSingleOptionConsent(done: () => void) {
             this.revokesAll = true;
-            this.userDataConsent = false;
+
+            if (this.showStoreDataConsent) {
+                this.storeDataConsent = false;
+            }
+
+            if (this.showUserDataConsent) {
+                this.userDataConsent = false;
+            }
 
             try {
-                await this.updateConsents(this.storeDataConsent, false);
+                await this.updateConsents(this.storeDataConsent, this.userDataConsent);
             } finally {
                 this.revokesAll = false;
                 done();

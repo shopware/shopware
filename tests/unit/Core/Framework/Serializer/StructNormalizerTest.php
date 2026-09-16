@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Serializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Struct\Struct;
@@ -13,6 +14,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StructNormalizer::class)]
 class StructNormalizerTest extends TestCase
 {

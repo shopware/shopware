@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
@@ -20,14 +21,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CalculatedPriceFieldSerializer::class)]
 class CalculatedPriceFieldSerializerTest extends TestCase
 {
@@ -92,6 +98,69 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertArrayNotHasKey('extensions', $arrayEncoded['listPrice']);
         static::assertArrayHasKey('regulationPrice', $arrayEncoded);
         static::assertArrayNotHasKey('extensions', $arrayEncoded['regulationPrice']);
+    }
+
+    /**
+     * The serializer pre-processes the payload before `JsonFieldSerializer::encode()` validates it. A scalar
+     * used to reach that pre-processing and abort the request with a PHP `Error` instead of a violation.
+     */
+    #[DataProvider('nonArrayValueProvider')]
+    public function testEncodeRejectsNonArrayValue(mixed $value): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/calculatedPrice', $value),
+            ])
+        ));
+
+        iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $value, false),
+            $this->parameters
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
+    }
+
+    /**
+     * `listPrice` and `regulationPrice` are mapped fields, so a scalar there is caught by
+     * `JsonFieldSerializer::validateMapping()`, which collects the violation on the write context instead
+     * of throwing. Before the guard the scalar fatally hit `unset($value['listPrice']['extensions'])`.
+     */
+    #[DataProvider('nestedNonArrayValueProvider')]
+    public function testEncodeReportsNestedNonArrayValue(string $property, mixed $value): void
+    {
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $value, false),
+            $this->parameters
+        ));
+
+        $errors = iterator_to_array($this->parameters->getContext()->getExceptions()->getErrors(), false);
+
+        static::assertCount(1, $errors);
+        static::assertSame('/calculatedPrice/' . $property, $errors[0]['source']['pointer']);
+        static::assertStringNotContainsString($property, (string) $encoded['calculatedPrice']);
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function nestedNonArrayValueProvider(): iterable
+    {
+        $base = ['unitPrice' => 1, 'totalPrice' => 1, 'quantity' => 1, 'calculatedTaxes' => [], 'taxRules' => []];
+
+        yield 'scalar listPrice' => ['listPrice', [...$base, 'listPrice' => 5]];
+        yield 'scalar regulationPrice' => ['regulationPrice', [...$base, 'regulationPrice' => 7]];
     }
 
     public function testEncodeWithoutListPrice(): void

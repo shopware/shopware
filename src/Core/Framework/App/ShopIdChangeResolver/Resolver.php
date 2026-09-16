@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 readonly class Resolver
 {
     /**
-     * @param AbstractShopIdChangeStrategy[] $strategies
+     * @param iterable<ShopIdChangeStrategy> $strategies
      */
     public function __construct(
         private iterable $strategies

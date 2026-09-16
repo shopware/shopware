@@ -25,6 +25,7 @@ export default {
             }
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         prefillAgenticCommerceDefaults() {
             this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },

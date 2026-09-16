@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\CreateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateAppCommand::class)]
 class CreateAppCommandTest extends TestCase
 {

@@ -14,8 +14,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CartContextHashEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CartContextHashEvent::class)]
 class CartContextHashEventTest extends TestCase
 {
     public SalesChannelContext $salesChannelContext;

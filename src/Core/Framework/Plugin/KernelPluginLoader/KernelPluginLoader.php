@@ -205,7 +205,7 @@ abstract class KernelPluginLoader extends Bundle
             $psr4 = $plugin['autoload']['psr-4'] ?? [];
             $psr0 = $plugin['autoload']['psr-0'] ?? [];
 
-            if (empty($psr4) && empty($psr0)) {
+            if ($psr4 === [] && $psr0 === []) {
                 $reason = \sprintf(
                     'Unable to register plugin "%s" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.',
                     $plugin['baseClass']

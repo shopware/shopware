@@ -214,8 +214,8 @@
                     <template v-else>
                         <mt-icon
                             :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
-                            :color="item.active ? 'var(--color-emerald-500)' : 'var(--color-crimson-500)'"
-                            size="var(--scale-size-16)"
+                            :color="item.active ? 'var(--color-icon-positive-default)' : 'var(--color-icon-critical-default)'"
+                            size="var(--scale-size-12)"
                         />
                     </template>
                     {% endblock %}
@@ -284,7 +284,7 @@
                         :disabled="item.parentId != null || !acl.can('product.creator')"
                         @click="onDuplicate(item)"
                     >
-                        {{ $t('sw-product.list.buttonDuplicate') }}
+                        {{ $t('global.default.duplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -325,9 +325,9 @@
                         {% block sw_product_list_bulk_edit_grid_columns_active %}
                         <template #column-active="{ item }">
                             <mt-icon
-                                size="var(--scale-size-16)"
+                                size="var(--scale-size-12)"
                                 :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
-                                :color="item.active ? 'var(--color-emerald-500)' : 'var(--color-crimson-500)'"
+                                :color="item.active ? 'var(--color-icon-positive-default)' : 'var(--color-icon-critical-default)'"
                             />
                         </template>
                         {% endblock %}

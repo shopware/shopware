@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Mehrfachänderung",
       "descriptionTextModule": "Modul zur Mehrfachänderung von Daten",
       "defaultChangeLabel": "Ändern:"
     },
@@ -261,7 +260,21 @@
         "description": "Mehrfachänderung abgeschlossen.",
         "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "Keine Dokumente vorhanden"
+        "messageNoDocumentsFound": "Keine Dokumente vorhanden",
+        "documentGenerationSkipped": "{count} Dokument wurde nicht erzeugt, weil es bereits existiert. | {count} Dokumente wurden nicht erzeugt, weil sie bereits existieren.",
+        "documentGenerationFailed": "{count} Dokument konnte nicht erzeugt werden. | {count} Dokumente konnten nicht erzeugt werden.",
+        "failedDocuments": {
+          "columnOrder": "Bestellung",
+          "columnDocumentType": "Dokumenttyp",
+          "downloadResult": "Ergebnis herunterladen",
+          "downloadHeadline": "Fehlgeschlagene Dokumente",
+          "documentTypes": {
+            "invoice": "Rechnung",
+            "cancellationInvoice": "Stornorechnung",
+            "creditNote": "Gutschrift",
+            "deliveryNote": "Lieferschein"
+          }
+        }
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",
@@ -327,7 +340,9 @@
           "label": "Erstellen: Rechnung",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
-          "labelTextarea": "Kommentar"
+          "labelTextarea": "Kommentar",
+          "labelFileFormats": "Dateiformate",
+          "placeholderFileFormats": "Dateiformate auswählen ..."
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",

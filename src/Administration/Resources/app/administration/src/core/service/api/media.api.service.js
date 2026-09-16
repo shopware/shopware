@@ -24,8 +24,7 @@ class MediaApiService extends ApiService {
         this.name = 'mediaService';
         this.uploads = [];
         this.$listeners = {};
-        this.cacheDefaultFolder = {};
-        this.maxConcurrentUploads = 10;
+        this.maxConcurrentUploads = 5;
     }
 
     hasListeners(uploadTag) {
@@ -333,26 +332,53 @@ class MediaApiService extends ApiService {
     async getDefaultFolderId(entity) {
         const { Criteria } = Shopware.Data;
 
-        if (this.cacheDefaultFolder[entity]) {
-            return this.cacheDefaultFolder[entity];
-        }
-
         const defaultFolderRepository = Shopware.Service('repositoryFactory').create('media_default_folder');
 
         const criteria = new Criteria(1, 1).addFilter(Criteria.equals('entity', entity));
 
-        const items = await defaultFolderRepository.search(criteria);
+        const items = await defaultFolderRepository.search(criteria, {
+            cacheKey: [
+                'media-default-folder',
+                entity,
+            ],
+        });
+
         if (items.length !== 1) {
             return null;
         }
+
         const defaultFolder = items[0];
 
         if (defaultFolder.folder?.id) {
-            this.cacheDefaultFolder[entity] = defaultFolder.folder.id;
             return defaultFolder.folder.id;
         }
 
         return null;
+    }
+
+    downloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    prepareDownloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download/prepare`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

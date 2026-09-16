@@ -207,6 +207,9 @@ export default {
                             case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
                                 errorType = 'alreadyInUseException';
                                 break;
+                            case 'CHECKOUT__INVALID_CODE_PATTERN':
+                                errorType = 'invalidPatternException';
+                                break;
                             default:
                                 errorType = 'unknownErrorCode';
                                 break;

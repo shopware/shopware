@@ -57,7 +57,7 @@ class AccountProfileControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('account-overview-page-loaded', $traces);
     }
@@ -74,7 +74,7 @@ class AccountProfileControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('account-profile-page-loaded', $traces);
     }
@@ -174,6 +174,46 @@ class AccountProfileControllerTest extends TestCase
         static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $updatedCustomer->getAccountType());
     }
 
+    public function testVatIdFieldIsRequiredOnProfileWhenBillingCountryRequiresVatId(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createBusinessCustomer($context, true);
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        $crawler = $browser->request('GET', '/account/profile');
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $vatIdField = $crawler->filter('#vatIds');
+        static::assertCount(1, $vatIdField);
+        static::assertStringContainsString('required', (string) $vatIdField->attr('data-validation'));
+        static::assertCount(1, $crawler->filter('label[for="vatIds"] .form-required-label'));
+    }
+
+    public function testVatIdFieldIsOptionalOnProfileWhenBillingCountryDoesNotRequireVatId(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createBusinessCustomer($context, false);
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        $crawler = $browser->request('GET', '/account/profile');
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $vatIdField = $crawler->filter('#vatIds');
+        static::assertCount(1, $vatIdField);
+        static::assertNull($vatIdField->attr('data-validation'));
+        static::assertCount(0, $crawler->filter('label[for="vatIds"] .form-required-label'));
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -222,6 +262,48 @@ class AccountProfileControllerTest extends TestCase
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
 
+        $repo->create([$customer], $context);
+
+        $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
+    }
+
+    private function createBusinessCustomer(Context $context, bool $vatIdRequired): CustomerEntity
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'shopware AG',
+            'defaultShippingAddress' => [
+                'id' => $addressId,
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
+                'company' => 'shopware AG',
+                'salutationId' => $this->getValidSalutationId(),
+                'country' => ['name' => 'VAT Test Country', 'vatIdRequired' => $vatIdRequired],
+            ],
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'business.customer@test.com',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ];
+
+        /** @var EntityRepository<CustomerCollection> $repo */
+        $repo = static::getContainer()->get('customer.repository');
         $repo->create([$customer], $context);
 
         $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -35,6 +37,10 @@ use Twig\Loader\ChainLoader;
 class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
+
+    private const ERROR_EMPTY_SEO_PATH_INFO = 'The SEO URL template rendered an empty path';
+
+    private const ERROR_TEMPLATE_NOT_RENDERABLE = 'The SEO URL template could not be rendered';
 
     private readonly TwigVariableParser $twigVariableParser;
 
@@ -59,12 +65,26 @@ class SeoUrlGenerator
      */
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, SalesChannelEntity $salesChannel): iterable
     {
+        if (trim($template) === '') {
+            return [];
+        }
+
         $criteria = new Criteria($ids);
         $route->prepareCriteria($criteria, $salesChannel);
 
         $config = $route->getConfig();
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
+
+        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            $domain = $salesChannel->getDomains()
+                ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
+                    && $domain->getLanguageId() === $context->getLanguageId());
+
+            if ($domain === null) {
+                return [];
+            }
+        }
 
         if ($this->loadTwigTemplate($config, $template)) {
             $associations = $this->getAssociations($template, $repository->getDefinition());
@@ -119,7 +139,13 @@ class SeoUrlGenerator
             $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
             if ($seoPathInfo === null || $seoPathInfo === '') {
-                continue;
+                $error = $seoPathInfo === null ? self::ERROR_TEMPLATE_NOT_RENDERABLE : self::ERROR_EMPTY_SEO_PATH_INFO;
+
+                // Yielded with an error rather than skipped: skipping drops the entity from
+                // the persisted set, which makes SeoUrlPersister mark the existing SEO URL
+                // as deleted, so the storefront starts answering 404 for it.
+                $seoUrl->setError($mapping->getError() ?? $error);
+                $seoPathInfo = '';
             }
 
             $seoUrl->setSeoPathInfo($seoPathInfo);

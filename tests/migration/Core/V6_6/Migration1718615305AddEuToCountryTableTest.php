@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1718615305AddEuToCountryTable;
@@ -15,6 +16,7 @@ use Shopware\Core\Migration\V6_6\Migration1718615305AddEuToCountryTable;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1718615305AddEuToCountryTable::class)]
 class Migration1718615305AddEuToCountryTableTest extends TestCase
 {

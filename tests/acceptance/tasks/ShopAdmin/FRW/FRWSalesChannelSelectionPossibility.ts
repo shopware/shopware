@@ -9,8 +9,10 @@ export const FRWSalesChannelSelectionPossibility = base.extend<{ FRWSalesChannel
         const task = (salesChannelName: string) => {
             return async function FRWSalesChannelSelectionPossibility() {
                 await AdminFirstRunWizard.salesChannelSelectionMultiSelect.click();
-                await expect(AdminFirstRunWizard.salesChannelSelectionList.filter({ hasText: salesChannelName }).first()).toBeVisible();
-            }
+                await expect(
+                    AdminFirstRunWizard.salesChannelSelectionList.filter({ hasText: salesChannelName }).first(),
+                ).toBeVisible();
+            };
         };
 
         await use(task);

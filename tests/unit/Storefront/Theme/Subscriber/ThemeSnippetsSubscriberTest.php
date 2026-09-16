@@ -3,8 +3,9 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -14,24 +15,18 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeSnippetsSubscriber::class)]
 class ThemeSnippetsSubscriberTest extends TestCase
 {
-    private MockObject&ThemeRuntimeConfigService $themeRuntimeConfigService;
+    private ThemeRuntimeConfigService&Stub $themeRuntimeConfigService;
 
-    private MockObject&DatabaseSalesChannelThemeLoader $salesChannelThemeLoader;
-
-    private ThemeSnippetsSubscriber $subscriber;
+    private DatabaseSalesChannelThemeLoader&Stub $salesChannelThemeLoader;
 
     protected function setUp(): void
     {
-        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $this->salesChannelThemeLoader = $this->createMock(DatabaseSalesChannelThemeLoader::class);
-
-        $this->subscriber = new ThemeSnippetsSubscriber(
-            $this->themeRuntimeConfigService,
-            $this->salesChannelThemeLoader
-        );
+        $this->themeRuntimeConfigService = static::createStub(ThemeRuntimeConfigService::class);
+        $this->salesChannelThemeLoader = static::createStub(DatabaseSalesChannelThemeLoader::class);
     }
 
     public function testGetSubscribedEvents(): void
@@ -50,16 +45,19 @@ class ThemeSnippetsSubscriberTest extends TestCase
         $usedThemes = ['theme1', 'theme2'];
         $allThemes = ['theme1', 'theme2', 'theme3', 'theme4'];
 
-        $this->salesChannelThemeLoader->expects($this->once())
+        $salesChannelThemeLoader = $this->createMock(DatabaseSalesChannelThemeLoader::class);
+        $salesChannelThemeLoader->expects($this->once())
             ->method('load')
             ->with($salesChannelId)
             ->willReturn($usedThemes);
 
-        $this->themeRuntimeConfigService->expects($this->once())
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->once())
             ->method('getActiveThemeNames')
             ->willReturn($allThemes);
 
-        $this->subscriber->onSnippetsThemeResolve($event);
+        $subscriber = $this->createSubscriber($themeRuntimeConfigService, $salesChannelThemeLoader);
+        $subscriber->onSnippetsThemeResolve($event);
 
         static::assertSame(
             ['theme1', 'theme2', StorefrontPluginRegistry::BASE_THEME_NAME],
@@ -78,14 +76,17 @@ class ThemeSnippetsSubscriberTest extends TestCase
 
         $allThemes = ['theme1', 'theme2', 'theme3', 'theme4'];
 
-        $this->salesChannelThemeLoader->expects($this->never())
+        $salesChannelThemeLoader = $this->createMock(DatabaseSalesChannelThemeLoader::class);
+        $salesChannelThemeLoader->expects($this->never())
             ->method('load');
 
-        $this->themeRuntimeConfigService->expects($this->once())
+        $themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $themeRuntimeConfigService->expects($this->once())
             ->method('getActiveThemeNames')
             ->willReturn($allThemes);
 
-        $this->subscriber->onSnippetsThemeResolve($event);
+        $subscriber = $this->createSubscriber($themeRuntimeConfigService, $salesChannelThemeLoader);
+        $subscriber->onSnippetsThemeResolve($event);
 
         static::assertSame(
             [StorefrontPluginRegistry::BASE_THEME_NAME],
@@ -95,6 +96,16 @@ class ThemeSnippetsSubscriberTest extends TestCase
         static::assertSame(
             $allThemes,
             $event->getUnusedThemes()
+        );
+    }
+
+    private function createSubscriber(
+        ?ThemeRuntimeConfigService $themeRuntimeConfigService = null,
+        ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
+    ): ThemeSnippetsSubscriber {
+        return new ThemeSnippetsSubscriber(
+            $themeRuntimeConfigService ?? $this->themeRuntimeConfigService,
+            $salesChannelThemeLoader ?? $this->salesChannelThemeLoader
         );
     }
 }

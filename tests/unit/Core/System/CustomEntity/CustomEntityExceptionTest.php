@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityException::class)]
 class CustomEntityExceptionTest extends TestCase
 {
@@ -40,6 +42,24 @@ class CustomEntityExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame(CustomEntityException::CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE, $exception->getErrorCode());
         static::assertSame('Entity label_property "some_label" must be a string field', $exception->getMessage());
+    }
+
+    public function testInvalidEntityName(): void
+    {
+        $exception = CustomEntityException::invalidEntityName('ce_test`x');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomEntityException::CUSTOM_ENTITY_INVALID_NAME, $exception->getErrorCode());
+        static::assertSame('Custom entity name "ce_test`x" is invalid. It may only contain letters, digits, underscores and dollar signs.', $exception->getMessage());
+    }
+
+    public function testInvalidFieldName(): void
+    {
+        $exception = CustomEntityException::invalidFieldName('ce_test', 'my-field');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomEntityException::CUSTOM_ENTITY_INVALID_FIELD_NAME, $exception->getErrorCode());
+        static::assertSame('Field name "my-field" of custom entity "ce_test" is invalid. It may only contain letters, digits, underscores and dollar signs.', $exception->getMessage());
     }
 
     public function testUnsupportedOnDeletePropertyOnField(): void

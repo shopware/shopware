@@ -27,14 +27,6 @@ async function createWrapper() {
                 searchRankingService: {
                     clearCacheUserSearchConfiguration: () => {},
                 },
-                userConfigService: {
-                    upsert: () => {
-                        return Promise.resolve();
-                    },
-                    search: () => {
-                        return Promise.resolve();
-                    },
-                },
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
@@ -48,6 +40,7 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         Shopware.Application.view.deleteReactive = () => {};
         wrapper = await createWrapper();
         await flushPromises();
@@ -69,14 +62,12 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
         expect(wrapper.emitted()['modal-close']).toBeTruthy();
     });
 
-    it('should call to user config service when saving changes', async () => {
-        wrapper.vm.userConfigService.upsert = jest.fn(() => Promise.resolve());
+    it('should call the user config service when saving changes', async () => {
+        const upsertMock = jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
 
         await wrapper.find('.sw-search-preferences-modal__button-save').trigger('click');
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalledTimes(1);
-
-        wrapper.vm.userConfigService.upsert.mockRestore();
+        expect(upsertMock).toHaveBeenCalledTimes(1);
     });
 
     it('should be able to change search preference', async () => {

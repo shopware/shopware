@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\AppUrlVerificationStatusCommand;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -25,12 +25,12 @@ use Symfony\Component\Console\Tester\CommandTester;
 class AppUrlVerificationStatusCommandTest extends TestCase
 {
     /**
-     * @var ShopIdProvider&MockObject
+     * @var ShopIdProvider&Stub
      */
     private ShopIdProvider $shopIdProvider;
 
     /**
-     * @var AppUrlVerifier&MockObject
+     * @var AppUrlVerifier&Stub
      */
     private AppUrlVerifier $verifier;
 
@@ -38,8 +38,8 @@ class AppUrlVerificationStatusCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->verifier = $this->createMock(AppUrlVerifier::class);
+        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
+        $this->verifier = static::createStub(AppUrlVerifier::class);
 
         $printer = new AppUrlVerificationPrinter($this->shopIdProvider);
         $command = new AppUrlVerificationStatusCommand($this->verifier, $printer);

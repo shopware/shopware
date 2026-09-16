@@ -1,0 +1,22 @@
+{
+  "persona": "open-source",
+  "tier": "cheap",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-os-ignore",
+    "title": "chore(admin): tweak brand primary colour",
+    "body": "Adjusts the primary brand colour SCSS variable.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/os-ignore",
+    "additions": 1,
+    "deletions": 1,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Administration/Resources/app/administration/src/app/assets/scss/variables.scss"
+  ]
+}

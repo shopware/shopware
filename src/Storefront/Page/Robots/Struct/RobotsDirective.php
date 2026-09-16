@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Robots\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsDirective
 {
     public function __construct(

@@ -1,7 +1,5 @@
 // @deprecated tag:v6.8.0 - Will be removed
 
-@import "~scss/variables";
-
 .sw-promotion-v2-empty-state-hero {
     position: absolute;
     display: grid;
@@ -27,8 +25,8 @@
     }
 
     &__description {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
     }
 
     &__actions {

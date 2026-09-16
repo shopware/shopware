@@ -116,7 +116,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
@@ -216,7 +216,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             $request->getHeaderLine('shopware-shop-signature')
         );
 
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
@@ -294,6 +294,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
     public function testNonJsonErrorResponse(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -352,7 +355,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertInstanceOf(WebhookException::class, $caught);
         static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
 
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_QUEUED);
@@ -365,6 +368,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
     public function testNetworkErrorThrowsWebhookFailed(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -462,7 +468,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
 
         // Verify initial state is QUEUED
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
@@ -471,7 +477,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         ($this->webhookEventMessageHandler)($webhookEventMessage);
 
         // After success: verify final state is SUCCESS with full audit trail
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
 
@@ -511,6 +517,9 @@ class WebhookEventMessageHandlerTest extends TestCase
      */
     public function testFailurePathLifecycleResetsToQueued(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -560,7 +569,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
 
         // Verify initial state is QUEUED
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
@@ -576,7 +585,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
 
         // After failure: verify status is reset to QUEUED (for Messenger retry)
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
@@ -709,6 +718,9 @@ class WebhookEventMessageHandlerTest extends TestCase
      */
     public function testNetworkErrorLifecycleResetsToQueuedWithoutResponseData(): void
     {
+        // legacy flag-OFF contract: the rework path is covered by WebhookDispatchEndToEndTest
+        Feature::skipTestIfActive('WEBHOOKS_REWORK', $this);
+
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
@@ -770,7 +782,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertSame(WebhookException::WEBHOOK_FAILED, $caught->getErrorCode());
 
         // After network error: status should be reset to QUEUED
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
@@ -797,13 +809,11 @@ class WebhookEventMessageHandlerTest extends TestCase
     }
 
     /**
-     * After a successful delivery, error_count should be reset to 0 on the webhook
-     * and all related webhooks (same event, url, live config).
+     * After a successful delivery, error_count should be reset to 0 on the webhook.
      */
-    public function testSuccessResetsErrorCountOnWebhookAndRelated(): void
+    public function testSuccessResetsErrorCount(): void
     {
         $webhookId = Uuid::randomHex();
-        $relatedWebhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
         $appRepository = static::getContainer()->get('app.repository');
@@ -834,16 +844,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        // Create a related webhook (same event + url) via DBAL so it shares the same event/url
         $connection = static::getContainer()->get(Connection::class);
-        $connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($relatedWebhookId),
-            'name' => 'hook1-related',
-            'event_name' => 'order',
-            'url' => 'https://test.com',
-            'error_count' => 7,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
@@ -866,16 +867,10 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        // Verify the primary webhook's error_count is reset to 0
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(0, $webhook->getErrorCount());
-
-        // Verify the related webhook's error_count is also reset to 0
-        $relatedWebhook = $webhookRepository->search(new Criteria([$relatedWebhookId]), Context::createDefaultContext())->first();
-        static::assertInstanceOf(WebhookEntity::class, $relatedWebhook);
-        static::assertSame(0, $relatedWebhook->getErrorCount());
     }
 
     /**
@@ -940,7 +935,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         // error_count should remain unchanged -- handler only resets on success
         $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->first();
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(3, $webhook->getErrorCount());
     }
@@ -1008,7 +1003,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         ($this->webhookEventMessageHandler)($webhookEventMessage);
 
         // Event log should still record SUCCESS
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
     }
@@ -1050,7 +1045,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
             static::assertNotNull($delivery['next_retry_at'], 'next_retry_at must be set for pending_retry');
 
-            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $webhookEventLog->getDeliveryStatus());
         });
@@ -1097,7 +1092,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             );
             static::assertSame(0, $deliveryCount, 'webhook_delivery row should be deleted after terminal failure');
 
-            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $webhookEventLog->getDeliveryStatus());
         });
@@ -1106,7 +1101,6 @@ class WebhookEventMessageHandlerTest extends TestCase
     public function testDeliverySuccessResetsPerWebhookErrorCount(): void
     {
         $webhookId = Uuid::randomHex();
-        $relatedWebhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
         $appRepository = static::getContainer()->get('app.repository');
@@ -1138,14 +1132,6 @@ class WebhookEventMessageHandlerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $connection = static::getContainer()->get(Connection::class);
-        $connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($relatedWebhookId),
-            'name' => 'hook1-related',
-            'event_name' => 'order',
-            'url' => 'https://example.com/hook',
-            'error_count' => 7,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
@@ -1166,21 +1152,14 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
-        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $errorCount = (int) $connection->fetchOne(
                 'SELECT error_count FROM webhook WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($webhookId)]
             );
-            static::assertSame(0, $errorCount, 'Primary webhook error_count should be reset to 0');
-
-            // Related webhooks (same event+URL) also have their error_count reset — matches trunk behavior via RelatedWebhooks
-            $relatedErrorCount = (int) $connection->fetchOne(
-                'SELECT error_count FROM webhook WHERE id = :id',
-                ['id' => Uuid::fromHexToBytes($relatedWebhookId)]
-            );
-            static::assertSame(0, $relatedErrorCount, 'Related webhook error_count should also be reset (RelatedWebhooks behavior)');
+            static::assertSame(0, $errorCount, 'error_count should be reset to 0');
         });
     }
 
@@ -1213,7 +1192,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $webhookEventLog->getDeliveryStatus());
         });
@@ -1287,7 +1266,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_SEQUENCE));
             static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_ATTEMPT));
 
-            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
         });
@@ -1313,7 +1292,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             $request = $this->getLastRequest();
             static::assertInstanceOf(RequestInterface::class, $request);
 
-            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
         });
@@ -1340,7 +1319,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             $request = $this->getLastRequest();
             static::assertInstanceOf(RequestInterface::class, $request);
 
-            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
 

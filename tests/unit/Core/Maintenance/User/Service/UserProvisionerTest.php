@@ -5,14 +5,17 @@ namespace Shopware\Tests\Unit\Core\Maintenance\User\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UserProvisioner::class)]
 class UserProvisionerTest extends TestCase
 {
@@ -50,7 +53,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection);
+        $provisioner = new UserProvisioner($connection, new NativeClock());
         $provisioner->provision('admin', 'shopware', $user);
     }
 
@@ -71,7 +74,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection);
+        $provisioner = new UserProvisioner($connection, new NativeClock());
         $this->expectExceptionObject(new \RuntimeException('User with username "admin" already exists.'));
         $provisioner->provision('admin', 'shopware', $user);
     }
@@ -95,7 +98,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection);
+        $provisioner = new UserProvisioner($connection, new NativeClock());
         $this->expectExceptionObject(MaintenanceException::passwordTooShort(8));
         $provisioner->provision('admin', 'short', $user);
     }

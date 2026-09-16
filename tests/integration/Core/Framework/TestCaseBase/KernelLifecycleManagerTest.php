@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class KernelLifecycleManagerTest extends TestCase
 {
     public function testARebootIsPossible(): void

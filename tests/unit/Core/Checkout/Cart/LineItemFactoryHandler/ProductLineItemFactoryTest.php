@@ -17,14 +17,14 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(ProductLineItemFactory::class)]
 #[Package('checkout')]
+#[CoversClass(ProductLineItemFactory::class)]
 class ProductLineItemFactoryTest extends TestCase
 {
     public function testSupports(): void
     {
         $factory = new ProductLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
+            static::createStub(PriceDefinitionFactory::class),
         );
 
         static::assertTrue($factory->supports('product'));
@@ -53,7 +53,7 @@ class ProductLineItemFactoryTest extends TestCase
             'description' => 'test-description',
         ];
 
-        $factory = new ProductLineItemFactory($this->createMock(PriceDefinitionFactory::class));
+        $factory = new ProductLineItemFactory(static::createStub(PriceDefinitionFactory::class));
 
         $lineItem = $factory->create($data, $context);
 
@@ -121,7 +121,7 @@ class ProductLineItemFactoryTest extends TestCase
         $data = ['id' => 'test-id', 'priceDefinition' => 'foo'];
 
         $factory = new ProductLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
+            static::createStub(PriceDefinitionFactory::class),
         );
 
         $this->expectException(CartException::class);
@@ -134,7 +134,7 @@ class ProductLineItemFactoryTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => false]);
 
-        $factory = new ProductLineItemFactory($this->createMock(PriceDefinitionFactory::class));
+        $factory = new ProductLineItemFactory(static::createStub(PriceDefinitionFactory::class));
 
         $lineItem = new LineItem('test-id', 'product', null, 1);
 

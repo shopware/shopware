@@ -21,8 +21,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddShippingMethodExtensionsCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(AddShippingMethodExtensionsCommandHandler::class)]
 class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
 {
     public function testSupportedCommands(): void
@@ -51,7 +51,7 @@ class AddShippingMethodExtensionsCommandHandlerTest extends TestCase
             new ErrorCollection()
         );
 
-        $handler = new AddShippingMethodExtensionsCommandHandler($this->createMock(ExceptionLogger::class));
+        $handler = new AddShippingMethodExtensionsCommandHandler(static::createStub(ExceptionLogger::class));
         $handler->handle($command, $response, Generator::generateSalesChannelContext());
 
         static::assertCount(2, $response->getAvailableShippingMethods());

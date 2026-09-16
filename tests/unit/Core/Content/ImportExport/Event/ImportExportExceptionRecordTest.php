@@ -20,9 +20,9 @@ class ImportExportExceptionRecordTest extends TestCase
 
     protected function setUp(): void
     {
-        $exception = $this->createMock(\Throwable::class);
+        $exception = static::createStub(\Throwable::class);
         $context = Context::createDefaultContext();
-        $config = $this->createMock(Config::class);
+        $config = static::createStub(Config::class);
 
         $this->exceptionRecord = new ImportExportExceptionImportRecordEvent(
             $exception,
@@ -49,7 +49,7 @@ class ImportExportExceptionRecordTest extends TestCase
     public function testReplaceException(): void
     {
         $this->exceptionRecord->removeException();
-        $newException = $this->createMock(\Throwable::class);
+        $newException = static::createStub(\Throwable::class);
         $this->exceptionRecord->setException($newException);
         static::assertTrue($this->exceptionRecord->hasException());
     }

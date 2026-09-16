@@ -4,7 +4,6 @@
 $sw-field: ".sw-field";
 $sw-order-user-card: ".sw-order-user-card";
 $sw-highlight-text: ".sw-highlight-text";
-$font-weight-semi-bold: 600;
 $select-result-customer-item-last-width: 40px;
 $select-result-customer-item-gutter: 10px;
 
@@ -72,7 +71,7 @@ $select-result-customer-item-gutter: 10px;
         }
 
         #{$sw-field}__label {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
     }
 
@@ -80,8 +79,8 @@ $select-result-customer-item-gutter: 10px;
         display: flex;
         margin: 0 0 8px;
         color: var(--color-text-secondary-default);
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
         line-height: 16px;
     }
 
@@ -90,7 +89,7 @@ $select-result-customer-item-gutter: 10px;
     }
 
     &__address-identical-text {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__address-identical-button {
@@ -116,7 +115,7 @@ $select-result-customer-item-gutter: 10px;
         }
 
         #{$sw-field}__label {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
     }
 }
@@ -126,7 +125,7 @@ $select-result-customer-item-gutter: 10px;
 
     .sw-order-create-summary__data {
         grid-area: summary;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         padding-right: 38px;
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -135,9 +134,9 @@ $select-result-customer-item-gutter: 10px;
         dd {
             padding: 0;
             line-height: 40px;
-            border-bottom: 1px solid var(--color-border-primary-default);
+            border-bottom: 1px solid var(--color-border-secondary-default);
             color: var(--color-text-secondary-default);
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             font-weight: normal;
             text-align: right;
         }
@@ -165,7 +164,7 @@ $select-result-customer-item-gutter: 10px;
     &.sw-order-create-details-header__customer-result {
         @include transition;
 
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         #{$this}__result-item-text {
             width: 100%;
@@ -188,7 +187,7 @@ $select-result-customer-item-gutter: 10px;
         padding: 0 5px;
         background: transparent;
         color: var(--color-text-brand-default);
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         line-height: 12px;
         cursor: pointer;
 

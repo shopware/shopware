@@ -10,6 +10,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'acl',
     ],
@@ -41,6 +42,23 @@ export default {
     computed: {
         productRepository() {
             return this.repositoryFactory.create('product');
+        },
+
+        deliveryTabs() {
+            return [
+                {
+                    label: this.$t('sw-product.variations.deliveryModal.order'),
+                    name: 'order',
+                },
+                {
+                    label: this.$t('sw-product.variations.deliveryModal.media'),
+                    name: 'media',
+                },
+                {
+                    label: this.$t('sw-product.variations.deliveryModal.listing'),
+                    name: 'listing',
+                },
+            ];
         },
     },
 

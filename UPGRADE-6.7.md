@@ -1,4 +1,288 @@
+# 6.7.15.0
+
+## Document generation v1 deprecated for removal in Shopware 6.9
+
+The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
+
+### Deprecated classes
+
+All classes below live under `Shopware\Core\Checkout\Document`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally.
+
+| Deprecated | Replacement |
+|---|---|
+| `Controller\DocumentController` | `Controller\DocumentV2Controller` |
+| `DocumentGeneratorController` | `Controller\DocumentV2Controller` |
+| `DocumentConfiguration` | `Config\DocumentConfig` |
+| `DocumentConfigurationFactory` | none |
+| `DocumentException` | `DocumentV2Exception` |
+| `DocumentGenerationResult` | `Struct\RenderResult` |
+| `Renderer\RendererResult` | `Struct\RenderResult` |
+| `Renderer\DocumentRendererConfig` | `Struct\RenderInput` |
+| `Struct\DocumentGenerateOperation` | `Generation\DocumentGenerationRequest` |
+| `Service\DocumentGenerator` | `POST /api/_action/order/document-v2/create` |
+| `Service\HtmlRenderer` | none |
+| `Service\PdfRenderer` | none |
+| `Renderer\AbstractDocumentRenderer` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `Service\AbstractDocumentTypeRenderer` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `Extension\HtmlRendererExtension` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `Extension\PdfRendererExtension` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `FileGenerator\FileGeneratorInterface` | `Renderer\AbstractDocumentRenderer` (v2) |
+| `FileGenerator\FileTypes` | `DocumentFormat` |
+| `Twig\DocumentTemplateRenderer` | none |
+| `Renderer\InvoiceRenderer` | Data provider for `DocumentType::INVOICE` |
+| `Renderer\StornoRenderer` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Renderer\DeliveryNoteRenderer` | Data provider for `DocumentType::DELIVERY_NOTE` |
+| `Renderer\CreditNoteRenderer` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Renderer\ZugferdRenderer` | Data provider for `DocumentType::INVOICE` |
+| `Renderer\ZugferdEmbeddedRenderer` | Data provider for `DocumentType::INVOICE` |
+| `Renderer\ZugferdCancellationInvoiceRenderer` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Renderer\ZugferdEmbeddedCancellationInvoiceRenderer` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Renderer\ZugferdCreditNoteRenderer` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Renderer\ZugferdEmbeddedCreditNoteRenderer` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Event\InvoiceOrdersEvent` | Data provider for `DocumentType::INVOICE` |
+| `Event\StornoOrdersEvent` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Event\DeliveryNoteOrdersEvent` | Data provider for `DocumentType::DELIVERY_NOTE` |
+| `Event\CreditNoteOrdersEvent` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Event\ZugferdCancellationInvoiceOrdersEvent` | Data provider for `DocumentType::CANCELLATION_INVOICE` |
+| `Event\ZugferdCreditNoteOrdersEvent` | Data provider for `DocumentType::CREDIT_NOTE` |
+| `Zugferd\ZugferdInvoiceOrdersEvent` | Data provider for `DocumentType::INVOICE` |
+| `Event\DocumentOrderEvent` | Data provider (base class of the events above) |
+| `Event\DocumentOrderCriteriaEvent` | `AbstractDocumentDataProvider::enrichOrderCriteria()` |
+| `Event\DocumentTemplateRendererParameterEvent` | `AbstractDocumentDataProvider::provideRenderingData()` |
+| `DocumentEvents` | none |
+| `DocumentGenerator\Counter` | none |
+| `DocumentIdCollection` | none |
+| `DocumentIdStruct` | none |
+| `Renderer\DocumentRendererRegistry` | none |
+| `Renderer\OrderDocumentCriteriaFactory` | none |
+| `Service\DocumentConfigLoader` | none |
+| `Service\DocumentFileRendererRegistry` | none |
+| `Service\DocumentMerger` | none |
+| `Zugferd\ZugferdBuilder` | none |
+| `Zugferd\ZugferdDocument` | none |
+| `Zugferd\ZugferdInvoiceGeneratedEvent` | none |
+| `Zugferd\ZugferdInvoiceItemAddedEvent` | none |
+
+### Deprecated entities
+
+The `document_type` and `document_type_translation` entities are deprecated with `reason:remove-entity` (removed in 6.9). Document types are code-registered strings. Read `document.typeName` (`document.type_name`) instead of the `documentType` association. The affected classes:
+
+- `Aggregate\DocumentType\DocumentTypeEntity`
+- `Aggregate\DocumentType\DocumentTypeDefinition`
+- `Aggregate\DocumentType\DocumentTypeCollection`
+- `Aggregate\DocumentTypeTranslation\DocumentTypeTranslationEntity`
+- `Aggregate\DocumentTypeTranslation\DocumentTypeTranslationDefinition`
+- `Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection`
+
+### Relocated classes
+
+The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names (annotated with `#[NamespaceChange]`):
+
+| Current location | Location from 6.9 |
+|---|---|
+| `DocumentEntity` | `DocumentV2\DocumentEntity` |
+| `DocumentDefinition` | `DocumentV2\DocumentDefinition` |
+| `DocumentCollection` | `DocumentV2\DocumentCollection` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
+| `Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
+| `Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
+| `Renderer\RenderedDocument` | `DocumentV2\Struct\RenderedDocument` |
+| `SalesChannel\AbstractDocumentRoute` | `DocumentV2\SalesChannel\AbstractDocumentRoute` |
+| `SalesChannel\DocumentRoute` | `DocumentV2\SalesChannel\DocumentRoute` |
+| `Service\ReferenceInvoiceLoader` | `DocumentV2\Service\ReferenceInvoiceLoader` |
+
+## Document generation v2 experimental public surface
+
+The following classes are marked `@experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK`. They may change in any 6.7 release and become the stable public API with Shopware 6.8 (all under `Shopware\Core\Checkout\DocumentV2`):
+
+- `Type\AbstractDocumentType`
+- `Provider\AbstractDocumentDataProvider`
+- `Renderer\AbstractDocumentRenderer`
+- `Provider\ReferencesDocument`
+- `Provider\RendersReferencedSnapshot`
+- `Provider\RenderData\DocumentMetaRenderData`
+- `Struct\AbstractRenderData`
+- `Struct\ProviderInput`
+- `Struct\RenderInput`
+- `Struct\RenderResult`
+- `Struct\RenderState`
+- `Struct\ReferencedDocument`
+- `Config\DocumentConfig`
+- `Config\DocumentCompanyInfo`
+- `Config\DocumentDisplayOptions`
+- `DocumentType`
+- `DocumentFormat`
+- `DocumentSourceEntity`
+- `DocumentV2Exception`
+- `Aggregate\DocumentFile\DocumentFileEntity`
+- `Aggregate\DocumentFile\DocumentFileDefinition`
+- `Aggregate\DocumentFile\DocumentFileCollection`
+- `Generation\DocumentGenerationRequest`
+- `Controller\DocumentV2Controller`
+- `Template\ZugferdTwigExtension`
+
+The service tags `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` and the events `document.generation.completed` / `document.generation.deleted` belong to this surface as well. Everything else in the `DocumentV2` namespace is `@internal`.
+
+## Company information required for document generation v2
+
+With the `DOCUMENT_GENERATION_REWORK` flag enabled, document company data is read from the new "Company information" card in Settings > Basic information (system config domain `core.basicInformation`, per sales channel). The company fields on `document_base_config` and `document_base_config_sales_channel` are no longer used.
+
+Existing values are not migrated. When the card is empty for a sales channel, v2 falls back to the legacy document settings. As soon as one card field is set, the legacy values are ignored completely.
+
+Generation throws `DocumentV2Exception` (`DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS`) when `companyName`, `companyStreet`, `companyZipcode`, `companyCity`, or a valid company country is missing.
+
+## Document generation v2 always keeps an accessible HTML version
+
+With the `DOCUMENT_GENERATION_REWORK` flag enabled, every generated document keeps an accessible HTML version, even when HTML was not among the requested formats.
+A PDF-only invoice, for example, still produces and stores its HTML representation alongside the PDF. This HTML version is linked in the order and in document-related flow mails, so recipients can open the document directly in the browser without downloading the PDF.
+
+## Administration: legacy document generation components deprecated
+
+Deprecated with `@deprecated tag:v6.9.0`, removed in Shopware 6.9.
+
+### Services
+
+- `DocumentApiService` (`core/service/api/document.api.service.js`), including the exported `DocumentEvents` constant. Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
+
+### Components
+
+The following components are fully deprecated including their registration, template, and all Twig blocks:
+
+- `sw-order-document-settings-modal` (block `sw_order_document_settings_modal` and its children)
+- `sw-order-document-settings-invoice-modal`
+- `sw-order-document-settings-credit-note-modal`
+- `sw-order-document-settings-delivery-note-modal`
+- `sw-order-document-settings-storno-modal`
+- `sw-order-select-document-type-modal` (block `sw_order_select_document_type_modal` and its children)
+
+### Deprecated members of surviving components
+
+`sw-order-document-card`:
+
+- the Twig block `sw_order_document_card_grid_column_modal` and the `sw-order-select-document-type-modal` usage in its template
+- the `documentService` inject and the `DocumentEvents` import
+- the `showModal` data property and the `documentModal` computed property
+- the methods `convertStoreEventToVueEvent()`, `createDocument()`, `onCancelCreation()`, `onPrepareDocument()`, `openDocument()`
+- the v1-only branches inside the surviving download and creation methods
+
+`sw-bulk-edit-save-modal-process` (order bulk edit): the methods `createDocument()`, `getDocumentGenerationResult()`, `getFailedDocumentGenerationItems()`
+
+# 6.7.14.0
+
+## Product export templates: media URLs are encoded automatically
+
+`ProductExportRenderer::renderBody()` now automatically RFC 3986-encodes `MediaEntity::url` and `MediaThumbnailEntity::url` values in the body-template data context. This covers media URLs such as `product.cover.media.url` and `product.media.*.media.url`; other string values, including product descriptions, SEO URLs, and custom fields, are unchanged.
+
+**Action required if your custom body template already encodes media URLs manually.**
+Templates that apply `|url_encode`, `|sw_encode_url`, `|sw_encode_media_url`, `|replace({' ': '%20'})`, or any other manual percent-encoding to a media URL will now produce double-encoded output, for example `%20` becomes `%2520`.
+
+Remove the manual encoding from your template body:
+
+```twig
+{# Before — no longer needed, will double-encode #}
+<g:image_link>{{ product.cover.media.url|url_encode }}</g:image_link>
+
+{# After — encoding is applied automatically #}
+<g:image_link>{{ product.cover.media.url }}</g:image_link>
+```
+
+For a URL-valued custom field or another non-media string, apply `sw_encode_url` explicitly:
+
+```twig
+<link>{{ product.customFields.external_url|sw_encode_url }}</link>
+```
+
+This affects the body template only. Header and footer templates, and URLs assembled entirely inside a Twig expression are not changed.
+
+## MCP server no longer uses the `MCP_SERVER` feature flag
+
+The experimental MCP server is now always enabled and the `MCP_SERVER` feature flag has been removed.
+
+- If you set `MCP_SERVER=1` (or `MCP_SERVER=0`) in your `.env`, remove it. The flag no longer has any effect.
+- The MCP endpoints (`/api/_mcp` and `/store-api/_mcp`) are now reachable whenever `symfony/mcp-bundle` is installed, with no flag to enable or disable them.
+- The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change.
+
+## OpenAPI generator dependency upgraded to swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 to generate OpenAPI 3.2 schemas.
+Extensions that only provide OpenAPI metadata through `OpenApi\Annotations` or `OpenApi\Attributes` are expected to keep working, but extension build tools or tests that use swagger-php's programmatic API may need small changes.
+
+The common migration path is:
+
+* Replace `OpenApi\Generator::scan($sources, ['logger' => $logger])` with `(new OpenApi\Generator($logger))->generate($sources)`.
+* Replace `OpenApi\Util::finder($directory)` with the directory path itself when passing sources to `Generator::generate()`, or use swagger-php 6's `SourceFinder` if you only target v6.
+* If custom processors need to support both old and new swagger-php versions, use `method_exists($generator, 'getProcessorPipeline')`: use `getProcessorPipeline()` / `setProcessorPipeline()` for v5/v6 and fall back to `getProcessors()` / `setProcessors()` for v4.
+* Prefer `OpenApi\Generator::isDefault($value)` over direct comparisons with `Generator::UNDEFINED` when code should keep working across versions.
+
+If your extension relies on swagger-php directly, declare an explicit Composer dependency instead of relying on Shopware's transitive dependency.
+For cross-version development tooling, use a constraint that covers the versions you test, for example `^4.9.2 || ^5.0 || ^6.4`.
+
+# 6.7.13.0
+
+## Storefront form validation messages use Shopware snippets
+
+Storefront form validation messages in `FormController` are now translated using the violation code through Shopware's translator instead of using the already translated Symfony validator message. This affects contact, newsletter, and revocation forms.
+
+If a plugin provides custom constraints used by these forms, add matching translations to `Resources/snippet/storefront.<locale>.json` below the `error` key. For example, the violation code `VIOLATION::MY_CUSTOM_ERROR` requires the snippet key `error.VIOLATION::MY_CUSTOM_ERROR`.
+
+## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
+
+The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.
+A migration (`Migration1781508123UpdateLineItemPurchasePriceRuleConditions`) rewrites existing `rule_condition` payloads automatically (`isNet: true` → `type: 'net'`, `isNet: false` → `type: 'gross'`).
+
+## Deprecation of rule builder line item condition components
+
+The following Administration rule builder condition components are deprecated and will be removed in v6.8.0. The affected conditions (`cartLineItemInCategory`, `cartLineItemPurchasePrice`) are now rendered generically via `sw-condition-generic`:
+
+* `sw-condition-line-item-in-category`
+* `sw-condition-line-item-purchase-price`
+* `sw-condition-is-net-select`
+
+## `sw-product-stream-filter` now reuses `sw-condition-base` styling
+
+The product-stream filter row now reuses the `sw-condition-base` layout instead of its own markup and styles.
+
+The twig blocks `sw_product_stream_filter` and `sw_product_stream_filter_container` are deprecated and will be removed in v6.8.0. Use `sw_condition_base` / `sw_condition_base_content` instead.
+
+## Deprecation of search settings twig blocks
+
+The following blocks in `src/Administration/Resources/app/administration/src/module/sw-settings-search/component/` have been deprecated and will be removed in v6.8.0:
+
+- `sw_settings_search_excluded_search_terms_empty_state_image` (`sw-settings-search-excluded-search-terms/sw-settings-search-excluded-search-terms.html.twig`)
+- `sw_settings_search_view_live_search_search_icon_wrapper` (`sw-settings-search-live-search/sw-settings-search-live-search.html.twig`)
+- `sw_settings_search_view_live_search_search_icon` (`sw-settings-search-live-search/sw-settings-search-live-search.html.twig`)
+- `sw_settings_search_search_index_warning_top` (`sw-settings-search-search-index/sw-settings-search-search-index.html.twig`)
+- `sw_settings_search_search_index_rebuild_progress_text` (`sw-settings-search-search-index/sw-settings-search-search-index.html.twig`)
+- `sw_settings_search_searchable_content_customfields_state_image` (`sw-settings-search-searchable-content-customfields/sw-settings-search-searchable-content-customfields.html.twig`)
+- `sw_settings_search_searchable_content_general_state_image` (`sw-settings-search-searchable-content-general/sw-settings-search-searchable-content-general.html.twig`)
+- `sw_settings_search_searchable_show_example` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
+- `sw_settings_search_searchable_show_example_link_element` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
+
 # 6.7.12.0
+
+## Deprecation of `sw_integration_list_introduction` twig block
+
+The block `sw_integration_list_introduction` in `src/Administration/Resources/app/administration/src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig` has been deprecated and will be removed in v6.8.0.
+
+## Deprecation of `processSuccess` and `resetButtons` in `sw-settings-cache-index`
+
+The data property `processSuccess` and the method `resetButtons()` on the `sw-settings-cache-index` page component (`src/Administration/Resources/app/administration/src/module/sw-settings-cache/page/sw-settings-cache-index/index.js`) have been deprecated and will be removed in v6.8.0.
+
+## Rule builder condition error display rework
+
+`sw-condition-base` now reads errors directly from the `rule_condition` entity error store. A new `sw-condition-field-errors` component renders the labelled summary below the row.
+
+### Removals on `sw-condition-*` components
+
+* `mapPropertyErrors('condition', [...])` spreads have been removed from every individual `sw-condition-*` component, along with the `conditionValue*Error` computed properties they generated (e.g. `conditionValueOperatorError`). Read errors from the `rule_condition` entity error store instead.
+* The local `currentError` computed override has been removed from the individual `sw-condition-*` components; they now inherit `currentError` from `sw-condition-base`.
+* `hasError` prop on `sw-condition-type-select` has been removed.
+* `operatorClasses` and `hasError` computed properties on `sw-condition-operator-select` have been removed.
+* `typeSelectClasses` and `arrowColor` computed properties on `sw-condition-type-select` have been removed.
+* `currentError` has been removed from the `generic-condition.mixin.ts` mixin.
 
 ## Deprecation of `sw_settings_mailer_headline_agent` twig block
 
@@ -48,6 +332,18 @@ To switch back to the previous behaviour:
 5. Run `bin/console webhook:drain-to-async` once to re-publish leftover `webhook_delivery` rows onto the `async` transport.
 
 The drain re-publishes every queued / pending-retry row in `webhook_delivery`, including rows the new async path may already have an envelope for — those webhooks will be sent twice. This is within the at-least-once delivery contract; receivers must deduplicate via `X-Shopware-Event-Id` (or the `eventId` in the body). Rows left in `running` from a crashed rework worker are not handled and need manual recovery (`UPDATE webhook_delivery SET delivery_status = 'queued' WHERE delivery_status = 'running';`, then re-run the drain).
+
+## Exception behavior changes in `CustomerBirthdayRule` and `LineItemCustomFieldRule`
+
+While adding the `between` operator for date rule conditions, two rule classes changed which exception they throw from `match()`:
+
+* `CustomerBirthdayRule::match()` no longer throws `CustomerException::unsupportedValue` when `$birthday` is `null` and the operator is not `OPERATOR_EMPTY`. The case now falls through to the existing null-guard and returns `RuleComparison::isNegativeOperator($operator)`.
+* `LineItemCustomFieldRule::match()` now delegates to `CustomFieldRule::match()`. An unknown operator therefore throws `RuleException::unsupportedOperator()` instead of `CartException::unsupportedOperator()`.
+
+## `RuleComparison` deprecations
+
+`RuleComparison` is deprecated for inheritance and will be `final` in v6.8.0.0.
+The `$ruleValue` parameter of `RuleComparison::date()` and `RuleComparison::datetime()` will be widened from `\DateTime` to `\DateTime|string|array` in v6.8.0.0.
 
 # 6.7.8.2
 
@@ -1544,7 +1840,6 @@ In short this means we replaced the following components:
 * `sw-datepicker` with `mt-datepicker`
 * `sw-password-field` with `mt-password-field`
 * `sw-colorpicker` with `mt-colorpicker`
-* `sw-external-link` with `mt-external-link`
 * `sw-skeleton-bar` with `mt-skeleton-bar`
 * `sw-email-field` with `mt-email-field`
 * `sw-url-field` with `mt-url-field`
@@ -1633,96 +1928,6 @@ After:
 <mt-floating-ui :isOpened="myVisibility" />
 ```
 
-## Removal of "sw-tabs":
-The old "sw-tabs" component will be removed in the next major version. Please use the new "mt-tabs" component instead.
-
-We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-tabs" component. In this specific component it cannot convert anything correctly, because the new "mt-tabs" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
-
-If you don't want to use the codemod, you can manually replace all occurrences of "sw-tabs" with "mt-tabs".
-
-Following changes are necessary:
-
-### "sw-tabs" is removed
-Replace all component names from "sw-tabs" with "mt-tabs"
-
-Before:
-```html
-<sw-tabs />
-```
-After:
-```html
-<mt-tabs />
-```
-
-### "sw-tabs" wrong "default" slot usage will be replaced with "items" property
-You need to replace the "default" slot with the "items" property. The "items" property is an array of objects which are used to render the tabs. Using the "sw-tabs-item" component is not needed anymore.
-
-Before:
-```html
-<sw-tabs>
-    <template #default="{ active }">
-        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
-        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
-    </template>
-</sw-tabs>
-```
-
-After:
-```html
-<mt-tabs :items="[
-    {
-        'label': 'Tab 1',
-        'name': 'tab1'
-    },
-    {
-        'label': 'Tab 2',
-        'name': 'tab2'
-    }
-]">
-</mt-tabs>
-```
-
-### "sw-tabs" wrong "content" slot usage - content should be set manually outside the component
-The content slot is not supported anymore. You need to set the content manually outside the component. You can use the "new-item-active" event to get the active item and set it to a variable. Then you can use this variable anywere in your template.
-
-Before:
-```html
-<sw-tabs>
-    <template #content="{ active }">
-        The current active item is {{ active }}
-    </template>
-</sw-tabs>
-```
-
-After:
-```html
-<!-- setActiveItem need to be defined -->
-<mt-tabs @new-item-active="setActiveItem"></mt-tabs>
-
-The current active item is {{ activeItem }}
-```
-
-### "sw-tabs" property "isVertical" was renamed to "vertical"
-Before:
-```html
-<sw-tabs is-vertical />
-```
-
-After:
-```html
-<mt-tabs vertical />
-```
-
-### "sw-tabs" property "alignRight" was removed
-Before:
-```html
-<sw-tabs align-right />
-```
-
-After:
-```html
-<mt-tabs />
-```
 ## Removal of "sw-select-field":
 The old "sw-select-field" component will be removed in the next major version. Please use the new "mt-select" component instead.
 
@@ -2193,38 +2398,6 @@ Before:
 After:
 ```html
 <mt-colorpicker @update:model-value="onUpdateValue" />
-```
-## Removal of "sw-external-link":
-The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
-
-We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-external-link" component.
-
-If you don't want to use the codemod, you can manually replace all occurrences of "sw-external-link" with "mt-external-link".
-
-Following changes are necessary:
-
-### "sw-external-link" is removed
-Replace all component names from "sw-external-link" with "mt-external-link"
-
-Before:
-```html
-<sw-external-link>Hello World</sw-external-link>
-```
-After:
-```html
-<mt-external-link>Hello World</mt-external-link>
-```
-
-### "sw-external-link" property "icon" is removed
-The "icon" property is removed from the "mt-external-link" component. There is no replacement for this property.
-
-Before:
-```html
-<sw-external-link icon="world">Hello World</sw-external-link>
-```
-After:
-```html
-<mt-external-link>Hello World</mt-external-link>
 ```
 ## Removal of "sw-skeleton-bar":
 The old "sw-skeleton-bar" component will be removed in the next major version. Please use the new "mt-skeleton-bar" component instead.

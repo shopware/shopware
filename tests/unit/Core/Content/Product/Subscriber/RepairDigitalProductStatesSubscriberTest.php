@@ -10,12 +10,14 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(RepairDigitalProductStatesSubscriber::class)]
 class RepairDigitalProductStatesSubscriberTest extends TestCase
 {
@@ -35,7 +37,7 @@ class RepairDigitalProductStatesSubscriberTest extends TestCase
             $connection,
             $statesUpdater,
             $storage,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
         );
 
         $subscriber->repair($this->createEvent());

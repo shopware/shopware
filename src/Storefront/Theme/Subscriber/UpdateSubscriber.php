@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class UpdateSubscriber implements EventSubscriberInterface
 {
     /**

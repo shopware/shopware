@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\TypeDetector;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\ImageType;
@@ -19,13 +19,13 @@ use Shopware\Core\Framework\Log\Package;
 class SpatialObjectTypeDetectorTest extends TestCase
 {
     /**
-     * @var MediaFile&MockObject
+     * @var MediaFile&Stub
      */
     private MediaFile $mediaFile;
 
     protected function setUp(): void
     {
-        $this->mediaFile = $this->createMock(MediaFile::class);
+        $this->mediaFile = static::createStub(MediaFile::class);
     }
 
     public function testDetectWithExtensionGlbWillReturnSpatialObjectType(): void

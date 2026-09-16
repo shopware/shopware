@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\LicenseController;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,6 +17,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LicenseController::class)]
 class LicenseControllerTest extends TestCase
 {

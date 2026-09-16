@@ -53,7 +53,7 @@ class Uuid
 
         $bytes = substr_replace($bytes, $timeHiAndVersion, 6, 2);
         $bytes = substr_replace($bytes, $clockSeqHiAndReserved, 8, 2);
-        \assert(!empty($bytes));
+        \assert($bytes !== '');
 
         return $bytes;
     }
@@ -132,10 +132,6 @@ class Uuid
 
     public static function isValid(string $id): bool
     {
-        if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
-            return false;
-        }
-
-        return true;
+        return (bool) preg_match('/' . self::VALID_PATTERN . '/', $id);
     }
 }

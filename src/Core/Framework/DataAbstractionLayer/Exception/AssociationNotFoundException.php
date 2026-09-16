@@ -7,6 +7,8 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use {DomainException}::associationNotFound() instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AssociationNotFoundException extends ShopwareHttpException

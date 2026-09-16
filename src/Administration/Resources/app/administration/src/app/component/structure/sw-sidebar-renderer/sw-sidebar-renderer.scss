@@ -1,32 +1,34 @@
+@import "~scss/variables";
+
 .sw-sidebar-renderer-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 30%);
-    z-index: 999;
+    background: var(--color-elevation-backdrop-default);
+    z-index: $z-index-modal - 1;
     cursor: pointer;
-    animation: fadeIn 0.3s ease-in-out;
 
     &.is-resizing {
         cursor: col-resize;
     }
+}
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
+.sw-sidebar-renderer-backdrop-enter-active,
+.sw-sidebar-renderer-backdrop-leave-active {
+    transition: opacity 0.3s ease-in-out;
+}
 
-        to {
-            opacity: 1;
-        }
-    }
+.sw-sidebar-renderer-backdrop-enter-from,
+.sw-sidebar-renderer-backdrop-leave-to {
+    opacity: 0;
 }
 
 .sw-sidebar-renderer {
-    background: var(--color-elevation-surface-raised);
-    transition: all 0.3s ease-in-out;
+    width: var(--sw-sidebar-width);
+    max-width: var(--sw-sidebar-max-width);
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
     will-change: width;
     display: none;
-    z-index: 1200;
+    z-index: $z-index-modal;
 
     iframe {
         width: 100%;
@@ -50,79 +52,143 @@
 
     &.is-active {
         display: block;
+        animation: sw-sidebar-renderer-expand 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+
+        .sw-sidebar-renderer__overlay {
+            animation: sw-sidebar-renderer-slide-in 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+    }
+
+    // Skip the open animation when only the active sidebar changed; the content swaps in place
+    &.is-active.is-switched:not(.is-closing) {
+        animation: none;
+
+        // Instead, the width morphs over from the previous sidebar's width
+        @starting-style {
+            width: var(--sw-sidebar-switch-width, var(--sw-sidebar-width));
+        }
+
+        .sw-sidebar-renderer__overlay {
+            animation: none;
+
+            @starting-style {
+                width: calc(var(--sw-sidebar-switch-width, var(--sw-sidebar-width)) - var(--scale-size-8));
+            }
+        }
+    }
+
+    &.is-active.is-closing {
+        animation: sw-sidebar-renderer-shrink 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+
+        .sw-sidebar-renderer__overlay {
+            animation: sw-sidebar-renderer-slide-out 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+        }
+    }
+
+    @keyframes sw-sidebar-renderer-slide-in {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes sw-sidebar-renderer-slide-out {
+        to {
+            transform: translateX(100%);
+        }
+    }
+
+    @keyframes sw-sidebar-renderer-expand {
+        from {
+            width: 0;
+        }
+    }
+
+    @keyframes sw-sidebar-renderer-shrink {
+        to {
+            width: 0;
+        }
     }
 
     &__overlay {
+        width: var(--sw-sidebar-panel-width);
         position: relative;
         display: flex;
         flex-direction: column;
         top: 0;
         right: 0;
         bottom: 0;
-        border-left: 1px solid var(--color-border-primary-default);
-        height: 100%;
-        max-width: 90vw;
-        transition: all 0.3s ease-in-out;
+        margin: var(--scale-size-8) var(--scale-size-8) var(--scale-size-8) 0;
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: var(--border-radius-l);
+        background: var(--color-elevation-surface-default);
+        height: calc(100% - 2 * var(--scale-size-8));
+        max-width: calc(100dvw - 2 * var(--scale-size-8));
+        transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
         overflow: hidden;
 
+        // Applied to resizable sidebars and to any sidebar in overlay mode
         &-resizable {
             position: fixed;
         }
     }
 
     &.is-overlay .sw-sidebar-renderer__overlay {
-        box-shadow: -4px 0 16px rgba(0, 0, 0, 15%);
-        border-left: 1px solid var(--color-border-primary-default);
-        border-radius: 8px 0 0 8px;
+        box-shadow: 0 0 80px var(--color-elevation-shadow-default);
     }
 
     &__resize-handle {
         position: absolute;
         left: 0;
-        top: 0;
-        bottom: 0;
-        width: 6px;
+        top: 12px;
+        bottom: 12px;
+        width: 2px;
         cursor: col-resize;
         background: transparent;
         z-index: 10;
+        border-radius: var(--border-radius-round);
+        transition: background 0.2s ease;
 
         &:hover {
-            background: var(--color-interaction-primary-default);
-            opacity: 0.3;
-        }
-
-        &:active {
-            background: var(--color-interaction-primary-default);
-            opacity: 0.5;
+            background: var(--color-border-primary-default);
         }
 
         &::before {
             content: "";
             position: absolute;
-            left: -3px;
-            right: -3px;
-            top: 0;
-            bottom: 0;
+            left: -8px;
+            right: -8px;
+            top: -12px;
+            bottom: -12px;
         }
     }
 
     &__header {
         display: flex;
-        height: 81px;
-        padding: 0 24px;
+        height: calc(var(--scale-size-72) + 1px);
+        padding: 0 16px 0 24px;
         justify-content: space-between;
         align-items: center;
         gap: 16px;
         flex-shrink: 0;
         align-self: stretch;
-        border-bottom: 1px solid var(--color-border-primary-default);
-        background: var(--color-elevation-surface-raised);
+        border-bottom: 1px solid var(--color-border-secondary-default);
+        background: var(--color-elevation-surface-default);
         position: relative;
 
         &-content {
             display: flex;
             align-items: center;
             gap: 16px;
+        }
+
+        &-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
     }
 
@@ -134,26 +200,34 @@
         height: 100%;
     }
 
-    &__button-close {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--border-radius-button);
-        transition: background-color 0.2s ease-in-out;
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        &-active {
-            background: var(--color-interaction-secondary-hover);
-        }
-    }
-
-    &__close-icon {
-        cursor: pointer;
-    }
-
     &__title {
         margin: 0;
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
+    }
+}
+
+// The store also skips its close delay under reduced motion, so closing takes effect immediately
+@media (prefers-reduced-motion: reduce) {
+    .sw-sidebar-renderer,
+    .sw-sidebar-renderer.is-active,
+    .sw-sidebar-renderer.is-active.is-closing {
+        transition: none;
+
+        .sw-sidebar-renderer__overlay {
+            animation: none;
+            transition: none;
+        }
+    }
+
+    .sw-sidebar-renderer.is-active,
+    .sw-sidebar-renderer.is-active.is-closing {
+        animation: none;
+    }
+
+    .sw-sidebar-renderer-backdrop-enter-active,
+    .sw-sidebar-renderer-backdrop-leave-active {
+        transition: none;
     }
 }

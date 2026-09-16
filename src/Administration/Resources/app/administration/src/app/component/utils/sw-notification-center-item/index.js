@@ -11,6 +11,8 @@ import template from './sw-notification-center-item.html.twig';
 export default {
     template,
 
+    mixins: [Shopware.Mixin.getByName('notification-translation')],
+
     emits: ['center-close'],
 
     props: {

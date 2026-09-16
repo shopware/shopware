@@ -12,7 +12,7 @@ ddev npm <command>               # NPM commands
 ```
 
 ### Examples:
-- `ddev composer ecs-fix`
+- `ddev composer cs-fix`
 - `ddev exec bin/console cache:clear`
 
 **All commands from AGENTS.md must be adapted to use the appropriate DDEV pattern.**

@@ -63,12 +63,6 @@ export default {
         },
     },
 
-    watch: {
-        pageType(newPageType) {
-            this.element.locked = newPageType === 'product_detail';
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -77,8 +71,6 @@ export default {
         createdComponent() {
             this.initElementConfig('product-description-reviews');
             this.initElementData('product-description-reviews');
-
-            this.element.locked = this.isProductPageType;
         },
     },
 };

@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppMcpToolDefinition extends EntityDefinition
@@ -43,7 +45,7 @@ class AppMcpToolDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.7.0.0';
+        return '6.7.11.0';
     }
 
     protected function getParentDefinitionClass(): ?string

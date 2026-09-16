@@ -14,7 +14,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CaptchaCookieCollectListener
 {
     public function __construct(

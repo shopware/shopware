@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal only for use by the app-system
@@ -34,7 +34,7 @@ class AppPrinter
     {
     }
 
-    public function printInstalledApps(ShopwareStyle $io, Context $context): void
+    public function printInstalledApps(SymfonyStyle $io, Context $context): void
     {
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
@@ -63,7 +63,7 @@ class AppPrinter
     /**
      * @param list<array{manifest: Manifest, exception: \Exception}> $fails
      */
-    public function printIncompleteInstallations(ShopwareStyle $io, array $fails): void
+    public function printIncompleteInstallations(SymfonyStyle $io, array $fails): void
     {
         if ($fails === []) {
             return;
@@ -85,7 +85,7 @@ class AppPrinter
         );
     }
 
-    public function printPermissions(Manifest $manifest, ShopwareStyle $io, bool $install): void
+    public function printPermissions(Manifest $manifest, SymfonyStyle $io, bool $install): void
     {
         $permissions = $manifest->getPermissions();
 
@@ -107,7 +107,7 @@ class AppPrinter
     /**
      * @throws UserAbortedCommandException
      */
-    public function checkHosts(Manifest $manifest, ShopwareStyle $io): void
+    public function checkHosts(Manifest $manifest, SymfonyStyle $io): void
     {
         $hosts = $manifest->getAllHosts();
         if ($hosts === []) {
@@ -127,7 +127,7 @@ class AppPrinter
     /**
      * @param array<string> $hosts
      */
-    private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
+    private function printHosts(Manifest $app, array $hosts, SymfonyStyle $io, bool $install): void
     {
         $io->caution(
             \sprintf(
@@ -148,7 +148,7 @@ class AppPrinter
         );
     }
 
-    private function printPermissionTable(ShopwareStyle $io, Permissions $permissions): void
+    private function printPermissionTable(SymfonyStyle $io, Permissions $permissions): void
     {
         $permissionTable = [];
         foreach ($this->reducePermissions($permissions) as $resource => $privileges) {

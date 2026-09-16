@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeEntity extends Entity
 {
     use EntityCustomFieldsTrait;

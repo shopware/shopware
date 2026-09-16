@@ -12,11 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:generate-app-secret',
     description: 'Generates a new app secret',
 )]
-#[Package('framework')]
 class SystemGenerateAppSecretCommand extends Command
 {
     final public const APP_SECRET_LENGTH = 136;

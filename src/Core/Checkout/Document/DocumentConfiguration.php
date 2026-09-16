@@ -10,8 +10,8 @@ use Shopware\Core\System\Country\CountryEntity;
 /**
  * @codeCoverageIgnore
  */
-#[\AllowDynamicProperties]
 #[Package('after-sales')]
+#[\AllowDynamicProperties]
 class DocumentConfiguration extends Struct
 {
     protected string $id;

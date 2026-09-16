@@ -27,6 +27,7 @@ Shopware.Service('privileges')
                     'plugin:update',
                     'system:clear:cache',
                     'system_config:read',
+                    'system:app:change',
                 ],
                 dependencies: [],
             },

@@ -23,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class LandingPageRoute extends AbstractLandingPageRoute
 {
     /**
@@ -79,7 +79,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $resolverContext
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw LandingPageException::notFound($pageId);
         }
@@ -117,7 +117,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

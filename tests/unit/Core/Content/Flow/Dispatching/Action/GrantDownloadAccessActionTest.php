@@ -40,7 +40,7 @@ class GrantDownloadAccessActionTest extends TestCase
 
     protected function setUp(): void
     {
-        $orderLineItemDownloadRepository = $this->createMock(EntityRepository::class);
+        $orderLineItemDownloadRepository = static::createStub(EntityRepository::class);
         $orderLineItemDownloadRepository->method('update')->willReturnCallback(
             function (array $payload, Context $context): EntityWrittenContainerEvent {
                 $this->updatePayload = $payload;

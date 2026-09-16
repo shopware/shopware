@@ -3,6 +3,7 @@
 namespace Shopware\Core\Maintenance\User\Service;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
+ * @phpstan-type AdditionalUserData array{firstName?: string, lastName?: string, email?: string, localeId?: string, admin?: bool}
+ *
  * @internal
  */
 #[Package('framework')]
@@ -22,12 +25,14 @@ class UserProvisioner
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     /**
-     * @param array{firstName?: string, lastName?: string, email?: string, localeId?: string, admin?: bool} $additionalData
+     * @param AdditionalUserData $additionalData
      */
     public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {
@@ -53,7 +58,7 @@ class UserProvisioner
             'locale_id' => $additionalData['localeId'] ?? $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'admin' => $additionalData['admin'] ?? true,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $this->connection->insert('user', $userPayload);

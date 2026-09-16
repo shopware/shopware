@@ -25,6 +25,7 @@ class ExampleRoute extends AbstractExampleRoute
     #[Route(
         path: '/store-api/example',
         name: 'store-api.example.search',
+        defaults: ['_entity' => 'product'],
         methods: ['GET', 'POST']
     )]
     public function load(Criteria $criteria, SalesChannelContext $context): ExampleRouteResponse

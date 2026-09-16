@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -14,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 class ExtensionExtractorTest extends TestCase
 {
     use KernelTestBehaviour;

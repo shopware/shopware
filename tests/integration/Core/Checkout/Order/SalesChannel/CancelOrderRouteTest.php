@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -98,10 +99,39 @@ class CancelOrderRouteTest extends TestCase
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
-        $order = static::getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->first();
+        $order = static::getContainer()->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($order->getStateMachineState());
         static::assertSame('cancelled', $order->getStateMachineState()->getTechnicalName());
+    }
+
+    public function testCancellingMyOwnOrderIsRecordedAsSalesChannelStateChange(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/order/state/cancel',
+                [
+                    'orderId' => $this->ids->get('order-1'),
+                ]
+            );
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        $history = $connection->fetchAssociative(
+            'SELECT source_type, user_id, integration_id FROM `state_machine_history` WHERE referenced_id = :id ORDER BY created_at DESC LIMIT 1',
+            ['id' => Uuid::fromHexToBytes($this->ids->get('order-1'))]
+        );
+
+        static::assertNotFalse($history);
+        static::assertSame([
+            'source_type' => 'sales-channel',
+            'user_id' => null,
+            'integration_id' => null,
+        ], $history);
     }
 
     public function testCancelRandomOrder(): void

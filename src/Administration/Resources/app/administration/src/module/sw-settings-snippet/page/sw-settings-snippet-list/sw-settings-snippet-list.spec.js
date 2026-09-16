@@ -52,8 +52,35 @@ function getSnippetSets() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
-    async function createWrapper(privileges = []) {
-        return mount(
+    let wrapper = null;
+
+    beforeEach(() => {
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+            wrapper = null;
+        }
+        jest.restoreAllMocks();
+    });
+
+    async function createWrapper(
+        privileges = [],
+        query = {},
+        getCustomList = jest.fn(() => Promise.resolve(getSnippets())),
+    ) {
+        const snippetSetSearch = jest.fn((criteria) => {
+            if (criteria.term) {
+                return Promise.resolve([]);
+            }
+
+            return Promise.resolve(getSnippetSets());
+        });
+
+        wrapper = mount(
             await wrapTestComponent('sw-settings-snippet-list', {
                 sync: true,
             }),
@@ -62,9 +89,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                     renderStubDefaultSlot: true,
                     provide: {
                         repositoryFactory: {
-                            create: () => ({
-                                search: () => Promise.resolve(getSnippetSets()),
-                            }),
+                            create: () => ({ search: snippetSetSearch }),
                         },
                         acl: {
                             can: (identifier) => {
@@ -85,9 +110,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                             getAuthors: () => {
                                 return Promise.resolve({ data: [] });
                             },
-                            getCustomList: () => {
-                                return Promise.resolve(getSnippets());
-                            },
+                            getCustomList,
                         },
                         snippetService: {
                             save: () => Promise.resolve(),
@@ -95,10 +118,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                             getFilter: () => Promise.resolve({ data: [] }),
                         },
                         searchRankingService: {},
-                        userConfigService: {
-                            search: () => ({ data: [] }),
-                            upsert: () => null,
-                        },
                     },
                     mocks: {
                         $route: {
@@ -109,6 +128,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                             },
                             query: {
                                 ids: 'a2f95068665e4498ae98a2318a7963df',
+                                ...query,
                             },
                         },
                     },
@@ -144,7 +164,33 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                 },
             },
         );
+
+        return wrapper;
     }
+
+    it('should display translation columns when opening a filtered view through a deep link', async () => {
+        const getCustomList = jest.fn(() => Promise.resolve(getSnippets()));
+        const wrapper = await createWrapper([], { term: 'account' }, getCustomList);
+
+        await flushPromises();
+
+        expect(getCustomList).toHaveBeenCalledWith(
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({
+                term: 'account',
+            }),
+            expect.any(Object),
+        );
+
+        expect(wrapper.vm.columns).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    property: 'a2f95068665e4498ae98a2318a7963df',
+                }),
+            ]),
+        );
+    });
 
     it.each([
         [

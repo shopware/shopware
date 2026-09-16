@@ -13,7 +13,13 @@ export default {
     props: {
         role: {
             type: Object,
-            required: true,
+            required: false,
+            default: null,
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
         disabled: {
             type: Boolean,

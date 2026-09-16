@@ -15,8 +15,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(PermittedAutomaticPromotions::class)]
 #[Package('checkout')]
+#[CoversClass(PermittedAutomaticPromotions::class)]
 class PermittedAutomaticPromotionsTest extends TestCase
 {
     private SalesChannelEntity $salesChannel;

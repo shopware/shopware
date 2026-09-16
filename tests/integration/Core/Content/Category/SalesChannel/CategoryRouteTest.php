@@ -32,8 +32,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *      expected: string
  *  }>
  */
-#[Group('store-api')]
 #[Package('discovery')]
+#[Group('store-api')]
 class CategoryRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

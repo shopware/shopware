@@ -192,8 +192,9 @@ export default {
 
         onInlineEditCancel(item) {
             if (item._isNew) {
-                this.initLineItem(item);
-                delete item.identifier;
+                Store.get('swOrder').removeEmptyLineItem(item.id);
+
+                return;
             }
 
             // Reset quantity
@@ -235,24 +236,30 @@ export default {
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
-            this.cartLineItems.unshift(item);
-            Store.get('swOrder').setCartLineItems(this.cartLineItems);
+            this.insertLineItem(item);
         },
 
         onInsertBlankItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
-            this.cartLineItems.unshift(item);
-            Store.get('swOrder').setCartLineItems(this.cartLineItems);
+            this.insertLineItem(item);
         },
 
         onInsertCreditItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
+            this.insertLineItem(item);
+        },
+
+        insertLineItem(item) {
             this.cartLineItems.unshift(item);
             Store.get('swOrder').setCartLineItems(this.cartLineItems);
+
+            this.$nextTick(() => {
+                this.$refs.dataGrid?.onDbClickCell(item);
+            });
         },
 
         onSelectionChanged(selection) {
@@ -299,6 +306,27 @@ export default {
 
         isProductItem(item) {
             return item.type === this.lineItemTypes.PRODUCT;
+        },
+
+        getProductRouteId(item) {
+            return item.identifier || item.referencedId || item.id;
+        },
+
+        canOpenProduct(item) {
+            return this.isProductItem(item) && !!item.payload && !!this.getProductRouteId(item);
+        },
+
+        getProductRoute(item) {
+            if (!this.canOpenProduct(item)) {
+                return null;
+            }
+
+            return {
+                name: 'sw.product.detail',
+                params: {
+                    id: this.getProductRouteId(item),
+                },
+            };
         },
 
         getMinItemPrice(item) {

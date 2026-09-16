@@ -1,3 +1,4 @@
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
 import '../../store/order.store';
@@ -17,6 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
+        'feature',
     ],
 
     mixins: [
@@ -29,8 +31,8 @@ export default Shopware.Component.wrapComponentConfig({
         showInvalidCodeModal: boolean;
         showRemindPaymentModal: boolean;
         remindPaymentModalLoading: boolean;
-        orderId: string | null;
-        orderTransaction: { id: string; paymentMethodId: string } | null;
+        orderId: EntityKey<'order'> | null;
+        orderTransaction: { id: EntityKey<'order_transaction'>; paymentMethodId: EntityKey<'payment_method'> } | null;
         paymentMethodName: string;
     } {
         return {
@@ -95,6 +97,23 @@ export default Shopware.Component.wrapComponentConfig({
         showInitialModal(): boolean {
             return this.$route.name === 'sw.order.create.initial';
         },
+
+        orderCreateTabs(): TabItem[] {
+            const createRouteTab = (label: string, routeName: string) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-order.detail.tabGeneral', 'sw.order.create.general'),
+                createRouteTab('sw-order.detail.tabDetails', 'sw.order.create.details'),
+            ];
+        },
     },
 
     created(): void {
@@ -120,7 +139,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isSaveSuccessful = false;
             Shopware.Store.get('context').api.languageId =
-                localStorage.getItem('sw-admin-current-language') || Shopware.Defaults.systemLanguageId;
+                (localStorage.getItem('sw-admin-current-language') as EntityKey<'language'>) ||
+                Shopware.Defaults.systemLanguageId;
             void this.$router.push({
                 name: 'sw.order.detail',
                 params: { id: this.orderId },
@@ -146,8 +166,11 @@ export default Shopware.Component.wrapComponentConfig({
                     contextToken: this.cart.token,
                 })) as {
                     data: {
-                        id: string;
-                        transactions: Array<{ id: string; paymentMethodId: string }>;
+                        id: EntityKey<'order'>;
+                        transactions: Array<{
+                            id: EntityKey<'order_transaction'>;
+                            paymentMethodId: EntityKey<'payment_method'>;
+                        }>;
                     };
                 };
 

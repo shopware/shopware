@@ -19,7 +19,7 @@ use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsPageLoader
 {
     /**

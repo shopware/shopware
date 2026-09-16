@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\BarMessage;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -18,6 +19,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  *
  * @internal
  */
+#[Package('framework')]
 class MessageQueueStatsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

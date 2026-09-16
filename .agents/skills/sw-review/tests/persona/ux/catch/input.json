@@ -1,0 +1,22 @@
+{
+  "persona": "ux",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-ux-catch",
+    "title": "feat(product): add quick-save button",
+    "body": "Adds a quick-save action to the product detail page.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/ux-catch",
+    "additions": 6,
+    "deletions": 0,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Administration/Resources/app/administration/src/module/sw-product/component/sw-product-detail-base/sw-product-detail-base.html.twig"
+  ]
+}

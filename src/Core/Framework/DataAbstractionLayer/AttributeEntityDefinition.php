@@ -52,6 +52,11 @@ class AttributeEntityDefinition extends EntityDefinition
         return $this->meta['hydrator_class'];
     }
 
+    public function isInheritanceAware(): bool
+    {
+        return (bool) ($this->meta['inheritance_aware'] ?? false);
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return $this->meta['parent'] ?? null;

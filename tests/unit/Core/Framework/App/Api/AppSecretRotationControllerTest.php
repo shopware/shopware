@@ -15,11 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppSecretRotationController::class)]
 class AppSecretRotationControllerTest extends TestCase
 {
@@ -86,8 +88,7 @@ class AppSecretRotationControllerTest extends TestCase
 
         $controller = new AppSecretRotationController($appRepository, $rotationService);
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Secret rotation requires an Admin API source with integration authentication.');
+        $this->expectExceptionObject(AppException::invalidArgument('Secret rotation requires an Admin API source with integration authentication.'));
 
         $controller->rotate($context);
     }
@@ -108,8 +109,7 @@ class AppSecretRotationControllerTest extends TestCase
 
         $controller = new AppSecretRotationController($appRepository, $rotationService);
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Secret rotation requires authentication via an app integration.');
+        $this->expectExceptionObject(AppException::invalidArgument('Secret rotation requires authentication via an app integration.'));
 
         $controller->rotate($context);
     }

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Stats;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -11,8 +13,10 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 #[Package('framework')]
 abstract class AbstractStatsRepository
 {
-    public function __construct(protected int $timeSpan)
-    {
+    public function __construct(
+        protected int $timeSpan,
+        protected readonly ClockInterface $clock = new NativeClock(),
+    ) {
     }
 
     abstract public function updateMessageStats(string $messageFqcn, int $timeInQueue): void;
@@ -21,8 +25,7 @@ abstract class AbstractStatsRepository
 
     protected function getNow(): \DateTimeInterface
     {
-        // Using time() function to make possible to mock the time with PHPUnit Symfony bridge
-        return new \DateTimeImmutable('@' . time());
+        return $this->clock->now();
     }
 
     protected function getCutOffDate(): \DateTimeInterface

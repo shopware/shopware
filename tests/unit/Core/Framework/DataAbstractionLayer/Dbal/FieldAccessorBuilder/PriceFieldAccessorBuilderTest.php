@@ -11,10 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceFieldAccessorBuilder::class)]
 class PriceFieldAccessorBuilderTest extends TestCase
 {
@@ -23,7 +25,7 @@ class PriceFieldAccessorBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->builder = new PriceFieldAccessorBuilder(
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
     }
 

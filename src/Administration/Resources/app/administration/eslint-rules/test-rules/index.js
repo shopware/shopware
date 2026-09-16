@@ -6,7 +6,9 @@ const path = require('path');
 
 module.exports = {
     rules: {
-        // eslint-disable-next-line global-require,import/no-dynamic-require
         'await-async-functions': require(path.resolve(__dirname, 'await-async-functions.js')),
+        'stabilize-feature-flag': require(path.resolve(__dirname, 'stabilize-feature-flag.js')),
+        'test-file-max-lines-warning': require(path.resolve(__dirname, 'test-file-max-lines/warning.js')),
+        'test-file-max-lines-error': require(path.resolve(__dirname, 'test-file-max-lines/error.js')),
     },
 };

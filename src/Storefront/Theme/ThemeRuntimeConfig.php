@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @internal
@@ -34,7 +35,7 @@ use Shopware\Core\Framework\Log\Package;
  *     updatedAt?: \DateTimeInterface|null
  * }
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfig
 {
     public function __construct(
@@ -78,7 +79,7 @@ class ThemeRuntimeConfig
             $data['viewInheritance'] ?? [],
             $data['scriptFiles'] ?? null,
             $data['iconSets'] ?? [],
-            $data['updatedAt'] ?? new \DateTimeImmutable(),
+            $data['updatedAt'] ?? Clock::get()->now(),
             $data['importMap'] ?? null,
         );
     }

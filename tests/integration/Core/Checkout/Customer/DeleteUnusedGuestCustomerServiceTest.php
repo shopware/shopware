@@ -65,9 +65,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertSame(0, $this->service->countUnusedCustomers($context));
 
-        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
+        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context)->getEntities();
 
-        static::assertSame(0, $result->getTotal());
+        static::assertCount(0, $result);
     }
 
     public function testItDoesOnlyDeleteGuestCustomers(): void
@@ -97,9 +97,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
         $result = $customerRepository->search(new Criteria([
             $this->ids->get('10000'),
             $this->ids->get('10001'),
-        ]), $context);
+        ]), $context)->getEntities();
 
-        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
@@ -136,9 +136,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
         $result = $customerRepository->search(new Criteria([
             $this->ids->get('10000'),
             $this->ids->get('10001'),
-        ]), $context);
+        ]), $context)->getEntities();
 
-        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
@@ -176,9 +176,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
         $result = $customerRepository->search(new Criteria([
             $this->ids->get('10000'),
             $this->ids->get('10001'),
-        ]), $context);
+        ]), $context)->getEntities();
 
-        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
@@ -208,9 +208,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertSame(0, $this->service->countUnusedCustomers($context));
 
-        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
+        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context)->getEntities();
 
-        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
@@ -240,9 +240,9 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         static::assertSame(0, $this->service->countUnusedCustomers($context));
 
-        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
+        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context)->getEntities();
 
-        static::assertSame(1, $result->getTotal());
+        static::assertCount(1, $result);
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();

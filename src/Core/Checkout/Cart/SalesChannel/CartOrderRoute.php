@@ -36,8 +36,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CartOrderRoute extends AbstractCartOrderRoute
 {
     /**
@@ -83,6 +83,10 @@ class CartOrderRoute extends AbstractCartOrderRoute
         }
 
         return $this->cartLocker->locked($context, function () use ($cart, $context, $data) {
+            if ($cart->isPersisted() && !$this->cartPersister->exists($cart->getToken(), $context)) {
+                throw CartException::tokenNotFound($cart->getToken());
+            }
+
             // we use this state in stock updater class, to prevent duplicate available stock updates
             $context->addState('checkout-order-route');
 

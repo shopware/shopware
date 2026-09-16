@@ -21,7 +21,7 @@ class ArrayOfUuidValidator extends ConstraintValidator
 
         // custom constraints should ignore null and empty values to allow
         // other constraints (NotBlank, NotNull, etc.) take care of that
-        if ($value === null || empty($value)) {
+        if ($value === null || $value === []) {
             return;
         }
 

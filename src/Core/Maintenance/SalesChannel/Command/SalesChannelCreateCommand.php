@@ -3,7 +3,6 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,15 +14,16 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal should be used over the CLI only
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'sales-channel:create',
     description: 'Creates a new sales channel',
 )]
-#[Package('discovery')]
 class SalesChannelCreateCommand extends Command
 {
     public function __construct(
@@ -53,7 +53,7 @@ class SalesChannelCreateCommand extends Command
         $id = $input->getOption('id');
         $typeId = $input->getOption('typeId');
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         try {
             $accessKey = $this->salesChannelCreator->createSalesChannel(

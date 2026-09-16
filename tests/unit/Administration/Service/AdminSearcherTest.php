@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Administration\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Administration\Service\AdminSearcher;
@@ -21,13 +21,13 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(AdminSearcher::class)]
 class AdminSearcherTest extends TestCase
 {
-    private MockObject&DefinitionInstanceRegistry $definitionInstanceRegistry;
+    private Stub&DefinitionInstanceRegistry $definitionInstanceRegistry;
 
     private AdminApiSource $source;
 
     protected function setUp(): void
     {
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $this->source = new AdminApiSource('test');
         $this->source->setIsAdmin(false);
     }
@@ -43,10 +43,11 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithCriteriaNotInRegistry(): void
     {
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')->willReturn(false);
-        $this->definitionInstanceRegistry->expects($this->never())->method('getRepository');
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(false);
+        $registry->expects($this->never())->method('getRepository');
 
-        $adminSearcher = new AdminSearcher($this->definitionInstanceRegistry);
+        $adminSearcher = new AdminSearcher($registry);
         $queries = new CriteriaCollection(['product' => new Criteria()]);
 
         static::assertSame([], $adminSearcher->search($queries, Context::createDefaultContext($this->source)));
@@ -54,10 +55,11 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithNoReadAcl(): void
     {
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')->willReturn(true);
-        $this->definitionInstanceRegistry->expects($this->never())->method('getRepository');
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->expects($this->never())->method('getRepository');
 
-        $adminSearcher = new AdminSearcher($this->definitionInstanceRegistry);
+        $adminSearcher = new AdminSearcher($registry);
 
         $queries = new CriteriaCollection(['product' => new Criteria()]);
 
@@ -66,14 +68,15 @@ class AdminSearcherTest extends TestCase
 
     public function testAdminSearcherSearchWithReadAcl(): void
     {
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')->willReturn(true);
-        $this->definitionInstanceRegistry->expects($this->once())->method('getRepository')->willReturn(
-            $this->createMock(EntityRepository::class)
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->expects($this->once())->method('getRepository')->willReturn(
+            static::createStub(EntityRepository::class)
         );
 
         $this->source->setIsAdmin(true);
 
-        $adminSearcher = new AdminSearcher($this->definitionInstanceRegistry);
+        $adminSearcher = new AdminSearcher($registry);
 
         $queries = new CriteriaCollection(['product' => new Criteria()]);
 

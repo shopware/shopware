@@ -39,6 +39,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -48,6 +49,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -61,6 +63,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -70,6 +73,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -86,6 +90,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -95,6 +100,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -108,6 +114,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '',
@@ -117,6 +124,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -140,6 +148,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -149,6 +158,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -162,6 +172,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
@@ -171,6 +182,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '3.foo' => [
                         'value' => '3_foo',
@@ -180,6 +192,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -196,6 +209,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
@@ -205,6 +219,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '3.foo' => [
                         'value' => '',
@@ -214,6 +229,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'firstSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],
@@ -227,6 +243,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => '',
+                        'hasFileValue' => false,
                     ],
                     '1.bar' => [
                         'value' => '',
@@ -236,6 +253,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                     '1.bas' => [
                         'value' => '',
@@ -245,6 +263,7 @@ class NamespaceFilterTest extends TestCase
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
+                        'hasFileValue' => false,
                     ],
                 ],
             ],

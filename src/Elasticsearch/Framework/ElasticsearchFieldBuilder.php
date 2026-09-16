@@ -41,13 +41,13 @@ class ElasticsearchFieldBuilder
      * SKU-style fields where letter↔digit boundaries and `,` / `-` / `.`
      * separators must survive into the inverted index.
      */
-    public const ANALYZER_WHITESPACE_TECHNICAL_INDEX = 'sw_whitespace_word_delimiter_index_analyzer';
+    public const ANALYZER_WHITESPACE_TECHNICAL_INDEX = 'sw_whitespace_technical_term_index_analyzer';
 
     /**
      * Search-side counterpart of {@see self::ANALYZER_WHITESPACE_TECHNICAL_INDEX}
      * with the cross-position deduplication filter appended.
      */
-    public const ANALYZER_WHITESPACE_TECHNICAL_SEARCH = 'sw_whitespace_word_delimiter_search_analyzer';
+    public const ANALYZER_WHITESPACE_TECHNICAL_SEARCH = 'sw_whitespace_technical_term_search_analyzer';
 
     /**
      * Common prefix of every language-agnostic analyzer this bundle ships.
@@ -71,7 +71,17 @@ class ElasticsearchFieldBuilder
     /**
      * @param array<string, mixed> $fieldConfig
      *
-     * @description This method is used to build the mapping for translated fields
+     * @description Build the mapping for translated fields.
+     *
+     * The method inspects the `.search` subfield analyzer of the input config
+     * and substitutes the appropriate language-specific analyzer per language:
+     *
+     * - {@see self::ANALYZER_WHITESPACE} → the language analyzer (e.g. `sw_german_analyzer`).
+     * - {@see self::ANALYZER_WHITESPACE_TECHNICAL_INDEX} → the language-specific
+     *   word_delimiter pair (e.g. `sw_german_word_delimiter_{index,search}_analyzer`),
+     *   when the language has them defined.
+     *
+     * `.exact` and `.ngram` subfields are language-agnostic and stay untouched.
      *
      * @return array{properties: array<string, mixed>}
      */
@@ -88,9 +98,30 @@ class ElasticsearchFieldBuilder
 
             $languageFields[$languageId] = $fieldConfig;
 
-            if (\array_key_exists($locale, $this->languageAnalyzerMapping) && isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
-                $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
+            if (!isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
+                continue;
             }
+
+            if (!\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+                continue;
+            }
+
+            $languageAnalyzer = $this->languageAnalyzerMapping[$locale];
+            $currentAnalyzer = $languageFields[$languageId]['fields']['search']['analyzer'];
+
+            if ($currentAnalyzer === self::ANALYZER_WHITESPACE_TECHNICAL_INDEX) {
+                $indexAnalyzer = $this->getTechnicalTermAnalyzer($languageAnalyzer, false);
+                $searchAnalyzer = $this->getTechnicalTermAnalyzer($languageAnalyzer, true);
+
+                if ($indexAnalyzer !== null && $searchAnalyzer !== null) {
+                    $languageFields[$languageId]['fields']['search']['analyzer'] = $indexAnalyzer;
+                    $languageFields[$languageId]['fields']['search']['search_analyzer'] = $searchAnalyzer;
+                }
+
+                continue;
+            }
+
+            $languageFields[$languageId]['fields']['search']['analyzer'] = $languageAnalyzer;
         }
 
         return ['properties' => $languageFields];
@@ -107,8 +138,10 @@ class ElasticsearchFieldBuilder
 
         $customFields = [];
 
+        $cfMapping = $this->getCustomFieldsMapping($entity, $context);
+
         foreach (array_keys($languages) as $languageId) {
-            $customFields[$languageId] = $this->getCustomFieldsMapping($entity, $context);
+            $customFields[$languageId] = $cfMapping;
         }
 
         return ['properties' => $customFields];
@@ -172,5 +205,14 @@ class ElasticsearchFieldBuilder
         }
 
         return $mapping;
+    }
+
+    private function getTechnicalTermAnalyzer(string $analyzer, bool $searchAnalyzer): ?string
+    {
+        return match ($analyzer) {
+            'sw_english_analyzer' => $searchAnalyzer ? 'sw_english_technical_term_search_analyzer' : 'sw_english_technical_term_index_analyzer',
+            'sw_german_analyzer' => $searchAnalyzer ? 'sw_german_technical_term_search_analyzer' : 'sw_german_technical_term_index_analyzer',
+            default => null,
+        };
     }
 }

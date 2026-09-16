@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RouteScopeWhitelistInterface;
 use Shopware\Storefront\Controller\RobotsController;
 
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsRouteScopeWhitelist implements RouteScopeWhitelistInterface
 {
     public function applies(string $controllerClass): bool

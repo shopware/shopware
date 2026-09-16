@@ -8,7 +8,7 @@
         "general": {
             "tooltipOpenStorefront": "Open storefront",
             "titleMenuItems": "Sales Channels",
-            "titleMenuMoreItems": "More",
+            "titleMenuMoreItems": "View all",
             "manageSalesChannels": "Manage Sales Channels",
             "addSalesChannel": "Add Sales Channel"
         },
@@ -17,6 +17,8 @@
             "subTitle": "Sales Channels let you sell items to your customers through social media, storefronts, marketplaces or in person.",
             "placeholderSearchBar": "Search Sales Channels...",
             "buttonAddSalesChannel": "Add Sales Channel",
+            "emptyStateHeadline": "No Sales Channels yet",
+            "emptyStateDescription": "Add your first Sales Channel to start selling through storefronts, marketplaces or social media.",
             "columnName": "Sales Channel",
             "columnType": "Type",
             "columnStatus": "Status",
@@ -27,7 +29,6 @@
                 "online": "Online",
                 "offline": "Offline"
             },
-            "contextMenuEdit": "Edit",
             "productsLabel": "Products",
             "productsCount": "products | product | products"
         },
@@ -36,8 +37,8 @@
             "buttonAddChannel": "Add Sales Channel",
             "titleDetailPrefix": "{name} - details",
             "buttonShowDetails": "Show details",
-            "buttonBack": "Back",
             "titleDescription": "Information",
+            "messageAgenticCommerce": "In order to create agentic commerce sales channels, please install the Agentic Commerce extension from the Shopware Store.",
             "messageNoProductStreams": "In order to use product comparisons or agentic commerce sales channels, a dynamic product group has to be created first."
         },
         "detail": {
@@ -46,13 +47,13 @@
             "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
             "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
             "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
-            "buttonSave": "Save",
             "buttonCreateNewApiKeys": "Create new API key",
             "tabBase": "General",
             "tabTheme": "Theme",
             "tabAnalytics": "Analytics",
             "tabProductComparison": "Template",
             "tabProducts": "Products",
+            "tabAgenticFiles": "Agentic files",
             "titleProductComparisonTemplate": "Template",
             "titleProductComparisonPreview": "Preview",
             "titleProductComparisonPreviewErrors": "Errors during generation",
@@ -64,6 +65,8 @@
             "labelInputShippingMethods": "Shipping methods",
             "labelInputPaymentMethods": "Payment methods",
             "labelInputCountries": "Countries",
+            "labelBusinessTimeZone": "Business timezone",
+            "helpTextBusinessTimeZone": "Timezone used whenever a date or time is printed in documents of this Sales Channel. If empty, no business timezone override is applied.",
             "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
             "helpTextTaxCalculation": {
                 "label": "If a tax provider is activated, these settings may be overwritten. You can check this in {link}.",
@@ -94,7 +97,6 @@
             "buttonDelete": "Delete Sales Channel",
             "deleteModalTitle": "Delete Sales Channel",
             "textConfirmDelete": "Are you sure you want to delete this Sales Channel?",
-            "buttonConfirmDelete": "Delete",
             "textHeadline": "New Sales Channel",
             "placeholderName": "Enter Sales Channel name...",
             "placeholderInputCategories": "Add categories...",
@@ -103,19 +105,20 @@
             "labelInputCurrency": "Currency",
             "labelInputLanguage": "Language",
             "labelInputSnippet": "Snippet",
+            "labelIsExternalStorefront": "External storefront",
+            "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront. Per language, only one external storefront can be set for a single sales channel.",
             "buttonDeleteDomain": "Delete domain",
             "messageDeleteDomainError": "The domain \"{url}\" could not be deleted because it is linked to existing product exports.",
             "foreignKeyDelete": "This sales channel cannot be deleted because it is still in use by {assignment}.",
             "buttonAddDomain": "Add domain",
             "deleteDomainModalTitle": "Delete domain",
             "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The Sales Channel will no longer be accessible by \"{url}\"",
-            "buttonConfirmDeleteDomain": "Delete",
             "customerGroup": "Customer group",
             "favouriteLabel": "Mark Sales Channel as favourite",
             "navigation": "Navigation",
             "navigationCategoryId": "Entry point main navigation",
             "navigationCategoryDepth": "Navigation levels",
-            "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
+            "navigationCategoryHelpText": "For this entry point, you cannot select categories of the type \"customisable link\" or \"structuring element\".",
             "footerCategory": "Entry point footer navigation",
             "serviceCategory": "Entry point footer service navigation",
             "titleOptionsApiKey": "API access",
@@ -205,8 +208,9 @@
                     "518400": "6 days",
                     "604800": "1 week"
                 },
-                "storefront": "Storefront Sales Channel",
-                "storefrontDomain": "Storefront domain",
+                "storefront": "Sales Channel",
+                "storefrontDomain": "Domain",
+                "storefrontDomainHelpText": "For headless sales channels, only domains marked as an external storefront are selectable here. Mark a domain as external storefront in the sales channel's domain settings.",
                 "storefrontDomainLanguage": {
                     "label": "Language",
                     "help": "Automatically selected by Sales Channel domain"
@@ -238,6 +242,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce is moving to an extension",
+                    "message": "The built-in Agentic Commerce feature will be removed in Shopware 6.8. Your Sales Channel keeps working for now. Install the \"Agentic Commerce\" extension to make sure nothing breaks.",
+                    "installPlugin": "Install extension"
+                },
                 "openAiSettingsTitle": "OpenAI settings",
                 "googleSettingsTitle": "Google settings",
                 "buttonResetTemplate": "Reset to default",
@@ -269,6 +278,58 @@
                             },
                             "stepByStep": "<li>Create a Merchant Center account at <a href=\"https://merchants.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">merchants.google.com</a> and verify your online store URL</li><li>In Merchant Center, open <em>Settings &rsaquo; Data sources</em> and click <em>Add product source</em></li><li>Choose <em>File</em>, then <em>Add a scheduled fetch from a URL</em>, and paste the export URL (below) as the file URL</li><li>Make sure the export URL is publicly reachable (no authentication required)</li><li>Review the <a href=\"https://support.google.com/merchants/answer/7052112\" target=\"_blank\" rel=\"noopener noreferrer\">Google product data specification</a> and adjust attributes if needed</li>"
                         }
+                    }
+                }
+            },
+            "agenticFiles": {
+                "cardTitle": "Agentic files",
+                "description": "Manage AI-readable files served publicly for this Sales Channel, such as llms.txt, agents.md and ai-catalog.json. They give assistants a concise overview of your shop and guidance for using public content.",
+                "columnFileName": "File",
+                "columnEnabled": "Status",
+                "columnDescription": "Description",
+                "emptyState": "No agentic files found",
+                "messageLoadError": "Could not load agentic files.",
+                "actionEnable": "Enable",
+                "actionDisable": "Disable",
+                "enabledState": {
+                    "enabled": "Enabled",
+                    "disabled": "Disabled",
+                    "custom": "Customised"
+                },
+                "detail": {
+                    "backToList": "Back to agentic files",
+                    "previewTitle": "Generated preview",
+                    "previewDescription": "This is the content currently served for this Sales Channel, including saved customisations.",
+                    "templatesTitle": "Content sources",
+                    "templatesDescription": "Shows which templates contribute to the generated file and whether a template has been customised. Advanced users can override individual templates when Custom Notes are not enough.",
+                    "showContentSources": "Show sources",
+                    "hideContentSources": "Hide sources",
+                    "customNotesTitle": "Custom Notes",
+                    "customNotesDescription": "Add custom notes to the end of this file without replacing the default content provided by Shopware or extensions.",
+                    "customNotesPlaceholder": "Add additional guidance for AI agents...",
+                    "labelPublicPath": "Public path",
+                    "labelContentType": "Content type",
+                    "actionPreviewPublicPath": "Preview",
+                    "actionEnablePublicPathPreview": "Enable this file first to preview the public path.",
+                    "columnTemplate": "Template",
+                    "columnSourceRole": "Role",
+                    "actionEditOverride": "Edit override",
+                    "overrideModalTitle": "Edit {source}",
+                    "overrideModalDescription": "Adjust the content contributed by this template for this Sales Channel. The change is stored as a customisation and can be reset to the default template content at any time.",
+                    "overrideModalFieldLabel": "Content",
+                    "overrideModalReset": "Reset to default",
+                    "overrideModalApply": "Apply override",
+                    "roleBase": "Base template",
+                    "roleExtension": "Extension",
+                    "previewEmpty": "No preview content generated.",
+                    "emptyState": "Agentic file not found",
+                    "messagePreviewError": "Could not generate the preview."
+                },
+                "descriptions": {
+                    "agentic": {
+                        "well-known-ai-catalog-json": "A machine-readable catalog for agentic resource discovery. It helps compatible clients find available AI-facing resources for this Sales Channel, such as an enabled Shopware MCP server.",
+                        "llms-txt": "A Markdown index for AI assistants and retrieval tools. It summarizes what this Sales Channel offers and points to the most relevant public pages, so agents can understand the shop without crawling every page. It complements robots.txt and sitemaps, but does not guarantee that every AI service will use it.",
+                        "agents-md": "Context and operating guidance for agent clients. Use it to explain how agents should interact with this Sales Channel, which public resources they should prefer, and which actions need explicit user confirmation, such as checkout or account changes."
                     }
                 }
             },

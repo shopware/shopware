@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
@@ -119,7 +121,21 @@ const businessEventServiceMock = {
     getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
 };
 
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
+function createFeatureMock(featureActive = false) {
+    return {
+        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+    };
+}
+
+async function createWrapper(
+    query = {},
+    config = {},
+    flowId = null,
+    saveSuccess = true,
+    param = {},
+    customProvides = {},
+    { featureActive = false, routeName = 'sw.flow.create.general', routerPush = jest.fn() } = {},
+) {
     const wrapper = mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -188,10 +204,23 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
+                    feature: createFeatureMock(featureActive),
                     ...customProvides,
                 },
                 mocks: {
-                    $route: { params: param, query: query },
+                    $route: {
+                        name: routeName,
+                        params: param,
+                        query: query,
+                    },
+                    $router: {
+                        push: routerPush,
+                        history: {
+                            current: {
+                                name: routeName,
+                            },
+                        },
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -217,11 +246,31 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     'sw-skeleton': true,
                     'sw-flow-leave-page-modal': true,
                     'sw-tabs': {
+                        name: 'sw-tabs',
                         template: `
                         <div class="sw-tabs">
                             <slot></slot>
                         </div>
                     `,
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
                     },
                     'sw-card-view': {
                         template: `
@@ -325,6 +374,35 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(wrapper.vm.flowSequenceRepository.sync).toHaveBeenCalledTimes(1);
     });
 
+    it('should refetch the flow with the page criteria when saving an existing flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        const wrapper = await createWrapper({}, {}, ID_FLOW);
+        await flushPromises();
+
+        Shopware.Store.get('swFlow').setSequences(getSequencesCollection(sequencesFixture));
+
+        const flow = {
+            id: ID_FLOW,
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: getSequencesCollection(sequencesFixture),
+        };
+
+        Shopware.Store.get('swFlow').setFlow({
+            ...flow,
+            getOrigin: () => flow,
+        });
+
+        const getSpy = jest.spyOn(wrapper.vm.flowRepository, 'get');
+
+        const saveButton = wrapper.find('.sw-flow-detail__save');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(getSpy).toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api, wrapper.vm.flowCriteria);
+        expect(getSpy).not.toHaveBeenCalledWith(ID_FLOW, Shopware.Context.api);
+    });
+
     it('should not able to saving flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
         const wrapper = await createWrapper(
@@ -396,6 +474,16 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
         wrapper.vm.createNotificationWarning.mockRestore();
+    });
+
+    it('should render the deprecated tabs when the major feature flag is inactive', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
     it('should set route for card tabs when creating a new flow', async () => {
@@ -494,6 +582,74 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(tabs.flow.vm.route).toStrictEqual({
             name: 'sw.flow.create.flow',
             params: { flowTemplateId: ID_FLOW_TEMPLATE },
+        });
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper(
+            {},
+            {},
+            null,
+            true,
+            {},
+            {},
+            {
+                featureActive: true,
+                routeName: 'sw.flow.create.flow',
+            },
+        );
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-flow-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.flow.create.flow');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-flow.page.tabGeneral',
+                name: 'sw.flow.create.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-flow.page.tabFlow',
+                name: 'sw.flow.create.flow',
+                onClick: expect.any(Function),
+            }),
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should navigate when a meteor tab item is clicked', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper(
+            {
+                type: 'template',
+            },
+            {},
+            ID_FLOW,
+            true,
+            {},
+            {},
+            {
+                featureActive: true,
+                routeName: 'sw.flow.detail.general',
+                routerPush,
+            },
+        );
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const flowTab = tabs.props('items').find((item) => item.name === 'sw.flow.detail.flow');
+
+        flowTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.flow.detail.flow',
+            query: { type: 'template' },
         });
     });
 

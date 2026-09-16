@@ -19,6 +19,7 @@ async function createWrapper() {
 <sw-sidebar-item title="First sidebar item" icon="regular-image">
     <p class="first-sidebar-item-content">The content of the first sidebar item</p>
 </sw-sidebar-item>
+<sw-sidebar-item title="Filter sidebar item" icon="regular-filter" :tooltip-shortcut="['O', 'F']" />
             `,
             },
             global: {
@@ -70,7 +71,7 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
 
         // Open the sidebar
         const firstSidebarNavigationItem = await wrapper.find(
-            'button.sw-sidebar-navigation-item[title="First sidebar item"]',
+            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
         );
         await firstSidebarNavigationItem.trigger('click');
 
@@ -82,7 +83,7 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
     it('should close the sidebar', async () => {
         // Open the sidebar
         const firstSidebarNavigationItem = await wrapper.find(
-            'button.sw-sidebar-navigation-item[title="First sidebar item"]',
+            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
         );
         await firstSidebarNavigationItem.trigger('click');
 
@@ -101,7 +102,7 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
 
     it('should keep the active navigation item after resizing', async () => {
         const firstSidebarNavigationItem = await wrapper.find(
-            'button.sw-sidebar-navigation-item[title="First sidebar item"]',
+            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
         );
         await firstSidebarNavigationItem.trigger('click');
 
@@ -113,8 +114,28 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         await flushPromises();
 
         const resizedSidebarNavigationItem = await wrapper.find(
-            'button.sw-sidebar-navigation-item[title="First sidebar item"]',
+            'button.sw-sidebar-navigation-item[aria-label="First sidebar item"]',
         );
         expect(resizedSidebarNavigationItem.classes()).toContain('is--active');
+    });
+
+    it('should render the navigation item with a tooltip', async () => {
+        const button = wrapper.find('button.sw-sidebar-navigation-item[aria-label="First sidebar item"]');
+
+        expect(button.attributes('tooltip-mock-id')).toBeDefined();
+        expect(button.attributes('tooltip-mock-message')).toBe('First sidebar item');
+        expect(button.attributes('title')).toBeUndefined();
+    });
+
+    it('should render shortcut keys in the tooltip content', async () => {
+        const filterButton = wrapper.find('button.sw-sidebar-navigation-item[aria-label="Filter sidebar item"]');
+
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('sw-sidebar-navigation-item__tooltip-title');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('Filter sidebar item');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain(
+            'sw-sidebar-navigation-item__tooltip-shortcut-key',
+        );
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('aria-label="O"');
+        expect(filterButton.attributes('tooltip-mock-message')).toContain('aria-label="F"');
     });
 });

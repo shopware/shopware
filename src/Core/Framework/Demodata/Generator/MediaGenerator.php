@@ -26,7 +26,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
     private Generator $faker;
@@ -124,7 +124,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
-            if (!empty($chosenTags)) {
+            if ($chosenTags !== []) {
                 $tagAssignments = array_values(array_map(
                     static fn (string $id) => ['id' => $id],
                     $chosenTags
@@ -237,7 +237,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $defaultFolders = $this->defaultFolderRepository->search($criteria, $context->getContext());
 
-        if ($defaultFolders->count() <= 0) {
+        if ($defaultFolders->getEntities()->count() <= 0) {
             return $mediaFolderId;
         }
 

@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
  */
+#[Package('data-services')]
 #[CoversClass(ShopIdProvider::class)]
 class ShopIdProviderTest extends TestCase
 {

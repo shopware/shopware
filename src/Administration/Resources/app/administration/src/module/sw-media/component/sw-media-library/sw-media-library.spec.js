@@ -326,7 +326,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(loadMoreButton.exists()).toBe(false);
     });
 
-    it('should have a computed property for nextMediaCriteria', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy media-library sort criterion.
+    it.deprecated('v6.8.0.0')('should have a computed property for nextMediaCriteria', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({
@@ -335,6 +336,53 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             term: '',
             filter: [{ type: 'equals', field: 'mediaFolderId', value: null }],
             sort: [{ field: 'fileName', order: 'asc', naturalSorting: false }],
+            associations: {
+                tags: { limit: 25, 'total-count-mode': 1 },
+                productMedia: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                categories: { limit: 25, 'total-count-mode': 1 },
+                productManufacturers: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                mailTemplateMedia: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                documentBaseConfigs: { limit: 25, 'total-count-mode': 1 },
+                avatarUsers: { limit: 25, 'total-count-mode': 1 },
+                paymentMethods: { limit: 25, 'total-count-mode': 1 },
+                shippingMethods: { limit: 25, 'total-count-mode': 1 },
+                cmsBlocks: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                cmsSections: {
+                    limit: 25,
+                    associations: expect.any(Object),
+                    'total-count-mode': 1,
+                },
+                cmsPages: { limit: 25, 'total-count-mode': 1 },
+            },
+            'total-count-mode': 1,
+        });
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should use created at descending for nextMediaCriteria', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({
+            page: 1,
+            limit: 5,
+            term: '',
+            filter: [{ type: 'equals', field: 'mediaFolderId', value: null }],
+            sort: [{ field: 'createdAt', order: 'desc', naturalSorting: false }],
             associations: {
                 tags: { limit: 25, 'total-count-mode': 1 },
                 productMedia: {
@@ -385,6 +433,17 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             'total-count-mode': 1,
         });
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should sort folders by name ascending when media defaults to created at descending',
+        async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.nextFoldersCriteria.parse().sort).toEqual([
+                { field: 'name', order: 'asc', naturalSorting: false },
+            ]);
+        },
+    );
 
     it('should default the limit to 100 for folders and media', async () => {
         const wrapper = await createWrapper({ limit: null });

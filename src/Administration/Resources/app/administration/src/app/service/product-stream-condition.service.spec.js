@@ -3,6 +3,21 @@
  */
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 
+const statesDeprecation = {
+    field: 'states',
+    label: 'sw-product-stream.filter.values.states',
+    version: 'v6.8.0',
+    replacement: {
+        field: 'type',
+        label: 'sw-product-stream.filter.values.type',
+    },
+};
+
+const productStatesDeprecation = {
+    ...statesDeprecation,
+    field: 'product.states',
+};
+
 describe('app/service/product-stream-condition.service.js', () => {
     const service = new ProductStreamConditionService();
 
@@ -42,5 +57,81 @@ describe('app/service/product-stream-condition.service.js', () => {
     it('should be able to check via negateOperator', async () => {
         expect(service.negateOperator('notEqualsAll').identifier).toBe('equalsAll');
         expect(service.negateOperator('equalsAll').identifier).toBe('notEqualsAll');
+    });
+
+    it.each([
+        [
+            'null',
+            null,
+            [],
+        ],
+        [
+            'undefined',
+            undefined,
+            [],
+        ],
+        [
+            'an empty array',
+            [],
+            [],
+        ],
+        [
+            'a tree without deprecated fields',
+            [
+                { field: 'stock' },
+                { field: 'name' },
+            ],
+            [],
+        ],
+        [
+            'a deprecated top-level field',
+            [{ field: 'states' }],
+            [statesDeprecation],
+        ],
+        [
+            'the aliased deprecated field path',
+            [{ field: 'product.states' }],
+            [productStatesDeprecation],
+        ],
+        [
+            'the same deprecated field used multiple times (deduplicated)',
+            [
+                { field: 'states' },
+                { field: 'stock' },
+                { field: 'states' },
+            ],
+            [statesDeprecation],
+        ],
+        [
+            'a deprecated field nested in queries',
+            [{ field: 'stock', queries: [{ field: 'states' }] }],
+            [statesDeprecation],
+        ],
+        [
+            'a deprecated field nested in children',
+            [{ field: 'stock', children: [{ field: 'product.states' }] }],
+            [productStatesDeprecation],
+        ],
+        [
+            'a collection containing null entries',
+            [
+                null,
+                { field: 'states' },
+                undefined,
+            ],
+            [statesDeprecation],
+        ],
+        [
+            'an EntityCollection-like input via toArray',
+            { toArray: () => [{ field: 'states' }] },
+            [statesDeprecation],
+        ],
+        [
+            'an iterable input',
+            new Set([{ field: 'states' }]),
+            [statesDeprecation],
+        ],
+    ])('should resolve deprecations for %s', (_, filters, expected) => {
+        expect(service.getDeprecationsInTree(filters)).toEqual(expected);
     });
 });

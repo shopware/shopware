@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Aggregate\SalesChannelAna
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelAnalyticsEntity::class)]
 class SalesChannelAnalyticsEntityTest extends TestCase
 {

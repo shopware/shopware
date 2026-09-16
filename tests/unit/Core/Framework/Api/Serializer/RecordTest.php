@@ -156,7 +156,7 @@ class RecordTest extends TestCase
         $record->setAttribute('active', true);
         $record->setAttribute('stock', 10);
 
-        $propertyGroupOptionDefinition = $this->createMock(PropertyGroupOptionDefinition::class);
+        $propertyGroupOptionDefinition = static::createStub(PropertyGroupOptionDefinition::class);
         $propertyGroupOptionDefinition->method('getEntityName')
             ->willReturn('property_group_option');
 
@@ -167,7 +167,7 @@ class RecordTest extends TestCase
             'data' => [],
         ]);
 
-        $tagDefinition = $this->createMock(TagDefinition::class);
+        $tagDefinition = static::createStub(TagDefinition::class);
         $tagDefinition->method('getEntityName')
             ->willReturn('tag');
 

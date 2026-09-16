@@ -28,6 +28,14 @@ This filter item should only be used inside a filter panel.
     }
 }
 
+.filter-multi-select-item {
+    width: 100%;
+
+    &:hover {
+        color: var(--#{$prefix}primary);
+    }
+}
+
 .filter-multi-select-item-label {
     cursor: pointer;
     margin-bottom: 0;

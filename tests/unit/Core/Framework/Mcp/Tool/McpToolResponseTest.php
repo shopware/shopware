@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpToolResponse::class)]
 class McpToolResponseTest extends TestCase
 {
@@ -77,7 +79,7 @@ class McpToolResponseTest extends TestCase
 
     public function testOversizedPayloadIncludesQueryWhenJsonRpcBodyIsPresent(): void
     {
-        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('cached-uuid');
 
         $request = new Request();

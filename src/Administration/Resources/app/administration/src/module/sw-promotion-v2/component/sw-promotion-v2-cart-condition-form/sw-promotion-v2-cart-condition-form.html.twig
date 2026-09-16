@@ -10,6 +10,7 @@
         :rule-filter="ruleFilter"
         :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
         :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
+        :help-text="$t('sw-promotion-v2.detail.conditions.preConditions.helpTextCartConditionSelect')"
         :rule-scope="['checkout', 'global', 'lineItem']"
         rule-aware-group-key="cartPromotions"
         :disabled="isEditingDisabled"
@@ -139,7 +140,6 @@
         {% block sw_promotion_v2_cart_condition_add_group_button %}
         <div class="sw-promotion-v2-cart-condition-form__add-group-button-container">
             <mt-button
-                ghost
                 class="sw-promotion-v2-cart-condition-form__add-group-button"
                 :disabled="isEditingDisabled"
                 variant="secondary"

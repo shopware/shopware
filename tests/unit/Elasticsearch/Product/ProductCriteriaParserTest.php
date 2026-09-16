@@ -5,8 +5,10 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -17,10 +19,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -33,12 +37,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductCriteriaParser::class)]
 class ProductCriteriaParserTest extends TestCase
 {
     private EntityDefinitionQueryHelper $helper;
 
-    private CustomFieldService&MockObject $customFieldService;
+    private CustomFieldService&Stub $customFieldService;
 
     private CriteriaParser&MockObject $decoratedParser;
 
@@ -53,7 +58,7 @@ class ProductCriteriaParserTest extends TestCase
         $registry = $this->getRegistry();
 
         $this->helper = new EntityDefinitionQueryHelper();
-        $this->customFieldService = $this->createMock(CustomFieldService::class);
+        $this->customFieldService = static::createStub(CustomFieldService::class);
         $this->decoratedParser = $this->createMock(CriteriaParser::class);
         $this->productDefinition = $registry->getByEntityName(ProductDefinition::ENTITY_NAME);
         $this->categoryDefinition = $registry->getByEntityName(CategoryDefinition::ENTITY_NAME);
@@ -99,7 +104,7 @@ class ProductCriteriaParserTest extends TestCase
         );
 
         $filter = new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('active', true)]);
-        $expectedBuilder = $this->createMock(BuilderInterface::class);
+        $expectedBuilder = static::createStub(BuilderInterface::class);
 
         $this->decoratedParser
             ->expects($this->once())
@@ -114,8 +119,6 @@ class ProductCriteriaParserTest extends TestCase
 
     public function testParseProductAvailableFilterWithOptimizationDisabled(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $storage = new ArrayKeyValueStorage();
         $parser = new ProductCriteriaParser(
             $this->helper,
@@ -126,7 +129,7 @@ class ProductCriteriaParserTest extends TestCase
 
         $salesChannelId = Uuid::randomHex();
         $filter = new ProductAvailableFilter($salesChannelId, 30);
-        $expectedBuilder = $this->createMock(BuilderInterface::class);
+        $expectedBuilder = static::createStub(BuilderInterface::class);
 
         $this->decoratedParser
             ->expects($this->once())
@@ -134,7 +137,9 @@ class ProductCriteriaParserTest extends TestCase
             ->with($filter, $this->productDefinition, 'root', $this->context)
             ->willReturn($expectedBuilder);
 
-        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+        // Feature::fake([]) forces the flag off so the deprecated pre-v6.8 branch is exercised
+        // regardless of the suite's ambient v6.8.0.0 state (the test runs under major too).
+        $result = Feature::fake([], fn () => $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context));
 
         static::assertSame($expectedBuilder->toArray(), $result->toArray());
     }
@@ -154,6 +159,8 @@ class ProductCriteriaParserTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $visibility = 30;
         $filter = new ProductAvailableFilter($salesChannelId, $visibility);
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
 
         $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
 
@@ -197,6 +204,8 @@ class ProductCriteriaParserTest extends TestCase
         array_pop($queries);
         $filter->assign(['queries' => $queries]);
 
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
         $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
 
         static::assertInstanceOf(BoolQuery::class, $result);
@@ -222,6 +231,8 @@ class ProductCriteriaParserTest extends TestCase
 
         $categoryId = Uuid::randomHex();
         $filter = new EqualsFilter('categoriesRo.id', $categoryId);
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
 
         $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
 
@@ -267,6 +278,82 @@ class ProductCriteriaParserTest extends TestCase
         ], $queryArray['bool']['must_not'][0]);
     }
 
+    public function testParseCategoriesRoIdEqualsAnyFilter(): void
+    {
+        $storage = new ArrayKeyValueStorage([
+            ElasticsearchOptimizeSwitch::FLAG => true,
+        ]);
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        $firstCategoryId = Uuid::randomHex();
+        $secondCategoryId = Uuid::randomHex();
+        $filter = new EqualsAnyFilter('categoriesRo.id', [$firstCategoryId, $secondCategoryId]);
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertInstanceOf(TermsQuery::class, $result);
+        static::assertSame([
+            'terms' => [
+                'categoryTree' => [$firstCategoryId, $secondCategoryId],
+            ],
+        ], $result->toArray());
+    }
+
+    public function testParseCategoriesRoIdEqualsAnyFilterCallsParentWhenOptimizationDisabled(): void
+    {
+        $storage = new ArrayKeyValueStorage();
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        $filter = new EqualsAnyFilter('categoriesRo.id', [Uuid::randomHex()]);
+        $expectedBuilder = static::createStub(BuilderInterface::class);
+
+        $this->decoratedParser
+            ->expects($this->once())
+            ->method('parseFilter')
+            ->with($filter, $this->productDefinition, 'root', $this->context)
+            ->willReturn($expectedBuilder);
+
+        // Feature::fake([]) forces the flag off so the deprecated pre-v6.8 branch is exercised
+        // regardless of the suite's ambient v6.8.0.0 state (the test runs under major too).
+        $result = Feature::fake([], fn () => $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context));
+
+        static::assertSame($expectedBuilder, $result);
+    }
+
+    public function testParseFilterCallsParentForUnhandledProductFilter(): void
+    {
+        $storage = new ArrayKeyValueStorage();
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        // an Equals filter on a field other than categoriesRo.id is none of the handled product
+        // cases, so it falls through to the parent CriteriaParser instead of the decorated one
+        $filter = new EqualsFilter('productNumber', 'test');
+
+        $this->decoratedParser->expects($this->never())->method('parseFilter');
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertInstanceOf(TermQuery::class, $result);
+        static::assertContains('test', $result->toArray()['term']);
+    }
+
     private function getRegistry(): DefinitionInstanceRegistry
     {
         return new StaticDefinitionInstanceRegistry(
@@ -275,8 +362,8 @@ class ProductCriteriaParserTest extends TestCase
                 CategoryDefinition::class,
                 CategoryTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 }

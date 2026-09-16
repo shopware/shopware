@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -234,7 +236,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
-                        icon: 'solid-content',
+                        icon: 'regular-content',
                     },
                 },
             },
@@ -375,9 +377,18 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         lastProductSearchCriteria = null;
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const data = await createWrapper();
         wrapper = data.wrapper;
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+        jest.restoreAllMocks();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -410,6 +421,12 @@ describe('module/sw-product/page/sw-product-list', () => {
         // verify that grid did not crash when sorting for prices
         const skeletonElement = wrapper.find('.sw-data-grid-skeleton');
         expect(skeletonElement.exists()).toBe(false);
+    });
+
+    it('loads currencies through the shared cache path', async () => {
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.currencies).toEqual(getCurrencyData());
     });
 
     it('should sort products by different currencies', async () => {
@@ -587,6 +604,10 @@ describe('module/sw-product/page/sw-product-list', () => {
             term: 'foo',
         });
         await wrapper.vm.$nextTick();
+        // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
+        // Let that settle against the real service before installing the counting mocks, so the
+        // assertion only counts the explicit getList below (otherwise the watcher's call leaks in).
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });

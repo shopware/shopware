@@ -15,6 +15,7 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -37,6 +38,7 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
         Request::class,
         ParameterBag::class,
         Client::class,
+        MailAttachmentsConfig::class,
     ];
 
     private const ALLOWED_CLASSES = [

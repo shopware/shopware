@@ -17,8 +17,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CartPromotionsSubscriber::class)]
 #[Package('checkout')]
+#[CoversClass(CartPromotionsSubscriber::class)]
 class CartPromotionsSubscriberTest extends TestCase
 {
     #[Group('promotions')]

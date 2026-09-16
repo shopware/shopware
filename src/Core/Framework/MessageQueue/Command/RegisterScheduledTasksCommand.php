@@ -9,11 +9,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'scheduled-task:register',
     description: 'Registers all scheduled tasks',
 )]
-#[Package('framework')]
 class RegisterScheduledTasksCommand extends Command
 {
     /**

@@ -1,0 +1,165 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderDelivery": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "orderId",
+                    "shippingOrderAddressId",
+                    "shippingMethodId",
+                    "stateId",
+                    "shippingDateEarliest",
+                    "shippingDateLatest"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderId": {
+                        "description": "Unique identity of order.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "shippingOrderAddressId": {
+                        "description": "Unique identity of order's shipping address.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "shippingOrderAddressVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "shippingMethodId": {
+                        "description": "Unique identity of shipping method.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "stateId": {
+                        "description": "Unique identity of state.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "trackingCodes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "shippingDateEarliest": {
+                        "description": "Date and time of earliest delivery of products.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "shippingDateLatest": {
+                        "description": "Date and time of latest delivery of products.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "shippingCosts": {
+                        "required": [
+                            "unitPrice",
+                            "totalPrice",
+                            "quantity"
+                        ],
+                        "properties": {
+                            "unitPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "totalPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantity": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "calculatedTaxes": {
+                                "type": "object"
+                            },
+                            "taxRules": {
+                                "type": "object"
+                            },
+                            "referencePrice": {
+                                "type": "object"
+                            },
+                            "listPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "discount": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "regulationPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "stateMachineState": {
+                        "$ref": "#/components/schemas/StateMachineState",
+                        "description": "Current delivery state (e.g., open, shipped, delivered, cancelled)"
+                    },
+                    "shippingOrderAddress": {
+                        "$ref": "#/components/schemas/OrderAddress",
+                        "description": "Shipping address for this delivery"
+                    },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethod",
+                        "description": "Shipping method used for this delivery"
+                    },
+                    "positions": {
+                        "description": "Line items included in this delivery",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderDeliveryPosition"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

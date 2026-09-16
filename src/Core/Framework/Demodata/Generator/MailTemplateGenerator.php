@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class MailTemplateGenerator implements DemodataGeneratorInterface
 {
     /**
@@ -56,7 +56,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mail_template_type.mailTemplates.id', null));
 
-        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
+        $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getEntities()->getIds();
 
         $payload = [];
         foreach ($mailTypeIds as $mailTypeId) {

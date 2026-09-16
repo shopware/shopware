@@ -70,8 +70,8 @@ class FirstRunWizardClientTest extends TestCase
 
         $frwClient = new FirstRunWizardClient(
             $client,
-            $this->createMock(AbstractStoreRequestOptionsProvider::class),
-            $this->createMock(InstanceService::class)
+            static::createStub(AbstractStoreRequestOptionsProvider::class),
+            static::createStub(InstanceService::class)
         );
 
         $this->expectException(\RuntimeException::class);
@@ -90,8 +90,8 @@ class FirstRunWizardClientTest extends TestCase
 
         $frwClient = new FirstRunWizardClient(
             $client,
-            $this->createMock(AbstractStoreRequestOptionsProvider::class),
-            $this->createMock(InstanceService::class)
+            static::createStub(AbstractStoreRequestOptionsProvider::class),
+            static::createStub(InstanceService::class)
         );
 
         $this->expectException(\RuntimeException::class);
@@ -108,8 +108,8 @@ class FirstRunWizardClientTest extends TestCase
 
         $frwClient = new FirstRunWizardClient(
             $client,
-            $this->createMock(AbstractStoreRequestOptionsProvider::class),
-            $this->createMock(InstanceService::class)
+            static::createStub(AbstractStoreRequestOptionsProvider::class),
+            static::createStub(InstanceService::class)
         );
 
         $this->expectException(\RuntimeException::class);
@@ -355,8 +355,8 @@ class FirstRunWizardClientTest extends TestCase
 
         return new FirstRunWizardClient(
             $client,
-            $this->createMock(AbstractStoreRequestOptionsProvider::class),
-            $this->createMock(InstanceService::class),
+            static::createStub(AbstractStoreRequestOptionsProvider::class),
+            static::createStub(InstanceService::class),
         );
     }
 }

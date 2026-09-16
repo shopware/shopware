@@ -96,9 +96,39 @@ export default {
                 .checkForLicenseViolations()
                 .then(({ violations, warnings, other }) => {
                     const licenseViolationStore = Shopware.Store.get('licenseViolation');
-                    licenseViolationStore.violations = violations;
-                    licenseViolationStore.warnings = warnings;
-                    licenseViolationStore.other = other;
+                    const updateViolationStore = (currentViolations) => {
+                        licenseViolationStore.violations = currentViolations;
+                        licenseViolationStore.warnings = warnings;
+                        licenseViolationStore.other = other;
+                    };
+
+                    if (!this.showViolation || violations.length === 0) {
+                        updateViolationStore(violations);
+
+                        return;
+                    }
+
+                    return this.extensionStoreActionService
+                        .getMyExtensions()
+                        .then((extensions) => {
+                            const installedExtensionNames = new Set(extensions.map((extension) => extension.name));
+                            const currentViolations = violations.filter((violation) => {
+                                return installedExtensionNames.has(violation.name);
+                            });
+                            const cachedViolations = this.licenseViolationService.getViolationsFromCache();
+
+                            // Remove stale cached violations only when the modal is about to display them.
+                            this.licenseViolationService.saveViolationsToCache(
+                                cachedViolations.filter((violation) => installedExtensionNames.has(violation.name)),
+                            );
+
+                            updateViolationStore(currentViolations);
+                        })
+                        .catch(() => {
+                            // Keep cached violations when the local lookup fails so a temporary API error
+                            // does not hide valid violations.
+                            updateViolationStore(violations);
+                        });
                 })
                 .finally(() => {
                     this.finishLoading('getPluginViolation');
@@ -154,6 +184,23 @@ export default {
             this.addLoading('deletePlugin');
 
             const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);
+
+            if (!matchingPlugin) {
+                this.licenseViolationService.resetLicenseViolations();
+
+                const licenseViolationStore = Shopware.Store.get('licenseViolation');
+                licenseViolationStore.violations = licenseViolationStore.violations.filter(
+                    (item) => item.name !== violation.name,
+                );
+
+                this.createNotificationInfo({
+                    message: this.$t('sw-license-violation.alreadyRemoved'),
+                });
+
+                this.finishLoading('deletePlugin');
+
+                return Promise.resolve();
+            }
 
             return this.licenseViolationService
                 .forceDeletePlugin(matchingPlugin)

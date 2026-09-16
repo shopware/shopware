@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\Column;
 use Shopware\Core\Framework\Util\Database\Index;
@@ -27,6 +28,7 @@ use Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelper\Exceptio
 /**
  * @internal
  */
+#[Package('framework')]
 class TableHelperTest extends TestCase
 {
     use KernelTestBehaviour;

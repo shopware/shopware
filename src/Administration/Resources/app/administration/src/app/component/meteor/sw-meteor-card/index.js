@@ -1,3 +1,4 @@
+import { getTabItemsFromSlotContent, getTextFromSlotItem, triggerTabItemClick } from '../tab-slot-parser';
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
@@ -25,6 +26,10 @@ import './sw-meteor-card.scss';
  */
 export default {
     template,
+
+    inject: [
+        'feature',
+    ],
 
     props: {
         title: {
@@ -78,6 +83,10 @@ export default {
             return !!this.$slots.default;
         },
 
+        tabItems() {
+            return this.getTabItemsFromSlot();
+        },
+
         hasHeader() {
             return this.hasToolbar || this.hasTabs || !!this.title || !!this.$slots.action;
         },
@@ -108,6 +117,83 @@ export default {
 
         setActiveTab(name) {
             this.activeTab = name;
+        },
+
+        getTabItemsFromSlot() {
+            const slotContent = this.$slots.tabs?.({
+                activeTab: this.activeTab,
+            });
+
+            if (!slotContent) {
+                return [];
+            }
+
+            return getTabItemsFromSlotContent(slotContent, {
+                isTabItem: (item) => this.isTabItem(item),
+                createTabItem: (item) => this.createTabItem(item),
+            });
+        },
+
+        createTabItem(item) {
+            const props = item.props ?? {};
+            const slotText = this.getTabItemDefaultSlotText(item);
+            const label = slotText ?? props.title ?? props.name ?? '';
+            const tabItem = {
+                label,
+                name: props.name ?? props.title ?? label,
+            };
+
+            if (props.hasError !== undefined) {
+                tabItem.hasError = props.hasError;
+            }
+
+            if (props.disabled !== undefined) {
+                tabItem.disabled = props.disabled;
+            }
+
+            if (props.hasWarning) {
+                tabItem.badge = 'warning';
+            }
+
+            if (props.route || props.onClick) {
+                tabItem.onClick = () => {
+                    if (props.route) {
+                        this.$router.push(props.route);
+                    }
+
+                    triggerTabItemClick(props.onClick);
+                };
+            }
+
+            return tabItem;
+        },
+
+        getTabItemDefaultSlotText(item) {
+            const defaultSlotContent = item.children?.default?.();
+
+            if (!defaultSlotContent) {
+                return undefined;
+            }
+
+            const slotText = defaultSlotContent
+                .map((slotItem) => getTextFromSlotItem(slotItem))
+                .join('')
+                .trim();
+
+            return slotText || undefined;
+        },
+
+        isTabItem(item) {
+            const props = item.props ?? {};
+
+            return (
+                item.type?.name === 'sw-tabs-item' ||
+                (typeof item.children?.default === 'function' &&
+                    (props.name !== undefined ||
+                        props.route !== undefined ||
+                        props.title !== undefined ||
+                        props.activeTab !== undefined))
+            );
         },
     },
 };

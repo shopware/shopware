@@ -476,7 +476,7 @@ class SalesChannelContextTest extends TestCase
 
         /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = static::getContainer()->get('sales_channel.repository');
-        $salesChannel = $repository->search(new Criteria([$salesChannelContext->getSalesChannelId()]), $salesChannelContext->getContext())->first();
+        $salesChannel = $repository->search(new Criteria([$salesChannelContext->getSalesChannelId()]), $salesChannelContext->getContext())->getEntities()->first();
         static::assertNotNull($salesChannel);
 
         static::assertSame($salesChannel->getShippingMethodId(), $salesChannelContext->getSalesChannel()->getShippingMethodId());

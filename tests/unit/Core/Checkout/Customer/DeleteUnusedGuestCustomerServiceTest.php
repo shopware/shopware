@@ -31,7 +31,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             ->willReturn(0);
 
         $service = new DeleteUnusedGuestCustomerService(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $configService
         );
 

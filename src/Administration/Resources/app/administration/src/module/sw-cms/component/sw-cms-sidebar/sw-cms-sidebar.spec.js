@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -21,6 +23,10 @@ function getBlockData(position, id = '1a2b') {
 
 function getBlockCollection(blocks) {
     return new EntityCollection(blocks, 'blocks', null, null, blocks);
+}
+
+function getSectionCollection(sections) {
+    return new EntityCollection(sections, 'sections', null, null, sections);
 }
 
 async function createWrapper(
@@ -70,6 +76,9 @@ async function createWrapper(
             removeSelectedBlock() {
                 this.selectedBlock = null;
             },
+            removeSelectedSection() {
+                this.selectedSection = null;
+            },
             setSection(section) {
                 this.removeSelectedBlock();
                 this.setSelectedSection(section);
@@ -84,30 +93,34 @@ async function createWrapper(
         {
             props: {
                 page: {
-                    sections: [
+                    sections: getSectionCollection([
                         new Entity('1111', 'section', {
                             type: 'sidebar',
                             blocks: getBlockCollection([
                                 {
                                     id: '1a2b',
+                                    sectionId: '1111',
                                     sectionPosition: 'main',
                                     type: 'foo-bar',
                                     slots: [],
                                 },
                                 {
                                     id: '3cd4',
+                                    sectionId: '1111',
                                     sectionPosition: 'sidebar',
                                     type: 'foo-bar',
                                     slots: [],
                                 },
                                 {
                                     id: '5ef6',
+                                    sectionId: '1111',
                                     sectionPosition: 'sidebar',
                                     type: 'foo-bar-removed',
                                     slots: [],
                                 },
                                 {
                                     id: '7gh8',
+                                    sectionId: '1111',
                                     sectionPosition: 'main',
                                     type: 'foo-bar-removed',
                                     slots: [],
@@ -119,13 +132,14 @@ async function createWrapper(
                             blocks: getBlockCollection([
                                 {
                                     id: 'abcd',
+                                    sectionId: '2222',
                                     sectionPosition: 'main',
                                     type: 'some-type',
                                     slots: [],
                                 },
                             ]),
                         }),
-                    ],
+                    ]),
                     type: pageType,
                 },
             },
@@ -551,6 +565,53 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         ]);
 
         expect(blockDrag.block.sectionId).toBe('2222');
+    });
+
+    it('should not duplicate a block when dragging across multiple sections', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.page.sections.push(
+            new Entity('3333', 'section', {
+                type: 'sidebar',
+                blocks: getBlockCollection([]),
+            }),
+            new Entity('4444', 'section', {
+                type: 'sidebar',
+                blocks: getBlockCollection([]),
+            }),
+            new Entity('5555', 'section', {
+                type: 'sidebar',
+                blocks: getBlockCollection([]),
+            }),
+        );
+
+        const blockDrag = {
+            block: getBlockData(0, '1a2b'),
+            sectionIndex: 0,
+        };
+
+        wrapper.vm.onBlockDragSort(
+            blockDrag,
+            {
+                block: getBlockData(0, 'drop-target-1'),
+                sectionIndex: 2,
+            },
+            true,
+        );
+        wrapper.vm.onBlockDragSort(
+            blockDrag,
+            {
+                block: getBlockData(0, 'drop-target-2'),
+                sectionIndex: 4,
+            },
+            true,
+        );
+
+        const sections = wrapper.vm.page.sections;
+        const sectionsContainingBlock = sections.filter((section) => section.blocks.has('1a2b'));
+
+        expect(sectionsContainingBlock).toHaveLength(1);
+        expect(sectionsContainingBlock[0].id).toBe('5555');
     });
 
     it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', async () => {

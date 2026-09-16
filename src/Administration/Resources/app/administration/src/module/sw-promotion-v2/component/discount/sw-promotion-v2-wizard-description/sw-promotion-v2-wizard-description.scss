@@ -1,6 +1,4 @@
-@import "~scss/variables";
-
 .sw-promotion-v2-wizard-description {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
     margin: 10px 0 30px;
 }

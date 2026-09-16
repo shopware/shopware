@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cms\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\Xml\Config;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Config::class)]
 class ConfigTest extends TestCase
 {
@@ -36,6 +38,9 @@ XML));
         );
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

@@ -11,6 +11,10 @@
         padding: 20px 0 0;
     }
 
+    &__tabs + &__content--mt-tabs {
+        padding: 20px 0 0;
+    }
+
     &__content {
         position: relative;
         overflow: hidden;

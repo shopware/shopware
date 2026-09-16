@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AdapterFactoryNotFoundException extends AdapterException
 {

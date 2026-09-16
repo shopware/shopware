@@ -65,7 +65,7 @@ class CustomerSalutationRuleTest extends TestCase
             $customer->setSalutation($salutation);
         }
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -86,7 +86,7 @@ class CustomerSalutationRuleTest extends TestCase
 
         static::assertSame([
             'operators' => $operators,
-            'isMatchAny' => true,
+            'isMatchAny' => false,
         ], $configData['operatorSet']);
     }
 
@@ -94,7 +94,7 @@ class CustomerSalutationRuleTest extends TestCase
     {
         $scope = new CartRuleScope(
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
@@ -105,7 +105,7 @@ class CustomerSalutationRuleTest extends TestCase
     {
         $customer = new CustomerEntity();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -116,7 +116,7 @@ class CustomerSalutationRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
@@ -77,10 +78,11 @@ class SeoUrlValidationFactoryTest extends TestCase
         static::assertInstanceOf(Type::class, $properties['pathInfo'][1]);
 
         static::assertArrayHasKey('seoPathInfo', $properties);
-        static::assertCount(3, $properties['seoPathInfo']);
+        static::assertCount(4, $properties['seoPathInfo']);
         static::assertInstanceOf(NotBlank::class, $properties['seoPathInfo'][0]);
         static::assertInstanceOf(Type::class, $properties['seoPathInfo'][1]);
-        static::assertInstanceOf(RouteNotBlocked::class, $properties['seoPathInfo'][2]);
+        static::assertInstanceOf(ValidSeoPathInfo::class, $properties['seoPathInfo'][2]);
+        static::assertInstanceOf(RouteNotBlocked::class, $properties['seoPathInfo'][3]);
 
         static::assertArrayHasKey('salesChannelId', $properties);
         static::assertCount(2, $properties['salesChannelId']);

@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
-use Shopware\Core\Framework\App\AppEntity;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
@@ -24,22 +24,19 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * that way communication from the old shop to the app backend will be blocked in the future
  */
 #[Package('framework')]
-class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
+class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
 {
     final public const STRATEGY_NAME = 'move-shop-permanently';
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
-        SourceResolver $sourceResolver,
-        EntityRepository $appRepository,
-        AppSecretRotationService $appSecretRotationService,
-        private readonly ShopIdProvider $shopIdProvider
+        private readonly EntityRepository $appRepository,
+        private readonly AppManager $appManager,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly LoggerInterface $logger
     ) {
-        parent::__construct($sourceResolver, $appRepository, $appSecretRotationService);
-    }
-
-    public function getDecorated(): AbstractShopIdChangeStrategy
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function getName(): string
@@ -64,8 +61,26 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
         }
 
-        $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
-            $this->reRegisterApp($manifest, $app, $context);
-        });
+        // Refreshing the registration contacts external app servers. If one app is unreachable we
+        // still want the remaining apps to learn about the shop change, then report all failed apps together.
+        /** @var list<string> $failedApps */
+        $failedApps = [];
+
+        foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
+            try {
+                $this->appManager->refreshRegistration($app, $context);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to re-register app after shop ID change.', [
+                    'appName' => $app->getName(),
+                    'exception' => $e,
+                ]);
+
+                $failedApps[] = $app->getName();
+            }
+        }
+
+        if ($failedApps !== []) {
+            throw AppException::shopMoveFailed($failedApps);
+        }
     }
 }

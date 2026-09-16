@@ -1,10 +1,7 @@
-@import "~scss/variables";
-
 $sw-pagination-color-background: var(--color-elevation-surface-raised);
-$sw-pagination-controls-color-border: var(--color-border-primary-default);
+$sw-pagination-controls-color-border: var(--color-border-secondary-default);
 $sw-pagination-controls-color-hover: var(--color-interaction-primary-default);
 $sw-pagination-controls-color-text: var(--color-text-primary-default);
-$sw-pagination-border-radius: var(--border-radius-xs);
 
 .sw-pagination {
     min-height: 64px;
@@ -86,7 +83,7 @@ $sw-pagination-border-radius: var(--border-radius-xs);
 
         &.is-active {
             background: $sw-pagination-controls-color-hover;
-            color: #fff;
+            color: var(--color-static-white);
         }
     }
 

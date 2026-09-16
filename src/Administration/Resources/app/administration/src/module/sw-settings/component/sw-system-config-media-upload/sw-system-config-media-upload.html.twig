@@ -1,0 +1,15 @@
+<sw-upload-listener
+    :upload-tag="uploadTag"
+    auto-upload
+    @media-upload-finish="successfulUpload"
+/>
+
+<sw-media-compact-upload-v2
+    :upload-tag="uploadTag"
+    :source="value"
+    :label="label"
+    :name="name"
+    :disabled="disabled"
+    @media-upload-remove-image="removeMedia"
+    @selection-change="setMedia"
+/>

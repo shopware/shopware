@@ -1,0 +1,137 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderTransaction": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "orderId",
+                    "paymentMethodId",
+                    "amount",
+                    "stateId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderId": {
+                        "description": "Unique identity of an order.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "paymentMethodId": {
+                        "description": "Unique identity of payment method.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "amount": {
+                        "required": [
+                            "unitPrice",
+                            "totalPrice",
+                            "quantity"
+                        ],
+                        "properties": {
+                            "unitPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "totalPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantity": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "calculatedTaxes": {
+                                "type": "object"
+                            },
+                            "taxRules": {
+                                "type": "object"
+                            },
+                            "referencePrice": {
+                                "type": "object"
+                            },
+                            "listPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "discount": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "regulationPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "validationData": {
+                        "type": "object"
+                    },
+                    "stateId": {
+                        "description": "Unique identity of state.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "stateMachineState": {
+                        "$ref": "#/components/schemas/StateMachineState",
+                        "description": "Current payment transaction state (e.g., open, paid, cancelled)"
+                    },
+                    "paymentMethod": {
+                        "$ref": "#/components/schemas/PaymentMethod",
+                        "description": "Payment method used for this transaction"
+                    },
+                    "captures": {
+                        "description": "Payment captures for this transaction",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderTransactionCapture"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

@@ -53,7 +53,7 @@ $sw-side-navigation-item-link-distance: 10px;
     }
 
     &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: -2px;
     }
 }
@@ -61,7 +61,7 @@ $sw-side-navigation-item-link-distance: 10px;
 .sw-tabs--vertical .sw-tabs-item {
     padding: $sw-side-navigation-item-link-distance;
     border-bottom: 0 none;
-    border-left: 1px solid var(--color-border-primary-default);
+    border-left: 1px solid var(--color-border-secondary-default);
 }
 
 .sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item {

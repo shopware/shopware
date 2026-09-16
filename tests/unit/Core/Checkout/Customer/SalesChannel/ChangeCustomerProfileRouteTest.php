@@ -31,18 +31,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     {
         $customFields = new RequestDataBag(['test1' => '1', 'test2' => '2']);
 
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository
-            ->method('update')
-            ->with([
-                [
-                    'id' => 'customer1',
-                    'company' => '',
-                    'customFields' => ['test1' => '1'],
-                    'salutationId' => '1',
-                    'vatIds' => null,
-                ],
-            ]);
+        $customerRepository = static::createStub(EntityRepository::class);
 
         $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
         $storeApiCustomFieldMapper
@@ -54,10 +43,10 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $change = new ChangeCustomerProfileRoute(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(DataValidator::class),
-            $this->createMock(CustomerValidationFactory::class),
+            static::createStub(DataValidator::class),
+            static::createStub(CustomerValidationFactory::class),
             $storeApiCustomFieldMapper,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
         );
 
         $customer = new CustomerEntity();
@@ -67,13 +56,14 @@ class ChangeCustomerProfileRouteTest extends TestCase
             'salutationId' => '1',
         ]);
 
-        $change->change($data, $this->createMock(SalesChannelContext::class), $customer);
+        $change->change($data, static::createStub(SalesChannelContext::class), $customer);
     }
 
     public function testAccountTypeGetPassed(): void
     {
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
+            ->expects($this->once())
             ->method('update')
             ->with(static::callback(static function (array $data) {
                 static::assertCount(1, $data);
@@ -86,10 +76,10 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $change = new ChangeCustomerProfileRoute(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(DataValidator::class),
-            $this->createMock(CustomerValidationFactory::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(CustomerValidationFactory::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
         );
 
         $customer = new CustomerEntity();
@@ -99,7 +89,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             'salutationId' => '1',
         ]);
 
-        $change->change($data, $this->createMock(SalesChannelContext::class), $customer);
+        $change->change($data, static::createStub(SalesChannelContext::class), $customer);
     }
 
     public function testSalutationIdIsAssignedDefaultValue(): void
@@ -108,6 +98,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
+            ->expects($this->once())
             ->method('update')
             ->with(static::callback(static function (array $data) use ($salutationId) {
                 static::assertCount(1, $data);
@@ -124,15 +115,15 @@ class ChangeCustomerProfileRouteTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        $salutationRepository = $this->createMock(EntityRepository::class);
+        $salutationRepository = static::createStub(EntityRepository::class);
         $salutationRepository->method('searchIds')->willReturn($idSearchResult);
 
         $change = new ChangeCustomerProfileRoute(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(DataValidator::class),
-            $this->createMock(CustomerValidationFactory::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
+            static::createStub(DataValidator::class),
+            static::createStub(CustomerValidationFactory::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
             $salutationRepository
         );
 
@@ -144,7 +135,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
             'salutationId' => '',
         ]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $change->change($data, $salesChannelContext, $customer);

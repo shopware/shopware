@@ -4,6 +4,7 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
+import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 
 /**
  * @package checkout
@@ -21,6 +22,11 @@ export default class AddToCartPlugin extends Plugin {
         stockAdjustedText: null,
         outOfStockText: null,
         buyButtonSelector: 'button[type="submit"].btn-buy',
+
+        /**
+         * @type {'before' | 'after' | 'inner'} loadingIndicatorPosition
+         */
+        loadingIndicatorPosition: 'inner',
     };
 
     init() {
@@ -29,6 +35,8 @@ export default class AddToCartPlugin extends Plugin {
         if (!this._form) {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
+
+        this._buyButtonLoader = null;
 
         this._prepareFormRedirect();
 
@@ -70,6 +78,7 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
+        this._form.addEventListener('removeLoader', this.removeLoadingIndicator.bind(this));
         this._form.addEventListener('QuantitySelector/StockAdjusted', this._handleStockAdjusted.bind(this));
         this._form.addEventListener('QuantitySelector/OutOfStock', this._handleOutOfStock.bind(this));
     }
@@ -90,6 +99,8 @@ export default class AddToCartPlugin extends Plugin {
 
         const requestUrl = this._form.getAttribute('action');
         const formData = FormSerializeUtil.serialize(this._form);
+
+        this._createLoadingIndicator();
 
         this.$emitter.publish('beforeFormSubmit', formData);
 
@@ -123,6 +134,8 @@ export default class AddToCartPlugin extends Plugin {
             method: 'POST',
             body: formData,
         }).then((response) => {
+            this.removeLoadingIndicator();
+
             if (!response.ok) {
                 throw new Error('Add to cart failed');
             }
@@ -178,6 +191,13 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCarts(requestUrl, formData) {
         const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
+
+        if (!offCanvasCartInstances.length) {
+            this.removeLoadingIndicator();
+
+            return;
+        }
+
         offCanvasCartInstances.forEach((instance) => {
             this._openOffCanvasCart(instance, requestUrl, formData);
         });
@@ -192,8 +212,39 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCart(instance, requestUrl, formData) {
         instance.openOffCanvas(requestUrl, formData, () => {
+            this.removeLoadingIndicator();
             this.$emitter.publish('openOffCanvasCart');
         });
+    }
+
+    /**
+     * Shows a loading indicator inside the buy button, which disables the button
+     * until the running request is through.
+     *
+     * @private
+     */
+    _createLoadingIndicator() {
+        const buyButton = this._form.querySelector(this.options.buyButtonSelector);
+
+        if (!buyButton) {
+            return;
+        }
+
+        this._buyButtonLoader = new ButtonLoadingIndicator(buyButton, this.options.loadingIndicatorPosition);
+        this._buyButtonLoader.create();
+    }
+
+    /**
+     * Removes the loading indicator from the buy button and enables it again.
+     * Can be called directly on this plugin instance or via event `removeLoader`.
+     */
+    removeLoadingIndicator() {
+        if (!this._buyButtonLoader) {
+            return;
+        }
+
+        this._buyButtonLoader.remove();
+        this._buyButtonLoader = null;
     }
 
     /**

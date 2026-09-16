@@ -25,7 +25,17 @@ export default class FilterBasePlugin extends Plugin {
 
         this.listing.registerFilter(this);
 
+        this._setReady();
+
         this._preventDropdownClose();
+    }
+
+    _setReady() {
+        this.el.removeAttribute('aria-busy');
+        this.el.querySelectorAll('[data-filter-loading]').forEach((element) => {
+            element.removeAttribute('disabled');
+            element.removeAttribute('data-filter-loading');
+        });
     }
 
     _preventDropdownClose() {

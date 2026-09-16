@@ -95,10 +95,6 @@ export default {
             return this.getProductColumns();
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         currenciesColumns() {
             return this.currencies
                 .toSorted((a, b) => {
@@ -141,10 +137,6 @@ export default {
             return productCriteria;
         },
 
-        currencyCriteria() {
-            return new Criteria(1, 500);
-        },
-
         salesChannelCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addSorting(Criteria.sort('name'));
@@ -166,6 +158,14 @@ export default {
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
+                },
+                'release-date-filter': {
+                    property: 'releaseDate',
+                    label: this.$t('sw-product.filters.releaseDateFilter.label'),
+                    dateType: 'datetime-local',
+                    fromFieldLabel: null,
+                    toFieldLabel: null,
+                    showTimeframe: true,
                 },
                 'active-filter': {
                     property: 'active',
@@ -250,14 +250,6 @@ export default {
                         label: this.$t(`sw-product.type.${type}`),
                         value: type,
                     })),
-                },
-                'release-date-filter': {
-                    property: 'releaseDate',
-                    label: this.$t('sw-product.filters.releaseDateFilter.label'),
-                    dateType: 'datetime-local',
-                    fromFieldLabel: null,
-                    toFieldLabel: null,
-                    showTimeframe: true,
                 },
             };
 
@@ -385,9 +377,19 @@ export default {
                     }
                 }
 
+                const currencyCriteria = new Criteria(1, 500);
+                currencyCriteria.addSorting(Criteria.sort('name', 'ASC', false));
+
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
-                    this.currencyRepository.search(this.currencyCriteria),
+                    this.repositoryFactory.create('currency').search(currencyCriteria, Shopware.Context.api, {
+                        cacheKey: [
+                            'shared-data',
+                            'currencies',
+                            Shopware.Context.api.languageId ?? 'default',
+                        ],
+                        ttl: 5 * 60 * 1000,
+                    }),
                 ]);
 
                 const products = result[0];

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -29,20 +29,20 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(UpdatedByFieldSerializer::class)]
 class UpdatedByFieldSerializerTest extends TestCase
 {
-    private DefinitionInstanceRegistry&MockObject $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry&Stub $definitionInstanceRegistry;
 
-    private ValidatorInterface&MockObject $validator;
+    private ValidatorInterface&Stub $validator;
 
     private UpdatedByFieldSerializer $fieldSerializer;
 
     protected function setUp(): void
     {
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->validator = $this->createMock(ValidatorInterface::class);
+        $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->validator = static::createStub(ValidatorInterface::class);
 
         $this->fieldSerializer = new UpdatedByFieldSerializer(
             $this->validator,
@@ -53,12 +53,12 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncode(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $existence->method('exists')->willReturn(true);
         $userId = Uuid::randomHex();
 
         $parameters = new WriteParameterBag(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $this->createWriteContext($userId),
             '/',
             new WriteCommandQueue(),
@@ -77,9 +77,9 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncodeWithInvalidField(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $parameters = new WriteParameterBag(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $this->createWriteContext(null),
             '/',
             new WriteCommandQueue(),
@@ -100,10 +100,10 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncodeWithoutExistingEntity(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $existence->method('exists')->willReturn(false);
         $parameters = new WriteParameterBag(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $this->createWriteContext(Uuid::randomHex()),
             '/',
             new WriteCommandQueue(),
@@ -122,7 +122,7 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncodeWithInvalidScope(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $existence->method('exists')->willReturn(true);
 
         $result = 'foo';
@@ -132,7 +132,7 @@ class UpdatedByFieldSerializerTest extends TestCase
                 $existence,
                 $data,
                 new WriteParameterBag(
-                    $this->createMock(EntityDefinition::class),
+                    $this->createStub(EntityDefinition::class),
                     WriteContext::createFromContext($context),
                     '/',
                     new WriteCommandQueue(),
@@ -146,10 +146,10 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncodeWithSalesChannelApiSource(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $existence->method('exists')->willReturn(true);
         $parameters = new WriteParameterBag(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $this->createWriteContext(null, Defaults::LIVE_VERSION, false),
             '/',
             new WriteCommandQueue(),
@@ -172,10 +172,10 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncodeWithNoUserIdDeprecated(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $existence->method('exists')->willReturn(true);
         $parameters = new WriteParameterBag(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $this->createWriteContext(null),
             '/',
             new WriteCommandQueue(),
@@ -194,10 +194,10 @@ class UpdatedByFieldSerializerTest extends TestCase
     public function testEncodeWithNoUserId(): void
     {
         $data = new KeyValuePair('key', null, false);
-        $existence = $this->createMock(EntityExistence::class);
+        $existence = static::createStub(EntityExistence::class);
         $existence->method('exists')->willReturn(true);
         $parameters = new WriteParameterBag(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $this->createWriteContext(null),
             '/',
             new WriteCommandQueue(),

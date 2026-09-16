@@ -9,6 +9,8 @@ const remindPaymentMock = jest.fn(() => {
     return Promise.resolve();
 });
 
+const routerPushMock = jest.fn();
+
 const contextState = {
     id: 'context',
     state: () => ({
@@ -26,7 +28,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
     let stubs;
 
-    async function createWrapper() {
+    async function createWrapper({ routeName = 'sw.order.create.general' } = {}) {
         return mount(await wrapTestComponent('sw-order-create', { sync: true }), {
             global: {
                 stubs,
@@ -48,6 +50,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                 },
                 mocks: {
                     $route: {
+                        name: routeName,
                         meta: {
                             $module: {
                                 routes: {
@@ -60,6 +63,9 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                 },
                             },
                         },
+                    },
+                    $router: {
+                        push: routerPushMock,
                     },
                 },
             },
@@ -80,8 +86,42 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-card-view': await wrapTestComponent('sw-card-view', {
                 sync: true,
             }),
-            'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+            'sw-tabs': {
+                name: 'sw-tabs',
+                props: {
+                    defaultItem: {
+                        type: String,
+                        required: false,
+                        default: undefined,
+                    },
+                    positionIdentifier: {
+                        type: String,
+                        required: false,
+                        default: undefined,
+                    },
+                },
+                template: '<div class="sw-tabs"><slot></slot></div>',
+            },
             'sw-tabs-item': true,
+            'mt-tabs': {
+                name: 'mt-tabs',
+                props: {
+                    defaultItem: {
+                        type: String,
+                        required: false,
+                        default: undefined,
+                    },
+                    items: {
+                        type: Array,
+                        required: true,
+                    },
+                    positionIdentifier: {
+                        type: String,
+                        required: true,
+                    },
+                },
+                template: '<div class="mt-tabs"></div>',
+            },
             'sw-page': await wrapTestComponent('sw-page', { sync: true }),
             'sw-button-process': await wrapTestComponent('sw-button-process', {
                 sync: true,
@@ -107,6 +147,8 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     });
 
     beforeEach(async () => {
+        routerPushMock.mockClear();
+
         wrapper = await createWrapper();
 
         Shopware.Store.unregister('swOrder');
@@ -156,6 +198,48 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         }
 
         Shopware.Store.register(contextState);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch', () => {
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-create');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        wrapper = await createWrapper({
+            routeName: 'sw.order.create.details',
+        });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-create');
+        expect(tabs.props('defaultItem')).toBe('sw.order.create.details');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-order.detail.tabGeneral',
+                name: 'sw.order.create.general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDetails',
+                name: 'sw.order.create.details',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is clicked', async () => {
+        wrapper = await createWrapper();
+
+        const detailsTab = wrapper.vm.orderCreateTabs.find((tab) => tab.name === 'sw.order.create.details');
+
+        detailsTab.onClick();
+
+        expect(routerPushMock).toHaveBeenCalledWith({ name: 'sw.order.create.details' });
     });
 
     it('should open remind payment modal on save order', async () => {

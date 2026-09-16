@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_8;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1769676545RemoveOrderAddressVatIdColumn;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_8\Migration1769676545RemoveOrderAddressVatIdColum
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1769676545RemoveOrderAddressVatIdColumn::class)]
 class Migration1769676545RemoveOrderAddressVatIdColumnTest extends TestCase
 {

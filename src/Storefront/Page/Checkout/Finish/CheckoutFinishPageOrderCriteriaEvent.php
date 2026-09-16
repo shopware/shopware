@@ -8,7 +8,10 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('checkout')]
 class CheckoutFinishPageOrderCriteriaEvent implements ShopwareSalesChannelEvent
 {
     public function __construct(

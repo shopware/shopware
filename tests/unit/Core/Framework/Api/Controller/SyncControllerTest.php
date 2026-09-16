@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
@@ -19,6 +20,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncController::class)]
 class SyncControllerTest extends TestCase
 {
@@ -82,7 +84,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $validJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -98,7 +100,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $invalidJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -114,7 +116,7 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 

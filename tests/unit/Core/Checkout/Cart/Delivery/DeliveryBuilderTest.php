@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -28,13 +29,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(DeliveryBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryBuilder::class)]
 class DeliveryBuilderTest extends TestCase
 {
     public function testBuildThrowsIfNoShippingMethodCanBeFound(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getShippingMethod')
             ->willReturn(
                 (new ShippingMethodEntity())->assign([
@@ -53,34 +54,44 @@ class DeliveryBuilderTest extends TestCase
 
     public function testBuildDelegatesToBuildByUsingShippingMethod(): void
     {
-        $shippingMethod = (new ShippingMethodEntity())->assign([
-            'id' => 'shipping-method-id',
-        ]);
+        // build() derives the lookup key from the context's shipping method id but resolves the
+        // actual method from the cart data collection, then delegates to buildByUsingShippingMethod().
+        // Use a distinct object in the data collection and assert it is the one that ends up on the
+        // produced delivery, rather than partial-mocking the method under test.
+        $contextShippingMethod = (new ShippingMethodEntity())->assign(['id' => 'shipping-method-id']);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getShippingMethod')
-            ->willReturn($shippingMethod);
+        $resolvedShippingMethod = (new ShippingMethodEntity())->assign(['id' => 'shipping-method-id']);
+        $resolvedShippingMethod->setDeliveryTime(self::createDeliveryTimeEntity(DeliveryTimeEntity::DELIVERY_TIME_DAY, 2, 3));
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getShippingMethod')->willReturn($contextShippingMethod);
+        $salesChannelContext->method('getShippingLocation')->willReturn(new ShippingLocation(new CountryEntity(), null, null));
 
         $cart = new Cart('cart-token');
+        $cart->setLineItems(new LineItemCollection([
+            (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                ->assign([
+                    'deliveryInformation' => self::createDeliveryInformation(null, 0),
+                    'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'shippingCostAware' => true,
+                ]),
+        ]));
+
         $cartDataCollection = new CartDataCollection([
-            'shipping-method-shipping-method-id' => $shippingMethod,
+            'shipping-method-shipping-method-id' => $resolvedShippingMethod,
         ]);
 
-        $deliveryBuilder = $this->getMockBuilder(DeliveryBuilder::class)
-            // don't mock build because it is the function under test
-            ->onlyMethods(['buildByUsingShippingMethod'])
-            ->getMock();
-
-        $deliveryBuilder->expects($this->once())
-            ->method('buildByUsingShippingMethod')
-            ->with($cart, $shippingMethod, $salesChannelContext);
-
-        $deliveryBuilder->build(
+        $deliveries = (new DeliveryBuilder())->build(
             $cart,
             $cartDataCollection,
             $salesChannelContext,
             new CartBehavior(),
         );
+
+        static::assertCount(1, $deliveries);
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame($resolvedShippingMethod, $delivery->getShippingMethod());
     }
 
     #[DataProvider('getLineItemsThatResultInAnEmptyDelivery')]
@@ -92,7 +103,7 @@ class DeliveryBuilderTest extends TestCase
         $deliveries = (new DeliveryBuilder())->buildByUsingShippingMethod(
             $cart,
             new ShippingMethodEntity(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         static::assertCount(0, $deliveries);
@@ -206,6 +217,47 @@ class DeliveryBuilderTest extends TestCase
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
         ];
 
+        $releaseDate = new \DateTimeImmutable('2030-01-15 10:00:00');
+
+        yield 'It uses future release date as availability start if line item is in stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0),
+                        'payload' => ['releaseDate' => $releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTimeAt(self::createDeliveryTime(2, 3), $releaseDate),
+        ];
+
+        yield 'It ignores invalid release date if line item is in stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0),
+                        'payload' => ['releaseDate' => '$invalid'],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(2, 3)),
+        ];
+
+        yield 'It ignores past release date if line item is in stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0),
+                        'payload' => ['releaseDate' => '2020-01-15 10:00:00.000'],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(2, 3)),
+        ];
+
         yield 'It adds restock time to Delivery Time if item is out of stock' => [
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
@@ -216,6 +268,31 @@ class DeliveryBuilderTest extends TestCase
                     ]),
             ]),
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(6, 7)),
+        ];
+
+        yield 'It ignores a negative restock time if item is out of stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(4, 5), -5),
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
+        ];
+
+        yield 'It uses later restock availability if release date is before restock date' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 10),
+                        'payload' => ['releaseDate' => (new \DateTimeImmutable('+1 day'))->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(12, 13)),
         ];
 
         yield 'It takes delivery time of nested line item if parent has none' => [

@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Permission;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Privileges\Utils;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Utils::class)]
 class UtilsTest extends TestCase
 {

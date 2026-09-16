@@ -17,6 +17,7 @@ Each file in this directory is a single MCP tool -- an action that AI clients ca
 - Use `McpContextProvider` to get the authenticated `Context`
 - Write operations must accept a `bool $dryRun = true` parameter. The `executeWithDryRun` helper adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions from firing during preview, and rolls back the transaction afterward
 - Entity tools must validate entity existence with `$this->registry->has($entity)` before ACL checks to provide clear "entity not found" messages
+- Entity tools that accept criteria JSON must validate the built `Criteria` with `AclCriteriaValidator` before DAL access — the top-level `requirePrivilege()` check does not cover association reads (see `EntityReadTool`/`EntitySearchTool`/`EntityAggregateTool`)
 - Entity tools that return DAL data must inject `JsonEntityEncoder` and use it instead of `jsonSerialize()` to respect `includes`/`excludes`
 - Entity tools returning DAL data should use the `McpEntityIncludes` trait and call `applyDefaultIncludes()` to keep responses compact (see below)
 
@@ -222,7 +223,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement.
 5. Extend `McpToolResponse` and return via `$this->success()` / `$this->error()`
 6. For entity tools: validate with `$this->registry->has($entity)` before ACL checks
-7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with `mcp.tool` and `shopware.feature` (flag: `MCP_SERVER`) tags
+7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with the `mcp.tool` tag
 8. Add unit test in `tests/unit/Core/Framework/Mcp/Tool/`
 9. Add the tool name to `expectedTools()` in `McpCapabilityDiscoveryTest` (see below)
 

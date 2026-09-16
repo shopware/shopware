@@ -51,7 +51,7 @@ class IndexingControllerTest extends TestCase
                 ['offset' => $offset + 50]
             ));
         }
-        $registry = $this->getMockBuilder(EntityIndexerRegistry::class)->disableOriginalConstructor()->getMock();
+        $registry = static::createStub(EntityIndexerRegistry::class);
         $registry->method('getIndexer')->willReturn($productIndexer);
         $indexer = new IndexingController($registry, static::getContainer()->get('messenger.default_bus'));
 

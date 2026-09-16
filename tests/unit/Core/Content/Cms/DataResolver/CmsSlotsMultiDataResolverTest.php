@@ -42,7 +42,7 @@ class CmsSlotsMultiDataResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->registry = new DefinitionInstanceRegistry(new ContainerBuilder(), [], []);
-        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher = static::createStub(EventDispatcher::class);
         $this->extensions = new ExtensionDispatcher($dispatcher);
     }
 

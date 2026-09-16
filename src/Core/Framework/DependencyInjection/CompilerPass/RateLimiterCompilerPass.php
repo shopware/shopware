@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -38,6 +39,7 @@ class RateLimiterCompilerPass implements CompilerPassInterface
 
             $def->addArgument($cacheDef);
             $def->addArgument(new Reference(SystemConfigService::class));
+            $def->addArgument(new Reference(ClockInterface::class));
             $def->addArgument(new Reference($config['lock_factory']));
 
             $rateLimiter->addMethodCall('registerLimiterFactory', [$name, $def]);

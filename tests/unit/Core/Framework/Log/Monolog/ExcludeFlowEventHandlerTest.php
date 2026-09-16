@@ -12,11 +12,13 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExcludeFlowEventHandler::class)]
 class ExcludeFlowEventHandlerTest extends TestCase
 {

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Validator\JsonlRowParser;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(JsonlRowParser::class)]
 class JsonlRowParserTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseReturnsDecodedRowsWithLineNumbers(): void
     {
         $parser = new JsonlRowParser();
@@ -30,6 +32,7 @@ class JsonlRowParserTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseSkipsEmptyLines(): void
     {
         $parser = new JsonlRowParser();
@@ -45,6 +48,7 @@ class JsonlRowParserTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseThrowsExceptionForMalformedJsonlLine(): void
     {
         $parser = new JsonlRowParser();
@@ -58,6 +62,7 @@ class JsonlRowParserTest extends TestCase
         }
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testParseThrowsExceptionWhenJsonlLineDoesNotDecodeToObject(): void
     {
         $parser = new JsonlRowParser();

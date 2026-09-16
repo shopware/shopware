@@ -6,10 +6,12 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Blank;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class HoneypotCaptcha extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'honeypot';
@@ -39,18 +41,16 @@ class HoneypotCaptcha extends AbstractCaptcha
         $metadata->addPropertyConstraint('honeypotValue', new Blank());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isValid(Request $request, array $captchaConfig): bool
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            $this->honeypotValue = $request->request->getString(self::CAPTCHA_REQUEST_PARAMETER);
+        $violations = new ConstraintViolationList();
 
-            return \count($this->validator->validate($this)) < 1;
+        if (!$this->isHoneypotEmpty($request)) {
+            // A filled honeypot is bot-only, so there is no customer-facing recovery hint.
+            $violations->add(new ConstraintViolation('', '', [], '', '', '', null, CaptchaException::INVALID_CAPTCHA_ERROR));
         }
 
-        return $request->request->get(self::CAPTCHA_REQUEST_PARAMETER, '') === '';
+        return $violations;
     }
 
     /**
@@ -59,5 +59,17 @@ class HoneypotCaptcha extends AbstractCaptcha
     public function getName(): string
     {
         return self::CAPTCHA_NAME;
+    }
+
+    private function isHoneypotEmpty(Request $request): bool
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->honeypotValue = $request->request->getString(self::CAPTCHA_REQUEST_PARAMETER);
+
+            return \count($this->validator->validate($this)) < 1;
+        }
+
+        // A present-but-null parameter counts as empty, like a browser submitting the untouched field.
+        return ($request->request->get(self::CAPTCHA_REQUEST_PARAMETER) ?? '') === '';
     }
 }

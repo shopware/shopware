@@ -14,7 +14,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontPluginRegistry implements ResetInterface
 {
     final public const BASE_THEME_NAME = 'Storefront';

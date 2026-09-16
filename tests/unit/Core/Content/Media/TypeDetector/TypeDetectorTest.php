@@ -16,10 +16,12 @@ use Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector;
 use Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TypeDetector::class)]
 class TypeDetectorTest extends TestCase
 {

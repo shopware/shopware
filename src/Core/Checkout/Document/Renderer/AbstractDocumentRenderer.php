@@ -99,9 +99,7 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $shippingAddress = $orderDelivery->getShippingOrderAddress();
-
-        $country = $shippingAddress?->getCountry();
+        $country = $orderDelivery->getShippingOrderAddress()?->getCountry();
         if ($country === null) {
             return false;
         }

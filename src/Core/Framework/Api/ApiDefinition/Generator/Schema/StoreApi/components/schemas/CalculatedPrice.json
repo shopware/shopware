@@ -1,12 +1,12 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "CalculatedPrice": {
                 "type": "object",
-                "description": "Represents a product along with detailed information required to display a variant selection.",
+                "description": "Represents the calculated price of an item, including taxes and optional reference, list and regulation prices.",
                 "properties": {
                     "unitPrice": {
                         "type": "number"
@@ -14,15 +14,8 @@
                     "quantity": {
                         "type": "number"
                     },
-                    "rawTotal": {
-                        "type": "number"
-                    },
                     "totalPrice": {
                         "type": "number"
-                    },
-                    "taxStatus": {
-                        "type": "string",
-                        "enum": ["net", "tax-free"]
                     },
                     "calculatedTaxes": {
                         "type": "array",
@@ -31,7 +24,7 @@
                             "properties": {
                                 "apiAlias": {
                                     "type": "string",
-                                    "enum": ["cart_tax_calculated"]
+                                    "const": "cart_tax_calculated"
                                 },
                                 "tax": {
                                     "type": "number"
@@ -66,12 +59,6 @@
                             }
                         ]
                     },
-                    "positionPrice": {
-                        "type": "number"
-                    },
-                    "netPrice": {
-                        "type": "number"
-                    },
                     "regulationPrice": {
                         "oneOf": [
                             {
@@ -82,9 +69,7 @@
                                     },
                                     "apiAlias": {
                                         "type": "string",
-                                        "enum": [
-                                            "cart_regulation_price"
-                                        ]
+                                        "const": "cart_regulation_price"
                                     }
                                 }
                             },
@@ -93,23 +78,9 @@
                             }
                         ]
                     },
-                    "hasRange": {
-                        "type": "boolean"
-                    },
-                    "variantId": {
-                        "oneOf": [
-                            {
-                                "type": "string",
-                                "format": "^[0-9a-f]{32}$"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["calculated_price"]
+                        "const": "calculated_price"
                     },
                     "taxRules": {
                         "type": "array",
@@ -130,7 +101,6 @@
                 },
                 "required": [
                     "apiAlias",
-                    "hasRange",
                     "regulationPrice",
                     "listPrice",
                     "referencePrice",
@@ -138,11 +108,7 @@
                     "totalPrice",
                     "quantity",
                     "unitPrice",
-                    "positionPrice",
-                    "netPrice",
-                    "taxRules",
-                    "rawTotal",
-                    "taxStatus"
+                    "taxRules"
                 ]
             }
         }

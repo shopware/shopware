@@ -9,6 +9,8 @@
         :allow-inline-edit="true"
         :show-selection="false"
         plain-appearance
+        @inline-edit-save="onInlineEditSave"
+        @inline-edit-cancel="onInlineEditCancel"
     >
 
         <template #actions="{ item }">

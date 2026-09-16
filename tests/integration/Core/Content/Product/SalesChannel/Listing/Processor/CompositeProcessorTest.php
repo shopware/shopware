@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing\P
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class CompositeProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;

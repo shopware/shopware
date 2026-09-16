@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DisabledTwigCacheWarmupTest extends TestCase
 {
     use KernelTestBehaviour;

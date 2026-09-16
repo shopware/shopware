@@ -21,7 +21,7 @@ class MetricNotSupportedExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void
     {
-        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport = static::createStub(MetricTransportInterface::class);
         $metricConfig = new MetricConfig('test', description: 'test', type: Type::COUNTER, enabled: true, parameters: []);
         $metric = Metric::fromConfigured(new ConfiguredMetric('test', 1, []), $metricConfig, []);
         $exception = new MetricNotSupportedException($metric, $transport);

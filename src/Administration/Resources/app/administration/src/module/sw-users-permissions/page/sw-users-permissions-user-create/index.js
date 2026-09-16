@@ -24,7 +24,7 @@ export default {
 
             return new Promise((resolve) => {
                 this.user = this.userRepository.create(this.context);
-                this.user.admin = false;
+                this.user.active = true;
                 resolve();
             });
         },

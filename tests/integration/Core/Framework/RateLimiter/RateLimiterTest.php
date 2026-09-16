@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -14,6 +14,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -34,6 +35,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
@@ -42,7 +44,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class RateLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -59,20 +61,33 @@ class RateLimiterTest extends TestCase
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
+    private static bool $rateLimitedKernelBooted = false;
+
     public static function setUpBeforeClass(): void
     {
         DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        // shut down only: the next class boots its kernel lazily inside a test context, which
+        // recompiles with the rate limiter restored
+        KernelLifecycleManager::ensureKernelShutdown();
+        self::$rateLimitedKernelBooted = false;
     }
 
     protected function setUp(): void
     {
+        // the rate-limiter pass applies at container compile time, so this class needs a freshly
+        // compiled kernel. It is booted here rather than in setUpBeforeClass(): a deprecation
+        // triggered during a static-context kernel boot has no TestCase object on the call stack
+        // and crashes PHPUnit's event system instead of being recorded
+        if (!self::$rateLimitedKernelBooted) {
+            KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+            self::$rateLimitedKernelBooted = true;
+        }
+
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
@@ -320,6 +335,7 @@ class RateLimiterTest extends TestCase
             $this->mockResetLimiter([
                 RateLimiter::OAUTH => 1,
             ]),
+            static::getContainer()->get(Connection::class),
         );
 
         $controller->token(new Request());
@@ -430,6 +446,7 @@ class RateLimiterTest extends TestCase
             $config,
             new CacheStorage(new ArrayAdapter()),
             $this->createMock(SystemConfigService::class),
+            new NativeClock(),
             $this->createMock(LockFactory::class),
         );
 
@@ -550,6 +567,7 @@ class RateLimiterTest extends TestCase
                     $limitOneConfig + ['id' => $name],
                     new CacheStorage(new ArrayAdapter()),
                     static::createStub(SystemConfigService::class),
+                    new NativeClock(),
                 ));
             }
         }

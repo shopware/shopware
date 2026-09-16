@@ -10,9 +10,8 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -145,8 +144,8 @@ class CartRuleLoaderTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->add(
-            (new LineItem('A', 'test'))
-                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+            (new LineItem('A', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection()))
                 ->setLabel('test')
         );
 
@@ -159,7 +158,9 @@ class CartRuleLoaderTest extends TestCase
 
         $cartPersister->delete($loadedCart->getToken(), $context);
 
-        $cartRuleLoader->loadByCart($context, $loadedCart, new CartBehavior());
+        $result = $cartRuleLoader->loadByCart($context, $loadedCart, new CartBehavior());
+
+        static::assertTrue($result->getCart()->has('A'));
 
         $count = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT COUNT(*) FROM cart WHERE token = :token',

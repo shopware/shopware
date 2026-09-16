@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Session;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Session\StatefulFlashBag;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @see https://github.com/symfony/symfony/blob/8.1/src/Symfony/Component/HttpFoundation/Tests/Session/Flash/FlashBagTest.php
  */
+#[Package('framework')]
 #[CoversClass(StatefulFlashBag::class)]
 class StatefulFlashBagTest extends TestCase
 {

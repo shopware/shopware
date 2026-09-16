@@ -64,7 +64,8 @@ describe('src/app/init-post/worker.init.ts', () => {
         expect(loginListeners).toHaveLength(1);
     });
 
-    it.each([
+    // @deprecated tag:v6.8.0 - The tests will be removed with registerThumbnailMiddleware.
+    it.deprecated('v6.8.0.0').each([
         'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
         'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
         'Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage',
@@ -113,7 +114,8 @@ describe('src/app/init-post/worker.init.ts', () => {
         expect(createMock).toHaveBeenCalledTimes(1);
     });
 
-    it('should update thumbnail middleware notifications', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with messageQueueNotification.
+    it.deprecated('v6.8.0.0')('should update thumbnail middleware notifications', async () => {
         loggedIn = true;
 
         config = {

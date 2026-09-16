@@ -5,7 +5,7 @@
     size="550px"
     :title="$t('global.default.warning')"
     :is-loading="isLoading"
-    @modal-close="onCancel()"
+    @modal-close="onCancel"
 >
     {% block sw_settings_sso_user_create_access_key_modal_inner %}
     {% block sw_settings_sso_user_create_access_key_modal_inner_field_access_key %}
@@ -63,7 +63,7 @@
         variant="critical"
         :block="true"
         class="sso-user-Integrations-modal-field--generate-access-key"
-        @click="onGenerateNewAccessKey()"
+        @click="onGenerateNewAccessKey"
     >
         {{ $t('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
     </mt-button>
@@ -89,7 +89,7 @@
             size="small"
             variant="primary"
             :is-loading="isLoading"
-            @click="onSave()"
+            @click="onSave"
         >
             {{ $t('sw-users-permissions.users.user-detail.modal.buttonApply') }}
         </mt-button>

@@ -53,18 +53,33 @@
         {% endblock %}
 
         {% block sw_meteor_card_tabs %}
-        <sw-tabs
-            v-if="hasTabs"
-            position-identifier="sw-meteor-card"
-            :small="false"
-            :default-item="defaultTab"
-            @new-item-active="setActiveTab($event.name)"
-        >
-            <slot
-                name="tabs"
-                v-bind="{ activeTab }"
-            ></slot>
-        </sw-tabs>
+        <template v-if="hasTabs && feature.isActive('v6.8.0.0')">
+            {% block sw_meteor_card_mt_tabs %}
+            <mt-tabs
+                v-if="hasTabs"
+                position-identifier="sw-meteor-card"
+                :default-item="activeTab"
+                :items="tabItems"
+                :small="true"
+                @new-item-active="setActiveTab"
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else>
+            <sw-tabs
+                v-if="hasTabs"
+                position-identifier="sw-meteor-card"
+                :small="false"
+                :default-item="defaultTab"
+                @new-item-active="setActiveTab($event.name)"
+            >
+                <slot
+                    name="tabs"
+                    v-bind="{ activeTab }"
+                ></slot>
+            </sw-tabs>
+        </template>
         {% endblock %}
     </div>
     {% endblock %}

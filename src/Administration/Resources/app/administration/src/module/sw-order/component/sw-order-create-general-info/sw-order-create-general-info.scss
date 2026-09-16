@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-order-create-general-info__summary {
     display: flex;
     flex-direction: column;
@@ -15,8 +13,8 @@
 
         &-header,
         &-total {
-            font-size: $font-size-s;
-            font-weight: $font-weight-semi-bold;
+            font-size: var(--font-size-s);
+            font-weight: var(--font-weight-semibold);
             line-height: 25px;
         }
 
@@ -36,7 +34,7 @@
 
         &-description,
         &-last-changed {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             line-height: 22px;
         }
 

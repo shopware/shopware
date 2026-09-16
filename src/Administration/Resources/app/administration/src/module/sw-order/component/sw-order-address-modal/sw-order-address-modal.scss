@@ -1,10 +1,3 @@
-@import "~scss/variables";
-
-$sw-order-address-modal-highlight: var(--color-background-brand-default);
-$sw-order-address-modal-link: var(--color-text-brand-default);
-$sw-order-address-modal-selected: var(--color-interaction-primary-default);
-$sw-order-address-modal-selected-text: var(--color-text-primary-inverse);
-
 .sw-order-address-modal {
     .sw-order-address-modal__entry {
         text-align: left;
@@ -14,18 +7,18 @@ $sw-order-address-modal-selected-text: var(--color-text-primary-inverse);
         border: none;
 
         &:hover {
-            background-color: $sw-order-address-modal-highlight;
-            color: $sw-order-address-modal-link;
+            background-color: var(--color-background-brand-default);
+            color: var(--color-text-brand-default);
         }
     }
 
     .sw-order-address-modal__entry__selected {
-        color: $sw-order-address-modal-selected-text;
-        background-color: $sw-order-address-modal-selected;
+        color: var(--color-static-white);
+        background-color: var(--color-interaction-primary-default);
 
         &:hover {
-            color: $sw-order-address-modal-selected-text;
-            background-color: $sw-order-address-modal-selected;
+            color: var(--color-static-white);
+            background-color: var(--color-interaction-primary-default);
         }
     }
 }

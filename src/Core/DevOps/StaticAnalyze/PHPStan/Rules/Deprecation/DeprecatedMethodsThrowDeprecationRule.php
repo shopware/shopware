@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -38,30 +39,12 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-interface',
         // Throwing deprecations in PHPStan rules would cause problems while executed
         'reason:remove-phpstan-rule',
-        // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
-        'reason:becomes-internal',
-        // New function parameter will be added
-        'reason:new-optional-parameter',
-        // Parameter name is changing, which could break usage of named parameters, but should not trigger a deprecation
-        'reason:parameter-name-change',
-        // Classes that will be final, can only be changed with the next major
-        'reason:becomes-final',
-        // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:return-type-change',
-        // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:parameter-type-change',
-        // If a parameter becomes more flexible, this does not need action and trigger a deprecation warning.
-        'reason:parameter-type-extension',
-        // If there will be in the class hierarchy of a class we mark the whole class as deprecated, but the functionality itself is not deprecated, therefore they do not trigger deprecations.
-        'reason:class-hierarchy-change',
-        // If we change the visibility of a method we can't know from where it was called and whether the call will be valid in the future, therefore they do not trigger deprecations.
-        'reason:visibility-change',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // If a thrown exception in the method changes, we don't want to trigger deprecation warnings or throw an exception
-        'reason:exception-change',
         // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
         'reason:remove-getter-setter',
+        // The replacement is still experimental, so the deprecation is announced but stays silent for now.
+        'reason:experimental-replacement',
         // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
         'reason:blue-green-deployment',
         // The class is a decorating class and will be removed. Third party code should never rely on explicit decorators
@@ -74,6 +57,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-rule',
     ];
 
+    public function __construct(private readonly ServiceMap $serviceMap)
+    {
+    }
+
     public function getNodeType(): string
     {
         return ClassMethod::class;
@@ -81,6 +68,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract()) {
+            return [];
+        }
+
         if (!$scope->isInClass()) {
             return [];
         }
@@ -91,15 +82,13 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             return [];
         }
 
-        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract() || $node->isMagic()) {
-            return [];
-        }
-
-        $methodContent = $this->getMethodContent($node, $scope, $class);
         $method = $class->getMethod($node->name->name, $scope);
 
+        // reading the method content requires file I/O, so only do it when a deprecation is present
+        $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
+
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -157,7 +146,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         return $content;
     }
 
-    private function handlesDeprecationCorrectly(string $deprecation, string $method): bool
+    /**
+     * @param \Closure(): string $methodContent
+     */
+    private function handlesDeprecationCorrectly(string $deprecation, \Closure $methodContent): bool
     {
         foreach (self::RULE_EXCEPTIONS as $exception) {
             if (\str_contains($deprecation, $exception)) {
@@ -165,7 +157,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             }
         }
 
-        return \str_contains($method, 'Feature::triggerDeprecationOrThrow(');
+        return \str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(');
     }
 
     private function isTestClass(ClassReflection $class): bool
@@ -187,5 +179,11 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return false;
+    }
+
+    private function isServiceConstructor(ClassMethod $node, ClassReflection $class): bool
+    {
+        return $node->name->toString() === '__construct'
+            && $this->serviceMap->getService($class->getName()) !== null;
     }
 }

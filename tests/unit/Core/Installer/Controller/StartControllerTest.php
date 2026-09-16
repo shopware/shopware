@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Controller\StartController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -17,6 +18,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StartController::class)]
 #[CoversClass(InstallerController::class)]
 class StartControllerTest extends TestCase

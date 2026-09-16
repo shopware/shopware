@@ -97,7 +97,7 @@ class FieldSerializer extends AbstractFieldSerializer
                 $value = $value->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             }
 
-            if (empty($value)) {
+            if ($value === null || $value === '') {
                 return;
             }
 

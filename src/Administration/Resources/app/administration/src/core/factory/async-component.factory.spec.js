@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -828,6 +830,41 @@ describe('core/factory/async-component.factory.ts', () => {
                 expect(component.template).toBe('<div>This is a test template.</div>');
             });
         });
+    });
+
+    it('rejects setup-only components without a template by default', async () => {
+        const spy = jest.spyOn(console, 'warn').mockImplementation();
+
+        ComponentFactory.register('test-setup-component', {
+            setup() {
+                return {};
+            },
+        });
+
+        await expect(ComponentFactory.build('test-setup-component')).rejects.toThrow(
+            'The component registry could not build the component with the name "test-setup-component".',
+        );
+        expect(spy).toHaveBeenCalledWith(
+            '[ComponentFactory]',
+            'The component "test-setup-component" needs a template to be functional.',
+            'Please add a "template" property to your component definition',
+            expect.anything(),
+        );
+    });
+
+    it('accepts explicitly renderable setup-only components without legacy templates', async () => {
+        ComponentFactory.register('test-renderable-setup-component', {
+            _renderedBySfcTemplate: true,
+            setup() {
+                return {};
+            },
+        });
+
+        const component = await ComponentFactory.build('test-renderable-setup-component');
+
+        expect(component).toBeInstanceOf(Object);
+        expect(typeof component.setup).toBe('function');
+        expect(component._renderedBySfcTemplate).toBeUndefined();
     });
 
     describe('should build the final component structure with extension', () => {
@@ -2433,6 +2470,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2443,6 +2481,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2455,10 +2494,12 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
             {
                 componentName: 'component',
                 innerTemplate: 'Async override',
+                legacyConditionCases: [],
             },
         ]);
     });

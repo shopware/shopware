@@ -14,10 +14,7 @@
       "columnFactor": "Factor",
       "columnDecimalPrecision": "Decimal place",
       "buttonAddCurrency": "Add currency",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
-      "buttonDelete": "Delete"
+      "messageDeleteSuccess": "Currency \"{name}\" has been deleted."
     },
     "detail": {
       "textHeadline": "New currency",
@@ -35,7 +32,6 @@
       "placeholderShortName": "Enter short name...",
       "placeholderSymbol": "Enter currency symbol...",
       "placeholderFactor": "Enter conversion factor...",
-      "buttonSave": "Save",
       "notificationErrorMessage": "An error occurred while saving your currency.",
       "titleRoundingCard": "Price rounding",
       "titleCountryRoundingCard": "Countries",

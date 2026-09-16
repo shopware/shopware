@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -44,12 +44,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     },
                     stubs: {
                         'mt-card': {
-                            template: '<div><slot></slot></div>',
+                            template: `
+                                <div class="mt-card">
+                                    <slot name="toolbar"></slot>
+                                    <slot></slot>
+                                </div>
+                            `,
                         },
                         'sw-empty-state': {
                             template: '<div class="sw-empty-state"></div>',
                         },
-                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
@@ -63,13 +68,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
-                        'sw-popover-deprecated': {
-                            props: ['popoverClass'],
-                            template: `
-                    <div class="sw-popover" :class="popoverClass">
-                        <slot></slot>
-                    </div>`,
-                        },
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-loader': true,
                         'sw-context-menu-item': true,
                         'sw-context-menu': true,
@@ -229,6 +228,61 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         ]);
     });
 
+    it('should add an always-false id filter when no product custom-field-set relations exist', async () => {
+        // see https://github.com/shopware/shopware/issues/15732
+        // empty customFieldSetIDs must not produce equalsAny with an empty value (400)
+        // and must not drop the scope filter entirely (would return unrelated custom fields)
+        expect(wrapper.vm.customFieldSetIDs).toEqual([]);
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const hasCustomFieldSetIdFilter = (params) => (params.filter ?? []).some((f) => f.field === 'customFieldSetId');
+        const hasNullIdFilter = (params) =>
+            (params.filter ?? []).some((f) => f.type === 'equals' && f.field === 'id' && f.value === null);
+
+        expect(hasCustomFieldSetIdFilter(criteriaParams)).toBe(false);
+        expect(hasCustomFieldSetIdFilter(singleSelectCriteriaParams)).toBe(false);
+        expect(hasNullIdFilter(criteriaParams)).toBe(true);
+        expect(hasNullIdFilter(singleSelectCriteriaParams)).toBe(true);
+    });
+
+    it('should not add any id scope filter when customFieldSetIDs is not yet loaded', async () => {
+        wrapper.vm.customFieldSetIDs = null;
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const hasScopeFilter = (params) =>
+            (params.filter ?? []).some((f) => f.field === 'customFieldSetId' || f.field === 'id');
+
+        expect(hasScopeFilter(criteriaParams)).toBe(false);
+        expect(hasScopeFilter(singleSelectCriteriaParams)).toBe(false);
+    });
+
+    it('should add a customFieldSetId equalsAny filter when product custom-field-set relations exist', async () => {
+        wrapper.vm.customFieldSetIDs = [
+            'set-id-1',
+            'set-id-2',
+        ];
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const findCustomFieldSetIdFilter = (params) => (params.filter ?? []).find((f) => f.field === 'customFieldSetId');
+
+        const mainFilter = findCustomFieldSetIdFilter(criteriaParams);
+        const singleSelectFilter = findCustomFieldSetIdFilter(singleSelectCriteriaParams);
+
+        expect(mainFilter).toBeDefined();
+        expect(mainFilter.type).toBe('equalsAny');
+        expect(mainFilter.value).toBe('set-id-1|set-id-2');
+
+        expect(singleSelectFilter).toBeDefined();
+        expect(singleSelectFilter.type).toBe('equalsAny');
+        expect(singleSelectFilter.value).toBe('set-id-1|set-id-2');
+    });
+
     it('should change productSortingEntity when add custom field', async () => {
         await wrapper.setProps({
             productSortingEntity: {
@@ -249,8 +303,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         await wrapper.find('.sw-data-grid__row--0 .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result')[0];
-        await results.trigger('click');
+        const result = new DOMWrapper(document.body).get('.sw-select-result');
+        await result.trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productSortingEntity.fields).toEqual([
@@ -262,5 +316,33 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 priority: 1,
             },
         ]);
+    });
+
+    it('should disable fields on locked product sorting', async () => {
+        await wrapper.setProps({
+            productSortingEntity: {
+                label: 'Top result',
+                key: 'score',
+                fields: [
+                    {
+                        field: '_score',
+                        naturalSorting: 0,
+                        order: 'desc',
+                        priority: 1,
+                    },
+                ],
+                locked: true,
+            },
+        });
+
+        const criteriaSelect = wrapper.find('.sw-settings-listing-option-criteria-grid__criteria-select');
+        const isDisabled = criteriaSelect.attributes('disabled');
+
+        expect(isDisabled).toBeTruthy();
+
+        const dataGrid = wrapper.findComponent('.sw-settings-listing-option-criteria-grid__data-grid');
+
+        expect(dataGrid.vm.showActions).toBeFalsy();
+        expect(dataGrid.vm.allowInlineEdit).toBeFalsy();
     });
 });

@@ -198,7 +198,7 @@ class StorefrontCartFacadeTest extends TestCase
         $shippingMethodeRepository = $this->getContainer()->get('shipping_method.repository');
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', 'Standard'));
-        $shippingMethod = $shippingMethodeRepository->search($criteria, Context::createDefaultContext())->first();
+        $shippingMethod = $shippingMethodeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(ShippingMethodEntity::class, $shippingMethod);
 
@@ -214,7 +214,7 @@ class StorefrontCartFacadeTest extends TestCase
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('handlerIdentifier', 'Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment'));
-        $paymentMethod = $paymentMethodRepository->search($criteria, Context::createDefaultContext())->first();
+        $paymentMethod = $paymentMethodRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
 
@@ -228,7 +228,7 @@ class StorefrontCartFacadeTest extends TestCase
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName));
-        $paymentMethod = $paymentMethodRepository->search($criteria, Context::createDefaultContext())->first();
+        $paymentMethod = $paymentMethodRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PaymentMethodEntity::class, $paymentMethod);
 

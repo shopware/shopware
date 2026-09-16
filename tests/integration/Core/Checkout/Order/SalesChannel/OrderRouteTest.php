@@ -50,7 +50,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 #[Group('store-api')]
 class OrderRouteTest extends TestCase
 {
@@ -403,8 +402,10 @@ class OrderRouteTest extends TestCase
         $eventDidRun = false;
         $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
+            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
@@ -716,7 +717,9 @@ class OrderRouteTest extends TestCase
     private function handleMailSentEvent(MailSentEvent $event): void
     {
         ++$this->mailSentEventCounter;
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+        $htmlText = $event->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $htmlText);
+        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $htmlText);
     }
 }

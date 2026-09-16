@@ -12,10 +12,7 @@
       "columnTemplate": "Template",
       "columnDescription": "Beschreibung",
       "buttonAddEssentialCharacteristics": "Neu erstellen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht.",
-      "buttonDelete": "Löschen"
+      "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht."
     },
     "detail": {
       "textHeadline": "Neues Template",
@@ -28,7 +25,6 @@
       "labelValues": "Werte",
       "placeholderName": "Gib einen Template-Namen ein ...",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
-      "buttonSave": "Speichern",
       "notificationErrorMessage": "Das wesentliche Merkmal konnte nicht gespeichert werden.",
       "labelCreateNew": "Werte hinzufügen"
     },

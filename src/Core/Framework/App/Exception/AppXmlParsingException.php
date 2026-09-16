@@ -6,6 +6,9 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AppXmlParsingException extends AppException
 {

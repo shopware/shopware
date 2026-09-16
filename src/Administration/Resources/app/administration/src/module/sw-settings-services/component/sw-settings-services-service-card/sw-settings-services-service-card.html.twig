@@ -33,17 +33,23 @@
 
                 <template #popover-items__base="{ toggleFloatingUi }">
                     <mt-popover-item
-                        v-if="!service.active"
+                        v-if="!service.active && stateChangePermitted"
                         :label="$t('sw-settings-services.general.activate')"
                         :disabled="isLoading"
                         :on-label-click="() => setActive(true, toggleFloatingUi)"
                     />
 
                     <mt-popover-item
-                        v-if="service.active"
+                        v-if="service.active && stateChangePermitted"
                         :label="$t('sw-settings-services.general.deactivate')"
                         :disabled="isLoading"
                         :on-label-click="() => openDeactivateModal(toggleFloatingUi)"
+                    />
+
+                    <mt-popover-item
+                        v-if="!stateChangePermitted"
+                        :label="$t('sw-settings-services.service-card.cannot-remove-or-deactivate')"
+                        :disabled="true"
                     />
 
                     <mt-popover-item
@@ -54,9 +60,9 @@
             </mt-popover>
         </div>
 
-        <div class="sw-settings-services-service-card__description">
+        <p class="sw-settings-services-service-card__description">
             {{ service.description }}
-        </div>
+        </p>
 
         <div class="sw-settings-services-service-card__footer">
             {{  $t('sw-settings-services.service-card.updated-at-label', { updatedAt: updatedAt }) }}

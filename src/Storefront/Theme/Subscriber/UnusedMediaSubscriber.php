@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class UnusedMediaSubscriber implements EventSubscriberInterface
 {
     /**

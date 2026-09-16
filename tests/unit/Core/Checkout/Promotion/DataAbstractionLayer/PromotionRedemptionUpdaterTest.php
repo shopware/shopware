@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -34,16 +34,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(PromotionRedemptionUpdater::class)]
 class PromotionRedemptionUpdaterTest extends TestCase
 {
-    private Connection&MockObject $connectionMock;
-
-    private MessageBusInterface&MockObject $messageBusMock;
+    private Connection&Stub $connectionMock;
 
     private PromotionRedemptionUpdater $promotionRedemptionUpdater;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
-        $this->messageBusMock = $this->createMock(MessageBusInterface::class);
+        $this->connectionMock = static::createStub(Connection::class);
         $this->promotionRedemptionUpdater = new PromotionRedemptionUpdater($this->connectionMock);
     }
 
@@ -51,8 +48,8 @@ class PromotionRedemptionUpdaterTest extends TestCase
     {
         new StaticDefinitionInstanceRegistry(
             [$definition = new OrderLineItemDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $definition;
@@ -60,20 +57,22 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testUpdateEmptyIds(): void
     {
-        $this->connectionMock
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->never())
             ->method('fetchAllAssociative');
 
-        $this->promotionRedemptionUpdater->update([], Context::createDefaultContext());
+        $this->getUpdater($connection)->update([], Context::createDefaultContext());
     }
 
     public function testNoLiveVersion(): void
     {
-        $this->connectionMock
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->never())
             ->method('fetchAllAssociative');
 
-        $this->promotionRedemptionUpdater->update([Uuid::randomHex()], Context::createDefaultContext()->createWithVersionId(Uuid::randomHex()));
+        $this->getUpdater($connection)->update([Uuid::randomHex()], Context::createDefaultContext()->createWithVersionId(Uuid::randomHex()));
     }
 
     public function testInvalidPromotionIds(): void
@@ -82,7 +81,8 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->messageBusMock
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus
             ->expects($this->never())
             ->method('dispatch');
 
@@ -91,61 +91,64 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     public function testItemDeleteNoLiveVersion(): void
     {
-        $this->connectionMock
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->never())
-            ->method('fetchFirstColumn');
+            ->method('fetchAllAssociative');
 
         $event = EntityWriteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
             []
         );
 
-        $this->promotionRedemptionUpdater->beforeDelete($event);
+        $this->getUpdater($connection)->beforeDelete($event);
     }
 
     public function testItemDeleteEmptyCommands(): void
     {
-        $this->connectionMock
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($this->never())
-            ->method('fetchFirstColumn');
+            ->method('fetchAllAssociative');
 
         $event = EntityWriteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()->createWithVersionId(Uuid::randomHex())),
             []
         );
 
-        $this->promotionRedemptionUpdater->beforeDelete($event);
+        $this->getUpdater($connection)->beforeDelete($event);
     }
 
     public function testItemDelete(): void
     {
-        $this->connectionMock
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn([Uuid::randomHex()]);
-
-        $this->connectionMock
-            ->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls(
+                // beforeDelete: the deleted promotion line item (no individual code in the payload)
+                [['promotion_id' => Uuid::randomHex(), 'payload' => '{}', 'order_id' => Uuid::randomHex()]],
+                // update(): recalculated totals
+                []
+            );
 
         $registry = new StaticDefinitionInstanceRegistry(
             [OrderLineItemDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $validInsertCommand = new DeleteCommand(
             $registry->get(OrderLineItemDefinition::class),
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
         );
 
         $updateCommand = new UpdateCommand(
             $registry->get(OrderLineItemDefinition::class),
             ['promotionId' => Uuid::randomHex()],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -154,8 +157,70 @@ class PromotionRedemptionUpdaterTest extends TestCase
             [$validInsertCommand, $updateCommand]
         );
 
-        $this->promotionRedemptionUpdater->beforeDelete($writeEvent);
-        $this->promotionRedemptionUpdater->lineItemDeleted(new EntityDeletedEvent('order_line_item', [], Context::createDefaultContext()));
+        $updater = $this->getUpdater($connection);
+        $updater->beforeDelete($writeEvent);
+        $updater->lineItemDeleted(new EntityDeletedEvent('order_line_item', [], Context::createDefaultContext()));
+    }
+
+    public function testItemDeleteReleasesIndividualCode(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls(
+                // beforeDelete: the deleted promotion line item redeemed an individual code
+                [['promotion_id' => Uuid::randomHex(), 'payload' => '{"code": "individual-code"}', 'order_id' => $orderId]],
+                // update(): recalculated totals
+                []
+            );
+
+        $countStatement = static::createStub(Statement::class);
+        $releaseStatement = $this->createMock(Statement::class);
+
+        $connection
+            ->method('prepare')
+            ->willReturnCallback(static fn (string $sql) => str_contains($sql, 'promotion_individual_code') ? $releaseStatement : $countStatement);
+
+        $params = [
+            ['code', 'individual-code'],
+            ['orderId', $orderId],
+        ];
+        $matcher = $this->exactly(\count($params));
+        $releaseStatement->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
+        $releaseStatement
+            ->expects($this->once())
+            ->method('executeStatement')
+            ->willReturn(1);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [OrderLineItemDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $deleteCommand = new DeleteCommand(
+            $registry->get(OrderLineItemDefinition::class),
+            ['id' => Uuid::randomBytes()],
+            static::createStub(EntityExistence::class),
+        );
+
+        $writeEvent = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [$deleteCommand]
+        );
+
+        $updater = $this->getUpdater($connection);
+        $updater->beforeDelete($writeEvent);
+        $updater->lineItemDeleted(new EntityDeletedEvent('order_line_item', [], Context::createDefaultContext()));
     }
 
     public function testUpdateValidCase(): void
@@ -201,12 +266,13 @@ class PromotionRedemptionUpdaterTest extends TestCase
     #[DataProvider('itemCreatedProvider')]
     public function testLineItemCreated(EntityWriteResult $writeResult, bool $shouldCalled): void
     {
-        $this->connectionMock
+        $connection = $this->createMock(Connection::class);
+        $connection
             ->expects($shouldCalled ? $this->once() : $this->never())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->promotionRedemptionUpdater->lineItemCreated(new EntityWrittenEvent(
+        $this->getUpdater($connection)->lineItemCreated(new EntityWrittenEvent(
             'order_line_item',
             [$writeResult],
             Context::createDefaultContext()
@@ -246,5 +312,10 @@ class PromotionRedemptionUpdaterTest extends TestCase
             new EntityWriteResult('id', ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
             false,
         ];
+    }
+
+    private function getUpdater(?Connection $connection = null): PromotionRedemptionUpdater
+    {
+        return new PromotionRedemptionUpdater($connection ?? $this->connectionMock);
     }
 }

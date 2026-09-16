@@ -13,7 +13,6 @@ use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
-use PhpParser\PhpVersion;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -24,11 +23,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'framework:dump:class:schema',
     description: 'Dumps the schema of the given entity',
 )]
-#[Package('framework')]
 class DumpClassSchemaCommand extends Command
 {
     protected string $schemaPath;
@@ -125,7 +124,7 @@ class DumpClassSchemaCommand extends Command
     }
 
     /**
-     * @param array <int, Stmt> $stmts
+     * @param array<int, Stmt> $stmts
      *
      * @return array<int, Node>
      */
@@ -139,11 +138,11 @@ class DumpClassSchemaCommand extends Command
     }
 
     /**
-     * @return array <int, Node>|null
+     * @return array<int, Node>|null
      */
     private function parseFile(string $filePath): ?array
     {
-        $parser = (new ParserFactory())->createForVersion(PhpVersion::fromString('7.0'));
+        $parser = (new ParserFactory())->createForNewestSupportedVersion();
 
         $names = $parser->parse((string) file_get_contents($filePath));
 

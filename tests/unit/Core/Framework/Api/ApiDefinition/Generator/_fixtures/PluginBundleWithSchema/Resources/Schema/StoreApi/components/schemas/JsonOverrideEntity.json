@@ -1,0 +1,22 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "JsonOverrideEntity": {
+                "type": "object",
+                "properties": {
+                    "pluginAddedField": {
+                        "type": "string",
+                        "description": "Field added by a plugin via JSON schema"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["active", "draft"]
+                    }
+                }
+            }
+        }
+    }
+}

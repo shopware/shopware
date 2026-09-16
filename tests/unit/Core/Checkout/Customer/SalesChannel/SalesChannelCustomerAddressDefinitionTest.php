@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerAddressEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -19,10 +21,28 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
 #[Package('checkout')]
+#[CoversClass(SalesChannelCustomerAddressDefinition::class)]
 class SalesChannelCustomerAddressDefinitionTest extends TestCase
 {
+    public function testEntityAndCollectionClasses(): void
+    {
+        $definition = new SalesChannelCustomerAddressDefinition();
+
+        static::assertSame(SalesChannelCustomerAddressEntity::class, $definition->getEntityClass());
+        static::assertSame(SalesChannelCustomerAddressCollection::class, $definition->getCollectionClass());
+    }
+
+    public function testProcessCriteriaWithoutCustomerFiltersOnNull(): void
+    {
+        $criteria = new Criteria();
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
+
+        (new SalesChannelCustomerAddressDefinition())->processCriteria($criteria, $context);
+
+        static::assertEquals([new EqualsFilter('customerId', null)], $criteria->getFilters());
+    }
+
     public function testProcessCriteria(): void
     {
         $definition = new SalesChannelCustomerAddressDefinition();
@@ -45,8 +65,8 @@ class SalesChannelCustomerAddressDefinitionTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         $definition->compile($registry);

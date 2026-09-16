@@ -56,9 +56,6 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$t(
-                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
-                        ),
                         message: this.$t(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
                         ),

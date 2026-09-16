@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
@@ -17,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductGateway::class)]
 class ProductGatewayTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ProductGatewayTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $repository = $this->createMock(SalesChannelRepository::class);
+        $repository = static::createStub(SalesChannelRepository::class);
         $emptySearchResult = new EntitySearchResult(
             'product',
             0,

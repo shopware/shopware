@@ -23,7 +23,7 @@ class WeekdayRuleTest extends TestCase
             'dayOfWeek' => (int) date('N'),
         ]);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable());
         $match = $rule->match($ruleScope);
 
@@ -38,7 +38,7 @@ class WeekdayRuleTest extends TestCase
             'dayOfWeek' => (int) (new \DateTime())->modify('-1 day')->format('N'),
         ]);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable());
         $match = $rule->match($ruleScope);
 
@@ -53,7 +53,7 @@ class WeekdayRuleTest extends TestCase
             'dayOfWeek' => (int) date('N'),
         ]);
 
-        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope = static::createStub(RuleScope::class);
         $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable());
         $match = $rule->match($ruleScope);
 

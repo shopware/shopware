@@ -25,14 +25,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class FileSaverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -102,7 +105,7 @@ SVG;
             }
         }
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $path = $media->getPath();
@@ -131,7 +134,7 @@ SVG;
             $filesystem->remove($tempFile);
         }
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
     }
@@ -153,7 +156,11 @@ SVG;
         $this->mediaRepository->create([['id' => $mediaId]], $context);
 
         try {
-            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
+            $this->expectExceptionObject(MediaException::invalidFile(
+                'SVG files with active content are not allowed.'
+                . \PHP_EOL . 'Event handler attributes not allowed: onload'
+                . \PHP_EOL . 'Attributes not allowed: onload'
+            ));
 
             $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
         } finally {
@@ -197,7 +204,7 @@ SVG;
             }
         }
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $path = $media->getPath();
@@ -237,7 +244,7 @@ SVG;
                 unlink($tempFile);
             }
         }
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->getEntities()->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $path = $media->getPath();
@@ -282,7 +289,7 @@ SVG;
             }
         }
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $path = $media->getPath();
@@ -326,7 +333,7 @@ SVG;
             }
         }
 
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertIsString($updatedMedia->getFileName());
         static::assertStringEndsWith($png->getFileName(), $updatedMedia->getFileName());
@@ -413,7 +420,7 @@ SVG;
             }
         }
 
-        $media = $this->mediaRepository->search(new Criteria([$newMediaId]), $context)->get($newMediaId);
+        $media = $this->mediaRepository->search(new Criteria([$newMediaId]), $context)->getEntities()->get($newMediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $path = $media->getPath();
@@ -529,7 +536,7 @@ SVG;
         $this->mediaRepository->create($data, $context);
 
         $png = $this->mediaRepository
-            ->search(new Criteria([$ids->get('png')]), $context)
+            ->search(new Criteria([$ids->get('png')]), $context)->getEntities()
             ->get($ids->get('png'));
 
         static::assertInstanceOf(MediaEntity::class, $png);
@@ -538,7 +545,7 @@ SVG;
         $this->fileSaver->renameMedia($ids->get('png'), 'txtFile', $context);
 
         $updatedMedia = $this->mediaRepository
-            ->search(new Criteria([$ids->get('png')]), $context)
+            ->search(new Criteria([$ids->get('png')]), $context)->getEntities()
             ->get($ids->get('png'));
 
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
@@ -582,7 +589,7 @@ SVG;
 
         $this->mediaRepository->create([$data], $context);
 
-        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(MediaEntity::class, $png);
 
         $thumbnailId = Uuid::randomHex();
@@ -612,7 +619,7 @@ SVG;
             new MediaIndexingMessage([$png->getId()])
         );
 
-        $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $png);
 
         static::assertNotNull($png->getThumbnails());
@@ -628,7 +635,7 @@ SVG;
 
         $this->fileSaver->renameMedia($png->getId(), 'new destination', $context);
 
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertFalse($this->getPublicFilesystem()->has($oldMediaPath));
         static::assertTrue($this->getPublicFilesystem()->has($updatedMedia->getPath()));
@@ -682,7 +689,7 @@ SVG;
 
         $this->mediaRepository->create([$data], $context);
 
-        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->getEntities()->get($id);
         static::assertInstanceOf(MediaEntity::class, $png);
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
@@ -692,7 +699,7 @@ SVG;
 
         static::getContainer()->get(MediaIndexer::class)->handle(new MediaIndexingMessage([$png->getId()]));
 
-        $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
         static::assertInstanceOf(MediaEntity::class, $png);
 
         static::assertNotNull($png->getThumbnails());
@@ -712,7 +719,7 @@ SVG;
 
         static::assertFalse($this->getPublicFilesystem()->has($oldThumbnailPath));
 
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
 
         static::assertNotNull($updatedMedia?->getThumbnails());
         static::assertCount(2, $updatedMedia->getThumbnails());
@@ -761,13 +768,14 @@ SVG;
             static::getContainer()->get(AbstractMediaPathStrategy::class),
             static::getContainer()->get(MediaFileCleanupService::class),
             static::getContainer()->get(MediaFileExtensionValidator::class),
+            new NativeClock()
         );
 
         $mediaPath = $png->getPath();
         $this->getPublicFilesystem()->write($mediaPath, 'test file');
 
         $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
 
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertSame($png->getFileName(), $updatedMedia->getFileName());

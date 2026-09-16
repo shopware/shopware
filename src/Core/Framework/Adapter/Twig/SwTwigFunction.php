@@ -22,6 +22,14 @@ class SwTwigFunction
     public static mixed $macroResult = null;
 
     /**
+     * Resolved getter names by class and accessed item, empty string when the
+     * struct has no getter and the default Twig attribute handling applies.
+     *
+     * @var array<class-string, array<string, string>>
+     */
+    private static array $getterCache = [];
+
+    /**
      * Wrapper around {@see CoreExtension::getAttribute()}
      * Implements a shortcut for receiving property values from the Shopware specific `Struct` class.
      * The method is set into the compiled Twig templates in the Twig Environment override in {@see TwigEnvironment::compile()}.
@@ -48,17 +56,13 @@ class SwTwigFunction
                     return $object->$item(...$arguments);
                 }
 
-                // Structs best only have getter with get/is prefixes, or public properties. Checking for other prefixes as well is too costly
-                $getterMethods = [
-                    'get' . $item,
-                    'is' . $item,
-                    (string) $item, // property()
-                ];
-                foreach ($getterMethods as $getterMethod) {
-                    if (method_exists($object, $getterMethod)) {
-                        /** @phpstan-ignore method.dynamicName */
-                        return $object->$getterMethod();
-                    }
+                $item = (string) $item;
+
+                $getterMethod = self::$getterCache[$object::class][$item] ??= self::resolveGetter($object, $item);
+
+                if ($getterMethod !== '') {
+                    /** @phpstan-ignore method.dynamicName */
+                    return $object->$getterMethod();
                 }
             }
 
@@ -68,5 +72,26 @@ class SwTwigFunction
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }
+    }
+
+    private static function resolveGetter(Struct $object, string $item): string
+    {
+        // Structs best only have getter with get/is/has prefixes, or public properties. These are the prefixes
+        // {@see CoreExtension::getAttribute()} supports as well, with the same precedence: get > is > has.
+        // Probing them is only done once per class and item, the result is cached in self::$getterCache.
+        $getterMethods = [
+            'get' . $item,
+            'is' . $item,
+            $item, // property()
+            'has' . $item,
+        ];
+
+        foreach ($getterMethods as $getterMethod) {
+            if (method_exists($object, $getterMethod)) {
+                return $getterMethod;
+            }
+        }
+
+        return '';
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -31,6 +32,7 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -50,6 +52,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -63,19 +66,25 @@ class ThemeCompilerTest extends TestCase
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private Filesystem $themeFilesystem;
+
+    private MD5ThemePathBuilder $themePathBuilder;
+
     protected function setUp(): void
     {
         $themeFileResolver = static::getContainer()->get(ThemeFileResolver::class);
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        // Avoid filesystem operations
-        $mockFilesystem = $this->createMock(Filesystem::class);
+        // Avoid real filesystem operations
+        $this->themeFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
+        $this->themePathBuilder = new MD5ThemePathBuilder();
 
         $this->themeCompiler = new ThemeCompiler(
-            $mockFilesystem,
-            $mockFilesystem,
+            $this->themeFilesystem,
+            new Filesystem(new InMemoryFilesystemAdapter()),
+            new Filesystem(new InMemoryFilesystemAdapter()),
             new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
@@ -84,7 +93,7 @@ class ThemeCompilerTest extends TestCase
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
+            $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
     }
@@ -93,259 +102,6 @@ class ThemeCompilerTest extends TestCase
     {
         static::getContainer()->get(SourceResolver::class)->reset();
         static::getContainer()->get(ActiveAppsLoader::class)->reset();
-    }
-
-    public function testVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
-    {
-        $variables = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-        ];
-
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'formatVariables'))->invoke($this->themeCompiler, $variables);
-
-        $expected = [
-            '$sw-color-brand-primary: #008490;',
-            '$sw-color-brand-secondary: #526e7f;',
-            '$sw-border-color: #bcc1c7;',
-        ];
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testDumpVariablesFindsConfigFieldsAndReturnsStringWithScssVariables(): void
-    {
-        $mockConfig = [
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                'sw-color-brand-secondary' => [
-                    'name' => 'sw-color-brand-secondary',
-                    'type' => 'color',
-                    'value' => '#526e7f',
-                ],
-                'sw-border-color' => [
-                    'name' => 'sw-border-color',
-                    'type' => 'color',
-                    'value' => '#bcc1c7',
-                ],
-                'sw-custom-header' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'checkbox',
-                    'value' => false,
-                ],
-                'sw-custom-footer' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'checkbox',
-                    'value' => true,
-                ],
-                'sw-custom-cart' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'switch',
-                    'value' => false,
-                ],
-                'sw-custom-product-box' => [
-                    'name' => 'sw-custom-header',
-                    'type' => 'switch',
-                    'value' => true,
-                ],
-                'sw-text-field' => [
-                    'name' => 'sw-text-field',
-                    'type' => 'text',
-                    'value' => '2px solid #000',
-                ],
-                'sw-textarea-field' => [
-                    'name' => 'sw-text-field',
-                    'type' => 'textarea',
-                    'value' => 'Lorem ipsum dolor',
-                ],
-                'sw-url-field' => [
-                    'name' => 'sw-url-field',
-                    'type' => 'url',
-                    'value' => 'https://www.example.com',
-                ],
-                'sw-multi-test' => [
-                    'name' => 'sw-multi-test',
-                    'type' => 'text',
-                    'value' => [
-                        'top',
-                        'bottom',
-                    ],
-                    'custom' => [
-                        'componentName' => 'sw-multi-select',
-                        'options' => [
-                            [
-                                'value' => 'bottom',
-                            ],
-                            [
-                                'value' => 'top',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
-            $this->themeCompiler,
-            $mockConfig,
-            'themeId',
-            $this->mockSalesChannelId,
-            Context::createDefaultContext()
-        );
-
-        $expected = <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-color-brand-primary: #008490;
-\$sw-color-brand-secondary: #526e7f;
-\$sw-border-color: #bcc1c7;
-\$sw-custom-header: 0;
-\$sw-custom-footer: 1;
-\$sw-custom-cart: 0;
-\$sw-custom-product-box: 1;
-\$sw-text-field: 2px solid #000;
-\$sw-textarea-field: 'Lorem ipsum dolor';
-\$sw-url-field: 'https://www.example.com';
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL;
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testDumpVariablesIgnoresFieldsWithScssConfigPropertySetToFalse(): void
-    {
-        $mockConfig = [
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                'sw-color-brand-secondary' => [
-                    'name' => 'sw-color-brand-secondary',
-                    'type' => 'color',
-                    'value' => '#526e7f',
-                ],
-                // Prevent adding field as sass variable
-                'sw-ignore-me' => [
-                    'name' => 'sw-border-color',
-                    'type' => 'text',
-                    'value' => 'Foo bar',
-                    'scss' => false,
-                ],
-            ],
-        ];
-
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
-            $this->themeCompiler,
-            $mockConfig,
-            'themeId',
-            $this->mockSalesChannelId,
-            Context::createDefaultContext()
-        );
-
-        $expected = <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-color-brand-primary: #008490;
-\$sw-color-brand-secondary: #526e7f;
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL;
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testDumpVariablesHasNoConfigFieldsAndReturnsOnlyAssetUrl(): void
-    {
-        // Config without `fields`
-        $mockConfig = [
-            'blocks' => [
-                'themeColors' => [
-                    'label' => [
-                        'en-GB' => 'Theme colours',
-                        'de-DE' => 'Theme-Farben',
-                    ],
-                ],
-                'typography' => [
-                    'label' => [
-                        'en-GB' => 'Typography',
-                        'de-DE' => 'Typografie',
-                    ],
-                ],
-            ],
-        ];
-
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
-            $this->themeCompiler,
-            $mockConfig,
-            'themeId',
-            $this->mockSalesChannelId,
-            Context::createDefaultContext()
-        );
-
-        static::assertSame('// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-$theme-id: themeId;
-$sw-asset-theme-url: \'http://localhost\';
-', $actual);
-    }
-
-    public function testScssVariablesMayHaveZeroValueButNotNull(): void
-    {
-        $mockConfig = [
-            'fields' => [
-                'sw-zero-margin' => [
-                    'name' => 'sw-zero-margin',
-                    'type' => 'text',
-                    'value' => 0,
-                ],
-                'sw-null-margin' => [
-                    'name' => 'sw-null-margin',
-                    'type' => 'text',
-                    'value' => null,
-                ],
-                'sw-unset-margin' => [
-                    'name' => 'sw-unset-margin',
-                    'type' => 'text',
-                ],
-                'sw-empty-margin' => [
-                    'name' => 'sw-unset-margin',
-                    'type' => 'text',
-                    'value' => '',
-                ],
-            ],
-        ];
-
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables'))->invoke(
-            $this->themeCompiler,
-            $mockConfig,
-            'themeId',
-            $this->mockSalesChannelId,
-            Context::createDefaultContext()
-        );
-
-        $expected = <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-zero-margin: 0;
-\$sw-null-margin: null;
-\$sw-unset-margin: null;
-\$sw-empty-margin: null;
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL;
-
-        static::assertSame($expected, $actual);
     }
 
     public function testScssVariablesEventAddsNewVariablesToArray(): void
@@ -440,9 +196,11 @@ PHP_EOL;
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
+        $assetFs = new Filesystem(new InMemoryFilesystemAdapter());
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
+            $assetFs,
             new CopyBatchInputFactory(),
             $resolver,
             true,
@@ -451,7 +209,7 @@ PHP_EOL;
             [],
             $this->createMock(CacheInvalidator::class),
             $this->createMock(LoggerInterface::class),
-            new MD5ThemePathBuilder(),
+            $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
 
@@ -533,22 +291,13 @@ PHP_EOL;
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
-        $compileStyles = new \ReflectionMethod(ThemeCompiler::class, 'compileStyles');
         try {
-            $actual = $compileStyles->invoke(
-                $this->themeCompiler,
-                $testScss,
-                new StorefrontPluginConfiguration('test'),
-                [],
-                '1337',
-                'themeId',
-                Context::createDefaultContext()
-            );
+            $actual = $this->compileThemeAndGetCss($testScss, new StorefrontPluginConfiguration('test'));
         } finally {
             $this->eventDispatcher->removeSubscriber($subscriber);
         }
 
-        static::assertSame($expectedCssOutputNoAutoPrefix, trim((string) $actual));
+        static::assertSame($expectedCssOutputNoAutoPrefix, trim($actual));
     }
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
@@ -607,17 +356,9 @@ Example:
 }
 PHP_EOL;
 
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'compileStyles'))->invoke(
-            $this->themeCompiler,
-            $featureMixin . $testScss,
-            new StorefrontPluginConfiguration('test'),
-            [],
-            '1337',
-            'themeId',
-            Context::createDefaultContext()
-        );
+        $actual = $this->compileThemeAndGetCss($featureMixin . $testScss, new StorefrontPluginConfiguration('test'));
 
-        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
+        static::assertSame(trim($expectedCssOutput), trim($actual));
     }
 
     public function testVendorImportFiles(): void
@@ -644,19 +385,51 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $actual = (new \ReflectionMethod(ThemeCompiler::class, 'compileStyles'))->invoke(
-            $this->themeCompiler,
-            $testScss,
-            new StorefrontPluginConfiguration('test'),
-            [
-                'vendor' => __DIR__ . '/fixtures/ThemeWithScssVendorImports/Storefront/Resources/app/storefront/vendor',
-            ],
-            '1337',
-            'themeId',
-            Context::createDefaultContext()
-        );
+        $vendorDir = __DIR__ . '/fixtures/ThemeWithScssVendorImports/Storefront/Resources/app/storefront/vendor';
 
-        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
+        // The resolve mapping for `~vendor` imports is taken from the resolved style files of the
+        // theme. The style file itself only exists to carry that mapping: the `@import` lines it
+        // contributes are discarded again when the injected event replaces the concatenated SCSS,
+        // so only the SCSS under test resolves through it. Resolving a style file requires a theme
+        // name the filesystem resolver knows; the base theme name maps to the Storefront bundle,
+        // every other name would need an installed app.
+        $config = new StorefrontPluginConfiguration(StorefrontPluginRegistry::BASE_THEME_NAME);
+        $config->setStyleFiles(new FileCollection([
+            new File($vendorDir . '/another-library.scss', ['vendor' => $vendorDir]),
+        ]));
+
+        $actual = $this->compileThemeAndGetCss($testScss, $config);
+
+        static::assertSame(trim($expectedCssOutput), trim($actual));
+    }
+
+    /**
+     * Runs a full theme compilation with the given SCSS - injected via the public
+     * ThemeCompilerConcatenatedStylesEvent extension point - and returns the compiled CSS.
+     */
+    private function compileThemeAndGetCss(string $scss, StorefrontPluginConfiguration $config): string
+    {
+        $listener = static function (ThemeCompilerConcatenatedStylesEvent $event) use ($scss): void {
+            $event->setConcatenatedStyles($scss);
+        };
+        $this->eventDispatcher->addListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
+
+        try {
+            $this->themeCompiler->compileTheme(
+                $this->mockSalesChannelId,
+                'themeId',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                false,
+                Context::createDefaultContext()
+            );
+        } finally {
+            $this->eventDispatcher->removeListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
+        }
+
+        $themePrefix = $this->themePathBuilder->assemblePath($this->mockSalesChannelId, 'themeId');
+
+        return $this->themeFilesystem->read('theme/' . $themePrefix . '/css/all.css');
     }
 
     /**

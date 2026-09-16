@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValid
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Tests\Integration\Core\Content\Category\Validation\EntryPointValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -18,6 +19,10 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see EntryPointValidatorTest
  */
 #[Package('discovery')]
 class EntryPointValidator implements EventSubscriberInterface
@@ -46,12 +51,8 @@ class EntryPointValidator implements EventSubscriberInterface
     public function postValidate(PostWriteValidationEvent $event): void
     {
         $violationList = new ConstraintViolationList();
-        foreach ($event->getCommands() as $command) {
+        foreach ($event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME) as $command) {
             if (!($command instanceof InsertCommand || $command instanceof UpdateCommand)) {
-                continue;
-            }
-
-            if ($command->getEntityName() !== CategoryDefinition::ENTITY_NAME) {
                 continue;
             }
 
@@ -101,11 +102,7 @@ class EntryPointValidator implements EventSubscriberInterface
 
     private function isCategoryEntryPoint(string $categoryId, PostWriteValidationEvent $event): bool
     {
-        foreach ($event->getCommands() as $salesChannelCommand) {
-            if ($salesChannelCommand->getEntityName() !== SalesChannelDefinition::ENTITY_NAME) {
-                continue;
-            }
-
+        foreach ($event->getCommandsForEntity(SalesChannelDefinition::ENTITY_NAME) as $salesChannelCommand) {
             $payload = $salesChannelCommand->getPayload();
             if ((isset($payload['navigation_category_id']) && $payload['navigation_category_id'] === $categoryId)
                 || (isset($payload['footer_category_id']) && $payload['footer_category_id'] === $categoryId)

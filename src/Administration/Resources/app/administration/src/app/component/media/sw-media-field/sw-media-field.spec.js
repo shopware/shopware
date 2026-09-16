@@ -139,7 +139,7 @@ describe('src/app/component/media/sw-media-field', () => {
 
         const config = wrapper.vm.$options.computed.popoverConfig.call(wrapper.vm);
         expect(config).toEqual({
-            targetSelector: '.mt-modal__content-inner',
+            targetSelector: '.mt-modal',
         });
     });
 

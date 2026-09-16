@@ -33,12 +33,12 @@ class CartDeleteRouteTest extends TestCase
 
         $route = new CartDeleteRoute(
             $persister,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $cartLocker
         );
 
         $route->delete(
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 }

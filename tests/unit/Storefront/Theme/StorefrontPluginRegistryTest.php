@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontPluginRegistry::class)]
 class StorefrontPluginRegistryTest extends TestCase
 {
@@ -46,7 +48,7 @@ class StorefrontPluginRegistryTest extends TestCase
             ->willReturn($config);
 
         $registry = new StorefrontPluginRegistry(
-            $this->createMock(KernelInterface::class),
+            static::createStub(KernelInterface::class),
             $pluginFactory,
             $appLoader
         );
@@ -79,7 +81,7 @@ class StorefrontPluginRegistryTest extends TestCase
         $registry = new StorefrontPluginRegistry(
             $kernel,
             $pluginFactory,
-            $this->createMock(ActiveAppsLoader::class)
+            static::createStub(ActiveAppsLoader::class)
         );
 
         static::assertSame(

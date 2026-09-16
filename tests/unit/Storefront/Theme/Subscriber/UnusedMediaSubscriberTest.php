@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\Subscriber\UnusedMediaSubscriber;
@@ -17,6 +18,7 @@ use Shopware\Storefront\Theme\ThemeService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(UnusedMediaSubscriber::class)]
 class UnusedMediaSubscriberTest extends TestCase
 {
@@ -53,8 +55,7 @@ class UnusedMediaSubscriberTest extends TestCase
             ],
         ];
 
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [
             static function (Criteria $criteria, Context $context) use ($themeId1, $themeId2) {
                 return new IdSearchResult(2, [
                     $themeId1 => ['primaryKey' => $themeId1, 'data' => []],
@@ -68,7 +69,7 @@ class UnusedMediaSubscriberTest extends TestCase
             $themeId2 => $themeConfig2,
         ];
 
-        $themeService = $this->createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
         $themeService->method('getPlainThemeConfiguration')
             ->willReturnCallback(static function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];
@@ -83,8 +84,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
     public function testNoMediaRemovedWhenNoThemesExist(): void
     {
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [
             static function (Criteria $criteria, Context $context) {
                 return new IdSearchResult(0, [], $criteria, $context);
             },
@@ -107,8 +107,7 @@ class UnusedMediaSubscriberTest extends TestCase
     {
         $themeId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
-        $themeRepository = new StaticEntityRepository([
+        $themeRepository = StaticEntityRepository::of(ThemeCollection::class, [
             static function (Criteria $criteria, Context $context) use ($themeId) {
                 return new IdSearchResult(1, [
                     $themeId => ['primaryKey' => $themeId, 'data' => []],
@@ -116,7 +115,7 @@ class UnusedMediaSubscriberTest extends TestCase
             },
         ]);
 
-        $themeService = $this->createMock(ThemeService::class);
+        $themeService = static::createStub(ThemeService::class);
         $themeService->method('getPlainThemeConfiguration')
             ->willReturn([
                 'fields' => [

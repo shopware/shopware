@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Flow\FlowCollection;
@@ -229,7 +230,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplates.id', $data['templateId']));
 
-        $type = static::getContainer()->get('mail_template_type.repository')->search($criteria, $event->getContext())->first();
+        $type = static::getContainer()->get('mail_template_type.repository')->search($criteria, $event->getContext())->getEntities()->first();
 
         if (!$type instanceof MailTemplateTypeEntity || $type->getTechnicalName() !== MailTemplateTypes::MAILTYPE_DOWNLOADS_DELIVERY) {
             return null;
@@ -248,7 +249,10 @@ class GrantDownloadAccessActionTest extends TestCase
         $cart = $this->cartService->createNew($this->salesChannelContext->getToken());
         $cart = $this->addProducts($cart, $productDownloads);
 
-        return $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
+
+        return $orderId;
     }
 
     /**
@@ -260,7 +264,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $criteria->addAssociation('lineItems.downloads');
         $criteria->addAssociation('deliveries');
 
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItems = $order->getLineItems();
@@ -317,7 +321,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems.downloads.media');
 
-        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         $lineItems = $order->getLineItems();
@@ -447,10 +451,11 @@ class GrantDownloadAccessActionTest extends TestCase
                     ->addFilter(new EqualsFilter('orderId', $orderId))
                     ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING)),
                 $this->salesChannelContext->getContext()
-            )->first();
+            )->getEntities()->first();
         static::assertInstanceOf(OrderTransactionEntity::class, $transaction);
 
         $this->orderTransactionStateHandler->paid($transaction->getId(), $this->salesChannelContext->getContext());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
     }
 
     private function cloneDefaultFlow(): void

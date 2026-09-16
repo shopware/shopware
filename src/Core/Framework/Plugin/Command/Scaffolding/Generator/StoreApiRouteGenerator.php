@@ -22,19 +22,21 @@ class StoreApiRouteGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION = 'Create an example store-api route';
     private const CLI_QUESTION = 'Do you want to create an example store-api route?';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Core\Content\Example\SalesChannel\ExampleRoute">
-                <argument type="service" id="product.repository"/>
-            </service>
+    $services->set(\{{ namespace }}\Core\Content\Example\SalesChannel\ExampleRoute::class)
+        ->public()
+        ->args([
+            service('product.repository'),
+        ]);
 
-    EOL;
+EOL;
 
-    private string $routesXmlEntry = <<<'EOL'
+    private string $routesPhpEntry = <<<'EOL'
 
-        <import resource="../../Core/**/*Route.php" type="attribute" />
+    $routes->import('../../Core/**/*Route.php', 'attribute');
 
-    EOL;
+EOL;
 
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
@@ -69,17 +71,17 @@ class StoreApiRouteGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createStoreApiRouteResponse($configuration));
 
         $stubCollection->append(
-            'src/Resources/config/services.xml',
+            'src/Resources/config/services.php',
             str_replace(
                 '{{ namespace }}',
                 $configuration->namespace,
-                $this->servicesXmlEntry
+                $this->servicesPhpEntry
             )
         );
 
         $stubCollection->append(
-            'src/Resources/config/routes.xml',
-            $this->routesXmlEntry
+            'src/Resources/config/routes.php',
+            $this->routesPhpEntry
         );
     }
 

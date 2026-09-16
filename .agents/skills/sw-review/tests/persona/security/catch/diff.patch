@@ -1,0 +1,27 @@
+diff --git a/src/Core/Checkout/Order/Aggregate/OrderCustomer/UnsafeOrderQuery.php b/src/Core/Checkout/Order/Aggregate/OrderCustomer/UnsafeOrderQuery.php
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/src/Core/Checkout/Order/Aggregate/OrderCustomer/UnsafeOrderQuery.php
+@@ -0,0 +1,21 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
++
++use Doctrine\DBAL\Connection;
++use Shopware\Core\Framework\Log\Package;
++
++#[Package('checkout')]
++final readonly class UnsafeOrderQuery
++{
++    public function __construct(private Connection $connection)
++    {
++    }
++
++    public function findByEmail(string $email): array
++    {
++        $sql = "SELECT * FROM `order_customer` WHERE email = '" . $email . "'";
++
++        return $this->connection->fetchAllAssociative($sql);
++    }
++}

@@ -1,7 +1,9 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(entityType = 'product') {
     return mount(
@@ -48,6 +50,12 @@ async function createWrapper(entityType = 'product') {
                 ],
             },
         },
+    );
+}
+
+function expectOptionsToEqual(options, expected) {
+    expect([...options].sort((a, b) => a.label.localeCompare(b.label))).toEqual(
+        [...expected].sort((a, b) => a.label.localeCompare(b.label)),
     );
 }
 
@@ -517,19 +525,19 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__empty').text()).toBeTruthy();
 
         await input.setValue('foo.');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__empty').text()).toBeTruthy();
 
         await input.setValue('parent.foo.');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result-list__empty').text()).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__empty').text()).toBeTruthy();
     });
 
     it('should return filtered product properties when searching', async () => {
@@ -649,85 +657,92 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'manufacturer',
             'visibilities',
         ].forEach((property) => expect(data.properties).toContain(property));
-        expect(data.options).toEqual([
-            {
-                label: 'translations.DEFAULT.metaDescription',
-                value: 'translations.DEFAULT.metaDescription',
-            },
-            {
-                label: 'translations.DEFAULT.name',
-                value: 'translations.DEFAULT.name',
-            },
-            {
-                label: 'translations.DEFAULT.keywords',
-                value: 'translations.DEFAULT.keywords',
-            },
-            {
-                label: 'translations.DEFAULT.description',
-                value: 'translations.DEFAULT.description',
-            },
-            {
-                label: 'translations.DEFAULT.metaTitle',
-                value: 'translations.DEFAULT.metaTitle',
-            },
-            {
-                label: 'translations.DEFAULT.packUnit',
-                value: 'translations.DEFAULT.packUnit',
-            },
-            {
-                label: 'translations.DEFAULT.packUnitPlural',
-                value: 'translations.DEFAULT.packUnitPlural',
-            },
-            {
-                label: 'translations.DEFAULT.customSearchKeywords',
-                value: 'translations.DEFAULT.customSearchKeywords',
-            },
-            {
-                label: 'translations.DEFAULT.slotConfig',
-                value: 'translations.DEFAULT.slotConfig',
-            },
-            {
-                label: 'translations.DEFAULT.ogTitle',
-                value: 'translations.DEFAULT.ogTitle',
-            },
-            {
-                label: 'translations.DEFAULT.ogDescription',
-                value: 'translations.DEFAULT.ogDescription',
-            },
-            {
-                label: 'translations.DEFAULT.customFields',
-                value: 'translations.DEFAULT.customFields',
-                relation: true,
-            },
-            {
-                label: 'translations.DEFAULT.createdAt',
-                value: 'translations.DEFAULT.createdAt',
-            },
-            {
-                label: 'translations.DEFAULT.updatedAt',
-                value: 'translations.DEFAULT.updatedAt',
-            },
-            {
-                label: 'translations.DEFAULT.productId',
-                value: 'translations.DEFAULT.productId',
-            },
-            {
-                label: 'translations.DEFAULT.languageId',
-                value: 'translations.DEFAULT.languageId',
-            },
-            {
-                label: 'translations.DEFAULT.product',
-                value: 'translations.DEFAULT.product',
-            },
-            {
-                label: 'translations.DEFAULT.language',
-                value: 'translations.DEFAULT.language',
-            },
-            {
-                label: 'translations.DEFAULT.productVersionId',
-                value: 'translations.DEFAULT.productVersionId',
-            },
-        ]);
+        expect(data.options).toEqual(
+            expect.arrayContaining([
+                {
+                    label: 'translations.DEFAULT.metaDescription',
+                    value: 'translations.DEFAULT.metaDescription',
+                },
+                {
+                    label: 'translations.DEFAULT.name',
+                    value: 'translations.DEFAULT.name',
+                },
+                {
+                    label: 'translations.DEFAULT.keywords',
+                    value: 'translations.DEFAULT.keywords',
+                },
+                {
+                    label: 'translations.DEFAULT.description',
+                    value: 'translations.DEFAULT.description',
+                },
+                {
+                    label: 'translations.DEFAULT.descriptionTeaser',
+                    value: 'translations.DEFAULT.descriptionTeaser',
+                },
+                {
+                    label: 'translations.DEFAULT.metaTitle',
+                    value: 'translations.DEFAULT.metaTitle',
+                },
+                {
+                    label: 'translations.DEFAULT.packUnit',
+                    value: 'translations.DEFAULT.packUnit',
+                },
+                {
+                    label: 'translations.DEFAULT.packUnitPlural',
+                    value: 'translations.DEFAULT.packUnitPlural',
+                },
+                {
+                    label: 'translations.DEFAULT.customSearchKeywords',
+                    value: 'translations.DEFAULT.customSearchKeywords',
+                },
+                {
+                    label: 'translations.DEFAULT.slotConfig',
+                    value: 'translations.DEFAULT.slotConfig',
+                },
+                {
+                    label: 'translations.DEFAULT.ogTitle',
+                    value: 'translations.DEFAULT.ogTitle',
+                },
+                {
+                    label: 'translations.DEFAULT.ogDescription',
+                    value: 'translations.DEFAULT.ogDescription',
+                },
+                {
+                    label: 'translations.DEFAULT.customFields',
+                    value: 'translations.DEFAULT.customFields',
+                    relation: true,
+                },
+                {
+                    label: 'translations.DEFAULT.createdAt',
+                    value: 'translations.DEFAULT.createdAt',
+                },
+                {
+                    label: 'translations.DEFAULT.updatedAt',
+                    value: 'translations.DEFAULT.updatedAt',
+                },
+                {
+                    label: 'translations.DEFAULT.productId',
+                    value: 'translations.DEFAULT.productId',
+                },
+                {
+                    label: 'translations.DEFAULT.languageId',
+                    value: 'translations.DEFAULT.languageId',
+                },
+                {
+                    label: 'translations.DEFAULT.product',
+                    value: 'translations.DEFAULT.product',
+                },
+                {
+                    label: 'translations.DEFAULT.language',
+                    value: 'translations.DEFAULT.language',
+                },
+                {
+                    label: 'translations.DEFAULT.productVersionId',
+                    value: 'translations.DEFAULT.productVersionId',
+                },
+            ]),
+        );
+        expect(data.options).toHaveLength(20);
 
         data = wrapper.vm.processVisibilities(data);
 
@@ -738,7 +753,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'cover',
             'manufacturer',
         ].forEach((property) => expect(data.properties).toContain(property));
-        expect(data.options).toEqual([
+        expectOptionsToEqual(data.options, [
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
@@ -754,6 +769,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.description',
                 value: 'translations.DEFAULT.description',
+            },
+            {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
             },
             {
                 label: 'translations.DEFAULT.metaTitle',
@@ -829,7 +848,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'cover',
             'manufacturer',
         ].forEach((property) => expect(data.properties).toContain(property));
-        expect(data.options).toEqual([
+        expectOptionsToEqual(data.options, [
             {
                 label: 'translations.DEFAULT.metaDescription',
                 value: 'translations.DEFAULT.metaDescription',
@@ -845,6 +864,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.description',
                 value: 'translations.DEFAULT.description',
+            },
+            {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
             },
             {
                 label: 'translations.DEFAULT.metaTitle',
@@ -1092,7 +1115,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        const selectResults = wrapper.findAll('.sw-select-result').map((element) => element.text());
+        const selectResults = new DOMWrapper(document.body).findAll('.sw-select-result').map((element) => element.text());
         expect(selectResults).toStrictEqual([
             'sw-import-export.profile.mapping.notMapped',
             'transactions.amount',
@@ -1127,7 +1150,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        const selectResults = wrapper.findAll('.sw-select-result').map((element) => element.text());
+        const selectResults = new DOMWrapper(document.body).findAll('.sw-select-result').map((element) => element.text());
         expect(selectResults).toStrictEqual([
             'sw-import-export.profile.mapping.notMapped',
             'deliveries.createdAt',
@@ -1161,7 +1184,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result-list .sw-popover__wrapper').classes()).toContain(
+        expect(new DOMWrapper(document.body).find('.sw-import-export-entity-path-select__result-list').classes()).toContain(
             'sw-import-export-entity-path-select__result-list',
         );
     });
@@ -1174,7 +1197,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+        const possibleSelectionResult = new DOMWrapper(document.body)
+            .findAll('.sw-select-result')
+            .map((element) => element.text());
 
         expect(possibleSelectionResult).toContain('firstName');
         expect(possibleSelectionResult).toContain('lastName');
@@ -1194,7 +1219,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+        const possibleSelectionResult = new DOMWrapper(document.body)
+            .findAll('.sw-select-result')
+            .map((element) => element.text());
 
         expect(possibleSelectionResult).toContain('aclRoleId');
         expect(possibleSelectionResult).toContain('userId');
@@ -1210,7 +1237,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+        const possibleSelectionResult = new DOMWrapper(document.body)
+            .findAll('.sw-select-result')
+            .map((element) => element.text());
 
         expect(possibleSelectionResult).toContain('lastOrderDate');
         expect(possibleSelectionResult).toContain('orderCount');

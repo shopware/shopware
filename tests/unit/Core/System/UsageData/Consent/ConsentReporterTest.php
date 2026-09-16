@@ -43,7 +43,7 @@ class ConsentReporterTest extends TestCase
             },
         ]);
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')
             ->willReturn('shopId');
 
@@ -51,7 +51,7 @@ class ConsentReporterTest extends TestCase
             $httpClient,
             $shopIdProvider,
             new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 
@@ -68,7 +68,7 @@ class ConsentReporterTest extends TestCase
             },
         ]);
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')
             ->willReturn('shopId');
 
@@ -76,7 +76,7 @@ class ConsentReporterTest extends TestCase
             $httpClient,
             $shopIdProvider,
             new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 
@@ -95,9 +95,9 @@ class ConsentReporterTest extends TestCase
 
         $reporter = new ConsentReporter(
             $httpClient,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
             new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 
@@ -116,9 +116,9 @@ class ConsentReporterTest extends TestCase
 
         $reporter = new ConsentReporter(
             $httpClient,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
             new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 
@@ -135,13 +135,13 @@ class ConsentReporterTest extends TestCase
             },
         ]);
 
-        $instanceService = $this->createMock(InstanceService::class);
+        $instanceService = static::createStub(InstanceService::class);
         $instanceService->method('getShopwareVersion')
             ->willReturn('6.5.0.0');
 
         $reporter = new ConsentReporter(
             $httpClient,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
             new StaticSystemConfigService(),
             $instanceService,
             'APP_URL',
@@ -162,11 +162,11 @@ class ConsentReporterTest extends TestCase
 
         $reporter = new ConsentReporter(
             $httpClient,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
             new StaticSystemConfigService([
                 StoreRequestOptionsProvider::CONFIG_KEY_STORE_LICENSE_DOMAIN => 'licenseHost',
             ]),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 
@@ -180,7 +180,7 @@ class ConsentReporterTest extends TestCase
             ->method('request')
             ->willThrowException(new TransportException('Gateway not available'));
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')
             ->willReturn('shopId');
 
@@ -188,7 +188,7 @@ class ConsentReporterTest extends TestCase
             $httpClient,
             $shopIdProvider,
             new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 
@@ -202,9 +202,9 @@ class ConsentReporterTest extends TestCase
 
         $reporter = new ConsentReporter(
             $httpClient,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
             new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
+            static::createStub(InstanceService::class),
             'APP_URL',
         );
 

@@ -12,7 +12,9 @@ use Twig\Node\MacroNode;
 /**
  * @internal
  *
- * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
 #[Package('framework')]
 #[YieldReady]

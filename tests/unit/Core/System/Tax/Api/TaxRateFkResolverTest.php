@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Sync\FkReference;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Api\TaxRateFkResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaxRateFkResolver::class)]
 class TaxRateFkResolverTest extends TestCase
 {

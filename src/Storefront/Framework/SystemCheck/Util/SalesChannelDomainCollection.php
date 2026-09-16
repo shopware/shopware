@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<SalesChannelDomain>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelDomainCollection extends Collection
 {
     /**

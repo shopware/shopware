@@ -42,6 +42,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
             ->method('supports')
             ->with('foo')
             ->willReturn(false);
+        $this->cache->expects($this->never())->method('get');
 
         static::assertFalse($this->cachedEntitySchemaGenerator->supports('foo', ''));
     }
@@ -51,6 +52,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
         $this->entitySchemaGenerator->expects($this->once())
             ->method('generate')
             ->willThrowException(new \RuntimeException());
+        $this->cache->expects($this->never())->method('get');
 
         static::expectException(\RuntimeException::class);
         $this->cachedEntitySchemaGenerator->generate([], DefinitionService::API, 'json', null);
@@ -67,6 +69,7 @@ class CachedEntitySchemaGeneratorTest extends TestCase
         $this->cache->expects($this->once())
             ->method('get')
             ->willReturn($result);
+        $this->entitySchemaGenerator->expects($this->never())->method('getSchema');
 
         static::assertSame($result, $this->cachedEntitySchemaGenerator->getSchema([]));
     }

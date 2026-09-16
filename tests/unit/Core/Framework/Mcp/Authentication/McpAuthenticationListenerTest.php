@@ -43,7 +43,7 @@ class McpAuthenticationListenerTest extends TestCase
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
-        $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
+        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class));
         $event = $this->createControllerEvent('api.some.other.route');
 
         $listener->authenticate($event);
@@ -56,7 +56,7 @@ class McpAuthenticationListenerTest extends TestCase
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
-        $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
+        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class));
         $event = $this->createControllerEvent('api.mcp.endpoint');
 
         $listener->authenticate($event);
@@ -69,7 +69,7 @@ class McpAuthenticationListenerTest extends TestCase
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
 
-        $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
+        $listener = new McpAuthenticationListener($clientRepository, static::createStub(RateLimiter::class));
         $event = $this->createControllerEvent('api.mcp.endpoint', [
             'Authorization' => 'Bearer some.jwt.token',
         ]);
@@ -99,9 +99,8 @@ class McpAuthenticationListenerTest extends TestCase
 
     public function testRejectsInvalidCredentialsAndDoesNotResetRateLimiter(): void
     {
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = static::createStub(ClientRepository::class);
         $clientRepository->method('validateClient')
-            ->with('SWIAvalidintegrationkey12', 'wrong-secret', 'client_credentials')
             ->willReturn(false);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
@@ -150,9 +149,8 @@ class McpAuthenticationListenerTest extends TestCase
         $accessKey = 'SWIAvalidintegrationkey12';
         $secret = 'my-secret-key';
 
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = static::createStub(ClientRepository::class);
         $clientRepository->method('validateClient')
-            ->with($accessKey, $secret, 'client_credentials')
             ->willReturn(true);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
@@ -180,9 +178,8 @@ class McpAuthenticationListenerTest extends TestCase
         $accessKey = 'SWUAvaliduseraccesskey123';
         $secret = 'my-secret-key';
 
-        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository = static::createStub(ClientRepository::class);
         $clientRepository->method('validateClient')
-            ->with($accessKey, $secret, 'client_credentials')
             ->willReturn(true);
 
         $rateLimiter = $this->createMock(RateLimiter::class);

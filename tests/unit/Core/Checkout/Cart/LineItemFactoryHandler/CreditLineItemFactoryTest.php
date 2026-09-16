@@ -21,15 +21,15 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CreditLineItemFactory::class)]
 #[Package('checkout')]
+#[CoversClass(CreditLineItemFactory::class)]
 class CreditLineItemFactoryTest extends TestCase
 {
     public function testSupports(): void
     {
         $factory = new CreditLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(PriceDefinitionFactory::class),
+            static::createStub(EntityRepository::class)
         );
 
         static::assertTrue($factory->supports('credit'));
@@ -58,8 +58,8 @@ class CreditLineItemFactoryTest extends TestCase
         ];
 
         $factory = new CreditLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(PriceDefinitionFactory::class),
+            static::createStub(EntityRepository::class)
         );
 
         $lineItem = $factory->create($data, $context);
@@ -107,7 +107,7 @@ class CreditLineItemFactoryTest extends TestCase
             ->willReturn($result);
 
         $factory = new CreditLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
+            static::createStub(PriceDefinitionFactory::class),
             $mediaRepo
         );
 
@@ -151,7 +151,7 @@ class CreditLineItemFactoryTest extends TestCase
 
         $factory = new CreditLineItemFactory(
             $priceDefinitionFactory,
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class)
         );
 
         $lineItem = $factory->create($data, $context);
@@ -175,8 +175,8 @@ class CreditLineItemFactoryTest extends TestCase
         ];
 
         $factory = new CreditLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(PriceDefinitionFactory::class),
+            static::createStub(EntityRepository::class)
         );
 
         $this->expectException(CartException::class);
@@ -190,8 +190,8 @@ class CreditLineItemFactoryTest extends TestCase
         $context->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => false]);
 
         $factory = new CreditLineItemFactory(
-            $this->createMock(PriceDefinitionFactory::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(PriceDefinitionFactory::class),
+            static::createStub(EntityRepository::class)
         );
 
         $lineItem = new LineItem('test-id', 'credit', null, 1);

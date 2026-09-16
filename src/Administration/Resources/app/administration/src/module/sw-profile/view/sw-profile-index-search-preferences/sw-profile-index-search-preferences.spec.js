@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
@@ -38,14 +40,6 @@ async function createWrapper() {
                                 return Promise.resolve();
                             },
                         }),
-                    },
-                    userConfigService: {
-                        upsert: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        },
                     },
                     searchPreferencesService: {
                         getDefaultSearchPreferences: () => {},

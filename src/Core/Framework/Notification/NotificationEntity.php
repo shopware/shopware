@@ -5,17 +5,19 @@ namespace Shopware\Core\Framework\Notification;
 use Shopware\Administration\Notification\NotificationEntity as AdminNotificationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\User\UserEntity;
 
 if (class_exists(AdminNotificationEntity::class)) {
     /**
-     * @deprecated tag:v6.8.0 - reason:class-hierarchy-change - Will not extend from `\Shopware\Administration\Notification\NotificationEntity` and will instead extend directly from `\Shopware\Core\Framework\DataAbstractionLayer\Entity`
+     * @codeCoverageIgnore
      *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
+    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationEntity but directly \Shopware\Core\Framework\DataAbstractionLayer\Entity.', newParentClass: Entity::class)]
     class NotificationEntity extends AdminNotificationEntity
     {
         use EntityIdTrait;
@@ -126,6 +128,9 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
     }
 } else {
+    /**
+     * @codeCoverageIgnore
+     */
     #[Package('framework')]
     class NotificationEntity extends Entity
     {

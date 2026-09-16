@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemUpdatePrepareCommand::class)]
 class SystemUpdatePrepareCommandTest extends TestCase
 {

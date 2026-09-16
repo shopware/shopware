@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,12 +15,13 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DeleteExtensionLocalPublicFilesCommand::class)]
 class DeleteExtensionLocalPublicFilesCommandTest extends TestCase
 {
     public function testSymfonyBundle(): void
     {
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('getBundles')->willReturn([
             new FrameworkBundle(),
         ]);
@@ -34,9 +36,9 @@ class DeleteExtensionLocalPublicFilesCommandTest extends TestCase
 
     public function testNotPersistentPublicDir(): void
     {
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('getBundles')->willReturn([
-            $this->createMock(Bundle::class),
+            static::createStub(Bundle::class),
         ]);
 
         $command = new DeleteExtensionLocalPublicFilesCommand($kernel);
@@ -55,8 +57,8 @@ class DeleteExtensionLocalPublicFilesCommandTest extends TestCase
         $fs->mkdir($extensionDir . '/Resources/public/administration/js');
         $fs->mkdir($extensionDir . '/Resources/public/administration/css');
 
-        $kernel = $this->createMock(KernelInterface::class);
-        $bundle = $this->createMock(Bundle::class);
+        $kernel = static::createStub(KernelInterface::class);
+        $bundle = static::createStub(Bundle::class);
         $bundle->method('getPath')->willReturn($extensionDir);
         $kernel->method('getBundles')->willReturn([
             $bundle,

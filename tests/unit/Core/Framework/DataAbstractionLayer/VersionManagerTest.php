@@ -12,12 +12,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -32,10 +37,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -45,6 +52,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
@@ -89,14 +97,14 @@ class VersionManagerTest extends TestCase
                 return true;
             }));
 
-        $writeContextMockWithVersionId->expects($this->any())->method('getContext')->willReturn(Context::createDefaultContext());
+        $writeContextMockWithVersionId->method('getContext')->willReturn(Context::createDefaultContext());
 
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 VersionManagerTestDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $entityWriteResult = $this->versionManager->clone(
@@ -105,7 +113,7 @@ class VersionManagerTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
             $writeContextMock,
-            $this->createMock(CloneBehavior::class)
+            static::createStub(CloneBehavior::class)
         );
 
         static::assertNotEmpty($entityWriteResult);
@@ -123,15 +131,14 @@ class VersionManagerTest extends TestCase
         ]);
 
         $productId = 'product-id';
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::cannotCreateNewVersion('product', $productId)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::cannotCreateNewVersion('product', $productId));
 
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 VersionManagerTestDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $this->versionManager->clone(
@@ -139,8 +146,85 @@ class VersionManagerTest extends TestCase
             $productId,
             Uuid::randomHex(),
             Uuid::randomHex(),
-            $this->createMock(WriteContext::class),
-            $this->createMock(CloneBehavior::class)
+            static::createStub(WriteContext::class),
+            static::createStub(CloneBehavior::class)
+        );
+    }
+
+    public function testCloneFailsForCloneProtectedRootEntity(): void
+    {
+        $entityReader = $this->createMock(EntityReaderInterface::class);
+        $entityReader->expects($this->never())->method('read');
+
+        $this->versionManager = $this->createVersionManager(['entityReader' => $entityReader]);
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CloneProtectedVersionManagerTestDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::cloneProtected('clone_protected', Context::CRUD_API_SCOPE));
+
+        Context::createDefaultContext()->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($registry): void {
+            $this->versionManager->clone(
+                $registry->getByEntityName('clone_protected'),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                WriteContext::createFromContext($context),
+                new CloneBehavior(),
+            );
+        });
+    }
+
+    public function testCloneSkipsCloneProtectedAssociation(): void
+    {
+        $entityReader = static::createStub(EntityReaderInterface::class);
+        $entityReader->method('read')->willReturn(new EntityCollection([
+            (new Entity())->assign(['_uniqueIdentifier' => Uuid::randomHex()]),
+        ]));
+        $serializer = static::createStub(SerializerInterface::class);
+        $serializer->method('serialize')->willReturn(json_encode([
+            'id' => Uuid::randomHex(),
+            'children' => [['id' => Uuid::randomHex()]],
+        ], \JSON_THROW_ON_ERROR));
+        $entityWriter = $this->createMock(EntityWriterInterface::class);
+        $entityWriter->expects($this->once())->method('insert')->with(
+            static::isInstanceOf(VersionManagerRootTestDefinition::class),
+            static::callback(static fn (array $data): bool => !isset($data[0]['children'])),
+            static::anything(),
+        )->willReturn(['clone_root' => []]);
+
+        $this->versionManager = $this->createVersionManager([
+            'entityReader' => $entityReader,
+            'entityWriter' => $entityWriter,
+            'serializer' => $serializer,
+        ]);
+        $registry = new StaticDefinitionInstanceRegistry(
+            [VersionManagerRootTestDefinition::class, CloneProtectedVersionManagerChildTestDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+        $context = Context::createDefaultContext();
+        $contextWithDisabledAuditLog = Context::createDefaultContext();
+        $contextWithDisabledAuditLog->addState(VersionManager::DISABLE_AUDIT_LOG);
+        $writeContext = static::createStub(WriteContext::class);
+        $writeContextWithVersionId = static::createStub(WriteContext::class);
+        $writeContext->method('getContext')->willReturn($context);
+        $writeContext->method('createWithVersionId')->willReturn($writeContextWithVersionId);
+        $writeContextWithVersionId->method('getContext')->willReturn($contextWithDisabledAuditLog);
+        $writeContextWithVersionId->method('scope')->willReturnCallback(static function (string $scope, callable $callback) use ($writeContextWithVersionId): void {
+            static::assertSame(Context::SYSTEM_SCOPE, $scope);
+            $callback($writeContextWithVersionId);
+        });
+
+        $this->versionManager->clone(
+            $registry->getByEntityName('clone_root'),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            $writeContext,
+            new CloneBehavior(),
         );
     }
 
@@ -150,11 +234,11 @@ class VersionManagerTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(false);
         $lockFactory->expects($this->once())->method('createLock')->willReturn($lock);
 
@@ -164,23 +248,22 @@ class VersionManagerTest extends TestCase
         ]);
 
         $versionId = 'version-id';
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::versionMergeAlreadyLocked($versionId)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::versionMergeAlreadyLocked($versionId));
 
         $this->versionManager->merge(
             $versionId,
-            $this->createMock(WriteContext::class)
+            static::createStub(WriteContext::class)
         );
     }
 
     public function testMergeFailsForNonExistentVersion(): void
     {
-        $lockFactory = $this->createMock(LockFactory::class);
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lockFactory = static::createStub(LockFactory::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(true);
         $lockFactory->method('createLock')->willReturn($lock);
 
-        $entitySearcherMock = $this->createMock(EntitySearcherInterface::class);
+        $entitySearcherMock = static::createStub(EntitySearcherInterface::class);
 
         $entitySearcherMock->method('search')->willReturn(
             new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext())
@@ -193,10 +276,9 @@ class VersionManagerTest extends TestCase
 
         $versionId = 'non-existent-version-id';
 
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::versionNotExists($versionId)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::versionNotExists($versionId));
 
-        $versionManager->merge($versionId, $this->createMock(WriteContext::class));
+        $versionManager->merge($versionId, static::createStub(WriteContext::class));
     }
 
     /**
@@ -476,8 +558,8 @@ class VersionManagerTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [$definitionClass],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $this->versionManager = $this->createVersionManager([
@@ -542,17 +624,18 @@ class VersionManagerTest extends TestCase
     private function createVersionManager(array $overrides = []): VersionManager
     {
         $defaults = [
-            'entityWriter' => $this->createMock(EntityWriterInterface::class),
-            'entityReader' => $this->createMock(EntityReaderInterface::class),
-            'entitySearcher' => $this->createMock(EntitySearcherInterface::class),
-            'entityWriteGateway' => $this->createMock(EntityWriteGatewayInterface::class),
-            'eventDispatcher' => $this->createMock(EventDispatcherInterface::class),
-            'serializer' => $this->createMock(SerializerInterface::class),
-            'registry' => $this->createMock(DefinitionInstanceRegistry::class),
-            'versionCommitDefinition' => $this->createMock(VersionCommitDefinition::class),
-            'versionCommitDataDefinition' => $this->createMock(VersionCommitDataDefinition::class),
-            'versionDefinition' => $this->createMock(VersionDefinition::class),
-            'lockFactory' => $this->createMock(LockFactory::class),
+            'entityWriter' => static::createStub(EntityWriterInterface::class),
+            'entityReader' => static::createStub(EntityReaderInterface::class),
+            'entitySearcher' => static::createStub(EntitySearcherInterface::class),
+            'entityWriteGateway' => static::createStub(EntityWriteGatewayInterface::class),
+            'eventDispatcher' => static::createStub(EventDispatcherInterface::class),
+            'serializer' => static::createStub(SerializerInterface::class),
+            'registry' => static::createStub(DefinitionInstanceRegistry::class),
+            'versionCommitDefinition' => static::createStub(VersionCommitDefinition::class),
+            'versionCommitDataDefinition' => static::createStub(VersionCommitDataDefinition::class),
+            'versionDefinition' => static::createStub(VersionDefinition::class),
+            'lockFactory' => static::createStub(LockFactory::class),
+            'clock' => new NativeClock(),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -568,7 +651,8 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDefinition'],
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
-            $params['lockFactory']
+            $params['lockFactory'],
+            $params['clock']
         );
     }
 }
@@ -587,6 +671,65 @@ class VersionManagerTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CloneProtectedVersionManagerTestDefinition extends VersionManagerTestDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_protected';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection()]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerRootTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_root';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new OneToManyAssociationField('children', CloneProtectedVersionManagerChildTestDefinition::class, 'parent_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CloneProtectedVersionManagerChildTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_protected_child';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection()]);
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('parent_id', 'parentId', VersionManagerRootTestDefinition::class),
         ]);
     }
 }

@@ -1,0 +1,22 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/test-entity-with-associations": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TestEntityWithAssociations"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

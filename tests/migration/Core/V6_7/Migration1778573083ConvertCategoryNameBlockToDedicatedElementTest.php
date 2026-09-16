@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ use Shopware\Core\Migration\V6_7\Migration1778573083ConvertCategoryNameBlockToDe
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1778573083ConvertCategoryNameBlockToDedicatedElement::class)]
 class Migration1778573083ConvertCategoryNameBlockToDedicatedElementTest extends TestCase
 {

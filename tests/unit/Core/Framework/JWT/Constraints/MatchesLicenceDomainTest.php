@@ -30,8 +30,7 @@ class MatchesLicenceDomainTest extends TestCase
 
     public function testAssertNoDomainSet(): void
     {
-        static::expectException(JWTException::class);
-        static::expectExceptionMessage('Missing domain');
+        $this->expectExceptionObject(JWTException::missingDomain());
 
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/valid-jwt.txt');
         static::assertIsString($jwt);
@@ -42,8 +41,7 @@ class MatchesLicenceDomainTest extends TestCase
 
     public function testAssertInvalidDomain(): void
     {
-        static::expectException(JWTException::class);
-        static::expectExceptionMessage('Invalid domain in system configuration: "examples.com"');
+        $this->expectExceptionObject(JWTException::invalidDomain('examples.com'));
 
         $jwt = \file_get_contents(__DIR__ . '/../_fixtures/invalid-jwts.json');
         static::assertIsString($jwt);

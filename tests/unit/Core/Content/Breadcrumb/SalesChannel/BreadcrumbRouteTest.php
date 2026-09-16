@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Breadcrumb\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
@@ -14,6 +14,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,27 +22,25 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(BreadcrumbRoute::class)]
 class BreadcrumbRouteTest extends TestCase
 {
     private BreadcrumbRoute $breadcrumbRoute;
 
-    private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
+    private Stub&CategoryBreadcrumbBuilder $breadcrumbBuilder;
 
-    private MockObject&CacheTagCollector $cacheTagCollector;
+    private CacheTagCollector&Stub $cacheTagCollector;
 
     private SalesChannelContext $context;
 
     protected function setUp(): void
     {
-        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
-        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
-        $this->context = $this->createMock(SalesChannelContext::class);
+        $this->breadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
+        $this->context = static::createStub(SalesChannelContext::class);
 
-        $this->breadcrumbRoute = new BreadcrumbRoute(
-            $this->breadcrumbBuilder,
-            $this->cacheTagCollector,
-        );
+        $this->breadcrumbRoute = $this->createRoute();
     }
 
     public function testLoadCategoryBreadcrumbReturnsCorrectBreadcrumb(): void
@@ -55,12 +54,13 @@ class BreadcrumbRouteTest extends TestCase
         $this->breadcrumbBuilder->method('getCategoryBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', 'categoryId1')]));
         $this->breadcrumbBuilder->method('loadCategory')->willReturn($categoryEntity);
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with(CategoryRoute::buildName('categoryId1'));
 
-        $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
+        $collection = $this->createRoute($cacheTagCollector)->load($request, $this->context)->getBreadcrumbCollection();
         static::assertCount(1, $collection);
         $firstBreadcrumb = $collection->first();
         static::assertNotNull($firstBreadcrumb);
@@ -88,7 +88,8 @@ class BreadcrumbRouteTest extends TestCase
         $request = new Request(['type' => 'product'], [], ['id' => 'productId1']);
         $this->breadcrumbBuilder->method('getProductBreadcrumbUrls')->willReturn(new BreadcrumbCollection([new Breadcrumb('Product', 'categoryId1')]));
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with(
@@ -96,7 +97,7 @@ class BreadcrumbRouteTest extends TestCase
                 EntityCacheKeyGenerator::buildProductTag('productId1')
             );
 
-        $collection = $this->breadcrumbRoute->load($request, $this->context)->getBreadcrumbCollection();
+        $collection = $this->createRoute($cacheTagCollector)->load($request, $this->context)->getBreadcrumbCollection();
         static::assertCount(1, $collection);
         $firstBreadcrumb = $collection->first();
         static::assertNotNull($firstBreadcrumb);
@@ -139,5 +140,13 @@ class BreadcrumbRouteTest extends TestCase
         $response = $this->breadcrumbRoute->load($request, $this->context);
 
         static::assertCount(0, $response->getBreadcrumbCollection());
+    }
+
+    private function createRoute(?CacheTagCollector $cacheTagCollector = null): BreadcrumbRoute
+    {
+        return new BreadcrumbRoute(
+            $this->breadcrumbBuilder,
+            $cacheTagCollector ?? $this->cacheTagCollector,
+        );
     }
 }

@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/newsletter/confirm": {
@@ -46,12 +46,21 @@
                         }
                     },
                     "400": {
-                      "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -62,7 +71,7 @@
                     "Newsletter"
                 ],
                 "summary": "Create or remove a newsletter subscription",
-                "description": "This route is used to create/remove/confirm a newsletter subscription.\n\nThe `option` property controls what should happen:\n* `direct`: The subscription is directly active and does not need a confirmation.\n* `subscribe`: An email will be send to the provided email address containing a link to the /newsletter/confirm route.\nThe subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.\n* `unsubscribe`: The email address will be removed from the newsletter subscriptions.\n* `confirmSubscribe`: Confirms the newsletter subscription for the provided email address.",
+                "description": "This route is used to create/remove/confirm a newsletter subscription.\n\nThe `option` property controls what should happen:\n* `direct`: The subscription is directly active and does not need a confirmation.\n* `subscribe`: An email will be send to the provided email address containing a link to the /newsletter/confirm route.\nThe subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.\n* `unsubscribe`: The email address will be removed from the newsletter subscriptions.\n* `confirmSubscribe`: Confirms the newsletter subscription for the provided email address.\n\nIf double opt-in is enabled for the sales channel, `direct` and `confirmSubscribe` behave like `subscribe`.",
                 "operationId": "subscribeToNewsletter",
                 "requestBody": {
                     "required": true,
@@ -133,11 +142,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": ["success","status"],
+                                    "required": [
+                                        "success",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "success": {
-                                          "description": "Indicates whether the subscribe request was successful.",
-                                          "type": "boolean"
+                                            "description": "Indicates whether the subscribe request was successful.",
+                                            "type": "boolean"
                                         },
                                         "status": {
                                             "$ref": "#/components/schemas/NewsletterStatus"
@@ -150,11 +162,20 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -199,11 +220,20 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

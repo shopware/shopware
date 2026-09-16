@@ -77,7 +77,7 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('locale.code', $code));
         $criteria->addAssociation('locale');
-        $language = $this->languageRepository->search($criteria, Context::createDefaultContext())->first();
+        $language = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         $this->cacheLanguages[$code] = null;
         if ($language instanceof LanguageEntity && $language->getLocale() !== null) {

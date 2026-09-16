@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
@@ -19,7 +20,7 @@ export type action = {
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExtensionSdkService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
+    constructor(httpClient: HttpClient, loginService: LoginService) {
         super(httpClient, loginService, 'extension-sdk', 'application/json');
 
         this.name = 'extensionSdkService';

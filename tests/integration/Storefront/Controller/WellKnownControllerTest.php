@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class WellKnownControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

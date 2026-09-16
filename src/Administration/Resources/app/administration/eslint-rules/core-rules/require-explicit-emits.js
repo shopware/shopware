@@ -87,20 +87,21 @@ module.exports = {
                 return true;
             }
 
-            // registered component, extend component or mixin
+            // registered component, extend component, override component or mixin
             if (parent.type === 'CallExpression' &&
                 parent.callee.type === 'MemberExpression' &&
                 (parent.callee.property.name === 'register' ||
                     parent.callee.property.name === 'extend' ||
+                    parent.callee.property.name === 'override' ||
                     parent.callee.property.name === 'wrapComponentConfig')) {
                 const callExpression = parent;
 
-                // Component.register() or Component.extend()
+                // Component.register(), Component.extend() or Component.override()
                 if (callExpression.callee.object.name === 'Component') {
                     return true;
                 }
 
-                // Shopware.Component.register() or Shopware.Component.extend()
+                // Shopware.Component.register(), Shopware.Component.extend() or Shopware.Component.override()
                 if (parent.callee.object.type === 'MemberExpression' &&
                     parent.callee.object.object.name === 'Shopware' &&
                     parent.callee.object.property.name === 'Component'

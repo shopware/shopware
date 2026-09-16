@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeEntity;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

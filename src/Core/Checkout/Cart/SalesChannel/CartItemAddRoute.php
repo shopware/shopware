@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CartItemAddRoute extends AbstractCartItemAddRoute
 {
     /**
@@ -79,7 +79,10 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
             $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
-            return new CartResponse($cart);
+            $response = new CartResponse($cart);
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
+
+            return $response;
         });
     }
 }

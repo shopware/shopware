@@ -23,8 +23,7 @@
     },
     "entryInfo": {
       "title": "Log information",
-      "tabRaw": "Raw",
-      "actionClose": "Close"
+      "tabRaw": "Raw"
     },
     "mailInfo": {
       "tabHTML": "HTML",

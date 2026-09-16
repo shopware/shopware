@@ -85,11 +85,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     {
         $candidates = [];
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== CustomerDefinition::ENTITY_NAME) {
-                continue;
-            }
-
+        foreach ($event->getCommandsForEntity(CustomerDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }

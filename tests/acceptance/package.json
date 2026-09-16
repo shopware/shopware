@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@currents/playwright": "2.3.3",
-    "@shopware-ag/acceptance-test-suite": "git+https://github.com/shopware/acceptance-test-suite.git#feat/customer-group-price-basis-selectors",
+    "@shopware-ag/acceptance-test-suite": "git+https://github.com/shopware/acceptance-test-suite.git#026980a053be653df86a8e7a8ea2259b827050e4",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"

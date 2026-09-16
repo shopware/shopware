@@ -102,7 +102,10 @@
                         </sw-data-grid>
                     </div>
 
-                    <div v-else>
+                    <div
+                        v-else
+                        class="sw-settings-message-stats__empty-state"
+                    >
                         <mt-empty-state
                             :headline="$t('sw-settings-message-stats.general.emptyStateTitle')"
                             :description="$t('sw-settings-message-stats.general.emptyStateSubline')"

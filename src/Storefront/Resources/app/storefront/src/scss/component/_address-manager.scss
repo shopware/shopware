@@ -1,4 +1,8 @@
 .address-manager-modal {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
   .btn-icon-hover-white {
     &:hover, &:focus {
       span.icon {

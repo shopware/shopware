@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
@@ -238,6 +239,109 @@ class UserControllerTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
         static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
         static::assertEquals(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+    }
+
+    /**
+     * A self-service profile edit accepts `avatarMedia` only as an id link. Any nested payload,
+     * including one nested inside the `extensions` container, must be rejected.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('nestedAvatarMediaPayloadProvider')]
+    public function testSetOwnProfileRejectsNestedAvatarMediaWrite(array $payload): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $browser->jsonRequest('PATCH', '/api/_info/me', $payload);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode((string) $response->getContent(), true)['errors'][0]['code']
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function nestedAvatarMediaPayloadProvider(): iterable
+    {
+        yield 'via avatarMedia.user' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex()]],
+        ]];
+
+        yield 'via avatarMedia.avatarUsers' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex()]]],
+        ]];
+
+        yield 'via avatarMedia.extensions.user' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex()]]],
+        ]];
+
+        yield 'via avatarMedia.extensions.avatarUsers' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['avatarUsers' => [['id' => Uuid::randomHex()]]]],
+        ]];
+    }
+
+    public function testSetOwnProfileCanUpdateAvatarViaMediaAssociation(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $browser->request('GET', '/api/_info/me');
+        $me = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $userId = $me['data']['id'];
+        static::assertIsString($userId);
+
+        // Setting the avatar through the media association (not just avatarId) must keep working.
+        $mediaId = Uuid::randomHex();
+        $browser->jsonRequest('PATCH', '/api/_info/me', ['avatarMedia' => ['id' => $mediaId]]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            $mediaId,
+            $connection->fetchOne('SELECT LOWER(HEX(avatar_id)) FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId]),
+            'The avatar media association must remain writable for self-service profile edits.'
+        );
+    }
+
+    /**
+     * `avatarMedia` may only carry an id, so an extra media field must be rejected and must not
+     * reach the media entity.
+     */
+    public function testSetOwnProfileRejectsExtraMediaFieldsInAvatarMedia(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $mediaId = Uuid::randomHex();
+        static::getContainer()->get('media.repository')->create(
+            [['id' => $mediaId, 'fileName' => 'original', 'title' => 'foreign media']],
+            Context::createDefaultContext()
+        );
+
+        $browser->jsonRequest('PATCH', '/api/_info/me', [
+            'avatarMedia' => ['id' => $mediaId, 'fileName' => 'changed'],
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode((string) $response->getContent(), true)['errors'][0]['code']
+        );
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            'original',
+            $connection->fetchOne('SELECT file_name FROM media WHERE id = UNHEX(:id)', ['id' => $mediaId]),
+            'A self-service profile edit must not change the media entity.'
+        );
     }
 
     public function testPreventChangeOfUSerWithoutPermission(): void

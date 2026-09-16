@@ -59,6 +59,7 @@
 
         <service id="Shopware\Core\Framework\App\Validation\HookableValidator">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry"/>
 
             <tag name="shopware.app_manifest.validator"/>
         </service>

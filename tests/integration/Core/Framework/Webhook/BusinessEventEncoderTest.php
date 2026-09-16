@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\EntityBusinessEvent;
+use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\HiddenEntityBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\InvalidAvailableDataBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\InvalidTypeBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\NestedEntityBusinessEvent;
@@ -61,6 +62,7 @@ class BusinessEventEncoderTest extends TestCase
         yield 'CollectionBusinessEvent' => [new CollectionBusinessEvent(new TaxCollection([$tax]))];
         yield 'ArrayBusinessEvent' => [new ArrayBusinessEvent(new TaxCollection([$tax]))];
         yield 'NestedEntityBusinessEvent' => [new NestedEntityBusinessEvent($tax)];
+        yield 'HiddenEntityBusinessEvent' => [new HiddenEntityBusinessEvent($tax)];
     }
 
     public function testInvalidType(): void

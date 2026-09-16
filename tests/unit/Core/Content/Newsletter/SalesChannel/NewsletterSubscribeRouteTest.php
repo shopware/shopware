@@ -156,6 +156,51 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
     }
 
+    public function testConfirmSubscribeCannotBypassDoubleOptIn(): void
+    {
+        $this->salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'confirm-subscribe-probe@example.com',
+            'option' => 'confirmSubscribe',
+            'storefrontUrl' => 'http://localhost',
+        ]);
+
+        $recipient = new NewsletterRecipientEntity();
+        $recipient->setId(Uuid::randomHex());
+        $recipient->setEmail('confirm-subscribe-probe@example.com');
+        $recipient->setStatus(NewsletterSubscribeRoute::STATUS_NOT_SET);
+
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
+        $entityRepository = new StaticEntityRepository([
+            [],
+            new NewsletterRecipientCollection([$recipient]),
+        ]);
+
+        $systemConfig = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.newsletter.doubleOptIn' => true,
+            ],
+        ]);
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            $this->createMock(DataValidator::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $systemConfig,
+            $this->createMock(RateLimiter::class),
+            $this->createMock(RequestStack::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+
+        static::assertCount(1, $entityRepository->upserts);
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $entityRepository->upserts[0][0]['status']);
+    }
+
     /**
      * @param array<string, string> $data
      * @param array<string, string> $properties

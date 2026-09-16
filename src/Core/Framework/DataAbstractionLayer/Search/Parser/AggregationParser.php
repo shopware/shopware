@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
@@ -199,13 +200,8 @@ class AggregationParser
             return null;
         }
 
-        if (
-            str_contains($name, '?')
-            || str_contains($name, ':')
-            // https://www.php.net/manual/en/regexp.reference.unicode.php
-            || preg_match('/\p{Cc}/u', $name) === 1
-        ) {
-            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a question mark, colon, or control character.'), '/aggregations/' . $index);
+        if (!EntityDefinitionQueryHelper::isValidIdentifier($name)) {
+            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index);
 
             return null;
         }
@@ -244,6 +240,19 @@ class AggregationParser
             case 'range':
                 if (!isset($aggregation['ranges'])) {
                     $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation should contain "ranges".'), '/aggregations/' . $index . '/' . $type . '/field');
+
+                    return null;
+                }
+
+                $invalidRangeKeys = array_filter(
+                    (array) $aggregation['ranges'],
+                    static fn ($range): bool => \is_array($range)
+                        && isset($range['key'])
+                        && !EntityDefinitionQueryHelper::isValidIdentifier((string) $range['key'])
+                );
+
+                if ($invalidRangeKeys !== []) {
+                    $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
 
                     return null;
                 }

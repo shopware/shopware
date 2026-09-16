@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.25
+*  [ - Block admin escalation through profile avatar media](./changelog/release-6-6-10-25/2026-09-04-block-admin-escalation-through-profile-avatar-media.md)
+*  [ - Enforce newsletter double opt-in requirements](./changelog/release-6-6-10-25/2026-08-17-newsletter-confirm-subscribe-respects-double-opt-in.md)
+*  [ - Reject unsafe characters in aggregation identifiers](./changelog/release-6-6-10-25/2026-09-02-reject-unsafe-characters-in-aggregation-identifiers.md)
+*  [ - Webhook payloads no longer expose sensitive flow data](./changelog/release-6-6-10-25/2026-09-08-hide-customer-confirmation-hashes.md)
+*  [#399 - Prevent cloning users and integrations](./changelog/release-6-6-10-25/2026-09-03-prevent-cloning-users-and-integrations.md)
+
 ## 6.6.10.24
 *  [#10870 - Improve basic captcha accessibility](./changelog/release-6-6-10-24/2025-07-10-improve-basic-captcha-a11y.md)
 *  [#19000 - User validation endpoints now require ACL privileges](./changelog/release-6-6-10-24/2026-08-05-enforce-acl-on-user-validation-endpoints.md)

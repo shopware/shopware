@@ -1336,7 +1336,7 @@ class EntityAggregatorTest extends TestCase
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
         static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Backtick not allowed in identifier');
+        static::expectExceptionMessage('Backtick, question mark, colon, or control character not allowed in identifier');
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 

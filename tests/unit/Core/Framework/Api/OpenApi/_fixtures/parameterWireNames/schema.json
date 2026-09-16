@@ -1,0 +1,35 @@
+{
+    "paths": {
+        "/wire-names": {
+            "post": {
+                "operationId": "wireNames",
+                "parameters": [
+                    {
+                        "name": "query-name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "body-name": {
+                                        "type": "string"
+                                    },
+                                    "camelCase": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

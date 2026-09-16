@@ -1,0 +1,57 @@
+{
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {
+        "/newsletter-recipient": {
+            "post": {
+                "operationId": "readNewsletterRecipient",
+                "description": "Read newsletter recipients.",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "type": "object",
+                "properties": {
+                    "sort": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Sort"
+                        }
+                    }
+                }
+            },
+            "Sort": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    },
+                    "options": {
+                        "type": "object",
+                        "properties": {
+                            "natural": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -98,7 +98,7 @@ test(
         await test.step('Verify that the customer group request message is not displayed on the Storefront', async () => {
             await ShopCustomer.goesTo(StorefrontAccount.url());
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.vatRegNo)).toBeVisible();
+            await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.vatRegNo.toUpperCase())).toBeVisible();
             await ShopCustomer.expects(StorefrontAccount.customerGroupRequestMessage).not.toBeVisible();
         });
     },

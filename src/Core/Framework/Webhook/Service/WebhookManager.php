@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -58,6 +59,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly PolicyRegistry $policies,
     ) {
     }
 
@@ -91,6 +93,7 @@ class WebhookManager implements ResetInterface
     private function callWebhooks(Hookable $event, Context $context): void
     {
         $webhooksForEvent = $this->filterWebhooksByLiveVersion($this->getWebhooks($event->getName()), $event);
+        $webhooksForEvent = $this->filterWebhooksByPolicies($webhooksForEvent, $event);
 
         if ($webhooksForEvent === []) {
             return;
@@ -367,6 +370,19 @@ class WebhookManager implements ResetInterface
         foreach ($webhooks as $webhook) {
             $this->webhooks[$webhook->eventName][] = $webhook;
         }
+    }
+
+    /**
+     * @param list<Webhook> $webhooks
+     *
+     * @return list<Webhook>
+     */
+    private function filterWebhooksByPolicies(array $webhooks, Hookable $event): array
+    {
+        return array_values(array_filter(
+            $webhooks,
+            fn (Webhook $webhook): bool => $this->policies->permitsDelivery($event, $webhook)
+        ));
     }
 
     /**

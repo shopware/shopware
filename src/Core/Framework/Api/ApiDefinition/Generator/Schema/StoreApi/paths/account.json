@@ -1156,10 +1156,10 @@
                                         "type": "string"
                                     },
                                     "billingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "shippingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "guest": {
                                         "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",

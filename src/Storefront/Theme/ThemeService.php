@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\ConnectionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -120,6 +121,14 @@ class ThemeService implements ResetInterface
                 $importMap,
             );
         } else {
+            try {
+                $this->connection->fetchOne('SELECT 1');
+            } catch (ConnectionException) {
+                // Static file compilation is also used in database-less build environments; the theme can be compiled,
+                // but persisted runtime configuration values cannot be refreshed without a database connection.
+                return;
+            }
+
             $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
         }
     }

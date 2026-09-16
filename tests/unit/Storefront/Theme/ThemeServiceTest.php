@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Exception\ConnectionException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -360,7 +362,7 @@ class ThemeServiceTest extends TestCase
         $this->getThemeService(themeCompiler: $themeCompiler)->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
-    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoader(): void
+    public function testCompileThemeRefreshesConfigValuesWithStaticFileConfigLoaderWhenDatabaseIsAvailable(): void
     {
         $themeId = Uuid::randomHex();
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
@@ -372,6 +374,12 @@ class ThemeServiceTest extends TestCase
             ], \JSON_THROW_ON_ERROR)
         );
         $configLoader = new StaticFileConfigLoader($fs);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->with('SELECT 1')
+            ->willReturn(1);
 
         $themeCompiler = $this->createMock(ThemeCompiler::class);
         $themeCompiler->expects($this->once())->method('compileTheme')->with(
@@ -390,6 +398,50 @@ class ThemeServiceTest extends TestCase
 
         $this->getThemeService(
             themeCompiler: $themeCompiler,
+            connection: $connection,
+            configLoader: $configLoader,
+            runtimeConfigService: $runtimeConfigService,
+        )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
+    }
+
+    public function testCompileThemeDoesNotRefreshConfigValuesWithStaticFileConfigLoaderWhenDatabaseIsUnavailable(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(
+            \sprintf('theme-config/%s.json', $themeId),
+            json_encode([
+                'styleFiles' => [],
+                'scriptFiles' => [],
+            ], \JSON_THROW_ON_ERROR)
+        );
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $driverException = static::createStub(Driver\Exception::class);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->with('SELECT 1')
+            ->willThrowException(new ConnectionException($driverException, null));
+
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+        $themeCompiler->expects($this->never())->method('buildComponentImportMap');
+
+        $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $runtimeConfigService->expects($this->never())->method('refreshConfigValues');
+        $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
+
+        $this->getThemeService(
+            themeCompiler: $themeCompiler,
+            connection: $connection,
             configLoader: $configLoader,
             runtimeConfigService: $runtimeConfigService,
         )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);

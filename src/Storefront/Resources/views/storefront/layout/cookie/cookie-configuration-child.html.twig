@@ -2,14 +2,18 @@
 
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
     {% set cookie = child.cookie %}
-    {% if not feature('v6.8.0.0') %}
+    {% set childName = child.name|default(null) %}
+    {% set childDescription = child.description|default(null) %}
+
+    {% if not feature('v6.8.0.0') and childName is null and child.snippet_name|default(null) is not null %}
         {% sw_deprecated input 'child.snippet_name' replaced_by='child.name' removed_in='v6.8.0.0' %}
-        {% set childName = child.snippet_name ?? child.name %}
+        {% do sw_trigger_deprecation('v6.8.0.0', 'The "child.snippet_name" Twig input is deprecated. Use "child.name" instead.') %}
+        {% set childName = child.snippet_name %}
+    {% endif %}
+    {% if not feature('v6.8.0.0') and childDescription is null and child.snippet_description|default(null) is not null %}
         {% sw_deprecated input 'child.snippet_description' replaced_by='child.description' removed_in='v6.8.0.0' %}
-        {% set childDescription = child.snippet_description ?? child.description %}
-    {% else %}
-        {% set childName = child.name %}
-        {% set childDescription = child.description %}
+        {% do sw_trigger_deprecation('v6.8.0.0', 'The "child.snippet_description" Twig input is deprecated. Use "child.description" instead.') %}
+        {% set childDescription = child.snippet_description %}
     {% endif %}
     <div class="offcanvas-cookie-entry form-check form-switch">
         <input

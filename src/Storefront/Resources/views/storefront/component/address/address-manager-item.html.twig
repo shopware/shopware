@@ -1,6 +1,8 @@
-{% if not feature('v6.8.0.0') %}
+{% set addressType = addressType|default(null) %}
+{% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
     {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-    {% set addressType = addressType ?? type %}
+    {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
+    {% set addressType = type %}
 {% endif %}
 
 <li class="col-12 col-lg-6 d-flex" data-address-id="{{ address.id }}" data-address-type="{{ addressType }}">

@@ -1860,13 +1860,15 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 Storefront templates can declare a deprecated input or nested input path with the new `sw_deprecated` tag:
 
 ```twig
-{% if not feature('v6.8.0.0') %}
+{% set addressType = addressType|default(null) %}
+{% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
     {% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
-    {% set addressType = addressType ?? type %}
+    {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
+    {% set addressType = type %}
 {% endif %}
 ```
 
-`removed_in` must be the exact registered major feature flag. Place the declaration directly above its legacy backfill and guard both with the inactive removal feature. Reading the declared input then emits a deprecation during the compatibility period, while enabling the feature skips the legacy backfill entirely. Reads in extending templates are covered as well and throw when the removal feature is active; existence checks and short-circuited fallback expressions do not count as reads. Use `message` instead of `replaced_by` when there is no direct replacement.
+`removed_in` must be the exact registered major feature flag. Place the declaration and `sw_trigger_deprecation` call directly above the legacy backfill, and execute them only when that fallback is needed. The function delegates to `Feature::triggerDeprecationOrThrow()`: it emits a deprecation during the compatibility period and throws when the removal feature is active. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior. Use `message` instead of `replaced_by` when there is no direct replacement.
 
 ### Deprecated `type` variable in address manager templates
 

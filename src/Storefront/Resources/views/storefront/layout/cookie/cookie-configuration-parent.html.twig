@@ -1,10 +1,10 @@
 {# @sw-package framework #}
 
-{% if not feature('v6.8.0.0') %}
+{% set parentName = parent.name|default(null) %}
+{% if not feature('v6.8.0.0') and parentName is null and parent.snippet_name|default(null) is not null %}
     {% sw_deprecated input 'parent.snippet_name' replaced_by='parent.name' removed_in='v6.8.0.0' %}
-    {% set parentName = parent.snippet_name ?? parent.name %}
-{% else %}
-    {% set parentName = parent.name %}
+    {% do sw_trigger_deprecation('v6.8.0.0', 'The "parent.snippet_name" Twig input is deprecated. Use "parent.name" instead.') %}
+    {% set parentName = parent.snippet_name %}
 {% endif %}
 {% set name = parentName ? parentName|trans|sw_sanitize : parent.cookie %}
 {% set identifier = parent.cookie ? parent.cookie : name|replace({' ': '-'})|lower %}

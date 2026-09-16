@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
-use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedInputNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\DeprecatedInputTokenParser;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * @internal
@@ -18,8 +19,13 @@ final class DeprecatedInputExtension extends AbstractExtension
         return [new DeprecatedInputTokenParser()];
     }
 
-    public function getNodeVisitors(): array
+    public function getFunctions(): array
     {
-        return [new DeprecatedInputNodeVisitor()];
+        return [new TwigFunction('sw_trigger_deprecation', $this->triggerDeprecationOrThrow(...))];
+    }
+
+    public function triggerDeprecationOrThrow(string $removedIn, string $message): void
+    {
+        Feature::triggerDeprecationOrThrow($removedIn, $message);
     }
 }

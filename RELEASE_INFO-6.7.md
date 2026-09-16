@@ -295,6 +295,33 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
+### MCP servers are registered declaratively
+
+Shopware runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers declaratively. The extension tags `shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and their `shopware.store_api_mcp.*` equivalents are unchanged, so plugins and apps that register tools, prompts, or resources need no adjustment. Code that integrates with the MCP internals has to be updated; those classes are marked `@experimental stableVersion:v6.8.0`.
+
+The bundle registers one set of services per server, so the flat service IDs are gone:
+
+| Before | After (Admin API) | After (Store API) |
+|---|---|---|
+| `mcp.server` | `mcp.server.admin` | `mcp.server.store_api` |
+| `mcp.server.builder` | `mcp.server.admin.builder` | `mcp.server.store_api.builder` |
+| `mcp.registry` | `mcp.server.admin.registry` | `mcp.server.store_api.registry` |
+| `mcp.session.store` | `mcp.server.admin.session.store` | `mcp.server.store_api.session.store` |
+
+The hand-built `mcp.store_api.registry`, `mcp.store_api.server.builder` and `mcp.store_api.server` services were removed, as was `StoreApiMcpServerBuilderCompilerPass`.
+
+Protocol request and notification handlers are scoped per server. Use `mcp.admin.request_handler` instead of `mcp.request_handler`, and `mcp.admin.notification_handler` instead of `mcp.notification_handler`, to target the Admin API server. The Store API tags `mcp.store_api.request_handler` and `mcp.store_api.notification_handler` are unchanged. A handler on the bundle's global `mcp.request_handler` tag reaches neither server.
+
+The `discovery.scan_dirs` option of the `mcp` extension was removed. Capabilities are registered from their DI tag at compile time, so an in-tree bundle capability needs no directory listing. Each server declares the namespace prefixes it exposes under `mcp.servers.<name>.registry`, and a capability whose namespace no server names is not registered. Run `bin/console debug:mcp --native` to list capabilities that ended up assigned to no server. Capabilities of plugins and third-party bundles are assigned by `McpToolDiscoveryCompilerPass` instead of by prefix.
+
+The bundle's `mcp.pagination_limit` parameter was removed. Shopware sets both servers from its own `shopware.mcp.pagination_limit` parameter (default 50).
+
+The MCP bundle ships a `debug:mcp` command of its own. Shopware keeps that name for its command and moves the bundle's command to `debug:mcp:native`, also reachable as `bin/console debug:mcp --native`.
+
+Each server owns its own session store, defaulting to `%kernel.cache_dir%/mcp-sessions/<server>`. Store API MCP sessions that existed before the update are not carried over, so clients re-initialize once.
+
+Both endpoints stay pinned to the protocol revision they served before, so the negotiated `protocolVersion` and the `Mcp-Session-Id` behaviour are unchanged.
+
 ## API
 
 ### OAuth authorization endpoint

@@ -76,7 +76,7 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
     }
 
     public function getCustomerId(): string

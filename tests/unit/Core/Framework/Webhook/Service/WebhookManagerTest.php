@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -426,7 +427,8 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             'https://example.com',
             '0.0.0',
-            $isAdminWorkerEnabled
+            $isAdminWorkerEnabled,
+            new PolicyRegistry([]),
         );
     }
 

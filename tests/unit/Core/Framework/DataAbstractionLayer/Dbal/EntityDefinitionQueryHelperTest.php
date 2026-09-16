@@ -64,6 +64,31 @@ class EntityDefinitionQueryHelperTest extends TestCase
         yield 'nested' => ['product.categories.translated.customFields.test', 'category'];
     }
 
+    public function testEscapeQuotesAValidIdentifier(): void
+    {
+        static::assertSame('`product`', EntityDefinitionQueryHelper::escape('product'));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedIdentifiers(): \Generator
+    {
+        yield 'backtick' => ['pro`duct'];
+        yield 'question mark' => ['pro?duct'];
+        yield 'colon' => ['pro:duct'];
+        yield 'control character' => ["pro\nduct"];
+    }
+
+    #[DataProvider('provideDisallowedIdentifiers')]
+    public function testEscapeRejectsDisallowedIdentifierChars(string $identifier): void
+    {
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Backtick, question mark, colon, or control character not allowed in identifier');
+
+        EntityDefinitionQueryHelper::escape($identifier);
+    }
+
     private function getRegistry(): DefinitionInstanceRegistry
     {
         return new StaticDefinitionInstanceRegistry(

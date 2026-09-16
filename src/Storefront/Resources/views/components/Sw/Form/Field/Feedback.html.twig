@@ -1,0 +1,41 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    id = null,
+    violationPath = null,
+    formViolations = formViolations|default(null),
+    hasViolations = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+%}
+
+{% set feedbackCVA = cva({
+    base: 'sw-form-feedback',
+}) %}
+
+{% set attributeDefaults = {
+    class: feedbackCVA.apply({}),
+    id: id is not null ? id : false,
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        {% if hasViolations and violationPath is not empty %}
+            {% for violation in formViolations.getViolations(violationPath) %}
+                {% set snippetName = violation.messageTemplate starts with 'VIOLATION::'
+                    ? "error.#{violation.messageTemplate}"
+                    : "error.#{violation.code}" %}
+
+                {% set fieldName = violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
+
+                {% set violationParams = { '%field%': fieldName }|merge(violation.parameters|default({})) %}
+
+                <div class="sw-form-feedback__message invalid-feedback">
+                    {{ snippetName|trans(violationParams)|sw_sanitize }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+
+    {% block additional_feedback %}{% endblock %}
+</div>

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
 use PHPUnit\Framework\Assert;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -50,6 +51,11 @@ class StoreApiSessionListener implements EventSubscriberInterface
         $routeScopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if (!\is_array($routeScopes) || !\in_array(StoreApiRouteScope::ID, $routeScopes, true)) {
+            return;
+        }
+
+        // declaring the session as context source resumes one on purpose
+        if ($request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) === SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION) {
             return;
         }
 

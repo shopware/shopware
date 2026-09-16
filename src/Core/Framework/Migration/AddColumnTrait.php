@@ -22,7 +22,8 @@ trait AddColumnTrait
         }
 
         // don't allow AFTER statements, it causes temporary tables which are extrem slow, because mysql has to copy whole tables
-        $connection->executeStatement(
+        NonStandardFkGuard::executeDdl(
+            $connection,
             'ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $type . ' ' . ($nullable ? 'NULL' : 'NOT NULL') . ' DEFAULT ' . $default . ';'
         );
 

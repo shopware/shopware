@@ -38,7 +38,6 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
-use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -114,13 +113,14 @@ class BCChangeAttributeUsageRule implements Rule
     private ?array $deprecatedServiceAliases = null;
 
     /**
-     * @param array<non-empty-string, class-string> $classAliases
+     * @var array<lowercase-string, list<string>>|null
      */
+    private ?array $runtimeClassAliases = null;
+
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
         private readonly ServiceMap $serviceMap,
         private readonly ?string $containerXmlPath,
-        private readonly array $classAliases = ClassAliasRegistry::ALIASES,
     ) {
     }
 
@@ -174,6 +174,8 @@ class BCChangeAttributeUsageRule implements Rule
             }
             $errors = [...$errors, ...$specific];
         }
+
+        $errors = [...$errors, ...$this->validateRegisteredClassAliases($class, $classLine)];
 
         foreach ($class->getMethods() as $method) {
             if ($method->getDeclaringClass()->getName() !== $class->getName()) {
@@ -302,21 +304,12 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         $currentClassName = $class->getName();
-        $registeredClassName = $this->classAliases[$previousClassName] ?? null;
-        if ($registeredClassName !== $currentClassName) {
+        if (!\class_exists($previousClassName, autoload: false)) {
             return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": register the alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
+                'ClassMoved on "%s": register the eager runtime alias "%s" => "%s" in class_aliases.php.',
                 $symbol,
                 $previousClassName,
                 $currentClassName
-            ))];
-        }
-
-        if (!\class_exists($previousClassName, autoload: false)) {
-            return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": alias "%s" is registered but was not loaded eagerly.',
-                $symbol,
-                $previousClassName
             ))];
         }
 
@@ -349,6 +342,65 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateRegisteredClassAliases(\ReflectionClass $class, int $line): array
+    {
+        $declaredAliases = [];
+        foreach ($class->getAttributes(ClassMoved::class) as $attribute) {
+            $previousClassName = $attribute->newInstance()->previousClassName;
+            $declaredAliases[\strtolower($previousClassName)] = true;
+        }
+
+        $currentClassName = $class->getName();
+        $errors = [];
+        foreach ($this->runtimeClassAliases()[\strtolower($currentClassName)] ?? [] as $registeredAlias) {
+            if (isset($declaredAliases[\strtolower($registeredAlias)])) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'Runtime class alias "%s" => "%s" must be declared with #[ClassMoved(previousClassName: "%s")] on "%s".',
+                $registeredAlias,
+                $currentClassName,
+                $registeredAlias,
+                $class->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @return array<lowercase-string, list<string>>
+     */
+    private function runtimeClassAliases(): array
+    {
+        if ($this->runtimeClassAliases !== null) {
+            return $this->runtimeClassAliases;
+        }
+
+        $this->runtimeClassAliases = [];
+        foreach (\get_declared_classes() as $declaredClassName) {
+            if (!\str_starts_with(\strtolower($declaredClassName), 'shopware\\')) {
+                continue;
+            }
+
+            // @phpstan-ignore phpstanApi.runtimeReflection (this deliberately inspects Composer runtime aliases)
+            $resolvedClassName = (new \ReflectionClass($declaredClassName))->getName();
+            if (\strcasecmp($declaredClassName, $resolvedClassName) === 0) {
+                continue;
+            }
+
+            $this->runtimeClassAliases[\strtolower($resolvedClassName)][] = $declaredClassName;
+        }
+
+        return $this->runtimeClassAliases;
     }
 
     private function isDeprecatedServiceAlias(string $serviceId): bool

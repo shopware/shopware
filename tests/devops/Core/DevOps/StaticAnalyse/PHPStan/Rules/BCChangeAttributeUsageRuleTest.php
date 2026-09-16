@@ -9,7 +9,6 @@ use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule;
-use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage;
 
@@ -24,11 +23,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
     private ?ServiceMap $serviceMap = null;
 
     private string $containerXmlPath = __DIR__ . '/data/BCChangeAttributeUsageRule/services.xml';
-
-    /**
-     * @var array<non-empty-string, class-string>|null
-     */
-    private ?array $classAliases = null;
 
     #[RunInSeparateProcess]
     public function testStructurallyImpossibleBCChangesAreReported(): void
@@ -185,7 +179,7 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
 
         $this->analyse([$fixture], [
             [
-                'ClassMoved on "ClassMovedAttributeUsage": register the alias "Shopware\\Tests\\Legacy\\UnregisteredClass" => "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\PHPStan\\Rules\\data\\BCChangeAttributeUsageRule\\ClassMovedAttributeUsage" in ClassAliasRegistry::ALIASES.',
+                'ClassMoved on "ClassMovedAttributeUsage": register the eager runtime alias "Shopware\\Tests\\Legacy\\UnregisteredClass" => "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\PHPStan\\Rules\\data\\BCChangeAttributeUsageRule\\ClassMovedAttributeUsage" in class_aliases.php.',
                 7,
             ],
         ]);
@@ -199,8 +193,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
 
         $previousClassName = 'Shopware\Tests\Legacy\UnregisteredClass';
         class_alias(ClassMovedAttributeUsage::class, $previousClassName);
-
-        $this->classAliases = [$previousClassName => ClassMovedAttributeUsage::class];
 
         $this->containerXmlPath = __DIR__ . '/data/BCChangeAttributeUsageRule/services-without-deprecation.xml';
         /** @phpstan-ignore phpstanApi.constructor */
@@ -225,8 +217,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $previousClassName = 'Shopware\Tests\Legacy\UnregisteredClass';
         class_alias(ClassMovedAttributeUsage::class, $previousClassName);
 
-        $this->classAliases = [$previousClassName => ClassMovedAttributeUsage::class];
-
         $this->containerXmlPath = __DIR__ . '/data/BCChangeAttributeUsageRule/services.xml';
         /** @phpstan-ignore phpstanApi.constructor */
         $factory = new XmlServiceMapFactory($this->containerXmlPath);
@@ -245,8 +235,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $previousClassName = 'Shopware\Tests\Legacy\UnregisteredClass';
         class_alias(ClassMovedAttributeUsage::class, $previousClassName);
 
-        $this->classAliases = [$previousClassName => ClassMovedAttributeUsage::class];
-
         $this->containerXmlPath = __DIR__ . '/data/BCChangeAttributeUsageRule/services-decorated.xml';
         /** @phpstan-ignore phpstanApi.constructor */
         $factory = new XmlServiceMapFactory($this->containerXmlPath);
@@ -254,6 +242,23 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->serviceMap = $factory->create();
 
         $this->analyse([$fixture], []);
+    }
+
+    #[RunInSeparateProcess]
+    public function testRuntimeAliasWithoutClassMovedAttributeIsReported(): void
+    {
+        $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
+        require_once $fixture;
+
+        class_alias(ClassMovedAttributeUsage::class, 'Shopware\Tests\Legacy\UnregisteredClass');
+        class_alias(ClassMovedAttributeUsage::class, 'Shopware\Tests\Legacy\UnexpectedClass');
+
+        $this->analyse([$fixture], [
+            [
+                'Runtime class alias "shopware\\tests\\legacy\\unexpectedclass" => "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\PHPStan\\Rules\\data\\BCChangeAttributeUsageRule\\ClassMovedAttributeUsage" must be declared with #[ClassMoved(previousClassName: "shopware\\tests\\legacy\\unexpectedclass")] on "ClassMovedAttributeUsage".',
+                7,
+            ],
+        ]);
     }
 
     protected function getRule(): Rule
@@ -265,7 +270,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
             $this->createReflectionProvider(),
             $serviceMap,
             $this->containerXmlPath,
-            $this->classAliases ?? ClassAliasRegistry::ALIASES,
         );
     }
 }

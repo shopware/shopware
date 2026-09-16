@@ -2,18 +2,29 @@ diff --git a/bin/roave-backward-compatibility-check.php b/bin/roave-backward-com
 index 470779f..61c1804 100644
 --- a/bin/roave-backward-compatibility-check.php
 +++ b/bin/roave-backward-compatibility-check.php
-@@ -60,6 +60,9 @@ use const E_DEPRECATED;
+@@ -60,6 +60,20 @@ use const E_DEPRECATED;
          throw new RuntimeException('Could not find Composer autoload.php');
      })();
 -
 +
-+    require_once __DIR__ . '/../../../../../../src/Core/Framework/Deprecation/ClassAliasRegistry.php';
-+    $classAliases = \Shopware\Core\Framework\Deprecation\ClassAliasRegistry::ALIASES;
++    require_once getcwd() . '/vendor/autoload.php';
++
++    $classAliases = [];
++    foreach (get_declared_classes() as $declaredClass) {
++        if (! str_starts_with(strtolower($declaredClass), 'shopware\\')) {
++            continue;
++        }
++
++        $resolvedClass = (new \ReflectionClass($declaredClass))->getName();
++        if (strcasecmp($declaredClass, $resolvedClass) !== 0) {
++            $classAliases[strtolower($declaredClass)] = $resolvedClass;
++        }
++    }
 +
      class ExcludeExperimental implements  ClassBased\ClassBased, InterfaceBased\InterfaceBased, TraitBased\TraitBased, MethodBased\MethodBased, PropertyBased\PropertyBased, FunctionBased\FunctionBased
      {
          public function __construct(private $check)
-@@ -156,7 +159,7 @@ use const E_DEPRECATED;
+@@ -156,7 +170,7 @@ use const E_DEPRECATED;
                      new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
                      new ClassBased\SkipClassBasedErrors(new ClassBased\PropertyRemoved()),
                      new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
@@ -23,7 +34,7 @@ index 470779f..61c1804 100644
 +                    new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal($classAliases)),
                      new ClassBased\SkipClassBasedErrors(new ClassBased\EnumCasesChanged()),
                      new ClassBased\SkipClassBasedErrors(new ClassBased\OpenClassChanged(
-@@ -305,7 +308,7 @@ use const E_DEPRECATED;
+@@ -305,7 +319,7 @@ use const E_DEPRECATED;
                  new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\MethodAdded()),
                  new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\UseClassBasedChecksOnAnInterface(
                      new ClassBased\MultipleChecksOnAClass(
@@ -32,7 +43,7 @@ index 470779f..61c1804 100644
                          new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
                          new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
                          new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantChanged(
-@@ -339,7 +342,7 @@ use const E_DEPRECATED;
+@@ -339,7 +353,7 @@ use const E_DEPRECATED;
                  new TraitBased\SkipTraitBasedErrors(new TraitBased\TraitBecameClass()),
                  new TraitBased\SkipTraitBasedErrors(new TraitBased\UseClassBasedChecksOnATrait(
                      new ClassBased\MultipleChecksOnAClass(
@@ -41,7 +52,7 @@ index 470779f..61c1804 100644
                          new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
                          new ClassBased\SkipClassBasedErrors(new ClassBased\PropertyRemoved()),
                          new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
-@@ -380,5 +383,6 @@ use const E_DEPRECATED;
+@@ -380,5 +394,6 @@ use const E_DEPRECATED;
                      ),
                  )),
              )))),
@@ -70,7 +81,7 @@ index e4e2c3b..489833d 100644
          try {
              $newClass = $newSourcesWithDependencies->reflectClass($oldSymbol->getName());
          } catch (IdentifierNotFound) {
-+            $newClassName = $this->classAliases[$oldSymbol->getName()] ?? null;
++            $newClassName = $this->classAliases[strtolower($oldSymbol->getName())] ?? null;
 +            if ($newClassName === null) {
 -            yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
 +                yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
@@ -138,7 +149,7 @@ index e7caa07..9bd61e2 100644
 +        $canonicalAncestors = [];
 +
 +        foreach ($ancestors as $ancestor) {
-+            $canonical = $this->classAliases[$ancestor] ?? $ancestor;
++            $canonical = $this->classAliases[strtolower($ancestor)] ?? $ancestor;
 +            if ($canonical !== $className) {
 +                $canonicalAncestors[$canonical] = $canonical;
 +            }
@@ -162,7 +173,7 @@ index 3c9de87..bbfe559 100644
 +
      public function __invoke(ReflectionClass $fromClass, ReflectionClass $toClass): Changes
      {
-+        if (($this->classAliases[$fromClass->getName()] ?? null) === $toClass->getName()) {
++        if (($this->classAliases[strtolower($fromClass->getName())] ?? null) === $toClass->getName()) {
 +            return Changes::empty();
 +        }
 +

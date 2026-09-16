@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Response;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\JsonStreamer\StreamWriterInterface;
+use Symfony\Component\JsonStreamer\JsonStreamWriter;
 use Symfony\Component\TypeInfo\Type;
 
 /**
@@ -15,7 +15,7 @@ use Symfony\Component\TypeInfo\Type;
 final class DTOResponseListener
 {
     public function __construct(
-        private readonly StreamWriterInterface $jsonStreamWriter,
+        private readonly JsonStreamWriter $jsonStreamWriter,
     ) {
     }
 

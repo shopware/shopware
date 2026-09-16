@@ -117,6 +117,7 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\JsonStreamer\JsonStreamWriter;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
@@ -153,6 +154,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(DTOResponseListener::class)
+        ->args([
+            service(JsonStreamWriter::class),
+        ])
         ->tag('kernel.event_listener', ['event' => 'kernel.view', 'priority' => 1000]);
 
     $services->set(ContextValueResolver::class)

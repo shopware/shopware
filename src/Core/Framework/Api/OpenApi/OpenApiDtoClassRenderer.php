@@ -99,8 +99,10 @@ final class OpenApiDtoClassRenderer
         }
 
         $lines[] = '    ) {';
-        if ($definition->type === OpenApiDtoType::Response && $definition->responseStatusCode !== Response::HTTP_OK) {
-            $lines[] = '        parent::__construct(statusCode: ' . $this->responseStatusConstant($definition->responseStatusCode) . ');';
+        if ($definition->type === OpenApiDtoType::Response) {
+            $lines[] = $definition->responseStatusCode === Response::HTTP_OK
+                ? '        parent::__construct();'
+                : '        parent::__construct(statusCode: ' . $this->responseStatusConstant($definition->responseStatusCode) . ');';
         }
         $lines[] = '    }';
         $lines[] = '}';

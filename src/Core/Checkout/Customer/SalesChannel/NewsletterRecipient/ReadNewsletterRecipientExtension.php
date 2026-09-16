@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @codeCoverageIgnore
  *
- * @extends Extension<ReadNewsletterRecipientResponse>
+ * @extends Extension<ReadNewsletterRecipientStatusResponse>
  */
 #[Package('checkout')]
 final class ReadNewsletterRecipientExtension extends Extension

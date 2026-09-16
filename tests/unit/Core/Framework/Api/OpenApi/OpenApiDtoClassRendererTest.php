@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoType;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
@@ -40,6 +41,18 @@ class OpenApiDtoClassRendererTest extends TestCase
         static::assertStringContainsString('enum NewsletterStatus', $rendered);
         static::assertStringContainsString('case NOT_SET = \'notSet\';', $rendered);
         static::assertStringContainsString('case OPT_IN = \'optIn\';', $rendered);
+    }
+
+    public function testDefaultResponseStatusCallsParentConstructor(): void
+    {
+        $response = $this->renderDefinition(new OpenApiDtoDefinition(
+            name: 'ReadNewsletterRecipientResponse',
+            properties: [],
+            type: OpenApiDtoType::Response,
+        ));
+
+        static::assertStringContainsString('parent::__construct();', $response);
+        static::assertStringNotContainsString('use Symfony\\Component\\HttpFoundation\\Response;', $response);
     }
 
     public function testEnumValuesAreEscaped(): void

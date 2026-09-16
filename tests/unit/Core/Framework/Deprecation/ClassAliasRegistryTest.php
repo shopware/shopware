@@ -42,7 +42,7 @@ class ClassAliasRegistryTest extends TestCase
      * @param class-string $current
      */
     #[DataProvider('classAliasProvider')]
-    public function testClassAliasIsDeclaredByAttribute(string $previous, string $current): void
+    public function testEveryRegisteredClassAliasIsDeclaredByAttribute(string $previous, string $current): void
     {
         $attributes = (new \ReflectionClass($current))->getAttributes(ClassMoved::class);
         $previousClassNames = array_map(
@@ -50,6 +50,10 @@ class ClassAliasRegistryTest extends TestCase
             $attributes,
         );
 
-        static::assertContains($previous, $previousClassNames);
+        static::assertContains(
+            $previous,
+            $previousClassNames,
+            \sprintf('Add #[ClassMoved(previousClassName: \'%s\')] to %s.', $previous, $current),
+        );
     }
 }

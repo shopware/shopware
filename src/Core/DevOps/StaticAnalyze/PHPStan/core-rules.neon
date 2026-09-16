@@ -9,7 +9,6 @@ parametersSchema:
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
 rules:
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\FuturePropertyCompatibilityRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\FuturePropertyVisibilityChangeRule
@@ -38,6 +37,13 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
 
 services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule
+        arguments:
+            containerXmlPath: %symfony.containerXmlPath%
+        tags:
+            - phpstan.rules.rule
+
     # gated to the core test namespaces inside the rule; downstream repositories carry their own package taxonomy
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestPackageMatchRule

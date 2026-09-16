@@ -109,11 +109,17 @@ class BCChangeAttributeUsageRule implements Rule
     ];
 
     /**
+     * @var array<string, true>|null
+     */
+    private ?array $deprecatedServiceAliases = null;
+
+    /**
      * @param array<non-empty-string, class-string> $classAliases
      */
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
         private readonly ServiceMap $serviceMap,
+        private readonly ?string $containerXmlPath,
         private readonly array $classAliases = ClassAliasRegistry::ALIASES,
     ) {
     }
@@ -328,10 +334,11 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         if ($this->serviceMap->getService($currentClassName) !== null
-            && $this->serviceMap->getService($previousClassName)?->getAlias() !== $currentClassName
+            && ($this->serviceMap->getService($previousClassName)?->getAlias() !== $currentClassName
+                || !$this->isDeprecatedServiceAlias($previousClassName))
         ) {
             return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": register the service alias "%s" => "%s".',
+                'ClassMoved on "%s": register the deprecated service alias "%s" => "%s".',
                 $symbol,
                 $previousClassName,
                 $currentClassName
@@ -339,6 +346,28 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return [];
+    }
+
+    private function isDeprecatedServiceAlias(string $serviceId): bool
+    {
+        if ($this->deprecatedServiceAliases === null) {
+            $this->deprecatedServiceAliases = [];
+            $content = $this->containerXmlPath === null ? false : @file_get_contents($this->containerXmlPath);
+            $container = $content === false ? false : @simplexml_load_string($content);
+
+            if ($container !== false) {
+                foreach ($container->services->service as $service) {
+                    $attributes = $service->attributes();
+                    if ($attributes === null || !isset($attributes['id'], $attributes['alias']) || !isset($service->deprecated)) {
+                        continue;
+                    }
+
+                    $this->deprecatedServiceAliases[(string) $attributes['id']] = true;
+                }
+            }
+        }
+
+        return isset($this->deprecatedServiceAliases[$serviceId]);
     }
 
     /**

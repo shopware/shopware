@@ -5,7 +5,8 @@ index 470779f..61c1804 100644
 @@ -60,6 +60,9 @@ use const E_DEPRECATED;
          throw new RuntimeException('Could not find Composer autoload.php');
      })();
- 
+-
++
 +    require_once getcwd() . '/src/Core/Framework/Deprecation/ClassAliasRegistry.php';
 +    $classAliases = \Shopware\Core\Framework\Deprecation\ClassAliasRegistry::ALIASES;
 +
@@ -54,7 +55,8 @@ index e4e2c3b..489833d 100644
 @@ -18,10 +18,12 @@ final class CompareClasses implements CompareApi
  {
      private array $excludePatterns;
- 
+-
++
 +    /** @param array<string, class-string> $classAliases */
      public function __construct(
          private ClassBased $classBasedComparisons,
@@ -72,7 +74,8 @@ index e4e2c3b..489833d 100644
 +            if ($newClassName === null) {
 -            yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
 +                yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
- 
+-
++
 -            return;
 +                return;
 +            }
@@ -85,9 +88,11 @@ index e4e2c3b..489833d 100644
 +                return;
 +            }
          }
- 
+-
++
          if ($oldSymbol->isInterface()) {
- 
+-
++
 diff --git a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php b/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
 index e7caa07..9bd61e2 100644
 --- a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
@@ -115,7 +120,8 @@ index e7caa07..9bd61e2 100644
 +                $this->canonicalize($toClass->getInterfaceNames(), $toClass->getName()),
 +            )),
          );
- 
+-
++
          if (! $removedAncestors) {
 @@ -37,4 +48,23 @@ final class AncestorRemoved implements ClassBased
              ),

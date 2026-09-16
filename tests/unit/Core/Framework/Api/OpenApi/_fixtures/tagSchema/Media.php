@@ -10,20 +10,20 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class Media extends AbstractDto
 {
+    public string $url;
+
+    public string $alt;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?string $url = null,
-        public ?string $alt = null,
     ) {
     }
 }

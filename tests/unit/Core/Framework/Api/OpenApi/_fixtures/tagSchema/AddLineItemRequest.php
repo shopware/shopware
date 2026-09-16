@@ -10,15 +10,15 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class AddLineItemRequest extends AbstractRequest
 {
+    public int $quantity = 1;
+
     /**
      * @internal
      */
@@ -26,7 +26,6 @@ final class AddLineItemRequest extends AbstractRequest
         #[Assert\NotBlank]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]
         public string $productId,
-        public int $quantity = 1,
     ) {
     }
 }

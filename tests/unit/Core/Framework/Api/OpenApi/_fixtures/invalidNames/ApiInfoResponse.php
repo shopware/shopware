@@ -10,21 +10,20 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * API info
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class ApiInfoResponse extends AbstractResponse
 {
+    public string $version;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?string $version = null,
     ) {
         parent::__construct();
     }

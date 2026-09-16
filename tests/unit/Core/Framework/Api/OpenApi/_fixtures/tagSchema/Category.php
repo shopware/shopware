@@ -10,20 +10,20 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class Category extends AbstractDto
 {
+    public string $id;
+
+    public string $name;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?string $id = null,
-        public ?string $name = null,
     ) {
     }
 }

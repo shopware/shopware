@@ -11,7 +11,6 @@ namespace App\DTO;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\AbstractDto;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,9 +18,28 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class UserProfile extends AbstractDto
 {
+    #[Assert\Url]
+    public string $website;
+
+    #[Assert\Date]
+    public string $birthday;
+
+    /**
+     * Should not produce a format assert
+     */
+    public string $avatar;
+
+    public int $fileSize;
+
+    public float $price;
+
+    /**
+     * Plain string without format
+     */
+    public string $name;
+
     /**
      * @internal
      */
@@ -44,20 +62,6 @@ final class UserProfile extends AbstractDto
         #[Assert\NotBlank]
         #[Assert\DateTime(format: Defaults::STORAGE_DATE_TIME_FORMAT)]
         public string $createdAt,
-        #[Assert\Url]
-        public ?string $website = null,
-        #[Assert\Date]
-        public ?string $birthday = null,
-        /**
-         * Should not produce a format assert
-         */
-        public ?string $avatar = null,
-        public ?int $fileSize = null,
-        public ?float $price = null,
-        /**
-         * Plain string without format
-         */
-        public ?string $name = null,
     ) {
     }
 }

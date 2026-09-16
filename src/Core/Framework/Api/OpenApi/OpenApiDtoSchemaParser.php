@@ -565,6 +565,7 @@ final class OpenApiDtoSchemaParser
                 enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
                 defaultValue: $this->defaultValue($constraintSchema),
                 hasDefaultValue: $this->hasDefaultValue($constraintSchema),
+                constValue: $this->defaultScalarValue($constraintSchema['const'] ?? null),
                 minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
                 minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
                 arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
@@ -765,6 +766,7 @@ final class OpenApiDtoSchemaParser
             enum: $this->isNativeEnumReference($schema, $registry) ? null : $this->scalarEnum($constraintSchema['enum'] ?? null),
             defaultValue: $this->defaultValue($constraintSchema),
             hasDefaultValue: $this->hasDefaultValue($constraintSchema),
+            constValue: $this->defaultScalarValue($constraintSchema['const'] ?? null),
             minItems: $this->intOrNull($constraintSchema['minItems'] ?? null),
             minLength: $this->intOrNull($constraintSchema['minLength'] ?? null),
             arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
@@ -1297,12 +1299,12 @@ final class OpenApiDtoSchemaParser
      */
     private function hasDefaultValue(array $schema): bool
     {
-        if (\array_key_exists('default', $schema)) {
-            return $this->defaultValue($schema) !== null;
+        if (\array_key_exists('const', $schema)) {
+            return false;
         }
 
-        if (\array_key_exists('const', $schema)) {
-            return $this->defaultScalarValue($schema['const']) !== null;
+        if (\array_key_exists('default', $schema)) {
+            return $this->defaultValue($schema) !== null;
         }
 
         $enum = $schema['enum'] ?? null;
@@ -1315,12 +1317,12 @@ final class OpenApiDtoSchemaParser
      */
     private function defaultValue(array $schema): string|int|float|bool|null
     {
-        if (\array_key_exists('default', $schema)) {
-            return $this->defaultScalarValue($schema['default']);
+        if (\array_key_exists('const', $schema)) {
+            return null;
         }
 
-        if (\array_key_exists('const', $schema)) {
-            return $this->defaultScalarValue($schema['const']);
+        if (\array_key_exists('default', $schema)) {
+            return $this->defaultScalarValue($schema['default']);
         }
 
         $enum = $schema['enum'] ?? null;

@@ -1,0 +1,24 @@
+{
+    "components": {
+        "schemas": {
+            "ConstValues": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "required": ["kind"],
+                "properties": {
+                    "kind": { "type": "string", "const": "fixed" },
+                    "optionalKind": { "$ref": "#/components/schemas/FixedKind" },
+                    "enabled": { "type": "boolean", "const": false },
+                    "count": { "type": "integer", "const": 0 },
+                    "ratio": { "type": "number", "const": 1.0 },
+                    "quoted": { "type": "string", "const": "it's\\fixed" }
+                }
+            },
+            "FixedKind": {
+                "type": "string",
+                "const": "fixed",
+                "default": "fixed"
+            }
+        }
+    }
+}

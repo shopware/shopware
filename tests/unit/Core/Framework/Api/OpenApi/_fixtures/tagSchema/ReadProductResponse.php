@@ -10,7 +10,6 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,15 +17,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class ReadProductResponse extends AbstractResponse
 {
+    #[Assert\Valid]
+    public Product $product;
+
     /**
      * @internal
      */
     public function __construct(
-        #[Assert\Valid]
-        public ?Product $product = null,
     ) {
         parent::__construct();
     }

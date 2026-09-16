@@ -10,21 +10,20 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * Success
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class CreateItemsResponse extends AbstractResponse
 {
+    public int $created;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?int $created = null,
     ) {
         parent::__construct();
     }

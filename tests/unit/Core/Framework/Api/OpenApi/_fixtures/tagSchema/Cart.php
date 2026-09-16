@@ -10,26 +10,25 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class Cart extends AbstractResponse
 {
+    /**
+     * @var list<LineItem>
+     */
+    #[Assert\Valid]
+    public array $lineItems;
+
     /**
      * @internal
      */
     public function __construct(
         #[Assert\NotBlank]
         public string $token,
-        /**
-         * @var list<LineItem>
-         */
-        #[Assert\Valid]
-        public ?array $lineItems = null,
     ) {
         parent::__construct();
     }

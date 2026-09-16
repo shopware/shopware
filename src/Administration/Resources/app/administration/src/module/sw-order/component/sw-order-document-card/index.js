@@ -124,6 +124,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         documentModal() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.documentModal is deprecated. Removed with document generation v1.',
+            );
+
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
 
             if (this.$.appContext.components[`sw-order-document-settings-${subComponentName}-modal`]) {
@@ -150,7 +155,11 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
-            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            /**
+             * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
+             * @deprecationGuard static-only - Marks the filter, not the getter; the getter is the
+             * current implementation and guarding it would report every caller.
+             */
             criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;
@@ -276,6 +285,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-document-card.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -323,6 +337,8 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
+            // @deprecationGuard static-only - Marks the v1 branch inside this method, not the method
+            // itself; the v2 branch above it is the current path.
             this.documentService.setListener(this.convertStoreEventToVueEvent);
         },
 
@@ -343,6 +359,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         convertStoreEventToVueEvent({ action, payload }) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.convertStoreEventToVueEvent() is deprecated. Removed with document generation v1.',
+            );
+
             if (action === DocumentEvents.DOCUMENT_FAILED) {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
@@ -386,6 +407,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         documentTypeAvailable(documentType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-document-card.documentTypeAvailable() is deprecated. Will be removed without replacement.',
+            );
+
             return (
                 (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
                     documentType.technicalName !== DOCUMENT_TYPES.CREDIT_NOTE) ||
@@ -399,6 +425,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         invoiceExists() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-document-card.invoiceExists() is deprecated. Will be removed without replacement.',
+            );
+
             return this.documents.some((document) => {
                 return (
                     document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
@@ -417,6 +448,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.createDocument() is deprecated. Removed with document generation v1.',
+            );
+
             return this.documentService.createDocument(
                 orderId,
                 documentTypeName,
@@ -469,6 +505,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         onCancelCreation() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.onCancelCreation() is deprecated. Removed with document generation v1.',
+            );
+
             this.showModal = false;
             this.currentDocumentType = null;
         },
@@ -477,6 +518,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         onPrepareDocument() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.onPrepareDocument() is deprecated. Removed with document generation v1.',
+            );
+
             this.showModal = true;
         },
 
@@ -484,6 +530,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         openDocument(documentId, documentDeepLink, fileType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-order-document-card.openDocument() is deprecated. Removed with document generation v1.',
+            );
+
             this.documentService
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
@@ -518,6 +569,8 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
+            // @deprecationGuard static-only - Marks the v1 branch inside this method, not the method
+            // itself; the v2 branch above it is the current path.
             this.documentService
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
@@ -642,6 +695,8 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
+            // @deprecationGuard static-only - Marks the v1 branch inside this method, not the method
+            // itself; the v2 branch above it is the current path.
             await this.$nextTick();
 
             try {
@@ -789,6 +844,8 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
+            // @deprecationGuard static-only - Marks the v1 branch inside this method, not the method
+            // itself; the v2 branch above it is the current path.
             return this.documentService
                 .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params, {
                     fileType,
@@ -830,6 +887,8 @@ export default {
             }
 
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
+            // @deprecationGuard static-only - Marks the v1 branch inside this method, not the method
+            // itself; the v2 branch above it is the current path.
             this.openDocument(id, deepLink, fileType);
         },
 

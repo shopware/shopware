@@ -15,6 +15,11 @@ const { get, format, array } = Utils;
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed, is not used anymore.',
+    },
+
     emits: ['error'],
 
     mixins: [

@@ -271,7 +271,8 @@ config.global.mocks = {
     $route: {
         params: {},
     },
-    $store: Shopware.State._store,
+    // The backing field, not the deprecated `State` facade, so the setup does not trip its guard.
+    $store: Shopware._state._store,
 };
 
 config.global.stubs = {

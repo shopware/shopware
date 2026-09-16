@@ -78,6 +78,8 @@ export default {
 
         /**
          * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
+         * @deprecationGuard static-only - Marks the filter, not the getter; the getter is the
+         * current implementation and guarding it would report every caller.
          */
         documentTypeCriteria() {
             return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));

@@ -172,6 +172,11 @@ export default {
 
         /** @deprecated tag:v6.9.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                "sw-extension-my-extensions-listing.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.",
+            );
+
             return Shopware.Filter.getByName('asset');
         },
 

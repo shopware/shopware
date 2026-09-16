@@ -72,6 +72,10 @@ export default {
         emptyImagePath: {
             type: String,
             required: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use "emptyIcon" instead.',
+            },
         },
         // Meteor icon name that is used as an Icon for the empty state.
         emptyIcon: {

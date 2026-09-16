@@ -39,6 +39,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         isV68Active() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-documents.isV68Active is deprecated. Will be removed without replacement.',
+            );
+
             return this.feature?.isActive('v6.8.0.0');
         },
     },

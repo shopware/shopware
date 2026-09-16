@@ -127,6 +127,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed.
          */
         resetButtons() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-cache-index.resetButtons() is deprecated. Will be removed without replacement.',
+            );
+
             this.processSuccess = {
                 normalClearCache: false,
                 updateIndexes: false,

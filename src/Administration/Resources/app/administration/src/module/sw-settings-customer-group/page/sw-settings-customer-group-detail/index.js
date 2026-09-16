@@ -77,6 +77,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         seoUrlRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-customer-group-detail.seoUrlRepository is deprecated. Will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('seo_url');
         },
 
@@ -117,6 +122,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         seoUrlCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-customer-group-detail.seoUrlCriteria is deprecated. Will be removed without replacement.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             if (this.customerGroup?.registrationSalesChannels?.length) {
@@ -246,6 +256,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         async loadSeoUrls() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-customer-group-detail.loadSeoUrls() is deprecated. Will be removed without replacement.',
+            );
+
             if (!this.customerGroup?.registrationSalesChannels?.length) {
                 this.seoUrls = [];
                 return;
@@ -271,6 +286,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement. Seo URLs are now constructed in the template.
          */
         getSeoUrl(seoUrl) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-customer-group-detail.getSeoUrl() is deprecated. Will be removed without replacement. Seo URLs are now constructed in the template.',
+            );
+
             let shopUrl = '';
 
             seoUrl.salesChannel.domains.forEach((domain) => {

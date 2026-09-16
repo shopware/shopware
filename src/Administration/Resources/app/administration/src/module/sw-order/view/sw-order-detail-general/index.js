@@ -67,6 +67,10 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 
@@ -78,7 +82,14 @@ export default {
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-general.isLoading is deprecated. Use loading.order instead.',
+            );
+
+            return Store.get('swOrderDetail').isLoading;
+        },
 
         loading: () => Store.get('swOrderDetail').loading,
 
@@ -201,6 +212,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-general.updateLoading() is deprecated. Will be removed without replacement.',
+            );
+
             Store.get('swOrderDetail').setLoading([
                 'order',
                 loadingValue,

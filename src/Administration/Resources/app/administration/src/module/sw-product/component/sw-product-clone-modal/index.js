@@ -37,6 +37,11 @@ export default {
     computed: {
         // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-clone-modal.progressInPercentage is deprecated. Will be removed, no longer needed.',
+            );
+
             return 100 / (this.cloneMaxProgress * this.cloneProgress);
         },
 

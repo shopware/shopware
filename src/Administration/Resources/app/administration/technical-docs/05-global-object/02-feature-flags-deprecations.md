@@ -146,7 +146,9 @@ The codebase uses ESLint rules to enforce deprecation standards:
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 ```
 
-This rule ensures proper handling of deprecated features and prevents inappropriate usage.
+`private-feature-declarations` requires every new export to be `@private` or annotated for a future
+private move. `require-deprecation-guard` requires a public deprecated symbol to guard its own use
+boundary.
 
 ### Runtime Deprecation Guards
 
@@ -155,7 +157,12 @@ development while the major flag is inactive and throws once it is active, so a 
 core or in an extension fails in next-major mode instead of surviving to the removal:
 
 ```typescript
-Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
+// Example from vue.adapter.ts
+this.app.config.globalProperties.$tc = function (...args) {
+    Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'The $tc function is deprecated. Use $t instead.');
+
+    return i18n.global.t(...fixI18NParametersOrder(args));
+};
 ```
 
 Deprecated components and props are annotated declaratively instead. `src/app/plugin/deprecation.plugin.js`
@@ -167,6 +174,11 @@ export default {
     deprecated: { version: 'v6.8.0.0', comment: 'Use "mt-select" instead.' },
 };
 ```
+
+`sw-deprecation-rules/require-deprecation-guard` fails a build when a public deprecated symbol has
+neither a guard nor a recorded `@deprecationGuard static-only - <reason>`. See
+[ADR: Administration JavaScript deprecation guards](../../../../../../../adr/2026-08-10-administration-javascript-deprecation-guards.md)
+for the classification and the full list of static-only categories.
 
 Under Jest the warning is suppressed (`Feature.emitDeprecations` is off), because the suite covers both
 sides of a flag on purpose and an unexpected `console.warn` fails a test. The next-major error is never

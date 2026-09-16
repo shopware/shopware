@@ -47,6 +47,11 @@ export default {
     computed: {
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                "sw-product-detail-context-prices.assetFilter is deprecated. Will be removed, use Shopware.Filter.getByName('asset') instead.",
+            );
+
             return Shopware.Filter.getByName('asset');
         },
 

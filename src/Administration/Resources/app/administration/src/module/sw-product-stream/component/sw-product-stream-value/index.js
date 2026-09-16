@@ -154,6 +154,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, product.states will be replaced by productType
          */
         productStateOptions() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-stream-value.productStateOptions is deprecated. Will be removed, product.states will be replaced by productType.',
+            );
+
             return [
                 {
                     label: this.$t('sw-product-stream.filter.values.productStates.physical'),

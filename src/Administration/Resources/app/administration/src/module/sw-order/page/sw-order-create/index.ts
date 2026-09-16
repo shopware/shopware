@@ -64,6 +64,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed, use orderValidateErrorMessage() instead.
          */
         isSaveOrderValid(): boolean {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-create.isSaveOrderValid is deprecated. Use orderValidateErrorMessage() instead.',
+            );
+
             return (this.customer &&
                 this.cart.token &&
                 this.cart.lineItems.length &&

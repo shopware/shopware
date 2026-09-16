@@ -17,5 +17,6 @@ module.exports = {
         'no-empty-listeners': require(path.resolve(__dirname, 'no-empty-listeners.js')),
         'no-vue-options-api': require(path.resolve(__dirname, 'no-vue-options-api.js')),
         'no-manual-deprecation-notices': require(path.resolve(__dirname, 'no-manual-deprecation-notices.js')),
+        'require-deprecation-guard': require(path.resolve(__dirname, 'require-deprecation-guard.js')),
     },
 };

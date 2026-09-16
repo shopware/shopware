@@ -1009,6 +1009,8 @@ export default {
 
                 /**
                  * @deprecated tag:v6.8.0 - condition can be removed.
+                 * @deprecationGuard static-only - Marks an internal branch, not a member callers can
+                 * migrate away from; guarding the enclosing method would report every caller.
                  *
                  * Only reveal the agentic commerce sales channel as a search result
                  * if the SwagAgenticCommerce plugin is installed.

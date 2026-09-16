@@ -10,6 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
     emits: ['loading-preview'],
 
     mixins: [

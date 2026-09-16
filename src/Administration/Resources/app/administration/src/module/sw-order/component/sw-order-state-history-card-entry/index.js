@@ -11,6 +11,11 @@ import template from './sw-order-state-history-card-entry.html.twig';
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed, no usages found.',
+    },
+
     inject: ['stateStyleDataProviderService'],
 
     props: {
@@ -43,6 +48,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-state-history-card-entry.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },

@@ -28,6 +28,10 @@ export default {
             type: String,
             required: false,
             default: '',
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 

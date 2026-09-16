@@ -1,4 +1,6 @@
 {# @sw-package framework #}
+{% sw_deprecated input 'cookieGroup.snippet_description' replaced_by='cookieGroup.description' removed_in='v6.8.0.0' %}
+{% sw_deprecated input 'cookieGroup.snippet_name' replaced_by='cookieGroup.name' removed_in='v6.8.0.0' %}
 
 {% block cookie_configuration_group %}
 
@@ -8,9 +10,7 @@
                 parent: cookieGroup
             } only %}
 
-            {# @deprecated tag:v6.8.0 - Use `cookieGroup.description` instead of `cookieGroup.snippet_description`. Support for `cookieGroup.snippet_description` will be removed. #}
             {% set snippetDescription = cookieGroup.snippet_description ?? cookieGroup.description %}
-            {# @deprecated tag:v6.8.0 - Use `cookieGroup.name` instead of `cookieGroup.snippet_name`. Support for `cookieGroup.snippet_name` will be removed. #}
             {% set snippetName = cookieGroup.snippet_name ?? cookieGroup.name %}
 
             {% if cookieGroup.entries is not empty or snippetDescription %}

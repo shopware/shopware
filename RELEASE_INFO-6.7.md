@@ -1855,6 +1855,16 @@ public function provideFormData(MailDataSimulatorFormDataEvent $event): void
 
 ## Storefront
 
+### Structured deprecations for Storefront template inputs
+
+Storefront templates can declare a deprecated input or nested input path with the new `sw_deprecated` tag:
+
+```twig
+{% sw_deprecated input 'type' replaced_by='addressType' removed_in='v6.8.0.0' %}
+```
+
+`removed_in` must be the exact registered major feature flag. Reading the declared input emits a deprecation while the flag is inactive and throws when the flag is active. Reads in extending templates are covered as well; existence checks and short-circuited fallback expressions do not count as reads. Use `message` instead of `replaced_by` when there is no direct replacement.
+
 ### Deprecated `type` variable in address manager templates
 
 The Twig variable `type` in the address manager modal templates (`address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig`) is deprecated in favor of `addressType`.

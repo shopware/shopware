@@ -68,15 +68,6 @@ return [
         // CartLoadRoute is not an extension point, its getDecorated() throws a DecorationPatternException.
         preg_quote('ADDED: Parameter cart was added to Method load() of class Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute', '/'),
 
-        // The Administration notification classes remain available as eager Composer class aliases.
-        // Roave scans declarations and therefore cannot detect this runtime compatibility layer.
-        preg_quote('REMOVED: Class Shopware\Administration\Controller\NotificationController has been deleted', '/'),
-        preg_quote('REMOVED: Class Shopware\Administration\Notification\NotificationCollection has been deleted', '/'),
-        preg_quote('REMOVED: Class Shopware\Administration\Notification\NotificationDefinition has been deleted', '/'),
-        preg_quote('REMOVED: Class Shopware\Administration\Notification\NotificationEntity has been deleted', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Framework\Notification\NotificationCollection have been removed:', '/'),
-        preg_quote('REMOVED: These ancestors of Shopware\Core\Framework\Notification\NotificationEntity have been removed:', '/'),
-
         // Promoted properties expose their default on the constructor parameter rather than
         // ReflectionProperty. CustomerZipCode still initializes this property to true.
         preg_quote('CHANGED: Property Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode#$caseSensitiveCheck changed default value from true to NULL', '/'),

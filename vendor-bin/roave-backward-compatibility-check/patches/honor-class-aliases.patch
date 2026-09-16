@@ -1,0 +1,165 @@
+diff --git a/bin/roave-backward-compatibility-check.php b/bin/roave-backward-compatibility-check.php
+index 470779f..61c1804 100644
+--- a/bin/roave-backward-compatibility-check.php
++++ b/bin/roave-backward-compatibility-check.php
+@@ -60,6 +60,9 @@ use const E_DEPRECATED;
+         throw new RuntimeException('Could not find Composer autoload.php');
+     })();
+ 
++    require_once getcwd() . '/src/Core/Framework/Deprecation/ClassAliasRegistry.php';
++    $classAliases = \Shopware\Core\Framework\Deprecation\ClassAliasRegistry::ALIASES;
++
+     class ExcludeExperimental implements  ClassBased\ClassBased, InterfaceBased\InterfaceBased, TraitBased\TraitBased, MethodBased\MethodBased, PropertyBased\PropertyBased, FunctionBased\FunctionBased
+     {
+         public function __construct(private $check)
+@@ -156,7 +159,7 @@ use const E_DEPRECATED;
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\PropertyRemoved()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
+-                    new ClassBased\SkipClassBasedErrors(new ClassBased\AncestorRemoved()),
++                    new ClassBased\SkipClassBasedErrors(new ClassBased\AncestorRemoved($classAliases)),
+-                    new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal()),
++                    new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal($classAliases)),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\EnumCasesChanged()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\OpenClassChanged(
+@@ -305,7 +308,7 @@ use const E_DEPRECATED;
+                 new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\MethodAdded()),
+                 new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\UseClassBasedChecksOnAnInterface(
+                     new ClassBased\MultipleChecksOnAClass(
+-                        new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal()),
++                        new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal($classAliases)),
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantChanged(
+@@ -339,7 +342,7 @@ use const E_DEPRECATED;
+                 new TraitBased\SkipTraitBasedErrors(new TraitBased\TraitBecameClass()),
+                 new TraitBased\SkipTraitBasedErrors(new TraitBased\UseClassBasedChecksOnATrait(
+                     new ClassBased\MultipleChecksOnAClass(
+-                        new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal()),
++                        new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal($classAliases)),
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\PropertyRemoved()),
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
+@@ -380,5 +383,6 @@ use const E_DEPRECATED;
+                     ),
+                 )),
+             )))),
++            $classAliases,
+         ),
+     );
+diff --git a/src/CompareClasses.php b/src/CompareClasses.php
+index e4e2c3b..489833d 100644
+--- a/src/CompareClasses.php
++++ b/src/CompareClasses.php
+@@ -18,10 +18,12 @@ final class CompareClasses implements CompareApi
+ {
+     private array $excludePatterns;
+ 
++    /** @param array<string, class-string> $classAliases */
+     public function __construct(
+         private ClassBased $classBasedComparisons,
+         private InterfaceBased $interfaceBasedComparisons,
+         private TraitBased $traitBasedComparisons,
++        private array $classAliases = [],
+     ) {
+         $excludes = require getcwd() . '/.bc-exclude.php';
+         $this->excludePatterns = $excludes['errors'];
+@@ -94,9 +96,20 @@ final class CompareClasses implements CompareApi
+         try {
+             $newClass = $newSourcesWithDependencies->reflectClass($oldSymbol->getName());
+         } catch (IdentifierNotFound) {
++            $newClassName = $this->classAliases[$oldSymbol->getName()] ?? null;
++            if ($newClassName === null) {
+-            yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
++                yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
+ 
+-            return;
++                return;
++            }
++
++            try {
++                $newClass = $newSourcesWithDependencies->reflectClass($newClassName);
++            } catch (IdentifierNotFound) {
++                yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
++
++                return;
++            }
+         }
+ 
+         if ($oldSymbol->isInterface()) {
+ 
+diff --git a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php b/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
+index e7caa07..9bd61e2 100644
+--- a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
++++ b/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
+@@ -18,11 +18,22 @@ use Roave\BetterReflection\Reflection\ReflectionClass;
+  */
+ final class AncestorRemoved implements ClassBased
+ {
++    /** @param array<string, class-string> $classAliases */
++    public function __construct(private array $classAliases = [])
++    {
++    }
++
+     public function __invoke(ReflectionClass $fromClass, ReflectionClass $toClass): Changes
+     {
+         $removedAncestors = Vec\concat(
+-            Vec\values(Dict\diff($fromClass->getParentClassNames(), $toClass->getParentClassNames())),
+-            Vec\values(Dict\diff($fromClass->getInterfaceNames(), $toClass->getInterfaceNames())),
++            Vec\values(Dict\diff(
++                $this->canonicalize($fromClass->getParentClassNames(), $toClass->getName()),
++                $this->canonicalize($toClass->getParentClassNames(), $toClass->getName()),
++            )),
++            Vec\values(Dict\diff(
++                $this->canonicalize($fromClass->getInterfaceNames(), $toClass->getName()),
++                $this->canonicalize($toClass->getInterfaceNames(), $toClass->getName()),
++            )),
+         );
+ 
+         if (! $removedAncestors) {
+@@ -37,4 +48,23 @@ final class AncestorRemoved implements ClassBased
+             ),
+         ));
+     }
++
++    /**
++     * @param list<class-string> $ancestors
++     *
++     * @return array<string, string>
++     */
++    private function canonicalize(array $ancestors, string $className): array
++    {
++        $canonicalAncestors = [];
++
++        foreach ($ancestors as $ancestor) {
++            $canonical = $this->classAliases[$ancestor] ?? $ancestor;
++            if ($canonical !== $className) {
++                $canonicalAncestors[$canonical] = $canonical;
++            }
++        }
++
++        return $canonicalAncestors;
++    }
+ }
+diff --git a/src/DetectChanges/BCBreak/ClassBased/ClassBecameInternal.php b/src/DetectChanges/BCBreak/ClassBased/ClassBecameInternal.php
+index 3c9de87..bbfe559 100644
+--- a/src/DetectChanges/BCBreak/ClassBased/ClassBecameInternal.php
++++ b/src/DetectChanges/BCBreak/ClassBased/ClassBecameInternal.php
+@@ -15,8 +15,17 @@ use Roave\BetterReflection\Reflection\ReflectionClass;
+  */
+ final class ClassBecameInternal implements ClassBased
+ {
++    /** @param array<string, class-string> $classAliases */
++    public function __construct(private array $classAliases = [])
++    {
++    }
++
+     public function __invoke(ReflectionClass $fromClass, ReflectionClass $toClass): Changes
+     {
++        if (($this->classAliases[$fromClass->getName()] ?? null) === $toClass->getName()) {
++            return Changes::empty();
++        }
++
+         if (
+             ! $this->isInternalDocComment($fromClass->getDocComment())
+             && $this->isInternalDocComment($toClass->getDocComment())

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Mail\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -121,39 +120,14 @@ class MailAttachmentsBuilder
 
     /**
      * @param array<string> $documentIds
-     *
-     * @return array<string, string|null>
-     */
-    private function getDocumentFileTypes(array $documentIds): array
-    {
-        /** @var array<string, string|null> $fileTypes */
-        $fileTypes = $this->connection->fetchAllKeyValue(
-            'SELECT
-                LOWER(HEX(`document`.`id`)) as doc_id,
-                `media`.`file_extension` as file_extension
-            FROM `document`
-            LEFT JOIN `media` ON `media`.`id` = `document`.`document_media_file_id`
-            WHERE `document`.`id` IN (:documentIds)',
-            ['documentIds' => Uuid::fromHexToBytesList($documentIds)],
-            ['documentIds' => ArrayParameterType::BINARY]
-        );
-
-        return $fileTypes;
-    }
-
-    /**
-     * @param array<string> $documentIds
      * @param MailAttachments $attachments
      *
      * @return MailAttachments
      */
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
-        $fileTypes = $this->getDocumentFileTypes($documentIds);
-
         foreach ($documentIds as $documentId) {
-            $fileType = $fileTypes[$documentId] ?? PdfRenderer::FILE_EXTENSION;
-            $document = $this->documentGenerator->readDocument($documentId, $context, '', $fileType);
+            $document = $this->documentGenerator->readDocument($documentId, $context, '', '');
 
             if ($document === null) {
                 continue;

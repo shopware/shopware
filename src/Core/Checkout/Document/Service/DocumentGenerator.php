@@ -79,7 +79,9 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
+        if ($fileType === null || $fileType === '') {
+            $fileType = $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
+        }
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
         $documentMedia = $this->loadMediaByFileType($document, $fileType);

@@ -5,12 +5,10 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaEntity;
@@ -240,20 +238,10 @@ class MailAttachmentsBuilderTest extends TestCase
         $document->setName('invoice.xml');
         $document->setContentType('application/xml');
 
-        $this->connection
-            ->expects($this->once())
-            ->method('fetchAllKeyValue')
-            ->with(
-                static::anything(),
-                ['documentIds' => Uuid::fromHexToBytesList([$xmlDocId])],
-                ['documentIds' => ArrayParameterType::BINARY]
-            )
-            ->willReturn([$xmlDocId => 'xml']);
-
         $this->documentGenerator
             ->expects($this->once())
             ->method('readDocument')
-            ->with($xmlDocId, $context, '', 'xml')
+            ->with($xmlDocId, $context, '', '')
             ->willReturn($document);
 
         $this->mediaRepository
@@ -269,40 +257,5 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame('<?xml version="1.0"?>', $attachment['content']);
         static::assertSame('invoice.xml', $attachment['fileName']);
         static::assertSame('application/xml', $attachment['mimeType']);
-    }
-
-    /**
-     * @param array<string, string|null> $storedFileTypes
-     */
-    #[DataProvider('documentWithoutStoredFileTypeProvider')]
-    public function testBuildTemplateDocumentAttachmentsFallsBackToPdfFileType(string $documentId, array $storedFileTypes): void
-    {
-        $context = Context::createDefaultContext();
-        $extension = new MailSendSubscriberConfig(false, [$documentId]);
-
-        $this->connection
-            ->method('fetchAllKeyValue')
-            ->willReturn($storedFileTypes);
-
-        $document = new RenderedDocument();
-        $document->setContent('');
-
-        $this->documentGenerator
-            ->expects($this->once())
-            ->method('readDocument')
-            ->with($documentId, $context, '', PdfRenderer::FILE_EXTENSION)
-            ->willReturn($document);
-
-        $attachments = $this->attachmentsBuilder->buildAttachments($context, new MailTemplateEntity(), $extension, [], null);
-
-        static::assertCount(1, $attachments);
-    }
-
-    public static function documentWithoutStoredFileTypeProvider(): \Generator
-    {
-        $documentId = Uuid::randomHex();
-
-        yield 'document without media file' => [$documentId, [$documentId => null]];
-        yield 'document not found' => [$documentId, []];
     }
 }

@@ -2,6 +2,21 @@
 
 ## Features
 
+### Connect-time toolset selection for the MCP server
+
+The MCP endpoints advertise only their discovery meta-tools by default and defer every domain tool until an agent enables its toolset. That relies on the agent re-reading `tools/list` after the server announces the change. Several agents read `tools/list` once when they connect and never again, so anything enabled later in a conversation stays invisible to them.
+
+Toolsets can now be named in the MCP URL, which works regardless of how the agent handles list-change notifications:
+
+```
+https://<shop>/api/_mcp?toolsets=order,media
+https://<shop>/api/_mcp?toolsets=all
+```
+
+Those toolsets are advertised from the first `tools/list` of the connection, with no enable round trip. Unknown toolset names are ignored, so a URL survives uninstalling the plugin that contributed a toolset.
+
+This changes visibility only. The MCP allowlist and the assigned role continue to decide what may actually be called, so a wider connect URL reaches nothing the credential could not already reach. Connections that pass no parameter behave exactly as before.
+
 ### Browser login for CLI tools and other public OAuth clients
 
 The Admin API now supports the OAuth 2.0 authorization code grant with PKCE for registered public clients such as CLI tools and native apps. Users sign in to the Administration and approve access in the browser. The client receives access and refresh tokens with the approving user's permissions, without storing the user's password or an integration secret.

@@ -24,6 +24,12 @@ class McpToolsetRegistry
     final public const DISCOVERY_GROUP = 'discovery';
 
     /**
+     * Shorthand for every enable-able toolset, accepted wherever toolset names are configured.
+     * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards.
+     */
+    final public const ALL_TOOLSETS = 'all';
+
+    /**
      * @internal
      *
      * $allowlistProvider is null in scopes without a per-integration allowlist (e.g. the Store API
@@ -90,6 +96,33 @@ class McpToolsetRegistry
         }
 
         return null;
+    }
+
+    /**
+     * Resolves configured toolset names against the registry: expands {@see self::ALL_TOOLSETS} and
+     * drops anything unknown.
+     *
+     * Unknown names are dropped rather than rejected. A configured name can outlive the plugin that
+     * contributed its toolset, and a typo in a connect URL must not break an otherwise fine
+     * connection.
+     *
+     * @param list<string> $names
+     *
+     * @return list<string>
+     */
+    public function expandToolsetNames(array $names): array
+    {
+        if ($names === []) {
+            return [];
+        }
+
+        $known = array_column($this->toolsets(), 'name');
+
+        if (\in_array(self::ALL_TOOLSETS, $names, true)) {
+            return array_values($known);
+        }
+
+        return array_values(array_unique(array_intersect($names, $known)));
     }
 
     /**

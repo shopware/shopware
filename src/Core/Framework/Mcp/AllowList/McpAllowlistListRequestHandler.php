@@ -19,6 +19,7 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,6 +58,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         private readonly ?McpToolsetRegistry $toolsetRegistry = null,
         private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
         private readonly ?RequestStack $requestStack = null,
+        private readonly ?McpRequestedToolsetResolver $requestedToolsetResolver = null,
     ) {
     }
 
@@ -109,7 +111,11 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function visibleToolNames(McpAllowlist $allowlist): array
     {
-        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetToolsForSession());
+        $advertisedTools = array_merge(
+            $this->advertisedTools,
+            $this->toolsetToolsForConnectUrl(),
+            $this->toolsetToolsForSession(),
+        );
 
         if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
             array_unshift($advertisedTools, self::TOOL_SEARCH);
@@ -128,6 +134,24 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
             array_values(array_intersect($advertisedTools, self::DISCOVERY_META_TOOLS)),
             array_values(array_intersect($advertisedTools, $allowlist->tools)),
         )));
+    }
+
+    /**
+     * Toolsets the client pinned in its connect URL. Unlike an enabled toolset this needs no prior
+     * round trip, so it is present on the first tools/list of a connection, which is the only one a
+     * client that never re-lists will read.
+     *
+     * @return list<string>
+     */
+    private function toolsetToolsForConnectUrl(): array
+    {
+        if ($this->toolsetRegistry === null || $this->requestedToolsetResolver === null) {
+            return [];
+        }
+
+        $toolsets = $this->toolsetRegistry->expandToolsetNames($this->requestedToolsetResolver->resolve());
+
+        return $toolsets === [] ? [] : $this->toolsetRegistry->advertisedTools($toolsets);
     }
 
     /**

@@ -183,6 +183,48 @@ class McpToolsetRegistryTest extends TestCase
         static::assertSame([], $toolsetRegistry->advertisedTools(['order']));
     }
 
+    public function testExpandToolsetNamesReturnsEmptyForNoNames(): void
+    {
+        static::assertSame([], $this->toolsetRegistry()->expandToolsetNames([]));
+    }
+
+    public function testExpandToolsetNamesKeepsKnownNames(): void
+    {
+        static::assertSame(['entity', 'order'], $this->toolsetRegistry()->expandToolsetNames(['entity', 'order']));
+    }
+
+    public function testExpandToolsetNamesDropsUnknownNames(): void
+    {
+        static::assertSame(['entity'], $this->toolsetRegistry()->expandToolsetNames(['entity', 'does-not-exist']));
+    }
+
+    public function testExpandToolsetNamesDeduplicates(): void
+    {
+        static::assertSame(['entity'], $this->toolsetRegistry()->expandToolsetNames(['entity', 'entity']));
+    }
+
+    public function testExpandToolsetNamesResolvesTheAllShorthand(): void
+    {
+        static::assertSame(['entity', 'order'], $this->toolsetRegistry()->expandToolsetNames([McpToolsetRegistry::ALL_TOOLSETS]));
+    }
+
+    public function testExpandToolsetNamesLetsAllSubsumeOtherNames(): void
+    {
+        static::assertSame(
+            ['entity', 'order'],
+            $this->toolsetRegistry()->expandToolsetNames(['order', McpToolsetRegistry::ALL_TOOLSETS]),
+        );
+    }
+
+    /**
+     * The discovery group is advertised unconditionally and is never an enable-able toolset, so it
+     * cannot be addressed by name either.
+     */
+    public function testExpandToolsetNamesRejectsTheDiscoveryGroup(): void
+    {
+        static::assertSame([], $this->toolsetRegistry()->expandToolsetNames([McpToolsetRegistry::DISCOVERY_GROUP]));
+    }
+
     /**
      * @param list<string> $toolNames
      */
@@ -198,6 +240,25 @@ class McpToolsetRegistryTest extends TestCase
         }
 
         return $registry;
+    }
+
+    private function toolsetRegistry(): McpToolsetRegistry
+    {
+        $registry = $this->buildRegistry([
+            McpToolsetRegistry::LIST_TOOLSETS_TOOL,
+            'shopware-entity-search',
+            'shopware-order-state',
+        ]);
+
+        return new McpToolsetRegistry(new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            toolGroups: [
+                McpToolsetRegistry::LIST_TOOLSETS_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
+                'shopware-entity-search' => 'entity',
+                'shopware-order-state' => 'order',
+            ],
+        ));
     }
 
     /**

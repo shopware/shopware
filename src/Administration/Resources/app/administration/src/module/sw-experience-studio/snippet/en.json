@@ -19,6 +19,13 @@
           "background": "Background"
         }
       },
+      "sw-media-gallery": {
+        "panels": {
+          "general": "General",
+          "thumbnails": "Thumbnail navigation",
+          "behaviour": "Behaviour"
+        }
+      },
       "sw-product-listing": {
         "panels": {
           "sorting": "Sorting"

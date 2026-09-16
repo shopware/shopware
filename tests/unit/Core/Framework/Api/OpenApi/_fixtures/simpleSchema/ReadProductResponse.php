@@ -10,23 +10,24 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * Product found
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class ReadProductResponse extends AbstractResponse
 {
+    public string $id;
+
+    public string $name;
+
+    public float $price;
+
     /**
      * @internal
      */
     public function __construct(
-        public ?string $id = null,
-        public ?string $name = null,
-        public ?float $price = null,
     ) {
         parent::__construct();
     }

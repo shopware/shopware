@@ -9,8 +9,8 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\JsonStreamer\JsonStreamWriter;
-use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -20,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 final class DTOResponseListener
 {
     public function __construct(
-        private readonly JsonStreamWriter $jsonStreamWriter,
+        private readonly SerializerInterface $serializer,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly MediaUrlPlaceholderHandlerInterface $mediaUrlPlaceholderHandler,
@@ -44,10 +44,10 @@ final class DTOResponseListener
             }
         }
 
-        $json = (string) $this->jsonStreamWriter->write(
+        $json = $this->serializer->serialize(
             $result,
-            Type::object($result::class),
-            ['include_null_properties' => false]
+            'json',
+            [JsonEncode::OPTIONS => \JSON_HEX_TAG | \JSON_HEX_APOS | \JSON_HEX_AMP | \JSON_HEX_QUOT | \JSON_UNESCAPED_SLASHES]
         );
 
         $content = $this->mediaUrlPlaceholderHandler->replace($json);

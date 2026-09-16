@@ -85,6 +85,7 @@ use Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType;
 use Shopware\Core\Framework\Api\Response\Type\Api\JsonType;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\ApiRouteLoader;
+use Shopware\Core\Framework\Api\Serializer\DtoNormalizer;
 use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -119,7 +120,6 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\JsonStreamer\JsonStreamWriter;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
@@ -157,12 +157,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(DTOResponseListener::class)
         ->args([
-            service(JsonStreamWriter::class),
+            service('serializer'),
             service('event_dispatcher'),
             service(SeoUrlPlaceholderHandlerInterface::class),
             service(MediaUrlPlaceholderHandlerInterface::class),
         ])
         ->tag('kernel.event_listener', ['event' => 'kernel.view', 'priority' => 1000]);
+
+    $services->set(DtoNormalizer::class)
+        ->args([service('serializer.normalizer.property')])
+        ->tag('serializer.normalizer', ['priority' => -900]);
 
     $services->set(ContextValueResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);

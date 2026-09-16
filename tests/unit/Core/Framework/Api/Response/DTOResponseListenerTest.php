@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\Api\Response\DTOResponseListener;
+use Shopware\Core\Framework\Api\Serializer\DtoNormalizer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,7 +20,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
-use Symfony\Component\JsonStreamer\JsonStreamWriter;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
@@ -110,7 +114,7 @@ class DTOResponseListenerTest extends TestCase
         static::assertSame('{"extensions":{"customData":{"value":"test"}}}', $event->getResponse()?->getContent());
     }
 
-    public function testOmitsNullNullableResponseProperty(): void
+    public function testPreservesNullNullableResponseProperty(): void
     {
         $response = new #[JsonStreamable] class extends AbstractResponse {
             public ?string $message = null;
@@ -120,7 +124,7 @@ class DTOResponseListenerTest extends TestCase
 
         $this->createListener()($event);
 
-        static::assertSame('{}', $event->getResponse()?->getContent());
+        static::assertSame('{"message":null}', $event->getResponse()?->getContent());
     }
 
     public function testPreservesSchemaStatusAndResponseMetadata(): void
@@ -256,6 +260,8 @@ class DTOResponseListenerTest extends TestCase
             $seo->method('replace')->willReturnArgument(0);
         }
 
-        return new DTOResponseListener(JsonStreamWriter::create(), $this->dispatcher, $seo, $media);
+        $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer()), new ObjectNormalizer()], [new JsonEncoder()]);
+
+        return new DTOResponseListener($serializer, $this->dispatcher, $seo, $media);
     }
 }

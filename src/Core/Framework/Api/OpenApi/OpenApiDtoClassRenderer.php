@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
-use Symfony\Component\JsonStreamer\Attribute\StreamedName;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
@@ -74,26 +72,32 @@ final class OpenApiDtoClassRenderer
             $lines[] = '';
         }
 
-        $lines = [...$lines, ...$this->renderDescription($definition->description)];
+        $lines = [...$lines, ...$this->renderDescription($definition->description, $definition->type !== OpenApiDtoType::Response || $definition->responseStatusCode === Response::HTTP_OK)];
 
         if ($definition->package !== null) {
             $lines[] = '#[Package(\'' . $definition->package . '\')]';
         }
 
-        $lines[] = '#[JsonStreamable]';
-
         $baseClass = $this->baseClass($definition);
         $classDeclaration = 'final class ' . $this->shortClassName($definition->name) . ' extends ' . $this->shortClassName($baseClass);
         $lines[] = $classDeclaration;
         $lines[] = '{';
+        foreach ($definition->properties as $property) {
+            if ($property->required) {
+                continue;
+            }
+            $lines[] = $this->renderProperty($property);
+            $lines[] = '';
+        }
+        $requiredProperties = array_values(array_filter($definition->properties, static fn (OpenApiDtoProperty $property): bool => $property->required));
         $lines[] = '    /**';
         $lines[] = '     * @internal';
         $lines[] = '     */';
         $lines[] = '    public function __construct(';
 
         $propertyBlocks = array_map(
-            fn (OpenApiDtoProperty $property): string => $this->renderConstructorProperty($property),
-            $this->sortProperties($definition->properties),
+            fn (OpenApiDtoProperty $property): string => $this->renderProperty($property),
+            $requiredProperties,
         );
 
         if ($propertyBlocks !== []) {
@@ -146,22 +150,7 @@ final class OpenApiDtoClassRenderer
         return implode("\n", $lines);
     }
 
-    /**
-     * @param list<OpenApiDtoProperty> $properties
-     *
-     * @return list<OpenApiDtoProperty>
-     */
-    private function sortProperties(array $properties): array
-    {
-        usort(
-            $properties,
-            fn (OpenApiDtoProperty $a, OpenApiDtoProperty $b): int => (int) $this->hasParameterDefault($a) <=> (int) $this->hasParameterDefault($b),
-        );
-
-        return $properties;
-    }
-
-    private function renderConstructorProperty(OpenApiDtoProperty $property): string
+    private function renderProperty(OpenApiDtoProperty $property): string
     {
         $lines = [];
         $phpDoc = $this->renderPropertyPhpDoc($property);
@@ -177,17 +166,16 @@ final class OpenApiDtoClassRenderer
         if ($property->schemaName !== null && $property->schemaName !== $property->name) {
             $name = $this->escapePhpSingleQuoted($property->schemaName);
             $lines[] = '        #[SerializedName(\'' . $name . '\')]';
-            $lines[] = '        #[StreamedName(\'' . $name . '\')]';
         }
 
         $lines[] = \sprintf(
-            '        public %s $%s%s,',
+            '        public %s $%s%s' . ($property->required ? ',' : ';'),
             $this->renderPhpType($property),
             $property->name,
             $this->renderDefault($property),
         );
 
-        return implode("\n", $lines);
+        return implode("\n", $property->required ? $lines : array_map(static fn (string $line): string => substr($line, 4), $lines));
     }
 
     /**
@@ -257,17 +245,25 @@ final class OpenApiDtoClassRenderer
     /**
      * @return list<string>
      */
-    private function renderDescription(?string $description): array
+    private function renderDescription(?string $description, bool $ignoreCoverage = true): array
     {
+        if ($description === null && !$ignoreCoverage) {
+            return [];
+        }
+
         $lines = ['/**'];
         if ($description !== null) {
             foreach (explode("\n", $description) as $line) {
                 $lines[] = ' * ' . $this->escapePhpDoc($line);
             }
-            $lines[] = ' *';
+            if ($ignoreCoverage) {
+                $lines[] = ' *';
+            }
         }
 
-        $lines[] = ' * @codeCoverageIgnore';
+        if ($ignoreCoverage) {
+            $lines[] = ' * @codeCoverageIgnore';
+        }
         $lines[] = ' */';
 
         return $lines;
@@ -301,6 +297,10 @@ final class OpenApiDtoClassRenderer
                 $property->enum,
             ));
             $constraints[] = '        #[Assert\Choice(choices: [' . $choices . '])]';
+        }
+
+        if ($property->constValue !== null) {
+            $constraints[] = '        #[Assert\IdenticalTo(value: ' . $this->formatDefaultValue($property->constValue) . ')]';
         }
 
         if ($property->phpType === 'string' && $property->minLength !== null) {
@@ -361,16 +361,16 @@ final class OpenApiDtoClassRenderer
 
     private function renderDefault(OpenApiDtoProperty $property): string
     {
+        if ($property->required) {
+            return '';
+        }
+
         if ($property->hasDefaultValue) {
             if ($property->nativeEnum) {
                 return ' = ' . $property->phpType . '::' . $this->enumCaseName($property->defaultValue, $property->phpType);
             }
 
             return ' = ' . $this->formatDefaultValue($property->defaultValue);
-        }
-
-        if (!$property->required) {
-            return ' = null';
         }
 
         return '';
@@ -394,6 +394,10 @@ final class OpenApiDtoClassRenderer
 
     private function formatDefaultValue(string|int|float|bool|null $value): string
     {
+        if (\is_float($value)) {
+            return var_export($value, true);
+        }
+
         if (\is_string($value)) {
             return '\'' . $this->escapePhpSingleQuoted($value) . '\'';
         }
@@ -405,24 +409,6 @@ final class OpenApiDtoClassRenderer
         return (string) $value;
     }
 
-    private function hasParameterDefault(OpenApiDtoProperty $property): bool
-    {
-        return !$property->required || $property->hasDefaultValue;
-    }
-
-    private function isEffectivelyNullable(OpenApiDtoProperty $property): bool
-    {
-        if ($property->nullable) {
-            return true;
-        }
-
-        if ($property->hasDefaultValue) {
-            return false;
-        }
-
-        return !$property->required;
-    }
-
     private function phpTypeAllowsNullablePrefix(string $type): bool
     {
         return $type !== 'mixed';
@@ -430,7 +416,7 @@ final class OpenApiDtoClassRenderer
 
     private function renderPhpType(OpenApiDtoProperty $property): string
     {
-        if (!$this->isEffectivelyNullable($property) || !$this->phpTypeAllowsNullablePrefix($property->phpType)) {
+        if (!$property->nullable || !$this->phpTypeAllowsNullablePrefix($property->phpType)) {
             return $property->phpType;
         }
 
@@ -468,12 +454,9 @@ final class OpenApiDtoClassRenderer
         if ($definition->type === OpenApiDtoType::Response && $definition->responseStatusCode !== Response::HTTP_OK) {
             $imports[Response::class] = true;
         }
-        $imports[JsonStreamable::class] = true;
-
         foreach ($definition->properties as $property) {
             if ($property->schemaName !== null && $property->schemaName !== $property->name) {
                 $imports[SerializedName::class] = true;
-                $imports[StreamedName::class] = true;
             }
 
             foreach ([$property->phpType, $property->arrayItemType, $property->arrayMapValueType] as $type) {

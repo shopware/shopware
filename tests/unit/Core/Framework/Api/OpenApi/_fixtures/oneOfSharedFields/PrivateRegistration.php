@@ -10,15 +10,19 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Request\AbstractRequest;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class PrivateRegistration extends AbstractRequest
 {
+    /**
+     * Account type
+     */
+    #[Assert\Choice(choices: ['private'])]
+    public string $accountType = 'private';
+
     /**
      * @internal
      */
@@ -38,11 +42,6 @@ final class PrivateRegistration extends AbstractRequest
          */
         #[Assert\NotBlank]
         public string $lastName,
-        /**
-         * Account type
-         */
-        #[Assert\Choice(choices: ['private'])]
-        public string $accountType = 'private',
     ) {
     }
 }

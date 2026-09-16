@@ -10,24 +10,23 @@
 namespace App\DTO;
 
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 
 /**
  * Returns context token
  *
  * @codeCoverageIgnore
  */
-#[JsonStreamable]
 final class ImitateCustomerLoginResponse extends AbstractResponse
 {
+    /**
+     * Redirect URL if any
+     */
+    public string $redirectUrl;
+
     /**
      * @internal
      */
     public function __construct(
-        /**
-         * Redirect URL if any
-         */
-        public ?string $redirectUrl = null,
     ) {
         parent::__construct();
     }

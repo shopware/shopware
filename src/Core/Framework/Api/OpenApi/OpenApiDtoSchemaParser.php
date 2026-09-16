@@ -554,6 +554,7 @@ final class OpenApiDtoSchemaParser
             $type = $this->mapOpenApiTypeToPhp($schema, $registry);
             $properties = $this->mergeProperties($properties, [new OpenApiDtoProperty(
                 name: $this->toPropertyName($name),
+                schemaName: $name,
                 phpType: $type['phpType'],
                 required: ($parameter['required'] ?? null) === true,
                 nullable: $type['nullable'],
@@ -753,6 +754,7 @@ final class OpenApiDtoSchemaParser
 
         return new OpenApiDtoProperty(
             name: $this->toPropertyName($propertyName),
+            schemaName: $propertyName,
             phpType: $phpType,
             required: $required,
             nullable: $nullable ?? $this->hasTypeNull($schema),

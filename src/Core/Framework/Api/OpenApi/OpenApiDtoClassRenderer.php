@@ -11,6 +11,8 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
+use Symfony\Component\JsonStreamer\Attribute\StreamedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
  * @internal
@@ -170,6 +172,12 @@ final class OpenApiDtoClassRenderer
         $constraints = $this->renderConstraints($property);
         if ($constraints !== []) {
             $lines = [...$lines, ...$constraints];
+        }
+
+        if ($property->schemaName !== null && $property->schemaName !== $property->name) {
+            $name = $this->escapePhpSingleQuoted($property->schemaName);
+            $lines[] = '        #[SerializedName(\'' . $name . '\')]';
+            $lines[] = '        #[StreamedName(\'' . $name . '\')]';
         }
 
         $lines[] = \sprintf(
@@ -463,6 +471,11 @@ final class OpenApiDtoClassRenderer
         $imports[JsonStreamable::class] = true;
 
         foreach ($definition->properties as $property) {
+            if ($property->schemaName !== null && $property->schemaName !== $property->name) {
+                $imports[SerializedName::class] = true;
+                $imports[StreamedName::class] = true;
+            }
+
             foreach ([$property->phpType, $property->arrayItemType, $property->arrayMapValueType] as $type) {
                 if ($type === null) {
                     continue;

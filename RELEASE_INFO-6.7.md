@@ -292,7 +292,7 @@ Changed snippets of an app reach the storefront on update: raise the manifest ve
 
 ### `ProductListingResult::setPage()` and `setLimit()` are deprecated
 
-6.7.13.0 listed both as staying supported. That is withdrawn: they come from `EntitySearchResult` now and are removed in v6.8.0.0.
+6.7.13.0 listed both as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0.0. Page the criteria in `AbstractListingProcessor::prepare()` instead.
 
 ## API
 

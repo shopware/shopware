@@ -18,19 +18,16 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.8.0 - reason: the tested factory is removed with the next major - to be removed
  */
 #[Package('inventory')]
 #[CoversClass(ProductListingResult::class)]
-#[DisabledFeatures(['v6.8.0.0'])]
 class ProductListingResultTest extends TestCase
 {
-    public function testFromSearchResultCopiesResultProperties(): void
+    public function testCreateFromCopiesResultProperties(): void
     {
         $source = $this->createSearchResult();
 
-        $listing = ProductListingResult::fromSearchResult($source);
+        $listing = ProductListingResult::createFrom($source);
 
         static::assertSame($source->getTotal(), $listing->getTotal());
         static::assertSame($source->getEntities(), $listing->getEntities());
@@ -38,34 +35,16 @@ class ProductListingResultTest extends TestCase
         static::assertSame($source->getContext(), $listing->getContext());
     }
 
-    public function testFromSearchResultSetsListingSpecificFields(): void
+    public function testCreateFromUsesDefaultsForTheListingState(): void
     {
-        $sortings = new ProductSortingCollection();
-
-        $listing = ProductListingResult::fromSearchResult(
-            $this->createSearchResult(),
-            availableSortings: $sortings,
-            sorting: 'name-asc',
-            currentFilters: ['category' => 'electronics'],
-            streamId: 'stream-id-1',
-        );
-
-        static::assertSame($sortings, $listing->getAvailableSortings());
-        static::assertSame('name-asc', $listing->getSorting());
-        static::assertSame(['category' => 'electronics'], $listing->getCurrentFilters());
-        static::assertSame('stream-id-1', $listing->getStreamId());
-    }
-
-    public function testFromSearchResultUsesDefaultsWhenExtrasOmitted(): void
-    {
-        $listing = ProductListingResult::fromSearchResult($this->createSearchResult());
+        $listing = ProductListingResult::createFrom($this->createSearchResult());
 
         static::assertNull($listing->getSorting());
         static::assertSame([], $listing->getCurrentFilters());
         static::assertNull($listing->getStreamId());
     }
 
-    public function testFromSearchResultKeepsPaginationAggregationsExtensionsAndStates(): void
+    public function testCreateFromKeepsPaginationAggregationsExtensionsAndStates(): void
     {
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -82,13 +61,51 @@ class ProductListingResultTest extends TestCase
         $source->addExtension('custom', new ArrayStruct(['foo' => 'bar']));
         $source->addState('custom-state');
 
-        $listing = ProductListingResult::fromSearchResult($source);
+        $listing = ProductListingResult::createFrom($source);
 
         static::assertSame(10, $listing->getLimit());
         static::assertSame(3, $listing->getPage());
         static::assertSame($source->getAggregations(), $listing->getAggregations());
         static::assertSame($source->getExtension('custom'), $listing->getExtension('custom'));
         static::assertTrue($listing->hasState('custom-state'));
+    }
+
+    public function testSettersFillTheListingState(): void
+    {
+        $sortings = new ProductSortingCollection();
+
+        $listing = ProductListingResult::createFrom($this->createSearchResult());
+        $listing->setAvailableSortings($sortings);
+        $listing->setSorting('name-asc');
+        $listing->addCurrentFilter('category', 'electronics');
+        $listing->setStreamId('stream-id-1');
+
+        static::assertSame($sortings, $listing->getAvailableSortings());
+        static::assertSame('name-asc', $listing->getSorting());
+        static::assertSame(['category' => 'electronics'], $listing->getCurrentFilters());
+        static::assertSame('stream-id-1', $listing->getStreamId());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason: the tested factory is removed with the next major - to be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testFromSearchResultSetsListingSpecificFields(): void
+    {
+        $sortings = new ProductSortingCollection();
+
+        $listing = ProductListingResult::fromSearchResult(
+            $this->createSearchResult(),
+            availableSortings: $sortings,
+            sorting: 'name-asc',
+            currentFilters: ['category' => 'electronics'],
+            streamId: 'stream-id-1',
+        );
+
+        static::assertSame($sortings, $listing->getAvailableSortings());
+        static::assertSame('name-asc', $listing->getSorting());
+        static::assertSame(['category' => 'electronics'], $listing->getCurrentFilters());
+        static::assertSame('stream-id-1', $listing->getStreamId());
     }
 
     /**

@@ -234,6 +234,14 @@ Price-based shipping method price matrix ranges are now compared in the default 
 
 Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
+## An app is marked active only after its activation finished
+
+Activating an app writes `app.active = 1` as the last step, after the lifecycle handlers ran and after `AppActivatedEvent`, the `app.activated` webhook and the `app-activated` script hook were dispatched. It was written first, so a failure anywhere in activation left the app marked active although it never finished activating.
+
+While those handlers, listeners, scripts and webhooks run, the app row still reads `active = 0`, and `ActiveAppsLoader::getActiveApps()` does not list the app yet. Code that reacts to an app activation and needs the new state must use the `AppEntity` carried by the event, which reports `isActive() === true`, instead of reading the database.
+
+Activation still happens exactly once per app, and a failing activation now throws without leaving the app active. Deactivation is unchanged.
+
 </details>
 
 # API

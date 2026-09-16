@@ -48,7 +48,7 @@ final class PrivateFileDownloadResponseGenerator
         $metadata = stream_get_meta_data($resource);
 
         if ($downloadStrategy === DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY
-            && ($metadata['wrapper_type'] ?? null) === 'plainfile'
+            && $metadata['wrapper_type'] === 'plainfile'
             && isset($metadata['uri'])
         ) {
             $location = $metadata['uri'];

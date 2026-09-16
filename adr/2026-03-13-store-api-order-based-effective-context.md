@@ -44,7 +44,7 @@ Its responsibility is limited to the following steps:
 2. Check whether an `orderId` is present in the request.
 3. Load and validate the order for the current caller.
 4. Reassemble an order-based `SalesChannelContext`.
-5. Convert the order into a cart.
+5. Convert the order into a cart and process it.
 6. Store the result in dedicated request attributes as the effective request state.
 
 This resolver must not replace the existing canonical request attributes.
@@ -52,54 +52,58 @@ It decides whether an effective object should exist for the current request.
 
 ### Original and effective request attributes
 
-The existing request attributes remain the source of truth for the original request/session state:
+The existing request attributes (`PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT`, `PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT`) remain the source of truth for the original request and session state.
+The order-aware resolver stores the effective `Context`, `SalesChannelContext` and `Cart` under dedicated attributes, whose names come with the implementation.
 
-- `PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT`
-- `PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT`
-
-The order-aware resolver stores dedicated effective attributes, for example:
-
-- an effective `Context`
-- an effective `SalesChannelContext`
-- an effective `Cart`
-
-The exact constant names can be introduced with the implementation.
-The important part is the semantic split:
-
-- canonical attributes describe the actual incoming request state
-- effective attributes describe the synthetic state used to evaluate the current route
+The semantic split is what matters: canonical attributes describe the actual incoming request, effective attributes describe the synthetic state used to evaluate the current route.
 
 ### Value resolvers inject the effective request state if it exists
 
 Argument value resolvers do not decide whether an order-based state should be created.
-They only check whether an effective object was added by the dedicated resolver and inject it if present.
-Otherwise they fall back to the canonical request attributes and keep the current behavior.
+They check whether an effective object was added by the dedicated resolver, inject it if present, and otherwise fall back to the canonical attributes.
+This applies to the value resolvers for `SalesChannelContext`, `Context`, `Cart` and `Criteria`.
 
-This applies in particular to:
+Opted-in route handlers therefore receive the order-based objects without any change to their signatures.
+For routes that do not opt in, or requests without an `orderId`, behavior remains unchanged.
 
-- `SalesChannelContextValueResolver`
-- `ContextValueResolver`
-- `CartValueResolver`
-- `CriteriaValueResolver`
+### The restored cart is processed before the route sees it
 
-This creates a clear split of responsibilities:
+The restored cart runs through the regular cart processing before it is handed to the route.
+An unprocessed cart is not enriched and matches no rules, so any availability derived from it would simply be wrong.
 
-- the order-aware resolver decides whether an effective state exists
-- the value resolvers optionally inject that effective state and otherwise fall back
+Several places in the platform restore a cart today and each one processes it differently, from not at all up to a full recalculation.
+Opted-in Store API routes settle on one behavior: process the cart and match rules against the current state of the shop.
 
-This ensures that opted-in route handlers receive the order-based `SalesChannelContext`, `Context` and `Cart` without changing the route signatures.
+Availability is answered for today, not for the day the order was placed.
+These routes answer whether an existing order can still be paid or shipped with a given method now, so currently matching rules are the correct basis, and the rule IDs stored on the order do not restrict that evaluation.
 
-For routes that do not opt in, or requests that do not provide an `orderId`, behavior remains unchanged.
-
-### Restored objects are request-local
+### Permissions keep the restored objects request-local
 
 Restored carts and restored sales channel contexts are evaluation objects only.
-They must not be treated like the persisted request/session state.
+They must not be persisted into database or Redis-backed storage, neither as a context nor as a cart, and exist only for the lifetime of the current request.
 
-In particular, the implementation must not persist these restored objects into database or Redis-backed storage.
-This applies to both context persistence and cart persistence.
+This does not come for free: processing a cart is exactly what can trigger cart persistence, so the guarantee is carried by the permissions the restored context runs with.
+The resolver therefore names the permission set it grants explicitly instead of inheriting the defaults used for admin order editing.
 
-They exist only for the lifetime of the current request in order to evaluate availability against an existing order.
+Skipping cart persistence stays part of that set, since it is what keeps the restored cart out of storage.
+Pinning prices and relaxing stock and product availability checks stay as well, a customer must not be blocked from paying an existing order because a product has sold out since.
+
+Because that set also grants permissions that would be unsafe for writes, opt-in is limited to routes that only read.
+A route that mutates data must not opt in.
+
+Restored carts and contexts are already identifiable, both carry the `OrderConverter::ORIGINAL_ID` extension.
+That marker, not the permission, is the anchor for any hard guard against persistence, because a permission can be overridden by third-party code listening on the cart persist event.
+
+### Failure handling
+
+If a route opted in and an `orderId` is present but the effective state cannot be built, the request fails.
+The resolver must never fall back to the session context silently, because the client would then receive availability for the current session while believing it asked about the order.
+
+An order that does not exist and an order that does not belong to the caller produce the same response, so that the existence of an order stays unobservable.
+An order the caller may see but whose restoration fails produces its own error.
+
+Cart errors produced by processing are not failures in this sense.
+They are part of the result and are returned in the response payload as usual.
 
 ### The request token remains unchanged
 
@@ -124,3 +128,5 @@ The solution adds some plumbing in the request resolution and value resolver lay
 
 Routes that need an order-based evaluation must still define how the order is authorized for the current caller.
 An `orderId` alone must never be enough to expose order-derived availability information.
+
+Opt-in stays limited to read-only routes. Extending this to order mutations would need its own decision about the permissions such a route may run with.

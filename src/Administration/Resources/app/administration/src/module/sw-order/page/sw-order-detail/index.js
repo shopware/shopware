@@ -403,7 +403,7 @@ export default {
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    this.onError('error', error);
+                    this.onError(error);
                 })
                 .finally(() => {
                     Store.get('swOrderDetail').setLoading([
@@ -465,7 +465,7 @@ export default {
                     this.hasOrderDeepEdit = false;
                 })
                 .catch((error) => {
-                    this.onError('error', error);
+                    this.onError(error);
                 })
                 .finally(() => {
                     this.missingProductLineItems = [];
@@ -499,7 +499,7 @@ export default {
                     .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
-                this.onError('error', error);
+                this.onError(error);
             } finally {
                 Store.get('swOrderDetail').setLoading([
                     'recalculation',
@@ -528,7 +528,7 @@ export default {
                 }
                 await this.reloadEntityData();
             } catch (error) {
-                this.onError('error', error);
+                this.onError(error);
             } finally {
                 Store.get('swOrderDetail').setLoading([
                     'recalculation',

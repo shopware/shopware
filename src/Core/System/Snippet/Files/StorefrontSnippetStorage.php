@@ -102,12 +102,7 @@ class StorefrontSnippetStorage
     }
 
     /**
-     * Drops the local copies of an app so the next reader materializes the snapshot again.
-     *
-     * A version does not identify contents: an app can ship different snippets under the same
-     * version after an in-place update, and an uninstalled app's name and version can come back
-     * on an entirely different app. The version-keyed directories cannot tell those apart, so
-     * they are dropped whenever the snapshot they were built from stops matching.
+     * Drops the local copies: their version-keyed path cannot tell changed contents apart.
      *
      * @return bool whether local copies existed
      */

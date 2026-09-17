@@ -298,7 +298,7 @@ class StorefrontSnippetStorageTest extends TestCase
 
         static::assertTrue($storage->persist('TestApp', '1.0.0', $this->source('AppWithNestedSnippets')));
 
-        // same name and version, so the new contents land in the very same directory
+        // same name and version, so the new contents land in the same directory
         static::assertSame($directory, $storage->directory('TestApp', '1.0.0'));
         static::assertJsonStringEqualsJsonString('{"app":{"title":"Root"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
         static::assertFalse($this->io->exists($directory . '/Resources/snippet/storefront.en-GB.base.json'));

@@ -8,7 +8,7 @@
 export default {
     id: 'sw-catalogue',
     moduleType: 'core',
-    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+    label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
     color: 'var(--sw-color-module-green-default)',
     icon: 'regular-products',
     position: 20,

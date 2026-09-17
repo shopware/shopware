@@ -265,7 +265,7 @@ Module.register('sw-product', {
     navigation: [
         {
             id: 'sw-catalogue',
-            label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
             color: 'var(--sw-color-module-green-default)',
             icon: 'regular-products',
             position: 20,

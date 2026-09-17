@@ -72,6 +72,10 @@ export default {
     },
 
     computed: {
+        hasActiveSearchOrFilter() {
+            return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
+        },
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },

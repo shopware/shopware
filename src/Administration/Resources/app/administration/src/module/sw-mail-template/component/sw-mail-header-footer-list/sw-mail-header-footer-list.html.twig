@@ -8,10 +8,15 @@
         v-if="!isLoading && !showListing"
         centered
         icon="regular-envelope"
-        :headline="$t('sw-mail-header-footer.list.emptyStateTitle')"
-        :description="$t('sw-mail-header-footer.list.emptyStateSubTitle')"
+        :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-mail-header-footer.list.emptyStateTitle')"
+        :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t('sw-mail-header-footer.list.emptyStateSubTitle')"
+        :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+        :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
     >
-        <template #button>
+        <template
+            v-if="!isValidTerm(term)"
+            #button
+        >
             {% block sw_mail_header_footer_list_grid_empty_state_button %}
             <mt-button
                 v-tooltip="{

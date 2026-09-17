@@ -74,13 +74,13 @@
                 v-if="!isLoading && !total"
                 centered
                 :icon="$route.meta.$module.icon"
-                :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-order.list.messageEmpty')"
-                :description="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
-                :link-text="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
-                :link-href="filterCriteria.length || isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
+                :headline="hasActiveSearchOrFilter ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-order.list.messageEmpty')"
+                :description="hasActiveSearchOrFilter ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
+                :link-text="hasActiveSearchOrFilter ? $t('sw-empty-state.messageNoResultLink') : ''"
+                :link-href="hasActiveSearchOrFilter ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
             >
                 <template
-                    v-if="!filterCriteria.length && !isValidTerm(term)"
+                    v-if="!hasActiveSearchOrFilter"
                     #button
                 >
                     <mt-button

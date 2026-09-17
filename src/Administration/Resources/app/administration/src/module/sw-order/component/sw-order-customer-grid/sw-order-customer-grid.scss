@@ -15,16 +15,12 @@
         height: 500px;
     }
 
-    // the listing keeps rendering its header while the search has no hits,
-    // so the empty state overlays the grid body instead of stacking below it
     &__container {
-        position: relative;
         height: 100%;
     }
 
     &__empty-state {
-        position: absolute;
-        inset: 0;
+        height: 100%;
         justify-content: center;
     }
 

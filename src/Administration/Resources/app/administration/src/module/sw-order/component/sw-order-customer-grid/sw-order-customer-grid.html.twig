@@ -37,6 +37,7 @@
         >
             {% block sw_order_customer_grid_content %}
             <sw-entity-listing
+                v-if="!showEmptyState"
                 class="sw-order-customer-grid__content"
                 :show-selection="false"
                 :show-settings="false"
@@ -110,9 +111,6 @@
                 description=""
             />
             {% endblock %}
-
-            {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
-            {% block sw_order_customer_grid_empty_state_icon %}{% endblock %}
         </div>
 
         {% block sw_order_customer_grid_new_customer_modal %}
@@ -230,5 +228,8 @@
         </sw-modal>
         {% endblock %}
     </template>
+
+    {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+    {% block sw_order_customer_grid_empty_state_icon %}{% endblock %}
 </mt-card>
 {% endblock %}

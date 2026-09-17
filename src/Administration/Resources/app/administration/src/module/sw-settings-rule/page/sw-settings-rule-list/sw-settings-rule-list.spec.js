@@ -14,7 +14,7 @@ function createRuleCollection(items = [{ id: 'ruleId', name: 'Test rule', tags: 
     return rules;
 }
 
-async function createWrapper(privileges = [], rules = createRuleCollection()) {
+async function createWrapper(privileges = [], rules = createRuleCollection(), filterService = new FilterService()) {
     const wrapper = mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
         global: {
             stubs: {
@@ -54,7 +54,7 @@ async function createWrapper(privileges = [], rules = createRuleCollection()) {
                 filterFactory: {
                     create: (name, filters) => filters,
                 },
-                filterService: new FilterService(),
+                filterService,
                 ruleConditionDataProviderService: {
                     getConditions: () => {
                         return [{ type: 'foo', label: 'bar' }];
@@ -351,6 +351,26 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await wrapper.setData({ term: 'zzzqqqnothing' });
 
         // a search without hits is not an empty rule set, so it points at the search preferences instead
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
+    it('should show the no result empty state when a stored filter has no hits', async () => {
+        const filterService = new FilterService();
+        filterService.mergeWithStoredFilters = (storeKey, criteria) => {
+            criteria.addFilter(Criteria.equals('tags.id', 'stored-tag-id'));
+
+            return Promise.resolve(criteria);
+        };
+
+        const { wrapper } = await createWrapper(['rule.creator'], createRuleCollection([]), filterService);
+        await flushPromises();
+
+        // the sidebar panel only fills filterCriteria after a user change, so a filter restored on load
+        // is only visible through activeFilterNumber
+        expect(wrapper.vm.filterCriteria).toEqual([]);
+        expect(wrapper.vm.activeFilterNumber).toBe(1);
+
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });

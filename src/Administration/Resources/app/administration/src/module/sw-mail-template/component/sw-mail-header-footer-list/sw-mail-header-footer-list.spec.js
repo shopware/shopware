@@ -22,7 +22,7 @@ const mailHeaderFooterMock = [
     },
 ];
 
-const createWrapper = async (privileges = []) => {
+const createWrapper = async (privileges = [], term = '') => {
     return mount(await wrapTestComponent('sw-mail-header-footer-list', { sync: true }), {
         global: {
             provide: {
@@ -52,13 +52,16 @@ const createWrapper = async (privileges = []) => {
                         return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => !!term,
+                },
             },
             mocks: {
                 $route: {
                     query: {
                         page: 1,
                         limit: 25,
+                        term,
                     },
                 },
             },
@@ -275,5 +278,28 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         await flushPromises();
 
         expect(wrapper.find('.mt-empty-state__button .mt-button').attributes('disabled')).toBeDefined();
+    });
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper(['mail_templates.creator'], 'no-hit-search');
+        await flushPromises();
+
+        wrapper.vm.mailHeaderFooters = [];
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-empty-state.messageNoResultSubline');
+    });
+
+    it('should show the first-time empty state with its create action when nothing exists', async () => {
+        const wrapper = await createWrapper(['mail_templates.creator']);
+        await flushPromises();
+
+        wrapper.vm.mailHeaderFooters = [];
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-mail-header-footer.list.emptyStateTitle');
+        expect(wrapper.find('.mt-empty-state__button .mt-button').exists()).toBe(true);
     });
 });

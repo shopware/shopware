@@ -38,7 +38,7 @@ class PromotionCloneTest extends TestCase
 
         $promotionRepository->clone($sourceId, $context, $cloneId);
 
-        $clone = $promotionRepository->search(new Criteria([$cloneId]), $context)->first();
+        $clone = $promotionRepository->search(new Criteria([$cloneId]), $context)->getEntities()->first();
         static::assertInstanceOf(PromotionEntity::class, $clone);
         static::assertSame(0, $clone->getOrderCount());
         static::assertNull($clone->getOrdersPerCustomerCount());

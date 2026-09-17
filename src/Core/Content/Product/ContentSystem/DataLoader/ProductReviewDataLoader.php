@@ -20,12 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
 use function Symfony\Component\String\u;
 
 /**
- * Produces the full {@see ProductReviewResult} a review element renders: the review collection plus its rating
- * matrix, per-language totals and the current customer's own review. It resolves the product id from the
- * element property named by its `property` config (default `productId`, typically the `{{productId}}`
- * placeholder on a product-rooted layout) and delegates the actual load to {@see AbstractProductReviewLoader},
- * the one place that shape is assembled — so the content-system path and the storefront widget cannot drift.
- *
  * @internal
  *
  * @final

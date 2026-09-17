@@ -2,10 +2,6 @@
 
 ## Features
 
-### Stock availability uses shared parent locks
-
-Stock availability recalculation uses shared locks for inherited parent settings, allowing sibling variants to update concurrently while keeping those settings consistent. Standalone recalculation retries database contention and holds child locks through the complete calculation; inside an existing transaction, the transaction owner controls retries and commit timing. `ProductNoLongerAvailableEvent` still runs before an existing outer transaction commits.
-
 ### Live state transition writes are batched
 
 Live state transitions now persist the history entry and new entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive `state_machine_history` commands together with commands for the transitioned entity; use `getCommandsForEntity()` instead of assuming that an event contains commands for only one entity. Their pre-write work can run again on retry and must be idempotent.
@@ -102,6 +98,10 @@ Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legac
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
+
+### Stock availability uses shared parent locks
+
+Stock availability recalculation uses shared locks for inherited parent settings, allowing sibling variants to update concurrently while keeping those settings consistent. Standalone recalculation retries database contention and holds child locks through the complete calculation; inside an existing transaction, the transaction owner controls retries and commit timing. `ProductNoLongerAvailableEvent` still runs before an existing outer transaction commits.
 
 ### State machine transitions resolve deterministically
 
@@ -271,6 +271,7 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 ### Bulk order status handler results
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed.
+
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

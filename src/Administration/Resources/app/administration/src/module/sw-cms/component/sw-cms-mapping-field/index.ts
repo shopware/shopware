@@ -39,7 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         entity: {
-            type: String as PropType<Extract<keyof EntitySchema.Entities, string> | null>,
+            type: String as PropType<Extract<keyof EntitySchema.EntityKeys, string> | null>,
             required: false,
             default: null,
         },
@@ -136,7 +136,9 @@ export default Shopware.Component.wrapComponentConfig({
             const fetchId = this.demoValueFetchId + 1;
             this.demoValueFetchId = fetchId;
 
-            const demoValue = this.getDemoValue(this.config.value as string);
+            const demoValue = this.getDemoValue(this.config.value as string) as EntityKey<
+                Extract<keyof EntitySchema.EntityKeys, string>
+            > | null;
             this.demoValue = demoValue;
 
             if (this.valueTypes !== 'entity' || this.entity === null || typeof demoValue !== 'string') {

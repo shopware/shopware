@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -83,6 +85,59 @@ class HttpCacheKeyGeneratorTest extends TestCase
         static::assertFalse($key->isCacheable);
     }
 
+    public function testNonCacheableCacheHashHeaderSetsNoCacheOnCacheKey(): void
+    {
+        $request = Request::create('https://domain.com/method');
+        $request->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, HttpCacheCookieEvent::NOT_CACHEABLE);
+
+        $key = $this->cacheKeyGenerator->generate($request);
+
+        static::assertFalse($key->isCacheable);
+    }
+
+    public function testCacheHashHeaderIsEquivalentToCacheHashCookie(): void
+    {
+        $cookieRequest = Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']);
+
+        $headerRequest = Request::create('https://domain.com/method');
+        $headerRequest->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'foo');
+
+        static::assertSame(
+            $this->cacheKeyGenerator->generate($cookieRequest)->key,
+            $this->cacheKeyGenerator->generate($headerRequest)->key
+        );
+    }
+
+    public function testCacheHashHeaderTakesPrecedenceOverRequestCookie(): void
+    {
+        $cookieAndHeaderRequest = Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']);
+        $cookieAndHeaderRequest->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'bar');
+
+        $headerOnlyRequest = Request::create('https://domain.com/method');
+        $headerOnlyRequest->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'bar');
+
+        static::assertSame(
+            $this->cacheKeyGenerator->generate($headerOnlyRequest)->key,
+            $this->cacheKeyGenerator->generate($cookieAndHeaderRequest)->key
+        );
+    }
+
+    public function testResponseCookieTakesPrecedenceOverCacheHashHeader(): void
+    {
+        $headerRequest = Request::create('https://domain.com/method');
+        $headerRequest->headers->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'bar');
+
+        $response = new Response();
+        $response->headers->setCookie(new Cookie(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'baz'));
+
+        $cookieOnlyRequest = Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'baz']);
+
+        static::assertSame(
+            $this->cacheKeyGenerator->generate($cookieOnlyRequest)->key,
+            $this->cacheKeyGenerator->generate($headerRequest, $response)->key
+        );
+    }
+
     public function testCacheKeyStaysTheSameIfEventPartsAreSortedDifferently(): void
     {
         $request = Request::create('https://domain.com/method');
@@ -137,6 +192,21 @@ class HttpCacheKeyGeneratorTest extends TestCase
             Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
             Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
         ];
+
+        yield 'same Url with identical sw-language-id header' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'language-a']),
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'language-a']),
+        ];
+
+        yield 'same Url with empty sw-language-id header treated as absent' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => '']),
+            Request::create('https://domain.com/method'),
+        ];
+
+        yield 'same Url with same cache hash: domain currency attribute is masked by the hash' => [
+            self::createRequestWithDomainCurrency('currency-a', 'hash'),
+            self::createRequestWithDomainCurrency('currency-b', 'hash'),
+        ];
     }
 
     public static function differentKeyProvider(): \Generator
@@ -155,5 +225,97 @@ class HttpCacheKeyGeneratorTest extends TestCase
             Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
             Request::create('https://domain.com/method', 'GET', [], [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'bar']),
         ];
+
+        yield 'same Url with different sw-language-id headers' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'language-a']),
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'language-b']),
+        ];
+
+        yield 'same Url with sw-language-id differing only in letter case (matched byte-exact)' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'language-a']),
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'LANGUAGE-A']),
+        ];
+
+        yield 'same Url with sw-access-key differing only in letter case (case-sensitive credential)' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_ACCESS_KEY => 'access-key-a']),
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_ACCESS_KEY => 'ACCESS-KEY-A']),
+        ];
+
+        yield 'same Url with and without sw-language-id header' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_LANGUAGE_ID => 'language-a']),
+            Request::create('https://domain.com/method'),
+        ];
+
+        yield 'same Url with different sw-access-key headers' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_ACCESS_KEY => 'access-key-a']),
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_ACCESS_KEY => 'access-key-b']),
+        ];
+
+        yield 'same Url with and without sw-access-key header' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_ACCESS_KEY => 'access-key-a']),
+            Request::create('https://domain.com/method'),
+        ];
+
+        yield 'same Url with different sw-currency-id headers' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_CURRENCY_ID => 'currency-a']),
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_CURRENCY_ID => 'currency-b']),
+        ];
+
+        yield 'same Url with and without sw-currency-id header' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_CURRENCY_ID => 'currency-a']),
+            Request::create('https://domain.com/method'),
+        ];
+
+        yield 'same Url with different sales channel base urls (storefront language/domain selector)' => [
+            self::createRequestWithBaseUrl('https://domain.com/method', '/de'),
+            self::createRequestWithBaseUrl('https://domain.com/method', '/en'),
+        ];
+
+        yield 'same Url with and without sales channel base url' => [
+            self::createRequestWithBaseUrl('https://domain.com/method', '/de'),
+            Request::create('https://domain.com/method'),
+        ];
+
+        yield 'same Url with different domain currency attributes and no cache hash' => [
+            self::createRequestWithDomainCurrency('currency-a'),
+            self::createRequestWithDomainCurrency('currency-b'),
+        ];
+
+        yield 'same Url with different sw-cache-hash headers and no cookies' => [
+            self::createRequestWithHeaders('https://domain.com/method', [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo']),
+            self::createRequestWithHeaders('https://domain.com/method', [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'bar']),
+        ];
+    }
+
+    /**
+     * @param array<string, string> $headers
+     */
+    private static function createRequestWithHeaders(string $uri, array $headers): Request
+    {
+        $request = Request::create($uri);
+        foreach ($headers as $name => $value) {
+            $request->headers->set($name, $value);
+        }
+
+        return $request;
+    }
+
+    private static function createRequestWithBaseUrl(string $uri, string $baseUrl): Request
+    {
+        $request = Request::create($uri);
+        // \Shopware\Storefront\Framework\Routing\RequestTransformer::SALES_CHANNEL_BASE_URL,
+        // \Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SALES_CHANNEL_BASE_URL
+        $request->attributes->set('sw-sales-channel-base-url', $baseUrl);
+
+        return $request;
+    }
+
+    private static function createRequestWithDomainCurrency(string $currencyId, ?string $cacheHash = null): Request
+    {
+        $cookies = $cacheHash !== null ? [HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => $cacheHash] : [];
+        $request = Request::create('https://domain.com/method', 'GET', [], $cookies);
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
+
+        return $request;
     }
 }

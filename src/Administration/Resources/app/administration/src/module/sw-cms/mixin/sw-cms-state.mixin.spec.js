@@ -113,7 +113,7 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
         expect(wrapper.vm.inheritedSlotConfig).toStrictEqual(inheritedSlotConfig);
     });
 
-    it('should not fall back to system language slotConfig without explicit parent language', async () => {
+    it('should fall back to the system default language slotConfig without an explicit parent language', async () => {
         const wrapper = await createWrapper('sw.category.detail.cms');
 
         Shopware.Store.get('swCategoryDetail').category = {
@@ -133,7 +133,13 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
         Shopware.Store.get('context').api.languageId = 'child-language-id';
         Shopware.Store.get('context').api.language = { parentId: null };
 
-        expect(wrapper.vm.inheritedSlotConfig).toBeNull();
+        expect(wrapper.vm.inheritedSlotConfig).toStrictEqual({
+            'slot-id': {
+                content: {
+                    value: 'system',
+                },
+            },
+        });
     });
 
     it('should retain parent-language fields when the child slot has a partial override', async () => {

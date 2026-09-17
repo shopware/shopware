@@ -58,8 +58,18 @@ export default {
             });
         }
 
-        function getMatchedShortcut(shortcutKey) {
-            if (isSystemShortcut(shortcutKey)) {
+        function isNavigationSequence(sequence) {
+            const registry = Shopware.Application.getContainer('factory')?.shortcut?.getShortcutRegistry?.();
+
+            if (!registry) {
+                return false;
+            }
+
+            return [...registry.keys()].some((combination) => combination.toUpperCase().startsWith(sequence));
+        }
+
+        function getMatchedShortcut(shortcutKey, allowSequence) {
+            if (isSystemShortcut(shortcutKey) || !allowSequence) {
                 resetSequenceNow();
 
                 return findShortcut(shortcutKey);
@@ -83,7 +93,7 @@ export default {
                 return matchedShortcut;
             }
 
-            if (hasLongerSequenceThan(sequence)) {
+            if (hasLongerSequenceThan(sequence) || isNavigationSequence(sequence)) {
                 return null;
             }
 
@@ -93,6 +103,10 @@ export default {
         }
 
         function handleKeyDown(event) {
+            if (event.repeat) {
+                return;
+            }
+
             if (areShortcutsDisabled()) {
                 resetComponentShortcutState();
 
@@ -101,7 +115,7 @@ export default {
 
             // Check if event originates from within a modal
             const eventTarget = event.target instanceof Element ? event.target : null;
-            const isFromModal = eventTarget?.closest('.sw-modal') || eventTarget?.closest('.sw-modal__dialog');
+            const isFromModal = eventTarget?.closest('.sw-modal, .sw-modal__dialog, .mt-modal');
 
             if (isFromModal) {
                 resetComponentShortcutState();
@@ -111,7 +125,7 @@ export default {
 
             // The 'this' context is the component instance, bound via .call()
             const systemKey = this.$device.getSystemKey();
-            const { key, altKey, ctrlKey } = event;
+            const { key, altKey, ctrlKey, metaKey } = event;
             const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
 
             // create combined key name and look for matching shortcut
@@ -123,13 +137,15 @@ export default {
                 return;
             }
 
-            const matchedShortcut = getMatchedShortcut(combinedKey);
+            // Browser shortcuts like Ctrl+C keep matching single keys, but never start or continue a key sequence
+            const isModifiedKey = altKey || ctrlKey || metaKey;
+            const matchedShortcut = getMatchedShortcut(combinedKey, !isModifiedKey);
 
             if (!matchedShortcut) {
                 return;
             }
 
-            if (!matchedShortcut.active()) {
+            if (!matchedShortcut.active(event)) {
                 return;
             }
 

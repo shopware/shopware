@@ -8,7 +8,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 type SlotsErrorObject = {
     parameters?: {
         elements: Array<{
-            blockIds: string[];
+            blockIds: EntityKey<'cms_block'>[];
         }>;
     };
 };
@@ -16,7 +16,7 @@ type SlotsErrorObject = {
 type SlotConfigErrorObject = {
     parameters?: {
         elements: Array<{
-            blockId: string;
+            blockId: EntityKey<'cms_block'>;
         }>;
     };
 };
@@ -247,7 +247,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('block-duplicate', block, section);
         },
 
-        onBlockDelete(blockId: string) {
+        onBlockDelete(blockId: EntityKey<'cms_block'>) {
             this.section.blocks!.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {

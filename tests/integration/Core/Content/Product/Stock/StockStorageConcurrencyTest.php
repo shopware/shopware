@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -39,7 +39,7 @@ class StockStorageConcurrencyTest extends TestCase
      */
     private EntityRepository $productRepository;
 
-    private Connection $firstConnection;
+    private StockStorageConcurrencyConnection $firstConnection;
 
     private Connection $secondConnection;
 
@@ -108,45 +108,76 @@ class StockStorageConcurrencyTest extends TestCase
         $this->productRepository->delete([['id' => $this->ids->get('stock-lock-parent')]], $this->context);
     }
 
-    public function testStandaloneVariantAvailabilityDoesNotWaitForLockedParent(): void
+    #[DataProvider('outerTransactionProvider')]
+    public function testSiblingVariantsShareInheritedPolicyLocks(bool $hasOuterTransaction): void
     {
         $dispatcher = static::createStub(EventDispatcherInterface::class);
 
         $this->firstConnection->beginTransaction();
         (new StockStorage($this->firstConnection, $dispatcher))->index([$this->ids->get('stock-lock-first-variant')], $this->context);
-        $this->firstConnection->executeStatement(
-            'SELECT id FROM product WHERE id = :id AND version_id = :version FOR UPDATE',
-            [
-                'id' => $this->ids->getBytes('stock-lock-parent'),
-                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ]
-        );
+
+        if ($hasOuterTransaction) {
+            $this->secondConnection->beginTransaction();
+        }
 
         (new StockStorage($this->secondConnection, $dispatcher))->index([$this->ids->get('stock-lock-second-variant')], $this->context);
 
-        static::assertFalse($this->secondConnection->isTransactionActive());
+        static::assertTrue($this->firstConnection->isTransactionActive());
+        static::assertSame($hasOuterTransaction, $this->secondConnection->isTransactionActive());
         static::assertSame(1, (int) $this->secondConnection->fetchOne(
             'SELECT available FROM product WHERE id = :id',
             ['id' => $this->ids->getBytes('stock-lock-second-variant')]
         ));
     }
 
-    public function testSiblingVariantsShareInheritedPolicyLocksInOuterTransactions(): void
+    #[DataProvider('outerTransactionProvider')]
+    public function testParentPolicyCannotChangeBetweenAvailabilityReadAndWrite(bool $hasOuterTransaction): void
     {
-        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        if ($hasOuterTransaction) {
+            $this->firstConnection->beginTransaction();
+        }
 
-        $this->firstConnection->beginTransaction();
-        (new StockStorage($this->firstConnection, $dispatcher))->index([$this->ids->get('stock-lock-first-variant')], $this->context);
+        $parentWriteBlocked = false;
+        $this->firstConnection->afterAvailabilityRead = function () use (&$parentWriteBlocked): void {
+            // Interleave a real parent write after the inherited policy was read, but before availability is written.
+            try {
+                $this->secondConnection->update('product', ['min_purchase' => 4], ['id' => $this->ids->getBytes('stock-lock-parent')]);
+            } catch (LockWaitTimeoutException) {
+                $parentWriteBlocked = true;
+            }
+        };
 
-        $this->secondConnection->beginTransaction();
-        (new StockStorage($this->secondConnection, $dispatcher))->index([$this->ids->get('stock-lock-second-variant')], $this->context);
+        $storage = new StockStorage($this->firstConnection, static::createStub(EventDispatcherInterface::class));
+        $storage->index([$this->ids->get('stock-lock-first-variant')], $this->context);
 
-        static::assertTrue($this->firstConnection->isTransactionActive());
-        static::assertTrue($this->secondConnection->isTransactionActive());
+        static::assertTrue($parentWriteBlocked, 'The inherited policy must remain unchanged until availability is written.');
         static::assertSame(1, (int) $this->secondConnection->fetchOne(
-            'SELECT available FROM product WHERE id = :id',
-            ['id' => $this->ids->getBytes('stock-lock-second-variant')]
+            'SELECT min_purchase FROM product WHERE id = :id',
+            ['id' => $this->ids->getBytes('stock-lock-parent')]
         ));
+        static::assertSame(1, (int) $this->firstConnection->fetchOne(
+            'SELECT available FROM product WHERE id = :id',
+            ['id' => $this->ids->getBytes('stock-lock-first-variant')]
+        ));
+
+        if ($hasOuterTransaction) {
+            $this->firstConnection->commit();
+        }
+
+        // Once indexing commits, the parent can change and a new calculation uses the new policy.
+        $this->secondConnection->update('product', ['min_purchase' => 4], ['id' => $this->ids->getBytes('stock-lock-parent')]);
+        $storage->index([$this->ids->get('stock-lock-first-variant')], $this->context);
+
+        static::assertSame(0, (int) $this->secondConnection->fetchOne(
+            'SELECT available FROM product WHERE id = :id',
+            ['id' => $this->ids->getBytes('stock-lock-first-variant')]
+        ));
+    }
+
+    public static function outerTransactionProvider(): \Generator
+    {
+        yield 'standalone availability update' => [false];
+        yield 'inside an outer transaction' => [true];
     }
 
     #[DataProvider('availabilityOperationProvider')]
@@ -215,14 +246,33 @@ class StockStorageConcurrencyTest extends TestCase
         ));
     }
 
-    private function createConnection(): Connection
+    private function createConnection(): StockStorageConcurrencyConnection
     {
         $connection = static::getContainer()->get(Connection::class);
 
-        return new Connection(
+        return new StockStorageConcurrencyConnection(
             array_merge($connection->getParams(), ['dbname' => $connection->getDatabase() ?? '']),
             $connection->getDriver(),
             $connection->getConfiguration(),
         );
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('inventory')]
+class StockStorageConcurrencyConnection extends Connection
+{
+    public ?\Closure $afterAvailabilityRead = null;
+
+    public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array
+    {
+        $result = parent::fetchAllAssociativeIndexed($query, $params, $types);
+        $callback = $this->afterAvailabilityRead;
+        $this->afterAvailabilityRead = null;
+        $callback?->__invoke();
+
+        return $result;
     }
 }

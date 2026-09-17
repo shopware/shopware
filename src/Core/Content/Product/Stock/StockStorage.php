@@ -99,24 +99,20 @@ class StockStorage extends AbstractStockStorage
         }
 
         $bytes = Uuid::fromHexToBytesList($ids);
-        sort($bytes);
-
         $version = Uuid::fromHexToBytes($context->getVersionId());
-        $hasOuterTransaction = $this->connection->getTransactionNestingLevel() > 0;
 
-        [$before, $after] = RetryableTransaction::retryable($this->connection, function () use ($bytes, $version, $hasOuterTransaction): array {
+        [$before, $after] = RetryableTransaction::retryable($this->connection, function () use ($bytes, $version): array {
             $params = ['ids' => $bytes, 'version' => $version];
 
             // Lock the products whose availability is recalculated before reading their stock.
             $this->connection->executeStatement(
-                'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version FOR UPDATE',
+                'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY id FOR UPDATE',
                 $params,
                 ['ids' => ArrayParameterType::BINARY]
             );
 
-            // An outer REPEATABLE READ transaction may already have an older snapshot. A shared lock
-            // reads current inherited values without exclusively locking the parent for sibling variants.
-            // A standalone transaction has no earlier snapshot and can read the parent without locking it.
+            // Shared locks read current inherited values and keep them stable until availability is written,
+            // while allowing sibling variants to read the same parent concurrently.
             /**
              * @var array<string, array{current_available: mixed, calculated_available: mixed}> $availability
              */
@@ -134,7 +130,8 @@ class StockStorage extends AbstractStockStorage
                 AND parent.version_id = product.version_id
             WHERE product.id IN (:ids)
             AND product.version_id = :version
-        ' . ($hasOuterTransaction ? ' LOCK IN SHARE MODE' : ''), $params, ['ids' => ArrayParameterType::BINARY]);
+            LOCK IN SHARE MODE
+        ', $params, ['ids' => ArrayParameterType::BINARY]);
 
             $before = [];
             $cases = [];

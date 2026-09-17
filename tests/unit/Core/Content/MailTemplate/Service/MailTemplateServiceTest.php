@@ -690,6 +690,52 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame(['inject', 'render', 'reset'], $calls);
     }
 
+    public function testPreviewResetsTranslatorWhenInjectingTheSettingsFails(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $exception = new \RuntimeException('Snippet set could not be resolved');
+
+        $this->mailDataProvider->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('enableTestMode');
+        $this->templateRenderer->expects($this->never())->method('render');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings')->willThrowException($exception);
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createService(translator: $translator)->preview(
+            new PreviewRequest($this->createMailTemplate(), salesChannel: $salesChannel),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testSimulateResetsTranslatorWhenInjectingTheSettingsFails(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $exception = new \RuntimeException('Snippet set could not be resolved');
+
+        $this->mailDataSimulator->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('enableTestMode');
+        $this->templateRenderer->expects($this->never())->method('render');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings')->willThrowException($exception);
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createService(translator: $translator)->simulate(
+            new SimulateRequest(templateParts: ['subject' => 'subject'], eventName: 'checkout.order.placed', salesChannel: $salesChannel, strictRendering: false),
+            Context::createDefaultContext(),
+        );
+    }
+
     /**
      * @param StaticEntityRepository<MailTemplateCollection>|null $mailTemplateRepository
      */

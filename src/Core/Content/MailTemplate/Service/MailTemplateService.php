@@ -70,33 +70,40 @@ class MailTemplateService
         $templateData = $this->mailDataSimulator->getTemplateData($simulateRequest->eventName, $context, $simulateRequest->salesChannel);
         $templateData = $this->enrichTemplateDataForRendering($templateData, $context, $simulateRequest->salesChannel);
 
-        if (!$simulateRequest->strictRendering) {
-            $this->templateRenderer->enableTestMode();
-        }
+        $salesChannelId = $simulateRequest->salesChannel?->getId();
+        $injectTranslator = $salesChannelId !== null && $this->translator->getSnippetSetId() === null;
 
-        $injected = $this->injectTranslator($context, $simulateRequest->salesChannel?->getId());
-
-        foreach ($simulateRequest->templateParts as $key => $content) {
-            try {
-                $rendered = $this->templateRenderer->render(
-                    $content,
-                    $templateData,
-                    $context,
-                    $this->shouldEscapeHtml($key),
-                );
-
-                $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
-            } catch (\Throwable $e) {
-                $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+        try {
+            if ($injectTranslator) {
+                $this->injectTranslator($context, $salesChannelId);
             }
-        }
 
-        if ($injected) {
-            $this->translator->resetInjection();
-        }
+            if (!$simulateRequest->strictRendering) {
+                $this->templateRenderer->enableTestMode();
+            }
 
-        if (!$simulateRequest->strictRendering) {
-            $this->templateRenderer->disableTestMode();
+            foreach ($simulateRequest->templateParts as $key => $content) {
+                try {
+                    $rendered = $this->templateRenderer->render(
+                        $content,
+                        $templateData,
+                        $context,
+                        $this->shouldEscapeHtml($key),
+                    );
+
+                    $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
+                } catch (\Throwable $e) {
+                    $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+                }
+            }
+
+            if (!$simulateRequest->strictRendering) {
+                $this->templateRenderer->disableTestMode();
+            }
+        } finally {
+            if ($injectTranslator) {
+                $this->translator->resetInjection();
+            }
         }
 
         return $renderedResult;
@@ -119,45 +126,52 @@ class MailTemplateService
         );
         $templateData = $this->enrichTemplateDataForRendering($templateData, $context, $request->salesChannel);
 
-        if (!$request->strictRendering) {
-            $this->templateRenderer->enableTestMode();
-        }
+        $salesChannelId = $request->salesChannel?->getId();
+        $injectTranslator = $salesChannelId !== null && $this->translator->getSnippetSetId() === null;
 
-        $templateContent = $this->getTemplateContent($request->mailTemplate);
-
-        if ($request->includeHeaderFooter) {
-            $templateContent = array_replace(
-                $templateContent,
-                $this->mailTemplateContentBuilder->build([
-                    'contentPlain' => $templateContent['contentPlain'],
-                    'contentHtml' => $templateContent['contentHtml'],
-                ], $request->salesChannel)
-            );
-        }
-
-        $injected = $this->injectTranslator($context, $request->salesChannel?->getId());
-
-        foreach ($templateContent as $key => $value) {
-            try {
-                $rendered = $this->templateRenderer->render(
-                    $value,
-                    $templateData,
-                    $context,
-                    $this->shouldEscapeHtml($key),
-                );
-
-                $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
-            } catch (\Throwable $e) {
-                $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+        try {
+            if ($injectTranslator) {
+                $this->injectTranslator($context, $salesChannelId);
             }
-        }
 
-        if ($injected) {
-            $this->translator->resetInjection();
-        }
+            if (!$request->strictRendering) {
+                $this->templateRenderer->enableTestMode();
+            }
 
-        if (!$request->strictRendering) {
-            $this->templateRenderer->disableTestMode();
+            $templateContent = $this->getTemplateContent($request->mailTemplate);
+
+            if ($request->includeHeaderFooter) {
+                $templateContent = array_replace(
+                    $templateContent,
+                    $this->mailTemplateContentBuilder->build([
+                        'contentPlain' => $templateContent['contentPlain'],
+                        'contentHtml' => $templateContent['contentHtml'],
+                    ], $request->salesChannel)
+                );
+            }
+
+            foreach ($templateContent as $key => $value) {
+                try {
+                    $rendered = $this->templateRenderer->render(
+                        $value,
+                        $templateData,
+                        $context,
+                        $this->shouldEscapeHtml($key),
+                    );
+
+                    $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
+                } catch (\Throwable $e) {
+                    $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+                }
+            }
+
+            if (!$request->strictRendering) {
+                $this->templateRenderer->disableTestMode();
+            }
+        } finally {
+            if ($injectTranslator) {
+                $this->translator->resetInjection();
+            }
         }
 
         return $renderedResult;
@@ -257,24 +271,14 @@ class MailTemplateService
         ];
     }
 
-    private function injectTranslator(Context $context, ?string $salesChannelId): bool
+    private function injectTranslator(Context $context, string $salesChannelId): void
     {
-        if ($salesChannelId === null) {
-            return false;
-        }
-
-        if ($this->translator->getSnippetSetId() !== null) {
-            return false;
-        }
-
         $this->translator->injectSettings(
             $salesChannelId,
             $context->getLanguageId(),
             $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
             $context
         );
-
-        return true;
     }
 
     private function shouldEscapeHtml(string $templatePart): bool

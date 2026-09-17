@@ -114,12 +114,21 @@ class MailService extends AbstractMailService
         \assert(\array_key_exists('subject', $data) && \is_string($data['subject']) && $data['subject'] !== '');
 
         $salesChannel = $this->getSalesChannel($data, $templateData, $context);
-        $injectedTranslator = $this->injectTranslator($context, $salesChannel?->getId());
+        $injectTranslator = $salesChannel !== null && $this->translator->getSnippetSetId() === null;
 
         try {
+            if ($injectTranslator) {
+                $this->translator->injectSettings(
+                    $salesChannel->getId(),
+                    $context->getLanguageId(),
+                    $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
+                    $context
+                );
+            }
+
             $mail = $this->createMail($data, $templateData, $context, $salesChannel);
         } finally {
-            if ($injectedTranslator) {
+            if ($injectTranslator) {
                 $this->translator->resetInjection();
             }
         }
@@ -193,26 +202,6 @@ class MailService extends AbstractMailService
             \is_string($eventName) ? $eventName : null,
             fn () => $this->mailSender->send($mail),
         );
-    }
-
-    private function injectTranslator(Context $context, ?string $salesChannelId): bool
-    {
-        if ($salesChannelId === null) {
-            return false;
-        }
-
-        if ($this->translator->getSnippetSetId() !== null) {
-            return false;
-        }
-
-        $this->translator->injectSettings(
-            $salesChannelId,
-            $context->getLanguageId(),
-            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
-            $context
-        );
-
-        return true;
     }
 
     private function getValidationDefinition(Context $context): DataValidationDefinition

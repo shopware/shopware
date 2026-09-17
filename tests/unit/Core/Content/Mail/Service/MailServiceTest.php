@@ -575,6 +575,27 @@ class MailServiceTest extends TestCase
         $this->createMailService(translator: $translator)->send($this->createMailData($salesChannelId), $context);
     }
 
+    public function testSendResetsTranslatorWhenInjectingTheSettingsFails(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $exception = new \RuntimeException('Snippet set could not be resolved');
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createSalesChannelResult($salesChannelId, $context));
+
+        $this->mailFactory->expects($this->never())->method('create');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings')->willThrowException($exception);
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createMailService(translator: $translator)->send($this->createMailData($salesChannelId), $context);
+    }
+
     public function testSendDoesNotInjectTranslatorWithoutSalesChannel(): void
     {
         $this->salesChannelRepository->expects($this->never())->method('search');

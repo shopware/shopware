@@ -317,7 +317,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return [
             self::OPTION_DIRECT => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
-            self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
+            self::OPTION_CONFIRM_SUBSCRIBE => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];
     }

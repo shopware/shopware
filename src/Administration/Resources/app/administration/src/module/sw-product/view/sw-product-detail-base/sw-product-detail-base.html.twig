@@ -191,6 +191,7 @@
             v-if="showMediaModal"
             :initial-folder-id="mediaDefaultFolderId"
             :entity-context="product.getEntityName()"
+            file-accept="image/*,video/*,model/gltf-binary"
             @media-modal-selection-change="onAddMedia"
             @modal-close="onCloseMediaModal"
         />

@@ -141,6 +141,33 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper = await createWrapper();
     });
 
+    it('should not leave any warnings behind when the modal is closed', async () => {
+        const errorStore = Shopware.Store.get('error');
+        const billingAddressMock = {
+            getEntityName: () => 'customer_address',
+            id: wrapper.vm.billingAddress.id,
+        };
+        const customerMock = {
+            getEntityName: () => 'customer',
+            id: wrapper.vm.customer.id,
+        };
+
+        wrapper.vm.createErrorMessageForCompanyField();
+        errorStore.addApiError({
+            expression: `customer.${customerMock.id}.email`,
+            error: new ShopwareError({ code: 'CONTENT__CUSTOMER_EMAIL_NOT_UNIQUE' }),
+        });
+
+        expect(errorStore.getApiError(billingAddressMock, 'company')).toBeInstanceOf(ShopwareError);
+        expect(errorStore.getApiError(customerMock, 'email')).toBeInstanceOf(ShopwareError);
+
+        wrapper.vm.onClose();
+
+        expect(errorStore.getApiError(billingAddressMock, 'company')).toBeNull();
+        expect(errorStore.getApiError(customerMock, 'email')).toBeNull();
+        expect(wrapper.emitted('close')).toBeTruthy();
+    });
+
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy new-customer tabs.
     it.deprecated('v6.8.0.0')('should render the fallback tabs branch', () => {
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);

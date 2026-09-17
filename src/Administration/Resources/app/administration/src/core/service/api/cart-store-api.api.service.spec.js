@@ -207,4 +207,80 @@ describe('cartStoreService', () => {
         expect(items.items[0].quantity).toBe(15);
         expect(items.items[0].label).toBe('Test custom product');
     });
+
+    it('function getPayloadForItem should keep the referenced id of an existing line item', async () => {
+        const itemId = '06d34e8f6e8d4045ad76d39827541e65-2b30cbc7b0464b4fa8c05a2e9bd2eba1';
+        const referencedId = '2b30cbc7b0464b4fa8c05a2e9bd2eba1';
+        const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
+        const item = {
+            quantity: 2,
+            type: 'product',
+            label: 'Test product',
+            referencedId,
+            price: {
+                quantity: 2,
+                taxRules: [{ taxRate: 19 }],
+            },
+            priceDefinition: {
+                taxRules: [{ percentage: 100, taxRate: 19 }],
+            },
+        };
+        const { cartStoreService } = createCartStoreServiceService();
+
+        const items = cartStoreService.getPayloadForItem(item, saleChannelId, false, itemId);
+
+        expect(items.items[0].id).toBe(itemId);
+        expect(items.items[0].referencedId).toBe(referencedId);
+    });
+
+    it('function getPayloadForItem should fall back to the line item id when there is no referenced id', async () => {
+        const itemId = '06d34e8f6e8d4045ad76d39827541e65';
+        const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
+        const item = {
+            quantity: 1,
+            type: 'product',
+            label: 'Test product',
+            price: {
+                quantity: 1,
+                taxRules: [{ taxRate: 19 }],
+            },
+            priceDefinition: {
+                taxRules: [{ percentage: 100, taxRate: 19 }],
+            },
+        };
+        const { cartStoreService } = createCartStoreServiceService();
+
+        const items = cartStoreService.getPayloadForItem(item, saleChannelId, true, itemId);
+
+        expect(items.items[0].referencedId).toBe(itemId);
+    });
+
+    it('function addMultipleLineItems should keep the referenced id of each line item', async () => {
+        const saleChannelId = '28abf61c7e3d4011aec0e0a7bcfa4265';
+        const referencedId = '2b30cbc7b0464b4fa8c05a2e9bd2eba1';
+        const { cartStoreService, clientMock } = createCartStoreServiceService();
+
+        let payload = null;
+        clientMock.onPost(`_proxy/store-api/${saleChannelId}/checkout/cart/line-item`).reply((config) => {
+            payload = JSON.parse(config.data);
+
+            return [
+                200,
+                {},
+            ];
+        });
+
+        await cartStoreService.addMultipleLineItems(saleChannelId, 'context-token', [
+            {
+                id: `wrapper-${referencedId}`,
+                referencedId,
+                type: 'product',
+                label: 'Test product',
+                quantity: 1,
+            },
+        ]);
+
+        expect(payload.items[0].id).toBe(`wrapper-${referencedId}`);
+        expect(payload.items[0].referencedId).toBe(referencedId);
+    });
 });

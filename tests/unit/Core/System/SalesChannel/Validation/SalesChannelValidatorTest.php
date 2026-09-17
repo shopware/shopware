@@ -250,6 +250,62 @@ class SalesChannelValidatorTest extends TestCase
         static::assertSame('SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID', $exception->getViolations()->get(0)->getCode());
     }
 
+    #[DataProvider('currencyExcludedSalesChannelTypeProvider')]
+    public function testExcludedSalesChannelTypesDoNotRequireDefaultCurrencyInCurrencyList(string $typeId): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $currencyId = Uuid::randomHex();
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand(
+                    $this->definitionRegistry->getByEntityName(SalesChannelDefinition::ENTITY_NAME),
+                    [
+                        'type_id' => Uuid::fromHexToBytes($typeId),
+                        'currency_id' => Uuid::fromHexToBytes($currencyId),
+                    ],
+                    ['id' => Uuid::fromHexToBytes($salesChannelId)],
+                    static::createStub(EntityExistence::class),
+                    '/0'
+                ),
+            ]
+        );
+
+        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[DataProvider('currencyExcludedSalesChannelTypeProvider')]
+    public function testDeletingDefaultCurrencyOfExcludedSalesChannelTypeIsSkipped(string $typeId): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $defaultId = Uuid::randomHex();
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new DeleteCommand(
+                    $this->definitionRegistry->getByEntityName(SalesChannelCurrencyDefinition::ENTITY_NAME),
+                    [
+                        'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+                        'currency_id' => Uuid::fromHexToBytes($defaultId),
+                    ],
+                    static::createStub(EntityExistence::class)
+                ),
+            ]
+        );
+
+        $connection = $this->connectionWithCurrencyState($salesChannelId, $defaultId, [$defaultId], $typeId);
+
+        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
     public function testUpdatingDefaultCurrencyToUnassignedCurrencyFails(): void
     {
         $salesChannelId = Uuid::randomHex();
@@ -347,6 +403,15 @@ class SalesChannelValidatorTest extends TestCase
         yield 'agentic commerce' => [Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE];
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function currencyExcludedSalesChannelTypeProvider(): iterable
+    {
+        yield 'product comparison' => [Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON];
+        yield 'agentic commerce' => [Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE];
+    }
+
     private function updateDefaultLanguageCommand(string $salesChannelId, string $languageId): UpdateCommand
     {
         return new UpdateCommand(
@@ -379,6 +444,7 @@ class SalesChannelValidatorTest extends TestCase
         foreach ($assignedLanguageIds as $languageId) {
             $states[] = [
                 'sales_channel_id' => $salesChannelId,
+                'type_id' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
                 'current_default' => $currentDefaultId,
                 'language_id' => $languageId,
             ];
@@ -393,12 +459,13 @@ class SalesChannelValidatorTest extends TestCase
     /**
      * @param list<string> $assignedCurrencyIds
      */
-    private function connectionWithCurrencyState(string $salesChannelId, string $currentDefaultId, array $assignedCurrencyIds): Connection
+    private function connectionWithCurrencyState(string $salesChannelId, string $currentDefaultId, array $assignedCurrencyIds, string $typeId = Defaults::SALES_CHANNEL_TYPE_STOREFRONT): Connection
     {
         $states = [];
         foreach ($assignedCurrencyIds as $currencyId) {
             $states[] = [
                 'sales_channel_id' => $salesChannelId,
+                'type_id' => $typeId,
                 'current_default' => $currentDefaultId,
                 'currency_id' => $currencyId,
             ];

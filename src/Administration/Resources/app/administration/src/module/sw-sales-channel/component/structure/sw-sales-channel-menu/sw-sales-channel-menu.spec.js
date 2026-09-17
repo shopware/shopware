@@ -668,4 +668,49 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         expect(actionMenu.attributes('side')).toBe('bottom');
     });
+
+    describe('module color', () => {
+        const moduleColor = 'var(--sw-color-module-neutral-default)';
+        let getModuleByEntityName;
+
+        beforeEach(() => {
+            getModuleByEntityName = jest
+                .spyOn(Shopware.Module, 'getModuleByEntityName')
+                .mockReturnValue({ manifest: { color: moduleColor } });
+        });
+
+        afterEach(() => {
+            getModuleByEntityName.mockRestore();
+        });
+
+        it('should give the sales channel rows the color of the sales channel module', async () => {
+            const wrapper = await createWrapper([
+                headlessSalesChannel,
+                storeFrontWithStandardDomain,
+            ]);
+            await flushPromises();
+
+            expect(getModuleByEntityName).toHaveBeenCalledWith('sales_channel');
+            expect(wrapper.vm.buildMenuTree.map((entry) => entry.color)).toEqual([
+                moduleColor,
+                moduleColor,
+            ]);
+        });
+
+        it('should give the more items row the color of the sales channel module', async () => {
+            const wrapper = await createWrapper([headlessSalesChannel]);
+            await flushPromises();
+
+            expect(wrapper.vm.moreItemsEntry.color).toBe(moduleColor);
+        });
+
+        it('should leave the rows without a color when the module is not registered', async () => {
+            getModuleByEntityName.mockReturnValue(undefined);
+
+            const wrapper = await createWrapper([headlessSalesChannel]);
+            await flushPromises();
+
+            expect(wrapper.vm.buildMenuTree[0].color).toBeUndefined();
+        });
+    });
 });

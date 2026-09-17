@@ -38,16 +38,22 @@ export default class ProductListing extends ShopwareComponent {
             }
         }, 200);
 
+        this.onFilterChange = this.handleFilterChange.bind(this);
+        this.onPageChange = this.handlePageChange.bind(this);
+        this.onLayoutChange = this.handleLayoutChange.bind(this);
+        this.onSortingChange = this.handleSortingChange.bind(this);
+        this.onFilterRemove = this.handleFilterRemove.bind(this);
+
         this.getStateFromUrl();
         this.registerEvents();
     }
 
     registerEvents() {
-        Shopware.on('Filter:Change', this.handleFilterChange.bind(this));
-        Shopware.on('Pagination:Change', this.handlePageChange.bind(this));
-        Shopware.on('LayoutSwitch:Change', this.handleLayoutChange.bind(this));
-        Shopware.on('FilterSorting:Change', this.handleSortingChange.bind(this));
-        Shopware.on('Filter:Remove', this.handleFilterRemove.bind(this));
+        Shopware.on('Filter:Change', this.onFilterChange);
+        Shopware.on('Pagination:Change', this.onPageChange);
+        Shopware.on('LayoutSwitch:Change', this.onLayoutChange);
+        Shopware.on('FilterSorting:Change', this.onSortingChange);
+        Shopware.on('Filter:Remove', this.onFilterRemove);
     }
 
     handleFilterChange({ paramName, value, activeOptions, removedOptions }) {
@@ -183,10 +189,10 @@ export default class ProductListing extends ShopwareComponent {
     }
 
     destroy() {
-        Shopware.off('Filter:Change', this.handleFilterChange.bind(this));
-        Shopware.off('Pagination:Change', this.handlePageChange.bind(this));
-        Shopware.off('LayoutSwitch:Change', this.handleLayoutChange.bind(this));
-        Shopware.off('FilterSorting:Change', this.handleSortingChange.bind(this));
-        Shopware.off('Filter:Remove', this.handleFilterRemove.bind(this));
+        Shopware.off('Filter:Change', this.onFilterChange);
+        Shopware.off('Pagination:Change', this.onPageChange);
+        Shopware.off('LayoutSwitch:Change', this.onLayoutChange);
+        Shopware.off('FilterSorting:Change', this.onSortingChange);
+        Shopware.off('Filter:Remove', this.onFilterRemove);
     }
 }

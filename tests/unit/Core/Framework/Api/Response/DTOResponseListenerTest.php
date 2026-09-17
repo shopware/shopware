@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
@@ -41,7 +40,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testConvertsResponseDtoToJsonResponse(): void
     {
-        $event = $this->createViewEvent(new #[JsonStreamable] class extends AbstractResponse {
+        $event = $this->createViewEvent(new class extends AbstractResponse {
             public string $status = 'optIn';
 
             public string $apiAlias = 'account_newsletter_recipient';
@@ -75,10 +74,10 @@ class DTOResponseListenerTest extends TestCase
 
     public function testConvertsResponseDtoWithNestedObjectsToJsonResponse(): void
     {
-        $nestedAddress = new #[JsonStreamable] class {
+        $nestedAddress = new class {
             public string $city = 'Berlin';
         };
-        $response = new #[JsonStreamable] class($nestedAddress) extends AbstractResponse {
+        $response = new class($nestedAddress) extends AbstractResponse {
             public function __construct(public object $address)
             {
                 parent::__construct();
@@ -103,7 +102,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testConvertsResponseDtoExtensionsToJsonResponse(): void
     {
-        $response = new #[JsonStreamable] class extends AbstractResponse {
+        $response = new class extends AbstractResponse {
         };
         $response->addExtension('customData', ['value' => 'test']);
 
@@ -116,7 +115,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testPreservesNullNullableResponseProperty(): void
     {
-        $response = new #[JsonStreamable] class extends AbstractResponse {
+        $response = new class extends AbstractResponse {
             public ?string $message = null;
         };
 
@@ -129,7 +128,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testPreservesSchemaStatusAndResponseMetadata(): void
     {
-        $response = new #[JsonStreamable] class extends AbstractResponse {
+        $response = new class extends AbstractResponse {
             public function __construct()
             {
                 parent::__construct(statusCode: Response::HTTP_CREATED);
@@ -153,7 +152,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testEncodeEventCanModifyDtoBeforeSerialization(): void
     {
-        $dto = new #[JsonStreamable] class extends AbstractResponse {
+        $dto = new class extends AbstractResponse {
             public string $status = 'before';
         };
         $event = $this->createViewEvent($dto);
@@ -174,10 +173,10 @@ class DTOResponseListenerTest extends TestCase
 
     public function testEncodeEventCanReplaceControllerResult(): void
     {
-        $replacement = new #[JsonStreamable] class extends AbstractResponse {
+        $replacement = new class extends AbstractResponse {
             public string $status = 'replacement';
         };
-        $event = $this->createViewEvent(new #[JsonStreamable] class extends AbstractResponse {});
+        $event = $this->createViewEvent(new class extends AbstractResponse {});
         $event->getRequest()->attributes->set('_route', 'store-api.test');
         $this->dispatcher->addListener('store-api.test.encode', static function (ViewEvent $event) use ($replacement): void {
             $event->setControllerResult($replacement);
@@ -191,7 +190,7 @@ class DTOResponseListenerTest extends TestCase
     public function testEncodeEventCanSetResponse(): void
     {
         $response = new Response('custom');
-        $event = $this->createViewEvent(new #[JsonStreamable] class extends AbstractResponse {});
+        $event = $this->createViewEvent(new class extends AbstractResponse {});
         $event->getRequest()->attributes->set('_route', 'store-api.test');
         $this->dispatcher->addListener('store-api.test.encode', static function (ViewEvent $event) use ($response): void {
             $event->setResponse($response);
@@ -204,7 +203,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testReplacesMediaBeforeSeoPlaceholders(): void
     {
-        $dto = new #[JsonStreamable] class extends AbstractResponse {
+        $dto = new class extends AbstractResponse {
             public string $url = '124c71d524604ccbad6042edce3ac799/mediaId/test#';
         };
         $context = static::createStub(SalesChannelContext::class);
@@ -226,7 +225,7 @@ class DTOResponseListenerTest extends TestCase
 
     public function testReplacesMediaWithoutSalesChannelContext(): void
     {
-        $event = $this->createViewEvent(new #[JsonStreamable] class extends AbstractResponse {});
+        $event = $this->createViewEvent(new class extends AbstractResponse {});
         $media = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
         $media->expects($this->once())->method('replace')->with('{}')->willReturn('{"media":"replaced"}');
         $seo = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);

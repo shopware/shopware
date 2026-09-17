@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
 
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\Log\Package;
@@ -42,6 +45,18 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
     public function getCacheTags(string $entityId): array
     {
         return [EntityCacheKeyGenerator::buildProductTag($entityId)];
+    }
+
+    public function getPageDataRequirements(): array
+    {
+        return [
+            ...parent::getPageDataRequirements(),
+            new DataRequirement(
+                'configuratorSettings',
+                ProductConfiguratorDataLoader::SOURCE,
+                new ProductConfiguratorLoaderConfig(productId: 'productId'),
+            ),
+        ];
     }
 
     protected function getEntityAssociations(): array

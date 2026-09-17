@@ -102,6 +102,7 @@ use Shopware\Core\Content\Product\ProductVariationBuilder;
 use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\PartialProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
@@ -891,7 +892,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('content_system.config_serializer');
 
     $services->set(ProductConfiguratorDataLoader::class)
+        ->args([
+            service(PartialProductConfiguratorLoader::class),
+            service('sales_channel.product.repository'),
+        ])
         ->tag('content_system.data_loader');
+
+    $services->set(PartialProductConfiguratorLoader::class)
+        ->args([
+            service(ProductConfiguratorLoader::class),
+        ]);
 
     $services->set(ProductConfiguratorLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');

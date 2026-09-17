@@ -21,5 +21,3 @@ properties:
     required: false
     title: "Configurator groups"
     description: "Variant property groups and their available options. Optional because they cannot be resolved without a product; when unavailable or empty, the component renders its fallback message."
-    resolvedBy:
-      product_configurator: {}

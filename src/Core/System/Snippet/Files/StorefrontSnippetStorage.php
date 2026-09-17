@@ -79,17 +79,46 @@ class StorefrontSnippetStorage
         $files = $this->collect($appFilesystem);
         $this->write($appName, $version, $files);
 
-        return $previousFiles !== $files;
+        if ($previousFiles === $files) {
+            return false;
+        }
+
+        $this->discard($appName);
+
+        return true;
     }
 
     public function remove(string $appName): bool
     {
+        $removed = $this->discard($appName);
+
         $path = $this->path($appName);
-        if (!$this->filesystem->fileExists($path)) {
+        if ($this->filesystem->fileExists($path)) {
+            $this->filesystem->delete($path);
+            $removed = true;
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Drops the local copies of an app so the next reader materializes the snapshot again.
+     *
+     * A version does not identify contents: an app can ship different snippets under the same
+     * version after an in-place update, and an uninstalled app's name and version can come back
+     * on an entirely different app. The version-keyed directories cannot tell those apart, so
+     * they are dropped whenever the snapshot they were built from stops matching.
+     *
+     * @return bool whether local copies existed
+     */
+    private function discard(string $appName): bool
+    {
+        $appDirectory = Path::join($this->directory, $appName);
+        if (!$this->io->exists($appDirectory)) {
             return false;
         }
 
-        $this->filesystem->delete($path);
+        $this->io->remove($appDirectory);
 
         return true;
     }

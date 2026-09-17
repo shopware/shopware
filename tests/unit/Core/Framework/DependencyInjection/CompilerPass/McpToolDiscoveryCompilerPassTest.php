@@ -462,6 +462,87 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         static::assertContains('*', $result['admin']['tools']);
     }
 
+    #[TestDox('A pattern that only reaches an abstract definition is pruned, because the bundle never matches one')]
+    public function testAPatternMatchingOnlyAnAbstractDefinitionIsPruned(): void
+    {
+        $container = $this->createContainer();
+
+        $elements = $this->emptyElements();
+        $elements['admin']['tools'] = ['Shopware\\Core\\Framework\\Mcp\\', 'Shopware\\Storefront\\Mcp\\'];
+        $container->setParameter('mcp.servers.elements', $elements);
+
+        $container->register('Shopware\\Core\\Framework\\Mcp\\Tool\\EntitySearchTool', McpDiscoveryTestCoreTool::class)
+            ->addTag('mcp.tool');
+        // An abstract definition is a template for other services, never a capability of its own. The
+        // bundle's McpPass skips it before it consults the matcher, so a prefix that reaches nothing
+        // else counts as unused there and would abort the container build.
+        $container->register('Shopware\\Storefront\\Mcp\\Tool\\ThemeConfigTool', McpDiscoveryTestThemeConfigTool::class)
+            ->addTag('mcp.tool')
+            ->setAbstract(true);
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        /** @var array<string, array<string, list<string>>> $result */
+        $result = $container->getParameter('mcp.servers.elements');
+
+        static::assertContains('Shopware\\Core\\Framework\\Mcp\\', $result['admin']['tools']);
+        static::assertNotContains('Shopware\\Storefront\\Mcp\\', $result['admin']['tools']);
+        static::assertSame([], $this->patternsMatchingNoService($container));
+    }
+
+    /**
+     * `mcp.servers.elements` belongs to the bundle, so its shape is not ours to rely on. An entry
+     * that is not the nested pattern list this pass understands is left exactly as it was — no
+     * iteration over a non-iterable, no write into a scalar — and the well-formed entries around it
+     * are still pruned.
+     */
+    public function testAServerEntryThatIsNotAnArrayIsLeftUntouched(): void
+    {
+        $container = $this->createContainer();
+
+        // The malformed server comes first, so a guard that aborted instead of skipping would leave
+        // the admin patterns unpruned.
+        $elements = ['store_api' => 'not-an-array'] + $this->emptyElements();
+        $elements['admin']['tools'] = ['Shopware\\Core\\Framework\\Mcp\\', 'Shopware\\Storefront\\Mcp\\'];
+        $container->setParameter('mcp.servers.elements', $elements);
+
+        $container->register('Shopware\\Core\\Framework\\Mcp\\Tool\\EntitySearchTool', McpDiscoveryTestCoreTool::class)
+            ->addTag('mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $result = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($result);
+        static::assertSame('not-an-array', $result['store_api']);
+        static::assertIsArray($result['admin']);
+        static::assertSame(['Shopware\\Core\\Framework\\Mcp\\'], $result['admin']['tools']);
+    }
+
+    /**
+     * Same as above, one level down: a kind whose value is not a pattern list is passed through.
+     */
+    public function testAKindEntryThatIsNotAnArrayIsLeftUntouched(): void
+    {
+        $container = $this->createContainer();
+
+        // Again the malformed kind first, so the tool patterns behind it still have to be pruned.
+        $elements = $this->emptyElements();
+        $elements['admin'] = ['prompts' => 'not-an-array'] + $elements['admin'];
+        $elements['admin']['tools'] = ['Shopware\\Core\\Framework\\Mcp\\', 'Shopware\\Storefront\\Mcp\\'];
+        $container->setParameter('mcp.servers.elements', $elements);
+
+        $container->register('Shopware\\Core\\Framework\\Mcp\\Tool\\EntitySearchTool', McpDiscoveryTestCoreTool::class)
+            ->addTag('mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $result = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($result);
+        static::assertIsArray($result['admin']);
+        static::assertSame('not-an-array', $result['admin']['prompts']);
+        static::assertSame(['Shopware\\Core\\Framework\\Mcp\\'], $result['admin']['tools']);
+    }
+
     /**
      * The invariant, checked against the bundle's own matcher instead of a copy of its rules: every
      * pattern left in `mcp.servers.elements` still has to reach a registered service.
@@ -486,6 +567,12 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         foreach ($kindTags as $kind => $tag) {
             foreach (array_keys($container->findTaggedServiceIds($tag)) as $serviceId) {
                 $definition = $container->getDefinition($serviceId);
+
+                // As McpPass does, before it ever consults the matcher.
+                if ($definition->isAbstract()) {
+                    continue;
+                }
+
                 /** @var class-string $class */
                 $class = $definition->getClass() ?? $serviceId;
 

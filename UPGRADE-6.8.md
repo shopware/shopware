@@ -12,6 +12,24 @@ The flag became an opt-out. Set it to `false` to keep running the legacy impleme
 
 The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
 
+## Attribute entities reject a cascading many-to-one
+
+An attribute entity that declared `#[ManyToOne(onDelete: OnDelete::CASCADE)]` no longer builds. The container now throws `FRAMEWORK__CASCADE_DELETE_ON_MANY_TO_ONE` and names the entity and the property.
+
+On a many-to-one the flag deleted the record the association points at, so deleting a child deleted its parent. Shopware 6.7 already ignored the flag there, which is why this only becomes an error now.
+
+Declare the cascade on the inverse `#[OneToMany]`, which deletes the children together with their parent:
+
+```php
+#[OneToMany(entity: 'my_child', ref: 'my_parent_id', onDelete: OnDelete::CASCADE)]
+public ?array $children = null;
+
+#[ManyToOne(entity: 'my_parent')]
+public ?MyParentEntity $parent = null;
+```
+
+The database side is unaffected: the `ON DELETE` behaviour of the foreign key lives in your migration and stays as you declared it there.
+
 ## State machine actions enforce a single destination per source state
 
 A state machine action now maps to exactly one destination state per source state:

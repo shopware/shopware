@@ -303,7 +303,7 @@ Changed snippets of an app reach the storefront on update: raise the manifest ve
 
 `#[ManyToOne(onDelete: OnDelete::CASCADE)]` on an attribute entity told the DAL to delete the referenced record together with the record carrying the association, so deleting a child deleted its parent. Together with a cascading `#[OneToMany]` on the opposite side it made deleting a record of either entity walk the pair until the process was killed.
 
-The flag is now ignored on a many-to-one. Declare the cascade on the inverse `#[OneToMany]`, which deletes the children together with their parent as intended:
+The flag is now ignored on a many-to-one, and rejected once the `v6.8.0.0` flag is active. Declare the cascade on the inverse `#[OneToMany]`, which deletes the children together with their parent as intended:
 
 ```php
 #[OneToMany(entity: 'my_child', ref: 'my_parent_id', onDelete: OnDelete::CASCADE)]

@@ -28,6 +28,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -318,9 +319,9 @@ class CartLineItemControllerTest extends TestCase
         $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
     }
 
-    public function testAddByProductNumber(): void
+    #[DataProvider('validProductNumbers')]
+    public function testAddByProductNumber(string $productNumber): void
     {
-        $productNumber = Uuid::randomHex();
         $id = Uuid::randomHex();
         $request = new Request([], ['number' => $productNumber]);
         $cart = new Cart(Uuid::randomHex());
@@ -333,6 +334,15 @@ class CartLineItemControllerTest extends TestCase
         $cart->add($item);
         $this->productListRouteMock->expects($this->once())
             ->method('load')
+            ->with(static::callback(static function (Criteria $criteria) use ($productNumber): bool {
+                foreach ($criteria->getFilters() as $filter) {
+                    if ($filter instanceof EqualsFilter && $filter->getField() === 'productNumber' && $filter->getValue() === $productNumber) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }), $context)
             ->willReturn(
                 new ProductListResponse(
                     new EntitySearchResult(
@@ -359,6 +369,61 @@ class CartLineItemControllerTest extends TestCase
         $this->translatorCallback();
 
         $this->controller->addProductByNumber($request, $context);
+    }
+
+    public static function validProductNumbers(): \Generator
+    {
+        yield 'ordinary number' => ['test.123'];
+        yield 'surrounding spaces are part of the number' => [' test.123 '];
+        yield 'zero is not blank' => ['0'];
+    }
+
+    #[DataProvider('blankHelperInputs')]
+    public function testAddByProductNumberWithBlankInput(?string $input): void
+    {
+        $request = new Request([], $input === null ? [] : ['number' => $input]);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->productListRouteMock->expects($this->never())->method('load');
+        $this->productLineItemFactoryMock->expects($this->never())->method('create');
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cartService->expects($this->never())->method('add');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $response = $this->controller->addProductByNumber($request, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    #[DataProvider('blankHelperInputs')]
+    public function testAddPromotionWithBlankInput(?string $input): void
+    {
+        $request = new Request([], $input === null ? [] : ['code' => $input]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->promotionItemBuilderMock->expects($this->never())->method('buildPlaceholderItem');
+        $this->cartService->expects($this->never())->method('add');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $response = $this->controller->addPromotion($cart, $request, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public static function blankHelperInputs(): \Generator
+    {
+        yield 'missing' => [null];
+        yield 'empty' => [''];
+        yield 'spaces' => ['   '];
+        yield 'tabs and newlines' => ["\t\n\r"];
+        yield 'unicode whitespace' => ["\u{00A0}\u{2003}\u{3000}"];
     }
 
     public function testAddByProductNumberNotFound(): void

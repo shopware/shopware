@@ -6,12 +6,15 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception as PdoException;
 use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -20,9 +23,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
@@ -145,9 +151,7 @@ class EntityWriteGatewayTest extends TestCase
         $successCallbacks = 0;
         $errorCallbacks = 0;
         $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCallbacks, &$errorCallbacks): void {
-            static::assertFalse($event->getWriteContext()->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED));
-            $event->addSuccess(static function () use ($event, &$successCallbacks): void {
-                static::assertTrue($event->getWriteContext()->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED));
+            $event->addSuccess(static function () use (&$successCallbacks): void {
                 ++$successCallbacks;
             });
             $event->addError(static function () use (&$errorCallbacks): void {
@@ -173,11 +177,237 @@ class EntityWriteGatewayTest extends TestCase
         static::assertSame(0, $errorCallbacks);
     }
 
-    private function createGateway(): EntityWriteGateway
+    public function testThrowingErrorCompensationPreservesTheWriteFailureWithoutRetrying(): void
+    {
+        $connection = $this->createTransactionConnection();
+        $gateway = $this->createGateway($connection);
+        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+        $attempts = 0;
+        $compensations = 0;
+        $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$compensations): void {
+            $event->addError(static function () use (&$compensations): never {
+                ++$compensations;
+
+                throw new \RuntimeException('compensation failed');
+            });
+        });
+        $this->dispatcher->addListener(PreWriteValidationEvent::class, static function () use ($failure): never {
+            throw $failure;
+        });
+
+        $this->expectExceptionObject($failure);
+
+        try {
+            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, &$attempts): void {
+                ++$attempts;
+                $gateway->execute([], WriteContext::createFromContext(Context::createDefaultContext()));
+            });
+        } catch (\Throwable $exception) {
+            static::assertSame($failure, $exception);
+
+            throw $exception;
+        } finally {
+            static::assertSame(1, $attempts);
+            static::assertSame(1, $compensations);
+        }
+    }
+
+    public function testThrowingExceptionListenerStillCompensatesAndPreservesTheWriteFailure(): void
+    {
+        $connection = $this->createTransactionConnection();
+        $gateway = $this->createGateway($connection);
+        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+        $attempts = 0;
+        $compensations = 0;
+        $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$compensations): void {
+            $event->addError(static function () use (&$compensations): void {
+                ++$compensations;
+            });
+        });
+        $this->dispatcher->addListener(PreWriteValidationEvent::class, static function () use ($failure): never {
+            throw $failure;
+        });
+        $this->dispatcher->addListener(WriteCommandExceptionEvent::class, static function (): never {
+            throw new \RuntimeException('exception notification failed');
+        });
+
+        $this->expectExceptionObject($failure);
+
+        try {
+            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, &$attempts): void {
+                ++$attempts;
+                $gateway->execute([], WriteContext::createFromContext(Context::createDefaultContext()));
+            });
+        } catch (\Throwable $exception) {
+            static::assertSame($failure, $exception);
+
+            throw $exception;
+        } finally {
+            static::assertSame(1, $attempts);
+            static::assertSame(1, $compensations);
+        }
+    }
+
+    public function testPreWriteDispatchFailureRunsAlreadyRegisteredCompensation(): void
+    {
+        $gateway = $this->createGateway();
+        $failure = new \RuntimeException('pre-write listener failed');
+        $compensations = 0;
+        $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$compensations, $failure): never {
+            $event->addError(static function () use (&$compensations): void {
+                ++$compensations;
+            });
+
+            throw $failure;
+        });
+
+        $this->expectExceptionObject($failure);
+
+        try {
+            $gateway->execute([], WriteContext::createFromContext(Context::createDefaultContext()));
+        } finally {
+            static::assertSame(1, $compensations);
+        }
+    }
+
+    public function testSuccessfulWriteCallbacksPreventOuterRetry(): void
+    {
+        $connection = $this->createTransactionConnection();
+        $gateway = $this->createGateway($connection);
+        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+        $attempts = 0;
+        $successes = 0;
+        $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successes): void {
+            $event->addSuccess(static function () use (&$successes): void {
+                ++$successes;
+            });
+        });
+
+        $this->expectExceptionObject($failure);
+
+        try {
+            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, $failure, &$attempts): never {
+                ++$attempts;
+                $gateway->execute([], WriteContext::createFromContext(Context::createDefaultContext()));
+
+                throw $failure;
+            });
+        } finally {
+            static::assertSame(1, $attempts);
+            static::assertSame(1, $successes);
+        }
+    }
+
+    public function testSuccessfulDeleteCallbacksPreventRetryAfterPostWriteFailure(): void
+    {
+        $connection = $this->createTransactionConnection();
+        $gateway = $this->createGateway($connection);
+        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+        $command = $this->createDeleteCommand();
+        $attempts = 0;
+        $successes = 0;
+        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$successes): void {
+            $event->addSuccess(static function () use (&$successes): void {
+                ++$successes;
+            });
+        });
+        $this->dispatcher->addListener(PostWriteValidationEvent::class, static function () use ($failure): never {
+            throw $failure;
+        });
+
+        $this->expectExceptionObject($failure);
+
+        try {
+            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, $command, &$attempts): void {
+                ++$attempts;
+                $gateway->execute([$command], WriteContext::createFromContext(Context::createDefaultContext()));
+            });
+        } finally {
+            static::assertSame(1, $attempts);
+            static::assertSame(1, $successes);
+        }
+    }
+
+    public function testThrowingDeleteCompensationPreservesTheDeleteFailureWithoutRetrying(): void
+    {
+        $connection = $this->createTransactionConnection();
+        $gateway = $this->createGateway($connection);
+        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+        $connection->method('delete')->willThrowException($failure);
+        $command = $this->createDeleteCommand();
+        $attempts = 0;
+        $compensations = 0;
+        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$compensations): void {
+            $event->addError(static function () use (&$compensations): never {
+                ++$compensations;
+
+                throw new \RuntimeException('delete compensation failed');
+            });
+        });
+
+        $this->expectExceptionObject($failure);
+
+        try {
+            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, $command, &$attempts): void {
+                ++$attempts;
+                $gateway->execute([$command], WriteContext::createFromContext(Context::createDefaultContext()));
+            });
+        } catch (\Throwable $exception) {
+            static::assertSame($failure, $exception);
+
+            throw $exception;
+        } finally {
+            static::assertSame(1, $attempts);
+            static::assertSame(1, $compensations);
+        }
+    }
+
+    private function createDeleteCommand(): DeleteCommand
+    {
+        $definition = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'deleted_entity';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([
+                    (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+                ]);
+            }
+        };
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+        $primaryKey = ['id' => Uuid::randomBytes()];
+
+        return new DeleteCommand($definition, $primaryKey, new EntityExistence('deleted_entity', $primaryKey, true, false, false, []));
+    }
+
+    private function createTransactionConnection(): Connection&Stub
+    {
+        $nestingLevel = 0;
+        $connection = static::createStub(Connection::class);
+        $connection->method('getTransactionNestingLevel')->willReturnCallback(static function () use (&$nestingLevel): int {
+            return $nestingLevel;
+        });
+        $connection->method('transactional')->willReturnCallback(static function (\Closure $closure) use ($connection, &$nestingLevel): mixed {
+            ++$nestingLevel;
+
+            try {
+                return $closure($connection);
+            } finally {
+                --$nestingLevel;
+            }
+        });
+
+        return $connection;
+    }
+
+    private function createGateway(?Connection $connection = null): EntityWriteGateway
     {
         return new EntityWriteGateway(
             100,
-            new FakeConnection([]),
+            $connection ?? new FakeConnection([]),
             $this->dispatcher,
             static::createStub(ExceptionHandlerRegistry::class),
             static::createStub(DefinitionInstanceRegistry::class)

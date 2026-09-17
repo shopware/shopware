@@ -2,16 +2,6 @@
 
 ## Features
 
-### Live state transition writes are batched
-
-Live state transitions now persist the history entry and new entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive `state_machine_history` commands together with commands for the transitioned entity; use `getCommandsForEntity()` instead of assuming that an event contains commands for only one entity. Their pre-write work can run again on retry and must be idempotent.
-
-The subsequent entity-written container events remain separate and keep their history-before-state order. Listener failures roll back the history and state together. Automatic contention retries stop once write-success callbacks begin, so those callbacks and entity-written listeners are not replayed.
-
-### MariaDB record-change conflicts are retryable
-
-MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions, including when wrapped in an application exception. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error and its original query are reported instead. Other application exception wrappers are preserved when retries stop.
-
 ### Document generation v2 (experimental)
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
@@ -98,6 +88,16 @@ Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legac
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
+
+### Live state transition writes are batched
+
+Live state transitions persist history and entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive commands for both entities; use `getCommandsForEntity()` rather than assuming a single entity. Pre-write work can run again on contention and must be idempotent or compensated through `addError()`. Each failed attempt invokes its error callbacks before retrying. A failing error callback stops retries and preserves the original write failure.
+
+The core Flow Builder state action shares the transaction-wide retry boundary. Retries stop once any write-success callback or written listener starts, including nested writes with a fresh context; later contention rolls back without replaying side effects. Custom transactional actions and versioned writes retain their existing non-retrying behavior. Entity-written events remain separate, in history-before-state order.
+
+### MariaDB record-change conflicts are retryable
+
+MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions, including when wrapped in an application exception. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error and its original query are reported instead. Other application exception wrappers are preserved when retries stop.
 
 ### State machine transitions resolve deterministically
 

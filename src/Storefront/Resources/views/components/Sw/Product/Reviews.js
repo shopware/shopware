@@ -1,3 +1,5 @@
+import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
+
 export default class ProductReviews extends ShopwareComponent {
     static options = {
         contentUrl: null,
@@ -6,6 +8,7 @@ export default class ProductReviews extends ShopwareComponent {
     init() {
         this.domParser = new DOMParser();
         this.activeParams = this.paramsFromUrl();
+        this.debouncedReload = this.debounce(this.reload.bind(this), 200);
 
         // Filters are a separate element (possibly outside this one), so they reach us over the event bus.
         this.onFiltersChange = this.onFiltersChange.bind(this);
@@ -23,13 +26,13 @@ export default class ProductReviews extends ShopwareComponent {
     onFiltersChange(params) {
         // A sort or filter change resets to the first page.
         this.activeParams = { ...params };
-        this.reload();
+        this.debouncedReload();
     }
 
     onPaginationClick(event) {
         event.preventDefault();
         this.activeParams.p = event.currentTarget.getAttribute('data-page');
-        this.reload();
+        this.debouncedReload();
     }
 
     paramsFromUrl() {
@@ -46,7 +49,7 @@ export default class ProductReviews extends ShopwareComponent {
             return;
         }
 
-        this.el.classList.add('is--loading');
+        ElementLoadingIndicatorUtil.create(this.el);
 
         // contentUrl (Twig path()) already carries the base path and elementId; add the runtime params.
         const url = new URL(this.options.contentUrl, window.location.origin);
@@ -58,11 +61,12 @@ export default class ProductReviews extends ShopwareComponent {
             .parseFromString(html, 'text/html')
             .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
-        // Replacing the element re-initializes it; the component system rebinds on the fresh node.
+        // Replacing the element re-initializes it (and drops the loader with the old node); the component system
+        // rebinds on the fresh node.
         if (fresh) {
             this.el.replaceWith(fresh);
         } else {
-            this.el.classList.remove('is--loading');
+            ElementLoadingIndicatorUtil.remove(this.el);
         }
 
         // Keep the URL and back button in sync with the applied sort, filter and page — not the elementId hint.

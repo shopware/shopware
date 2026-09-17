@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
@@ -65,17 +64,13 @@ class StoredTreeCodecTest extends TestCase
     public function testDecodeAcceptsADuplicateIdAcrossRoots(): void
     {
         // Uniqueness is a whole-forest invariant, so the codec — which sees one element at a time — must not
-        // rule on it. StoredTree::validate() is the surface that reports it.
+        // rule on it. StoredTree::duplicateElementIds() is the surface that reports it.
         $tree = $this->codec()->decode([
             ['id' => 'root-1', 'component' => 'core:text', 'properties' => []],
             ['id' => 'root-1', 'component' => 'core:text', 'properties' => []],
         ]);
 
-        $violations = $tree->validate();
-
-        static::assertCount(1, $violations);
-        static::assertSame(ViolationCode::DuplicateElementId, $violations[0]->code);
-        static::assertSame('root-1', $violations[0]->elementId);
+        static::assertSame(['root-1'], $tree->duplicateElementIds());
     }
 
     #[TestDox('decode rejects a top-level value that is not a list')]

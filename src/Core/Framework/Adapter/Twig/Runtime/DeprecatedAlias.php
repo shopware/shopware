@@ -26,8 +26,8 @@ final readonly class DeprecatedAlias
         return $value->value;
     }
 
-    public static function silentUnwrap(mixed $value): mixed
+    public function silentUnwrap(): mixed
     {
-        return $value instanceof self ? $value->value : $value;
+        return $this->value;
     }
 }

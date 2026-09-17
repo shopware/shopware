@@ -246,7 +246,7 @@
         {% endblock %}
     {% else %}
         {# @deprecated tag:v6.8.0 - `showVatIdField` handling will be removed. Use `showCompanyFields` instead. #}
-        {% set showVatIdFieldValue = showVatIdField is defined ? silentUnwrap(showVatIdField) : true %}
+        {% set showVatIdFieldValue = showVatIdField is defined ? showVatIdField.silentUnwrap() : true %}
         {% if showVatIdFieldValue is same as(false) %}
             {% do sw_trigger_deprecation('v6.8.0.0', 'Setting the "showVatIdField" Twig variable to false is deprecated. Use "showCompanyFields" instead.') %}
         {% endif %}

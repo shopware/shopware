@@ -77,8 +77,7 @@ class DeprecatedAliasTest extends TestCase
         $triggerer->expects($this->never())->method('deprecation');
         Feature::$triggerer = $triggerer;
 
-        static::assertSame('value', DeprecatedAlias::silentUnwrap('value'));
-        static::assertSame('billing', DeprecatedAlias::silentUnwrap(new DeprecatedAlias('billing')));
+        static::assertSame('billing', (new DeprecatedAlias('billing'))->silentUnwrap());
     }
 
     public function testActiveRemovalFeatureRejectsAliasAccess(): void

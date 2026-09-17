@@ -1,7 +1,7 @@
 {% block component_address_form %}
     {% if not feature('v6.8.0.0') %}
         {# @deprecated tag:v6.8.0 - `showVatIdField` handling will be removed. #}
-        {% set showVatIdFieldValue = showVatIdField is defined and silentUnwrap(showVatIdField) %}
+        {% set showVatIdFieldValue = showVatIdField is defined and showVatIdField.silentUnwrap() %}
         {% if showVatIdFieldValue %}
             {% do sw_trigger_deprecation('v6.8.0.0', 'Setting the "showVatIdField" Twig variable to true is deprecated and will be removed without replacement.') %}
         {% endif %}

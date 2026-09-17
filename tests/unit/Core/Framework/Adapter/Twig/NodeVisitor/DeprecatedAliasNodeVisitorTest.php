@@ -125,7 +125,7 @@ TWIG,
         $twig = $this->createTwig([
             'index.html.twig' => <<<'TWIG'
 {% set showVatIdField = deprecatedAlias(false) %}
-{{ silentUnwrap(showVatIdField) ? 'true' : 'false' }}
+{{ showVatIdField.silentUnwrap() ? 'true' : 'false' }}
 TWIG,
         ]);
 

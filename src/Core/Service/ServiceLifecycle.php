@@ -251,7 +251,28 @@ class ServiceLifecycle
         } catch (\Exception $e) {
             $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
 
+            $this->rollBackFailedInstall($entry->name, $context);
+
             return false;
+        }
+    }
+
+    private function rollBackFailedInstall(string $serviceName, Context $context): void
+    {
+        try {
+            $service = $this->serviceStorage->findByName($serviceName, $context);
+
+            if (!$service || !$service->app->isActive()) {
+                return;
+            }
+
+            $this->uninstall($serviceName, $context);
+        } catch (\Exception $e) {
+            $this->logger->warning(\sprintf(
+                'Cannot roll back the failed installation of service "%s" because of error: "%s"',
+                $serviceName,
+                $e->getMessage()
+            ));
         }
     }
 

@@ -108,6 +108,9 @@ The following classes moved to their canonical Core namespaces. Their previous n
 | `Shopware\Elasticsearch\Product\SearchConfigLoader` | `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` |
 
 Update imports, type declarations, static references, and service IDs to the canonical names. The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses. `NotificationController` remains internal and should not be introduced as a new extension dependency.
+### Shopware Services reconcile their full state daily
+
+A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.
 
 ### Extensions can change the API CORS header lists
 
@@ -561,6 +564,10 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
+
+### Static theme compilation without a database
+
+Theme compilation with `StaticFileConfigLoader` now refreshes runtime configuration values when a database is available, while continuing to work without a reachable database in build environments.
 
 ### `robots.txt` allows crawling thumbnails
 

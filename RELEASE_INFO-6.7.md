@@ -620,6 +620,16 @@ A theme that lists several ancestors in the `configInheritance` of its `theme.js
 
 ## Hosting & Configuration
 
+### `No-Vary-Search` header on cacheable responses
+
+With `CACHE_REWORK` active, cacheable storefront and store-api responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. The server already normalizes the query order before it looks up its cache entry, so the header only tells clients what was always true.
+
+The header is a specification draft, support differs per browser and per cache, and it does not replace query sorting in a reverse proxy such as Varnish or Fastly. A client that ignores it keeps treating a reordered query string as a different URL, which is the behaviour you have today.
+
+Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. If the key is omitted from the policy, no `No-Vary-Search` header is sent, and any value a controller or plugin set earlier in the request is removed. Unlike `Cache-Control`, the header cannot be influenced by a `#[HttpCache]` attribute. The policy is its only source.
+
+Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. A client would then match a stored response against the wrong URL and show page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
+
 ### Registering public OAuth clients
 
 Public OAuth clients that may use the authorization code grant are configured under `shopware.api.oauth_clients`. Shopware ships `shopware-cli` with the loopback redirect URIs `http://127.0.0.1/callback` and `http://[::1]/callback`. Loopback URIs accept any port (RFC 8252), all other redirect URIs must match exactly. Additional clients are added per project:

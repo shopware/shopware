@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
@@ -710,12 +711,20 @@ class InfoControllerTest extends TestCase
 
         static::assertArrayHasKey('product', $byId);
         static::assertSame('entity', $byId['product']['kind']);
-        static::assertSame([[
-            'contextKey' => 'product',
-            'fqcn' => SalesChannelProductEntity::class,
-            'contextType' => 'single',
-            'distribution' => 'broadcast',
-        ]], $byId['product']['providedContext']);
+        static::assertSame([
+            [
+                'contextKey' => 'product',
+                'fqcn' => SalesChannelProductEntity::class,
+                'contextType' => 'single',
+                'distribution' => 'broadcast',
+            ],
+            [
+                'contextKey' => 'configuratorSettings',
+                'fqcn' => PropertyGroupCollection::class,
+                'contextType' => 'single',
+                'distribution' => 'broadcast',
+            ],
+        ], $byId['product']['providedContext']);
 
         static::assertArrayHasKey('header', $byId);
         static::assertSame('section', $byId['header']['kind']);

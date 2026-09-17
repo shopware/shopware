@@ -2,7 +2,18 @@ name: Prepare release
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_changelog_check:
+        description: "Skip the CHANGELOG.md check (only for exceptional releases with no changelog-worthy changes)"
+        required: false
+        type: boolean
+        default: false
   workflow_call:
+    inputs:
+      skip_changelog_check:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -88,6 +99,11 @@ jobs:
           persist-credentials: false
       - name: Check CHANGELOG.md has an entry for this tag
         run: |
+          if [ "${{ inputs.skip_changelog_check }}" = "true" ]; then
+            echo "::warning::Changelog check skipped via skip_changelog_check input."
+            exit 0
+          fi
+
           version="${GITHUB_REF_NAME#v}"
           if ! grep -qxF "## ${version}" CHANGELOG.md; then
             echo "::error file=CHANGELOG.md::No '## ${version}' section found. Run 'bin/console changelog:release ${version}' and commit the result before tagging a release."

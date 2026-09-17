@@ -19,9 +19,18 @@
     base: 'sw-product-listing',
 }) %}
 
+{# elementId prunes the content render to this element only; path() folds it into the base-path-safe URL. #}
+{% set listingOptions = {
+    contentUrl: path('frontend.content.layout', {
+        path: 'category/' ~ shopware.navigation.id,
+        elementId: attributes.all()['data-element-id'] ?? null,
+    }),
+} %}
+
 {% set attributeDefaults = {
     class: listingCVA.apply({}),
     'data-component': 'Sw:Product:Listing',
+    'data-component-options': listingOptions|json_encode,
 } %}
 
 {% set listingLayout = app.request.get('listingLayout') %}

@@ -34,6 +34,7 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         return {
             customerComment: document.querySelector('#customerComment'),
             tos: document.querySelector('#tos'),
+            revocation: document.querySelector('#revocation'),
         };
     }
 
@@ -71,15 +72,35 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         expect(tos.checked).toBe(true);
     });
 
-    test('restores the tos acceptance when the checkout page is loaded again', () => {
-        const { tos } = createPlugin('customerA');
+    test('restores revocation for the active customer only', () => {
+        SessionStorage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                customerComment: 'comment from customer A',
+            },
+            customerB: {
+                revocation: true,
+            },
+        }));
+
+        const { revocation } = createPlugin('customerB');
+
+        expect(revocation.checked).toBe(true);
+    });
+
+    test('restores both consent boxes when the checkout page is loaded again', () => {
+        const { tos, revocation } = createPlugin('customerA');
 
         tos.checked = true;
         tos.dispatchEvent(new Event('change'));
+        revocation.checked = true;
+        revocation.dispatchEvent(new Event('change'));
 
         document.body.innerHTML = template;
 
-        expect(createPlugin('customerA').tos.checked).toBe(true);
+        const restored = createPlugin('customerA');
+
+        expect(restored.tos.checked).toBe(true);
+        expect(restored.revocation.checked).toBe(true);
     });
 
     test('persists into the session storage and never into the local storage', () => {
@@ -165,6 +186,26 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         });
     });
 
+    test('removes revocation when it is unchecked', () => {
+        SessionStorage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                customerComment: 'comment from customer A',
+                revocation: true,
+            },
+        }));
+
+        const { revocation } = createPlugin('customerA');
+
+        revocation.checked = false;
+        revocation.dispatchEvent(new Event('change'));
+
+        expect(storedCustomers()).toEqual({
+            customerA: {
+                customerComment: 'comment from customer A',
+            },
+        });
+    });
+
     test('removes the whole storage key when the last customer entry is cleared', () => {
         SessionStorage.setItem(storageKey, JSON.stringify({
             customerA: {
@@ -206,10 +247,11 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
     test('ignores malformed storage payloads safely', () => {
         SessionStorage.setItem(storageKey, 'not-json');
 
-        const { customerComment, tos } = createPlugin('customerA');
+        const { customerComment, tos, revocation } = createPlugin('customerA');
 
         expect(customerComment.value).toBe('');
         expect(tos.checked).toBe(false);
+        expect(revocation.checked).toBe(false);
         expect(SessionStorage.getItem(storageKey)).toBe('not-json');
     });
 
@@ -218,6 +260,7 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
             customerA: {
                 customerComment: 'comment from customer A',
                 tos: true,
+                revocation: true,
             },
         }));
 
@@ -226,5 +269,21 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
 
         expect(document.querySelector('#customerComment').value).toBe('');
         expect(document.querySelector('#tos').checked).toBe(false);
+        expect(document.querySelector('#revocation').checked).toBe(false);
+    });
+
+    test('keeps working when the revocation checkbox is not rendered', () => {
+        document.querySelector('#revocation').remove();
+
+        SessionStorage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                revocation: true,
+                tos: true,
+            },
+        }));
+
+        const { tos } = createPlugin('customerA');
+
+        expect(tos.checked).toBe(true);
     });
 });

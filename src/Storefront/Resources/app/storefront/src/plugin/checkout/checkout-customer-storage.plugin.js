@@ -3,6 +3,7 @@ import SessionStorage from 'src/helper/storage/session-storage.helper';
 
 const CUSTOMER_COMMENT_KEY = 'customerComment';
 const TOS_KEY = 'tos';
+const REVOCATION_KEY = 'revocation';
 
 /**
  * Persists checkout customer-specific form data in the session storage, so it survives
@@ -72,17 +73,22 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
                     }
                 },
             },
-            {
-                key: TOS_KEY,
-                resolveElement: () => this._getFormElementByName(TOS_KEY),
-                events: ['change'],
-                normalizeValue: (value) => value === true ? true : null,
-                readValue: (element) => element.checked ? true : null,
-                writeValue: (element, value) => {
-                    element.checked = value === true;
-                },
-            },
+            this._getCheckboxFieldDefinition(TOS_KEY),
+            this._getCheckboxFieldDefinition(REVOCATION_KEY),
         ];
+    }
+
+    _getCheckboxFieldDefinition(key) {
+        return {
+            key,
+            resolveElement: () => this._getFormElementByName(key),
+            events: ['change'],
+            normalizeValue: (value) => value === true ? true : null,
+            readValue: (element) => element.checked ? true : null,
+            writeValue: (element, value) => {
+                element.checked = value === true;
+            },
+        };
     }
 
     _resolveFields() {

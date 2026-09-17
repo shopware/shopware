@@ -546,7 +546,7 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ### Checkout form data is kept in the session storage
 
-The `CheckoutCustomerStorage` plugin stores the terms of service acceptance and the customer comment of the confirm page in the browser's session storage instead of the local storage. Both survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in.
+The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.
 
 The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `data-checkout-customer-storage-reset`. It sits on the order confirmation page, on the login page a logout lands on, on the empty cart as both a page and an off-canvas, and on the button back to the shop, where the `resetOnClick` option defers the reset to the click instead of running it on render. Themes that replace those templates should keep the attribute, and can add it to any further place that ends a checkout.
 

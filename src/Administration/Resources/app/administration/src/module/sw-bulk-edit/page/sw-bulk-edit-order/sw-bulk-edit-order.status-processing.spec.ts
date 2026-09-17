@@ -20,6 +20,7 @@ type StatusTransitionFailure = {
     field: string;
     fieldLabel: string;
     code: string;
+    reason: string;
 };
 
 type ViewModelOptions = {
@@ -147,6 +148,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order status processing', ()
                         orderNumber: '10001',
                         field: 'orders',
                         code: '1020',
+                        reason: 'transition',
                         error: firstError,
                     },
                 ],
@@ -158,6 +160,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order status processing', ()
                         orderNumber: '10101',
                         field: 'orderTransactions',
                         code: '1213',
+                        reason: 'not-found',
                         error: secondError,
                     },
                 ],
@@ -175,6 +178,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order status processing', ()
                 orderNumber: '10001',
                 field: 'orders',
                 code: '1020',
+                reason: 'transition',
                 fieldLabel: 'sw-bulk-edit.order.status.failedFields.orders',
             },
             {
@@ -182,6 +186,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order status processing', ()
                 orderNumber: '10101',
                 field: 'orderTransactions',
                 code: '1213',
+                reason: 'not-found',
                 fieldLabel: 'sw-bulk-edit.order.status.failedFields.orderTransactions',
             },
         ]);
@@ -215,12 +220,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order status processing', ()
                 orderNumber: '1',
                 field: 'orders',
                 code: '500',
+                reason: 'unknown',
             }),
             expect.objectContaining({
                 orderId: '2',
                 orderNumber: '2',
                 field: 'orders',
                 code: '500',
+                reason: 'unknown',
             }),
         ]);
         expect(viewModel.processStatus).toBe('fail');

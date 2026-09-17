@@ -549,6 +549,7 @@ export default {
                         orderNumber: failure.orderNumber,
                         field: failure.field,
                         code: failure.code,
+                        reason: failure.reason ?? 'transition',
                         fieldLabel: this.getStatusTransitionFieldLabel(failure.field),
                     }));
 
@@ -593,6 +594,7 @@ export default {
                                 orderId,
                                 orderNumber: orderId,
                                 field: change.field,
+                                reason: 'unknown',
                                 code: String(error?.response?.data?.errors?.[0]?.code ?? ''),
                                 error,
                             });

@@ -17,7 +17,10 @@ class NoUnreachableAssertionAfterExpectExceptionRuleTest extends RuleTestCase
 {
     public function testRule(): void
     {
-        $this->analyse([__DIR__ . '/data/NoUnreachableAssertionAfterExpectExceptionRule/Cases.php'], [
+        $this->analyse([
+            __DIR__ . '/data/NoUnreachableAssertionAfterExpectExceptionRule/Cases.php',
+            __DIR__ . '/data/NoUnreachableAssertionAfterExpectExceptionRule/ForeignNamespaceCases.php',
+        ], [
             // UnreachableAssertions::testTrailingAssertNeverRuns: assert after the throwing call
             [NoUnreachableAssertionAfterExpectExceptionRule::ERROR_UNREACHABLE_ASSERTION, 20],
             // UnreachableAssertions::testDeadTailAfterSecondActPhase: dead assert directly after the act call
@@ -25,7 +28,8 @@ class NoUnreachableAssertionAfterExpectExceptionRuleTest extends RuleTestCase
             // UnreachableAssertions::testDeadTailAfterSecondActPhase: dead assert after a second act phase
             [NoUnreachableAssertionAfterExpectExceptionRule::ERROR_UNREACHABLE_ASSERTION, 36],
             // NOT flagged: assertion before the act call, try/finally, no expectException,
-            // assert-named call on another object, conditional expectException, non-TestCase class
+            // assert-named call on another object, conditional expectException, non-TestCase class,
+            // and the banned shape in a namespace outside FIRST_PARTY_TEST_NAMESPACES
         ]);
     }
 

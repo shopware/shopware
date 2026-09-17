@@ -36,6 +36,9 @@ use Shopware\Core\Framework\Log\Package;
  * the act call; an assertion meant to run before the throw belongs above the act call; a dead
  * block exercising post-exception behaviour belongs in its own test without `expectException`.
  *
+ * Gated to the first-party test namespaces, so consumers of the shared rule set outside those
+ * namespaces are not forced into the rule.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal
@@ -44,6 +47,12 @@ use Shopware\Core\Framework\Log\Package;
 class NoUnreachableAssertionAfterExpectExceptionRule implements Rule
 {
     public const ERROR_UNREACHABLE_ASSERTION = 'This assertion is unreachable: the test expects an exception, so PHPUnit aborts the method at the throwing call above. Wrap the throwing call in try/finally, move the assertion before it, or split the test.';
+
+    private const FIRST_PARTY_TEST_NAMESPACES = [
+        'Shopware\Tests\\',
+        'Shopware\Commercial\Tests\\',
+        'Swag\SaasRufus\Test\\',
+    ];
 
     public function getNodeType(): string
     {
@@ -58,6 +67,10 @@ class NoUnreachableAssertionAfterExpectExceptionRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         if (!TestRuleHelper::isTestClass($node->getClassReflection())) {
+            return [];
+        }
+
+        if (!self::isFirstPartyTestClass($node->getClassReflection()->getName())) {
             return [];
         }
 
@@ -109,6 +122,17 @@ class NoUnreachableAssertionAfterExpectExceptionRule implements Rule
         }
 
         return $errors;
+    }
+
+    private static function isFirstPartyTestClass(string $className): bool
+    {
+        foreach (self::FIRST_PARTY_TEST_NAMESPACES as $namespace) {
+            if (str_starts_with($className, $namespace)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Serializer;
 
-use App\DTO\Presence;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\AbstractDto;
 use Shopware\Core\Framework\Api\Response\AbstractResponse;
 use Shopware\Core\Framework\Api\Serializer\DtoNormalizer;
 use Shopware\Core\Framework\Log\Package;
@@ -17,12 +17,14 @@ use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -36,7 +38,6 @@ class DtoNormalizerTest extends TestCase
 
     protected function setUp(): void
     {
-        require_once __DIR__ . '/../OpenApi/_fixtures/presence/Presence.php';
         $metadata = new ClassMetadataFactory(new AttributeLoader());
         $this->serializer = new Serializer([
             new DtoNormalizer(new PropertyNormalizer($metadata, new MetadataAwareNameConverter($metadata), new ReflectionExtractor())),
@@ -51,7 +52,7 @@ class DtoNormalizerTest extends TestCase
     {
         $request = Request::create('/test', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: json_encode($data, \JSON_THROW_ON_ERROR));
         $resolver = new RequestPayloadValueResolver($this->serializer, Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator());
-        $argument = new ArgumentMetadata('dto', Presence::class, false, false, null, false, [new MapRequestPayload()]);
+        $argument = new ArgumentMetadata('dto', PresenceDto::class, false, false, null, false, [new MapRequestPayload()]);
         $event = new ControllerArgumentsEvent(
             static::createStub(HttpKernelInterface::class),
             static function (): void {},
@@ -68,7 +69,7 @@ class DtoNormalizerTest extends TestCase
 
         if ($valid) {
             $dto = $event->getArguments()[0];
-            static::assertInstanceOf(Presence::class, $dto);
+            static::assertInstanceOf(PresenceDto::class, $dto);
             $properties = get_object_vars($dto);
             ksort($properties);
             ksort($data);
@@ -96,7 +97,7 @@ class DtoNormalizerTest extends TestCase
 
     public function testPublicPropertiesPreserveOmission(): void
     {
-        $dto = new Presence(requiredValue: 'value', requiredNullable: null);
+        $dto = new PresenceDto(requiredValue: 'value', requiredNullable: null);
         $dto->optionalNullable = null;
 
         static::assertArrayNotHasKey('optionalValue', get_object_vars($dto));
@@ -109,10 +110,10 @@ class DtoNormalizerTest extends TestCase
 
     public function testNestedDtoPreservesNullWithoutExposingResponseMetadata(): void
     {
-        $nested = new Presence('value', null);
+        $nested = new PresenceDto('value', null);
         $nested->optionalNullable = null;
         $response = new class($nested) extends AbstractResponse {
-            public function __construct(public Presence $nested)
+            public function __construct(public PresenceDto $nested)
             {
                 parent::__construct();
             }
@@ -125,6 +126,23 @@ class DtoNormalizerTest extends TestCase
         );
     }
 
+    public function testSerializedNamesRoundTrip(): void
+    {
+        $data = [
+            'total-count-mode' => 2,
+            'post-filter' => 'filter',
+            'camelCase' => 'unchanged',
+            'snake_case' => 'snake',
+            'quote\'field' => 'quoted',
+        ];
+
+        $dto = $this->serializer->denormalize($data, WireNamesDto::class);
+        static::assertInstanceOf(WireNamesDto::class, $dto);
+        static::assertSame(2, $dto->totalCountMode);
+        static::assertSame('filter', $dto->postFilter);
+        static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $this->serializer->serialize($dto, 'json'));
+    }
+
     public function testDoesNotHandleOtherObjects(): void
     {
         $normalizer = new DtoNormalizer(new PropertyNormalizer());
@@ -135,7 +153,7 @@ class DtoNormalizerTest extends TestCase
 
     public function testEmptyExtensionsRemainAbsent(): void
     {
-        $dto = new Presence('value', null);
+        $dto = new PresenceDto('value', null);
         $dto->removeExtension('missing');
         $dto->setExtensions([]);
         $dto->addExtension('custom', ['value' => 'test']);
@@ -146,5 +164,47 @@ class DtoNormalizerTest extends TestCase
             '{"requiredValue":"value","requiredNullable":null}',
             $this->serializer->serialize($dto, 'json'),
         );
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+final class PresenceDto extends AbstractDto
+{
+    public string $optionalValue;
+
+    public ?string $optionalNullable;
+
+    public function __construct(
+        #[Assert\NotBlank]
+        public string $requiredValue,
+        public ?string $requiredNullable,
+    ) {
+    }
+}
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+final class WireNamesDto extends AbstractDto
+{
+    #[SerializedName('post-filter')]
+    public string $postFilter;
+
+    public string $camelCase;
+
+    #[SerializedName('snake_case')]
+    public string $snakeCase;
+
+    #[SerializedName('quote\'field')]
+    public string $quoteField;
+
+    public function __construct(
+        #[SerializedName('total-count-mode')]
+        public int $totalCountMode,
+    ) {
     }
 }

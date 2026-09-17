@@ -62,13 +62,12 @@ permissions:
   pull-requests: read
 
 network:
-  # The `chrome` bundle plus www.gstatic.com covers what Chromium reaches for on its own — autofill,
-  # GCM check-in, component updates, network time, account consistency. Launch flags do not turn
-  # that off: Playwright already passes --disable-background-networking, --disable-component-update
-  # and --disable-sync, and the calls happen anyway. Denying them costs a "Firewall blocked 7
-  # domains" warning on every comment this workflow posts, which is a worse price than letting a
-  # throwaway CI browser phone home.
-  allowed: [defaults, local, playwright, chrome, "www.gstatic.com"]
+  # The browser is branded Google Chrome and phones home whatever flags it is given; gh aw appends
+  # every denied domain to the comment it posts. A warning on every issue costs more than a
+  # throwaway CI browser's telemetry, so Google's hosts are allowed rather than denied. mtalk is
+  # listed on the same reasoning, but expect it to stay in the report: *.google.com already covers
+  # the name and it was still denied, so the block is on its port (5228), which this list cannot lift.
+  allowed: [defaults, local, playwright, chrome, "www.gstatic.com", "mtalk.google.com"]
 
 timeout-minutes: 45          # provisioning plus, for pull requests, a source swap eats most of this
 max-ai-credits: 400
@@ -149,7 +148,7 @@ steps:
       SANDBOX_URL: http://host.docker.internal
     run: bash .github/actions/sw-screenshot/steps/register-sandbox-domain.sh
 
-  - name: Setup Node and Playwright
+  - name: Setup Node
     uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
     with:
       node-version: 24

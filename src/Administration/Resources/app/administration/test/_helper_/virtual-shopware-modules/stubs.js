@@ -7,6 +7,9 @@
  * written per specifier rather than checked in. They are all created once from `jest.config.ts`, in the
  * main process: creating them from the resolver instead would have every worker racing to write the same
  * file on a cold cache.
+ *
+ * Keep this plain JavaScript with no local imports: `jest-resolver.js` loads it from inside jest-resolve,
+ * which runs outside the Jest runtime and cannot require a TypeScript file.
  */
 
 const fs = require('fs');
@@ -24,18 +27,8 @@ function stubContents(specifier) {
     return `module.exports = require(${JSON.stringify(RESOLVER)})(${JSON.stringify(specifier)});\n`;
 }
 
-/** Writes a stub per specifier the registry publishes, barrels and subpaths alike. */
-function writeStubs(registry) {
-    const specifiers = Object.entries(registry).flatMap(
-        ([
-            family,
-            entry,
-        ]) => [
-            ...(entry.exports.length > 0 ? [family] : []),
-            ...Object.keys(entry.subpaths).map((key) => `${family}/${key}`),
-        ],
-    );
-
+/** Writes one stub per specifier. `allSpecifiers` decides what that list is. */
+function writeStubs(specifiers) {
     fs.mkdirSync(STUB_DIR, { recursive: true });
     specifiers.forEach((specifier) => fs.writeFileSync(stubPath(specifier), stubContents(specifier)));
 

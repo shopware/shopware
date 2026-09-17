@@ -17,8 +17,10 @@
  */
 
 const path = require('path');
-const { parseSpecifier, resolveVirtualExport } = require('../../../build/vite-plugins/virtual-shopware-modules/definitions');
-const { exportNames, readRegistry } = require('../../../build/vite-plugins/virtual-shopware-modules/index');
+const definitions = require('../../../build/vite-plugins/virtual-shopware-modules/definitions');
+const { readRegistry } = require('../../../build/vite-plugins/virtual-shopware-modules/index');
+
+const { parseSpecifier, exportNames, resolveVirtualExport } = definitions;
 
 const registry = readRegistry(path.resolve(__dirname, '../../..'));
 
@@ -31,7 +33,7 @@ const registry = readRegistry(path.resolve(__dirname, '../../..'));
  */
 function read(specifier, member) {
     try {
-        return resolveVirtualExport(specifier, member, global.Shopware);
+        return resolveVirtualExport(registry, specifier, member, global.Shopware);
     } catch {
         return undefined;
     }
@@ -62,8 +64,8 @@ module.exports = function resolveShopwareModule(specifier) {
     }
 
     if (parsed.family === 'shopware:stores') {
-        return (...args) => resolveVirtualExport(specifier, 'default', global.Shopware)(...args);
+        return (...args) => resolveVirtualExport(registry, specifier, 'default', global.Shopware)(...args);
     }
 
-    return resolveVirtualExport(specifier, 'default', global.Shopware);
+    return resolveVirtualExport(registry, specifier, 'default', global.Shopware);
 };

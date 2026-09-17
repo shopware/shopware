@@ -8,13 +8,15 @@
 import path from 'node:path';
 import {
     MODULE_FAMILIES,
+    allSpecifiers,
     defaultExpression,
+    exportNames,
     memberExpression,
     parseSpecifier,
     resolveVirtualExport,
     type VirtualModuleGlobal,
 } from './definitions';
-import { exportNames, readRegistry } from './index';
+import { readRegistry } from './index';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);
@@ -67,38 +69,25 @@ function unwrap(value: unknown): unknown {
     return typeof value === 'function' ? (value as () => unknown)() : value;
 }
 
-/** Every specifier the registry publishes, barrels and subpaths alike. */
-function allSpecifiers(): string[] {
-    return Object.entries(registry).flatMap(
-        ([
-            family,
-            entry,
-        ]) => [
-            ...(entry.exports.length > 0 ? [family] : []),
-            ...Object.keys(entry.subpaths).map((key) => `${family}/${key}`),
-        ],
-    );
-}
-
 describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
     it('has a registry entry for every module family', () => {
         expect(Object.keys(registry).sort()).toEqual([...MODULE_FAMILIES].sort());
     });
 
     describe('parseSpecifier', () => {
-        it('splits a subpath into its family and key', () => {
-            expect(parseSpecifier('shopware:utils/debug')).toEqual({ family: 'shopware:utils', key: 'debug' });
+        it('splits a subpath import into its family and subpath', () => {
+            expect(parseSpecifier('shopware:utils/debug')).toEqual({ family: 'shopware:utils', subpath: 'debug' });
             expect(parseSpecifier('shopware:mixins/sw-form-field')).toEqual({
                 family: 'shopware:mixins',
-                key: 'sw-form-field',
+                subpath: 'sw-form-field',
             });
         });
 
-        it('claims a bare import only for the families that have a barrel', () => {
+        it('splits a bare import of any known family', () => {
             expect(parseSpecifier('shopware:utils')).toEqual({ family: 'shopware:utils' });
             expect(parseSpecifier('shopware:data')).toEqual({ family: 'shopware:data' });
-            expect(parseSpecifier('shopware:mixins')).toBeUndefined();
-            expect(parseSpecifier('shopware:stores')).toBeUndefined();
+            expect(parseSpecifier('shopware:mixins')).toEqual({ family: 'shopware:mixins' });
+            expect(parseSpecifier('shopware:stores')).toEqual({ family: 'shopware:stores' });
         });
 
         it('leaves every other import alone', () => {
@@ -109,8 +98,31 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         });
     });
 
+    describe('the registry decides which root imports resolve', () => {
+        it.each([
+            'shopware:utils',
+            'shopware:data',
+        ])('serves %s, because it publishes root exports', (family) => {
+            expect(registry[family].exports.length).toBeGreaterThan(0);
+            expect(exportNames(registry, parseSpecifier(family)!)).toEqual(registry[family].exports);
+        });
+
+        it.each([
+            'shopware:mixins',
+            'shopware:stores',
+        ])('refuses %s, because it publishes none', (family) => {
+            expect(registry[family].exports).toEqual([]);
+            expect(exportNames(registry, parseSpecifier(family)!)).toBeUndefined();
+        });
+
+        it('separates a root import that does not resolve from a subpath that is default-only', () => {
+            expect(exportNames(registry, parseSpecifier('shopware:mixins')!)).toBeUndefined();
+            expect(exportNames(registry, parseSpecifier('shopware:mixins/sw-form-field')!)).toEqual([]);
+        });
+    });
+
     describe('the emitted code and the runtime resolver agree', () => {
-        it.each(allSpecifiers())('%s', (specifier) => {
+        it.each(allSpecifiers(registry))('%s', (specifier) => {
             const parsed = parseSpecifier(specifier);
             const probe = createProbeGlobal();
 
@@ -122,8 +134,8 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
                 unwrap(evaluate(defaultExpression(parsed!) as string, probe)),
             ];
             const resolved = [
-                ...members.map((member) => unwrap(resolveVirtualExport(specifier, member, probe))),
-                unwrap(resolveVirtualExport(specifier, 'default', probe)),
+                ...members.map((member) => unwrap(resolveVirtualExport(registry, specifier, member, probe))),
+                unwrap(resolveVirtualExport(registry, specifier, 'default', probe)),
             ];
 
             expect(emitted).toEqual(resolved);
@@ -173,19 +185,19 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
 
     describe('resolveVirtualExport', () => {
         it('rejects a specifier it does not serve', () => {
-            expect(() => resolveVirtualExport('shopware:mixins', 'anything', createProbeGlobal())).toThrow(
+            expect(() => resolveVirtualExport(registry, 'shopware:mixins', 'anything', createProbeGlobal())).toThrow(
                 '"shopware:mixins" is not a Shopware virtual module.',
             );
         });
 
-        it('names the module when a barrel has no such export', () => {
-            expect(() => resolveVirtualExport('shopware:utils', 'notAUtil', Shopware as never)).toThrow(
+        it('names the module when a root import has no such export', () => {
+            expect(() => resolveVirtualExport(registry, 'shopware:utils', 'notAUtil', Shopware as never)).toThrow(
                 '"notAUtil" does not exist on Shopware.Utils.',
             );
         });
 
         it('names the module when a subpath has no such export', () => {
-            expect(() => resolveVirtualExport('shopware:utils/debug', 'notAMember', Shopware as never)).toThrow(
+            expect(() => resolveVirtualExport(registry, 'shopware:utils/debug', 'notAMember', Shopware as never)).toThrow(
                 '"shopware:utils/debug" has no export "notAMember".',
             );
         });

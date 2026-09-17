@@ -83,7 +83,7 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
     });
 
     describe('generateModuleSource', () => {
-        it('gives a barrel one binding per member plus the branch as default', () => {
+        it('gives a root import one binding per member plus the branch as default', () => {
             const source = generateModuleSource('shopware:utils', registry) as string;
 
             registry['shopware:utils'].exports.forEach((member) => {

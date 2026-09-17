@@ -5,14 +5,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin } from 'vite';
-import { defaultExpression, memberExpression, parseSpecifier, type ParsedSpecifier } from './definitions';
+import {
+    allSpecifiers,
+    defaultExpression,
+    exportNames,
+    memberExpression,
+    parseSpecifier,
+    type ModuleRegistry,
+} from './definitions';
 
 type Options = {
     /** Root of the Administration package, i.e. the directory holding `src/` and `package.json`. */
     administrationRoot: string;
 };
-
-type ModuleRegistry = Record<string, { exports: string[]; subpaths: Record<string, string[]> }>;
 
 /** Rollup convention: a leading NUL marks an id no other plugin should touch or read from disk. */
 const RESOLVED_PREFIX = '\0';
@@ -34,23 +39,8 @@ export function readRegistry(administrationRoot: string): ModuleRegistry {
     return JSON.parse(fs.readFileSync(file, 'utf8')) as ModuleRegistry;
 }
 
-/**
- * @private
- *
- * The export names a specifier publishes: its barrel's members, or one subpath's own names.
- *
- * `undefined` means the registry does not know the specifier, which is how an unknown key is refused
- * instead of resolving to a module full of `undefined`.
- */
-export function exportNames(registry: ModuleRegistry, parsed: ParsedSpecifier): string[] | undefined {
-    const entry = registry[parsed.family];
-
-    if (!entry) {
-        return undefined;
-    }
-
-    return parsed.subpath === undefined ? entry.exports : entry.subpaths[parsed.subpath];
-}
+/** @private Re-exported so the Vite plugin and the Jest setup reach the whole contract from one module. */
+export { allSpecifiers, exportNames };
 
 /**
  * @private

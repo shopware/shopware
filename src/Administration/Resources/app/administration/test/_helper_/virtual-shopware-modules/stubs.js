@@ -19,20 +19,37 @@ const RESOLVER = path.join(__dirname, 'resolve-module.js');
 const STUB_DIR = path.join(__dirname, '..', '..', 'node_modules', '.cache', 'shopware-virtual-modules');
 
 /** Absolute path of the stub for one specifier, whether or not it exists yet. */
-function stubPath(specifier) {
-    return path.join(STUB_DIR, `${specifier.replace(/[:/]/g, '__')}.js`);
+function stubPath(specifier, stubDirectory = STUB_DIR) {
+    return path.join(stubDirectory, `${specifier.replace(/[:/]/g, '__')}.js`);
 }
 
 function stubContents(specifier) {
     return `module.exports = require(${JSON.stringify(RESOLVER)})(${JSON.stringify(specifier)});\n`;
 }
 
-/** Writes one stub per specifier. `allSpecifiers` decides what that list is. */
-function writeStubs(specifiers) {
-    fs.mkdirSync(STUB_DIR, { recursive: true });
-    specifiers.forEach((specifier) => fs.writeFileSync(stubPath(specifier), stubContents(specifier)));
+/** Returns the current stub for a specifier, or `undefined` when the registry does not publish it. */
+function resolveStub(specifier, stubDirectory = STUB_DIR) {
+    const file = stubPath(specifier, stubDirectory);
+
+    return fs.existsSync(file) ? file : undefined;
+}
+
+/** Replaces the generated stubs with the specifiers from the current registry. */
+function writeStubs(specifiers, stubDirectory = STUB_DIR) {
+    fs.mkdirSync(stubDirectory, { recursive: true });
+
+    const currentFiles = new Set(specifiers.map((specifier) => stubPath(specifier, stubDirectory)));
+    fs.readdirSync(stubDirectory).forEach((entry) => {
+        const file = path.join(stubDirectory, entry);
+
+        if (!currentFiles.has(file) && fs.statSync(file).isFile()) {
+            fs.unlinkSync(file);
+        }
+    });
+
+    specifiers.forEach((specifier) => fs.writeFileSync(stubPath(specifier, stubDirectory), stubContents(specifier)));
 
     return specifiers.length;
 }
 
-module.exports = { stubPath, writeStubs };
+module.exports = { resolveStub, stubPath, writeStubs };

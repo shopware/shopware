@@ -73,7 +73,7 @@ type Branch = {
 };
 
 function readOwn(branch: Record<string, unknown>, subpath: string, globalPath: string): unknown {
-    if (!(subpath in branch)) {
+    if (!Object.hasOwn(branch, subpath)) {
         throw new Error(`"${subpath}" does not exist on ${globalPath}.`);
     }
 
@@ -138,7 +138,7 @@ export type ParsedSpecifier = {
 /**
  * Splits a `shopware:*` import into its family and subpath.
  *
- * `specifier` is the * here: `utils` or `mixins/myCoolMixin`
+ * `specifier` includes the prefix, for example `shopware:utils` or `shopware:mixins/myCoolMixin`.
  *
  * Returns `undefined` for a specifier no family serves. Whether the parsed specifier actually resolves
  * is `exportNames`' answer, not this one: a family may publish no root import. A store key may contain
@@ -148,13 +148,13 @@ export function parseSpecifier(specifier: string): ParsedSpecifier | undefined {
     const separator = specifier.indexOf('/');
 
     if (separator === -1) {
-        return BRANCHES[specifier] ? { family: specifier } : undefined;
+        return Object.hasOwn(BRANCHES, specifier) ? { family: specifier } : undefined;
     }
 
     const family = specifier.slice(0, separator);
     const subpath = specifier.slice(separator + 1);
 
-    return BRANCHES[family] && subpath.length > 0 ? { family, subpath } : undefined;
+    return Object.hasOwn(BRANCHES, family) && subpath.length > 0 ? { family, subpath } : undefined;
 }
 
 /**
@@ -165,17 +165,17 @@ export function parseSpecifier(specifier: string): ParsedSpecifier | undefined {
  * export alone.
  */
 export function exportNames(registry: ModuleRegistry, parsed: ParsedSpecifier): string[] | undefined {
-    const entry = registry[parsed.family];
-
-    if (!entry) {
+    if (!Object.hasOwn(registry, parsed.family)) {
         return undefined;
     }
+
+    const entry = registry[parsed.family];
 
     if (parsed.subpath === undefined) {
         return entry.exports.length > 0 ? entry.exports : undefined;
     }
 
-    return entry.subpaths[parsed.subpath];
+    return Object.hasOwn(entry.subpaths, parsed.subpath) ? entry.subpaths[parsed.subpath] : undefined;
 }
 
 /** Every specifier the registry publishes: each family's root import where it has one, plus every subpath. */
@@ -193,11 +193,11 @@ export function allSpecifiers(registry: ModuleRegistry): string[] {
 
 /** The value expression for a parsed specifier's default export. */
 export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
-    const branch = BRANCHES[parsed.family];
-
-    if (!branch) {
+    if (!Object.hasOwn(BRANCHES, parsed.family)) {
         return undefined;
     }
+
+    const branch = BRANCHES[parsed.family];
 
     return parsed.subpath === undefined ? branch.root.emit() : branch.subpath.emit(parsed.subpath);
 }
@@ -240,7 +240,7 @@ export function resolveVirtualExport(
         return own;
     }
 
-    if (own === null || typeof own !== 'object' || !(exportName in own)) {
+    if (own === null || typeof own !== 'object' || !Object.hasOwn(own, exportName)) {
         throw new Error(`"${specifier}" has no export "${exportName}".`);
     }
 

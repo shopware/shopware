@@ -49,6 +49,9 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(plugin.resolveId('shopware:utils/notAUtil')).toBeNull();
             expect(plugin.resolveId('shopware:stores/notARegisteredStore')).toBeNull();
             expect(plugin.resolveId('shopware:mixins/notAMixin')).toBeNull();
+            expect(plugin.resolveId('shopware:utils/constructor')).toBeNull();
+            expect(plugin.resolveId('shopware:utils/toString')).toBeNull();
+            expect(plugin.resolveId('shopware:utils/__proto__')).toBeNull();
         });
 
         it('refuses a bare import of the registry-backed families', () => {

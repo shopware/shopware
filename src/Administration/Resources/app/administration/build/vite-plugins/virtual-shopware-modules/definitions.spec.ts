@@ -96,6 +96,8 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it('leaves every other import alone', () => {
             expect(parseSpecifier('shopware:nope')).toBeUndefined();
             expect(parseSpecifier('shopware:utils/')).toBeUndefined();
+            expect(parseSpecifier('constructor/member')).toBeUndefined();
+            expect(parseSpecifier('toString')).toBeUndefined();
             expect(parseSpecifier('src/core/service/util.service')).toBeUndefined();
             expect(parseSpecifier('vue')).toBeUndefined();
         });
@@ -121,6 +123,14 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it('separates a root import that does not resolve from a subpath that is default-only', () => {
             expect(exportNames(registry, parseSpecifier('shopware:mixins')!)).toBeUndefined();
             expect(exportNames(registry, parseSpecifier('shopware:mixins/sw-form-field')!)).toEqual([]);
+        });
+
+        it.each([
+            'constructor',
+            'toString',
+            '__proto__',
+        ])('refuses the inherited subpath %s', (subpath) => {
+            expect(exportNames(registry, parseSpecifier(`shopware:utils/${subpath}`)!)).toBeUndefined();
         });
     });
 

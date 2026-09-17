@@ -299,22 +299,6 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
-### A cascading many-to-one on an attribute entity no longer cascades
-
-`#[ManyToOne(onDelete: OnDelete::CASCADE)]` on an attribute entity told the DAL to delete the referenced record together with the record carrying the association, so deleting a child deleted its parent. Together with a cascading `#[OneToMany]` on the opposite side it made deleting a record of either entity walk the pair until the process was killed.
-
-The flag is now ignored on a many-to-one, and rejected once the `v6.8.0.0` flag is active. Declare the cascade on the inverse `#[OneToMany]`, which deletes the children together with their parent as intended:
-
-```php
-#[OneToMany(entity: 'my_child', ref: 'my_parent_id', onDelete: OnDelete::CASCADE)]
-public ?array $children = null;
-
-#[ManyToOne(entity: 'my_parent')]
-public ?MyParentEntity $parent = null;
-```
-
-Independently of the declaration, resolving a delete now stops as soon as a cascade chain leads back to a record it has already resolved, so no pair of definitions can make a delete run forever. The `measurement_system` and `measurement_display_unit` entities shipped this pair; deleting a record of either through the DAL or the Admin API works again.
-
 ## API
 
 ### OAuth authorization endpoint

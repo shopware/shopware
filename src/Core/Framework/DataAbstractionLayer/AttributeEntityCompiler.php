@@ -406,9 +406,13 @@ class AttributeEntityCompiler
         if ($association = $this->getAttribute($property, ...self::ASSOCIATIONS)) {
             $association = $association->newInstance();
 
-            // @deprecated tag:v6.8.0 - remove the flag check, the cascade is then always rejected
-            if ($association instanceof ManyToOne && $association->onDelete === OnDelete::CASCADE && Feature::isActive('v6.8.0.0')) {
-                throw DataAbstractionLayerException::cascadeDeleteOnManyToOne($entity, $property->getName());
+            if ($association instanceof ManyToOne && $association->onDelete === OnDelete::CASCADE) {
+                Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
+                    'Association "%s" of entity "%s" must not use OnDelete::CASCADE. On a many-to-one, a cascade delete '
+                    . 'would delete the referenced entity. Declare the cascade on the inverse one-to-many association instead.',
+                    $property->getName(),
+                    $entity
+                ));
             }
 
             $flags['cascade'] = match ($association->onDelete) {

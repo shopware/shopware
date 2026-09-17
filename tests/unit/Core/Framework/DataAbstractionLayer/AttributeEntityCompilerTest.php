@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -61,6 +60,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -173,9 +173,11 @@ class AttributeEntityCompilerTest extends TestCase
 
     public function testCompileRejectsCascadeDeleteOnManyToOne(): void
     {
-        $this->expectExceptionObject(
-            DataAbstractionLayerException::cascadeDeleteOnManyToOne('cascading_many_to_one', 'currency')
-        );
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Association "currency" of entity "cascading_many_to_one" '
+            . 'must not use OnDelete::CASCADE. On a many-to-one, a cascade delete would delete the referenced entity. '
+            . 'Declare the cascade on the inverse one-to-many association instead.'
+        ));
 
         (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);
     }

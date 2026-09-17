@@ -45,6 +45,12 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        salesChannelModuleColor() {
+            // The rows are built here instead of from the module navigation, so they pick up the
+            // module color themselves and follow the module icon color preference like the module rows
+            return Shopware.Module.getModuleByEntityName('sales_channel')?.manifest?.color;
+        },
+
         canCreateSalesChannels() {
             return this.acl.can('sales_channel.creator');
         },
@@ -107,6 +113,7 @@ export default {
                         translated: true,
                     },
                     icon: salesChannel.type.iconName,
+                    color: this.salesChannelModuleColor,
                     children: [],
                     domainLink: this.getDomainLink(salesChannel),
                     active: salesChannel.active,
@@ -120,6 +127,7 @@ export default {
             return {
                 children: [],
                 icon: 'regular-eye',
+                color: this.salesChannelModuleColor,
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
             };

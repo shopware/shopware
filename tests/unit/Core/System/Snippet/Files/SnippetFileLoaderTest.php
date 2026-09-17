@@ -272,13 +272,13 @@ class SnippetFileLoaderTest extends TestCase
         $this->createAppSnippetLoader($storage)->loadSnippetFilesIntoCollection($collection);
 
         static::assertCount(2, $collection);
-        $file = $collection->getSnippetFilesByIso('en-GB')[0];
+        $file = $collection->getSnippetFilesByIso('en')[0];
         static::assertInstanceOf(GenericSnippetFile::class, $file);
         static::assertSame('TestApp', $file->getTechnicalName());
         static::assertSame('Test Author', $file->getAuthor());
-        static::assertSame('storefront.en-GB', $file->getName());
+        static::assertSame('storefront.en', $file->getName());
         static::assertTrue($file->isBase());
-        static::assertFalse($collection->getSnippetFilesByIso('de-DE')[0]->isBase());
+        static::assertFalse($collection->getSnippetFilesByIso('de')[0]->isBase());
     }
 
     public function testLoadAppSnippetsSkipsUnavailableApp(): void

@@ -2,9 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\OpenApi;
 
-use App\DTO\ConstValues;
-use App\DTO\Presence;
-use App\DTO\WireNames;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
@@ -34,35 +31,34 @@ class OpenApiDtoClassRendererTest extends TestCase
 {
     public function testGeneratedConstantsValidateWithoutDefaults(): void
     {
-        require_once __DIR__ . '/_fixtures/constants/ConstValues.php';
+        $class = $this->loadRenderedClass('constants/schema.json', 'ConstValues');
+        $dto = $class->newInstance('fixed');
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-        $dto = new ConstValues('fixed');
 
         static::assertSame(['kind' => 'fixed'], get_object_vars($dto));
         static::assertCount(0, $validator->validate($dto));
 
-        $dto->optionalKind = 'fixed';
-        $dto->enabled = false;
-        $dto->count = 0;
-        $dto->ratio = 1.0;
-        $dto->quoted = 'it\'s\\fixed';
+        foreach (['optionalKind' => 'fixed', 'enabled' => false, 'count' => 0, 'ratio' => 1.0, 'quoted' => 'it\'s\\fixed'] as $name => $value) {
+            $class->getProperty($name)->setValue($dto, $value);
+        }
         static::assertCount(0, $validator->validate($dto));
 
-        $dto->kind = 'wrong';
-        $dto->optionalKind = 'wrong';
-        $dto->enabled = true;
-        $dto->count = 1;
-        $dto->ratio = 2.0;
-        $dto->quoted = 'wrong';
-        static::assertCount(6, $validator->validate($dto));
+        foreach (['kind' => 'wrong', 'optionalKind' => 'wrong', 'enabled' => true, 'count' => 1, 'ratio' => 2.0, 'quoted' => 'wrong'] as $name => $value) {
+            $class->getProperty($name)->setValue($dto, $value);
+        }
+        $violations = $validator->validate($dto);
+        $paths = [];
+        foreach ($violations as $violation) {
+            $paths[] = $violation->getPropertyPath();
+        }
+        static::assertEqualsCanonicalizing(['kind', 'optionalKind', 'enabled', 'count', 'ratio', 'quoted'], $paths);
     }
 
     public function testOnlyRequiredPropertiesArePromotedConstructorParameters(): void
     {
-        require_once __DIR__ . '/_fixtures/presence/Presence.php';
-        $reflection = new \ReflectionClass(Presence::class);
+        $class = $this->loadRenderedClass('presence/schema.json', 'Presence');
 
-        foreach ($reflection->getProperties() as $property) {
+        foreach ($class->getProperties() as $property) {
             static::assertSame(
                 \in_array($property->getName(), ['requiredValue', 'requiredNullable'], true),
                 $property->isPromoted(),
@@ -70,19 +66,20 @@ class OpenApiDtoClassRendererTest extends TestCase
             );
         }
 
-        $constructor = $reflection->getConstructor();
+        $constructor = $class->getConstructor();
         static::assertNotNull($constructor);
         static::assertSame(
             ['requiredValue', 'requiredNullable'],
             array_map(static fn (\ReflectionParameter $parameter): string => $parameter->getName(), $constructor->getParameters()),
         );
         static::assertSame(2, $constructor->getNumberOfRequiredParameters());
+        $dto = $class->newInstance('value', null);
+        static::assertSame(['requiredValue' => 'value', 'requiredNullable' => null], get_object_vars($dto));
     }
 
     public function testGeneratedWireNamesWorkWithSerializer(): void
     {
-        require_once __DIR__ . '/_fixtures/wire-names/WireNames.php';
-
+        $class = $this->loadRenderedClass('wire-names/schema.json', 'WireNames');
         $metadata = new ClassMetadataFactory(new AttributeLoader());
         $serializer = new Serializer([new DtoNormalizer(new PropertyNormalizer($metadata, new MetadataAwareNameConverter($metadata)))], [new JsonEncoder()]);
         $data = [
@@ -93,10 +90,10 @@ class OpenApiDtoClassRendererTest extends TestCase
             'quote\'field' => 'quoted',
         ];
 
-        $dto = $serializer->denormalize($data, WireNames::class);
-        static::assertInstanceOf(WireNames::class, $dto);
-        static::assertSame(2, $dto->totalCountMode);
-        static::assertSame('filter', $dto->postFilter);
+        $dto = $serializer->denormalize($data, $class->getName());
+        static::assertInstanceOf($class->getName(), $dto);
+        static::assertSame(2, $class->getProperty('totalCountMode')->getValue($dto));
+        static::assertSame('filter', $class->getProperty('postFilter')->getValue($dto));
         static::assertJsonStringEqualsJsonString(json_encode($data, \JSON_THROW_ON_ERROR), $serializer->serialize($dto, 'json'));
     }
 
@@ -180,6 +177,33 @@ class OpenApiDtoClassRendererTest extends TestCase
     private function renderDefinition(OpenApiDtoDefinition $definition): string
     {
         return (new OpenApiDtoClassRenderer(new MockClock('2026-07-14')))->renderClass($definition, 'Shopware\\Core\\Framework\\Api\\Dto');
+    }
+
+    /**
+     * @return \ReflectionClass<object>
+     */
+    private function loadRenderedClass(string $schema, string $name): \ReflectionClass
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse($this->loadSchema($schema));
+        $namespace = __NAMESPACE__ . '\\Generated' . bin2hex(random_bytes(8));
+        $source = (new OpenApiDtoClassRenderer(new MockClock('2026-07-14')))->renderClass(
+            $this->definitionByName($definitions, $name),
+            $namespace,
+        );
+        $filesystem = new Filesystem();
+        $file = $filesystem->tempnam(sys_get_temp_dir(), 'open-api-dto-');
+
+        try {
+            $filesystem->dumpFile($file, $source);
+            require $file;
+
+            $class = $namespace . '\\' . $name;
+            static::assertTrue(class_exists($class, false));
+
+            return new \ReflectionClass($class);
+        } finally {
+            $filesystem->remove($file);
+        }
     }
 
     /**

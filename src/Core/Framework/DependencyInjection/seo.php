@@ -240,6 +240,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(SalesChannelDefinitionInstanceRegistry::class),
             service(SeoUrlRouteRegistry::class),
+            service(EntityRouteResolver::class),
         ])
         ->tag('kernel.event_subscriber');
 

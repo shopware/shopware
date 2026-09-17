@@ -283,6 +283,23 @@ export default {
             return this.$t('sw-settings-language.list.salesChannelCount', count);
         },
 
+        localeLabel(item) {
+            const localeCode = item.locale?.code;
+
+            if (!localeCode) {
+                return '';
+            }
+
+            const metadata = this.translationMetadata[localeCode];
+
+            // Pseudo languages borrow a real locale code, so only their own name describes them
+            if (metadata?.isPseudoLanguage) {
+                return metadata.name;
+            }
+
+            return Shopware.Utils.format.localeName(localeCode);
+        },
+
         getSnippetStatus(item) {
             const localeCode = item.locale?.code;
 

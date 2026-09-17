@@ -47,8 +47,8 @@ async function saveUserModuleIconColors(next: boolean): Promise<void> {
 
 /**
  * App-wide singleton for the opt-in preference that paints the admin menu and search bar
- * icons in the color of their module (`Module.register({ color })`). The state lives at
- * module scope, so it is shared by every consumer without a store registration.
+ * icons and the default media folders in the color of their module (`Module.register({ color })`).
+ * The state lives at module scope, so it is shared by every consumer without a store registration.
  *
  * @private
  */

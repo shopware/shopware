@@ -12,6 +12,7 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
         search: () => Promise.resolve([]),
         hasChanges: () => false,
         deleteVersion: () => Promise.resolve([]),
+        deleteVersionWithKeepalive: () => Promise.resolve(),
         createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
         get: () => Promise.resolve(order),
         save: () => Promise.resolve({}),
@@ -127,6 +128,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
     afterEach(() => {
+        if (wrapper) {
+            window.removeEventListener('pagehide', wrapper.vm.onPageHide);
+        }
+
         Shopware.Store.get('shopwareApps').selectedIds = [];
     });
 
@@ -160,20 +165,34 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
     });
 
-    it('should remove version id when beforeunload event is triggered', async () => {
+    it('should remove version id with a keepalive request when pagehide is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
 
         const oldVersionContext = wrapper.vm.versionContext;
 
-        window.dispatchEvent(new Event('beforeunload'));
+        window.dispatchEvent(new Event('pagehide'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).toHaveBeenCalledWith(
             wrapper.vm.orderId,
             oldVersionContext.versionId,
         );
+        expect(wrapper.vm.orderRepository.deleteVersion).not.toHaveBeenCalled();
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
+    });
+
+    it('should keep the version when the page is stored in the back-forward cache', async () => {
+        wrapper = await createWrapper();
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
+
+        const pageHideEvent = new Event('pagehide');
+        Object.defineProperty(pageHideEvent, 'persisted', { value: true });
+        window.dispatchEvent(pageHideEvent);
+
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
+        expect(wrapper.vm.hasNewVersionId).toBe(true);
     });
 
     it('should not contain manual label', async () => {
@@ -301,10 +320,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        const oldVersionId = wrapper.vm.versionContext.versionId;
 
-        await wrapper.vm.beforeDestroyComponent();
+        wrapper.vm.beforeDestroyComponent();
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionId);
     });
 
     it('should reset pending address selections when component gets destroyed', async () => {
@@ -316,7 +336,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             type: 'billing',
         });
 
-        await wrapper.vm.beforeDestroyComponent();
+        wrapper.vm.beforeDestroyComponent();
 
         expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
@@ -729,4 +749,88 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(afterSaveFn).toHaveBeenCalledTimes(1);
         expect(promiseResolved).toBe(true);
     });
+
+    it('should show the API error detail when onError receives an API error', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.onError({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            detail: 'The order total does not match the calculated total.',
+                        },
+                    ],
+                },
+            },
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageRecalculationError' + 'The order total does not match the calculated total.',
+        });
+    });
+
+    it('should show the plain snippet when onError receives an error without a response', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.onError(new Error('network down'));
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageRecalculationError',
+        });
+    });
+
+    it.each([
+        [
+            'onSaveEdits',
+            (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed')))),
+        ],
+        [
+            'onCancelEditing',
+            (vm) =>
+                (vm.orderRepository.deleteVersion = jest
+                    .fn()
+                    .mockResolvedValue([])
+                    .mockRejectedValueOnce(apiError('delete failed'))),
+        ],
+        [
+            'onRecalculateAndReload',
+            (vm) => (vm.orderService.recalculateOrder = jest.fn(() => Promise.reject(apiError('recalculate failed')))),
+        ],
+        [
+            'saveAndReload',
+            (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed')))),
+        ],
+    ])('should forward the real API error detail from %s to the notification', async (methodName, rejectWith) => {
+        wrapper = await createWrapper({
+            lineItems: [{ id: 'lineItem1' }],
+        });
+        await flushPromises();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+        rejectWith(wrapper.vm);
+
+        await wrapper.vm[methodName]();
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: expect.stringContaining('failed'),
+        });
+    });
 });
+
+function apiError(detail) {
+    return {
+        response: {
+            data: {
+                errors: [{ detail }],
+            },
+        },
+    };
+}

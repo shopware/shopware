@@ -334,6 +334,9 @@ class StateMachineRegistryTest extends TestCase
             ->method('upsert')
             ->with([['id' => $transition->getEntityId(), 'stateId' => $coreDestination->getId()]], $context);
 
+        $fixture->historyRepository->expects($this->once())
+            ->method('create');
+
         $stateMachineStates = $fixture->registry->transition($transition, $context);
 
         static::assertSame($coreDestination, $stateMachineStates->get('toPlace'));
@@ -528,7 +531,8 @@ class StateMachineRegistryTest extends TestCase
                 return $this->createSearchResult('state_machine_state', new StateMachineStateCollection([$state]), $context);
             });
 
-        $entityRepository->method('search')
+        $entityRepository->expects($this->atLeastOnce())
+            ->method('search')
             ->willReturnCallback(function (Criteria $criteria, Context $context) use ($fromPlace): EntitySearchResult {
                 $entity = new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()]);
                 $entity->internalSetEntityData('order_transaction', new FieldVisibility([]));

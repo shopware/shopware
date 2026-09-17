@@ -4,6 +4,7 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -296,7 +297,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelContextService::class)
         ->args([
             service(SalesChannelContextFactory::class),
-            service(CartRuleLoader::class),
+            service(CartCalculator::class),
             service(SalesChannelContextPersister::class),
             service(CartService::class),
             service('event_dispatcher'),
@@ -318,7 +319,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextFactory::class),
             service(SalesChannelContextPersister::class),
             service(CartService::class),
-            service(CartRuleLoader::class),
+            service(CartCalculator::class),
             service(CartPersister::class),
             service('event_dispatcher'),
             service(RequestStack::class),

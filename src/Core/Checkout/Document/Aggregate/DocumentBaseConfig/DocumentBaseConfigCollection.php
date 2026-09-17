@@ -2,24 +2,15 @@
 
 namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @extends EntityCollection<DocumentBaseConfigEntity>
- *
- * @codeCoverageIgnore
- */
-#[Package('after-sales')]
-class DocumentBaseConfigCollection extends EntityCollection
-{
-    public function getApiAlias(): string
+if (!class_exists(\Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection::class)) {
+    /**
+     * @deprecated tag:v6.9.0 - compatibility alias, this file is deleted together with document generation v1.
+     * Use \Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection instead.
+     */
+    #[Package('after-sales')]
+    class DocumentBaseConfigCollection extends \Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection
     {
-        return 'document_base_collection';
-    }
-
-    protected function getExpectedClass(): string
-    {
-        return DocumentBaseConfigEntity::class;
     }
 }

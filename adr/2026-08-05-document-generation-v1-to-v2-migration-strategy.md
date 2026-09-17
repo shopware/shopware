@@ -116,7 +116,9 @@ from IDs to technical names.
 
 1. Remove `DOCUMENT_GENERATION_REWORK` and every gate (PHP, DI, Twig, admin JS, system config XML).
 2. Delete the v1 domain, v1 admin components, v1 flow/mail branches, v1-only Twig branches, and the v1 entries in the PHPStan tagged-service contracts.
-3. Move the surviving shared classes into the `DocumentV2` namespace.
+3. Delete the compatibility shims under `src/Core/Checkout/Document/`, the `class_alias()` calls in the surviving
+   `DocumentV2` classes and the legacy service id aliases in `documentV2.php`. Switch `DocumentRoute` to
+   `DocumentV2Exception` and drop its `REMAPPED_DOMAINS` entry in `DomainExceptionRule`.
 4. Execute the prepared backfills: `document_file` rows (incl. Zugferd normalization), the `type_name` columns, rule/flow payloads; make the `document_type_id` columns nullable.
 5. Drop the `document_base_config.config` JSON blob (destructive) and remove the `DocumentBaseConfigSyncSubscriber`.
 6. Make the v2 branch of the storefront and Store API download routes unconditional.

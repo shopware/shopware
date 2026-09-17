@@ -121,5 +121,22 @@ return [
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::missingAppSecretInfo() was removed', '/'),
+
+        // Namespace move behind class aliases (6.7.15.0). The previous and the current name are the same class at
+        // runtime, so none of these is a break. The BC checker reads source and cannot follow class_alias(), so it
+        // reports every signature that mentions a moved type as a type change. Removed in 6.9 with the aliases.
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentEntity.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\DocumentEntity',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentCollection.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\DocumentCollection',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigEntity.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigEntity',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigDefinition.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigDefinition',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigCollection.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\Aggregate\\\\DocumentBaseConfig\\\\DocumentBaseConfigCollection',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentBaseConfigSalesChannel\\\\DocumentBaseConfigSalesChannelCollection.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\Aggregate\\\\DocumentBaseConfigSalesChannel\\\\DocumentBaseConfigSalesChannelCollection',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RenderedDocument.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\Struct\\\\RenderedDocument',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\AbstractDocumentRoute.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\SalesChannel\\\\AbstractDocumentRoute',
+        'CHANGED: .* changed from .*Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\ReferenceInvoiceLoader.* to .*Shopware\\\\Core\\\\Checkout\\\\DocumentV2\\\\Service\\\\ReferenceInvoiceLoader',
+
+        // Same move: the shim extends the surviving DocumentRoute, so the previous name of the abstract route is no
+        // longer a literal ancestor in the sources. At runtime it still is, the alias makes the two names one class.
+        'REMOVED: These ancestors of Shopware\\\\Core\\\\Checkout\\\\Document\\\\SalesChannel\\\\DocumentRoute have been removed',
     ],
 ];

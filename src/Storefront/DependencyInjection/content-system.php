@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
+use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Storefront\ContentSystem\Extension\ContentLayoutExtension;
 use Shopware\Storefront\ContentSystem\Extension\SalesChannelDomainExtension;
@@ -19,6 +20,14 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    // CacheInvalidationSubscriber lives in Core and cannot import these definitions, so the two table names
+    // it needs travel as a parameter.
+    $containerConfigurator->parameters()
+        ->set('shopware.content_system.section_assignment_entities', [
+            HeaderContentLayoutDefinition::ENTITY_NAME => ContentSection::HEADER->value,
+            FooterContentLayoutDefinition::ENTITY_NAME => ContentSection::FOOTER->value,
+        ]);
+
     $services = $containerConfigurator->services();
 
     // Entity Definitions

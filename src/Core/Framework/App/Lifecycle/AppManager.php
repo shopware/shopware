@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -247,31 +246,15 @@ class AppManager
             return;
         }
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - remove this branch, only the block below remains
-            $this->appRepository->update([['id' => $app->getId(), 'active' => true]], $context);
-            // manually set active flag to true, so we don't need to re-fetch the app from DB
-            $app->setActive(true);
-            $activateContext = new AppActivationContext($app, $context);
-            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
-
-            $this->activeAppsLoader->reset();
-
-            $this->dispatchActivated($app, $context);
-
-            return;
-        }
-
+        $this->appRepository->update([['id' => $app->getId(), 'active' => true]], $context);
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
         $activateContext = new AppActivationContext($app, $context);
         $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
 
-        $this->dispatchActivated($app, $context);
-
-        $this->appRepository->update([['id' => $app->getId(), 'active' => true]], $context);
-
         $this->activeAppsLoader->reset();
+
+        $this->dispatchActivated($app, $context);
     }
 
     public function deactivate(AppEntity $app, Context $context, bool $deactivateForDeletion = false): void

@@ -7,7 +7,7 @@ index 470779f..61c1804 100644
      })();
 -
 +
-+    require_once getcwd() . '/vendor/autoload.php';
++    require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
 +
 +    $classAliases = [];
 +    foreach (get_declared_classes() as $declaredClass) {

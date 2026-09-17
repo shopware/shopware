@@ -556,6 +556,10 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
+### Static theme compilation without a database
+
+Theme compilation with `StaticFileConfigLoader` now refreshes runtime configuration values when a database is available, while continuing to work without a reachable database in build environments.
+
 ### `robots.txt` allows crawling thumbnails
 
 The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.

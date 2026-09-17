@@ -51,14 +51,25 @@ export type ModuleRegistryEntry = {
 /** The checked-in registry of every `shopware:*` specifier, keyed by family. */
 export type ModuleRegistry = Record<string, ModuleRegistryEntry>;
 
-/** How one module family reads its branch of the global object. */
+/**
+ * How one module family reads its branch of the global object, at each kind of address.
+ *
+ * `emit` is the code the build puts in the generated module; `read` is the same value off a live global.
+ * The two must always describe the same value, which is why they are declared side by side:
+ * `definitions.spec.ts` evaluates every `emit` and compares it against the matching `read`.
+ *
+ * `root` is only reached for a family that publishes root exports — `exportNames` refuses the others
+ * before it could be called — but it is spelled out for all four, because it names the branch.
+ */
 type Branch = {
-    /** The property this family reads on the global, e.g. `Utils`. */
-    readonly property: string;
-    /** The value expression for one key, evaluated against a `shopware` binding. */
-    readonly exportSubpathExpression: (subpath: string) => string;
-    /** The same value at runtime. Used by the Jest shims. */
-    readonly jestRead: (shopware: VirtualModuleGlobal, subpath: string) => unknown;
+    readonly root: {
+        readonly emit: () => string;
+        readonly read: (shopware: VirtualModuleGlobal) => unknown;
+    };
+    readonly subpath: {
+        readonly emit: (subpath: string) => string;
+        readonly read: (shopware: VirtualModuleGlobal, subpath: string) => unknown;
+    };
 };
 
 function readOwn(branch: Record<string, unknown>, subpath: string, globalPath: string): unknown {
@@ -71,26 +82,46 @@ function readOwn(branch: Record<string, unknown>, subpath: string, globalPath: s
 
 const BRANCHES: Record<string, Branch> = {
     'shopware:utils': {
-        property: 'Utils',
-        exportSubpathExpression: (key) => `shopware.Utils[${JSON.stringify(key)}]`,
-        jestRead: (shopware, key) => readOwn(shopware.Utils, key, 'Shopware.Utils'),
+        root: {
+            emit: () => 'shopware.Utils',
+            read: (shopware) => shopware.Utils,
+        },
+        subpath: {
+            emit: (subpath) => `shopware.Utils[${JSON.stringify(subpath)}]`,
+            read: (shopware, subpath) => readOwn(shopware.Utils, subpath, 'Shopware.Utils'),
+        },
     },
     'shopware:data': {
-        property: 'Data',
-        exportSubpathExpression: (key) => `shopware.Data[${JSON.stringify(key)}]`,
-        jestRead: (shopware, key) => readOwn(shopware.Data, key, 'Shopware.Data'),
+        root: {
+            emit: () => 'shopware.Data',
+            read: (shopware) => shopware.Data,
+        },
+        subpath: {
+            emit: (subpath) => `shopware.Data[${JSON.stringify(subpath)}]`,
+            read: (shopware, subpath) => readOwn(shopware.Data, subpath, 'Shopware.Data'),
+        },
     },
     'shopware:mixins': {
-        property: 'Mixin',
-        // Annotated pure so Rollup drops the lookup when the importer's binding is unused.
-        exportSubpathExpression: (key) => `/*@__PURE__*/ shopware.Mixin.getByName(${JSON.stringify(key)})`,
-        jestRead: (shopware, key) => shopware.Mixin.getByName(key),
+        root: {
+            emit: () => 'shopware.Mixin',
+            read: (shopware) => shopware.Mixin,
+        },
+        subpath: {
+            // Annotated pure so Rollup drops the lookup when the importer's binding is unused.
+            emit: (subpath) => `/*@__PURE__*/ shopware.Mixin.getByName(${JSON.stringify(subpath)})`,
+            read: (shopware, subpath) => shopware.Mixin.getByName(subpath),
+        },
     },
     'shopware:stores': {
-        property: 'Store',
-        // A store is looked up per call, so importing never depends on it being registered yet.
-        exportSubpathExpression: (key) => `() => shopware.Store.get(${JSON.stringify(key)})`,
-        jestRead: (shopware, key) => () => shopware.Store.get(key),
+        root: {
+            emit: () => 'shopware.Store',
+            read: (shopware) => shopware.Store,
+        },
+        subpath: {
+            // A store is looked up per call, so importing never depends on it being registered yet.
+            emit: (subpath) => `() => shopware.Store.get(${JSON.stringify(subpath)})`,
+            read: (shopware, subpath) => () => shopware.Store.get(subpath),
+        },
     },
 };
 
@@ -168,7 +199,7 @@ export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
         return undefined;
     }
 
-    return parsed.subpath === undefined ? `shopware.${branch.property}` : branch.exportSubpathExpression(parsed.subpath);
+    return parsed.subpath === undefined ? branch.root.emit() : branch.subpath.emit(parsed.subpath);
 }
 
 /** The value expression for one named export of a parsed specifier. */
@@ -197,15 +228,13 @@ export function resolveVirtualExport(
         throw new Error(`"${specifier}" is not a Shopware virtual module.`);
     }
 
-    // A root import publishes its branch's members directly, and its default export is the whole
-    // branch, mirroring the `export =` in the generated declarations.
+    // A root import's default export is the whole branch, mirroring the `export =` in the generated
+    // declarations. Its named exports are the branch's members, and every member is also a subpath.
     if (parsed.subpath === undefined) {
-        const wholeBranch = shopware[branch.property as keyof VirtualModuleGlobal];
-
-        return exportName === 'default' ? wholeBranch : branch.jestRead(shopware, exportName);
+        return exportName === 'default' ? branch.root.read(shopware) : branch.subpath.read(shopware, exportName);
     }
 
-    const own = branch.jestRead(shopware, parsed.subpath);
+    const own = branch.subpath.read(shopware, parsed.subpath);
 
     if (exportName === 'default') {
         return own;

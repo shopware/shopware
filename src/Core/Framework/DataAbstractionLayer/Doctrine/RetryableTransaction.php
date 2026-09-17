@@ -75,7 +75,9 @@ class RetryableTransaction
 
             // The transactionNestingLevel is fixed, so this won't cause follow-up issues. A missing-savepoint
             // exception can mask the database error which caused the rollback, so expose that underlying error.
-            throw RetryableExceptionDetector::detect($e) ?? $e;
+            $exception = RetryableExceptionDetector::unwrap($e);
+
+            throw $exception;
         }
     }
 
@@ -115,7 +117,9 @@ class RetryableTransaction
             }
 
             if ($counter > 10 || !$retryableException || ($shouldRetry !== null && !$shouldRetry())) {
-                throw $retryableException ?? $e;
+                $exception = RetryableExceptionDetector::unwrap($e);
+
+                throw $exception;
             }
 
             // Randomize sleep to prevent same execution delay for multiple statements

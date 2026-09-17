@@ -146,6 +146,9 @@ The deprecated endpoint `GET /api/_action/system-config/schema` and its successo
 ### Deprecation of `ConfigurationService` class
 
 Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+### Shopware Services reconcile their full state daily
+
+A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.
 
 ### Extensions can change the API CORS header lists
 

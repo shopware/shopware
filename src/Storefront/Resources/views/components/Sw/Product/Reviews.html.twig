@@ -18,10 +18,11 @@
 {% set maxPoints = matrix ? matrix.maxPoints : 5 %}
 {% set totalPages = (productReviewCount / reviewsPerPage)|round(0, 'ceil') %}
 
-{# The reviews element re-renders through the product content route (parent id resolves its layout). The
-   path() result carries the shop base path and sales-channel prefix, so the JS never rebuilds the origin. #}
 {% set reviewsOptions = {
-    contentUrl: reviews ? path('frontend.content.layout', { path: 'product/' ~ (reviews.parentId ?: reviews.productId) }) : null,
+    contentUrl: reviews ? path('frontend.content.layout', {
+        path: 'product/' ~ (reviews.parentId ?: reviews.productId),
+        elementId: attributes.all()['data-element-id'] ?? null,
+    }) : null,
 } %}
 
 {% set attributeDefaults = {

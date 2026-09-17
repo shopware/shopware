@@ -5,29 +5,19 @@ export default class ProductReviews extends ShopwareComponent {
 
     init() {
         this.domParser = new DOMParser();
-        this.container = this.el.querySelector('.sw-product-reviews__results');
         this.activeParams = this.paramsFromUrl();
 
         // Filters are a separate element (possibly outside this one), so they reach us over the event bus.
         this.onFiltersChange = this.onFiltersChange.bind(this);
         window.Shopware.on('ReviewFilters:Change', this.onFiltersChange);
 
-        this.bindPagination();
+        this.onPaginationClick = this.onPaginationClick.bind(this);
+        this.el.querySelectorAll('.sw-pagination__link').forEach((el) => el.addEventListener('click', this.onPaginationClick));
     }
 
     destroy() {
         window.Shopware.off('ReviewFilters:Change', this.onFiltersChange);
-        this.unbindPagination();
-    }
-
-    bindPagination() {
-        this.onPaginationClick = this.onPaginationClick.bind(this);
-        this.pageLinks = this.el.querySelectorAll('.sw-pagination__link');
-        this.pageLinks.forEach((el) => el.addEventListener('click', this.onPaginationClick));
-    }
-
-    unbindPagination() {
-        this.pageLinks?.forEach((el) => el.removeEventListener('click', this.onPaginationClick));
+        this.el.querySelectorAll('.sw-pagination__link').forEach((el) => el.removeEventListener('click', this.onPaginationClick));
     }
 
     onFiltersChange(params) {
@@ -52,31 +42,31 @@ export default class ProductReviews extends ShopwareComponent {
     }
 
     async reload() {
-        if (!this.options.contentUrl || !this.container) {
+        if (!this.options.contentUrl) {
             return;
         }
 
-        this.container.classList.add('is--loading');
+        this.el.classList.add('is--loading');
 
-        // The content route re-renders the product layout with the review params applied, unlike the
-        // HTTP-cached product page. contentUrl comes from Twig path(), so it already carries the base path.
-        const query = new URLSearchParams(this.activeParams).toString();
-        const url = `${this.options.contentUrl}?${query}`;
+        // contentUrl (Twig path()) already carries the base path and elementId; add the runtime params.
+        const url = new URL(this.options.contentUrl, window.location.origin);
+        Object.entries(this.activeParams).forEach(([key, value]) => url.searchParams.set(key, value));
 
         const response = await fetch(url);
         const html = await response.text();
-        const fresh = this.domParser.parseFromString(html, 'text/html').querySelector('.sw-product-reviews__results');
+        const fresh = this.domParser
+            .parseFromString(html, 'text/html')
+            .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
+        // Replacing the element re-initializes it; the component system rebinds on the fresh node.
         if (fresh) {
-            this.unbindPagination();
-            this.container.replaceWith(fresh);
-            this.container = fresh;
-            this.bindPagination();
+            this.el.replaceWith(fresh);
         } else {
-            this.container.classList.remove('is--loading');
+            this.el.classList.remove('is--loading');
         }
 
-        // Keep the URL and back button in sync with the applied sort, filter and page.
+        // Keep the URL and back button in sync with the applied sort, filter and page — not the elementId hint.
+        const query = new URLSearchParams(this.activeParams).toString();
         window.history.pushState(null, '', `${window.location.pathname}?${query}`);
     }
 }

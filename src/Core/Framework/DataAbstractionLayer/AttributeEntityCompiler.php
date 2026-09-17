@@ -407,16 +407,18 @@ class AttributeEntityCompiler
             $association = $association->newInstance();
 
             if ($association instanceof ManyToOne && $association->onDelete === OnDelete::CASCADE) {
-                Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
-                    'Association "%s" of entity "%s" must not use OnDelete::CASCADE. On a many-to-one it makes the DAL '
-                    . 'resolve the referenced record as affected by the delete, which no foreign key ever does. Declare '
-                    . 'the cascade on the inverse one-to-many association instead.',
-                    $property->getName(),
-                    $entity
-                ));
+                $cascadeOnManyToOne = DataAbstractionLayerException::cascadeDeleteOnManyToOne($entity, $property->getName());
+
+                // @deprecated tag:v6.8.0 - Remove the flag check and the deprecation below, always throw $cascadeOnManyToOne
+                if (Feature::isActive('v6.8.0.0')) {
+                    throw $cascadeOnManyToOne;
+                }
+
+                Feature::triggerDeprecationOrThrow('v6.8.0.0', $cascadeOnManyToOne->getMessage());
             }
 
             $flags['cascade'] = match ($association->onDelete) {
+                // @deprecated tag:v6.8.0 - Remove the ManyToOne check, it is unreachable once the throw above is unconditional
                 OnDelete::CASCADE => $association instanceof ManyToOne ? null : ['class' => CascadeDelete::class],
                 OnDelete::SET_NULL => ['class' => SetNullOnDelete::class],
                 OnDelete::RESTRICT => ['class' => RestrictDelete::class],

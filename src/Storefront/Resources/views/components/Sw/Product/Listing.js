@@ -1,6 +1,7 @@
 export default class ProductListing extends ShopwareComponent {
 
     static options = {
+        contentUrl: null,
         pageParamName: 'p',
         layoutParamName: 'listingLayout',
         sortingParamName: 'order',
@@ -12,40 +13,29 @@ export default class ProductListing extends ShopwareComponent {
 
     init() {
         this.activeParams = {};
-        this.activeListingId = window.activeNavigationId;
-        this.elementId = this.el.getAttribute('data-element-id') || null;
 
         this.domParser = new DOMParser();
 
         // Create the debounced load function.
         this.debouncedLoad = this.debounce(async () => {
-            const productGridContainer = this.el.querySelector('.sw-product-listing__grid');
-            const productGrid = productGridContainer.querySelector('.sw-grid-container__inner');
-            const pagination = this.el.querySelector('.sw-product-listing__pagination');
-            const counter = this.el.querySelector('.sw-product-listing__counter');
+            this.el.classList.add('is--loading');
 
-            productGrid?.classList.add('is--loading');
-
-            const location = new URL(window.location);
-            const params = { ...this.activeParams };
-            const query = new URLSearchParams(params).toString();
-            const url = `${location.protocol}//${location.host}/content/category/${this.activeListingId}?${query}`;
+            // contentUrl (Twig path()) already carries the base path and elementId; add the runtime params.
+            const url = new URL(this.options.contentUrl, window.location.origin);
+            Object.entries(this.activeParams).forEach(([key, value]) => url.searchParams.set(key, value));
 
             const response = await fetch(url);
             const html = await response.text();
-            const doc = this.domParser.parseFromString(html, 'text/html');
-            const grid = doc.querySelector('.sw-product-listing__grid');
-            const pagi = doc.querySelector('.sw-product-listing__pagination');
-            const freshCounter = doc.querySelector('.sw-product-listing__counter');
+            const fresh = this.domParser
+                .parseFromString(html, 'text/html')
+                .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
-            productGridContainer.replaceWith(grid);
-            pagination.replaceWith(pagi);
-
-            if (counter && freshCounter) {
-                counter.replaceWith(freshCounter);
+            // Replacing the element re-initializes it; the component system rebinds on the fresh node.
+            if (fresh) {
+                this.el.replaceWith(fresh);
+            } else {
+                this.el.classList.remove('is--loading');
             }
-
-            productGrid?.classList.remove('is--loading');
         }, 200);
 
         this.getStateFromUrl();

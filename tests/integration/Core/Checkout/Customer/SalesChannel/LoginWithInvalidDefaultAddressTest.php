@@ -104,9 +104,27 @@ class LoginWithInvalidDefaultAddressTest extends TestCase
 
         static::assertArrayHasKey('shipping-address-missing', $errors);
         static::assertTrue($errors['shipping-address-missing']['block']);
+        static::assertNotSame(
+            'checkout.shipping-address-missing',
+            $errors['shipping-address-missing']['translatedMessage'],
+            'the snippet must resolve, otherwise the raw key is shown to the customer'
+        );
 
         // a digital-only cart creates no delivery, so only the validator can stop the order
         $this->assertOrderIsRefused();
+    }
+
+    public function testContextFallsBackToTheBillingAddressWhenTheShippingAddressIsMissing(): void
+    {
+        $this->createCustomer();
+        $this->deleteAddress('shipping-address');
+        static::assertSame(200, $this->login());
+
+        $this->browser->request('GET', '/store-api/context');
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $context = $this->decodeResponse();
+        static::assertSame($this->ids->get('billing-address'), $context['shippingLocation']['address']['id'] ?? null);
     }
 
     public function testCustomerCanRepairTheMissingDefaultAddress(): void

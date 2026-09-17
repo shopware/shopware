@@ -380,9 +380,10 @@ class SalesChannelContextFactoryTest extends TestCase
 
     /**
      * @param list<'billing'|'shipping'> $danglingDefaults
+     * @param 'shipping-address'|'billing-address'|'sales-channel' $expectedShippingLocation
      */
     #[DataProvider('danglingDefaultAddressProvider')]
-    public function testCustomerWithDanglingDefaultAddressDoesNotThrow(array $danglingDefaults, bool $expectsBillingAddress, bool $expectsShippingAddress): void
+    public function testCustomerWithDanglingDefaultAddressDoesNotThrow(array $danglingDefaults, bool $expectsBillingAddress, bool $expectsShippingAddress, string $expectedShippingLocation): void
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(Uuid::randomHex());
@@ -394,29 +395,35 @@ class SalesChannelContextFactoryTest extends TestCase
         $customer->setDefaultShippingAddressId(Uuid::randomHex());
         $customer->setGroupId(Uuid::randomHex());
 
-        $country = new CountryEntity();
-        $country->setId(Uuid::randomHex());
+        $billingCountry = new CountryEntity();
+        $billingCountry->setId(Uuid::randomHex());
+        $shippingCountry = new CountryEntity();
+        $shippingCountry->setId(Uuid::randomHex());
+        $salesChannelCountry = new CountryEntity();
+        $salesChannelCountry->setId(Uuid::randomHex());
         $currency = new CurrencyEntity();
         $currency->setId(Uuid::randomHex());
         $currency->setFactor(1);
+        $currency->setItemRounding(new CashRoundingConfig(2, 0.01, true));
+        $currency->setTotalRounding(new CashRoundingConfig(2, 0.01, true));
 
         $addresses = new CustomerAddressCollection();
 
         if (!\in_array('billing', $danglingDefaults, true)) {
             $billingAddress = new CustomerAddressEntity();
             $billingAddress->setId($customer->getDefaultBillingAddressId());
-            $billingAddress->setCountry($country);
+            $billingAddress->setCountry($billingCountry);
             $addresses->add($billingAddress);
         }
 
         if (!\in_array('shipping', $danglingDefaults, true)) {
             $shippingAddress = new CustomerAddressEntity();
             $shippingAddress->setId($customer->getDefaultShippingAddressId());
-            $shippingAddress->setCountry($country);
+            $shippingAddress->setCountry($shippingCountry);
             $addresses->add($shippingAddress);
         }
 
-        $baseShippingLocation = new ShippingLocation($country, null, null);
+        $baseShippingLocation = new ShippingLocation($salesChannelCountry, null, null);
 
         $baseContext = new BaseSalesChannelContext(
             Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
@@ -491,18 +498,22 @@ class SalesChannelContextFactoryTest extends TestCase
         static::assertSame($expectsBillingAddress, $generatedCustomer->getActiveBillingAddress() !== null);
         static::assertSame($expectsShippingAddress, $generatedCustomer->getActiveShippingAddress() !== null);
 
-        if (!$expectsShippingAddress) {
-            static::assertSame($baseShippingLocation, $generatedContext->getShippingLocation());
-        }
+        $expectedCountry = match ($expectedShippingLocation) {
+            'shipping-address' => $shippingCountry,
+            'billing-address' => $billingCountry,
+            'sales-channel' => $salesChannelCountry,
+        };
+
+        static::assertSame($expectedCountry, $generatedContext->getShippingLocation()->getCountry());
     }
 
     /**
-     * @return iterable<string, array{list<'billing'|'shipping'>, bool, bool}>
+     * @return iterable<string, array{list<'billing'|'shipping'>, bool, bool, 'shipping-address'|'billing-address'|'sales-channel'}>
      */
     public static function danglingDefaultAddressProvider(): iterable
     {
-        yield 'dangling default billing address' => [['billing'], false, true];
-        yield 'dangling default shipping address' => [['shipping'], true, false];
-        yield 'both default addresses dangling' => [['billing', 'shipping'], false, false];
+        yield 'dangling default billing address' => [['billing'], false, true, 'shipping-address'];
+        yield 'dangling default shipping address' => [['shipping'], true, false, 'billing-address'];
+        yield 'both default addresses dangling' => [['billing', 'shipping'], false, false, 'sales-channel'];
     }
 }

@@ -87,7 +87,7 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             $errors->add(new BillingAddressMissingError());
         }
 
-        // not gated by $validateShipping: a digital-only cart would otherwise be ordered against the fallback country
+        // not gated by $validateShipping: a digital-only cart creates no delivery, so nothing else would stop it being ordered against a substituted address
         if ($activeShippingAddress === null) {
             $errors->add(new ShippingAddressMissingError());
         }

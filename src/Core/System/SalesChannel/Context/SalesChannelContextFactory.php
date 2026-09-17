@@ -73,9 +73,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         if ($customer !== null) {
-            $activeShippingAddress = $customer->getActiveShippingAddress();
-            $shippingLocation = $activeShippingAddress !== null
-                ? ShippingLocation::createFromAddress($activeShippingAddress)
+            // prefer the billing address over the sales channel country so a missing shipping address does not change the tax country
+            $locationAddress = $customer->getActiveShippingAddress() ?? $customer->getActiveBillingAddress();
+            $shippingLocation = $locationAddress !== null
+                ? ShippingLocation::createFromAddress($locationAddress)
                 : $base->getShippingLocation();
 
             $criteria = new Criteria([$customer->getGroupId()]);

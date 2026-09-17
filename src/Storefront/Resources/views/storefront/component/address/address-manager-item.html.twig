@@ -1,5 +1,9 @@
-{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
-{% set addressType = addressType ?? type %}
+{% set addressType = addressType|default(null) %}
+{% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+    {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
+    {% set addressType = type %}
+{% endif %}
 
 <li class="col-12 col-lg-6 d-flex" data-address-id="{{ address.id }}" data-address-type="{{ addressType }}">
     <div class="p-3 border address-manager-select-address flex-fill">

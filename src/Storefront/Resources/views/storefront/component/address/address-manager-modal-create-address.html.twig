@@ -4,8 +4,10 @@
     {% set addressType = 'billing' %}
 {% endif %}
 
-{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
-{% set type = addressType %}
+{% if not feature('v6.8.0.0') %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+    {% set type = deprecatedAlias(addressType) %}
+{% endif %}
 
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">

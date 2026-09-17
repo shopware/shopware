@@ -186,7 +186,8 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
         $shopwareRefreshTokenGrantType = new ShopwareRefreshTokenGrantType(
             $this->getContainer()->get(RefreshTokenRepository::class),
             $this->getContainer()->get(UserService::class),
-            $this->createExternalTokenService()
+            $this->createExternalTokenService(),
+            new NativeClock()
         );
 
         $shopwareRefreshTokenGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));

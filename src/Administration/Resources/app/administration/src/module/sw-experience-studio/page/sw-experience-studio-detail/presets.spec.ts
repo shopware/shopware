@@ -6,8 +6,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
     it('allows any preset at the root but gates slot presets by their root component', () => {
         const allowed = new Set(['Sw:Content:Text']);
-        const rootPayload = { parentElementId: null, slotName: null, anchorTop: 0, anchorLeft: 0 };
-        const slotPayload = { parentElementId: 'parent-1', slotName: 'content', anchorTop: 0, anchorLeft: 0 };
+        const rootPayload = { parentElementId: null, slotName: null, anchorElement: null };
+        const slotPayload = { parentElementId: 'parent-1', slotName: 'content', anchorElement: null };
 
         const containerPreset = {
             id: 'p',
@@ -25,12 +25,24 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
     it('appends allowed presets to the picker elements and filters disallowed ones in slots', () => {
         const vm = {
-            pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorTop: 0, anchorLeft: 0 },
+            pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorElement: null },
             getAvailableTypesForPayload: () => [{ name: 'Sw:Content:Text', label: 'Text', icon: 'i', category: 'content' }],
             layoutPresetStore: {
                 allPresets: [
-                    { id: 'allowed', name: 'Allowed', description: 'd', icon: 'p', payload: [{ id: 'a', component: 'Sw:Content:Text' }] },
-                    { id: 'blocked', name: 'Blocked', description: null, icon: null, payload: [{ id: 'b', component: 'Sw:Grid:Container' }] },
+                    {
+                        id: 'allowed',
+                        name: 'Allowed',
+                        description: 'd',
+                        icon: 'p',
+                        payload: [{ id: 'a', component: 'Sw:Content:Text' }],
+                    },
+                    {
+                        id: 'blocked',
+                        name: 'Blocked',
+                        description: null,
+                        icon: null,
+                        payload: [{ id: 'b', component: 'Sw:Grid:Container' }],
+                    },
                 ],
             },
             isPresetAllowedForPayload: methods.isPresetAllowedForPayload,
@@ -40,14 +52,22 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
         expect(items).toEqual([
             { name: 'Sw:Content:Text', label: 'Text', icon: 'i', category: 'content', kind: 'element' },
-            { name: 'allowed', label: 'Allowed', icon: 'p', category: 'presets', kind: 'preset', id: 'allowed', description: 'd' },
+            {
+                name: 'allowed',
+                label: 'Allowed',
+                icon: 'p',
+                category: 'presets',
+                kind: 'preset',
+                id: 'allowed',
+                description: 'd',
+            },
         ]);
     });
 
     it('inserts a preset at the root through a single insert-preset mutation', async () => {
         const executeStructuralDraftMutation = jest.fn();
         const vm = {
-            pendingAddElementPayload: { parentElementId: null, slotName: null, anchorTop: 0, anchorLeft: 0 },
+            pendingAddElementPayload: { parentElementId: null, slotName: null, anchorElement: null },
             layout: { layout: [] },
             selectedElementId: 'existing',
             executeStructuralDraftMutation,
@@ -56,14 +76,19 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
 
         await methods.onSelectPreset.call(vm, 'core.text-block');
 
-        expect(executeStructuralDraftMutation).toHaveBeenCalledWith('insert-preset', [], { presetId: 'core.text-block' }, expect.any(Function));
+        expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
+            'insert-preset',
+            [],
+            { presetId: 'core.text-block' },
+            expect.any(Function),
+        );
         expect(vm.onCloseElementPicker).toHaveBeenCalled();
     });
 
     it('passes the parent and slot when inserting a preset into a slot', async () => {
         const executeStructuralDraftMutation = jest.fn();
         const vm = {
-            pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorTop: 0, anchorLeft: 0 },
+            pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorElement: null },
             layout: { layout: [] },
             selectedElementId: null,
             executeStructuralDraftMutation,

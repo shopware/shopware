@@ -7,8 +7,7 @@ import './sw-experience-studio-sidebar-tree.scss';
 interface AddElementPayload {
     parentElementId: string | null;
     slotName: string | null;
-    anchorTop: number;
-    anchorLeft: number;
+    anchorElement: HTMLElement | null;
 }
 
 interface MoveElementPayload {
@@ -83,14 +82,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onAddRootElement(event: MouseEvent): void {
-            const trigger = event.currentTarget as HTMLElement | null;
-            const bounds = trigger?.getBoundingClientRect();
-
             this.$emit('add-element', {
                 parentElementId: null,
                 slotName: null,
-                anchorTop: bounds?.top ?? 0,
-                anchorLeft: bounds ? bounds.right : 0,
+                anchorElement: event.currentTarget as HTMLElement | null,
             });
         },
 

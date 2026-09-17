@@ -153,14 +153,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onAddElement(slotName: string, event: MouseEvent): void {
-            const trigger = event.currentTarget as HTMLElement | null;
-            const bounds = trigger?.getBoundingClientRect();
-
             this.$emit('add-element', {
                 parentElementId: this.contentElement.id,
                 slotName,
-                anchorTop: bounds?.top ?? 0,
-                anchorLeft: bounds ? bounds.right : 0,
+                anchorElement: event.currentTarget as HTMLElement | null,
             });
         },
 

@@ -10,37 +10,28 @@ export default class ProductReviews extends ShopwareComponent {
         this.activeParams = this.paramsFromUrl();
         this.debouncedReload = this.debounce(this.reload.bind(this), 200);
 
-        // Filters are a separate element (possibly outside this one), so they reach us over the event bus.
-        this.onFiltersChange = this.onFiltersChange.bind(this);
-        window.Shopware.on('ReviewFilters:Change', this.onFiltersChange);
+        // Filters and pagination are separate components (possibly outside this element),
+        // so they reach us over the event bus.
+        this.onFiltersChange = this.handleFiltersChange.bind(this);
+        this.onPageChange = this.handlePageChange.bind(this);
 
-        this.onPaginationClick = this.onPaginationClick.bind(this);
-        this.bindPagination();
+        window.Shopware.on('ReviewFilters:Change', this.onFiltersChange);
+        window.Shopware.on('Pagination:Change', this.onPageChange);
     }
 
     destroy() {
         window.Shopware.off('ReviewFilters:Change', this.onFiltersChange);
-        this.unbindPagination();
+        window.Shopware.off('Pagination:Change', this.onPageChange);
     }
 
-    bindPagination() {
-        this.pageLinks = this.el.querySelectorAll('.sw-pagination__link');
-        this.pageLinks.forEach((el) => el.addEventListener('click', this.onPaginationClick));
-    }
-
-    unbindPagination() {
-        this.pageLinks?.forEach((el) => el.removeEventListener('click', this.onPaginationClick));
-    }
-
-    onFiltersChange(params) {
+    handleFiltersChange(params) {
         // A sort or filter change resets to the first page.
         this.activeParams = { ...params };
         this.debouncedReload();
     }
 
-    onPaginationClick(event) {
-        event.preventDefault();
-        this.activeParams.p = event.currentTarget.getAttribute('data-page');
+    handlePageChange(page) {
+        this.activeParams.p = page;
         this.debouncedReload();
     }
 
@@ -71,11 +62,9 @@ export default class ProductReviews extends ShopwareComponent {
             .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
         // Swap only the inner content, keeping this element and this component instance alive — so the event-bus
-        // listener stays registered exactly once and never accumulates. Re-bind pagination on the fresh links.
+        // listeners stay registered exactly once and never accumulate. The fresh pagination re-initializes itself.
         if (fresh) {
-            this.unbindPagination();
             this.el.replaceChildren(...fresh.childNodes);
-            this.bindPagination();
         }
 
         ElementLoadingIndicatorUtil.remove(this.el);

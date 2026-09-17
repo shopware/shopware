@@ -5,6 +5,7 @@ import { nextTick } from 'vue';
 import initializeUserContext from 'src/app/init-post/user-information.init';
 import { initializeUserNotifications } from 'src/app/store/notification.store';
 import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
+import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 
 jest.mock('src/app/store/notification.store', () => ({
     initializeUserNotifications: jest.fn(),
@@ -54,6 +55,7 @@ describe('src/app/init-post/user-information.init.ts', () => {
 
     afterEach(async () => {
         useTheme().setTheme('system');
+        useModuleIconColors().enabled.value = false;
         await nextTick();
 
         localStorage.removeItem('mt-theme');
@@ -101,10 +103,11 @@ describe('src/app/init-post/user-information.init.ts', () => {
         expect(Shopware.Store.get('session').currentUser).toBeUndefined();
     });
 
-    it('should apply the persisted theme preference when the user is logged in', async () => {
-        Shopware.Service('userConfigService').search.mockResolvedValueOnce({
+    it('should apply the persisted theme and module icon color preferences when the user is logged in', async () => {
+        Shopware.Service('userConfigService').search.mockResolvedValue({
             data: {
                 [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+                [USER_MODULE_ICON_COLORS_CONFIG_KEY]: { enabled: true },
             },
         });
 
@@ -114,7 +117,49 @@ describe('src/app/init-post/user-information.init.ts', () => {
         expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([
             USER_THEME_CONFIG_KEY,
         ]);
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([
+            USER_MODULE_ICON_COLORS_CONFIG_KEY,
+        ]);
         expect(useTheme().theme.value).toBe('dark');
+        expect(useModuleIconColors().enabled.value).toBe(true);
+    });
+
+    it('should resolve only after the user preferences are loaded', async () => {
+        let resolveSearch;
+        Shopware.Service('userConfigService').search.mockReturnValue(
+            new Promise((resolve) => {
+                resolveSearch = resolve;
+            }),
+        );
+
+        let initialized = false;
+        const initialization = initializeUserContext().then(() => {
+            initialized = true;
+        });
+        await flushPromises();
+
+        expect(Shopware.Store.get('session').currentUser).toEqual({
+            username: 'my-fancy-username',
+        });
+        expect(initialized).toBe(false);
+
+        resolveSearch({
+            data: {
+                [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+            },
+        });
+        await initialization;
+
+        expect(useTheme().theme.value).toBe('dark');
+    });
+
+    it('should not log the user out when loading the preferences fails', async () => {
+        Shopware.Service('userConfigService').search.mockRejectedValue(new Error('request failed'));
+
+        await initializeUserContext();
+
+        expect(logoutMock).not.toHaveBeenCalled();
+        expect(initializeUserNotifications).toHaveBeenCalled();
     });
 
     it('should keep the local theme preference when the user has not persisted one', async () => {

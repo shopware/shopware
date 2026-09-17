@@ -22,10 +22,6 @@ class WriteContext
 {
     use StateAwareTrait;
 
-    public const STATE_WRITE_CALLBACKS_STARTED = 'write-callbacks-started';
-
-    public const STATE_DEFER_ERROR_CALLBACKS = 'defer-error-callbacks';
-
     private const SPACER = '::';
 
     /**
@@ -44,11 +40,6 @@ class WriteContext
     private ?array $languageCodeIdMapping = null;
 
     private WriteException $exceptions;
-
-    /**
-     * @var list<\Closure(): void>
-     */
-    private array $errorCallbacks = [];
 
     private function __construct(private Context $context)
     {
@@ -127,30 +118,6 @@ class WriteContext
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    /**
-     * @param \Closure(): void $callback
-     */
-    public function onWriteError(\Closure $callback): void
-    {
-        if (!$this->hasState(self::STATE_DEFER_ERROR_CALLBACKS)) {
-            $callback();
-
-            return;
-        }
-
-        $this->errorCallbacks[] = $callback;
-    }
-
-    public function dispatchWriteErrors(): void
-    {
-        $callbacks = $this->errorCallbacks;
-        $this->errorCallbacks = [];
-
-        foreach ($callbacks as $callback) {
-            $callback();
-        }
     }
 
     public function resetPaths(): void

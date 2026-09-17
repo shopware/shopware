@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 
@@ -53,9 +53,6 @@ function createCustomerMock() {
 async function createWrapper(propsData, customerResponse = createCustomerMock()) {
     return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
         global: {
-            directives: {
-                popover: {},
-            },
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-select-result': {
@@ -214,9 +211,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectEdit = wrapper.find('.sw-select-option--0');
+        const selectEdit = new DOMWrapper(document.body).get('.sw-select-option--0');
 
-        await selectEdit.find('.sw-context-menu-item').trigger('click');
+        await selectEdit.get('.sw-context-menu-item').trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -251,7 +248,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const select = wrapper.find('.sw-select-option--1');
+        const select = new DOMWrapper(document.body).get('.sw-select-option--1');
 
         await select.trigger('click');
         await flushPromises();
@@ -275,9 +272,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const newAddress = wrapper.find('.sw-select-result-list__content ul:nth-of-type(1)');
+        const newAddress = new DOMWrapper(document.body).get('.sw-select-result-list__content ul:nth-of-type(1)');
 
-        await newAddress.find('.sw-select-result__add-new-address').trigger('click');
+        await newAddress.get('.sw-select-result__add-new-address').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.currentAddress._isNew).toBe(true);
@@ -295,8 +292,8 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         expect(wrapper.vm.customer).toBeNull();
-        expect(wrapper.find('.sw-select-result__add-new-address').exists()).toBe(false);
-        expect(wrapper.findAll('.sw-select-result')).toHaveLength(1);
+        expect(new DOMWrapper(document.body).find('.sw-select-result__add-new-address').exists()).toBeFalsy();
+        expect(new DOMWrapper(document.body).findAll('.sw-select-result')).toHaveLength(1);
     });
 
     it('should select a newly created address after saving it', async () => {
@@ -387,17 +384,17 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const list = wrapper.find('.sw-select-result-list__item-list');
+        const list = new DOMWrapper(document.body).get('.sw-select-result-list__item-list');
 
         expect(list.findAll('.sw-select-result')).toHaveLength(2);
 
-        const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
+        const firstSelection = list.get('.sw-select-result .sw-order-address-selection__information');
         expect(firstSelection.findAll('p').at(1).text()).toBe('Muster SE - People & Culture');
         expect(firstSelection.findAll('p').at(2).text()).toBe('Denesik Bridge');
         expect(firstSelection.findAll('p').at(3).text()).toBe('05132 Bernierstad');
         expect(firstSelection.findAll('p').at(4).text()).toBe('Buzbach');
 
-        const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
+        const secondSelection = list.findAll('.sw-select-result .sw-order-address-selection__information').at(1);
         expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(secondSelection.findAll('p').at(3).text()).toBe('Buzbach');
@@ -416,9 +413,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const list = wrapper.find('.sw-select-result-list__item-list');
+        const list = new DOMWrapper(document.body).get('.sw-select-result-list__item-list');
 
-        const information = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
+        const information = list.get('.sw-select-result .sw-order-address-selection__information');
 
         expect(list.findAll('.sw-select-result')).toHaveLength(2);
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');

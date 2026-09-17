@@ -315,20 +315,16 @@ class StateMachineRegistryTest extends TestCase
             $entityWriter,
         );
         $attempts = 0;
-        $errorCallbacks = 0;
+        $writeContexts = [];
         $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
 
         $entityWriter->expects($this->exactly(2))->method('sync')
-            ->willReturnCallback(static function (array $operations, WriteContext $writeContext) use (&$attempts, &$errorCallbacks, $failure): WriteResult {
+            ->willReturnCallback(static function (array $operations, WriteContext $writeContext) use (&$attempts, &$writeContexts, $failure): WriteResult {
                 static::assertSame([], $writeContext->getExceptions()->getExceptions());
-                static::assertFalse($writeContext->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED));
+                $writeContexts[] = $writeContext;
 
                 if (++$attempts === 1) {
                     $writeContext->getExceptions()->add($failure);
-                    $writeContext->onWriteError(static function () use (&$errorCallbacks): void {
-                        ++$errorCallbacks;
-                    });
-
                     throw $failure;
                 }
 
@@ -339,7 +335,10 @@ class StateMachineRegistryTest extends TestCase
 
         static::assertSame($toPlace, $result->get('toPlace'));
         static::assertSame(2, $this->transactionalCalls);
-        static::assertSame(0, $errorCallbacks);
+        static::assertCount(2, $writeContexts);
+        static::assertNotSame($writeContexts[0], $writeContexts[1]);
+        static::assertSame([$failure], $writeContexts[0]->getExceptions()->getExceptions());
+        static::assertSame([], $writeContexts[1]->getExceptions()->getExceptions());
         static::assertCount(3, $dispatcher->events);
     }
 

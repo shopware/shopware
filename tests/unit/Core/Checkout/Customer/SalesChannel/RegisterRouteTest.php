@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -35,6 +36,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -48,6 +50,8 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -1275,6 +1279,128 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
+     * @param array<string, bool> $doubleOptInConfig
+     */
+    #[DataProvider('storefrontUrlValidationProvider')]
+    public function testStorefrontUrlIsOnlyValidatedWhenDoubleOptInIsEnabled(
+        array $doubleOptInConfig,
+        bool $isGuest,
+        bool $expectedToBeValidated
+    ): void {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => array_merge([
+                'core.loginRegistration.passwordMinLength' => '8',
+            ], $doubleOptInConfig),
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $properties = $this->captureValidatedProperties($systemConfigService, $isGuest);
+
+        static::assertSame($expectedToBeValidated, \array_key_exists('storefrontUrl', $properties));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, bool>, bool, bool}>
+     */
+    public static function storefrontUrlValidationProvider(): iterable
+    {
+        yield 'customer, double opt-in disabled' => [[], false, false];
+        yield 'customer, double opt-in enabled' => [['core.loginRegistration.doubleOptInRegistration' => true], false, true];
+        yield 'customer, only guest order double opt-in enabled' => [['core.loginRegistration.doubleOptInGuestOrder' => true], false, false];
+        yield 'guest, double opt-in disabled' => [[], true, false];
+        yield 'guest, guest order double opt-in enabled' => [['core.loginRegistration.doubleOptInGuestOrder' => true], true, true];
+        yield 'guest, only registration double opt-in enabled' => [['core.loginRegistration.doubleOptInRegistration' => true], true, false];
+    }
+
+    #[TestDox('storefrontUrl stays unvalidated for callers opting out, even with double opt-in enabled')]
+    public function testStorefrontUrlValidationCanStillBeSkippedByCaller(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+                'core.loginRegistration.doubleOptInRegistration' => true,
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $properties = $this->captureValidatedProperties($systemConfigService, false, false);
+
+        static::assertArrayNotHasKey('storefrontUrl', $properties);
+    }
+
+    #[TestDox('a sales channel without domains offers no valid choice, which is why the constraint must be conditional')]
+    public function testStorefrontUrlChoicesAreEmptyWithoutSalesChannelDomains(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+                'core.loginRegistration.doubleOptInRegistration' => true,
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $properties = $this->captureValidatedProperties($systemConfigService, false);
+
+        static::assertArrayHasKey('storefrontUrl', $properties);
+        static::assertInstanceOf(NotBlank::class, $properties['storefrontUrl'][0]);
+        static::assertInstanceOf(Choice::class, $properties['storefrontUrl'][1]);
+        static::assertSame([], $properties['storefrontUrl'][1]->choices);
+    }
+
+    /**
+     * @return array<string, array<Constraint>>
+     */
+    private function captureValidatedProperties(
+        StaticSystemConfigService $systemConfigService,
+        bool $isGuest,
+        bool $validateStorefrontUrl = true
+    ): array {
+        $definition = null;
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturnCallback(static function (array $data, DataValidationDefinition $used) use (&$definition): ConstraintViolationList {
+                $definition = $used;
+
+                return new ConstraintViolationList();
+            });
+
+        $accountValidationFactory = static::createStub(DataValidationFactoryInterface::class);
+        $accountValidationFactory->method('create')->willReturnCallback(static fn () => new DataValidationDefinition());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            systemConfigService: $systemConfigService,
+            accountValidationFactory: $accountValidationFactory,
+            doubleOptInService: new DoubleOptInService(
+                static::createStub(EntityRepository::class),
+                new EventDispatcher(),
+                $systemConfigService,
+                static::createStub(EntityRepository::class),
+                new NativeClock(),
+            ),
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext->getSalesChannel()->setDomains(new SalesChannelDomainCollection());
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'guest' => $isGuest,
+                'storefrontUrl' => 'https://example.com',
+            ])),
+            $salesChannelContext,
+            $validateStorefrontUrl
+        );
+
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+
+        return $definition->getProperties();
+    }
+
+    /**
      * @return StaticEntityRepository<CustomerCollection>
      */
     private function createCustomerRepository(): StaticEntityRepository
@@ -1307,7 +1433,8 @@ class RegisterRouteTest extends TestCase
         EntityRepository|StaticEntityRepository|null $customerRepository = null,
         ?DataValidationFactoryInterface $accountValidationFactory = null,
         ?DataValidationFactoryInterface $passwordValidationFactory = null,
-        ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null
+        ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null,
+        ?DoubleOptInService $doubleOptInService = null
     ): RegisterRoute {
         $dataValidator ??= static::createStub(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
@@ -1325,8 +1452,10 @@ class RegisterRouteTest extends TestCase
         $customerRepository ??= $this->createCustomerRepository();
         $customerNewsletterSalesChannelsUpdater ??= static::createStub(CustomerNewsletterSalesChannelsUpdater::class);
 
-        $doubleOptInService = static::createStub(DoubleOptInService::class);
-        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+        if ($doubleOptInService === null) {
+            $doubleOptInService = static::createStub(DoubleOptInService::class);
+            $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+        }
 
         return new RegisterRoute(
             $eventDispatcher,

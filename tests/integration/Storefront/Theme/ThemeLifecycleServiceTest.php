@@ -19,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -37,6 +39,7 @@ use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
+use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
 
@@ -46,7 +49,9 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWi
 #[Package('discovery')]
 class ThemeLifecycleServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private ThemeLifecycleService $themeLifecycleService;
 
@@ -79,11 +84,13 @@ class ThemeLifecycleServiceTest extends TestCase
         $kernel->method('getBundles')->willReturn([
             'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
             'ThemeWithLabels' => new ThemeWithLabels(),
+            'SimpleTheme' => new SimpleTheme(),
         ]);
 
         $kernel->method('getBundle')->willReturnMap([
             ['ThemeWithFileAssociations', new ThemeWithFileAssociations()],
             ['ThemeWithLabels', new ThemeWithLabels()],
+            ['SimpleTheme', new SimpleTheme()],
         ]);
 
         $this->themeFilesystemResolver = new ThemeFilesystemResolver(
@@ -163,6 +170,29 @@ class ThemeLifecycleServiceTest extends TestCase
         $themeEntity = $this->getTheme($bundle);
 
         static::assertSame($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+    }
+
+    public function testThemeConfigInheritanceUsesNearestThemeAsParent(): void
+    {
+        $grandParentBundle = $this->getThemeConfigWithLabels();
+        $this->themeLifecycleService->refreshTheme($grandParentBundle, $this->context);
+
+        $parentBundle = $this->getSimpleThemeConfig();
+        $parentBundle->setConfigInheritance(['@Storefront', '@' . $grandParentBundle->getTechnicalName()]);
+        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
+
+        $bundle = $this->getThemeConfig();
+        $bundle->setConfigInheritance([
+            '@Storefront',
+            '@' . $grandParentBundle->getTechnicalName(),
+            '@' . $parentBundle->getTechnicalName(),
+        ]);
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        static::assertSame(
+            $this->getTheme($parentBundle)->getId(),
+            $this->getTheme($bundle)->getParentThemeId()
+        );
     }
 
     public function testThemeRefreshWithParentTheme(): void
@@ -462,6 +492,13 @@ class ThemeLifecycleServiceTest extends TestCase
         $factory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
         return $factory->createFromBundle(new ThemeWithLabels());
+    }
+
+    private function getSimpleThemeConfig(): StorefrontPluginConfiguration
+    {
+        $factory = static::getContainer()->get(StorefrontPluginConfigurationFactory::class);
+
+        return $factory->createFromBundle(new SimpleTheme());
     }
 
     private function getTheme(StorefrontPluginConfiguration $bundle, bool $withChild = false): ThemeEntity

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
-use Doctrine\DBAL\Driver\Exception as DriverExceptionInterface;
 use Doctrine\DBAL\Exception as DbalException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\RetryableException;
@@ -19,11 +18,6 @@ class RetryableExceptionDetector
 
     public static function detect(\Throwable $exception): ?\Throwable
     {
-        if (!$exception instanceof DbalException) {
-            return null;
-        }
-
-        $retryableException = null;
         $missingSavepointException = null;
 
         do {
@@ -35,11 +29,10 @@ class RetryableExceptionDetector
                     || ($exception instanceof DriverException && $exception->getCode() === self::MARIADB_RECORD_CHANGED_ERROR_CODE)
                 )
             ) {
-                $retryableException = $exception;
+                return $exception;
             } elseif (
                 $missingSavepointException === null
-                && $exception instanceof DriverException
-                && preg_match('/SAVEPOINT [^\s]+ does not exist/', $exception->getMessage())
+                && self::isMissingSavepoint($exception)
             ) {
                 // The missing savepoint can mask the exception which caused MariaDB to roll back the transaction.
                 // Keep it only as a fallback for https://github.com/doctrine/dbal/issues/6651.
@@ -47,12 +40,20 @@ class RetryableExceptionDetector
             }
 
             $exception = $exception->getPrevious();
-        } while (
-            $exception instanceof DbalException
-            || $exception instanceof DriverExceptionInterface
-            || $exception instanceof \PDOException
-        );
+        } while ($exception !== null);
 
-        return $retryableException ?? $missingSavepointException;
+        return $missingSavepointException;
+    }
+
+    public static function unwrap(\Throwable $exception): \Throwable
+    {
+        // Preserve application wrappers and their diagnostics. Only rollback failures mask the original error.
+        return self::isMissingSavepoint($exception) ? (self::detect($exception) ?? $exception) : $exception;
+    }
+
+    private static function isMissingSavepoint(\Throwable $exception): bool
+    {
+        return $exception instanceof DriverException
+            && preg_match('/SAVEPOINT [^\s]+ does not exist/', $exception->getMessage()) === 1;
     }
 }

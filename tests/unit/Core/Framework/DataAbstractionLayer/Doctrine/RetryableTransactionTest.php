@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException as DbalDriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 
@@ -91,6 +92,90 @@ class RetryableTransactionTest extends TestCase
             );
         } finally {
             static::assertSame(11, $counter);
+        }
+    }
+
+    public function testRetriesContentionInsideAnApplicationWrapper(): void
+    {
+        $exception = FlowException::transactionFailed(self::createDriverException(1020, 'Record has changed since last read'));
+        $attempts = 0;
+        $connection = $this->createTransactionConnectionStub();
+
+        $result = RetryableTransaction::retryable($connection, static function () use (&$attempts, $exception): string {
+            if (++$attempts === 1) {
+                throw $exception;
+            }
+
+            return 'success';
+        });
+
+        static::assertSame('success', $result);
+        static::assertSame(2, $attempts);
+    }
+
+    public function testExhaustedRetriesPreserveTheApplicationWrapper(): void
+    {
+        $exception = FlowException::transactionFailed(self::createDriverException(1020, 'Record has changed since last read'));
+        $attempts = 0;
+        $connection = $this->createTransactionConnectionStub();
+        $this->expectExceptionObject($exception);
+
+        try {
+            RetryableTransaction::retryable($connection, static function () use (&$attempts, $exception): never {
+                ++$attempts;
+
+                throw $exception;
+            });
+        } catch (FlowException $caught) {
+            static::assertSame($exception, $caught);
+
+            throw $caught;
+        } finally {
+            static::assertSame(11, $attempts);
+        }
+    }
+
+    public function testRetryPredicatePreservesTheApplicationWrapperWhenRetriesArePrevented(): void
+    {
+        $exception = FlowException::transactionFailed(self::createDriverException(1020, 'Record has changed since last read'));
+        $attempts = 0;
+        $connection = $this->createTransactionConnectionStub();
+        $this->expectExceptionObject($exception);
+
+        try {
+            RetryableTransaction::retryableWithPredicate($connection, static function () use (&$attempts, $exception): never {
+                ++$attempts;
+
+                throw $exception;
+            }, static fn (): bool => false);
+        } catch (FlowException $caught) {
+            static::assertSame($exception, $caught);
+
+            throw $caught;
+        } finally {
+            static::assertSame(1, $attempts);
+        }
+    }
+
+    public function testNonRetryingTransactionPreservesTheApplicationWrapper(): void
+    {
+        $exception = FlowException::transactionFailed(self::createDriverException(1020, 'Record has changed since last read'));
+        $attempts = 0;
+        $connection = $this->createTransactionConnectionStub();
+        $this->expectExceptionObject($exception);
+
+        try {
+            RetryableTransaction::transactional($connection, static function () use (&$attempts, $exception): never {
+                ++$attempts;
+
+                throw $exception;
+            });
+        } catch (FlowException $caught) {
+            static::assertSame($exception, $caught);
+
+            throw $caught;
+        } finally {
+            static::assertSame(1, $attempts);
         }
     }
 

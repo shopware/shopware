@@ -10,7 +10,7 @@ The subsequent entity-written container events remain separate and keep their hi
 
 ### MariaDB record-change conflicts are retryable
 
-MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error is now reported instead.
+MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions, including when wrapped in an application exception. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error and its original query are reported instead. Other application exception wrappers are preserved when retries stop.
 
 ### Document generation v2 (experimental)
 

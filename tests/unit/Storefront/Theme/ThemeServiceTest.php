@@ -375,12 +375,6 @@ class ThemeServiceTest extends TestCase
         );
         $configLoader = new StaticFileConfigLoader($fs);
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchOne')
-            ->with('SELECT 1')
-            ->willReturn(1);
-
         $themeCompiler = $this->createMock(ThemeCompiler::class);
         $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
@@ -398,7 +392,6 @@ class ThemeServiceTest extends TestCase
 
         $this->getThemeService(
             themeCompiler: $themeCompiler,
-            connection: $connection,
             configLoader: $configLoader,
             runtimeConfigService: $runtimeConfigService,
         )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
@@ -417,13 +410,6 @@ class ThemeServiceTest extends TestCase
         );
         $configLoader = new StaticFileConfigLoader($fs);
 
-        $driverException = static::createStub(Driver\Exception::class);
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchOne')
-            ->with('SELECT 1')
-            ->willThrowException(new ConnectionException($driverException, null));
-
         $themeCompiler = $this->createMock(ThemeCompiler::class);
         $themeCompiler->expects($this->once())->method('compileTheme')->with(
             TestDefaults::SALES_CHANNEL,
@@ -436,12 +422,15 @@ class ThemeServiceTest extends TestCase
         $themeCompiler->expects($this->never())->method('buildComponentImportMap');
 
         $runtimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
-        $runtimeConfigService->expects($this->never())->method('refreshConfigValues');
+        $driverException = static::createStub(Driver\Exception::class);
+        $runtimeConfigService->expects($this->once())
+            ->method('refreshConfigValues')
+            ->with($themeId, $this->context)
+            ->willThrowException(new ConnectionException($driverException, null));
         $runtimeConfigService->expects($this->never())->method('refreshRuntimeConfig');
 
         $this->getThemeService(
             themeCompiler: $themeCompiler,
-            connection: $connection,
             configLoader: $configLoader,
             runtimeConfigService: $runtimeConfigService,
         )->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);

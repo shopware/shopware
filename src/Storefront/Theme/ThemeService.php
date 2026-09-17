@@ -122,14 +122,12 @@ class ThemeService implements ResetInterface
             );
         } else {
             try {
-                $this->connection->fetchOne('SELECT 1');
+                $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
             } catch (ConnectionException) {
                 // Static file compilation is also used in database-less build environments; the theme can be compiled,
                 // but persisted runtime configuration values cannot be refreshed without a database connection.
                 return;
             }
-
-            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
         }
     }
 

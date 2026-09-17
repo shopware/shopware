@@ -182,24 +182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/Adapter/Twig/Extension/ComparisonExtension.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\Api\\Acl\\Event\\AclGetAdditionalPrivilegesEvent::__construct() has parameter $privileges with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\Api\\Acl\\Event\\AclGetAdditionalPrivilegesEvent::getPrivileges() return type has no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\Api\\Acl\\Event\\AclGetAdditionalPrivilegesEvent::setPrivileges() has parameter $privileges with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Api/Acl/Event/AclGetAdditionalPrivilegesEvent.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
@@ -336,12 +318,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 2,
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/EntityTranslationDefinition.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Event\\EntityLoadedContainerEvent::__construct() has parameter $events with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedContainerEvent.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Runtime::__construct() has parameter $dependsOn with no value type specified in iterable type array.',
@@ -602,12 +578,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Write/Validation/Validator.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\WriteCommandExceptionEvent::getCommands() return type has no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Write/Validation/WriteCommandExceptionEvent.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
@@ -708,12 +678,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Framework/Store/Authentication/LocaleProvider.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\Store\\Search\\EqualsFilterStruct::fromArray() has parameter $data with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Store/Search/EqualsFilterStruct.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Framework\\Store\\Search\\ExtensionCriteria::addFilter() has parameter $filter with no value type specified in iterable type array.',
@@ -888,12 +852,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/System/Language/TranslationValidator.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/System/SalesChannel/Context/CartRestorer.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

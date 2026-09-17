@@ -42,8 +42,12 @@
                     {% endblock %}
 
                     {% block sw_theme_list_listing_actions_mode %}
-                    <div
+                    <mt-button
                         class="sw-theme-list__actions-mode"
+                        variant="secondary"
+                        size="small"
+                        square
+                        :aria-label="$t('sw-theme-manager.general.switchThemeListMode')"
                         @click="onListModeChange"
                     >
                         <mt-icon
@@ -56,7 +60,7 @@
                             name="regular-view-grid"
                             size="16"
                         />
-                    </div>
+                    </mt-button>
                     {% endblock %}
                 </div>
                 {% endblock %}

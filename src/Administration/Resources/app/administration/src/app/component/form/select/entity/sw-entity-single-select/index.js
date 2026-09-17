@@ -298,7 +298,7 @@ export default {
                     ]),
                 )
                 .then((item) => {
-                    if (!item) {
+                    if (!item && !this.disabled) {
                         this.$emit('update:value', null);
                     }
 

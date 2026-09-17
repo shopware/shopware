@@ -1715,6 +1715,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
+                ->booleanNode('enable_url_validation')->defaultTrue()->end()
                 ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
                 ->arrayNode('allowed_private_ip_addresses')
                     ->performNoDeepMerging()

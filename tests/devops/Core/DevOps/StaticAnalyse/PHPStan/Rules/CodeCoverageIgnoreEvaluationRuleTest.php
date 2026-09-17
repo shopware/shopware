@@ -48,6 +48,8 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
 
         yield 'no annotation but logic present passes' => [['IgnoreStartEndOnlyClass.php'], []];
 
+        yield 'prose mention of the annotation is not an annotation' => [['ProseMentionClass.php'], []];
+
         yield 'exception fork branching is not logic, class ignore passes' => [['ExceptionForkClass.php'], []];
 
         yield 'exception with loop aggregation still fails' => [

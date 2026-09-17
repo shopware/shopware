@@ -119,6 +119,9 @@ class NewsletterRecipientServiceTest extends TestCase
             'countryId' => $this->getRandomId('country'),
             'navigationCategoryId' => $this->getRandomId('category'),
             'accessKey' => 'test',
+            'currencies' => [
+                ['id' => Defaults::CURRENCY],
+            ],
             'languages' => [
                 ['id' => Defaults::LANGUAGE_SYSTEM],
             ],

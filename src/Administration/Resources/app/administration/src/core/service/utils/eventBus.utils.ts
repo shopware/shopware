@@ -11,11 +11,11 @@ import type { ConsentEvent, ConsentEventName } from '../../consent/events';
  */
 interface Events extends Record<string | symbol, unknown> {
     'sw-product-detail-save-finish': undefined;
-    'sw-language-switch-change-application-language': { languageId: string };
+    'sw-language-switch-change-application-language': { languageId: EntityKey<'language'> };
     'sw-sales-channel-detail-sales-channel-change': undefined;
     'sw-sales-channel-detail-base-sales-channel-change': undefined;
     'sw-sales-channel-list-add-new-channel': undefined;
-    'sw-media-library-item-updated': string;
+    'sw-media-library-item-updated': EntityKey<'media'>;
     'sw-admin-menu/toggle-offcanvas': boolean;
     telemetry: TelemetryEvent<TelemetryEventTypes>;
     consent: ConsentEvent<ConsentEventName>;

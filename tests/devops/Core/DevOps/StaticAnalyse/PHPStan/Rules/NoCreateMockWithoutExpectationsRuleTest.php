@@ -110,8 +110,17 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'BaseDependency::class', 'BaseDependency::class'),
                 39, // ... and again when CoveredChildCases is analysed
             ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'BaseDependency::class', 'BaseDependency::class'),
+                95, // base setUp() fixture reached through the subclass's parent::setUp() chain
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'BaseDependency::class', 'testSharedValue()'),
+                119, // the chaining child's own mock: expected in its own test, bare in the inherited base test
+            ],
             // NOT flagged: line 24 for CoveredChildCases (its only test reaches the inherited
-            // ->expects()-ing helper), the abstract class itself (skipped, no runnable instances)
+            // ->expects()-ing helper), the abstract class itself (skipped, no runnable instances),
+            // line 95 for ReplacedSetUpChildCases (its setUp() replaces the base's without chaining)
         ]);
     }
 
@@ -144,6 +153,26 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
             ],
             // NOT flagged: 182 (the alias itself is ->expects()-ed — conservative skip),
             // and testNotOwning() at 83 (it never reaches the creating helper)
+        ]);
+    }
+
+    public function testNoticeRegressions(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/NoticeRegressionCases.php'], [
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'FluentDependency::class', 'FluentDependency::class'),
+                32, // fluent double capturing itself in its willReturnCallback() closure
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'GuardDependency::class', 'GuardDependency::class'),
+                53, // forwarded to a helper that defaults its parameter inside an `if ($dep === null)` guard
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'ProductionDependency::class', 'ProductionDependency::class'),
+                90, // helper-local double wrapped into the returned SUT
+            ],
+            // NOT flagged: 120 (wrapped into a returned test-namespace fixture struct, whose public
+            // property hands it back), 148 (escapes with a returned closure)
         ]);
     }
 

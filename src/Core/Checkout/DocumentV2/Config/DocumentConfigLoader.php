@@ -68,8 +68,6 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     private array $bundles = [];
 
     /**
-     * @internal
-     *
      * @param EntityRepository<DocumentBaseConfigCollection> $documentConfigRepository
      * @param EntityRepository<CountryCollection> $countryRepository
      * @param EntityRepository<MediaCollection> $mediaRepository

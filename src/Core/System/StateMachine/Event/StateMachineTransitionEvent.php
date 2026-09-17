@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineTransitionEvent extends NestedEvent
 {

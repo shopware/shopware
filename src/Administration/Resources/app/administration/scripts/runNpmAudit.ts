@@ -31,6 +31,7 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-gcfj-64vw-6mp9', // axios v0 inherited proxy use, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-hcpx-6fm6-wx23', // axios v0 form serializer maxDepth bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-7q8q-rj6j-mhjq', // axios v0 nested option prototype pollution, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-cp6q-959q-f8rh', // @tiptap/core mergeAttributes prototype pollution, moderate; pulled in transitively by @shopware-ag/meteor-component-library, which still depends on @tiptap ^2.22.3 in its latest release (5.7.1). No fix reachable from here without forcing a tiptap v2 to v3 major upgrade inside that library.
         'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Puppeteer browser downloads, devDep only; fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
     ],
 });

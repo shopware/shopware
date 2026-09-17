@@ -21,7 +21,7 @@
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
       "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\".",
       "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "Das Zahlungsziel muss ein relatives Datum sein, z. B. \"+14 days\".",
-      "INVALID_GARAN_GUARANTEE_MONTHS": "Die Garantiedauer muss leer sein oder ein Halbjahreswert von mehr als 24 Monaten, z. B. 30, 36 oder 42."
+      "INVALID_GARAN_GUARANTEE_MONTHS": "Die Garantiedauer muss leer sein oder ein Halbjahreswert zwischen 30 und 600 Monaten, z. B. 30, 36 oder 42."
     },
     "default": {
       "add": "Hinzufügen",
@@ -68,7 +68,18 @@
       "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
     "sw-desktop": {
-      "stagingBarText": "Der Shop befindet sich im Staging-Modus."
+      "stagingBarText": "Der Shop befindet sich im Staging-Modus.",
+      "theme": {
+        "changed": "Erscheinungsbild zu \"{theme}\" geändert",
+        "saveError": "Erscheinungsbild konnte nicht gewechselt werden"
+      }
+    },
+    "theme": {
+      "names": {
+        "light": "Hell",
+        "dark": "Dunkel",
+        "system": "System"
+      }
     },
     "sw-skip-link": {
       "label": "Navigation überspringen"
@@ -1550,6 +1561,10 @@
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
     "functionSpecialShortcutOpenFilters": "Filter öffnen",
     "keyboardShortcutSpecialShortcutOpenFilters": "O F",
+    "functionSpecialShortcutToggleNavigation": "Navigation umschalten",
+    "keyboardShortcutSpecialShortcutToggleNavigation": "S",
+    "functionSpecialShortcutCycleTheme": "Erscheinungsbild ändern",
+    "keyboardShortcutSpecialShortcutCycleTheme": "C T",
     "functionSpecialShortcutShortcutListing": "Tastenkürzel",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
     "functionSpecialShortcutSaveDetailView": "Aktuelle Ansicht speichern",

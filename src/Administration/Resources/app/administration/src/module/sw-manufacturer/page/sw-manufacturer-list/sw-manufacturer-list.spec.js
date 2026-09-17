@@ -47,6 +47,7 @@ async function createWrapper(privileges = []) {
                     meta: {
                         $module: {
                             icon: 'regular-content',
+                            description: 'sw-manufacturer.general.descriptionTextModule',
                         },
                     },
                 },
@@ -194,5 +195,15 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show empty state with module snippets when there are no manufacturers', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.getList();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-manufacturer.list.messageEmpty');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-manufacturer.general.descriptionTextModule');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
     });
 });

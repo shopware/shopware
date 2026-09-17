@@ -1,6 +1,6 @@
 ---
 title: Size the GARAN label in the order confirmation mail
-issue: #20104
+issue: 20104
 ---
 # Core
 * Changed the `order_confirmation_mail` HTML fixtures in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/`: the GARAN label image now carries explicit `width="195" height="30"` attributes and a translated `alt` text, and renders inside the line item's description cell instead of in a full width row of its own. The line item table gained `cellpadding="6" cellspacing="0"`.

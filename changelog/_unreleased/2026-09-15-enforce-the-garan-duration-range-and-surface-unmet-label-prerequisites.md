@@ -1,6 +1,6 @@
 ---
 title: Enforce the GARAN duration range and surface unmet label prerequisites
-issue: #20105
+issue: 20105
 ---
 # Core
 * Changed `Shopware\Core\Content\Product\Garan\GaranLabelProductValidator` to also reject a `guaranteeMonths` value above 600 months (50 years). Writes with a longer duration fail with the existing `INVALID_GARAN_GUARANTEE_MONTHS` violation. Values already stored above 600 months are untouched and keep rendering their label; they only have to be corrected the next time that product is written.

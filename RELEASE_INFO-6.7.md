@@ -146,9 +146,9 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 ### Company accounts can register without a contact person
 
-`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off. When the names are hidden or optional, the company is required instead, in the Storefront, the Store API and the Administration. `GET /store-api/shop-settings` returns both settings under `loginRegistration`.
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off.
 
-The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag, so the data abstraction layer accepts an empty string; `null` is still rejected. A `PreWriteValidationEvent` subscriber keeps one rule on every write path: both names may only be empty when a company stands in, and for a `customer` only on a commercial account.
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag.
 
 `customer` and `order_customer` gain a runtime field `displayName`. It holds the person name, or the company when there is no contact person. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return it once the entity is loaded. Read the name through it instead of joining `firstName` and `lastName`:
 

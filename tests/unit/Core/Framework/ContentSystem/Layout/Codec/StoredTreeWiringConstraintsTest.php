@@ -636,6 +636,11 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
             '[0][providesContext][product][consumerAlias]',
         ];
 
+        yield 'a broadcast provider carrying a keyed-only field' => [
+            ['type' => 'single', 'distribution' => 'broadcast', 'keyProperty' => 'sku'],
+            '[0][providesContext][product][keyProperty]',
+        ];
+
         yield 'a keyed provider with no key property' => [
             ['type' => 'collection', 'distribution' => 'keyed'],
             '[0][providesContext][product][keyProperty]',

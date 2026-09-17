@@ -84,9 +84,8 @@ export function generateModuleSource(specifier: string, registry: ModuleRegistry
  * Serves the `shopware:*` modules, which expose the global `Shopware` object as ordinary imports:
  * `import { createId } from 'shopware:utils'` instead of `Shopware.Utils.createId`.
  *
- * Purely additive: the generated bindings read the same global that the plugin and override systems
- * already use, so both styles work side by side and no existing code has to change. Extension builds run
- * this plugin too, pointed at the host Administration, so extensions resolve the same specifiers.
+ * Utility, data, and mixin bindings capture their values during module evaluation. Store modules defer
+ * the registry lookup until the exported function runs. Extension builds use the host registry.
  */
 export default function virtualShopwareModulesPlugin(options: Options): Plugin {
     let registry: ModuleRegistry | undefined;

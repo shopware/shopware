@@ -3,12 +3,11 @@
  *
  * Renders the ambient declarations for every `shopware:*` specifier.
  *
- * Each module declares its default export and the named exports recorded in the registry:
+ * Each module declares the default and named exports recorded in the registry:
  *
  *     import debug, { warn } from 'shopware:utils/debug';
  *
- * The types come from the objects the global already holds and from the `MixinContainer` and
- * `PiniaRootState` interfaces, so a declaration cannot describe a shape the runtime does not have.
+ * Types come from the same global branches and registry interfaces as the runtime values.
  */
 
 import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
@@ -16,13 +15,7 @@ import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-m
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
 
-/**
- * @private
- *
- * The command that rewrites this file, named in the file itself.
- *
- * A stale declaration is a lie about what can be imported, and the drift test points here.
- */
+/** @private The command shown in generated files and drift diagnostics. */
 export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
 
 function block(specifier: string, body: string[]): string {
@@ -70,13 +63,7 @@ function defaultOnlyModule(specifier: string, value: string, type: string): stri
     ]);
 }
 
-/**
- * @private
- *
- * The whole declaration file.
- *
- * Specifiers are emitted in registry order so a regenerated file only differs where the registry did.
- */
+/** @private Renders all specifiers in registry order for deterministic diffs. */
 export function renderDeclarations(registry: ModuleRegistry): string {
     const blocks: string[] = [];
 
@@ -115,7 +102,7 @@ export function renderDeclarations(registry: ModuleRegistry): string {
         ` * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, mixin, or store.`,
         ' */',
         '',
-        '/* eslint-disable @typescript-eslint/consistent-type-imports */',
+        '/* eslint-disable sw-deprecation-rules/private-feature-declarations -- Intentional public facade. */',
         '',
         ...blocks,
     ].join('\n');

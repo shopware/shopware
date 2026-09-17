@@ -3,10 +3,8 @@
  *
  * Extracts the `shopware:*` registry from the sources that define each global branch.
  *
- * `Shopware.Utils` and `Shopware.Data` are `export default { ... }` object literals, so their keys are
- * the barrel's exports and each key is also a subpath. `Shopware.Mixin` and `Shopware.Store` are runtime
- * registries whose declared contract is the `MixinContainer` and `PiniaRootState` interfaces, so those
- * give the subpaths for the two registry-backed modules.
+ * Object-literal keys define the utility and data modules. `MixinContainer` and `PiniaRootState` define
+ * the registry-backed subpaths.
  *
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */

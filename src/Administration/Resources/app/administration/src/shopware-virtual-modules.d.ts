@@ -8,7 +8,7 @@
  * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, mixin, or store.
  */
 
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations -- Intentional public facade. */
 
 declare module 'shopware:utils' {
     import type branch from 'src/core/service/util.service';

@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * Writes the `shopware:*` module registry and its ambient declarations.
+ * Writes the checked-in `shopware:*` registry and declarations.
  *
  *     composer admin:generate-shopware-modules
  *

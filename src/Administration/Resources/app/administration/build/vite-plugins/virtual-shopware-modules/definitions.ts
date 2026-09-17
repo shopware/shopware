@@ -10,12 +10,8 @@ import type { ShopwareClass } from 'src/core/shopware';
 /**
  * @private
  *
- * The branches of the global `Shopware` object that the virtual modules read.
- *
- * `Utils` and `Data` come from `ShopwareClass`, so renaming a branch or a member breaks here rather than
- * at runtime. The two registries are widened instead: `Mixin.getByName` and `Store.get` are keyed by
- * `keyof MixinContainer` and `keyof PiniaRootState`, and a key read out of `shopware-modules.json` is a
- * plain string.
+ * `Utils` and `Data` keep their exact `ShopwareClass` types. The registry methods accept strings because
+ * their keys come from `shopware-modules.json`.
  */
 export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data'> & {
     Mixin: { getByName: (name: string) => unknown };
@@ -39,14 +35,8 @@ export type ModuleRegistryEntry = {
 export type ModuleRegistry = Record<string, ModuleRegistryEntry>;
 
 /**
- * How one module family reads its branch of the global object, at each kind of address.
- *
- * `emit` is the code the build puts in the generated module; `read` is the same value off a live global.
- * The two must always describe the same value, which is why they are declared side by side:
- * `definitions.spec.ts` evaluates every `emit` and compares it against the matching `read`.
- *
- * `root` is only reached for a family that publishes root exports — `exportNames` refuses the others
- * before it could be called — but it is spelled out for all four, because it names the branch.
+ * Each address keeps its generated expression next to its live-global reader. The parity test evaluates
+ * every `emit` and compares it with the matching `read`.
  */
 type Branch = {
     readonly root: {
@@ -130,8 +120,8 @@ export type ParsedSpecifier = {
  * `specifier` includes the prefix, for example `shopware:utils` or `shopware:mixins/myCoolMixin`.
  *
  * Returns `undefined` for a specifier no family serves. Whether the parsed specifier actually resolves
- * is `exportNames`' answer, not this one: a family may publish no root import. A store key may contain
- * no slash, so the first slash always separates the two parts.
+ * is `exportNames`' answer, not this one: a family may publish no root import. The first slash separates
+ * the family from the complete subpath.
  */
 export function parseSpecifier(specifier: string): ParsedSpecifier | undefined {
     const separator = specifier.indexOf('/');

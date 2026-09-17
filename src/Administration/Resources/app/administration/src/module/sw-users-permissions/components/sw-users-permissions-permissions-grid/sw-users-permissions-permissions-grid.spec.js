@@ -1678,6 +1678,42 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(parentEntries.at(4).classes()).toContain('sw-users-permissions-permissions-grid__parent_null');
     });
 
+    it('should label the catalogues parent with the products snippet', async () => {
+        const wrapper = await createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {},
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {},
+                },
+                {
+                    category: 'permissions',
+                    key: 'no_parent',
+                    parent: null,
+                    roles: {},
+                },
+            ],
+        });
+
+        const parentTitles = wrapper
+            .findAll('.sw-users-permissions-permissions-grid__parent')
+            .map((parent) => parent.find('.sw-users-permissions-permissions-grid__title').text());
+
+        // The privilege parent stays "catalogues" for extension compatibility, only the label moved on.
+        expect(parentTitles).toEqual([
+            'sw-privileges.permissions.parents.products',
+            'sw-privileges.permissions.parents.settings',
+            'sw-privileges.permissions.parents.other',
+        ]);
+    });
+
     it('should sort children in parents alphabetically', async () => {
         const wrapper = await createWrapper({
             privilegesMappings: [

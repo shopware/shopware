@@ -114,9 +114,23 @@ export default {
                 'settings',
             ];
         },
+
+        // Parents whose label lives under a snippet key that differs from the privilege parent itself.
+        parentSnippetKeys() {
+            return {
+                catalogues: 'products',
+            };
+        },
     },
 
     methods: {
+        parentLabel(parentValue) {
+            const key = parentValue || 'other';
+            const snippetKey = Object.hasOwn(this.parentSnippetKeys, key) ? this.parentSnippetKeys[key] : key;
+
+            return this.$t(`sw-privileges.permissions.parents.${snippetKey}`);
+        },
+
         compareParents(a, b) {
             const keyA = a || 'other';
             const keyB = b || 'other';
@@ -136,10 +150,7 @@ export default {
                 return rankDiff;
             }
 
-            const labelA = this.$t(`sw-privileges.permissions.parents.${keyA}`);
-            const labelB = this.$t(`sw-privileges.permissions.parents.${keyB}`);
-
-            return labelA.localeCompare(labelB);
+            return this.parentLabel(a).localeCompare(this.parentLabel(b));
         },
 
         changePermission(permissionKey, permissionRole) {
@@ -203,7 +214,7 @@ export default {
         parentRoleTooltip(parentValue, role) {
             return this.$t('sw-users-permissions.roles.grid.tooltipParentRole', {
                 role: this.$t(`sw-privileges.roles.${role}`),
-                parent: this.$t(`sw-privileges.permissions.parents.${parentValue || 'other'}`),
+                parent: this.parentLabel(parentValue),
             });
         },
 
@@ -213,7 +224,7 @@ export default {
 
         parentAllTooltip(parentValue) {
             return this.$t('sw-users-permissions.roles.grid.tooltipParentAll', {
-                parent: this.$t(`sw-privileges.permissions.parents.${parentValue || 'other'}`),
+                parent: this.parentLabel(parentValue),
                 roles: this.allRolesLabel(),
             });
         },

@@ -95,6 +95,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Resetting DAL field values when cloning entities
+
+The new `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone` flag excludes a field's current value from automatically copied clone data. The cloned entity therefore uses the field's normal entity or database default. Explicit clone overwrites remain possible when the field's ordinary write protection allows them.
+
 ### Shopware Services reconcile their full state daily
 
 A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.

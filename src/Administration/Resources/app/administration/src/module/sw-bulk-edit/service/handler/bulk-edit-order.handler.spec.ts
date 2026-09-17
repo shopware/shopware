@@ -48,7 +48,11 @@ function createHandler(orders = [createOrder('1')]) {
     const handler = new BulkEditOrderHandler() as unknown as BulkEditOrderHandlerTestDouble;
 
     handler.orderRepository = {
-        search: jest.fn().mockResolvedValue(orders),
+        search: jest
+            .fn()
+            .mockImplementation((criteria: { ids: string[] }) =>
+                Promise.resolve(orders.filter((order) => criteria.ids.includes(order.id))),
+            ),
     };
     handler.orderStateMachineService = {
         transitionOrderState: jest.fn().mockResolvedValue({}),
@@ -64,8 +68,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         Shopware.Store.get('swBulkEdit').isFlowTriggered = true;
     });
 
-    it('loads and transitions every requested order', async () => {
-        const orders = Array.from({ length: 30 }, (_, index) => createOrder(String(index)));
+    it('bounds ID searches to 100 orders without skipping requested orders', async () => {
+        const orders = Array.from({ length: 205 }, (_, index) => createOrder(String(index)));
         const handler = createHandler(orders);
 
         await handler.bulkEditStatus(
@@ -75,14 +79,19 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
             ],
         );
 
-        const criteria = handler.orderRepository.search.mock.calls[0][0];
+        const requestedIds = handler.orderRepository.search.mock.calls.map(([criteria]) => criteria.ids as string[]);
 
-        expect(criteria.limit).toBe(30);
-        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledTimes(30);
+        expect(requestedIds.map((ids) => ids.length)).toEqual([
+            100,
+            100,
+            5,
+        ]);
+        expect(requestedIds.flat()).toEqual(orders.map((order) => order.id));
+        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledTimes(205);
     });
 
     it('runs at most five order transitions concurrently', async () => {
-        const orders = Array.from({ length: 20 }, (_, index) => createOrder(String(index)));
+        const orders = Array.from({ length: 105 }, (_, index) => createOrder(String(index)));
         const handler = createHandler(orders);
         let activeTransitions = 0;
         let maxActiveTransitions = 0;
@@ -106,6 +115,121 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         );
 
         expect(maxActiveTransitions).toBe(5);
+        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledTimes(105);
+    });
+
+    it('returns responses in repository order and then status-field order despite completion order', async () => {
+        const handler = createHandler([
+            createOrder('2'),
+            createOrder('1'),
+        ]);
+        let finishFirst: (value: string) => void = () => {};
+
+        handler.orderStateMachineService.transitionOrderTransactionState.mockImplementation((id: string) => {
+            if (id === 'transaction-2') {
+                return new Promise<string>((resolve) => {
+                    finishFirst = resolve;
+                });
+            }
+
+            return Promise.resolve(id);
+        });
+        handler.orderStateMachineService.transitionOrderState.mockImplementation((id: string) => Promise.resolve(id));
+
+        const result = handler.bulkEditStatus(
+            [
+                '1',
+                '2',
+            ],
+            [
+                { field: 'orderTransactions', value: 'paid' },
+                { field: 'orders', value: 'complete' },
+            ],
+        );
+
+        await flushPromises();
+        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledWith(
+            '1',
+            'complete',
+            expect.any(Object),
+            {},
+            expect.any(Object),
+        );
+        finishFirst('transaction-2');
+
+        await expect(result).resolves.toEqual([
+            'transaction-2',
+            '2',
+            'transaction-1',
+            '1',
+        ]);
+    });
+
+    it('waits for an earlier status field and reports its failure before completing', async () => {
+        const handler = createHandler();
+        let failFirst: (error: Error) => void = () => {};
+        let settled = false;
+
+        handler.orderStateMachineService.transitionOrderTransactionState.mockImplementation(
+            () =>
+                new Promise<void>((resolve, reject) => {
+                    failFirst = reject;
+                }),
+        );
+
+        const result = handler.bulkEditStatus(
+            ['1'],
+            [
+                { field: 'orderTransactions', value: 'paid' },
+                { field: 'orders', value: 'complete' },
+            ],
+        );
+        void result.then(
+            () => {
+                settled = true;
+            },
+            () => {
+                settled = true;
+            },
+        );
+
+        await flushPromises();
+        expect(settled).toBe(false);
+        expect(handler.orderStateMachineService.transitionOrderState).not.toHaveBeenCalled();
+
+        failFirst(new Error('Payment transition failed'));
+        await expect(result).rejects.toMatchObject({
+            failures: [expect.objectContaining({ field: 'orderTransactions', reason: 'transition' })],
+        });
+        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports failed loads separately and still processes subsequent ID batches', async () => {
+        const orders = Array.from({ length: 101 }, (_, index) => createOrder(String(index)));
+        const handler = createHandler(orders);
+        const error = createApiError('500');
+        handler.orderRepository.search.mockRejectedValueOnce(error);
+
+        const result = handler.bulkEditStatus(
+            orders.map((order) => order.id),
+            [{ field: 'orders', value: 'cancel' }],
+        );
+
+        await expect(result).rejects.toMatchObject({
+            failures: expect.arrayContaining([
+                expect.objectContaining({ orderId: '0', reason: 'load', code: '500', error }),
+                expect.objectContaining({ orderId: '99', reason: 'load' }),
+            ]),
+        });
+        await expect(result).rejects.toHaveProperty('failures.length', 100);
+        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledTimes(1);
+        expect(handler.orderStateMachineService.transitionOrderState).toHaveBeenCalledWith(
+            '100',
+            'cancel',
+            expect.any(Object),
+            {},
+            expect.any(Object),
+        );
     });
 
     it('processes status fields sequentially for each order', async () => {
@@ -292,6 +416,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
                     orderNumber: '3',
                     field: 'orders',
                     code: '',
+                    reason: 'not-found',
                 },
                 expect.objectContaining({
                     orderId: '1',

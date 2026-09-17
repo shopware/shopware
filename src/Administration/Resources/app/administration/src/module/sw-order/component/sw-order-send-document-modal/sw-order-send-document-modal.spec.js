@@ -5,7 +5,7 @@ import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import { DOCUMENT_MAIL_TEMPLATE_MAPPING } from './index';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 /**
  * @sw-package checkout

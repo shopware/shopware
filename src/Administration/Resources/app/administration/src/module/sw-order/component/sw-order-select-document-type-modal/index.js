@@ -2,10 +2,6 @@ import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 import { DOCUMENT_TYPES, ZUGFERD_DOCUMENT_TYPES } from '../../order.types';
 
-/**
- * @sw-package checkout
- */
-
 const { Criteria } = Shopware.Data;
 
 /**
@@ -29,6 +25,10 @@ export const REQUIRES_CREDIT_ITEMS = [
     DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
 ];
 
+/**
+ * @sw-package checkout
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

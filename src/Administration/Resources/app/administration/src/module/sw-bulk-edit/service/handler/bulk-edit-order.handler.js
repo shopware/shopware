@@ -3,8 +3,10 @@ import RetryHelper from '../../../../core/helper/retry.helper';
 
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
+const { chunk } = Shopware.Utils.array;
 
 const MAX_CONCURRENT_STATUS_TRANSITIONS = 5;
+const MAX_ORDERS_PER_REQUEST = 100;
 
 class BulkEditOrderStatusError extends Error {
     constructor(failures) {
@@ -41,41 +43,94 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         }
 
         const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
-        const orders = await this.orderRepository.search(this.getCriteria());
-        const iterator = orders[Symbol.iterator]();
         const failures = [];
         const responses = [];
-        const foundOrderIds = new Set(orders.map((order) => order.id));
 
-        entityIds.forEach((orderId) => {
-            if (foundOrderIds.has(orderId)) {
-                return;
+        // Searches by IDs ignore the criteria limit, so bound the IDs sent in each request instead.
+        for (const orderIds of chunk(entityIds, MAX_ORDERS_PER_REQUEST)) {
+            const criteria = this.getCriteria();
+            criteria.setIds(orderIds);
+            criteria.setLimit(orderIds.length);
+
+            let orders;
+
+            try {
+                orders = await this.orderRepository.search(criteria);
+            } catch (error) {
+                orderIds.forEach((orderId) => {
+                    changes.forEach((change) => {
+                        failures.push({
+                            orderId,
+                            orderNumber: orderId,
+                            field: change.field,
+                            reason: 'load',
+                            code: this.getStatusTransitionErrorCode(error),
+                            error,
+                        });
+                    });
+                });
+
+                continue;
             }
 
-            changes.forEach((change) => {
-                failures.push({
-                    orderId,
-                    orderNumber: orderId,
-                    field: change.field,
-                    code: '',
+            const foundOrderIds = new Set(orders.map((order) => order.id));
+
+            orderIds.forEach((orderId) => {
+                if (foundOrderIds.has(orderId)) {
+                    return;
+                }
+
+                changes.forEach((change) => {
+                    failures.push({
+                        orderId,
+                        orderNumber: orderId,
+                        field: change.field,
+                        reason: 'not-found',
+                        code: '',
+                    });
                 });
             });
-        });
+
+            responses.push(...(await this.transitionOrderStatuses(orders, changes, shouldTriggerFlows, failures)));
+        }
+
+        if (failures.length > 0) {
+            throw new BulkEditOrderStatusError(failures);
+        }
+
+        return responses;
+    }
+
+    async transitionOrderStatuses(orders, changes, shouldTriggerFlows, failures) {
+        const iterator = Array.from(orders).entries();
+        const responses = [];
 
         const runWorker = async () => {
             let entry = iterator.next();
 
             while (!entry.done) {
-                const order = entry.value;
+                const [
+                    orderIndex,
+                    order,
+                ] = entry.value;
 
-                for (const change of changes) {
+                for (const [
+                    changeIndex,
+                    change,
+                ] of changes.entries()) {
                     try {
-                        responses.push(await this.transitionOrderStatus(order, change, shouldTriggerFlows));
+                        // Preserve repository order within each ID batch, then the requested status-field order.
+                        responses[orderIndex * changes.length + changeIndex] = await this.transitionOrderStatus(
+                            order,
+                            change,
+                            shouldTriggerFlows,
+                        );
                     } catch (error) {
                         failures.push({
                             orderId: order.id,
                             orderNumber: order.orderNumber ?? order.id,
                             field: change.field,
+                            reason: 'transition',
                             code: this.getStatusTransitionErrorCode(error),
                             error,
                         });
@@ -90,10 +145,6 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         const workers = Array.from({ length: workerCount }, () => runWorker());
 
         await Promise.all(workers);
-
-        if (failures.length > 0) {
-            throw new BulkEditOrderStatusError(failures);
-        }
 
         return responses;
     }

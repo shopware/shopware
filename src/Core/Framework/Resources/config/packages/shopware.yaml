@@ -721,5 +721,6 @@ shopware:
         failure_strategy: disable_on_threshold
 
     app_system:
+        enable_url_validation: true
         allow_unencrypted_traffic: false
         allowed_private_ip_addresses: []

@@ -585,12 +585,13 @@ export default {
                 return;
             }
 
-            if (this.feature.isActive('v6.8.0.0')) {
-                if (this.variant !== 'tabs') {
-                    return;
-                }
+            if (this.variant !== 'tabs') {
+                return;
+            }
 
-                this.setActiveCustomFieldSetTab(firstVisibleCustomFieldSet.id);
+            this.setActiveCustomFieldSetTab(firstVisibleCustomFieldSet.id);
+
+            if (this.feature.isActive('v6.8.0.0')) {
                 return;
             }
 

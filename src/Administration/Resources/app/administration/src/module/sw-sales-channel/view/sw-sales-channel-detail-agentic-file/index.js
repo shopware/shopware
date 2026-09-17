@@ -18,6 +18,7 @@ export default {
     template,
 
     inject: [
+        'acl',
         'salesChannelFileApiService',
         'repositoryFactory',
     ],
@@ -232,11 +233,12 @@ export default {
             this.isPreviewLoading = true;
 
             try {
+                const templateOverrides = this.hasUnsavedTemplateOverrides() ? this.templateOverrides : undefined;
                 this.preview = await this.salesChannelFileApiService.preview(
                     this.file.fileFamily,
                     this.salesChannel.id,
                     this.file.fileName,
-                    this.templateOverrides,
+                    templateOverrides,
                 );
             } catch {
                 this.preview = null;
@@ -265,6 +267,20 @@ export default {
 
         hasTemplateOverride(template) {
             return Object.hasOwn(this.templateOverrides, template.twigNamespace);
+        },
+
+        hasUnsavedTemplateOverrides() {
+            const configuration = this.file?.configuration;
+
+            if (configuration?.isNew?.() === true) {
+                return true;
+            }
+
+            if (typeof configuration?.getOrigin !== 'function') {
+                return false;
+            }
+
+            return !Shopware.Utils.types.isEqual(configuration.getOrigin().templateOverrides ?? {}, this.templateOverrides);
         },
 
         openTemplateOverrideModal(template) {

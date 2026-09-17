@@ -338,6 +338,45 @@ class DocumentArchiveGeneratorTest extends TestCase
         ]);
     }
 
+    public function testArchiveFallsBackToDocumentIdForOrderlessDocuments(): void
+    {
+        $firstMediaId = Uuid::randomHex();
+        $secondMediaId = Uuid::randomHex();
+
+        $firstDocument = new DocumentEntity();
+        $firstDocument->setId(Uuid::randomHex());
+        $firstDocument->setConfig(['documentNumber' => '1000']);
+        $firstDocument->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($firstMediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $secondDocument = new DocumentEntity();
+        $secondDocument->setId(Uuid::randomHex());
+        $secondDocument->setConfig(['documentNumber' => '1000']);
+        $secondDocument->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($secondMediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
+                $firstMediaId => 'first document content',
+                $secondMediaId => 'second document content',
+                default => throw new \RuntimeException('Unexpected media id.'),
+            });
+
+        $archive = $this->createArchiveGenerator($mediaService)
+            ->archive(new DocumentCollection([$firstDocument, $secondDocument]), Context::createDefaultContext());
+
+        static::assertNotNull($archive);
+
+        $this->assertArchiveContains($archive, [
+            \sprintf('%s_document_1000.pdf', $firstDocument->getId()) => 'first document content',
+            \sprintf('%s_document_1000.pdf', $secondDocument->getId()) => 'second document content',
+        ]);
+    }
+
     public function testArchiveDoesNotPrefixEntriesWhenAllDocumentsBelongToTheSameOrder(): void
     {
         $invoiceMediaId = Uuid::randomHex();

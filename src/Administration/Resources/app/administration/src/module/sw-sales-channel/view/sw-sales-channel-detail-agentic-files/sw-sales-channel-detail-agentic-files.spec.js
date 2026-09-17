@@ -148,6 +148,9 @@ async function createWrapper(options = {}) {
                     },
                 },
                 provide: {
+                    acl: {
+                        can: (permission) => global.activeAclRoles.includes(permission),
+                    },
                     salesChannelFileApiService,
                     repositoryFactory: {
                         create: () => ({
@@ -180,6 +183,14 @@ async function createWrapper(options = {}) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files', () => {
+    beforeEach(() => {
+        global.activeAclRoles = ['sales_channel.editor'];
+    });
+
+    afterEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('loads agentic files for the active sales channel', async () => {
         const { wrapper, salesChannelFileApiService } = await createWrapper();
 
@@ -318,6 +329,15 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
                 fileName: 'llms.txt',
             },
         });
+    });
+
+    it('disables state changes for sales channel viewers', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+        const { wrapper } = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-context-menu-item').at(1).attributes('disabled')).toBeDefined();
     });
 
     it('keeps the description column flexible', async () => {

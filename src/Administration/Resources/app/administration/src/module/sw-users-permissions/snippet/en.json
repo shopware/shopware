@@ -29,7 +29,7 @@
                 "labelEmail": "Email",
                 "placeholderEmail": "Enter email...",
                 "labelLanguage": "User interface language",
-                "placeholderLanguage": "Choose a language...",
+                "placeholderLanguage": "Select a language...",
                 "labelButtonInvite": "Invite user",
                 "accountPermissionHint": "Make sure that the user also belongs to your company in the Shopware Account so that they can use the Administration of this shop without restrictions."
             }

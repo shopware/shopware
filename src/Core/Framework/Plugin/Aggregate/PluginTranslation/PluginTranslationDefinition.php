@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {

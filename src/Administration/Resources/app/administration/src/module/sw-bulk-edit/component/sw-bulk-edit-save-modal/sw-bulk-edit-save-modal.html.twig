@@ -15,7 +15,7 @@
                 :is="Component"
                 :item-total="itemTotal"
                 :bulk-edit-data="bulkEditData"
-                :failed-items="failedItems"
+                v-bind="stepProps"
                 class="sw-bulk-edit-save-modal__component"
                 @changes-apply="applyChanges"
                 @buttons-update="updateButtons"

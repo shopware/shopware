@@ -21,7 +21,7 @@ enum PriceType {
 }
 
 interface CalculatedTax {
-    id: string;
+    id: EntityKey<'tax'>;
     taxRate: number;
     tax: number;
 }
@@ -35,13 +35,14 @@ interface CalculatedPrice {
 
 interface LineItem {
     id: string;
-    versionId: string;
+    versionId: EntityKey<'version'>;
     label: string;
     description: string;
     type: LineItemType;
     payload: Record<string, unknown> | null;
     quantity: number;
     identifier: string;
+    referencedId?: string | null;
     _isNew: boolean;
     price: CalculatedPrice | null;
     children?: LineItem[];
@@ -58,7 +59,7 @@ interface LineItem {
 }
 
 interface PromotionCodeTag {
-    discountId: string;
+    discountId: EntityKey<'promotion_discount'>;
     isInvalid: boolean;
     code: string;
 }
@@ -93,8 +94,8 @@ interface Cart {
 }
 
 interface Context {
-    currencyId: string;
-    languageIdChain: Array<string>;
+    currencyId: EntityKey<'currency'>;
+    languageIdChain: Array<EntityKey<'language'>>;
 }
 
 interface SalesChannelContext {
@@ -108,14 +109,17 @@ interface SalesChannelContext {
 }
 
 interface ContextSwitchParameters {
-    currencyId: string | null;
-    languageId: string | null;
-    paymentMethodId: string | null;
-    shippingMethodId: string | null;
-    billingAddressId: string | null;
-    shippingAddressId: string | null;
+    currencyId: EntityKey<'currency'> | null;
+    languageId: EntityKey<'language'> | null;
+    paymentMethodId: EntityKey<'payment_method'> | null;
+    shippingMethodId: EntityKey<'shipping_method'> | null;
+    billingAddressId: EntityKey<'customer_address'> | null;
+    shippingAddressId: EntityKey<'customer_address'> | null;
 }
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1. Use `DOCUMENT_TYPES` from `service/documentV2.service.ts` instead.
+ */
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
     DELIVERY_NOTE: 'delivery_note',
@@ -129,6 +133,9 @@ const DOCUMENT_TYPES = {
     ZUGFERD_EMBEDDED_CREDIT_NOTE: 'zugferd_embedded_credit_note',
 } as const;
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1. Use `DOCUMENT_TYPES` from `service/documentV2.service.ts` instead.
+ */
 const ZUGFERD_DOCUMENT_TYPES = [
     DOCUMENT_TYPES.ZUGFERD_INVOICE,
     DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,

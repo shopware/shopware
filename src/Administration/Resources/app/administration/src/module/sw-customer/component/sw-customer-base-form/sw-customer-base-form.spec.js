@@ -56,4 +56,37 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
         const accountTypeSelect = wrapper.find('.sw-customer-base-form__account-type-select');
         expect(accountTypeSelect.exists()).toBeTruthy();
     });
+
+    it('should display the language field', async () => {
+        const wrapper = await createWrapper();
+        const languageSelect = wrapper.find('.sw-customer-base-form__language-select');
+        expect(languageSelect.exists()).toBeTruthy();
+    });
+
+    it('should filter the selectable languages by the selected sales channel', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                salesChannelId: 'salesChannelId1',
+            },
+        });
+
+        const criteria = wrapper.vm.languageCriteria;
+
+        expect(criteria.filters).toContainEqual({
+            type: 'equals',
+            field: 'salesChannels.id',
+            value: 'salesChannelId1',
+        });
+    });
+
+    it('should not filter the selectable languages when no sales channel is selected', async () => {
+        const wrapper = await createWrapper();
+
+        const criteria = wrapper.vm.languageCriteria;
+
+        expect(criteria.filters).toHaveLength(0);
+    });
 });

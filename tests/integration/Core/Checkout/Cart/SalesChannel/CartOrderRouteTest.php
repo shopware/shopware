@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -25,7 +27,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehavi
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
@@ -540,6 +545,27 @@ class CartOrderRouteTest extends TestCase
             // Release lock after test
             $lock->release();
         }
+    }
+
+    public function testOrderIsRejectedWhenTheCartWasAlreadyOrdered(): void
+    {
+        $token = $this->createCustomerAndLogin();
+        $this->addProductToCart();
+
+        $context = static::getContainer()->get(SalesChannelContextService::class)
+            ->get(new SalesChannelContextServiceParameters($this->ids->get('sales-channel'), $token));
+
+        $cartService = static::getContainer()->get(CartService::class);
+
+        // both requests read the cart before either of them places an order
+        $cart = $cartService->getCart($token, $context, caching: false);
+        $staleCart = $cartService->getCart($token, $context, caching: false);
+
+        $cartService->order($cart, $context, new RequestDataBag());
+
+        $this->expectExceptionObject(CartException::tokenNotFound($token));
+
+        $cartService->order($staleCart, $context, new RequestDataBag());
     }
 
     protected function catchEvent(string $eventName, ?Event &$eventResult): void

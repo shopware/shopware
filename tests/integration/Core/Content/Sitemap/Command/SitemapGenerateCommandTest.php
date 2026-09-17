@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\Commands\SitemapGenerateCommand;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
+use Shopware\Core\Content\Sitemap\Service\SitemapSalesChannelLoader;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -35,10 +36,12 @@ class SitemapGenerateCommandTest extends TestCase
         $this->exporter = $this->createMock(SitemapExporter::class);
 
         $this->command = new SitemapGenerateCommand(
-            static::getContainer()->get('sales_channel.repository'),
+            new SitemapSalesChannelLoader(
+                static::getContainer()->get('sales_channel.repository'),
+                $this->createMock(EventDispatcher::class)
+            ),
             $this->exporter,
-            static::getContainer()->get(SalesChannelContextFactory::class),
-            $this->createMock(EventDispatcher::class)
+            static::getContainer()->get(SalesChannelContextFactory::class)
         );
     }
 
@@ -86,6 +89,50 @@ class SitemapGenerateCommandTest extends TestCase
             ->method('generate')
             ->with(static::callback(static function (SalesChannelContext $context) use ($storefrontId) {
                 static::assertSame($storefrontId, $context->getSalesChannelId());
+
+                return true;
+            }))
+            ->willReturn($result);
+
+        $input = new ArrayInput([]);
+        $this->command->run($input, new NullOutput());
+    }
+
+    public function testGeneratesHeadlessSalesChannelWithExternalStorefrontDomain(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM sales_channel');
+
+        $headlessId = Uuid::randomHex();
+        $this->createSalesChannel([
+            'id' => $headlessId,
+            'name' => 'headless',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://frontend.test',
+                    'isExternalStorefront' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://api.test',
+                ],
+            ],
+        ]);
+
+        $result = new SitemapGenerationResult(true, null, null, $headlessId, Defaults::LANGUAGE_SYSTEM);
+
+        // exactly one generation run: only the external storefront domain qualifies the language
+        $this->exporter->expects($this->once())
+            ->method('generate')
+            ->with(static::callback(static function (SalesChannelContext $context) use ($headlessId) {
+                static::assertSame($headlessId, $context->getSalesChannelId());
+                static::assertSame(Defaults::LANGUAGE_SYSTEM, $context->getLanguageId());
 
                 return true;
             }))

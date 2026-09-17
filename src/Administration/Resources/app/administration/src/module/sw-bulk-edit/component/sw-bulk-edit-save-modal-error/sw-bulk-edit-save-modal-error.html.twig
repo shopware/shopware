@@ -28,7 +28,7 @@
                 v-for="(failedItem, index) in failedItems"
                 :key="`${failedItem.orderId}-${failedItem.field}-${index}`"
             >
-                {{ failedItem.orderNumber }} — {{ failedItem.fieldLabel ?? failedItem.field }}
+                {{ failedItem.orderNumber }} — {{ failedItem.fieldLabel ?? failedItem.field }}: {{ getFailureReason(failedItem) }}
             </li>
         </ul>
     </template>

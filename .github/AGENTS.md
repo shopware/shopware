@@ -42,7 +42,8 @@ Three mechanisms decide how much runs:
 - **Profile** — `''` (PR), `nightly`, or `release`, passed into
   `generate-phpunit-matrix.php` / `generate-acceptance-matrix.php`. Only
   `nightly` widens the matrix. The matrix is generated at runtime and consumed as
-  `strategy: ${{ fromJson(...) }}`.
+  `matrix: ${{ fromJson(...) }}` — the expression must stay on `matrix:`, since
+  zizmor cannot audit a file whose whole `strategy:` block is an expression.
 - **Major arms** — opt in on a PR with the `major-php` or `major-acceptance`
   label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml` applies
   `major-php` automatically when the diff touches major feature flags. Nightly

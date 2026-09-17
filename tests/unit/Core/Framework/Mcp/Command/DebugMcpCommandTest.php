@@ -153,6 +153,43 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringNotContainsString('Title', $tester->getDisplay());
     }
 
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function malformedRequiredSchemaProvider(): iterable
+    {
+        yield 'required key omitted, as the SDK SchemaGenerator does when no parameter is required' => [
+            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]],
+        ];
+
+        yield 'required value is not an array, as unvalidated third-party registrations may carry' => [
+            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']], 'required' => 'invalid'],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $inputSchema
+     */
+    #[DataProvider('malformedRequiredSchemaProvider')]
+    public function testDetailViewRendersToolWithMalformedRequiredSchema(array $inputSchema): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            // @phpstan-ignore argument.type (malformed schemas are not bound by the ToolInputSchema type alias at runtime)
+            new Tool('my-tool', null, $inputSchema, 'Does things', null),
+            'Acme\\MyTool',
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute(['name' => 'my-tool']);
+
+        static::assertSame(0, $tester->getStatusCode());
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('limit', $output);
+        static::assertStringContainsString('optional', $output);
+    }
+
     public function testDetailViewShowsToolDescriptionAndSource(): void
     {
         $registry = new Registry();

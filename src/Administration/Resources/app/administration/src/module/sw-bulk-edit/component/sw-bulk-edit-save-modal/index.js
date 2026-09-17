@@ -69,6 +69,10 @@ export default {
     },
 
     computed: {
+        stepProps() {
+            return String(this.$route.name ?? '').endsWith('.error') ? { failedItems: this.failedItems } : {};
+        },
+
         currentStep() {
             if (this.isLoading && !this.processStatus) {
                 return 'process';

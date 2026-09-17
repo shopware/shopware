@@ -280,6 +280,9 @@
         "title": "Mehrfachänderung - Fehler",
         "description": "Mehrfachänderung mit Fehlern abgeschlossen.",
         "failedStatusChanges": "Die folgende Statusänderung ist fehlgeschlagen: | Die folgenden {count} Statusänderungen sind fehlgeschlagen:",
+        "orderNotFound": "Bestellung nicht gefunden oder nicht mehr verfügbar.",
+        "orderLoadFailed": "Bestellung konnte nicht geladen werden. Es wurde keine Statusänderung versucht.",
+        "transitionFailed": "Bei der Statusänderung ist ein Fehler aufgetreten. Prüfe den aktuellen Bestellstatus, bevor Du es erneut versuchst.",
         "buttons": {
           "openLog": "Log-Datei öffnen"
         }

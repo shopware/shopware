@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomFieldEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class CustomFieldCollection extends EntityCollection

@@ -21,7 +21,7 @@ const modalConfirmButtonConfig = [
     },
 ];
 
-async function createWrapper() {
+async function createWrapper(step = 'confirm', failedItems = []) {
     return mount(await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }), {
         global: {
             stubs: {
@@ -31,18 +31,23 @@ async function createWrapper() {
                     data() {
                         return {
                             slotBindings: {
-                                Component: 'sw-bulk-edit-save-modal-confirm',
+                                Component: `sw-bulk-edit-save-modal-${step}`,
                             },
                         };
                     },
                 },
                 'sw-bulk-edit-save-modal-confirm': await wrapTestComponent('sw-bulk-edit-save-modal-confirm'),
+                'sw-bulk-edit-save-modal-process': { template: '<div />' },
+                'sw-bulk-edit-save-modal-success': { template: '<div />' },
+                'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error'),
+                'sw-label': true,
+                'mt-icon': true,
                 'sw-loader': true,
 
                 'router-link': true,
             },
             mocks: {
-                $route: { name: 'sw.bulk.edit.product.save.confirm' },
+                $route: { name: `sw.bulk.edit.product.save.${step}` },
             },
             provide: {
                 shortcutService: {
@@ -59,6 +64,7 @@ async function createWrapper() {
             isLoading: false,
             processStatus: '',
             bulkEditData: {},
+            failedItems,
         },
     });
 }
@@ -69,6 +75,31 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
+    });
+
+    afterEach(() => {
+        wrapper.unmount();
+    });
+
+    it.each([
+        'confirm',
+        'process',
+        'success',
+    ])('does not pass failed items to the %s step', async (step) => {
+        wrapper.unmount();
+        wrapper = await createWrapper(step, [{ orderId: '1', orderNumber: '10001', field: 'orders' }]);
+        await flushPromises();
+
+        expect(wrapper.find('[failed-items]').exists()).toBe(false);
+    });
+
+    it('passes failed items to the error step', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper('error', [{ orderId: '1', orderNumber: '10001', field: 'orders' }]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-error__failed-status-list').text()).toContain('10001');
+        expect(wrapper.find('[failed-items]').exists()).toBe(false);
     });
 
     it('the default button config should be the bulk-edit-save-modal-confirm button config', async () => {

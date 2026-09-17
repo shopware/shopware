@@ -74,20 +74,33 @@ class DocumentRouteTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    private static bool $rateLimitedKernelBooted = false;
+
     public static function setUpBeforeClass(): void
     {
         DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        // shut down only: the next class boots its kernel lazily inside a test context, which
+        // recompiles with the rate limiter restored
+        KernelLifecycleManager::ensureKernelShutdown();
+        self::$rateLimitedKernelBooted = false;
     }
 
     protected function setUp(): void
     {
+        // the rate-limiter pass applies at container compile time, so this class needs a freshly
+        // compiled kernel. It is booted here rather than in setUpBeforeClass(): a deprecation
+        // triggered during a static-context kernel boot has no TestCase object on the call stack
+        // and crashes PHPUnit's event system instead of being recorded
+        if (!self::$rateLimitedKernelBooted) {
+            KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+            self::$rateLimitedKernelBooted = true;
+        }
+
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 

@@ -19,6 +19,7 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,6 +58,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         private readonly ?McpToolsetRegistry $toolsetRegistry = null,
         private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
         private readonly ?RequestStack $requestStack = null,
+        private readonly ?McpRequestedToolsetResolver $requestedToolsetResolver = null,
     ) {
     }
 
@@ -109,7 +111,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function visibleToolNames(McpAllowlist $allowlist): array
     {
-        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetToolsForSession());
+        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetTools());
 
         if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
             array_unshift($advertisedTools, self::TOOL_SEARCH);
@@ -131,20 +133,47 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     }
 
     /**
+     * The tools of every toolset this connection has, from either source: pinned in the connect URL,
+     * which needs no prior round trip and is therefore already there on the first tools/list, or
+     * enabled on the session. Both are resolved to names first and advertised in one pass, because
+     * each call into the registry re-reads the app tool groups from the database.
+     *
      * @return list<string>
      */
-    private function toolsetToolsForSession(): array
+    private function toolsetTools(): array
     {
         if ($this->toolsetRegistry === null) {
             return [];
         }
 
-        $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
-        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
-            return $this->toolsetRegistry->advertisedTools([]);
+        $toolsets = array_merge($this->connectUrlToolsets(), $this->sessionToolsets());
+
+        return $toolsets === [] ? [] : $this->toolsetRegistry->advertisedTools($toolsets);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function connectUrlToolsets(): array
+    {
+        if ($this->toolsetRegistry === null || $this->requestedToolsetResolver === null) {
+            return [];
         }
 
-        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
+        return $this->toolsetRegistry->expandToolsetNames($this->requestedToolsetResolver->resolve());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function sessionToolsets(): array
+    {
+        $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
+            return [];
+        }
+
+        return $this->toolsetSessionStorage->enabledToolsets($sessionId);
     }
 
     /**

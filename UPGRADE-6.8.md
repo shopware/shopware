@@ -14,7 +14,7 @@ The `@experimental` annotations on the v2 surface were removed. The classes list
 
 ## Attribute entities reject a cascading many-to-one
 
-`#[ManyToOne(onDelete: OnDelete::CASCADE)]` on an attribute entity no longer builds. The flag deleted the record the association points at, so deleting a child deleted its parent. Shopware 6.7 ignored it and warned.
+`#[ManyToOne(onDelete: OnDelete::CASCADE)]` on an attribute entity no longer builds. On a many-to-one the flag made the DAL resolve the referenced record as affected by the delete, which no foreign key ever does. Shopware 6.7 ignored it and warned.
 
 Declare the cascade on the inverse `#[OneToMany]` instead. The `ON DELETE` behaviour of the foreign key lives in your migration and is unaffected.
 

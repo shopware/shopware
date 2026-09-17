@@ -408,8 +408,9 @@ class AttributeEntityCompiler
 
             if ($association instanceof ManyToOne && $association->onDelete === OnDelete::CASCADE) {
                 Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
-                    'Association "%s" of entity "%s" must not use OnDelete::CASCADE. On a many-to-one, a cascade delete '
-                    . 'would delete the referenced entity. Declare the cascade on the inverse one-to-many association instead.',
+                    'Association "%s" of entity "%s" must not use OnDelete::CASCADE. On a many-to-one it makes the DAL '
+                    . 'resolve the referenced record as affected by the delete, which no foreign key ever does. Declare '
+                    . 'the cascade on the inverse one-to-many association instead.',
                     $property->getName(),
                     $entity
                 ));

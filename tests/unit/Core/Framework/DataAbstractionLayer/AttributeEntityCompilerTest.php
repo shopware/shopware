@@ -175,8 +175,9 @@ class AttributeEntityCompilerTest extends TestCase
     {
         $this->expectExceptionObject(FeatureException::error(
             'Tried to access deprecated functionality: Association "currency" of entity "cascading_many_to_one" '
-            . 'must not use OnDelete::CASCADE. On a many-to-one, a cascade delete would delete the referenced entity. '
-            . 'Declare the cascade on the inverse one-to-many association instead.'
+            . 'must not use OnDelete::CASCADE. On a many-to-one it makes the DAL resolve the referenced record as '
+            . 'affected by the delete, which no foreign key ever does. Declare the cascade on the inverse one-to-many '
+            . 'association instead.'
         ));
 
         (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);

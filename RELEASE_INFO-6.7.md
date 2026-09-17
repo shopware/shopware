@@ -548,7 +548,7 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 The `CheckoutCustomerStorage` plugin stores the terms of service acceptance and the customer comment of the confirm page in the browser's session storage instead of the local storage. Both survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in.
 
-The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `data-checkout-customer-storage-reset`, on the order confirmation page and on the login page a logout lands on. Themes that replace those templates should keep the attribute, and can add it to any further page that ends a checkout.
+The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `data-checkout-customer-storage-reset`. It sits on the order confirmation page, on the login page a logout lands on, and on the empty cart, both as a page and as an off-canvas. Themes that replace those templates should keep the attribute, and can add it to any further place that ends a checkout.
 
 ### `robots.txt` allows crawling thumbnails
 

@@ -121,7 +121,7 @@ class StateMachineRegistryTransactionTest extends TestCase
         yield 'retryable state listener failure must not replay listeners' => ['order', self::recordChangedException()];
     }
 
-    public function testWriteContentionRetriesBeforeCallbacksAndDiscardsTransientErrors(): void
+    public function testWriteContentionRetriesAfterCompensatingTheFailedAttempt(): void
     {
         $attempts = 0;
         $successCalls = 0;
@@ -148,13 +148,13 @@ class StateMachineRegistryTransactionTest extends TestCase
 
         static::assertSame(2, $attempts);
         static::assertSame(1, $successCalls);
-        static::assertSame(0, $errorCalls);
-        static::assertSame(0, $exceptionEvents);
+        static::assertSame(1, $errorCalls);
+        static::assertSame(1, $exceptionEvents);
         static::assertSame('cancelled', $this->readState());
         static::assertSame(1, $this->countHistory());
     }
 
-    public function testRetryExhaustionNotifiesTheFinalWriteErrorOnce(): void
+    public function testRetryExhaustionNotifiesEachFailedWriteAttempt(): void
     {
         $attempts = 0;
         $errorCalls = 0;
@@ -182,8 +182,8 @@ class StateMachineRegistryTransactionTest extends TestCase
         }
 
         static::assertSame(11, $attempts);
-        static::assertSame(1, $errorCalls);
-        static::assertSame(1, $exceptionEvents);
+        static::assertSame(11, $errorCalls);
+        static::assertSame(11, $exceptionEvents);
         static::assertSame('open', $this->readState());
         static::assertSame(0, $this->countHistory());
     }
@@ -215,6 +215,136 @@ class StateMachineRegistryTransactionTest extends TestCase
         static::assertSame(1, $errorCalls);
         static::assertSame('open', $this->readState());
         static::assertSame(0, $this->countHistory());
+    }
+
+    public function testEveryRetriedPreWriteHasItsOwnCompensation(): void
+    {
+        $pending = 0;
+        $attempts = 0;
+        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$pending): void {
+            ++$pending;
+            $event->addSuccess(static function () use (&$pending): void {
+                --$pending;
+            });
+            $event->addError(static function () use (&$pending): void {
+                --$pending;
+            });
+        });
+        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts): void {
+            if (++$attempts === 1) {
+                throw self::recordChangedException();
+            }
+        });
+
+        $this->registry->transition(new Transition('order', $this->orderId, 'cancel', 'stateId'), $this->context);
+
+        static::assertSame(2, $attempts);
+        static::assertSame(0, $pending);
+        static::assertSame('cancelled', $this->readState());
+        static::assertSame(1, $this->countHistory());
+    }
+
+    public function testPreWriteListenerFailureCompensatesBeforeRetrying(): void
+    {
+        $attempts = 0;
+        $errorCalls = 0;
+        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$attempts, &$errorCalls): void {
+            $event->addError(static function () use (&$errorCalls): void {
+                ++$errorCalls;
+            });
+
+            if (++$attempts === 1) {
+                throw self::recordChangedException();
+            }
+        });
+
+        $this->registry->transition(new Transition('order', $this->orderId, 'cancel', 'stateId'), $this->context);
+
+        static::assertSame(2, $attempts);
+        static::assertSame(1, $errorCalls);
+        static::assertSame('cancelled', $this->readState());
+        static::assertSame(1, $this->countHistory());
+    }
+
+    public function testExceptionListenerFailureStillCompensatesAndPreventsRetries(): void
+    {
+        $attempts = 0;
+        $errorCalls = 0;
+        $failure = self::recordChangedException();
+        $notificationFailure = new \RuntimeException('Exception listener failed');
+        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$errorCalls): void {
+            $event->addError(static function () use (&$errorCalls): void {
+                ++$errorCalls;
+            });
+        });
+        $this->addEventListener($this->dispatcher, WriteCommandExceptionEvent::class, static function () use ($notificationFailure): never {
+            throw $notificationFailure;
+        });
+        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
+            ++$attempts;
+
+            throw $failure;
+        });
+
+        try {
+            $this->registry->transition(new Transition('order', $this->orderId, 'cancel', 'stateId'), $this->context);
+            static::fail('Expected the write to fail.');
+        } catch (\Throwable $exception) {
+            static::assertSame($failure, $exception);
+            while ($exception !== $notificationFailure && $exception->getPrevious() !== null) {
+                $exception = $exception->getPrevious();
+            }
+            static::assertSame($notificationFailure, $exception);
+        }
+
+        static::assertSame(1, $attempts);
+        static::assertSame(1, $errorCalls);
+        static::assertSame('open', $this->readState());
+        static::assertSame(0, $this->countHistory());
+    }
+
+    #[DataProvider('errorCallbackFailureProvider')]
+    public function testErrorCallbackFailureKeepsTheOriginalErrorAndStopsRetries(\Throwable $failure, \Throwable $callbackFailure): void
+    {
+        $attempts = 0;
+        $this->addEventListener($this->dispatcher, EntityWriteEvent::class, static function (EntityWriteEvent $event) use ($callbackFailure): void {
+            $event->addError(static function () use ($callbackFailure): never {
+                throw $callbackFailure;
+            });
+        });
+        $this->addEventListener($this->dispatcher, PostWriteValidationEvent::class, static function () use (&$attempts, $failure): never {
+            ++$attempts;
+
+            throw $failure;
+        });
+
+        try {
+            $this->registry->transition(new Transition('order', $this->orderId, 'cancel', 'stateId'), $this->context);
+            static::fail('Expected the write to fail.');
+        } catch (\Throwable $exception) {
+            static::assertSame($failure, $exception);
+            while ($exception !== $callbackFailure && $exception->getPrevious() !== null) {
+                $exception = $exception->getPrevious();
+            }
+            static::assertSame($callbackFailure, $exception);
+        }
+
+        static::assertSame(1, $attempts);
+        static::assertSame('open', $this->readState());
+        static::assertSame(0, $this->countHistory());
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable, \Throwable}>
+     */
+    public static function errorCallbackFailureProvider(): iterable
+    {
+        yield 'contention with application cleanup failure' => [self::recordChangedException(), new \RuntimeException('Cleanup failed')];
+        yield 'application failure with contention during cleanup' => [new \RuntimeException('Write failed'), self::recordChangedException()];
+        yield 'different database failures during write and cleanup' => [
+            new DriverException(new PdoException('Duplicate entry', '23000', 1062), null),
+            self::recordChangedException(),
+        ];
     }
 
     private static function recordChangedException(): DriverException

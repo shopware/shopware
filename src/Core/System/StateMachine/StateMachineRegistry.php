@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -265,34 +266,23 @@ class StateMachineRegistry implements ResetInterface
             ),
         ];
 
-        $writeContext = WriteContext::createFromContext($context);
-        try {
-            RetryableTransaction::retryableWithPredicate($this->connection, function () use ($operations, $context, &$writeContext): void {
-                // Each attempt owns its validation errors and deferred error notifications.
-                $writeContext = WriteContext::createFromContext($context);
-                $writeContext->addState(WriteContext::STATE_DEFER_ERROR_CALLBACKS);
-                $result = $this->entityWriter->sync($operations, $writeContext);
-                $writeContext->addState(WriteContext::STATE_WRITE_CALLBACKS_STARTED);
+        RetryableWriteTransaction::retryable($this->connection, function () use ($operations, $context): void {
+            // Each attempt pairs fresh pre-write work with its own success or error callbacks.
+            $result = $this->entityWriter->sync($operations, WriteContext::createFromContext($context));
+            RetryableWriteTransaction::preventRetries($this->connection);
 
-                $written = $result->getWritten();
-                $historyWritten = [];
+            $written = $result->getWritten();
+            $historyWritten = [];
 
-                if (isset($written[StateMachineHistoryDefinition::ENTITY_NAME])) {
-                    $historyWritten[StateMachineHistoryDefinition::ENTITY_NAME] = $written[StateMachineHistoryDefinition::ENTITY_NAME];
-                    unset($written[StateMachineHistoryDefinition::ENTITY_NAME]);
-                }
+            if (isset($written[StateMachineHistoryDefinition::ENTITY_NAME])) {
+                $historyWritten[StateMachineHistoryDefinition::ENTITY_NAME] = $written[StateMachineHistoryDefinition::ENTITY_NAME];
+                unset($written[StateMachineHistoryDefinition::ENTITY_NAME]);
+            }
 
-                // Keep written-event failures atomic with the transition without replaying listener side effects.
-                $this->dispatchWrittenEvent($historyWritten, $context);
-                $this->dispatchWrittenEvent($written, $context);
-            }, static function () use (&$writeContext): bool {
-                return !$writeContext->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED);
-            });
-        } catch (\Throwable $exception) {
-            $writeContext->dispatchWriteErrors();
-
-            throw $exception;
-        }
+            // Keep written-event failures atomic with the transition without replaying listener side effects.
+            $this->dispatchWrittenEvent($historyWritten, $context);
+            $this->dispatchWrittenEvent($written, $context);
+        });
     }
 
     /**

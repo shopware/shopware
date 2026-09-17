@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -43,14 +45,20 @@ class AppDefinitionTest extends TestCase
         $association = $this->createDefinition()->getFields()->get('seoUrlRoutes');
 
         static::assertInstanceOf(OneToManyAssociationField::class, $association);
-        static::assertSame(AppSeoUrlRouteDefinition::class, $association->getReferenceClass());
+        static::assertSame(AppSeoUrlRouteEntity::ENTITY_NAME, $association->getReferenceEntity());
         static::assertTrue($association->is(CascadeDelete::class));
     }
 
     private function createDefinition(): AppDefinition
     {
+        $definitions = [AppDefinition::class];
+
+        foreach ((new AttributeEntityCompiler())->compile(AppSeoUrlRouteEntity::class) as $meta) {
+            $definitions[] = new AttributeEntityDefinition($meta);
+        }
+
         $registry = new StaticDefinitionInstanceRegistry(
-            [AppDefinition::class],
+            $definitions,
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGateway::class),
         );

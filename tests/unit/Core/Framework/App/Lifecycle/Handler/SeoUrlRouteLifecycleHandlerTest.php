@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Clock\ClockInterface;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteCollection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
@@ -14,12 +14,17 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\SeoUrlRouteLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\Clock\MockClock;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
 /**
  * @internal
@@ -28,288 +33,369 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(SeoUrlRouteLifecycleHandler::class)]
 class SeoUrlRouteLifecycleHandlerTest extends TestCase
 {
-    private const APP_ID = 'e5c0f9a0f0ab4f2a9d6d1f3a5d0a0001';
-    private const IMPRINT_ROUTE = 'storefront.app.test.imprint';
-    private const BLOG_ROUTE = 'storefront.app.test.blog-detail';
+    private const APP_NAME = 'SwagSeoUrlApp';
 
-    /**
-     * @var array<string, mixed>|false
-     */
-    private array|false $templateRow = false;
+    private const IMPRINT_ROUTE = 'storefront.app.SwagSeoUrlApp.imprint';
 
-    /**
-     * @var list<array{table: string, data: array<string, mixed>}>
-     */
-    private array $inserts = [];
+    private const TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.product-teaser';
 
-    /**
-     * @var list<array{table: string, data: array<string, mixed>, criteria: array<string, mixed>}>
-     */
-    private array $updates = [];
+    private const LEGACY_ROUTE = 'storefront.app.SwagSeoUrlApp.legacy';
 
-    /**
-     * @var list<array{table: string, criteria: array<string, mixed>}>
-     */
-    private array $deletes = [];
+    private const TEASER_TEMPLATE = '{{ product.translated.name }}';
 
-    private Connection $connection;
-
-    private ClockInterface $clock;
+    private AppEntity $app;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createConnection();
-        $this->clock = new MockClock('2026-01-02 03:04:05');
+        $this->app = AppFixture::createAppEntity(self::APP_NAME);
     }
 
-    public function testInstallPersistsTheDeclaredRoutes(): void
+    public function testInstallUpsertsEveryDeclaredRouteWithItsComputedRouteName(): void
     {
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection());
+        $routeRepository = $this->routeRepository();
 
-        $this->createHandler($repository)->install($this->createPersistContext());
+        $this->handler($routeRepository, $this->seoUrlRepository(), $this->templateRepository(new SeoUrlTemplateCollection()))
+            ->install($this->persistContext($this->manifest()));
 
         static::assertSame([[
             [
                 'name' => 'imprint',
                 'hook' => 'imprint',
-                'label' => ['en-GB' => 'Imprint', 'de-DE' => 'Impressum'],
+                'label' => ['en-GB' => 'Imprint'],
                 'defaultTemplate' => null,
                 'entityName' => null,
                 'paths' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
-                'appId' => self::APP_ID,
+                'appId' => $this->app->getId(),
                 'routeName' => self::IMPRINT_ROUTE,
             ],
             [
-                'name' => 'blog-detail',
-                'hook' => 'blog-detail',
-                'label' => ['en-GB' => 'Blog post'],
-                'defaultTemplate' => 'blog/{{ ceBlog.translated.title }}',
-                'entityName' => 'ce_blog',
+                'name' => 'product-teaser',
+                'hook' => 'product-teaser',
+                'label' => ['en-GB' => 'Product teaser'],
+                'defaultTemplate' => self::TEASER_TEMPLATE,
+                'entityName' => 'product',
                 'paths' => null,
-                'appId' => self::APP_ID,
-                'routeName' => self::BLOG_ROUTE,
+                'appId' => $this->app->getId(),
+                'routeName' => self::TEASER_ROUTE,
             ],
-        ]], $repository->upserts);
+        ]], $routeRepository->upserts);
 
-        static::assertSame([], $repository->deletes);
+        static::assertSame([], $routeRepository->deletes);
     }
 
-    public function testInstallSeedsTheDefaultTemplateOfEntityBoundRoutesOnly(): void
+    public function testInstallCreatesTheDefaultTemplateOfEntityBoundRoutesOnly(): void
     {
-        $this->createHandler($this->createRepository(new AppSeoUrlRouteCollection()))
-            ->install($this->createPersistContext());
+        $templateRepository = $this->templateRepository(new SeoUrlTemplateCollection());
 
-        static::assertCount(1, $this->inserts);
-        static::assertSame('seo_url_template', $this->inserts[0]['table']);
+        $this->handler($this->routeRepository(), $this->seoUrlRepository(), $templateRepository)
+            ->install($this->persistContext($this->manifest()));
 
-        $data = $this->inserts[0]['data'];
-        unset($data['id']);
+        static::assertCount(1, $templateRepository->creates);
+
+        $payloads = $templateRepository->getPayloads(StaticEntityRepository::CREATE);
+        static::assertCount(1, $payloads);
+
+        $payload = $payloads[0];
+        static::assertArrayHasKey('id', $payload);
+        unset($payload['id']);
 
         static::assertSame([
-            'sales_channel_id' => null,
-            'route_name' => self::BLOG_ROUTE,
-            'entity_name' => 'ce_blog',
-            'template' => 'blog/{{ ceBlog.translated.title }}',
-            'is_valid' => 1,
-            'is_headless' => 0,
-            'created_at' => '2026-01-02 03:04:05.000',
-        ], $data);
+            'salesChannelId' => null,
+            'routeName' => self::TEASER_ROUTE,
+            'entityName' => 'product',
+            'template' => self::TEASER_TEMPLATE,
+            'isValid' => true,
+            'isHeadless' => false,
+        ], $payload);
     }
 
-    public function testUpdateOverwritesADefaultTemplateThatWasNotChangedByTheMerchant(): void
+    public function testUpdateKeepsTheIdsOfTheAlreadyPersistedRoutes(): void
     {
-        $this->templateRow = [
-            'id' => 'aa11bb22cc33dd44ee55ff6600112233',
-            'entityName' => 'ce_blog',
-            'template' => 'blog/{{ ceBlog.id }}',
-        ];
+        $imprint = $this->route('imprint', self::IMPRINT_ROUTE);
+        $teaser = $this->route('product-teaser', self::TEASER_ROUTE, 'product', self::TEASER_TEMPLATE);
 
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection([
-            $this->createRoute('blog-detail', self::BLOG_ROUTE, 'ce_blog', 'blog/{{ ceBlog.id }}'),
-        ]));
+        $routeRepository = $this->routeRepository($imprint, $teaser);
 
-        $this->createHandler($repository)->update($this->createPersistContext());
+        $this->handler(
+            $routeRepository,
+            $this->seoUrlRepository(),
+            $this->templateRepository(new SeoUrlTemplateCollection([$this->template('product', self::TEASER_TEMPLATE)]))
+        )->update($this->persistContext($this->manifest()));
+
+        static::assertSame(
+            [$imprint->id, $teaser->id],
+            array_column($routeRepository->getPayloads(StaticEntityRepository::UPSERT), 'id')
+        );
+
+        static::assertSame([], $routeRepository->deletes);
+    }
+
+    public function testUpdateRemovesRoutesThatAreNoLongerDeclaredAndTheirGeneratedUrls(): void
+    {
+        $legacy = $this->route('legacy', self::LEGACY_ROUTE);
+
+        $routeRepository = $this->routeRepository($legacy);
+        $seoUrlRepository = $this->seoUrlRepository(['seo-url-1', 'seo-url-2']);
+        $templateRepository = $this->templateRepository(['seo-url-template-1'], new SeoUrlTemplateCollection());
+
+        $this->handler($routeRepository, $seoUrlRepository, $templateRepository)
+            ->update($this->persistContext($this->manifest()));
+
+        static::assertSame([[['id' => $legacy->id]]], $routeRepository->deletes);
 
         static::assertSame([[
-            'table' => 'seo_url_template',
-            'data' => [
-                'template' => 'blog/{{ ceBlog.translated.title }}',
-                'updated_at' => '2026-01-02 03:04:05.000',
+            ['id' => 'seo-url-1', 'isDeleted' => true],
+            ['id' => 'seo-url-2', 'isDeleted' => true],
+        ]], $seoUrlRepository->updates);
+
+        static::assertSame([[['id' => 'seo-url-template-1']]], $templateRepository->deletes);
+    }
+
+    public function testOnlyTheUrlsOfTheRemovedRouteAreTouched(): void
+    {
+        $criteria = null;
+
+        $seoUrlRepository = StaticEntityRepository::of(SeoUrlCollection::class, [
+            static function (Criteria $given) use (&$criteria): array {
+                $criteria = $given;
+
+                return [];
+            },
+        ]);
+
+        $this->handler(
+            $this->routeRepository($this->route('legacy', self::LEGACY_ROUTE)),
+            $seoUrlRepository,
+            $this->templateRepository([], new SeoUrlTemplateCollection())
+        )->update($this->persistContext($this->manifest()));
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertEquals(
+            [
+                new EqualsAnyFilter('routeName', [self::LEGACY_ROUTE]),
+                new EqualsFilter('isDeleted', false),
             ],
-            'criteria' => ['id' => Uuid::fromHexToBytes('aa11bb22cc33dd44ee55ff6600112233')],
-        ]], $this->updates);
+            $criteria->getFilters()
+        );
+    }
+
+    public function testUpdateOverwritesADefaultTemplateThatStillEqualsThePreviousDefault(): void
+    {
+        $existing = $this->template('product', 'teaser/{{ product.id }}');
+
+        $templateRepository = $this->templateRepository(new SeoUrlTemplateCollection([$existing]));
+
+        $this->handler(
+            $this->routeRepository($this->route('product-teaser', self::TEASER_ROUTE, 'product', 'teaser/{{ product.id }}')),
+            $this->seoUrlRepository(),
+            $templateRepository
+        )->update($this->persistContext($this->manifest()));
+
+        static::assertSame(
+            [[['id' => $existing->getId(), 'template' => self::TEASER_TEMPLATE]]],
+            $templateRepository->updates
+        );
     }
 
     public function testUpdateKeepsADefaultTemplateThatWasChangedByTheMerchant(): void
     {
-        $this->templateRow = [
-            'id' => 'aa11bb22cc33dd44ee55ff6600112233',
-            'entityName' => 'ce_blog',
-            'template' => 'my-blog/{{ ceBlog.id }}',
-        ];
-
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection([
-            $this->createRoute('blog-detail', self::BLOG_ROUTE, 'ce_blog', 'blog/{{ ceBlog.id }}'),
-        ]));
-
-        $this->createHandler($repository)->update($this->createPersistContext());
-
-        static::assertSame([], $this->updates);
-        static::assertSame([], $this->inserts);
-    }
-
-    public function testUpdateRemovesRoutesThatAreNoLongerDeclared(): void
-    {
-        $legacy = $this->createRoute('legacy', 'storefront.app.test.legacy');
-
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection([$legacy]));
-
-        $this->createHandler($repository)->update($this->createPersistContext());
-
-        static::assertSame([[['id' => $legacy->getId()]]], $repository->deletes);
-        static::assertSame([
-            ['table' => 'seo_url', 'criteria' => ['route_name' => 'storefront.app.test.legacy']],
-            ['table' => 'seo_url_template', 'criteria' => ['route_name' => 'storefront.app.test.legacy']],
-        ], $this->deletes);
-    }
-
-    public function testDeactivateMarksTheGeneratedSeoUrlsAsDeleted(): void
-    {
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection([
-            $this->createRoute('imprint', self::IMPRINT_ROUTE),
-            $this->createRoute('blog-detail', self::BLOG_ROUTE, 'ce_blog', 'blog/{{ ceBlog.id }}'),
-        ]));
-
-        $this->createHandler($repository)->deactivate(new AppActivationContext($this->createApp(), Context::createDefaultContext()));
-
-        static::assertSame([
-            [
-                'table' => 'seo_url',
-                'data' => ['is_deleted' => 1, 'updated_at' => '2026-01-02 03:04:05.000'],
-                'criteria' => ['route_name' => self::IMPRINT_ROUTE],
-            ],
-            [
-                'table' => 'seo_url',
-                'data' => ['is_deleted' => 1, 'updated_at' => '2026-01-02 03:04:05.000'],
-                'criteria' => ['route_name' => self::BLOG_ROUTE],
-            ],
-        ], $this->updates);
-
-        static::assertSame([], $this->deletes);
-    }
-
-    public function testUninstallRemovesTheGeneratedSeoUrlsAndTemplatesEvenWhenUserDataIsKept(): void
-    {
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection([
-            $this->createRoute('imprint', self::IMPRINT_ROUTE),
-        ]));
-
-        $this->createHandler($repository)->uninstall(
-            new AppRemovalContext($this->createApp(), Context::createDefaultContext(), keepUserData: true)
+        $templateRepository = $this->templateRepository(
+            new SeoUrlTemplateCollection([$this->template('product', 'my-teaser/{{ product.id }}')])
         );
 
-        static::assertSame([
-            ['table' => 'seo_url', 'criteria' => ['route_name' => self::IMPRINT_ROUTE]],
-            ['table' => 'seo_url_template', 'criteria' => ['route_name' => self::IMPRINT_ROUTE]],
-        ], $this->deletes);
+        $this->handler(
+            $this->routeRepository($this->route('product-teaser', self::TEASER_ROUTE, 'product', 'teaser/{{ product.id }}')),
+            $this->seoUrlRepository(),
+            $templateRepository
+        )->update($this->persistContext($this->manifest()));
+
+        static::assertSame([], $templateRepository->updates);
+        static::assertSame([], $templateRepository->creates);
     }
 
-    public function testDeleteRemovesTheGeneratedSeoUrlsAndTemplates(): void
+    public function testUpdateResyncsTheEntityNameOfTheDefaultTemplate(): void
     {
-        $repository = $this->createRepository(new AppSeoUrlRouteCollection([
-            $this->createRoute('imprint', self::IMPRINT_ROUTE),
-        ]));
+        $existing = $this->template('category', self::TEASER_TEMPLATE);
 
-        $this->createHandler($repository)->delete(
-            new AppRemovalContext($this->createApp(), Context::createDefaultContext())
+        $templateRepository = $this->templateRepository(new SeoUrlTemplateCollection([$existing]));
+
+        $this->handler(
+            $this->routeRepository($this->route('product-teaser', self::TEASER_ROUTE, 'product', self::TEASER_TEMPLATE)),
+            $this->seoUrlRepository(),
+            $templateRepository
+        )->update($this->persistContext($this->manifest()));
+
+        static::assertSame(
+            [[['id' => $existing->getId(), 'entityName' => 'product']]],
+            $templateRepository->updates
         );
+    }
 
-        static::assertSame([
-            ['table' => 'seo_url', 'criteria' => ['route_name' => self::IMPRINT_ROUTE]],
-            ['table' => 'seo_url_template', 'criteria' => ['route_name' => self::IMPRINT_ROUTE]],
-        ], $this->deletes);
+    public function testDeactivateMarksTheGeneratedSeoUrlsAsDeletedAndKeepsTheTemplates(): void
+    {
+        $seoUrlRepository = $this->seoUrlRepository(['seo-url-1']);
+        $templateRepository = $this->templateRepository();
+
+        $this->handler(
+            $this->routeRepository(
+                $this->route('imprint', self::IMPRINT_ROUTE),
+                $this->route('product-teaser', self::TEASER_ROUTE, 'product', self::TEASER_TEMPLATE)
+            ),
+            $seoUrlRepository,
+            $templateRepository
+        )->deactivate(new AppActivationContext($this->app, Context::createDefaultContext()));
+
+        static::assertSame([[['id' => 'seo-url-1', 'isDeleted' => true]]], $seoUrlRepository->updates);
+        static::assertSame([], $templateRepository->deletes);
+    }
+
+    public function testUninstallMarksTheSeoUrlsAsDeletedAndRemovesTheTemplatesEvenWhenUserDataIsKept(): void
+    {
+        $seoUrlRepository = $this->seoUrlRepository(['seo-url-1']);
+        $templateRepository = $this->templateRepository(['seo-url-template-1']);
+
+        $this->handler($this->routeRepository($this->route('imprint', self::IMPRINT_ROUTE)), $seoUrlRepository, $templateRepository)
+            ->uninstall(new AppRemovalContext($this->app, Context::createDefaultContext(), keepUserData: true));
+
+        static::assertSame([[['id' => 'seo-url-1', 'isDeleted' => true]]], $seoUrlRepository->updates);
+        static::assertSame([[['id' => 'seo-url-template-1']]], $templateRepository->deletes);
+    }
+
+    public function testDeleteMarksTheSeoUrlsAsDeletedAndRemovesTheTemplates(): void
+    {
+        $seoUrlRepository = $this->seoUrlRepository(['seo-url-1']);
+        $templateRepository = $this->templateRepository(['seo-url-template-1']);
+
+        $this->handler($this->routeRepository($this->route('imprint', self::IMPRINT_ROUTE)), $seoUrlRepository, $templateRepository)
+            ->delete(new AppRemovalContext($this->app, Context::createDefaultContext()));
+
+        static::assertSame([[['id' => 'seo-url-1', 'isDeleted' => true]]], $seoUrlRepository->updates);
+        static::assertSame([[['id' => 'seo-url-template-1']]], $templateRepository->deletes);
+    }
+
+    public function testTheSeoUrlsAreMarkedAsDeletedInChunks(): void
+    {
+        $ids = [];
+        for ($i = 0; $i < 600; ++$i) {
+            $ids[] = Uuid::randomHex();
+        }
+
+        $seoUrlRepository = $this->seoUrlRepository($ids);
+
+        $this->handler($this->routeRepository($this->route('imprint', self::IMPRINT_ROUTE)), $seoUrlRepository, $this->templateRepository())
+            ->deactivate(new AppActivationContext($this->app, Context::createDefaultContext()));
+
+        static::assertSame([500, 100], array_map('count', $seoUrlRepository->updates));
+    }
+
+    public function testNothingIsWrittenForAnAppWithoutSeoUrlRoutes(): void
+    {
+        $routeRepository = $this->routeRepository();
+        $seoUrlRepository = $this->seoUrlRepository();
+        $templateRepository = $this->templateRepository();
+
+        $this->handler($routeRepository, $seoUrlRepository, $templateRepository)
+            ->install($this->persistContext(ManifestFixture::empty()->withName(self::APP_NAME)));
+
+        static::assertSame([], $routeRepository->upserts);
+        static::assertSame([], $routeRepository->deletes);
+        static::assertSame([], $seoUrlRepository->updates);
+        static::assertSame([], $templateRepository->creates);
+        static::assertSame([], $templateRepository->updates);
+        static::assertSame([], $templateRepository->deletes);
     }
 
     /**
-     * @param StaticEntityRepository<AppSeoUrlRouteCollection> $repository
+     * @param StaticEntityRepository<EntityCollection<AppSeoUrlRouteEntity>> $routeRepository
+     * @param StaticEntityRepository<SeoUrlCollection> $seoUrlRepository
+     * @param StaticEntityRepository<SeoUrlTemplateCollection> $templateRepository
      */
-    private function createHandler(StaticEntityRepository $repository): SeoUrlRouteLifecycleHandler
-    {
-        return new SeoUrlRouteLifecycleHandler($repository, $this->connection, $this->clock);
+    private function handler(
+        StaticEntityRepository $routeRepository,
+        StaticEntityRepository $seoUrlRepository,
+        StaticEntityRepository $templateRepository
+    ): SeoUrlRouteLifecycleHandler {
+        return new SeoUrlRouteLifecycleHandler($routeRepository, $seoUrlRepository, $templateRepository);
     }
 
     /**
-     * @return StaticEntityRepository<AppSeoUrlRouteCollection>
+     * @return StaticEntityRepository<EntityCollection<AppSeoUrlRouteEntity>>
      */
-    private function createRepository(AppSeoUrlRouteCollection $existing): StaticEntityRepository
+    private function routeRepository(AppSeoUrlRouteEntity ...$existing): StaticEntityRepository
     {
-        return new StaticEntityRepository([$existing]);
+        return new StaticEntityRepository([new EntityCollection($existing)]);
     }
 
-    private function createPersistContext(): AppPersistContext
+    /**
+     * @param list<string> $ids
+     *
+     * @return StaticEntityRepository<SeoUrlCollection>
+     */
+    private function seoUrlRepository(array $ids = []): StaticEntityRepository
     {
-        $path = __DIR__ . '/../../Manifest/_fixtures/test';
-
-        return new AppPersistContext(
-            Manifest::createFromXmlFile($path . '/manifest.xml'),
-            $this->createApp(),
-            Context::createDefaultContext(),
-            new Filesystem($path),
-            'en-GB'
-        );
+        return StaticEntityRepository::of(SeoUrlCollection::class, [$ids]);
     }
 
-    private function createApp(): AppEntity
+    /**
+     * @param list<string>|SeoUrlTemplateCollection ...$searches
+     *
+     * @return StaticEntityRepository<SeoUrlTemplateCollection>
+     */
+    private function templateRepository(array|SeoUrlTemplateCollection ...$searches): StaticEntityRepository
     {
-        $app = new AppEntity();
-        $app->setId(self::APP_ID);
-        $app->setName('test');
-
-        return $app;
+        return StaticEntityRepository::of(SeoUrlTemplateCollection::class, $searches);
     }
 
-    private function createRoute(
+    private function persistContext(Manifest $manifest): AppPersistContext
+    {
+        return AppFixture::createInstallContext($this->app, $manifest);
+    }
+
+    private function manifest(string $template = self::TEASER_TEMPLATE): ManifestFixture
+    {
+        return ManifestFixture::empty()
+            ->withName(self::APP_NAME)
+            ->withSeoUrl(SeoUrl::fromArray([
+                'name' => 'imprint',
+                'label' => ['en-GB' => 'Imprint'],
+                'path' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+            ]))
+            ->withSeoUrl(SeoUrl::fromArray([
+                'name' => 'product-teaser',
+                'entity' => 'product',
+                'label' => ['en-GB' => 'Product teaser'],
+                'defaultTemplate' => $template,
+            ]));
+    }
+
+    private function route(
         string $name,
         string $routeName,
         ?string $entityName = null,
         ?string $defaultTemplate = null
     ): AppSeoUrlRouteEntity {
         $route = new AppSeoUrlRouteEntity();
-        $route->setId(Uuid::randomHex());
-        $route->setAppId(self::APP_ID);
-        $route->setName($name);
-        $route->setRouteName($routeName);
-        $route->setHook($name);
-        $route->setEntityName($entityName);
-        $route->setDefaultTemplate($defaultTemplate);
+        $route->id = Uuid::randomHex();
+        $route->appId = $this->app->getId();
+        $route->name = $name;
+        $route->routeName = $routeName;
+        $route->hook = $name;
+        $route->entityName = $entityName;
+        $route->defaultTemplate = $defaultTemplate;
+        $route->setUniqueIdentifier($route->id);
 
         return $route;
     }
 
-    private function createConnection(): Connection
+    private function template(string $entityName, string $template): SeoUrlTemplateEntity
     {
-        $connection = static::createStub(Connection::class);
+        $entity = new SeoUrlTemplateEntity();
+        $entity->setId(Uuid::randomHex());
+        $entity->setUniqueIdentifier($entity->getId());
+        $entity->setRouteName(self::TEASER_ROUTE);
+        $entity->setEntityName($entityName);
+        $entity->setTemplate($template);
 
-        $connection->method('fetchAssociative')->willReturnCallback(fn (): array|false => $this->templateRow);
-
-        $connection->method('insert')->willReturnCallback(function (string $table, array $data): int {
-            $this->inserts[] = ['table' => $table, 'data' => $data];
-
-            return 1;
-        });
-
-        $connection->method('update')->willReturnCallback(function (string $table, array $data, array $criteria): int {
-            $this->updates[] = ['table' => $table, 'data' => $data, 'criteria' => $criteria];
-
-            return 1;
-        });
-
-        $connection->method('delete')->willReturnCallback(function (string $table, array $criteria): int {
-            $this->deletes[] = ['table' => $table, 'criteria' => $criteria];
-
-            return 1;
-        });
-
-        return $connection;
+        return $entity;
     }
 }

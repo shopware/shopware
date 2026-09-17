@@ -3,8 +3,13 @@
 namespace Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,133 +18,45 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class AppSeoUrlRouteEntity extends Entity
+#[Entity(self::ENTITY_NAME, since: '6.7.15.0')]
+class AppSeoUrlRouteEntity extends EntityStruct
 {
-    use EntityIdTrait;
+    final public const ENTITY_NAME = 'app_seo_url_route';
 
-    protected string $name;
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
 
-    protected string $routeName;
+    #[ForeignKey(entity: 'app')]
+    public string $appId;
 
-    protected string $hook;
+    #[ManyToOne(entity: 'app')]
+    public ?AppEntity $app = null;
 
-    protected ?string $entityName = null;
+    #[Field(type: FieldType::STRING)]
+    public string $name;
 
-    protected ?string $defaultTemplate = null;
+    #[Field(type: FieldType::STRING)]
+    public string $routeName;
+
+    #[Field(type: FieldType::STRING)]
+    public string $hook;
+
+    #[Field(type: FieldType::STRING, maxLength: 64)]
+    public ?string $entityName = null;
+
+    #[Field(type: FieldType::STRING, maxLength: 750)]
+    public ?string $defaultTemplate = null;
 
     /**
      * @var array<string, string>|null
      */
-    protected ?array $paths = null;
+    #[Field(type: FieldType::JSON)]
+    public ?array $paths = null;
 
     /**
      * @var array<string, string>|null
      */
-    protected ?array $label = null;
-
-    protected string $appId;
-
-    protected ?AppEntity $app = null;
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getRouteName(): string
-    {
-        return $this->routeName;
-    }
-
-    public function setRouteName(string $routeName): void
-    {
-        $this->routeName = $routeName;
-    }
-
-    public function getHook(): string
-    {
-        return $this->hook;
-    }
-
-    public function setHook(string $hook): void
-    {
-        $this->hook = $hook;
-    }
-
-    public function getEntityName(): ?string
-    {
-        return $this->entityName;
-    }
-
-    public function setEntityName(?string $entityName): void
-    {
-        $this->entityName = $entityName;
-    }
-
-    public function getDefaultTemplate(): ?string
-    {
-        return $this->defaultTemplate;
-    }
-
-    public function setDefaultTemplate(?string $defaultTemplate): void
-    {
-        $this->defaultTemplate = $defaultTemplate;
-    }
-
-    /**
-     * @return array<string, string>|null
-     */
-    public function getPaths(): ?array
-    {
-        return $this->paths;
-    }
-
-    /**
-     * @param array<string, string>|null $paths
-     */
-    public function setPaths(?array $paths): void
-    {
-        $this->paths = $paths;
-    }
-
-    /**
-     * @return array<string, string>|null
-     */
-    public function getLabel(): ?array
-    {
-        return $this->label;
-    }
-
-    /**
-     * @param array<string, string>|null $label
-     */
-    public function setLabel(?array $label): void
-    {
-        $this->label = $label;
-    }
-
-    public function getAppId(): string
-    {
-        return $this->appId;
-    }
-
-    public function setAppId(string $appId): void
-    {
-        $this->appId = $appId;
-    }
-
-    public function getApp(): ?AppEntity
-    {
-        return $this->app;
-    }
-
-    public function setApp(?AppEntity $app): void
-    {
-        $this->app = $app;
-    }
+    #[Field(type: FieldType::JSON)]
+    public ?array $label = null;
 }

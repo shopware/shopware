@@ -5,13 +5,17 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteLoader;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlUpdateListener;
-use Shopware\Storefront\Framework\Seo\App\AppStaticSeoUrlSynchronizer;
+use Shopware\Storefront\Framework\Seo\App\Message\AppSeoUrlSyncMessage;
 
 /**
  * @internal
@@ -31,9 +35,12 @@ class AppSeoUrlUpdateListenerTest extends TestCase
 
     private SeoUrlUpdater $seoUrlUpdater;
 
+    private CollectingMessageBus $messageBus;
+
     protected function setUp(): void
     {
         $this->updates = [];
+        $this->messageBus = new CollectingMessageBus();
 
         $seoUrlUpdater = static::createStub(SeoUrlUpdater::class);
         $seoUrlUpdater->method('update')->willReturnCallback(function (string $routeName, array $ids): void {
@@ -57,7 +64,7 @@ class AppSeoUrlUpdateListenerTest extends TestCase
 
     public function testWrittenEntitiesAreRegeneratedPerAppRoute(): void
     {
-        $listener = $this->createListener([$this->route('product'), $this->route('ce_blog')]);
+        $listener = $this->listener($this->route('product'), $this->route('ce_blog'));
 
         $listener->updateAppSeoUrls($this->writtenEvent([
             'product' => [$this->writeResult('product', 'product-1'), $this->writeResult('product', 'product-2')],
@@ -72,7 +79,7 @@ class AppSeoUrlUpdateListenerTest extends TestCase
 
     public function testWrittenTranslationsRegenerateTheirParentEntity(): void
     {
-        $listener = $this->createListener([$this->route('ce_blog')]);
+        $listener = $this->listener($this->route('ce_blog'));
 
         $listener->updateAppSeoUrls($this->writtenEvent([
             'ce_blog_translation' => [
@@ -85,7 +92,7 @@ class AppSeoUrlUpdateListenerTest extends TestCase
 
     public function testAnEntityWrittenWithItsTranslationIsRegeneratedOnce(): void
     {
-        $listener = $this->createListener([$this->route('product')]);
+        $listener = $this->listener($this->route('product'));
 
         $listener->updateAppSeoUrls($this->writtenEvent([
             'product' => [$this->writeResult('product', 'product-1')],
@@ -100,7 +107,7 @@ class AppSeoUrlUpdateListenerTest extends TestCase
 
     public function testWritesOfUnrelatedEntitiesAreIgnored(): void
     {
-        $listener = $this->createListener([$this->route('product')]);
+        $listener = $this->listener($this->route('product'));
 
         $listener->updateAppSeoUrls($this->writtenEvent([
             'category' => [$this->writeResult('category', 'category-1')],
@@ -111,51 +118,32 @@ class AppSeoUrlUpdateListenerTest extends TestCase
 
     public function testWithoutAppRoutesTheWrittenEventIsIgnored(): void
     {
-        $seoUrlUpdater = $this->createMock(SeoUrlUpdater::class);
-        $seoUrlUpdater->expects($this->never())->method('update');
-
-        $listener = new AppSeoUrlUpdateListener(
-            $this->routeLoader([]),
-            static::createStub(AppStaticSeoUrlSynchronizer::class),
-            $seoUrlUpdater
-        );
+        $listener = $this->listener();
 
         $listener->updateAppSeoUrls($this->writtenEvent([
             'product' => [$this->writeResult('product', 'product-1')],
         ]));
+
+        static::assertSame([], $this->updates);
     }
 
-    public function testWrittenSalesChannelDomainsResynchroniseTheStaticUrls(): void
+    public function testWrittenSalesChannelDomainsRequestAStaticSync(): void
     {
-        $synchronizer = $this->createMock(AppStaticSeoUrlSynchronizer::class);
-        $synchronizer->expects($this->once())->method('sync')->with(null);
+        $this->listener()->syncStaticSeoUrls();
 
-        $listener = new AppSeoUrlUpdateListener($this->routeLoader([]), $synchronizer, $this->seoUrlUpdater);
-
-        $listener->syncStaticSeoUrls();
-    }
-
-    /**
-     * @param list<array{appId: string, routeName: string, hook: string, entityName: string, defaultTemplate: string}> $routes
-     */
-    private function createListener(array $routes): AppSeoUrlUpdateListener
-    {
-        return new AppSeoUrlUpdateListener(
-            $this->routeLoader($routes),
-            static::createStub(AppStaticSeoUrlSynchronizer::class),
-            $this->seoUrlUpdater
+        static::assertCount(1, $this->messageBus->getMessages());
+        static::assertEquals(
+            new AppSeoUrlSyncMessage(),
+            $this->messageBus->getMessages()[0]->getMessage()
         );
     }
 
-    /**
-     * @param list<array{appId: string, routeName: string, hook: string, entityName: string, defaultTemplate: string}> $routes
-     */
-    private function routeLoader(array $routes): AppSeoUrlRouteLoader
+    private function listener(AppSeoUrlRouteEntity ...$routes): AppSeoUrlUpdateListener
     {
-        $loader = static::createStub(AppSeoUrlRouteLoader::class);
-        $loader->method('getEntityRoutes')->willReturn($routes);
+        $provider = static::createStub(AppSeoUrlRouteProvider::class);
+        $provider->method('getEntityRoutes')->willReturn(new EntityCollection($routes));
 
-        return $loader;
+        return new AppSeoUrlUpdateListener($provider, $this->seoUrlUpdater, $this->messageBus);
     }
 
     /**
@@ -176,26 +164,20 @@ class AppSeoUrlUpdateListenerTest extends TestCase
         return new EntityWriteResult($primaryKey, [], $entityName, EntityWriteResult::OPERATION_UPDATE);
     }
 
-    /**
-     * @return array{appId: string, routeName: string, hook: string, entityName: string, defaultTemplate: string}
-     */
-    private function route(string $entityName): array
+    private function route(string $entityName): AppSeoUrlRouteEntity
     {
-        return match ($entityName) {
-            'product' => [
-                'appId' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                'routeName' => self::PRODUCT_ROUTE,
-                'hook' => 'product-teaser',
-                'entityName' => 'product',
-                'defaultTemplate' => '{{ product.translated.name }}',
-            ],
-            default => [
-                'appId' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                'routeName' => self::BLOG_ROUTE,
-                'hook' => 'blog-detail',
-                'entityName' => 'ce_blog',
-                'defaultTemplate' => '{{ ceBlog.translated.title }}',
-            ],
-        };
+        $name = $entityName === 'product' ? 'product-teaser' : 'blog-detail';
+
+        $route = new AppSeoUrlRouteEntity();
+        $route->id = Uuid::randomHex();
+        $route->appId = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        $route->name = $name;
+        $route->routeName = 'storefront.app.SwagSeoUrlApp.' . $name;
+        $route->hook = $name;
+        $route->entityName = $entityName;
+        $route->defaultTemplate = '{{ ' . $entityName . '.translated.name }}';
+        $route->setUniqueIdentifier($route->id);
+
+        return $route;
     }
 }

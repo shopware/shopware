@@ -27,7 +27,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTr
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteDefinition;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
@@ -392,8 +392,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SeoUrlRouteLifecycleHandler::class)
         ->args([
             service('app_seo_url_route.repository'),
-            service(Connection::class),
-            service(ClockInterface::class),
+            service('seo_url.repository'),
+            service('seo_url_template.repository'),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1400]);
 
@@ -956,8 +956,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppShippingMethodDefinition::class)
         ->tag('shopware.entity.definition');
 
-    $services->set(AppSeoUrlRouteDefinition::class)
-        ->tag('shopware.entity.definition');
+    $services->set(AppSeoUrlRouteEntity::class)
+        ->tag('shopware.entity');
 
     $services->set(AppFlowActionLoadedSubscriber::class)
         ->tag('kernel.event_subscriber');

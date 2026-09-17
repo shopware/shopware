@@ -14,6 +14,8 @@ class SeoUrl extends XmlElement
 {
     protected const REQUIRED_FIELDS = ['name'];
 
+    private const ROUTE_NAME_PREFIX = 'storefront.app.';
+
     private const TRANSLATABLE_FIELDS = ['label', 'path'];
 
     protected string $name;
@@ -34,9 +36,19 @@ class SeoUrl extends XmlElement
 
     protected ?string $defaultTemplate = null;
 
+    public static function buildRouteName(string $appName, string $name): string
+    {
+        return self::ROUTE_NAME_PREFIX . $appName . '.' . $name;
+    }
+
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getRouteName(string $appName): string
+    {
+        return self::buildRouteName($appName, $this->name);
     }
 
     public function getHook(): string

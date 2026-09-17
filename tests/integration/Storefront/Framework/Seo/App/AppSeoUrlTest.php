@@ -16,7 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -30,7 +33,10 @@ use Symfony\Component\HttpFoundation\Response;
 class AppSeoUrlTest extends TestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
+    use BasicTestDataBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use QueueTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     private const APP_NAME = 'SwagStorefrontSeoUrl';
@@ -150,6 +156,8 @@ class AppSeoUrlTest extends TestCase
             'url' => 'http://localhost/swag-seo-url-app-de',
         ]], $this->context);
 
+        $this->runWorker();
+
         $rows = $this->fetchSeoUrls(self::IMPRINT_ROUTE, $salesChannelId);
         static::assertCount(2, $rows);
 
@@ -179,21 +187,28 @@ class AppSeoUrlTest extends TestCase
         static::assertNotNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
     }
 
-    public function testUninstallingTheAppRemovesTheSeoUrlsAndTheTemplate(): void
+    public function testUninstallingTheAppMarksTheSeoUrlsAsDeletedAndRemovesTheTemplate(): void
     {
         $this->installApp();
         $this->createProduct();
 
         static::getContainer()->get(AppManager::class)->uninstall($this->loadApp(), $this->context);
 
-        static::assertSame([], $this->fetchDeletedFlags(self::IMPRINT_ROUTE));
-        static::assertSame([], $this->fetchDeletedFlags(self::PRODUCT_ROUTE));
+        $imprintFlags = $this->fetchDeletedFlags(self::IMPRINT_ROUTE);
+        $productFlags = $this->fetchDeletedFlags(self::PRODUCT_ROUTE);
+
+        static::assertNotEmpty($imprintFlags);
+        static::assertNotEmpty($productFlags);
+        static::assertSame([1], array_values(array_unique($imprintFlags)));
+        static::assertSame([1], array_values(array_unique($productFlags)));
         static::assertNull($this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
     }
 
     private function installApp(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->runWorker();
     }
 
     private function loadApp(): AppEntity

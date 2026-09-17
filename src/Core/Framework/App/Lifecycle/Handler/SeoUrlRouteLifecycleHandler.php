@@ -2,17 +2,17 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 
-use Doctrine\DBAL\Connection;
-use Psr\Clock\ClockInterface;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteCollection;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,13 +23,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
 {
+    private const WRITE_CHUNK_SIZE = 500;
+
     /**
-     * @param EntityRepository<AppSeoUrlRouteCollection> $seoUrlRouteRepository
+     * @param EntityRepository<EntityCollection<AppSeoUrlRouteEntity>> $seoUrlRouteRepository
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
+     * @param EntityRepository<SeoUrlTemplateCollection> $seoUrlTemplateRepository
      */
     public function __construct(
         private readonly EntityRepository $seoUrlRouteRepository,
-        private readonly Connection $connection,
-        private readonly ClockInterface $clock,
+        private readonly EntityRepository $seoUrlRepository,
+        private readonly EntityRepository $seoUrlTemplateRepository,
     ) {
     }
 
@@ -45,30 +49,33 @@ class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
 
     public function deactivate(AppActivationContext $context): void
     {
-        $now = $this->now();
+        $routeNames = $this->fetchRouteNames($context->app->getId(), $context->context);
 
-        foreach ($this->getRouteNames($context->app->getId(), $context->context) as $routeName) {
-            $this->connection->update(
-                'seo_url',
-                ['is_deleted' => 1, 'updated_at' => $now],
-                ['route_name' => $routeName]
-            );
-        }
+        $this->markSeoUrlsAsDeleted($routeNames, $context->context);
     }
 
     public function uninstall(AppRemovalContext $context): void
     {
-        $this->removeSeoUrls($this->getRouteNames($context->app->getId(), $context->context));
+        $this->remove($context);
     }
 
     public function delete(AppRemovalContext $context): void
     {
-        $this->removeSeoUrls($this->getRouteNames($context->app->getId(), $context->context));
+        $this->remove($context);
+    }
+
+    private function remove(AppRemovalContext $context): void
+    {
+        $routeNames = $this->fetchRouteNames($context->app->getId(), $context->context);
+
+        $this->markSeoUrlsAsDeleted($routeNames, $context->context);
+        $this->deleteTemplates($routeNames, $context->context);
     }
 
     private function persist(AppPersistContext $context): void
     {
-        $obsolete = $this->fetchRoutes($context->app->getId(), $context->context);
+        $appId = $context->app->getId();
+        $obsolete = $this->fetchRoutes($appId, $context->context);
         $seoUrls = $context->manifest->getStorefront()?->getSeoUrls() ?? [];
 
         $upserts = [];
@@ -76,13 +83,13 @@ class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
 
         foreach ($seoUrls as $seoUrl) {
             $payload = $seoUrl->toArray($context->defaultLocale);
-            $payload['appId'] = $context->app->getId();
-            $payload['routeName'] = AppSeoUrlRouteDefinition::buildRouteName($context->app->getName(), $seoUrl->getName());
+            $payload['appId'] = $appId;
+            $payload['routeName'] = $seoUrl->getRouteName($context->app->getName());
 
-            $existing = $obsolete->filterByProperty('name', $seoUrl->getName())->first();
+            $existing = $obsolete->filter(static fn (AppSeoUrlRouteEntity $route): bool => $route->name === $seoUrl->getName())->first();
             if ($existing !== null) {
-                $payload['id'] = $existing->getId();
-                $obsolete->remove($existing->getId());
+                $payload['id'] = $existing->id;
+                $obsolete->remove($existing->id);
             }
 
             $upserts[] = $payload;
@@ -95,7 +102,7 @@ class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
                     'routeName' => $payload['routeName'],
                     'entityName' => $entityName,
                     'template' => $defaultTemplate,
-                    'previousTemplate' => $existing?->getDefaultTemplate(),
+                    'previousTemplate' => $existing?->defaultTemplate,
                 ];
             }
         }
@@ -111,12 +118,16 @@ class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
                 $defaultTemplate['routeName'],
                 $defaultTemplate['entityName'],
                 $defaultTemplate['template'],
-                $defaultTemplate['previousTemplate']
+                $defaultTemplate['previousTemplate'],
+                $context->context
             );
         }
     }
 
-    private function removeObsolete(AppSeoUrlRouteCollection $obsolete, Context $context): void
+    /**
+     * @param EntityCollection<AppSeoUrlRouteEntity> $obsolete
+     */
+    private function removeObsolete(EntityCollection $obsolete, Context $context): void
     {
         if ($obsolete->count() === 0) {
             return;
@@ -127,58 +138,47 @@ class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
             $context
         );
 
-        $this->removeSeoUrls(array_values($obsolete->map(static fn ($route): string => $route->getRouteName())));
-    }
+        $routeNames = array_values($obsolete->map(static fn (AppSeoUrlRouteEntity $route): string => $route->routeName));
 
-    /**
-     * @param list<string> $routeNames
-     */
-    private function removeSeoUrls(array $routeNames): void
-    {
-        foreach ($routeNames as $routeName) {
-            $this->connection->delete('seo_url', ['route_name' => $routeName]);
-            $this->connection->delete('seo_url_template', ['route_name' => $routeName]);
-        }
+        $this->markSeoUrlsAsDeleted($routeNames, $context);
+        $this->deleteTemplates($routeNames, $context);
     }
 
     private function syncDefaultTemplate(
         string $routeName,
         string $entityName,
         string $template,
-        ?string $previousTemplate
+        ?string $previousTemplate,
+        Context $context
     ): void {
-        $existing = $this->connection->fetchAssociative(
-            'SELECT LOWER(HEX(`id`)) AS `id`, `entity_name` AS `entityName`, `template`
-             FROM `seo_url_template`
-             WHERE `route_name` = :routeName AND `sales_channel_id` IS NULL',
-            ['routeName' => $routeName]
-        );
+        $criteria = new Criteria();
+        $criteria->setTitle('app-seo-url-routes::default-template');
+        $criteria->addFilter(new EqualsFilter('routeName', $routeName));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', null));
 
-        $now = $this->now();
+        $existing = $this->seoUrlTemplateRepository->search($criteria, $context)->getEntities()->first();
 
-        if ($existing === false) {
-            $this->connection->insert('seo_url_template', [
-                'id' => Uuid::randomBytes(),
-                'sales_channel_id' => null,
-                'route_name' => $routeName,
-                'entity_name' => $entityName,
+        if ($existing === null) {
+            $this->seoUrlTemplateRepository->create([[
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => null,
+                'routeName' => $routeName,
+                'entityName' => $entityName,
                 'template' => $template,
-                'is_valid' => 1,
-                'is_headless' => 0,
-                'created_at' => $now,
-            ]);
+                'isValid' => true,
+                'isHeadless' => false,
+            ]], $context);
 
             return;
         }
 
         $update = [];
 
-        if ($existing['entityName'] !== $entityName) {
-            $update['entity_name'] = $entityName;
+        if ($existing->getEntityName() !== $entityName) {
+            $update['entityName'] = $entityName;
         }
 
-        $storedTemplate = $existing['template'];
-        if ($previousTemplate !== null && $storedTemplate === $previousTemplate && $storedTemplate !== $template) {
+        if ($previousTemplate !== null && $existing->getTemplate() === $previousTemplate && $previousTemplate !== $template) {
             $update['template'] = $template;
         }
 
@@ -186,25 +186,72 @@ class SeoUrlRouteLifecycleHandler extends AbstractLifecycleHandler
             return;
         }
 
-        $update['updated_at'] = $now;
+        $this->seoUrlTemplateRepository->update([['id' => $existing->getId(), ...$update]], $context);
+    }
 
-        $this->connection->update('seo_url_template', $update, ['id' => Uuid::fromHexToBytes((string) $existing['id'])]);
+    /**
+     * @param list<string> $routeNames
+     */
+    private function markSeoUrlsAsDeleted(array $routeNames, Context $context): void
+    {
+        if ($routeNames === []) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->setTitle('app-seo-url-routes::mark-deleted');
+        $criteria->addFilter(new EqualsAnyFilter('routeName', $routeNames));
+        $criteria->addFilter(new EqualsFilter('isDeleted', false));
+
+        /** @var list<string> $ids */
+        $ids = $this->seoUrlRepository->searchIds($criteria, $context)->getIds();
+
+        foreach (array_chunk($ids, self::WRITE_CHUNK_SIZE) as $chunk) {
+            $this->seoUrlRepository->update(
+                array_map(static fn (string $id): array => ['id' => $id, 'isDeleted' => true], $chunk),
+                $context
+            );
+        }
+    }
+
+    /**
+     * @param list<string> $routeNames
+     */
+    private function deleteTemplates(array $routeNames, Context $context): void
+    {
+        if ($routeNames === []) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->setTitle('app-seo-url-routes::delete-templates');
+        $criteria->addFilter(new EqualsAnyFilter('routeName', $routeNames));
+
+        /** @var list<string> $ids */
+        $ids = $this->seoUrlTemplateRepository->searchIds($criteria, $context)->getIds();
+
+        if ($ids === []) {
+            return;
+        }
+
+        $this->seoUrlTemplateRepository->delete(
+            array_map(static fn (string $id): array => ['id' => $id], $ids),
+            $context
+        );
     }
 
     /**
      * @return list<string>
      */
-    private function getRouteNames(string $appId, Context $context): array
+    private function fetchRouteNames(string $appId, Context $context): array
     {
-        return array_values($this->fetchRoutes($appId, $context)->map(static fn ($route): string => $route->getRouteName()));
+        return array_values($this->fetchRoutes($appId, $context)->map(static fn (AppSeoUrlRouteEntity $route): string => $route->routeName));
     }
 
-    private function now(): string
-    {
-        return $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-    }
-
-    private function fetchRoutes(string $appId, Context $context): AppSeoUrlRouteCollection
+    /**
+     * @return EntityCollection<AppSeoUrlRouteEntity>
+     */
+    private function fetchRoutes(string $appId, Context $context): EntityCollection
     {
         $criteria = new Criteria();
         $criteria->setTitle('app-seo-url-routes::lifecycle');

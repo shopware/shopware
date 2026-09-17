@@ -5,7 +5,9 @@ namespace Shopware\Storefront\Framework\Seo\App;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Seo\App\Message\AppSeoUrlSyncMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 use function Symfony\Component\String\u;
 
@@ -16,9 +18,9 @@ use function Symfony\Component\String\u;
 class AppSeoUrlUpdateListener implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly AppSeoUrlRouteLoader $routeLoader,
-        private readonly AppStaticSeoUrlSynchronizer $staticSynchronizer,
+        private readonly AppSeoUrlRouteProvider $routes,
         private readonly SeoUrlUpdater $seoUrlUpdater,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
@@ -38,26 +40,24 @@ class AppSeoUrlUpdateListener implements EventSubscriberInterface
      */
     public function updateAppSeoUrls(EntityWrittenContainerEvent $event): void
     {
-        $routes = $this->routeLoader->getEntityRoutes();
+        foreach ($this->routes->getEntityRoutes() as $route) {
+            if ($route->entityName === null) {
+                continue;
+            }
 
-        if ($routes === []) {
-            return;
-        }
-
-        foreach ($routes as $route) {
-            $ids = $this->collectIds($event, $route['entityName']);
+            $ids = $this->collectIds($event, $route->entityName);
 
             if ($ids === []) {
                 continue;
             }
 
-            $this->seoUrlUpdater->update($route['routeName'], $ids);
+            $this->seoUrlUpdater->update($route->routeName, $ids);
         }
     }
 
     public function syncStaticSeoUrls(): void
     {
-        $this->staticSynchronizer->sync();
+        $this->messageBus->dispatch(new AppSeoUrlSyncMessage());
     }
 
     /**

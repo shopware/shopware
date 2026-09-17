@@ -5,14 +5,21 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\SeoUrlRouteLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
@@ -23,7 +30,8 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 #[Package('framework')]
 class SeoUrlRouteLifecycleHandlerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private const IMPRINT_ROUTE = 'storefront.app.SwagSeoUrlApp.imprint';
     private const TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.product-teaser';
@@ -54,18 +62,18 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
         $routes = $this->fetchRoutes($app->getId());
         static::assertSame(['imprint', 'product-teaser'], array_keys($routes));
 
-        static::assertSame(self::IMPRINT_ROUTE, $routes['imprint']['route_name']);
-        static::assertSame('imprint', $routes['imprint']['hook']);
-        static::assertNull($routes['imprint']['entity_name']);
-        static::assertNull($routes['imprint']['default_template']);
-        static::assertSame(['en-GB' => 'swag-imprint'], json_decode((string) $routes['imprint']['paths'], true));
-        static::assertSame(['en-GB' => 'Imprint'], json_decode((string) $routes['imprint']['label'], true));
+        static::assertSame(self::IMPRINT_ROUTE, $routes['imprint']->routeName);
+        static::assertSame('imprint', $routes['imprint']->hook);
+        static::assertNull($routes['imprint']->entityName);
+        static::assertNull($routes['imprint']->defaultTemplate);
+        static::assertSame(['en-GB' => 'swag-imprint'], $routes['imprint']->paths);
+        static::assertSame(['en-GB' => 'Imprint'], $routes['imprint']->label);
 
-        static::assertSame(self::TEASER_ROUTE, $routes['product-teaser']['route_name']);
-        static::assertSame('product-teaser', $routes['product-teaser']['hook']);
-        static::assertSame('product', $routes['product-teaser']['entity_name']);
-        static::assertSame('{{ product.translated.name }}', $routes['product-teaser']['default_template']);
-        static::assertNull($routes['product-teaser']['paths']);
+        static::assertSame(self::TEASER_ROUTE, $routes['product-teaser']->routeName);
+        static::assertSame('product-teaser', $routes['product-teaser']->hook);
+        static::assertSame('product', $routes['product-teaser']->entityName);
+        static::assertSame('{{ product.translated.name }}', $routes['product-teaser']->defaultTemplate);
+        static::assertNull($routes['product-teaser']->paths);
 
         static::assertSame([
             'entityName' => 'product',
@@ -79,7 +87,7 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
 
     public function testUpdateOverwritesADefaultTemplateThatWasNotChangedByTheMerchant(): void
     {
-        [$app] = $this->install();
+        $app = $this->install();
 
         $updated = $this->createManifest('{{ product.translated.name }}/{{ product.productNumber }}');
         $this->handler->update($this->appFixture->createUpdateContext($app, $updated));
@@ -89,12 +97,12 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
         static::assertSame('{{ product.translated.name }}/{{ product.productNumber }}', $template['template']);
 
         $routes = $this->fetchRoutes($app->getId());
-        static::assertSame('{{ product.translated.name }}/{{ product.productNumber }}', $routes['product-teaser']['default_template']);
+        static::assertSame('{{ product.translated.name }}/{{ product.productNumber }}', $routes['product-teaser']->defaultTemplate);
     }
 
     public function testUpdateKeepsADefaultTemplateThatWasChangedByTheMerchant(): void
     {
-        [$app] = $this->install();
+        $app = $this->install();
 
         $this->connection->update(
             'seo_url_template',
@@ -112,7 +120,7 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
 
     public function testUpdateRemovesRoutesThatAreNoLongerDeclared(): void
     {
-        [$app] = $this->install();
+        $app = $this->install();
 
         $this->createSeoUrl(self::IMPRINT_ROUTE);
 
@@ -120,49 +128,58 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
         $this->handler->update($this->appFixture->createUpdateContext($app, $updated));
 
         static::assertSame(['product-teaser'], array_keys($this->fetchRoutes($app->getId())));
-        static::assertSame([], $this->fetchSeoUrls(self::IMPRINT_ROUTE));
+        static::assertSame([1], $this->fetchDeletedFlags(self::IMPRINT_ROUTE));
         static::assertNotNull($this->fetchDefaultTemplate(self::TEASER_ROUTE));
     }
 
     public function testDeactivateMarksTheGeneratedSeoUrlsAsDeleted(): void
     {
-        [$app] = $this->install();
+        $app = $this->install();
 
         $this->createSeoUrl(self::IMPRINT_ROUTE);
         $this->createSeoUrl(self::TEASER_ROUTE);
 
         $this->handler->deactivate(new AppActivationContext($app, Context::createDefaultContext()));
 
-        static::assertSame([1], $this->fetchSeoUrls(self::IMPRINT_ROUTE));
-        static::assertSame([1], $this->fetchSeoUrls(self::TEASER_ROUTE));
+        static::assertSame([1], $this->fetchDeletedFlags(self::IMPRINT_ROUTE));
+        static::assertSame([1], $this->fetchDeletedFlags(self::TEASER_ROUTE));
         static::assertNotNull($this->fetchDefaultTemplate(self::TEASER_ROUTE));
     }
 
-    public function testUninstallRemovesTheGeneratedSeoUrlsAndTheDefaultTemplate(): void
+    public function testUninstallMarksTheGeneratedSeoUrlsAsDeletedAndRemovesTheDefaultTemplate(): void
     {
-        [$app] = $this->install();
+        $app = $this->install();
 
         $this->createSeoUrl(self::IMPRINT_ROUTE);
         $this->createSeoUrl(self::TEASER_ROUTE);
 
         $this->handler->uninstall(new AppRemovalContext($app, Context::createDefaultContext(), keepUserData: true));
 
-        static::assertSame([], $this->fetchSeoUrls(self::IMPRINT_ROUTE));
-        static::assertSame([], $this->fetchSeoUrls(self::TEASER_ROUTE));
+        static::assertSame([1], $this->fetchDeletedFlags(self::IMPRINT_ROUTE));
+        static::assertSame([1], $this->fetchDeletedFlags(self::TEASER_ROUTE));
         static::assertNull($this->fetchDefaultTemplate(self::TEASER_ROUTE));
     }
 
-    /**
-     * @return array{AppEntity}
-     */
-    private function install(): array
+    public function testDeleteMarksTheGeneratedSeoUrlsAsDeletedAndRemovesTheDefaultTemplate(): void
+    {
+        $app = $this->install();
+
+        $this->createSeoUrl(self::TEASER_ROUTE);
+
+        $this->handler->delete(new AppRemovalContext($app, Context::createDefaultContext()));
+
+        static::assertSame([1], $this->fetchDeletedFlags(self::TEASER_ROUTE));
+        static::assertNull($this->fetchDefaultTemplate(self::TEASER_ROUTE));
+    }
+
+    private function install(): AppEntity
     {
         $manifest = $this->createManifest();
         $app = $this->appFixture->createApp($manifest);
 
         $this->handler->install($this->appFixture->createInstallContext($app, $manifest));
 
-        return [$app];
+        return $app;
     }
 
     private function createManifest(string $template = '{{ product.translated.name }}'): ManifestFixture
@@ -188,15 +205,23 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array<string, AppSeoUrlRouteEntity>
      */
     private function fetchRoutes(string $appId): array
     {
-        return $this->connection->fetchAllAssociativeIndexed(
-            'SELECT `name`, `route_name`, `hook`, `entity_name`, `default_template`, `paths`, `label`
-             FROM `app_seo_url_route` WHERE `app_id` = :appId ORDER BY `name`',
-            ['appId' => Uuid::fromHexToBytes($appId)]
-        );
+        /** @var EntityRepository<EntityCollection<AppSeoUrlRouteEntity>> $repository */
+        $repository = static::getContainer()->get('app_seo_url_route.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addSorting(new FieldSorting('name'));
+
+        $routes = [];
+        foreach ($repository->search($criteria, Context::createDefaultContext())->getEntities() as $route) {
+            $routes[$route->name] = $route;
+        }
+
+        return $routes;
     }
 
     /**
@@ -225,7 +250,7 @@ class SeoUrlRouteLifecycleHandlerTest extends TestCase
     /**
      * @return list<int>
      */
-    private function fetchSeoUrls(string $routeName): array
+    private function fetchDeletedFlags(string $routeName): array
     {
         return array_map(
             static fn (mixed $isDeleted): int => (int) $isDeleted,

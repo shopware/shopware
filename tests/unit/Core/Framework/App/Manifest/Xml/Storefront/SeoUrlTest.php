@@ -47,6 +47,25 @@ class SeoUrlTest extends TestCase
         static::assertSame('blog-overview', $seoUrl->getHook());
     }
 
+    public function testTheRouteNameIsNamespacedByTheAppAndTheDeclaredName(): void
+    {
+        static::assertSame(
+            'storefront.app.SwagSeoUrlApp.imprint',
+            SeoUrl::buildRouteName('SwagSeoUrlApp', 'imprint')
+        );
+    }
+
+    public function testTheRouteNameOfADeclarationUsesItsOwnName(): void
+    {
+        $seoUrl = $this->loadSeoUrls()['blog-detail'];
+
+        static::assertSame('storefront.app.SwagSeoUrlApp.blog-detail', $seoUrl->getRouteName('SwagSeoUrlApp'));
+        static::assertSame(
+            SeoUrl::buildRouteName('SwagSeoUrlApp', 'blog-detail'),
+            $seoUrl->getRouteName('SwagSeoUrlApp')
+        );
+    }
+
     public function testNameIsRequired(): void
     {
         $this->expectExceptionObject(AppException::invalidArgument('name must not be empty'));

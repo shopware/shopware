@@ -6,8 +6,7 @@
  * file via "files" so extension code sees exactly the API of the installed
  * Shopware version, including the installation-specific entity schema.
  *
- * The `shopware:*` module declarations travel with it, so an extension can import them the same way the
- * Administration does.
+ * It also provides the `shopware:*` module declarations to extension code.
  *
  * The entity schema import resolves to the generated
  * `src/entity-schema-definition.d.ts`. When that file has not been generated

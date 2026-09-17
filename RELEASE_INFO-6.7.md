@@ -392,9 +392,10 @@ The update API endpoints enforce both flags server-side: all `GET /api/_action/u
 ### Consent page for OAuth clients
 
 The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.
+
 ### Import the global Shopware object with `shopware:*` modules
 
-The Administration now resolves a set of `shopware:*` module specifiers, so the global `Shopware` object can be reached with ordinary imports:
+Administration code and extensions can now import selected APIs from the global `Shopware` object:
 
 ```ts
 import { createId } from 'shopware:utils';
@@ -404,20 +405,13 @@ import swFormFieldMixin from 'shopware:mixins/sw-form-field';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 ```
 
-| Specifier | Publishes |
-| --- | --- |
-| `shopware:utils` | every member of `Shopware.Utils` |
-| `shopware:utils/<member>` | that member as the default export, plus its own names where it is an object |
-| `shopware:data` | every class on `Shopware.Data` |
-| `shopware:data/<Class>` | that class as the default export |
-| `shopware:mixins/<name>` | the registered mixin as the default export |
-| `shopware:stores/<id>` | a composable returning the store, as the default export |
+The `shopware:utils` and `shopware:data` roots provide named exports. Their subpaths provide default
+exports, and declared utility namespaces can also provide named exports. Mixins and stores only provide
+subpaths for Administration registrations. A store subpath returns a composable that resolves the store
+when called.
 
-Every export is the object the global already holds, so the two styles are interchangeable and can be mixed in one file. Nothing has to be migrated, and `Shopware.*` stays fully supported.
-
-The mixin and store specifiers take the registry key verbatim and have no barrel: a barrel over a runtime registry has to resolve every entry as soon as anything imports it. A store subpath publishes no named exports either, because destructuring a Pinia store drops reactivity.
-
-The specifiers work in plugin builds and in Jest, and are typed for extension programs. A store or mixin an extension registers itself is not covered; keep using `Shopware.Store.get()` and `Shopware.Mixin.getByName()` for those.
+Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
+`Shopware.Mixin.getByName()` for registrations that an extension creates at runtime.
 
 ### Order drafts are cleaned up when leaving the detail page
 

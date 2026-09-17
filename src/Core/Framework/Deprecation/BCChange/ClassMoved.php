@@ -9,8 +9,13 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Signals that a class moved from `$previousClassName` to the annotated class.
  *
- * The previous name remains available as a runtime class alias until the announced version. Tooling can use this
- * metadata to update references to the canonical class name before the alias is removed.
+ * Use this attribute only when the implementation survives under a new fully qualified class name. The previous
+ * name must be registered eagerly in `src/Core/Framework/Deprecation/class_aliases.php` so both names resolve to
+ * the same runtime class until the announced version. If the class is a service, register its previous service ID
+ * as a deprecated alias of the canonical service as well.
+ *
+ * Core code must use the canonical name. Tooling uses this metadata to update external references before the alias,
+ * attribute, and optional service alias are removed together in the announced version.
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]

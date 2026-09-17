@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 
@@ -88,6 +89,48 @@ class RetryableQueryTest extends TestCase
             });
         } finally {
             static::assertSame(1, $attempts);
+        }
+    }
+
+    public function testRetriesContentionInsideAnApplicationWrapper(): void
+    {
+        $exception = FlowException::transactionFailed(self::createDriverException(1020, 'Record has changed since last read'));
+        $attempts = 0;
+        $connection = static::createStub(Connection::class);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+
+        $result = RetryableQuery::retryable($connection, static function () use (&$attempts, $exception): string {
+            if (++$attempts === 1) {
+                throw $exception;
+            }
+
+            return 'success';
+        });
+
+        static::assertSame('success', $result);
+        static::assertSame(2, $attempts);
+    }
+
+    public function testExhaustedRetriesPreserveTheApplicationWrapper(): void
+    {
+        $exception = FlowException::transactionFailed(self::createDriverException(1020, 'Record has changed since last read'));
+        $attempts = 0;
+        $connection = static::createStub(Connection::class);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $this->expectExceptionObject($exception);
+
+        try {
+            RetryableQuery::retryable($connection, static function () use (&$attempts, $exception): never {
+                ++$attempts;
+
+                throw $exception;
+            });
+        } catch (FlowException $caught) {
+            static::assertSame($exception, $caught);
+
+            throw $caught;
+        } finally {
+            static::assertSame(11, $attempts);
         }
     }
 

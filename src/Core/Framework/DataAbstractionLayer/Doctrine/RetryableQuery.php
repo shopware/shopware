@@ -72,7 +72,9 @@ class RetryableQuery
             }
 
             if ($counter > 10) {
-                throw $retryableException;
+                $exception = RetryableExceptionDetector::unwrap($e);
+
+                throw $exception;
             }
 
             // randomize sleep to prevent same execution delay for multiple statements

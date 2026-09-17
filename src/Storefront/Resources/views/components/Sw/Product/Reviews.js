@@ -15,12 +15,21 @@ export default class ProductReviews extends ShopwareComponent {
         window.Shopware.on('ReviewFilters:Change', this.onFiltersChange);
 
         this.onPaginationClick = this.onPaginationClick.bind(this);
-        this.el.querySelectorAll('.sw-pagination__link').forEach((el) => el.addEventListener('click', this.onPaginationClick));
+        this.bindPagination();
     }
 
     destroy() {
         window.Shopware.off('ReviewFilters:Change', this.onFiltersChange);
-        this.el.querySelectorAll('.sw-pagination__link').forEach((el) => el.removeEventListener('click', this.onPaginationClick));
+        this.unbindPagination();
+    }
+
+    bindPagination() {
+        this.pageLinks = this.el.querySelectorAll('.sw-pagination__link');
+        this.pageLinks.forEach((el) => el.addEventListener('click', this.onPaginationClick));
+    }
+
+    unbindPagination() {
+        this.pageLinks?.forEach((el) => el.removeEventListener('click', this.onPaginationClick));
     }
 
     onFiltersChange(params) {
@@ -61,13 +70,15 @@ export default class ProductReviews extends ShopwareComponent {
             .parseFromString(html, 'text/html')
             .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
-        // Replacing the element re-initializes it (and drops the loader with the old node); the component system
-        // rebinds on the fresh node.
+        // Swap only the inner content, keeping this element and this component instance alive — so the event-bus
+        // listener stays registered exactly once and never accumulates. Re-bind pagination on the fresh links.
         if (fresh) {
-            this.el.replaceWith(fresh);
-        } else {
-            ElementLoadingIndicatorUtil.remove(this.el);
+            this.unbindPagination();
+            this.el.replaceChildren(...fresh.childNodes);
+            this.bindPagination();
         }
+
+        ElementLoadingIndicatorUtil.remove(this.el);
 
         // Keep the URL and back button in sync with the applied sort, filter and page — not the elementId hint.
         const query = new URLSearchParams(this.activeParams).toString();

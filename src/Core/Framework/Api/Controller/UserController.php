@@ -100,8 +100,13 @@ class UserController extends AbstractController
 
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
-        if (array_diff(array_keys($request->request->all()), $allowedChanges) !== []) {
+        $changes = $request->request->all();
+        if (array_diff(array_keys($changes), $allowedChanges) !== []) {
             throw ApiException::missingPrivileges(['user:update']);
+        }
+
+        if (\array_key_exists('avatarMedia', $changes)) {
+            $this->assertAvatarMediaIsLinkOnly($changes['avatarMedia']);
         }
 
         return $context->scope(
@@ -348,6 +353,18 @@ class UserController extends AbstractController
         });
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $roleId, $request, $context);
+    }
+
+    /**
+     * A self-service profile edit may link an avatar, nothing more. The write runs in SYSTEM_SCOPE,
+     * where ACL and write protection are off, so any other field would be written to the media
+     * entity and, through its associations (user, avatarUsers), to other users.
+     */
+    private function assertAvatarMediaIsLinkOnly(mixed $avatarMedia): void
+    {
+        if (!\is_array($avatarMedia) || array_keys($avatarMedia) !== ['id'] || !\is_string($avatarMedia['id'])) {
+            throw ApiException::missingPrivileges(['user:update']);
+        }
     }
 
     private function validateScope(Request $request): void

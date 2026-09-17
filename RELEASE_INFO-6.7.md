@@ -562,6 +562,7 @@ Mark deprecated Storefront template inputs with the existing `@deprecated` Twig 
 ```
 
 The first argument must be the exact registered major feature flag. The function delegates to `Feature::triggerDeprecationOrThrow()`. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior.
+The legacy `hasChildren` fallback in `layout/navigation/offcanvas/item-link.html.twig` now follows this behavior when an including template does not provide the variable.
 
 Wrap an explicitly published compatibility alias with `deprecatedAlias()`:
 

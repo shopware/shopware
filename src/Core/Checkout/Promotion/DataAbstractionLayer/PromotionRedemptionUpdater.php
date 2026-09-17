@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderEvents;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -70,14 +69,13 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
         $sql = <<<'SQL'
             SELECT LOWER(HEX(`promotion_id`)) as `promotion_id`, `payload`, LOWER(HEX(`order_id`)) as `order_id` FROM `order_line_item`
-            WHERE `promotion_id` IS NOT NULL AND `type` = :type AND `id` IN (:ids) AND `version_id` = :versionId;
+            WHERE `promotion_id` IS NOT NULL AND `id` IN (:ids) AND `version_id` = :versionId;
         SQL;
 
         /** @var list<array{promotion_id: string, payload: ?string, order_id: string}> $lineItems */
         $lineItems = $this->connection->fetchAllAssociative(
             $sql,
             [
-                'type' => PromotionProcessor::LINE_ITEM_TYPE,
                 'ids' => Uuid::fromHexToBytesList($lineItemsIds),
                 'versionId' => Uuid::fromHexToBytes($event->getContext()->getVersionId()),
             ],
@@ -119,12 +117,12 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
+        // A written promotion_id is what the recount aggregates, so it is also what has to
+        // trigger it. An update payload carries only the fields the writer supplied, so gating
+        // on the type as well would miss a write that changes promotion_id on its own.
         $promotionIds = [];
         foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
-            $type = $writeResult->getPayload()['type'] ?? null;
-            if ($type === PromotionProcessor::LINE_ITEM_TYPE) {
-                $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
-            }
+            $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
         }
 
         $this->update($promotionIds, $event->getContext());

@@ -39,10 +39,10 @@ class WishlistPageTest extends TestCase
 
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
-        $this->expectException(CustomerException::class);
-
         $customer = $context->getCustomer();
         static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $this->expectException(CustomerException::class);
 
         $this->getPageLoader()->load($request, $context, $customer);
     }

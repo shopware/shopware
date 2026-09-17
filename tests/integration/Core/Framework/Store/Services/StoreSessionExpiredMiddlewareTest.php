@@ -76,11 +76,14 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         /** @var PromiseInterface $promise */
         $promise = ($middleware($handler))($request, []);
-        $promise->wait();
 
-        $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
-        static::assertNotNull($adminUser);
-        static::assertNull($adminUser->getStoreToken());
+        try {
+            $promise->wait();
+        } finally {
+            $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
+            static::assertNotNull($adminUser);
+            static::assertNull($adminUser->getStoreToken());
+        }
     }
 
     public function testLogsOutUserByTokenAndThrowsIfApiRespondsWithTokenExpiredException(): void
@@ -109,15 +112,18 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         /** @var PromiseInterface $promise */
         $promise = ($middleware($handler))($request, []);
-        $promise->wait();
 
-        $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();
-        $expiredSessionUser = $adminUsers->get($expiredSessionUserId);
-        $loginSessionUser = $adminUsers->get($loginSessionUserId);
-        static::assertNotNull($expiredSessionUser);
-        static::assertNotNull($loginSessionUser);
-        static::assertNull($expiredSessionUser->getStoreToken());
-        static::assertSame('some-valid-token', $loginSessionUser->getStoreToken());
+        try {
+            $promise->wait();
+        } finally {
+            $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();
+            $expiredSessionUser = $adminUsers->get($expiredSessionUserId);
+            $loginSessionUser = $adminUsers->get($loginSessionUserId);
+            static::assertNotNull($expiredSessionUser);
+            static::assertNotNull($loginSessionUser);
+            static::assertNull($expiredSessionUser->getStoreToken());
+            static::assertSame('some-valid-token', $loginSessionUser->getStoreToken());
+        }
     }
 
     private function createAdminUser(string $userId, string $storeToken): void

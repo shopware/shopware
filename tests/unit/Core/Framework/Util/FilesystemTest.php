@@ -71,7 +71,7 @@ class FilesystemTest extends TestCase
 
         $fs = new Filesystem($this->root);
 
-        static::assertSame($this->root . '/file1.php', $fs->realpath('file1.php'));
+        $fs->realpath('file1.php');
     }
 
     public function testRealPath(): void

@@ -83,10 +83,12 @@ class IterateEntityMessageHandlerTest extends TestCase
         );
 
         $this->expectExceptionObject(new UnrecoverableMessageHandlingException('The consent was never accepted. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete'));
-        $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
 
-        $dispatchedMessages = $messageBus->getMessages();
-        static::assertCount(0, $dispatchedMessages);
+        try {
+            $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
+        } finally {
+            static::assertCount(0, $messageBus->getMessages());
+        }
     }
 
     public function testItDispatchesAMessageToTheQueue(): void
@@ -181,10 +183,12 @@ class IterateEntityMessageHandlerTest extends TestCase
         );
 
         $this->expectExceptionObject(new UnrecoverableMessageHandlingException('Entity definition for entity test-entity not found.'));
-        $handler(new IterateEntityMessage('test-entity', Operation::CREATE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
 
-        $dispatchedMessages = $messageBus->getMessages();
-        static::assertCount(0, $dispatchedMessages);
+        try {
+            $handler(new IterateEntityMessage('test-entity', Operation::CREATE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
+        } finally {
+            static::assertCount(0, $messageBus->getMessages());
+        }
     }
 
     public function testItLogsExceptionWithNonDBALServerExceptionIsThrown(): void

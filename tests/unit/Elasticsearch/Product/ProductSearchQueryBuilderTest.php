@@ -92,9 +92,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setTerm('foo');
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
-
-        static::assertSame([], $parsed->toArray());
+        $builder->build($criteria, Context::createDefaultContext());
     }
 
     public function testBuildWithoutFields(): void
@@ -105,9 +103,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $criteria = new Criteria();
 
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
-
-        static::assertSame([], $parsed->toArray());
+        $builder->build($criteria, Context::createDefaultContext());
     }
 
     /**

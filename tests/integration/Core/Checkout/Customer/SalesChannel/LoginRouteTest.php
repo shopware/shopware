@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -178,9 +177,6 @@ class LoginRouteTest extends TestCase
         $loginRoute = static::getContainer()->get(LoginRoute::class);
 
         $requestDataBag = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
-
-        $success = $loginRoute->login($requestDataBag, $salesChannelContext);
-        static::assertInstanceOf(ContextTokenResponse::class, $success);
 
         $loginRoute->login($requestDataBag, $salesChannelContext);
     }

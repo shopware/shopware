@@ -128,13 +128,16 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition($customGateway::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
-        $entityCompilerPass->process($container);
 
-        // custom_pool pool is registered
-        static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
-        $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertSame($customGateway::class, $definition->getClass());
-        static::assertTrue($definition->hasTag('shopware.increment.gateway'));
+        try {
+            $entityCompilerPass->process($container);
+        } finally {
+            // custom_pool pool is still registered, but was not tagged
+            static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
+            $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
+            static::assertSame($customGateway::class, $definition->getClass());
+            static::assertFalse($definition->hasTag('shopware.increment.gateway'));
+        }
     }
 
     public function testInvalidType(): void

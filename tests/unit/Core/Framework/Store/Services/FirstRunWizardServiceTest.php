@@ -422,8 +422,12 @@ class FirstRunWizardServiceTest extends TestCase
 
         $this->expectExceptionObject(StoreException::licenseDomainVerificationFailure($domain));
 
-        $frwService->verifyLicenseDomain($domain, $this->context);
-        static::assertEmpty($systemConfigService->all());
+        try {
+            $frwService->verifyLicenseDomain($domain, $this->context);
+        } finally {
+            static::assertSame('', $systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN));
+            static::assertSame('', $systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION));
+        }
     }
 
     public function testThrowsExceptionIfVerificationSecretCanNotBeStoredOnFilesystem(): void

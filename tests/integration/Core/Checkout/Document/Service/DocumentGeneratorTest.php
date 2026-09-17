@@ -141,8 +141,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        $this->expectException(DocumentException::class);
-
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
 
@@ -155,6 +153,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotEmpty($documentStruct->getContent());
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
+
+        $this->expectException(DocumentException::class);
 
         $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
     }
@@ -452,8 +452,6 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
-
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
@@ -504,6 +502,8 @@ class DocumentGeneratorTest extends TestCase
         $fileSystem->write($filePath, 'test123');
 
         static::assertTrue($fileSystem->has($filePath));
+
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         $this->documentGenerator->readDocument($document->getId(), $this->context, 'wrong code');
     }

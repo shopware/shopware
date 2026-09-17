@@ -104,9 +104,7 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
-        $customer = $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
-        static::assertSame($email, $customer->getEmail());
-        static::assertSame($context->getSalesChannelId(), $customer->getSalesChannelId());
+        $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
     }
 
     public function testGetCustomerByLoginWhenCustomersHaveSameEmailReturnsTheLatestCreatedCustomer(): void

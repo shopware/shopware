@@ -267,8 +267,6 @@ class FeatureTest extends TestCase
 
     public function testSetActiveOnUnregisteredFeature(): void
     {
-        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
-
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
             'FEATURE_ONE' => [
@@ -280,6 +278,9 @@ class FeatureTest extends TestCase
         ]);
 
         static::assertFalse(Feature::has('FEATURE_TWO'));
+
+        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
+
         Feature::setActive('FEATURE_TWO', false);
     }
 

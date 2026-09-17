@@ -71,8 +71,12 @@ class LineItemTest extends TestCase
 
         $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(false);
-        $lineItem->setQuantity(5);
-        static::assertSame(1, $lineItem->getQuantity());
+
+        try {
+            $lineItem->setQuantity(5);
+        } finally {
+            static::assertSame(1, $lineItem->getQuantity());
+        }
     }
 
     /**
@@ -143,32 +147,16 @@ class LineItemTest extends TestCase
 
         $this->expectException(CartException::class);
 
-        $lineItem->setQuantity(2);
-
-        static::assertSame(2, $lineItem->getQuantity());
-        static::assertSame(6, $child1->getQuantity());
-        static::assertSame(2, $child2->getQuantity());
-        static::assertSame(1, $child3->getQuantity());
-        static::assertSame(5, $child4->getQuantity());
-        static::assertSame(10, $child5->getQuantity());
-
-        $lineItem->setQuantity(3);
-
-        static::assertSame(3, $lineItem->getQuantity());
-        static::assertSame(9, $child1->getQuantity());
-        static::assertSame(2, $child2->getQuantity());
-        static::assertSame(1, $child3->getQuantity());
-        static::assertSame(5, $child4->getQuantity());
-        static::assertSame(10, $child5->getQuantity());
-
-        $lineItem->setQuantity(1);
-
-        static::assertSame(1, $lineItem->getQuantity());
-        static::assertSame(3, $child1->getQuantity());
-        static::assertSame(2, $child2->getQuantity());
-        static::assertSame(1, $child3->getQuantity());
-        static::assertSame(5, $child4->getQuantity());
-        static::assertSame(10, $child5->getQuantity());
+        try {
+            $lineItem->setQuantity(2);
+        } finally {
+            static::assertSame(1, $lineItem->getQuantity());
+            static::assertSame(3, $child1->getQuantity());
+            static::assertSame(2, $child2->getQuantity());
+            static::assertSame(1, $child3->getQuantity());
+            static::assertSame(5, $child4->getQuantity());
+            static::assertSame(10, $child5->getQuantity());
+        }
     }
 
     /**

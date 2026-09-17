@@ -595,10 +595,12 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
-        $subscriber->handleFlow($flow);
-
-        static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        try {
+            $subscriber->handleFlow($flow);
+        } finally {
+            static::assertNull($mailFilterEvent);
+            static::assertSame(0, $mailService->calls);
+        }
     }
 
     #[DataProvider('updateTemplateDataProvider')]

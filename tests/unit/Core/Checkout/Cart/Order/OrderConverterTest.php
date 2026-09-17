@@ -485,31 +485,37 @@ class OrderConverterTest extends TestCase
         ];
     }
 
+    /**
+     * @param \Closure(OrderEntity): OrderException $expectedException
+     */
     #[DataProvider('convertToCartExceptionsData')]
-    public function testConvertToCartExceptions(string $manipulateOrder): void
+    public function testConvertToCartExceptions(string $manipulateOrder, \Closure $expectedException): void
     {
-        $this->expectException(OrderException::class);
-
         $order = $this->getOrder($manipulateOrder);
+
+        $this->expectExceptionObject($expectedException($order));
 
         $this->orderConverter->convertToCart($order, Context::createDefaultContext());
     }
 
     /**
-     * @return array<array<string>>
+     * @return \Generator<string, array{string, \Closure(OrderEntity): OrderException}>
      */
-    public static function convertToCartExceptionsData(): array
+    public static function convertToCartExceptionsData(): \Generator
     {
-        return [
-            [
-                'order-no-line-items',
-            ],
-            [
-                'order-no-deliveries',
-            ],
-            [
-                'order-no-order-number',
-            ],
+        yield 'order without line items' => [
+            'order-no-line-items',
+            static fn (OrderEntity $order): OrderException => OrderException::missingAssociation('lineItems'),
+        ];
+
+        yield 'order without deliveries' => [
+            'order-no-deliveries',
+            static fn (OrderEntity $order): OrderException => OrderException::missingAssociation('deliveries'),
+        ];
+
+        yield 'order without order number' => [
+            'order-no-order-number',
+            static fn (OrderEntity $order): OrderException => OrderException::missingOrderNumber($order->getId()),
         ];
     }
 

@@ -1,0 +1,80 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    slots = [],
+    variant = 'tabs',
+    alignment = 'start',
+%}
+
+{% set tabs = slots.tabs|default([]) %}
+
+{# The tab flagged as open by default wins, otherwise the first tab opens. Panel.scss mirrors this for the panes. #}
+{% set flaggedTabs = tabs|filter(tab => tab.properties.active ?? false) %}
+{% set openTabs = flaggedTabs is not empty ? flaggedTabs : tabs %}
+{% set activeTabId = openTabs is not empty ? (openTabs|first).id : null %}
+
+{% set panelCVA = cva({
+    base: 'sw-tabs',
+    variants: {
+        variant: {
+            tabs: 'is--tabs',
+            pills: 'is--pills',
+        },
+    },
+}) %}
+
+{% set navCVA = cva({
+    base: 'sw-tabs__nav nav',
+    variants: {
+        variant: {
+            tabs: 'nav-tabs',
+            pills: 'nav-pills',
+        },
+        alignment: {
+            center: 'justify-content-center',
+            end: 'justify-content-end',
+            fill: 'nav-fill',
+            justified: 'nav-justified',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: panelCVA.apply({ variant }),
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+
+    {% block navigation %}
+        <ul {{ attributes.nested('nav').defaults({
+            class: navCVA.apply({ variant, alignment }),
+            role: 'tablist',
+        }) }}>
+            {% for tab in tabs %}
+                {% set isActive = tab.id == activeTabId %}
+
+                <li class="sw-tabs__nav-item nav-item" role="presentation">
+                    <button class="sw-tabs__nav-link nav-link{{ isActive ? ' active' }}"
+                            id="sw-tab-{{ tab.id }}"
+                            type="button"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#sw-tab-pane-{{ tab.id }}"
+                            aria-controls="sw-tab-pane-{{ tab.id }}"
+                            aria-selected="{{ isActive ? 'true' : 'false' }}">
+                        {{ tab.properties.title ?? '' }}
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endblock %}
+
+    {% block content %}
+        <div {{ attributes.nested('content').defaults({ class: 'sw-tabs__content tab-content' }) }}>
+            <twig:Slot name="tabs"></twig:Slot>
+        </div>
+    {% endblock %}
+
+</div>

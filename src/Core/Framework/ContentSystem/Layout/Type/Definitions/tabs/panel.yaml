@@ -1,0 +1,55 @@
+meta:
+  label: "Tab Panel"
+  description: "Tabbed panel that shows one tab at a time. The tab navigation is built from the tabs placed in its slot."
+  icon: "regular-window"
+  category: "layout"
+  copilot:
+    summary: "Tabbed content panel."
+    hints:
+      - "Only Tab elements can be placed in the tabs slot. Each tab brings its own title and content slot."
+      - "The tab that is opened first is chosen on the tab itself, not here."
+
+properties:
+  variant:
+    type: string
+    title: "Variant"
+    description: "Visual style of the tab navigation."
+    default: "tabs"
+    enum:
+      - "tabs"
+      - "pills"
+    adminUI:
+      component: "radio-panel"
+      panel: "general"
+      props:
+        options:
+          - value: "tabs"
+            label: "Tabs"
+            icon: "regular-window"
+            description: "Classic tab navigation with an underline."
+          - value: "pills"
+            label: "Pills"
+            icon: "regular-circle"
+            description: "Rounded buttons instead of tabs."
+
+  alignment:
+    type: string
+    title: "Alignment"
+    description: "How the tab navigation is distributed over the available width."
+    default: "start"
+    enum:
+      - "start"
+      - "center"
+      - "end"
+      - "fill"
+      - "justified"
+    adminUI:
+      component: "select"
+      panel: "general"
+      helpText: "Fill gives every tab the space its title needs, justified gives every tab the same width."
+
+slots:
+  - name: tabs
+    allowList:
+      - "Sw:Tabs:Tab"
+    description: "The tabs of this panel. Each tab renders one navigation item and its matching tab pane."

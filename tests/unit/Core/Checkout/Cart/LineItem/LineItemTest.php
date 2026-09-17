@@ -35,7 +35,7 @@ class LineItemTest extends TestCase
      */
     public function testCreateLineItemWithInvalidQuantity(): void
     {
-        $this->expectException(CartException::class);
+        $this->expectExceptionObject(CartException::invalidQuantity(-1));
 
         new LineItem('A', 'type', null, -1);
     }
@@ -45,9 +45,10 @@ class LineItemTest extends TestCase
      */
     public function testChangeLineItemToInvalidQuantity(): void
     {
-        $this->expectException(CartException::class);
-
         $lineItem = new LineItem('A', 'type');
+
+        $this->expectExceptionObject(CartException::invalidQuantity(0));
+
         $lineItem->setQuantity(0);
     }
 
@@ -67,10 +68,10 @@ class LineItemTest extends TestCase
      */
     public function testChangeNonStackableLineItemQuantity(): void
     {
-        $this->expectException(CartException::class);
-
         $lineItem = new LineItem('A', 'type');
         $lineItem->setStackable(false);
+
+        $this->expectExceptionObject(CartException::lineItemNotStackable('A'));
 
         try {
             $lineItem->setQuantity(5);
@@ -145,7 +146,7 @@ class LineItemTest extends TestCase
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
 
-        $this->expectException(CartException::class);
+        $this->expectExceptionObject(CartException::lineItemNotStackable('A'));
 
         try {
             $lineItem->setQuantity(2);
@@ -221,7 +222,7 @@ class LineItemTest extends TestCase
         $child2 = new LineItem('A.2', 'child', null, 2);
         $child3 = new LineItem('A.3', 'child');
 
-        $this->expectException(CartException::class);
+        $this->expectExceptionObject(CartException::invalidChildQuantity(3, 15));
 
         $lineItem->addChild($child1);
         $lineItem->addChild($child2);
@@ -239,7 +240,7 @@ class LineItemTest extends TestCase
         $child2 = new LineItem('A.2', 'child', null, 2);
         $child3 = new LineItem('A.3', 'child');
 
-        $this->expectException(CartException::class);
+        $this->expectExceptionObject(CartException::invalidChildQuantity(3, 15));
 
         $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
     }
@@ -271,7 +272,7 @@ class LineItemTest extends TestCase
 
         $child = new LineItem('123', 'child');
 
-        $this->expectException(CartException::class);
+        $this->expectExceptionObject(CartException::invalidChildQuantity(1, 5));
 
         $lineItem->addChild($child);
     }

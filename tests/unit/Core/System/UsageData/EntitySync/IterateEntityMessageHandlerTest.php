@@ -238,11 +238,11 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     public function testItLogsAndThrowsExceptionWithDBALConnectionExceptionIsThrown(): void
     {
+        $exception = new ConnectionException();
+
         $iteratorFactory = static::createStub(IterateEntitiesQueryBuilder::class);
         $iteratorFactory->method('create')
-            ->willThrowException(new ConnectionException());
-
-        $this->expectException(ConnectionException::class);
+            ->willThrowException($exception);
 
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->once())
@@ -266,6 +266,8 @@ class IterateEntityMessageHandlerTest extends TestCase
             $entityDefinitionService,
             $logger,
         );
+
+        $this->expectExceptionObject($exception);
 
         $messageHandler(new IterateEntityMessage(
             'product',

@@ -154,7 +154,7 @@ class DocumentGeneratorTest extends TestCase
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
 
-        $this->expectException(DocumentException::class);
+        $this->expectExceptionObject(DocumentException::generationError());
 
         $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
     }

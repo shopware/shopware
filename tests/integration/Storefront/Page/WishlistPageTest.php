@@ -42,7 +42,7 @@ class WishlistPageTest extends TestCase
         $customer = $context->getCustomer();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
-        $this->expectException(CustomerException::class);
+        $this->expectExceptionObject(CustomerException::customerWishlistNotActivated());
 
         $this->getPageLoader()->load($request, $context, $customer);
     }

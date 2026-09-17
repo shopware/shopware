@@ -84,24 +84,25 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testBuildEmptyQuery(): void
     {
-        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
-
         $builder = $this->getBuilder([
             self::config(field: 'restockTime', ranking: 500, tokenize: true, and: false),
         ]);
 
         $criteria = new Criteria();
         $criteria->setTerm('foo');
+
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
+
         $builder->build($criteria, Context::createDefaultContext());
     }
 
     public function testBuildWithoutFields(): void
     {
-        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
-
         $builder = $this->getBuilder(null);
 
         $criteria = new Criteria();
+
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
 
         $builder->build($criteria, Context::createDefaultContext());
     }
@@ -607,7 +608,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             new ElasticsearchTokenizer(),
         );
 
-        static::expectException(DecorationPatternException::class);
+        static::expectExceptionObject(new DecorationPatternException(ProductSearchQueryBuilder::class));
         $builder->getDecorated();
     }
 

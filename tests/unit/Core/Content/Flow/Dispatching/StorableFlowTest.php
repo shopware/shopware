@@ -42,7 +42,7 @@ class StorableFlowTest extends TestCase
 
     public function testGetFlowStateWithoutStateThrows(): void
     {
-        static::expectException(FlowException::class);
+        static::expectExceptionObject(FlowException::methodNotCompatible('getFlowState()', StorableFlow::class));
         $this->storableFlow->getFlowState();
     }
 
@@ -57,7 +57,7 @@ class StorableFlowTest extends TestCase
 
     public function testStopWithoutStateThrows(): void
     {
-        static::expectException(FlowException::class);
+        static::expectExceptionObject(FlowException::methodNotCompatible('stop()', StorableFlow::class));
         $this->storableFlow->stop();
     }
 

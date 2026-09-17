@@ -67,9 +67,9 @@ class FilesystemTest extends TestCase
 
     public function testRealPathThrowsExceptionWhenFileDoesNotExist(): void
     {
-        static::expectException(UtilException::class);
-
         $fs = new Filesystem($this->root);
+
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('file1.php', $this->root));
 
         $fs->realpath('file1.php');
     }
@@ -99,9 +99,9 @@ class FilesystemTest extends TestCase
 
     public function testReadThrowsAnExceptionWhenFileDoesNotExist(): void
     {
-        static::expectException(UtilException::class);
-
         $fs = new Filesystem($this->root);
+
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('file.php', $this->root));
 
         $fs->read('file.php');
     }

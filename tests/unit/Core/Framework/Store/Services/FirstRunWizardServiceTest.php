@@ -79,9 +79,11 @@ class FirstRunWizardServiceTest extends TestCase
 
     public function testFrwLoginFailsIfContextSourceIsNotAdminApi(): void
     {
+        $exception = new InvalidContextSourceException(AdminApiSource::class, SystemSource::class);
+
         $frwClient = static::createStub(FirstRunWizardClient::class);
         $frwClient->method('frwLogin')
-            ->willThrowException(new InvalidContextSourceException(AdminApiSource::class, SystemSource::class));
+            ->willThrowException($exception);
 
         $frwService = new FirstRunWizardService(
             static::createStub(StoreService::class),
@@ -94,7 +96,7 @@ class FirstRunWizardServiceTest extends TestCase
             static::createStub(TrackingEventClient::class),
         );
 
-        $this->expectException(InvalidContextSourceException::class);
+        $this->expectExceptionObject($exception);
 
         $frwService->frwLogin(
             'shopwareId',
@@ -149,16 +151,18 @@ class FirstRunWizardServiceTest extends TestCase
 
     public function testUpgradeAccessTokenFailsIfContextSourceIsNotAdminApi(): void
     {
+        $exception = new \RuntimeException();
+
         $frwClient = $this->createMock(FirstRunWizardClient::class);
         $frwClient->expects($this->once())
             ->method('upgradeAccessToken')
-            ->willThrowException(new \RuntimeException());
+            ->willThrowException($exception);
 
         $frwService = $this->createFirstRunWizardService(
             frwClient: $frwClient,
         );
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionObject($exception);
 
         $frwService->upgradeAccessToken(Context::createDefaultContext());
     }
@@ -425,8 +429,8 @@ class FirstRunWizardServiceTest extends TestCase
         try {
             $frwService->verifyLicenseDomain($domain, $this->context);
         } finally {
-            static::assertSame('', $systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN));
-            static::assertSame('', $systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION));
+            static::assertNull($systemConfigService->get(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN));
+            static::assertNull($systemConfigService->get(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION));
         }
     }
 

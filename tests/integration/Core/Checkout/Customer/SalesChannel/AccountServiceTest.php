@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
@@ -88,8 +88,6 @@ class AccountServiceTest extends TestCase
 
     public function testGetCustomerByLoginWithInvalidPassword(): void
     {
-        $this->expectException(BadCredentialsException::class);
-
         $email = 'johndoe@example.com';
 
         $context = $this->createSalesChannelContext([
@@ -104,6 +102,7 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
+        $this->expectExceptionObject(CustomerException::badCredentials());
         $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
     }
 
@@ -186,7 +185,7 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, false);
 
-        $this->expectException(BadCredentialsException::class);
+        $this->expectExceptionObject(CustomerException::badCredentials());
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
     }
 

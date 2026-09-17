@@ -49,7 +49,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         static::assertNotNull($adminUser);
         $this->userRepository->update([[
             'id' => $adminUser->getId(),
-            'store_token' => 's3cr3t',
+            'storeToken' => 's3cr3t',
         ]], Context::createDefaultContext());
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
@@ -72,7 +72,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
         $request = new Psr7Request('GET', '/');
 
-        $this->expectException(StoreSessionExpiredException::class);
+        $this->expectExceptionObject(new StoreSessionExpiredException());
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         /** @var PromiseInterface $promise */
         $promise = ($middleware($handler))($request, []);
@@ -108,7 +108,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
         $request = new Psr7Request('GET', '/', [StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER => 'some-invalid-token']);
 
-        $this->expectException(StoreSessionExpiredException::class);
+        $this->expectExceptionObject(new StoreSessionExpiredException());
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         /** @var PromiseInterface $promise */
         $promise = ($middleware($handler))($request, []);

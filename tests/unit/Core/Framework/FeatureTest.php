@@ -286,7 +286,7 @@ class FeatureTest extends TestCase
 
     public function testTriggerDeprecationOrThrowThrows(): void
     {
-        $this->expectException(FeatureException::class);
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
 
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }

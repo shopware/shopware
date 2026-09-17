@@ -105,17 +105,16 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable>|null $exceptionClass
+     * @param \Closure(OrderEntity): ShopwareHttpException|null $expectedException
      */
     #[DataProvider('assembleSalesChannelContextData')]
-    public function testAssembleSalesChannelContext(?string $exceptionClass, string $manipulateOrder = ''): void
+    public function testAssembleSalesChannelContext(?\Closure $expectedException, string $manipulateOrder = ''): void
     {
-        if ($exceptionClass !== null) {
-            $this->expectException($exceptionClass);
-        }
+        $orderEntity = $this->getOrder($manipulateOrder);
+        $expected = $expectedException === null ? null : $expectedException($orderEntity);
 
         $orderAddressRepositorySearchResult = [];
-        if ($exceptionClass !== AddressNotFoundException::class) {
+        if (!$expected instanceof AddressNotFoundException) {
             $orderAddressRepositorySearchResult = [$this->getOrderAddress()];
         }
 
@@ -144,26 +143,29 @@ class OrderConverterTest extends TestCase
             }
         );
 
-        $orderEntity = $this->getOrder($manipulateOrder);
+        if ($expected !== null) {
+            $this->expectExceptionObject($expected);
+        }
+
         $orderConverter->assembleSalesChannelContext($orderEntity, Context::createDefaultContext());
     }
 
     /**
-     * @return list<array{0: class-string<\Throwable>|null, 1?: string}>
+     * @return list<array{0: (\Closure(OrderEntity): ShopwareHttpException)|null, 1?: string}>
      */
     public static function assembleSalesChannelContextData(): array
     {
         return [
             [
-                OrderException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => OrderException::missingAssociation('transactions'),
                 'order-no-transactions',
             ],
             [
-                OrderException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => OrderException::missingAssociation('orderCustomer'),
                 'order-no-order-customer',
             ],
             [
-                AddressNotFoundException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => CartException::addressNotFound($order->getBillingAddressId()),
             ],
             [
                 null,
@@ -312,19 +314,17 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param \Closure(): ShopwareHttpException $expectedException
      */
     #[DataProvider('convertToOrderExceptionsData')]
-    public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
+    public function testConvertToOrderExceptions(\Closure $expectedException, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
-        if ($exceptionClass !== '') {
-            $this->expectException($exceptionClass);
-        }
+        $expected = $expectedException();
 
         $cart = $this->getCart();
         $cart->setDeliveries(
             $this->getDeliveryCollection(
-                $exceptionClass === OrderException::class
+                $expected instanceof OrderException
             )
         );
 
@@ -333,63 +333,32 @@ class OrderConverterTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext(
             $loginCustomer,
-            $exceptionClass === AddressNotFoundException::class
+            $expected instanceof AddressNotFoundException
         );
 
-        $result = $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
+        $this->expectExceptionObject($expected);
 
-        // unset uncheckable ids
-        unset(
-            $result['id'],
-            $result['billingAddressId'],
-            $result['deepLinkCode'],
-            $result['orderDateTime'],
-            $result['stateId'],
-            $result['languageId'],
-        );
-        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['id']);
-        }
-
-        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset(
-                $result['deliveries'][$i]['shippingOrderAddress']['id'],
-                $result['deliveries'][$i]['shippingDateEarliest'],
-                $result['deliveries'][$i]['shippingDateLatest'],
-            );
-        }
-
-        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
-        unset($expected['addresses']);
-        $expected['shippingCosts']['unitPrice'] = 1;
-        $expected['shippingCosts']['totalPrice'] = 1;
-
-        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
-        static::assertIsString($expectedJson);
-        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
-        static::assertIsString($actual);
-        // As json to avoid classes
-        static::assertJsonStringEqualsJsonString($expectedJson, $actual);
+        $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
     }
 
     /**
-     * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
+     * @return list<array{0: \Closure(): ShopwareHttpException, 1?: false, 2?: false}>
      */
     public static function convertToOrderExceptionsData(): array
     {
         return [
             [
-                AddressNotFoundException::class,
+                static fn (): ShopwareHttpException => CartException::addressNotFound(''),
             ],
             [
-                OrderException::class,
+                static fn (): ShopwareHttpException => OrderException::deliveryWithoutAddress(),
             ],
             [
-                CartException::class,
+                static fn (): ShopwareHttpException => CartException::customerNotLoggedIn(),
                 false,
             ],
             [
-                CartException::class,
+                static fn (): ShopwareHttpException => CartException::customerNotLoggedIn(),
                 false,
                 false,
             ],

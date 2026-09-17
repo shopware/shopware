@@ -71,6 +71,16 @@ class DeprecatedAliasTest extends TestCase
         static::assertSame('billing', DeprecatedAlias::resolve($alias, 'type'));
     }
 
+    public function testSilentlyUnwrapsAliasValue(): void
+    {
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+
+        static::assertSame('value', DeprecatedAlias::silentUnwrap('value'));
+        static::assertSame('billing', DeprecatedAlias::silentUnwrap(new DeprecatedAlias('billing')));
+    }
+
     public function testActiveRemovalFeatureRejectsAliasAccess(): void
     {
         $this->setEnvVars(['V6_8_0_0' => true]);

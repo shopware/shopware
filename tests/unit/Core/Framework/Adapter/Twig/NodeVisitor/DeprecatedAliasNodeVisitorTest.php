@@ -116,6 +116,22 @@ TWIG,
         static::assertSame('defined', \trim($twig->render('index.html.twig')));
     }
 
+    public function testSilentUnwrapDoesNotConsumeAlias(): void
+    {
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+
+        $twig = $this->createTwig([
+            'index.html.twig' => <<<'TWIG'
+{% set showVatIdField = deprecatedAlias(false) %}
+{{ silentUnwrap(showVatIdField) ? 'true' : 'false' }}
+TWIG,
+        ]);
+
+        static::assertSame('false', \trim($twig->render('index.html.twig')));
+    }
+
     public function testOverwrittenAliasDoesNotTrigger(): void
     {
         $triggerer = $this->createMock(Triggerer::class);

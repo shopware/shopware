@@ -575,6 +575,9 @@ Wrap an explicitly published compatibility alias with `deprecatedAlias()`:
 
 The wrapper emits the deprecation only when `type` is read, so rendering the declaring template without using the alias does not produce a notice.
 The existing deprecated `infoColumnClass`, `editMode`, and `navigationId` compatibility variables now use the same access-time warning.
+Core templates can use `silentUnwrap()` when they must inspect such an alias to implement a more specific compatibility warning without also emitting the generic access warning.
+
+The deprecated `showVatIdField` input is available only while the `v6.8.0.0` feature flag is inactive. Omitting it in `address-personal.html.twig` retains the previous `true` behavior. Explicitly setting it to `false` there, or to `true` in `address-form.html.twig`, emits a targeted deprecation. Use `showCompanyFields` in `address-personal.html.twig`; the legacy `address-form.html.twig` behavior is removed without replacement.
 
 ### Deprecated `type` variable in address manager templates
 

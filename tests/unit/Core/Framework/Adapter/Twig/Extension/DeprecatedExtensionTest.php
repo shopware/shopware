@@ -63,11 +63,12 @@ class DeprecatedExtensionTest extends TestCase
 
         static::assertContainsOnlyInstancesOf(DeprecatedAliasNodeVisitor::class, $extension->getNodeVisitors());
         static::assertContainsOnlyInstancesOf(TwigFunction::class, $extension->getFunctions());
-        static::assertSame(['deprecatedAlias', 'sw_trigger_deprecation'], \array_map(
+        static::assertSame(['deprecatedAlias', 'silentUnwrap', 'sw_trigger_deprecation'], \array_map(
             static fn (TwigFunction $function): string => $function->getName(),
             $extension->getFunctions(),
         ));
         static::assertEquals(new DeprecatedAlias('value'), $extension->deprecatedAlias('value'));
+        static::assertSame('value', $extension->silentUnwrap(new DeprecatedAlias('value')));
     }
 
     public function testTriggersDeprecationForInactiveRemovalFeature(): void

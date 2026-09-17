@@ -28,6 +28,7 @@ final class DeprecatedExtension extends AbstractExtension
     {
         return [
             new TwigFunction('deprecatedAlias', $this->deprecatedAlias(...)),
+            new TwigFunction('silentUnwrap', $this->silentUnwrap(...)),
             new TwigFunction('sw_trigger_deprecation', $this->triggerDeprecationOrThrow(...)),
         ];
     }
@@ -35,6 +36,11 @@ final class DeprecatedExtension extends AbstractExtension
     public function deprecatedAlias(mixed $value): DeprecatedAlias
     {
         return new DeprecatedAlias($value);
+    }
+
+    public function silentUnwrap(mixed $value): mixed
+    {
+        return DeprecatedAlias::silentUnwrap($value);
     }
 
     public function triggerDeprecationOrThrow(string $removedIn, string $message): void

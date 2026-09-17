@@ -447,12 +447,38 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        await wrapper
-            .findByText('button', 'sw-extension-store.component.sw-extension-removal-modal.labelCancel')
-            .trigger('click');
+        await wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove').trigger('click');
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not offer to cancel the subscription when it is already cancelled', async () => {
+        const wrapper = await createWrapper({
+            ...defaultExtension,
+            installedAt: null,
+            source: 'local',
+            storeLicense: {
+                variants: [{}],
+                variant: 'rent',
+                expirationDate: '2025-08-01T03:30:35+01:00',
+            },
+        });
+
+        expect(wrapper.find('.sw-extension-card-base__cancel-and-remove-link').exists()).toBe(false);
+
+        await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
+
+        expect(wrapper.get('.sw-extension-removal-modal__bold-paragraph').text()).toBe(
+            'sw-extension-store.component.sw-extension-removal-modal.alertRemove',
+        );
+        expect(
+            wrapper.findByText(
+                '.sw-extension-removal-modal button',
+                'sw-extension-store.component.sw-extension-removal-modal.labelCancel',
+            ),
+        ).toBeNull();
+        expect(wrapper.findByText('.sw-extension-removal-modal button', 'global.default.remove')).not.toBeNull();
     });
 
     it('should try to cancel the extension subscription on remove attempt when it has no expiry date', async () => {

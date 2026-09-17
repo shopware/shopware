@@ -5,28 +5,32 @@
  *
  *     composer admin:generate-shopware-modules
  *
- * Both outputs are checked in, so adding a utility, DAL class, mixin, or store shows the new specifier in
- * the pull request diff. `meta.spec.js` fails when they drift from the sources.
+ * Both outputs are checked in. `generate-shopware-modules.spec.ts` fails when they drift from source.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractModuleRegistry } from './extract-modules';
 import { renderDeclarations } from './render-declarations';
+import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
 
 const administrationRoot = path.resolve(__dirname, '../..');
 
+/** @private */
 export const REGISTRY_FILE = path.join(administrationRoot, 'shopware-modules.json');
+/** @private */
 export const DECLARATIONS_FILE = path.join(administrationRoot, 'src/shopware-virtual-modules.d.ts');
 
-/** Serialises the registry the way the checked-in file stores it. */
-export function renderRegistry(administrationRoot: string): string {
-    return `${JSON.stringify(extractModuleRegistry(administrationRoot), null, 4)}\n`;
+/** @private Serialises the checked-in registry. */
+export function renderRegistry(registry: ModuleRegistry): string {
+    return `${JSON.stringify(registry, null, 4)}\n`;
 }
 
 function main(): void {
-    fs.writeFileSync(REGISTRY_FILE, renderRegistry(administrationRoot));
-    fs.writeFileSync(DECLARATIONS_FILE, renderDeclarations(extractModuleRegistry(administrationRoot)));
+    const registry = extractModuleRegistry(administrationRoot);
+
+    fs.writeFileSync(REGISTRY_FILE, renderRegistry(registry));
+    fs.writeFileSync(DECLARATIONS_FILE, renderDeclarations(registry));
 
     // eslint-disable-next-line no-console
     console.log(

@@ -11,12 +11,14 @@
  * `PiniaRootState` interfaces, so a declaration cannot describe a shape the runtime does not have.
  */
 
-import type { ModuleRegistry } from './extract-modules';
+import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
 
 /**
+ * @private
+ *
  * The command that rewrites this file, named in the file itself.
  *
  * A stale declaration is a lie about what can be imported, and the drift test points here.
@@ -60,7 +62,17 @@ function barrel(specifier: string, branchModule: string, exports: string[]): str
     ]);
 }
 
+function defaultOnlyModule(specifier: string, value: string, type: string): string {
+    return block(specifier, [
+        `const ${value}: ${type};`,
+        '',
+        `export default ${value};`,
+    ]);
+}
+
 /**
+ * @private
+ *
  * The whole declaration file.
  *
  * Specifiers are emitted in registry order so a regenerated file only differs where the registry did.
@@ -85,23 +97,11 @@ export function renderDeclarations(registry: ModuleRegistry): string {
     );
 
     Object.keys(registry['shopware:mixins'].subpaths).forEach((key) =>
-        blocks.push(
-            block(`shopware:mixins/${key}`, [
-                `const mixin: MixinContainer['${key}'];`,
-                '',
-                'export default mixin;',
-            ]),
-        ),
+        blocks.push(defaultOnlyModule(`shopware:mixins/${key}`, 'mixin', `MixinContainer['${key}']`)),
     );
 
     Object.keys(registry['shopware:stores'].subpaths).forEach((key) =>
-        blocks.push(
-            block(`shopware:stores/${key}`, [
-                `const useStore: () => PiniaRootState['${key}'];`,
-                '',
-                'export default useStore;',
-            ]),
-        ),
+        blocks.push(defaultOnlyModule(`shopware:stores/${key}`, 'useStore', `() => PiniaRootState['${key}']`)),
     );
 
     return [

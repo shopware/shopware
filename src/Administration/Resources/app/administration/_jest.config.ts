@@ -41,10 +41,8 @@ process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache'
 const { writeStubs } = require('./test/_helper_/virtual-shopware-modules/stubs') as {
     writeStubs: (specifiers: string[]) => number;
 };
-const { allSpecifiers, readRegistry } = require('./build/vite-plugins/virtual-shopware-modules/index') as {
-    allSpecifiers: (registry: unknown) => string[];
-    readRegistry: (root: string) => unknown;
-};
+const { allSpecifiers, readRegistry } =
+    require('./build/vite-plugins/virtual-shopware-modules/index') as typeof import('./build/vite-plugins/virtual-shopware-modules');
 
 writeStubs(allSpecifiers(readRegistry(__dirname)));
 

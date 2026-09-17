@@ -12,25 +12,24 @@ import { renderDeclarations, REGENERATE_COMMAND } from './render-declarations';
 import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from './index';
 
 const administrationRoot = path.resolve(__dirname, '../..');
+const registry = extractModuleRegistry(administrationRoot);
 
 describe('scripts/generate-shopware-modules', () => {
     it('has a checked-in registry that matches the Administration sources', () => {
         expect(
             fs.readFileSync(REGISTRY_FILE, 'utf8'),
             `shopware-modules.json is stale. Run \`${REGENERATE_COMMAND}\`.`,
-        ).toBe(renderRegistry(administrationRoot));
+        ).toBe(renderRegistry(registry));
     });
 
     it('has checked-in declarations that match the registry', () => {
         expect(
             fs.readFileSync(DECLARATIONS_FILE, 'utf8'),
             `src/shopware-virtual-modules.d.ts is stale. Run \`${REGENERATE_COMMAND}\`.`,
-        ).toBe(renderDeclarations(extractModuleRegistry(administrationRoot)));
+        ).toBe(renderDeclarations(registry));
     });
 
     describe('the registry it builds', () => {
-        const registry = extractModuleRegistry(administrationRoot);
-
         it('gives the branch-backed families a barrel and the registry-backed ones none', () => {
             expect(registry['shopware:utils'].exports.length).toBeGreaterThan(0);
             expect(registry['shopware:data'].exports.length).toBeGreaterThan(0);
@@ -59,7 +58,7 @@ describe('scripts/generate-shopware-modules', () => {
     });
 
     describe('the declarations it renders', () => {
-        const declarations = renderDeclarations(extractModuleRegistry(administrationRoot));
+        const declarations = renderDeclarations(registry);
 
         it('lists only the named exports recorded for a namespace subpath', () => {
             expect(declarations).toContain("declare module 'shopware:utils/debug'");

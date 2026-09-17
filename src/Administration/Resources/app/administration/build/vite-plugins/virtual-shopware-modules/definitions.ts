@@ -1,30 +1,15 @@
 /**
  * @sw-package framework
  *
- * The `shopware:*` module contract, in one place.
- *
- * Every specifier is sugar over a branch of the global `Shopware` object. `shopware:utils` and
- * `shopware:data` publish a branch's members, and a subpath such as `shopware:utils/debug` publishes one
- * member plus that member's own names. `shopware:mixins` and `shopware:stores` are subpath-only, because
- * a barrel over a runtime registry has to resolve every entry the moment anything imports it.
- *
- * Nothing here changes runtime behaviour: the exports are the very objects the global already holds, so
- * component overrides and the plugin system keep working unchanged.
- *
- * Which keys exist is not decided here. Every function that answers "does this resolve?" takes the
- * checked-in `shopware-modules.json` as an argument; this file only describes how a resolved specifier
- * reads the global.
- *
- * Types of imports:
- * - import utils from "shopware:utils";            // root import, family 'utils'
- * - import { debug } from "shopware:utils";        // same
- * - import debug from "shopware:utils/debug";      // subpath import, family 'utils', subpath 'debug'
- * - import { warn } from "shopware:utils/debug";   // same
+ * Shared resolution rules for the Vite modules and their Jest counterparts. The generated registry
+ * decides which specifiers exist; the branch definitions below decide how each one reads `Shopware`.
  */
 
 import type { ShopwareClass } from 'src/core/shopware';
 
 /**
+ * @private
+ *
  * The branches of the global `Shopware` object that the virtual modules read.
  *
  * `Utils` and `Data` come from `ShopwareClass`, so renaming a branch or a member breaks here rather than
@@ -38,6 +23,8 @@ export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data'> & {
 };
 
 /**
+ * @private
+ *
  * What one `shopware:*` module family publishes.
  *
  * `exports` are the root import's named exports, empty for a family that has none. `subpaths` maps a
@@ -48,7 +35,7 @@ export type ModuleRegistryEntry = {
     subpaths: Record<string, string[]>;
 };
 
-/** The checked-in registry of every `shopware:*` specifier, keyed by family. */
+/** @private The checked-in registry of every `shopware:*` specifier, keyed by family. */
 export type ModuleRegistry = Record<string, ModuleRegistryEntry>;
 
 /**
@@ -125,10 +112,10 @@ const BRANCHES: Record<string, Branch> = {
     },
 };
 
-/** The module families, e.g. `shopware:utils`. */
+/** @private The module families, e.g. `shopware:utils`. */
 export const MODULE_FAMILIES = Object.keys(BRANCHES);
 
-/** A parsed `shopware:*` import: the family it belongs to and the subpath key, if any. */
+/** @private A parsed `shopware:*` import: the family and optional subpath key. */
 export type ParsedSpecifier = {
     readonly family: string;
     /** The subpath, or `undefined` for a root import of the family. */
@@ -136,6 +123,8 @@ export type ParsedSpecifier = {
 };
 
 /**
+ * @private
+ *
  * Splits a `shopware:*` import into its family and subpath.
  *
  * `specifier` includes the prefix, for example `shopware:utils` or `shopware:mixins/myCoolMixin`.
@@ -158,6 +147,8 @@ export function parseSpecifier(specifier: string): ParsedSpecifier | undefined {
 }
 
 /**
+ * @private
+ *
  * The export names a specifier publishes: the root import's members, or one subpath's own names.
  *
  * `undefined` means the specifier does not resolve: an unknown key, or a root import of a family that
@@ -178,7 +169,7 @@ export function exportNames(registry: ModuleRegistry, parsed: ParsedSpecifier): 
     return Object.hasOwn(entry.subpaths, parsed.subpath) ? entry.subpaths[parsed.subpath] : undefined;
 }
 
-/** Every specifier the registry publishes: each family's root import where it has one, plus every subpath. */
+/** @private Every root and subpath specifier published by the registry. */
 export function allSpecifiers(registry: ModuleRegistry): string[] {
     return Object.entries(registry).flatMap(
         ([
@@ -191,7 +182,7 @@ export function allSpecifiers(registry: ModuleRegistry): string[] {
     );
 }
 
-/** The value expression for a parsed specifier's default export. */
+/** @private The generated expression for a specifier's default export. */
 export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
     if (!Object.hasOwn(BRANCHES, parsed.family)) {
         return undefined;
@@ -202,14 +193,16 @@ export function defaultExpression(parsed: ParsedSpecifier): string | undefined {
     return parsed.subpath === undefined ? branch.root.emit() : branch.subpath.emit(parsed.subpath);
 }
 
-/** The value expression for one named export of a parsed specifier. */
+/** @private The generated expression for one named export. */
 export function memberExpression(parsed: ParsedSpecifier, member: string): string {
-    const own = defaultExpression(parsed);
+    const moduleExpression = defaultExpression(parsed);
 
-    return `${own}[${JSON.stringify(member)}]`;
+    return `${moduleExpression}[${JSON.stringify(member)}]`;
 }
 
 /**
+ * @private
+ *
  * Resolves one export of a `shopware:*` module against a live global object.
  *
  * The Jest shims call this because a resolver hands them a property name rather than generated code:
@@ -234,15 +227,15 @@ export function resolveVirtualExport(
         return exportName === 'default' ? branch.root.read(shopware) : branch.subpath.read(shopware, exportName);
     }
 
-    const own = branch.subpath.read(shopware, parsed.subpath);
+    const moduleValue = branch.subpath.read(shopware, parsed.subpath);
 
     if (exportName === 'default') {
-        return own;
+        return moduleValue;
     }
 
-    if (own === null || typeof own !== 'object' || !Object.hasOwn(own, exportName)) {
+    if (moduleValue === null || typeof moduleValue !== 'object' || !Object.hasOwn(moduleValue, exportName)) {
         throw new Error(`"${specifier}" has no export "${exportName}".`);
     }
 
-    return (own as Record<string, unknown>)[exportName];
+    return (moduleValue as Record<string, unknown>)[exportName];
 }

@@ -30,6 +30,20 @@ function createPlugin(root = administrationRoot): PluginHooks {
     return VirtualShopwareModulesPlugin({ administrationRoot: root }) as unknown as PluginHooks;
 }
 
+function writeRegistry(root: string, exportName: string): string {
+    const registryFile = path.join(root, 'shopware-modules.json');
+    const currentRegistry: ModuleRegistry = {
+        'shopware:utils': {
+            exports: [exportName],
+            subpaths: { [exportName]: [] },
+        },
+    };
+
+    fs.writeFileSync(registryFile, JSON.stringify(currentRegistry));
+
+    return registryFile;
+}
+
 /** `load` is called with Rollup's plugin context; only `addWatchFile` is used. */
 function load(plugin: PluginHooks, id: string): { source: string | null; watched: string[] } {
     const watched: string[] = [];
@@ -100,50 +114,36 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
     describe('handleHotUpdate', () => {
         it('reloads the registry and invalidates loaded virtual modules', () => {
             const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shopware-virtual-modules-'));
-            const registryFile = path.join(root, 'shopware-modules.json');
-            const writeRegistry = (exportName: string): void => {
-                const currentRegistry: ModuleRegistry = {
-                    'shopware:utils': {
-                        exports: [exportName],
-                        subpaths: { [exportName]: [] },
-                    },
-                };
-
-                fs.writeFileSync(registryFile, JSON.stringify(currentRegistry));
-            };
 
             try {
-                writeRegistry('first');
+                const registryFile = writeRegistry(root, 'first');
 
                 const plugin = createPlugin(root);
                 const virtualModule = { id: '\0shopware:utils' };
                 const otherVirtualModule = { id: '\0other-plugin:thing' };
                 const unrelatedModule = { id: '/src/main.ts' };
                 const invalidateModule = jest.fn();
+                const idToModuleMap = new Map(
+                    [
+                        virtualModule,
+                        otherVirtualModule,
+                        unrelatedModule,
+                    ].map((module) => [
+                        module.id,
+                        module,
+                    ]),
+                );
 
                 expect(plugin.resolveId('shopware:utils')).toBe('\0shopware:utils');
                 expect(load(plugin, '\0shopware:utils').source).toContain('export const first');
 
-                writeRegistry('second');
+                writeRegistry(root, 'second');
 
                 const updatedModules = plugin.handleHotUpdate({
                     file: registryFile,
                     server: {
                         moduleGraph: {
-                            idToModuleMap: new Map([
-                                [
-                                    virtualModule.id,
-                                    virtualModule,
-                                ],
-                                [
-                                    otherVirtualModule.id,
-                                    otherVirtualModule,
-                                ],
-                                [
-                                    unrelatedModule.id,
-                                    unrelatedModule,
-                                ],
-                            ]),
+                            idToModuleMap,
                             invalidateModule,
                         },
                     },

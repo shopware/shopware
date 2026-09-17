@@ -1,34 +1,20 @@
 /**
  * @sw-package framework
  *
- * Reads the `shopware:*` module registry out of the sources that already define it.
+ * Extracts the `shopware:*` registry from the sources that define each global branch.
  *
  * `Shopware.Utils` and `Shopware.Data` are `export default { ... }` object literals, so their keys are
  * the barrel's exports and each key is also a subpath. `Shopware.Mixin` and `Shopware.Store` are runtime
  * registries whose declared contract is the `MixinContainer` and `PiniaRootState` interfaces, so those
  * give the subpaths for the two registry-backed modules.
  *
- * Only the generator reads source. The Vite plugin reads the generated `shopware-modules.json`, which is
- * checked in, so a new specifier shows up in a pull request diff instead of appearing at build time.
+ * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
-
-/**
- * What one `shopware:*` module publishes.
- *
- * `exports` are the barrel's named exports, empty for the registry-backed modules, which have no barrel.
- * `subpaths` maps a subpath key to the names that subpath publishes alongside its default export. A key
- * with an empty list is default-only: a class, a mixin, or a store, none of which may be destructured.
- */
-export type ModuleRegistryEntry = {
-    exports: string[];
-    subpaths: Record<string, string[]>;
-};
-
-export type ModuleRegistry = Record<string, ModuleRegistryEntry>;
+import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
 const DATA_SOURCE = 'src/core/data/index.js';
@@ -79,9 +65,13 @@ function namedObjectExports(sourceFile: ts.SourceFile): Record<string, string[]>
     const namespaces: Record<string, string[]> = {};
 
     sourceFile.statements.forEach((statement) => {
+        if (!ts.isVariableStatement(statement)) {
+            return;
+        }
+
         const isExported = statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
 
-        if (!ts.isVariableStatement(statement) || !isExported) {
+        if (!isExported) {
             return;
         }
 
@@ -133,7 +123,7 @@ function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
     );
 }
 
-/** Builds the whole registry from the Administration sources. */
+/** @private Builds the registry from the Administration sources. */
 export function extractModuleRegistry(administrationRoot: string): ModuleRegistry {
     const utilsSource = parse(administrationRoot, UTILS_SOURCE);
     const utilsKeys = objectLiteralKeys(defaultExportLiteral(utilsSource, UTILS_SOURCE));

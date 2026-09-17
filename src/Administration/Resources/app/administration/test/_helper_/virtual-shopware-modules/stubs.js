@@ -1,15 +1,10 @@
 /**
  * @sw-package framework
  *
- * The files Jest loads for the `shopware:*` specifiers.
+ * Creates the physical files that Jest needs for `shopware:*` resolution. The Jest configuration writes
+ * them before workers start, which avoids concurrent writes on a cold cache.
  *
- * Jest resolves a request to a file on disk, and there are 90-odd specifiers, so a one-line stub is
- * written per specifier rather than checked in. They are all created once from `jest.config.ts`, in the
- * main process: creating them from the resolver instead would have every worker racing to write the same
- * file on a cold cache.
- *
- * Keep this plain JavaScript with no local imports: `jest-resolver.js` loads it from inside jest-resolve,
- * which runs outside the Jest runtime and cannot require a TypeScript file.
+ * This stays plain JavaScript because `jest-resolver.js` runs outside the Jest TypeScript runtime.
  */
 
 const fs = require('fs');
@@ -52,4 +47,4 @@ function writeStubs(specifiers, stubDirectory = STUB_DIR) {
     return specifiers.length;
 }
 
-module.exports = { resolveStub, stubPath, writeStubs };
+module.exports = { resolveStub, writeStubs };

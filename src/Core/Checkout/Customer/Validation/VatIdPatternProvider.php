@@ -197,7 +197,14 @@ class VatIdPatternProvider implements ResetInterface
      */
     private function getStateByEuVatId(string $vatId): ?string
     {
-        foreach ($this->getEuPatterns() as $iso => $pattern) {
+        $patterns = $this->getEuPatterns();
+
+        $prefix = strtoupper(substr($vatId, 0, 2));
+        if (isset($patterns[$prefix]) && $this->matches($patterns[$prefix], $vatId)) {
+            return $prefix;
+        }
+
+        foreach ($patterns as $iso => $pattern) {
             if ($this->matches($pattern, $vatId)) {
                 return $iso;
             }

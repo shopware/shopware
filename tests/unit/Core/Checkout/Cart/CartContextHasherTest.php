@@ -309,15 +309,61 @@ class CartContextHasherTest extends TestCase
         );
     }
 
-    /**
-     * The generated context carries an address with only its id, country and country state set. The
-     * remaining non-nullable properties stay uninitialised, so they must never be read via a getter.
-     */
+    public function testTheActiveShippingAddressOfTheCustomerDecidesOverTheSalesChannelLocation(): void
+    {
+        $hasher = new CartContextHasher(new EventDispatcher());
+        $context = self::createCheckoutContext();
+
+        $expected = $hasher->generate($this->cart, $context);
+
+        $context->assign(['shippingLocation' => ShippingLocation::createFromAddress(self::createForeignAddress())]);
+
+        static::assertSame($expected, $hasher->generate($this->cart, $context));
+    }
+
+    public function testTheSalesChannelLocationIsUsedWhileTheCustomerHasNoActiveShippingAddress(): void
+    {
+        $hasher = new CartContextHasher(new EventDispatcher());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Generator::CUSTOMER);
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        $context = self::createCheckoutContext();
+        $context->assign([
+            'customer' => $customer,
+            'shippingLocation' => ShippingLocation::createFromAddress(self::createForeignAddress()),
+        ]);
+
+        $withAddress = $hasher->generate($this->cart, $context);
+
+        $country = new CountryEntity();
+        $country->setId(self::OTHER_COUNTRY_ID);
+        $context->assign(['shippingLocation' => ShippingLocation::createFromCountry($country)]);
+
+        static::assertNotSame($withAddress, $hasher->generate($this->cart, $context));
+    }
+
     public function testHashIsGeneratedForPartiallyLoadedAddress(): void
     {
         $hasher = new CartContextHasher(new EventDispatcher());
 
         static::assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $hasher->generate($this->cart, $this->context));
+    }
+
+    private static function createForeignAddress(): CustomerAddressEntity
+    {
+        $country = new CountryEntity();
+        $country->setId(self::OTHER_COUNTRY_ID);
+
+        $address = new CustomerAddressEntity();
+        $address->setId(self::OTHER_ADDRESS_ID);
+        $address->setCountryId(self::OTHER_COUNTRY_ID);
+        $address->setCountry($country);
+        $address->setZipcode('1000');
+        $address->setCity('Brussels');
+
+        return $address;
     }
 
     /**

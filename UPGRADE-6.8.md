@@ -240,6 +240,8 @@ Activating an app writes `app.active = 1` as the last step, after the lifecycle 
 
 While those handlers, listeners, scripts and webhooks run, the app row still reads `active = 0`, and `ActiveAppsLoader::getActiveApps()` does not list the app yet. Code that reacts to an app activation and needs the new state must use the `AppEntity` carried by the event, which reports `isActive() === true`, instead of reading the database.
 
+App lifecycle webhooks are delivered synchronously, so an app server that answers `app.activated` by calling back into the Admin API is now rejected at the token request: an app with `active = 0` gets no OAuth token. Calling the shop from inside a synchronous webhook blocked a shop worker on the app while the app waited on the shop, so do that work after answering the webhook instead.
+
 Activation still happens exactly once per app, and a failing activation now throws without leaving the app active. Deactivation is unchanged.
 
 </details>

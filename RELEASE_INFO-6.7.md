@@ -95,6 +95,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Asset installation on S3-compatible storage
+
+Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
+
 ### Extensions can change the API CORS header lists
 
 The API answers CORS preflight requests with a fixed list of allowed and exposed headers, so a custom request header of an extension was rejected by the browser on cross-origin calls.

@@ -180,16 +180,23 @@ class AssetService
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
-        if ($manifest === [] || !isset($manifest[$bundleOrAppName])) {
-            // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
-            $this->assetFilesystem->deleteDirectory($targetDirectory);
+        $remoteBundleManifest = $manifest[$bundleOrAppName] ?? null;
+
+        if ($remoteBundleManifest === null) {
+            // Delayed directory deletes can remove files uploaded under the same keys afterwards.
+            // Unknown hashes force an overwrite while sync() deletes only obsolete files.
+            $remoteBundleManifest = [];
+            foreach ($this->assetFilesystem->listContents($targetDirectory, true) as $item) {
+                if ($item->isFile()) {
+                    $remoteBundleManifest[substr($item->path(), \strlen($targetDirectory) + 1)] = '';
+                }
+            }
         }
 
         if (!$this->assetFilesystem->directoryExists($targetDirectory)) {
             $this->assetFilesystem->createDirectory($targetDirectory);
         }
 
-        $remoteBundleManifest = $manifest[$bundleOrAppName] ?? [];
         $localBundleManifest = $this->buildBundleManifest(
             $this->getBundleFiles($originDirectory)
         );

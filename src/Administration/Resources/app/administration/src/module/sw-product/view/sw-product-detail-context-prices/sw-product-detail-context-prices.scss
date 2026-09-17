@@ -49,6 +49,10 @@
         align-items: center;
         margin-bottom: var(--scale-size-6);
 
+        .sw-list-price-field {
+            width: 100%;
+        }
+
         .sw-product-detail-context-prices__inherited-icon {
             margin-right: var(--scale-size-10);
         }

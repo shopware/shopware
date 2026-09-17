@@ -208,12 +208,13 @@
                     {% endblock %}
 
                     {% block sw_settings_sso_user_detail_grid_content_acl_is_admin %}
+                    {# Only a super admin can grant or revoke the admin flag. The API rejects the write otherwise. #}
                     <mt-switch
                         v-model="user.admin"
                         name="sw-field--user-admin"
                         class="sw-sso-detail-card__roles-and-permission-is-admin"
                         :label="$t('sw-users-permissions.users.user-detail.labelAdministrator')"
-                        :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
+                        :disabled="isCurrentUser || !acl.isAdmin()"
                     />
                     {% endblock %}
                 </div>

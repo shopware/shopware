@@ -6,12 +6,12 @@ const { cloneDeep } = Shopware.Utils.object;
 
 type WithSlotConfig = {
     slotConfig?: {
-        [slotId: string]: CmsSlotConfig;
+        [slotId: EntityKey<'cms_slot'>]: CmsSlotConfig;
     };
     translations?: Array<{
-        languageId: string;
+        languageId: EntityKey<'language'>;
         slotConfig?: {
-            [slotId: string]: CmsSlotConfig;
+            [slotId: EntityKey<'cms_slot'>]: CmsSlotConfig;
         };
     }>;
 };
@@ -118,27 +118,30 @@ export default Shopware.Mixin.register(
                  * Merge field-by-field within each slot so a partial child-language override
                  * does not shadow parent-language fields on the same slot.
                  */
-                const merged: { [slotId: string]: CmsSlotConfig } = {};
+                const merged: { [slotId: EntityKey<'cms_slot'>]: CmsSlotConfig } = {};
 
                 for (const [
                     slotId,
                     fields,
                 ] of Object.entries(parentSlotConfig ?? {})) {
-                    merged[slotId] = { ...fields };
+                    merged[slotId as EntityKey<'cms_slot'>] = { ...fields };
                 }
 
                 for (const [
                     slotId,
                     fields,
                 ] of Object.entries(currentSlotConfig ?? {})) {
-                    merged[slotId] = { ...(merged[slotId] ?? {}), ...fields };
+                    merged[slotId as EntityKey<'cms_slot'>] = {
+                        ...(merged[slotId as EntityKey<'cms_slot'>] ?? {}),
+                        ...fields,
+                    };
                 }
 
                 return cloneDeep(merged);
             },
         },
         methods: {
-            getSlotConfigForLanguage(languageId?: string | null) {
+            getSlotConfigForLanguage(languageId?: EntityKey<'language'> | null) {
                 if (!languageId) {
                     return null;
                 }

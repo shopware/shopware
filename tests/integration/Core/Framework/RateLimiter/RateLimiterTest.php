@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
@@ -334,6 +335,7 @@ class RateLimiterTest extends TestCase
             $this->mockResetLimiter([
                 RateLimiter::OAUTH => 1,
             ]),
+            static::getContainer()->get(Connection::class),
         );
 
         $controller->token(new Request());

@@ -326,6 +326,17 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         expect(mediaModal.attributes('entity-context')).toBe('product');
     });
 
+    it('should accept images, videos and 3d models in the media modal', async () => {
+        const wrapper = await createWrapper();
+
+        const productMediaFrom = wrapper.findComponent('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.findComponent('sw-media-modal-v2-stub');
+
+        expect(mediaModal.attributes('file-accept')).toBe('image/*,video/*,model/gltf-binary');
+    });
+
     it('should able to close media modal', async () => {
         const wrapper = await createWrapper();
 

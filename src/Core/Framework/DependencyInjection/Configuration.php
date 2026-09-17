@@ -206,6 +206,22 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
+            ->scalarNode('auth_code_ttl')->defaultValue('PT5M')->end()
+            ->arrayNode('oauth_clients')
+                ->info('Public OAuth clients allowed to use the authorization code grant with PKCE, keyed by client id.')
+                ->normalizeKeys(false)
+                ->useAttributeAsKey('client_id')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->arrayNode('redirect_uris')
+                            ->isRequired()
+                            ->requiresAtLeastOneElement()
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
             ->scalarNode('max_limit')->end()
             ->arrayNode('static_token')
                 ->children()
@@ -268,6 +284,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enabled')->end()
+                ->booleanNode('hide_module')->end()
             ->end();
 
         return $rootNode;
@@ -643,6 +660,9 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
                         ->booleanNode('major')->defaultFalse()->end()
+                        // Only for a major flag that is not named after its major: the major it
+                        // arrives in, so FEATURE_ALL=v6.8.0.0 can leave out a later major's flags.
+                        ->scalarNode('majorVersion')->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -1715,6 +1735,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
+                ->booleanNode('enable_url_validation')->defaultTrue()->end()
                 ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
                 ->arrayNode('allowed_private_ip_addresses')
                     ->performNoDeepMerging()

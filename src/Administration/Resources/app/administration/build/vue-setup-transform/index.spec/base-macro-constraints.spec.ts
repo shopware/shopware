@@ -3,11 +3,12 @@
  */
 
 /**
- * Base lowering leaves defineEmits/defineSlots/defineOptions/defineExpose in place and lets their
- * bindings flow through the generic rename + footer path (covered by base-transform.spec and
- * rename-pass.spec). The only macro-specific validation left for these is the Vue-invalid argument
- * guard on defineOptions. defineProps keeps its own file — it is the one macro with dedicated handling
- * (props forwarded to the footer, destructuring, prop-name collisions).
+ * Base lowering leaves defineEmits/defineSlots/defineOptions in place and lets their bindings flow
+ * through the generic rename + footer path (covered by base-transform.spec and rename-pass.spec). The
+ * only macro-specific validation left for these is the Vue-invalid argument guard on defineOptions.
+ * defineProps keeps its own file — it is the one macro with dedicated handling (props forwarded to the
+ * footer, destructuring, prop-name collisions). defineExpose is generated rather than authored, so its
+ * rejection lives in unsupported-macros.spec and its output in base-transform.spec.
  */
 
 import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail } from './helpers';
@@ -20,7 +21,6 @@ describe('build/vue-setup-transform base non-props macros', () => {
             defineSlots<{ default(): unknown }>();
             const emit = defineEmits<{ save: [] }>();
             const count = 1;
-            defineExpose({ count });
             swDefinePublic({ count });
             </script>
         `;
@@ -28,11 +28,10 @@ describe('build/vue-setup-transform base non-props macros', () => {
         const result = transformOrFail(source, 'base-macros.vue').code;
 
         // Macros are untouched; Vue's own compiler handles them downstream. Only the emit binding is
-        // aliased and re-exposed from the footer, and defineExpose keeps referencing the aliased binding.
+        // aliased and re-exposed from the footer.
         expect(result).toContain('defineOptions({ inheritAttrs: false });');
         expect(result).toContain('defineSlots<{ default(): unknown }>();');
         expect(result).toContain('const __swSetupAuthor_emit = defineEmits<{ save: [] }>();');
-        expect(result).toContain('defineExpose({ count: __swSetupAuthor_count });');
         expect(result).toContain('emit: __swSetupAuthor_emit');
     });
 

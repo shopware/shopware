@@ -22,15 +22,17 @@
  * - import { warn } from "shopware:utils/debug";   // same
  */
 
+import type { ShopwareClass } from 'src/core/shopware';
+
 /**
- * A global object shaped like the branches the virtual modules read.
+ * The branches of the global `Shopware` object that the virtual modules read.
  *
- * Narrow on purpose: a full `ShopwareClass` type would pull the Administration program in, and this file
- * has to load in Node and in jsdom alike.
+ * `Utils` and `Data` come from `ShopwareClass`, so renaming a branch or a member breaks here rather than
+ * at runtime. The two registries are widened instead: `Mixin.getByName` and `Store.get` are keyed by
+ * `keyof MixinContainer` and `keyof PiniaRootState`, and a key read out of `shopware-modules.json` is a
+ * plain string.
  */
-export type VirtualModuleGlobal = {
-    Utils: Record<string, unknown>;
-    Data: Record<string, unknown>;
+export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data'> & {
     Mixin: { getByName: (name: string) => unknown };
     Store: { get: (id: string) => unknown };
 };

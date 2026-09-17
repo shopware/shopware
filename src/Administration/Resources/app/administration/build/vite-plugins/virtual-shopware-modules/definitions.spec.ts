@@ -26,6 +26,9 @@ const registry = readRegistry(administrationRoot);
  *
  * Built from the registry rather than a blanket proxy, because a namespace subpath reads two levels deep
  * and both levels have to behave like the real objects for the comparison to mean anything.
+ *
+ * A marker string stands where the real branch has a function or a class, so the two branch types are
+ * asserted rather than satisfied.
  */
 function createProbeGlobal(): VirtualModuleGlobal {
     const branchOf = (family: string, property: string): Record<string, unknown> =>
@@ -49,8 +52,8 @@ function createProbeGlobal(): VirtualModuleGlobal {
         );
 
     return {
-        Utils: branchOf('shopware:utils', 'Utils'),
-        Data: branchOf('shopware:data', 'Data'),
+        Utils: branchOf('shopware:utils', 'Utils') as unknown as VirtualModuleGlobal['Utils'],
+        Data: branchOf('shopware:data', 'Data') as unknown as VirtualModuleGlobal['Data'],
         Mixin: { getByName: (key) => `Mixin:${key}` },
         Store: { get: (id) => `Store:${id}` },
     };

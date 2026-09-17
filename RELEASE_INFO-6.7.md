@@ -573,6 +573,7 @@ Wrap an explicitly published compatibility alias with `deprecatedAlias()`:
 ```
 
 The wrapper emits the deprecation only when `type` is read, so rendering the declaring template without using the alias does not produce a notice.
+The existing deprecated `infoColumnClass`, `editMode`, and `navigationId` compatibility variables now use the same access-time warning.
 
 ### Deprecated `type` variable in address manager templates
 

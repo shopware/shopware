@@ -229,8 +229,10 @@
                         {% endblock %}
 
                         {% block component_address_personal_company_vat_id %}
-                            {# @deprecated tag:v6.8.0 - Unused variable `editMode` and will be removed #}
-                            {% set editMode = true %}
+                            {% if not feature('v6.8.0.0') %}
+                                {# @deprecated tag:v6.8.0 - Unused variable `editMode` and will be removed #}
+                                {% set editMode = deprecatedAlias(true) %}
+                            {% endif %}
 
                             {# There is no country select on the profile form, so derive the "required" state from the customer's default billing country (same source the backend validates against). #}
                             {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {

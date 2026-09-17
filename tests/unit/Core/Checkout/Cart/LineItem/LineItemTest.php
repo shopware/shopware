@@ -160,6 +160,57 @@ class LineItemTest extends TestCase
     }
 
     /**
+     * Child quantities are derived from the parent, so propagation ignores child stackability:
+     * a stackable parent scales non-stackable children exactly like stackable ones.
+     *
+     * @throws CartException
+     */
+    public function testChangeQuantityOfStackableParentPropagatesToNonStackableChildren(): void
+    {
+        $lineItem = (new LineItem('A', 'type'))->setStackable(true);
+
+        $child1 = (new LineItem('A.1', 'child', null, 3))->setStackable(true);
+        $child2 = new LineItem('A.2', 'child', null, 2);
+        $child2->setStackable(false);
+        $child3 = new LineItem('A.3', 'child');
+        $child3->setStackable(false);
+
+        $child4 = new LineItem('A.3.1', 'child', null, 5);
+        $child5 = new LineItem('A.3.2', 'child', null, 10);
+
+        $child3->setChildren(new LineItemCollection([$child4, $child5]));
+
+        $lineItem->setChildren(new LineItemCollection([$child1, $child2, $child3]));
+
+        $lineItem->setQuantity(2);
+
+        static::assertSame(2, $lineItem->getQuantity());
+        static::assertSame(6, $child1->getQuantity());
+        static::assertSame(4, $child2->getQuantity());
+        static::assertSame(2, $child3->getQuantity());
+        static::assertSame(10, $child4->getQuantity());
+        static::assertSame(20, $child5->getQuantity());
+
+        $lineItem->setQuantity(3);
+
+        static::assertSame(3, $lineItem->getQuantity());
+        static::assertSame(9, $child1->getQuantity());
+        static::assertSame(6, $child2->getQuantity());
+        static::assertSame(3, $child3->getQuantity());
+        static::assertSame(15, $child4->getQuantity());
+        static::assertSame(30, $child5->getQuantity());
+
+        $lineItem->setQuantity(1);
+
+        static::assertSame(1, $lineItem->getQuantity());
+        static::assertSame(3, $child1->getQuantity());
+        static::assertSame(2, $child2->getQuantity());
+        static::assertSame(1, $child3->getQuantity());
+        static::assertSame(5, $child4->getQuantity());
+        static::assertSame(10, $child5->getQuantity());
+    }
+
+    /**
      * @throws CartException
      */
     public function testAddChildrenToLineItemWithInvalidQuantity(): void

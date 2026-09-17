@@ -129,10 +129,20 @@ export default function virtualShopwareModulesPlugin(options: Options): Plugin {
             return source;
         },
 
-        handleHotUpdate({ file }) {
-            if (file === registryFile) {
-                registry = undefined;
+        handleHotUpdate({ file, server }) {
+            if (file !== registryFile) {
+                return;
             }
+
+            registry = undefined;
+
+            const virtualModules = [...server.moduleGraph.idToModuleMap.values()].filter((module) =>
+                module.id?.startsWith(`${RESOLVED_PREFIX}shopware:`),
+            );
+
+            virtualModules.forEach((module) => server.moduleGraph.invalidateModule(module));
+
+            return virtualModules;
         },
     };
 }

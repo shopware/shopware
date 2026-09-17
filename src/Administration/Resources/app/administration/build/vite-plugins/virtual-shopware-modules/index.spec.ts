@@ -2,9 +2,12 @@
  * @sw-package framework
  */
 
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import VirtualShopwareModulesPlugin, { exportNames, generateModuleSource, readRegistry } from './index';
 import { parseSpecifier } from './definitions';
+import type { ModuleRegistry } from './definitions';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);
@@ -12,10 +15,19 @@ const registry = readRegistry(administrationRoot);
 type PluginHooks = {
     resolveId: (id: string) => string | null;
     load: (this: { addWatchFile: (file: string) => void }, id: string) => string | null;
+    handleHotUpdate: (context: {
+        file: string;
+        server: {
+            moduleGraph: {
+                idToModuleMap: Map<string, { id: string | null }>;
+                invalidateModule: (module: { id: string | null }) => void;
+            };
+        };
+    }) => Array<{ id: string | null }> | undefined;
 };
 
-function createPlugin(): PluginHooks {
-    return VirtualShopwareModulesPlugin({ administrationRoot }) as unknown as PluginHooks;
+function createPlugin(root = administrationRoot): PluginHooks {
+    return VirtualShopwareModulesPlugin({ administrationRoot: root }) as unknown as PluginHooks;
 }
 
 /** `load` is called with Rollup's plugin context; only `addWatchFile` is used. */
@@ -82,6 +94,70 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
 
             expect(load(plugin, 'src/core/shopware.ts').source).toBeNull();
             expect(load(plugin, '\0other-plugin:thing').source).toBeNull();
+        });
+    });
+
+    describe('handleHotUpdate', () => {
+        it('reloads the registry and invalidates loaded virtual modules', () => {
+            const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shopware-virtual-modules-'));
+            const registryFile = path.join(root, 'shopware-modules.json');
+            const writeRegistry = (exportName: string): void => {
+                const currentRegistry: ModuleRegistry = {
+                    'shopware:utils': {
+                        exports: [exportName],
+                        subpaths: { [exportName]: [] },
+                    },
+                };
+
+                fs.writeFileSync(registryFile, JSON.stringify(currentRegistry));
+            };
+
+            try {
+                writeRegistry('first');
+
+                const plugin = createPlugin(root);
+                const virtualModule = { id: '\0shopware:utils' };
+                const otherVirtualModule = { id: '\0other-plugin:thing' };
+                const unrelatedModule = { id: '/src/main.ts' };
+                const invalidateModule = jest.fn();
+
+                expect(plugin.resolveId('shopware:utils')).toBe('\0shopware:utils');
+                expect(load(plugin, '\0shopware:utils').source).toContain('export const first');
+
+                writeRegistry('second');
+
+                const updatedModules = plugin.handleHotUpdate({
+                    file: registryFile,
+                    server: {
+                        moduleGraph: {
+                            idToModuleMap: new Map([
+                                [
+                                    virtualModule.id,
+                                    virtualModule,
+                                ],
+                                [
+                                    otherVirtualModule.id,
+                                    otherVirtualModule,
+                                ],
+                                [
+                                    unrelatedModule.id,
+                                    unrelatedModule,
+                                ],
+                            ]),
+                            invalidateModule,
+                        },
+                    },
+                });
+
+                expect(updatedModules).toEqual([virtualModule]);
+                expect(invalidateModule).toHaveBeenCalledTimes(1);
+                expect(invalidateModule).toHaveBeenCalledWith(virtualModule);
+                expect(plugin.resolveId('shopware:utils/first')).toBeNull();
+                expect(plugin.resolveId('shopware:utils/second')).toBe('\0shopware:utils/second');
+                expect(load(plugin, '\0shopware:utils').source).toContain('export const second');
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
         });
     });
 

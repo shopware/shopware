@@ -2630,7 +2630,7 @@ Use `addressType` instead.
 ## Removed `showVatIdField` handling from address templates
 
 The deprecated Twig variable `showVatIdField` is no longer handled by `address-form.html.twig` and `address-personal.html.twig`.
-Use `showCompanyFields` in `address-personal.html.twig`. The legacy `address-form.html.twig` behavior is removed without replacement.
+Use `showCompanyFields` in `address-personal.html.twig`. VAT ID field handling was removed completely from `address-form.html.twig`, so passing `showVatIdField` as `true` has no effect.
 
 ## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
 

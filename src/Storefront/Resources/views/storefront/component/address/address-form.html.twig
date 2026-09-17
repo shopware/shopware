@@ -1,9 +1,9 @@
 {% block component_address_form %}
     {% if not feature('v6.8.0.0') %}
-        {# @deprecated tag:v6.8.0 - `showVatIdField` handling will be removed. #}
+        {# @deprecated tag:v6.8.0 - VAT ID field handling will be removed from this template. Passing `showVatIdField` as `true` will no longer have any effect. #}
         {% set showVatIdFieldValue = showVatIdField is defined and showVatIdField.silentUnwrap() %}
         {% if showVatIdFieldValue %}
-            {% do sw_trigger_deprecation('v6.8.0.0', 'Setting the "showVatIdField" Twig variable to true is deprecated and will be removed without replacement.') %}
+            {% do sw_trigger_deprecation('v6.8.0.0', 'VAT ID field handling will be removed from "address-form.html.twig". Passing the "showVatIdField" Twig variable as true will no longer have any effect.') %}
         {% endif %}
     {% endif %}
 
@@ -35,7 +35,7 @@
                             {% endblock %}
 
                             {% if not feature('v6.8.0.0') %}
-                                {# @deprecated tag:v6.8.0 - Block component_address_form_company_vatId will be removed as `showVatIdField` was never true #}
+                                {# @deprecated tag:v6.8.0 - Block `component_address_form_company_vatId` and VAT ID field handling will be removed from this template. #}
 
                                 {# ludtwig-ignore twig-block-name-snake-case #}
                                 {% block component_address_form_company_vatId %}

@@ -29,6 +29,8 @@ class VatIdPatternProviderTest extends TestCase
 
     private const NL_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0140';
 
+    private const GR_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0947';
+
     public function testReturnsThePatternsKeyedByTheirCountry(): void
     {
         $provider = $this->createProvider([
@@ -88,6 +90,26 @@ class VatIdPatternProviderTest extends TestCase
 
         // A second entry can only come from the API and must not silently win over the first
         static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL123456789B01', 'BE0123456789']));
+    }
+
+    public function testTheCountryOfAVatIdIsTheMemberStateItNames(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vatIdPattern' => '[A-Z0-9]+'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL123456789B01']));
+    }
+
+    public function testTheCountryOfAVatIdWithoutAMemberStateOfItsPrefixIsTheMatchingOne(): void
+    {
+        // The shipped Greek pattern also accepts the EL prefix, which is the ISO code of no country
+        $provider = $this->createProvider([
+            ['iso' => 'GR', 'id' => self::GR_ID, 'vatIdPattern' => '(EL|GR)\d{9}'],
+        ]);
+
+        static::assertSame(self::GR_ID, $provider->getCountryIdForVatIds(['EL123456789']));
     }
 
     public function testTheCountryOfAVatIdListSkipsEmptyEntries(): void

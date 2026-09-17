@@ -44,7 +44,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
             ->method('addPayload')
             ->with('vat_id_country_id', Uuid::fromHexToBytes($countryId));
 
-        $this->dispatch($command, $provider);
+        $this->dispatch($provider, $command);
     }
 
     public function testStoresNullWhenNoMemberStateMatches(): void
@@ -59,7 +59,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
             ->method('addPayload')
             ->with('vat_id_country_id', null);
 
-        $this->dispatch($command, $provider);
+        $this->dispatch($provider, $command);
     }
 
     public function testClearsTheCountryWhenTheVatIdsAreRemoved(): void
@@ -77,7 +77,37 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
             ->method('addPayload')
             ->with('vat_id_country_id', null);
 
-        $this->dispatch($command, $provider);
+        $this->dispatch($provider, $command);
+    }
+
+    public function testResolvesEveryCustomerOfABatchWrite(): void
+    {
+        $dutchCountryId = Uuid::randomHex();
+        $belgianCountryId = Uuid::randomHex();
+
+        $provider = $this->createMock(VatIdPatternProvider::class);
+        $provider->expects($this->exactly(2))
+            ->method('getCountryIdForVatIds')
+            ->willReturnMap([
+                [['NL123456789B01'], $dutchCountryId],
+                [['BE0123456789'], $belgianCountryId],
+            ]);
+
+        $dutchCustomer = $this->createMock(WriteCommand::class);
+        $dutchCustomer->method('hasField')->with('vat_ids')->willReturn(true);
+        $dutchCustomer->method('getPayload')->willReturn(['vat_ids' => '["NL123456789B01"]']);
+        $dutchCustomer->expects($this->once())
+            ->method('addPayload')
+            ->with('vat_id_country_id', Uuid::fromHexToBytes($dutchCountryId));
+
+        $belgianCustomer = $this->createMock(WriteCommand::class);
+        $belgianCustomer->method('hasField')->with('vat_ids')->willReturn(true);
+        $belgianCustomer->method('getPayload')->willReturn(['vat_ids' => '["BE0123456789"]']);
+        $belgianCustomer->expects($this->once())
+            ->method('addPayload')
+            ->with('vat_id_country_id', Uuid::fromHexToBytes($belgianCountryId));
+
+        $this->dispatch($provider, $dutchCustomer, $belgianCustomer);
     }
 
     public function testIgnoresWritesThatDoNotTouchTheVatIds(): void
@@ -89,16 +119,16 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
         $command->method('hasField')->with('vat_ids')->willReturn(false);
         $command->expects($this->never())->method('addPayload');
 
-        $this->dispatch($command, $provider);
+        $this->dispatch($provider, $command);
     }
 
-    private function dispatch(WriteCommand $command, VatIdPatternProvider $provider): void
+    private function dispatch(VatIdPatternProvider $provider, WriteCommand ...$commands): void
     {
         $event = $this->createMock(EntityWriteEvent::class);
         $event->expects($this->once())
             ->method('getCommandsForEntity')
             ->with(CustomerDefinition::ENTITY_NAME)
-            ->willReturn([$command]);
+            ->willReturn($commands);
 
         (new CustomerVatIdCountrySubscriber($provider))->beforeWrite($event);
     }

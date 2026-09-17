@@ -64,7 +64,7 @@ class CartContextHasher
 
         $struct->setBillingAddress(self::getHashContent($customer?->getActiveBillingAddress(), self::ADDRESS_HASH_FIELDS));
         $struct->setShippingAddress(self::getHashContent(
-            $context->getShippingLocation()->getAddress() ?? $customer?->getActiveShippingAddress(),
+            $customer?->getActiveShippingAddress() ?? $context->getShippingLocation()->getAddress(),
             self::ADDRESS_HASH_FIELDS
         ));
         $struct->setCustomer(self::getHashContent($customer, self::CUSTOMER_HASH_FIELDS));

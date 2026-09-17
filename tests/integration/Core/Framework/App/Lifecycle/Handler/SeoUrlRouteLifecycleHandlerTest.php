@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,6 +31,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 #[Package('framework')]
 class SeoUrlRouteLifecycleHandlerTest extends TestCase
 {
+    use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 

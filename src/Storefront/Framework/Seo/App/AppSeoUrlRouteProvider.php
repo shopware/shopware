@@ -44,7 +44,9 @@ class AppSeoUrlRouteProvider implements EventSubscriberInterface, ResetInterface
     {
         return [
             'app.written' => 'invalidate',
+            'app.deleted' => 'invalidate',
             AppSeoUrlRouteEntity::ENTITY_NAME . '.written' => 'invalidate',
+            AppSeoUrlRouteEntity::ENTITY_NAME . '.deleted' => 'invalidate',
         ];
     }
 

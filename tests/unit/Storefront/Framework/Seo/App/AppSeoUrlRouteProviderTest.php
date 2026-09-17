@@ -39,7 +39,9 @@ class AppSeoUrlRouteProviderTest extends TestCase
         static::assertSame(
             [
                 'app.written' => 'invalidate',
+                'app.deleted' => 'invalidate',
                 'app_seo_url_route.written' => 'invalidate',
+                'app_seo_url_route.deleted' => 'invalidate',
             ],
             AppSeoUrlRouteProvider::getSubscribedEvents()
         );

@@ -17,9 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -34,9 +36,11 @@ class AppSeoUrlTest extends TestCase
 {
     use AppSystemTestBehaviour;
     use BasicTestDataBehaviour;
+    use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use QueueTestBehaviour;
+    use SessionTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     private const APP_NAME = 'SwagStorefrontSeoUrl';

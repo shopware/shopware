@@ -1,0 +1,76 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Mapping Candidates",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-mapping-candidates.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system data mapping candidates",
+                "description": "Get the curated data a mappable element property may be mapped to, keyed by the root source a layout is bound to. The catalogue is an allowlist rather than a projection of the entity schema: only a path listed here is admitted by the content layout write boundary.",
+                "operationId": "content-system-mapping-candidates",
+                "responses": {
+                    "200": {
+                        "description": "Returns the mapping candidates of every registered root source.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["mappingCandidates"],
+                                    "properties": {
+                                        "mappingCandidates": {
+                                            "type": "object",
+                                            "description": "Keyed by root-source id. Every registered root source carries an entry; a source that offers nothing mappable carries an empty array, so a client never has to tell \"no candidates\" apart from \"unknown source\".",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["path", "label", "description", "group", "valueType", "contextType", "projection"],
+                                                    "properties": {
+                                                        "path": {
+                                                            "type": "string",
+                                                            "description": "The dotted path into the layout's root-ambient data, including its leading context key (\"category.name\"). This is the value stored as the consumer key of the mapping."
+                                                        },
+                                                        "label": {
+                                                            "type": "string",
+                                                            "description": "Snippet key for the human-readable name; the Administration resolves it against the user's locale."
+                                                        },
+                                                        "description": {
+                                                            "type": "string",
+                                                            "description": "Snippet key for the supporting line rendered under the name."
+                                                        },
+                                                        "group": {
+                                                            "type": "string",
+                                                            "description": "Grouping id the Administration renders as a section in the selection modal, for example \"basic\", \"seo\" or \"media\"."
+                                                        },
+                                                        "valueType": {
+                                                            "type": "string",
+                                                            "description": "The effective type the property receives, after any projection has run: a primitive (\"string\", \"integer\", \"number\", \"boolean\") or a fully qualified class name. Filter candidates against a property's declared type with this, not with the type sitting at the path."
+                                                        },
+                                                        "contextType": {
+                                                            "type": "string",
+                                                            "enum": ["single", "collection"],
+                                                            "description": "Whether the candidate yields a single value or a collection."
+                                                        },
+                                                        "projection": {
+                                                            "type": ["string", "null"],
+                                                            "description": "Name of the projection adapting the resolved value to valueType, or null when the value at the path already has that type. Informational: the server applies it, the client only echoes it back when storing the mapping."
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -7,6 +7,34 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Neues Layout erstellen"
     },
+    "mapping": {
+      "category": {
+        "name": {
+          "label": "Kategoriename",
+          "description": "Der Name der Kategorie, die die Seite zeigt."
+        },
+        "description": {
+          "label": "Kategoriebeschreibung",
+          "description": "Der Beschreibungstext der Kategorie."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel der Kategorie."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung der Kategorie."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter der Kategorie."
+        },
+        "media": {
+          "label": "Kategoriebild",
+          "description": "Das der Kategorie zugewiesene Bild."
+        }
+      }
+    },
     "elements": {
       "sw-grid-container": {
         "panels": {
@@ -110,7 +138,22 @@
         "boxSpacingLinkSides": "Alle Seiten gemeinsam bearbeiten",
         "boxSpacingUnlinkSides": "Seiten einzeln bearbeiten",
         "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
-        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
+        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv.",
+        "mapping": {
+          "mapAction": "Dynamische Daten verwenden",
+          "unmapAction": "Dynamische Daten entfernen",
+          "modalTitle": "Dynamische Daten auswählen",
+          "modalIntro": "Wähle die Daten, die „{property}“ beim Anzeigen der Seite füllen.",
+          "searchLabel": "Suche",
+          "searchPlaceholder": "Datenfelder suchen",
+          "noCandidates": "Für dieses Feld sind keine dynamischen Daten verfügbar.",
+          "noSearchResults": "Kein Datenfeld entspricht deiner Suche.",
+          "groups": {
+            "basic": "Basisinformationen",
+            "seo": "SEO",
+            "media": "Medien"
+          }
+        }
       },
       "elementPicker": {
         "title": "Element hinzufügen",

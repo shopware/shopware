@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *     default: string|int|float|bool|null,
  *     properties: array<string, array<string, mixed>>|null,
  *     required: bool,
+ *     mappable: bool,
  *     title: string,
  *     description: string,
  *     adminUI: array<string, mixed>|null
@@ -30,6 +31,7 @@ final readonly class PropertySpecification
         private string $title,
         private string $description,
         private ?array $adminUI,
+        private bool $mappable = false,
     ) {
     }
 
@@ -49,6 +51,16 @@ final readonly class PropertySpecification
     }
 
     /**
+     * Whether an author may replace this property's static value with a mapping onto the layout's root
+     * entity data. Opt-in per property, because a mapping is a public authoring contract: the property must
+     * keep rendering correctly when its value arrives from the entity rather than from the editor.
+     */
+    public function mappable(): bool
+    {
+        return $this->mappable;
+    }
+
+    /**
      * @return PropertySchema
      */
     public function toSchema(): array
@@ -56,6 +68,7 @@ final readonly class PropertySpecification
         return [
             ...$this->type->toSchema(),
             'required' => $this->required,
+            'mappable' => $this->mappable,
             'title' => $this->title,
             'description' => $this->description,
             'adminUI' => $this->adminUI,

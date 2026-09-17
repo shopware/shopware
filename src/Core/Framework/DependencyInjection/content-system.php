@@ -117,9 +117,12 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoade
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
+use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -710,6 +713,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
         ]);
 
+    // Data-mapping catalogue: one authority behind both the introspection endpoint and the write gate below
+    $services->set(MappingTypeCompatibility::class);
+
+    $services->set(ContentSystemMappingCandidateRegistry::class)
+        ->args([
+            tagged_iterator('content_system.mapping_candidate_provider'),
+        ]);
+
+    $services->set(StoredMappingValidator::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemMappingCandidateRegistry::class),
+            service(MappingTypeCompatibility::class),
+        ]);
+
     // Resolvability gate (DAL PreWriteValidationEvent)
     $services->set(ContentLayoutWriteValidator::class)
         ->args([
@@ -717,6 +735,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ViolationConstraintMapper::class),
             service(RootSourceRegistry::class),
             service(LayoutRootSourceReader::class),
+            service(StoredMappingValidator::class),
         ])
         ->tag('kernel.event_subscriber');
 

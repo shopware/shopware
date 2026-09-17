@@ -60,9 +60,26 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `mappable`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
+
+### `mappable`
+
+`mappable: true` lets a layout author replace the property's authored value with a path into the page's entity data — on a category layout, pointing a text property at `category.name`. It defaults to **false**, so a property is never mappable unless you say so, and that default is the switch for the distinction below.
+
+```yaml
+properties:
+  text:
+    type: string
+    mappable: true
+```
+
+**Do not set it on a property the element needs in order to work.** A property you fill yourself — through `dataRequirements`, a binding specification, or root-ambient context the page supplies — is your contract with the element, not a choice to hand the author. `Sw:Product:Listing`'s `listing` property is the reference case: the page loads the listing once and delivers it as root-scoped context, the element cannot render without it, and it stays silent on `mappable`. Leaving the flag off is enough; `Validation/StoredMappingValidator` then rejects any write that tries to map it, so no client can map it behind your back.
+
+The flag is what makes the two look different to the write gate, because on the wire they nearly coincide: a mapping and the root-scoped consumer the mutation layer mirrors for resolved wiring are both root-scoped entries carrying a `propertyAlias`. They are told apart by the key — a mapping reads a dotted path into an ambient value (`category.name`), mirrored wiring keys off the bare ambient name (`productListing`).
+
+If you do mark a property both mappable and self-filled, a mapping **wins**: `Output/Index/ValueOrigin` ranks `DeliveredContext` above `LoaderResolved`, and nothing warns you. That combination is only meaningful when overriding your loader is a feature you intend to offer.
 
 **`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`.
 

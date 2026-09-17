@@ -15,6 +15,7 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         enum: null,
         default: null,
         required: false,
+        mappable: false,
         title: 'Headline',
         description: 'Headline text',
         adminUI: null,

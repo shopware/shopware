@@ -154,12 +154,43 @@ class ElementTypeSpecificationSerializerTest extends TestCase
 
         static::assertFalse($prop->required);
         static::assertFalse($prop->translatable);
+        static::assertFalse($prop->mappable);
         static::assertSame('', $prop->title);
         static::assertSame('', $prop->description);
         static::assertNull($prop->enum);
         static::assertNull($prop->default);
         static::assertNull($prop->adminUI);
         static::assertNull($prop->properties);
+    }
+
+    /**
+     * `mappable` survives the app round-trip, which is what lets an app declare a mappable property: the flag
+     * is read from the YAML, stored in the DB schema, and read back as the same flag.
+     */
+    #[TestDox('round-trips the mappable opt-in and omits it when false')]
+    public function testRoundTripsTheMappableOptIn(): void
+    {
+        $data = [
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => [
+                'text' => ['type' => 'string', 'mappable' => true],
+                'height' => ['type' => 'string'],
+            ],
+        ];
+
+        $dto = $this->serializer->denormalize($data);
+
+        static::assertTrue($dto->properties['text']->mappable);
+        static::assertFalse($dto->properties['height']->mappable);
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertTrue($normalized['properties']['text']['mappable']);
+        static::assertArrayNotHasKey(
+            'mappable',
+            $normalized['properties']['height'],
+            'An absent opt-in must stay absent, like every other falsy property flag.'
+        );
     }
 
     #[TestDox('denormalizes and normalizes nested object property schemas')]

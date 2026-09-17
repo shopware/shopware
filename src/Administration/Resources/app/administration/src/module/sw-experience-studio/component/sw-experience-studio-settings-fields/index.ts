@@ -3,6 +3,7 @@ import type {
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
+import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import {
     getAdminUiHelpText,
     getAdminUiProps as getPropertyAdminUiProps,
@@ -10,6 +11,7 @@ import {
     getPropertyControlType,
 } from '../../util/element-settings.util';
 import { normalizeBoxSpacingCSSValue } from '../../util/box-spacing.util';
+import { getCandidatesForProperty, isMappableProperty } from '../../util/element-mapping.util';
 import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
@@ -102,10 +104,24 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        mappingCandidates: {
+            type: Array as PropType<ContentSystemMappingCandidate[]>,
+            required: false,
+            default: () => [],
+        },
+        /**
+         * Catalogue path per mapped property key. A property absent here renders its authored value.
+         */
+        mappings: {
+            type: Object as PropType<Record<string, string>>,
+            required: false,
+            default: () => ({}),
+        },
     },
 
     emits: [
         'update-field',
+        'update-mapping',
     ],
 
     watch: {
@@ -128,6 +144,7 @@ export default Shopware.Component.wrapComponentConfig({
             expandedResponsiveProperties: {} as Record<string, boolean>,
             responsiveGlobalSnapshots: {} as Record<string, PrimitiveValue>,
             touchedBreakpointAwareProperties: {} as Record<string, boolean>,
+            mappingModalFieldKey: null as string | null,
         };
     },
 
@@ -164,6 +181,20 @@ export default Shopware.Component.wrapComponentConfig({
 
             return Array.from(panels.values());
         },
+
+        mappingModalField(): SettingsFieldDefinition | null {
+            if (this.mappingModalFieldKey === null) {
+                return null;
+            }
+
+            return this.fields.find((field) => field.key === this.mappingModalFieldKey) ?? null;
+        },
+
+        mappingModalCandidates(): ContentSystemMappingCandidate[] {
+            const field = this.mappingModalField;
+
+            return field === null ? [] : this.getMappingCandidatesForField(field);
+        },
     },
 
     methods: {
@@ -194,6 +225,86 @@ export default Shopware.Component.wrapComponentConfig({
 
         getControlType(property: ContentSystemElementTypeProperty): string | null {
             return getPropertyControlType(property);
+        },
+
+        getMappingCandidatesForField(field: SettingsFieldDefinition): ContentSystemMappingCandidate[] {
+            if (!isMappableProperty(field.property)) {
+                return [];
+            }
+
+            return getCandidatesForProperty(this.mappingCandidates, field.property);
+        },
+
+        isFieldMapped(field: SettingsFieldDefinition): boolean {
+            return typeof this.mappings[field.key] === 'string';
+        },
+
+        getFieldMappingPath(field: SettingsFieldDefinition): string | null {
+            return this.mappings[field.key] ?? null;
+        },
+
+        /**
+         * A mapping offered by one root source can survive a layout being pointed at another, so fall back to the
+         * stored path when the current catalogue no longer describes it.
+         */
+        getFieldMappingLabel(field: SettingsFieldDefinition): string {
+            const path = this.getFieldMappingPath(field);
+
+            if (path === null) {
+                return '';
+            }
+
+            const candidate = this.mappingCandidates.find((entry) => entry.path === path);
+
+            if (!candidate) {
+                return path;
+            }
+
+            return this.$te(candidate.label) ? this.$t(candidate.label) : candidate.path;
+        },
+
+        canMapField(field: SettingsFieldDefinition): boolean {
+            return !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
+        },
+
+        onOpenMappingModal(field: SettingsFieldDefinition): void {
+            if (!this.allowEdit) {
+                return;
+            }
+
+            this.mappingModalFieldKey = field.key;
+        },
+
+        onCloseMappingModal(): void {
+            this.mappingModalFieldKey = null;
+        },
+
+        onSelectMapping(candidate: ContentSystemMappingCandidate): void {
+            const field = this.mappingModalField;
+
+            this.mappingModalFieldKey = null;
+
+            if (field === null || !this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-mapping', {
+                key: field.key,
+                path: candidate.path,
+                contextType: candidate.contextType,
+            });
+        },
+
+        onUnmapField(field: SettingsFieldDefinition): void {
+            if (!this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-mapping', {
+                key: field.key,
+                path: null,
+                contextType: null,
+            });
         },
 
         isBreakpointAwareField(field: SettingsFieldDefinition): boolean {

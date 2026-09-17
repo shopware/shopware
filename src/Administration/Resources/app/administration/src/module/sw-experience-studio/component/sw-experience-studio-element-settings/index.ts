@@ -1,6 +1,7 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
+import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
     getElementPropertyStorageKey,
@@ -8,6 +9,7 @@ import {
     getPropertyControlType,
     isPropertyVisible,
 } from '../../util/element-settings.util';
+import { findPropertyMapping } from '../../util/element-mapping.util';
 import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
@@ -75,11 +77,17 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        mappingCandidates: {
+            type: Array as PropType<ContentSystemMappingCandidate[]>,
+            required: false,
+            default: () => [],
+        },
     },
 
     emits: [
         'update-properties',
         'update-style',
+        'update-mapping',
     ],
 
     data() {
@@ -131,6 +139,25 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementStyleValues(): Record<string, unknown> {
             return this.selectedElement?.style ?? {};
+        },
+
+        elementMappings(): Record<string, string> {
+            const typeSpecification = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const selectedElement = this.selectedElement;
+
+            if (!typeSpecification || !selectedElement) {
+                return {};
+            }
+
+            return Object.keys(typeSpecification.properties).reduce<Record<string, string>>((accumulator, key) => {
+                const mapping = findPropertyMapping(selectedElement, key);
+
+                if (mapping !== null) {
+                    accumulator[key] = mapping.path;
+                }
+
+                return accumulator;
+            }, {});
         },
 
         elementFields(): SettingsFieldDefinition[] {
@@ -248,6 +275,29 @@ export default Shopware.Component.wrapComponentConfig({
                 properties: {
                     [storageKey]: payload.value,
                 },
+            });
+        },
+
+        /**
+         * A mapping keys off the declared property name, not the binding storage key, because `propertyAlias`
+         * names the property the resolved value fills.
+         */
+        onUpdateElementMapping(payload: {
+            key: string;
+            path: string | null;
+            contextType: 'single' | 'collection' | null;
+        }): void {
+            const selectedElement = this.selectedElement;
+
+            if (!selectedElement || !this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-mapping', {
+                elementId: selectedElement.id,
+                propertyKey: payload.key,
+                path: payload.path,
+                contextType: payload.contextType,
             });
         },
 

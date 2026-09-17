@@ -31,7 +31,48 @@
                     :key="field.key"
                     class="sw-experience-studio-settings-fields__field"
                 >
-                    <template v-if="isBreakpointAwareField(field)">
+                    <div
+                        v-if="isFieldMapped(field)"
+                        class="sw-experience-studio-settings-fields__mapping mt-field"
+                    >
+                        <span class="sw-experience-studio-settings-fields__mapping-label mt-field__label label">
+                            {{ field.property.title }}
+                        </span>
+
+                        <div class="sw-experience-studio-settings-fields__mapping-chip">
+                            <button
+                                type="button"
+                                class="sw-experience-studio-settings-fields__mapping-value"
+                                :disabled="!allowEdit"
+                                :title="getFieldMappingPath(field)"
+                                @click="onOpenMappingModal(field)"
+                            >
+                                <mt-icon
+                                    name="regular-database"
+                                    size="12px"
+                                />
+                                <span class="sw-experience-studio-settings-fields__mapping-name">
+                                    {{ getFieldMappingLabel(field) }}
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="sw-experience-studio-settings-fields__mapping-remove"
+                                :disabled="!allowEdit"
+                                :title="$t('sw-experience-studio.detail.elementSettings.mapping.unmapAction')"
+                                :aria-label="$t('sw-experience-studio.detail.elementSettings.mapping.unmapAction')"
+                                @click="onUnmapField(field)"
+                            >
+                                <mt-icon
+                                    name="regular-times-xs"
+                                    size="10px"
+                                />
+                            </button>
+                        </div>
+                    </div>
+
+                    <template v-else-if="isBreakpointAwareField(field)">
                         <div class="sw-experience-studio-settings-fields__responsive-control">
                             <div
                                 v-if="getControlType(field.property) === 'responsive-number'"
@@ -417,9 +458,32 @@
                             @update:model-value="onUpdateField(field.key, $event)"
                         />
                     </template>
+
+                    <button
+                        v-if="canMapField(field)"
+                        type="button"
+                        class="sw-experience-studio-settings-fields__mapping-trigger"
+                        :disabled="!allowEdit"
+                        @click="onOpenMappingModal(field)"
+                    >
+                        <mt-icon
+                            name="regular-database"
+                            size="12px"
+                        />
+                        {{ $t('sw-experience-studio.detail.elementSettings.mapping.mapAction') }}
+                    </button>
                 </div>
             </div>
         </template>
     </sw-collapse>
+
+    <sw-experience-studio-mapping-modal
+        v-if="mappingModalField"
+        :candidates="mappingModalCandidates"
+        :property-title="mappingModalField.property.title"
+        :current-path="getFieldMappingPath(mappingModalField)"
+        @select="onSelectMapping"
+        @close="onCloseMappingModal"
+    />
 </div>
 {% endblock %}

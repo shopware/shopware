@@ -11,7 +11,9 @@ import type {
 import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-system-layout-preset.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import type { ExperienceStudioLayoutPresetStore } from 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
+import type { ExperienceStudioMappingCandidateStore } from 'src/module/sw-experience-studio/store/experience-studio-mapping-candidate.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
+import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
@@ -22,12 +24,14 @@ import type {
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
     findElementLocation,
+    setElementMappingInLayout,
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
+import 'src/module/sw-experience-studio/store/experience-studio-mapping-candidate.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
@@ -251,6 +255,16 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('experienceStudioLayoutPreset' as never) as ExperienceStudioLayoutPresetStore;
         },
 
+        mappingCandidateStore() {
+            return Shopware.Store.get(
+                'experienceStudioMappingCandidate' as never,
+            ) as ExperienceStudioMappingCandidateStore;
+        },
+
+        mappingCandidates(): ContentSystemMappingCandidate[] {
+            return this.mappingCandidateStore.getByRootSource(this.getLayoutRootSource(this.layout));
+        },
+
         canUndo(): boolean {
             return this.editorStore.canUndo;
         },
@@ -334,6 +348,7 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadStyleOptions();
         void this.loadLayoutPresets();
         void this.loadLayoutTypes();
+        void this.loadMappingCandidates();
     },
 
     mounted(): void {
@@ -574,6 +589,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         async loadLayoutPresets(): Promise<void> {
             await this.layoutPresetStore.loadPresets();
+        },
+
+        async loadMappingCandidates(): Promise<void> {
+            await this.mappingCandidateStore.loadMappingCandidates();
         },
 
         entityTypeService(): ContentSystemEntityTypeService {
@@ -941,6 +960,25 @@ export default Shopware.Component.wrapComponentConfig({
         onElementStyleChange(payload: { elementId: string; style: Record<string, unknown> }): void {
             this.applyLayoutMutation((layout) => {
                 return updateElementStyleInLayout(layout, payload.elementId, payload.style) ? {} : false;
+            });
+        },
+
+        onElementMappingChange(payload: {
+            elementId: string;
+            propertyKey: string;
+            path: string | null;
+            contextType: 'single' | 'collection' | null;
+        }): void {
+            const mapping =
+                payload.path === null
+                    ? null
+                    : {
+                          path: payload.path,
+                          contextType: payload.contextType ?? 'single',
+                      };
+
+            this.applyLayoutMutation((layout) => {
+                return setElementMappingInLayout(layout, payload.elementId, payload.propertyKey, mapping) ? {} : false;
             });
         },
 

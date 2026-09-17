@@ -93,36 +93,7 @@ class ElementTypeSpecificationSerializer
         $result = ['meta' => $meta];
 
         if ($dto->properties !== []) {
-            $properties = [];
-            foreach ($dto->properties as $key => $prop) {
-                $propData = ['type' => $prop->type];
-                if ($prop->required) {
-                    $propData['required'] = true;
-                }
-                if ($prop->translatable) {
-                    $propData['translatable'] = true;
-                }
-                if ($prop->title !== '') {
-                    $propData['title'] = $prop->title;
-                }
-                if ($prop->description !== '') {
-                    $propData['description'] = $prop->description;
-                }
-                if ($prop->enum !== null) {
-                    $propData['enum'] = $prop->enum;
-                }
-                if ($prop->default !== null) {
-                    $propData['default'] = $prop->default;
-                }
-                if ($prop->adminUI !== null) {
-                    $propData['adminUI'] = $prop->adminUI;
-                }
-                if ($prop->properties !== null) {
-                    $propData['properties'] = $this->normalizeProperties($prop->properties);
-                }
-                $properties[$key] = $propData;
-            }
-            $result['properties'] = $properties;
+            $result['properties'] = $this->normalizeProperties($dto->properties);
         }
 
         if ($dto->slots !== []) {
@@ -162,6 +133,7 @@ class ElementTypeSpecificationSerializer
             default: $propertyData['default'] ?? null,
             adminUI: $propertyData['adminUI'] ?? null,
             properties: $this->denormalizeProperties($propertyData['properties'] ?? null),
+            mappable: $propertyData['mappable'] ?? false,
         );
     }
 
@@ -224,6 +196,10 @@ class ElementTypeSpecificationSerializer
 
             if ($prop->translatable) {
                 $propData['translatable'] = true;
+            }
+
+            if ($prop->mappable) {
+                $propData['mappable'] = true;
             }
 
             if ($prop->title !== '') {

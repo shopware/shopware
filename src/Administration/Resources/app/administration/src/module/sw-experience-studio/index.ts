@@ -3,6 +3,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 import './acl';
 import './store/experience-studio-editor.store';
 import './store/experience-studio-element-type.store';
+import './store/experience-studio-mapping-candidate.store';
 import './store/experience-studio-style-option.store';
 
 /**
@@ -99,6 +100,15 @@ Shopware.Component.register(
 Shopware.Component.register(
     'sw-experience-studio-element-picker',
     () => import('./component/sw-experience-studio-element-picker'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-mapping-modal',
+    () => import('./component/sw-experience-studio-mapping-modal'),
 );
 
 /**

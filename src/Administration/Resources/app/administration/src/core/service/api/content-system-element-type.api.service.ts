@@ -50,6 +50,8 @@ export interface ContentSystemElementTypeProperty {
     enum: Array<string | number | boolean> | null;
     default: string | number | boolean | null;
     required: boolean;
+    /** Whether the author may replace this property's static value with a mapping onto the layout's entity data. */
+    mappable: boolean;
     title: string;
     description: string;
     adminUI: ContentSystemElementTypePropertyAdminUi | null;

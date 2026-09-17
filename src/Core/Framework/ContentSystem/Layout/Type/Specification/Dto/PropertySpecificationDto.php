@@ -43,6 +43,7 @@ final readonly class PropertySpecificationDto
         public ?array $adminUI,
         #[Assert\Valid]
         public ?array $properties = null,
+        public bool $mappable = false,
     ) {
     }
 
@@ -71,6 +72,7 @@ final readonly class PropertySpecificationDto
             $this->title,
             $this->description,
             $this->adminUI,
+            $this->mappable,
         );
     }
 }

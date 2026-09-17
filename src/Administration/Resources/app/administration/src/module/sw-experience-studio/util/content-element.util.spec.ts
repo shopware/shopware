@@ -1,5 +1,10 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import { findElementLocation, updateElementPropertiesInLayout, updateElementStyleInLayout } from './content-element.util';
+import {
+    findElementLocation,
+    setElementMappingInLayout,
+    updateElementPropertiesInLayout,
+    updateElementStyleInLayout,
+} from './content-element.util';
 
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -106,5 +111,109 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
         });
 
         expect(testLayout[0].slots!.content[0]).not.toHaveProperty('style');
+    });
+
+    it('maps a property onto entity data without discarding the authored value', () => {
+        const testLayout = cloneDeep(layout);
+
+        const updated = setElementMappingInLayout(testLayout, 'child-1', 'text', {
+            path: 'category.name',
+            contextType: 'single',
+        });
+
+        expect(updated).toBe(true);
+        expect(testLayout[0].slots!.content[0].acceptsContext).toEqual({
+            'category.name': {
+                type: 'single',
+                required: false,
+                propertyAlias: 'text',
+                scope: 'root',
+            },
+        });
+        expect(testLayout[0].slots!.content[0].properties).toEqual({
+            text: 'Hello',
+        });
+    });
+
+    it('replaces an existing mapping rather than accumulating consumers for one property', () => {
+        const testLayout = cloneDeep(layout);
+
+        setElementMappingInLayout(testLayout, 'child-1', 'text', {
+            path: 'category.name',
+            contextType: 'single',
+        });
+        setElementMappingInLayout(testLayout, 'child-1', 'text', {
+            path: 'category.description',
+            contextType: 'single',
+        });
+
+        expect(Object.keys(testLayout[0].slots!.content[0].acceptsContext!)).toEqual(['category.description']);
+    });
+
+    it('leaves consumers for other properties untouched when mapping one', () => {
+        const testLayout = cloneDeep(layout);
+        testLayout[0].slots!.content[0].acceptsContext = {
+            'category.metaTitle': {
+                type: 'single',
+                required: false,
+                propertyAlias: 'headline',
+                scope: 'root',
+            },
+        };
+
+        setElementMappingInLayout(testLayout, 'child-1', 'text', {
+            path: 'category.name',
+            contextType: 'single',
+        });
+
+        expect(Object.keys(testLayout[0].slots!.content[0].acceptsContext!)).toEqual([
+            'category.metaTitle',
+            'category.name',
+        ]);
+    });
+
+    it('drops the consumer map entirely when the last mapping is removed', () => {
+        const testLayout = cloneDeep(layout);
+        testLayout[0].slots!.content[0].acceptsContext = {
+            'category.name': {
+                type: 'single',
+                required: false,
+                propertyAlias: 'text',
+                scope: 'root',
+            },
+        };
+
+        const updated = setElementMappingInLayout(testLayout, 'child-1', 'text', null);
+
+        expect(updated).toBe(true);
+        expect(testLayout[0].slots!.content[0]).not.toHaveProperty('acceptsContext');
+    });
+
+    it('leaves mirrored reference wiring alone when unmapping the property it feeds', () => {
+        const testLayout = cloneDeep(layout);
+        const mirroredWiring = {
+            productListing: {
+                type: 'single' as const,
+                required: true,
+                propertyAlias: 'listing',
+                scope: 'root' as const,
+            },
+        };
+        testLayout[0].slots!.content[0].acceptsContext = mirroredWiring;
+
+        setElementMappingInLayout(testLayout, 'child-1', 'listing', null);
+
+        expect(testLayout[0].slots!.content[0].acceptsContext).toEqual(mirroredWiring);
+    });
+
+    it('returns false when mapping a property on a missing element', () => {
+        const testLayout = cloneDeep(layout);
+
+        expect(
+            setElementMappingInLayout(testLayout, 'missing', 'text', {
+                path: 'category.name',
+                contextType: 'single',
+            }),
+        ).toBe(false);
     });
 });

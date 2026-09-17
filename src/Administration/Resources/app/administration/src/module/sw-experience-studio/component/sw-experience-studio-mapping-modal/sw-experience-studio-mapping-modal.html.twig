@@ -1,0 +1,90 @@
+{% block sw_experience_studio_mapping_modal %}
+<sw-modal
+    class="sw-experience-studio-mapping-modal"
+    variant="small"
+    :title="$t('sw-experience-studio.detail.elementSettings.mapping.modalTitle')"
+    @modal-close="onClose"
+>
+    {% block sw_experience_studio_mapping_modal_intro %}
+    <p
+        v-if="propertyTitle"
+        class="sw-experience-studio-mapping-modal__intro"
+    >
+        {{ $t('sw-experience-studio.detail.elementSettings.mapping.modalIntro', { property: propertyTitle }) }}
+    </p>
+    {% endblock %}
+
+    {% block sw_experience_studio_mapping_modal_search %}
+    <mt-text-field
+        v-if="hasCandidates"
+        v-model="searchTerm"
+        class="sw-experience-studio-mapping-modal__search"
+        size="small"
+        :label="$t('sw-experience-studio.detail.elementSettings.mapping.searchLabel')"
+        :placeholder="$t('sw-experience-studio.detail.elementSettings.mapping.searchPlaceholder')"
+    />
+    {% endblock %}
+
+    {% block sw_experience_studio_mapping_modal_candidates %}
+    <mt-empty-state
+        v-if="candidateGroups.length === 0"
+        icon="regular-database"
+        :description="emptyStateDescription"
+    />
+
+    <div
+        v-else
+        class="sw-experience-studio-mapping-modal__groups"
+    >
+        <div
+            v-for="candidateGroup in candidateGroups"
+            :key="candidateGroup.group"
+            class="sw-experience-studio-mapping-modal__group"
+        >
+            <div class="sw-experience-studio-mapping-modal__group-title">
+                {{ getGroupLabel(candidateGroup.group) }}
+            </div>
+
+            <button
+                v-for="candidate in candidateGroup.candidates"
+                :key="candidate.path"
+                type="button"
+                class="sw-experience-studio-mapping-modal__candidate"
+                :class="{ 'is--selected': isSelectedCandidate(candidate) }"
+                @click="onSelectCandidate(candidate)"
+            >
+                <span class="sw-experience-studio-mapping-modal__candidate-label">
+                    {{ getCandidateLabel(candidate) }}
+                </span>
+
+                <span
+                    v-if="getCandidateDescription(candidate)"
+                    class="sw-experience-studio-mapping-modal__candidate-description"
+                >
+                    {{ getCandidateDescription(candidate) }}
+                </span>
+
+                <mt-icon
+                    v-if="isSelectedCandidate(candidate)"
+                    class="sw-experience-studio-mapping-modal__candidate-check"
+                    name="regular-checkmark-xs"
+                    size="12px"
+                />
+            </button>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_mapping_modal_footer %}
+    <template #modal-footer>
+        <mt-button
+            variant="secondary"
+            size="small"
+            @click="onClose"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

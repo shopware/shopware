@@ -505,4 +505,183 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
 
         expect(value).toBe('0 0 0 0');
     });
+
+    describe('data mapping', () => {
+        const mappableTextField = {
+            key: 'text',
+            property: {
+                type: 'string',
+                mappable: true,
+                title: 'Text',
+                adminUI: null,
+            },
+        };
+
+        const staticTextField = {
+            key: 'headline',
+            property: {
+                type: 'string',
+                mappable: false,
+                title: 'Headline',
+                adminUI: null,
+            },
+        };
+
+        const categoryNameCandidate = {
+            path: 'category.name',
+            label: 'sw-experience-studio.mapping.category.name.label',
+            description: 'sw-experience-studio.mapping.category.name.description',
+            group: 'basic',
+            valueType: 'string',
+            contextType: 'single',
+            projection: null,
+        };
+
+        const mediaCandidate = {
+            path: 'category.media',
+            label: 'sw-experience-studio.mapping.category.media.label',
+            description: 'sw-experience-studio.mapping.category.media.description',
+            group: 'media',
+            valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+            contextType: 'single',
+            projection: null,
+        };
+
+        it('offers only candidates that can fill a mappable property', () => {
+            const candidates = methods.getMappingCandidatesForField.call(
+                {
+                    mappingCandidates: [
+                        categoryNameCandidate,
+                        mediaCandidate,
+                    ],
+                },
+                mappableTextField,
+            ) as Array<{ path: string }>;
+
+            expect(candidates.map((candidate) => candidate.path)).toEqual(['category.name']);
+        });
+
+        it('offers nothing for a property that did not opt in', () => {
+            const candidates = methods.getMappingCandidatesForField.call(
+                {
+                    mappingCandidates: [categoryNameCandidate],
+                },
+                staticTextField,
+            ) as unknown[];
+
+            expect(candidates).toEqual([]);
+        });
+
+        it('hides the map action once the property is mapped', () => {
+            const context = {
+                mappingCandidates: [categoryNameCandidate],
+                mappings: { text: 'category.name' },
+                getMappingCandidatesForField: methods.getMappingCandidatesForField,
+                isFieldMapped: methods.isFieldMapped,
+            };
+
+            expect(methods.canMapField.call(context, mappableTextField)).toBe(false);
+            expect(methods.isFieldMapped.call(context, mappableTextField)).toBe(true);
+        });
+
+        it('hides the map action when the catalogue offers nothing usable', () => {
+            const context = {
+                mappingCandidates: [mediaCandidate],
+                mappings: {},
+                getMappingCandidatesForField: methods.getMappingCandidatesForField,
+                isFieldMapped: methods.isFieldMapped,
+            };
+
+            expect(methods.canMapField.call(context, mappableTextField)).toBe(false);
+        });
+
+        it('labels a mapping with its snippet, and with the raw path when the catalogue lost it', () => {
+            const context = {
+                mappingCandidates: [categoryNameCandidate],
+                mappings: {
+                    text: 'category.name',
+                    headline: 'product.name',
+                },
+                getFieldMappingPath: methods.getFieldMappingPath,
+                $te: (key: string) => key === categoryNameCandidate.label,
+                $t: () => 'Category name',
+            };
+
+            expect(methods.getFieldMappingLabel.call(context, mappableTextField)).toBe('Category name');
+            expect(methods.getFieldMappingLabel.call(context, staticTextField)).toBe('product.name');
+        });
+
+        it('emits the chosen path together with its context type and closes the modal', () => {
+            const emitted: unknown[] = [];
+            const context = {
+                allowEdit: true,
+                mappingModalFieldKey: 'text',
+                mappingModalField: mappableTextField,
+                $emit: (event: string, payload: unknown) => emitted.push([
+                    event,
+                    payload,
+                ]),
+            };
+
+            methods.onSelectMapping.call(context, categoryNameCandidate);
+
+            expect(context.mappingModalFieldKey).toBeNull();
+            expect(emitted).toEqual([
+                [
+                    'update-mapping',
+                    {
+                        key: 'text',
+                        path: 'category.name',
+                        contextType: 'single',
+                    },
+                ],
+            ]);
+        });
+
+        it('emits a null path to unmap', () => {
+            const emitted: unknown[] = [];
+
+            methods.onUnmapField.call(
+                {
+                    allowEdit: true,
+                    $emit: (event: string, payload: unknown) => emitted.push([
+                        event,
+                        payload,
+                    ]),
+                },
+                mappableTextField,
+            );
+
+            expect(emitted).toEqual([
+                [
+                    'update-mapping',
+                    {
+                        key: 'text',
+                        path: null,
+                        contextType: null,
+                    },
+                ],
+            ]);
+        });
+
+        it('stays silent on a read-only layout', () => {
+            const emitted: unknown[] = [];
+            const context = {
+                allowEdit: false,
+                mappingModalFieldKey: null as string | null,
+                mappingModalField: mappableTextField,
+                $emit: (event: string, payload: unknown) => emitted.push([
+                    event,
+                    payload,
+                ]),
+            };
+
+            methods.onOpenMappingModal.call(context, mappableTextField);
+            methods.onUnmapField.call(context, mappableTextField);
+            methods.onSelectMapping.call(context, categoryNameCandidate);
+
+            expect(context.mappingModalFieldKey).toBeNull();
+            expect(emitted).toEqual([]);
+        });
+    });
 });

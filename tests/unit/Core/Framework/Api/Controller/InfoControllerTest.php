@@ -33,6 +33,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
@@ -124,6 +126,56 @@ class InfoControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    #[TestDox('returns the mapping catalogue of every known root source, keyed by root source')]
+    public function testContentSystemMappingCandidates(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['category', 'none']);
+
+        $mappingCandidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $mappingCandidateRegistry->method('forRootSource')->willReturnCallback(
+            static fn (string $rootSource): array => $rootSource === 'category' ? [
+                'category.name' => new MappingCandidate(
+                    path: 'category.name',
+                    label: 'sw-experience-studio.mapping.category.name.label',
+                    description: 'sw-experience-studio.mapping.category.name.description',
+                    group: 'basic',
+                    valueType: 'string',
+                ),
+            ] : []
+        );
+
+        $controller = $this->createController(
+            rootSourceRegistry: $rootSourceRegistry,
+            mappingCandidateRegistry: $mappingCandidateRegistry,
+        );
+        $response = $controller->contentSystemMappingCandidates();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        static::assertSame([
+            'mappingCandidates' => [
+                // The catalogue serializes as a list per source: the path is the entry's own field, so the
+                // client never has to read it off an object key.
+                'category' => [[
+                    'path' => 'category.name',
+                    'label' => 'sw-experience-studio.mapping.category.name.label',
+                    'description' => 'sw-experience-studio.mapping.category.name.description',
+                    'group' => 'basic',
+                    'valueType' => 'string',
+                    'contextType' => 'single',
+                    'projection' => null,
+                ]],
+                // Present but empty, so a client never has to tell "offers nothing" apart from "unknown".
+                'none' => [],
+            ],
+        ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]
@@ -678,6 +730,7 @@ class InfoControllerTest extends TestCase
         ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
         ?StoredSchemaResolver $storedSchemaResolver = null,
         ?AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry = null,
+        ?AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry = null,
         ?AppUrlVerifier $appUrlVerifier = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
@@ -719,6 +772,7 @@ class InfoControllerTest extends TestCase
                 static::createStub(DataLoaderProvider::class),
             ),
             $layoutPresetRegistry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
+            $mappingCandidateRegistry ?? static::createStub(AbstractContentSystemMappingCandidateRegistry::class),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );

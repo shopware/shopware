@@ -111,4 +111,101 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
             },
         ]);
     });
+
+    describe('data mapping', () => {
+        const textType = {
+            properties: {
+                text: {},
+                headline: {},
+            },
+        };
+
+        it('reports the mapped path per declared property', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        'category.name': {
+                            type: 'single',
+                            required: false,
+                            propertyAlias: 'text',
+                            scope: 'root',
+                        },
+                    },
+                },
+                selectedElementType: textType,
+            });
+
+            expect(mappings).toEqual({
+                text: 'category.name',
+            });
+        });
+
+        it('ignores a consumer that does not alias a declared property', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        product: {
+                            type: 'single',
+                            required: true,
+                            scope: 'parent',
+                        },
+                    },
+                },
+                selectedElementType: textType,
+            });
+
+            expect(mappings).toEqual({});
+        });
+
+        it('emits the declared property key rather than a binding storage key', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'image-element',
+                    },
+                    selectedElementType: imageType,
+                    allowEdit: true,
+                    $emit,
+                },
+                {
+                    key: 'media',
+                    path: 'category.media',
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).toHaveBeenCalledWith('update-mapping', {
+                elementId: 'image-element',
+                propertyKey: 'media',
+                path: 'category.media',
+                contextType: 'single',
+            });
+        });
+
+        it('stays silent on a read-only layout', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'text-element',
+                    },
+                    selectedElementType: textType,
+                    allowEdit: false,
+                    $emit,
+                },
+                {
+                    key: 'text',
+                    path: 'category.name',
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).not.toHaveBeenCalled();
+        });
+    });
 });

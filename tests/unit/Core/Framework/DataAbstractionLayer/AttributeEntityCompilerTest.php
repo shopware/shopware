@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -170,13 +169,18 @@ class AttributeEntityCompilerTest extends TestCase
         static::assertSame([], $result);
     }
 
-    public function testCompileRejectsCascadeDeleteOnManyToOne(): void
+    public function testCompileDropsCascadeDeleteFromManyToOne(): void
     {
-        $this->expectExceptionObject(
-            DataAbstractionLayerException::cascadeDeleteOnManyToOne('cascading_many_to_one', 'currency')
-        );
+        $compiledResult = (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);
 
-        (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);
+        $entityDefinition = $this->findEntityDefinition($compiledResult, 'cascading_many_to_one');
+        $fields = array_column($entityDefinition['fields'], null, 'name');
+
+        $currency = $fields['currency'] ?? null;
+
+        static::assertNotNull($currency, 'currency field not found');
+        static::assertIsArray($currency['flags']);
+        static::assertArrayNotHasKey('cascade', $currency['flags']);
     }
 
     /**

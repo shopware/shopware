@@ -299,11 +299,11 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
-### Attribute entities reject a cascading many-to-one association
+### A cascading many-to-one on an attribute entity no longer cascades
 
-An attribute entity that declares `#[ManyToOne(onDelete: OnDelete::CASCADE)]` is now rejected while the container is built, with the error code `FRAMEWORK__CASCADE_DELETE_ON_MANY_TO_ONE`. On a many-to-one the flag told the DAL to delete the referenced record together with its own, and together with a cascading `#[OneToMany]` on the opposite side it made deleting a record of either entity loop between the two until the process was killed.
+`#[ManyToOne(onDelete: OnDelete::CASCADE)]` on an attribute entity told the DAL to delete the referenced record together with the record carrying the association, so deleting a child deleted its parent. Together with a cascading `#[OneToMany]` on the opposite side it made deleting a record of either entity walk the pair until the process was killed.
 
-Declare the cascade on the inverse `#[OneToMany]` only, which is also what non-attribute entity definitions have to do:
+The flag is now ignored on a many-to-one. Declare the cascade on the inverse `#[OneToMany]`, which deletes the children together with their parent as intended:
 
 ```php
 #[OneToMany(entity: 'my_child', ref: 'my_parent_id', onDelete: OnDelete::CASCADE)]
@@ -313,7 +313,7 @@ public ?array $children = null;
 public ?MyParentEntity $parent = null;
 ```
 
-Independently of the declaration, resolving a delete now stops as soon as a cascade chain leads back to a record it has already resolved, so such a pair can no longer make a delete run forever. The `measurement_system` and `measurement_display_unit` entities shipped this pair; deleting a record of either through the DAL or the Admin API works again.
+Independently of the declaration, resolving a delete now stops as soon as a cascade chain leads back to a record it has already resolved, so no pair of definitions can make a delete run forever. The `measurement_system` and `measurement_display_unit` entities shipped this pair; deleting a record of either through the DAL or the Admin API works again.
 
 ## API
 

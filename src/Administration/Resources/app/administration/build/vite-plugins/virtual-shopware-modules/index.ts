@@ -49,7 +49,7 @@ export function exportNames(registry: ModuleRegistry, parsed: ParsedSpecifier): 
         return undefined;
     }
 
-    return parsed.key === undefined ? entry.exports : entry.subpaths[parsed.key];
+    return parsed.subpath === undefined ? entry.exports : entry.subpaths[parsed.subpath];
 }
 
 /**

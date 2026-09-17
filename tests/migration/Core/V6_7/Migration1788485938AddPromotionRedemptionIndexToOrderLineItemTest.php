@@ -30,12 +30,6 @@ class Migration1788485938AddPromotionRedemptionIndexToOrderLineItemTest extends 
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    protected function tearDown(): void
-    {
-        // DDL is not transactional, so the shared schema has to be put back by hand
-        $this->rollback();
-    }
-
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(1788485938, (new Migration1788485938AddPromotionRedemptionIndexToOrderLineItem())->getCreationTimestamp());
@@ -71,19 +65,53 @@ class Migration1788485938AddPromotionRedemptionIndexToOrderLineItemTest extends 
         static::assertSame(self::INDEX_COLUMNS, $columns);
     }
 
+    public function testUpdateDestructiveDropsTheRedundantForeignKeyIndex(): void
+    {
+        $this->rollback();
+
+        $migration = new Migration1788485938AddPromotionRedemptionIndexToOrderLineItem();
+        $migration->update($this->connection);
+
+        // Only a schema that carries the narrow index explicitly still has one to drop, so recreate
+        // it where InnoDB retired its own.
+        $this->createForeignKeyIndexIfMissing();
+
+        $migration->updateDestructive($this->connection);
+        // Verify idempotency.
+        $migration->updateDestructive($this->connection);
+
+        static::assertFalse(TableHelper::indexExists($this->connection, 'order_line_item', self::FK_INDEX_NAME));
+        static::assertTrue(TableHelper::indexExists($this->connection, 'order_line_item', self::INDEX_NAME));
+        // The covering index leads with `promotion_id`, so the constraint survives without its own.
+        static::assertTrue(TableHelper::foreignKeyExists($this->connection, 'order_line_item', self::FK_INDEX_NAME));
+
+        // Leave the covering index in place, as a migrated schema has it, and put the narrow index
+        // back so the shared schema is not left short of what the other suites expect.
+        $this->createForeignKeyIndexIfMissing();
+    }
+
     private function rollback(): void
     {
         if (!TableHelper::indexExists($this->connection, 'order_line_item', self::INDEX_NAME)) {
             return;
         }
 
-        // Restore the FK index first if InnoDB retired it when creating the covering index.
-        if (!TableHelper::indexExists($this->connection, 'order_line_item', self::FK_INDEX_NAME)) {
-            $this->connection->executeStatement(
-                'CREATE INDEX `' . self::FK_INDEX_NAME . '` ON `order_line_item` (`promotion_id`)'
-            );
-        }
+        // Where the constraint's own index was the one InnoDB created, creating the covering index
+        // retires it, which leaves the covering index as the only support for the foreign key and
+        // so undroppable. Put the narrow index back first.
+        $this->createForeignKeyIndexIfMissing();
 
         $this->connection->executeStatement('DROP INDEX `' . self::INDEX_NAME . '` ON `order_line_item`');
+    }
+
+    private function createForeignKeyIndexIfMissing(): void
+    {
+        if (TableHelper::indexExists($this->connection, 'order_line_item', self::FK_INDEX_NAME)) {
+            return;
+        }
+
+        $this->connection->executeStatement(
+            'CREATE INDEX `' . self::FK_INDEX_NAME . '` ON `order_line_item` (`promotion_id`)'
+        );
     }
 }

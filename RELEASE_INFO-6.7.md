@@ -294,9 +294,12 @@ The tag association routes and a nested `tags` payload on the order or category 
 Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an app are written to the translation filesystem on install and update, and removed on uninstall. A snippet catalogue build reads them from there instead of from the app's location, so a self-managed app's source is no longer downloaded during a storefront request.
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
+
 ### Promotion redemptions are recounted with a covering index
 
-Placing an order that redeems a promotion recounts that promotion's redemptions across all of its past orders. A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so the recount no longer reads a table row per past order: a promotion used by 230k orders recounts in under a second instead of 18.8s, which before was long enough to exceed the payment timeout and fail the checkout. The migration builds the index across the whole `order_line_item` table, so expect it to run for several minutes on a large shop.
+Placing an order that redeems a promotion recounts that promotion's redemptions across all of its past orders. A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so the recount reads that index instead of one table row per past order. On a promotion with a long order history the row lookups were slow enough to exceed the payment timeout and fail the checkout. The recount still grows in proportion to the orders that used the promotion, so this raises that ceiling rather than removing it.
+
+The migration builds the index across the whole `order_line_item` table and can run for several minutes on a large shop. `innodb_ddl_buffer_size`, 1 MB by default and allocated per thread, is the most effective way to shorten it.
 
 The recount no longer filters on `order_line_item.type`, because `promotion_id` is only ever written for promotion line items. Redemptions are counted per order, so an integration that sets `promotionId` on a line item of another type through the Admin API now has that order counted towards the promotion's redemptions, unless a real promotion line item already links the two.
 

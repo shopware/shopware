@@ -277,6 +277,42 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         expect(getAdminUiProps(stringProperty)).toEqual({});
     });
 
+    it('defaults number fields to integer steps', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                type: 'integer',
+                adminUI: {
+                    component: 'number',
+                },
+            }),
+        ).toEqual({
+            digits: 0,
+            step: 1,
+        });
+    });
+
+    it('keeps declared number field step and digits', () => {
+        expect(
+            getAdminUiProps({
+                ...stringProperty,
+                type: 'number',
+                adminUI: {
+                    component: 'number',
+                    props: {
+                        min: 0,
+                        digits: 2,
+                        step: 0.01,
+                    },
+                },
+            }),
+        ).toEqual({
+            min: 0,
+            digits: 2,
+            step: 0.01,
+        });
+    });
+
     it('returns adminUI help text when provided', () => {
         expect(
             getAdminUiHelpText({

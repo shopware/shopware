@@ -47,8 +47,7 @@ type LayoutMutationResult =
 type AddElementPayload = {
     parentElementId: string | null;
     slotName: string | null;
-    anchorTop: number;
-    anchorLeft: number;
+    anchorElement: HTMLElement | null;
 };
 
 type ElementPickerItem = {
@@ -129,8 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
         historyKeydownHandler: ((event: KeyboardEvent) => void) | null;
         isElementPickerOpen: boolean;
         pendingAddElementPayload: AddElementPayload | null;
-        pickerTop: number;
-        pickerLeft: number;
+        pickerAnchorElement: HTMLElement | null;
         inlineEditSession: InlineEditSession;
         mutationRequestSequence: number;
         latestMutationRequestId: number;
@@ -151,8 +149,7 @@ export default Shopware.Component.wrapComponentConfig({
             historyKeydownHandler: null,
             isElementPickerOpen: false,
             pendingAddElementPayload: null,
-            pickerTop: 0,
-            pickerLeft: 0,
+            pickerAnchorElement: null,
             inlineEditSession: null,
             mutationRequestSequence: 0,
             latestMutationRequestId: 0,
@@ -668,14 +665,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onAddElement(payload: AddElementPayload): void {
             this.pendingAddElementPayload = payload;
-            this.pickerTop = payload.anchorTop - 8;
-            this.pickerLeft = payload.anchorLeft + 26;
+            this.pickerAnchorElement = payload.anchorElement;
             this.isElementPickerOpen = true;
         },
 
         onCloseElementPicker(): void {
             this.isElementPickerOpen = false;
             this.pendingAddElementPayload = null;
+            this.pickerAnchorElement = null;
         },
 
         async onSelectElementType(component: string): Promise<void> {

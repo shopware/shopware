@@ -301,7 +301,7 @@ Changed snippets of an app reach the storefront on update: raise the manifest ve
 
 ### MCP servers are registered declaratively
 
-Shopware runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers declaratively. The extension tags `shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and their `shopware.store_api_mcp.*` equivalents are unchanged, so plugins and apps that register tools, prompts, or resources need no adjustment. Code that integrates with the MCP internals has to be updated; those classes are marked `@experimental stableVersion:v6.8.0`.
+Shopware runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers declaratively. The extension tags `shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and their `shopware.store_api_mcp.*` equivalents are unchanged, so plugins and apps that register tools, prompts, or resources need no adjustment. Code that integrates with the MCP internals has to be updated; those classes are marked `@experimental stableVersion:v6.8.0`. The motivation, the considered alternatives, and the consequences are described in [MCP capability registration via the container](adr/2026-08-31-mcp-capability-registration-via-container.md).
 
 The bundle registers one set of services per server, so the flat service IDs are gone:
 

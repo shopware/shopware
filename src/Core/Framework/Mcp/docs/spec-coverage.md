@@ -10,9 +10,6 @@ and a handler returning an `InputRequiredResult` additionally needs a signed req
 across every worker that might serve the retry. Adopting it is its own piece of work, not a
 side effect of a dependency bump.
 
-The same SDK release deprecated Roots, Sampling and Logging (SEP-2577, earliest removal 2027-07-28).
-Shopware exposes none of the three, so nothing here depends on them.
-
 This doc is the compact matrix for one question:
 
 - what the MCP server spec allows
@@ -58,8 +55,8 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 
 | Spec area | Why it is out of scope for `/api/_mcp` |
 |---|---|
-| Client roots | Implemented by MCP clients, not the Shopware server |
-| Client sampling | The client or model provider handles this, not the Shopware server |
+| Client roots | Implemented by MCP clients, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
+| Client sampling | The client or model provider handles this, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
 | Client elicitation | Client-side interactive UX, not a shop server feature |
 
 ## Response model review

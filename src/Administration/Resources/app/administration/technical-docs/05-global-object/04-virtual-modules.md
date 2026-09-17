@@ -37,14 +37,14 @@ import cmsElementMixin from 'shopware:mixins/cms-element';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 ```
 
-| Specifier | Publishes |
-| --- | --- |
-| `shopware:utils` | every member of `Shopware.Utils` |
+| Specifier                 | Publishes                                                                   |
+| ------------------------- | --------------------------------------------------------------------------- |
+| `shopware:utils`          | every member of `Shopware.Utils`                                            |
 | `shopware:utils/<member>` | that member as the default export, plus its own names where it is an object |
-| `shopware:data` | every class on `Shopware.Data` |
-| `shopware:data/<Class>` | that class as the default export |
-| `shopware:mixins/<name>` | the registered mixin as the default export |
-| `shopware:stores/<id>` | a composable returning the store, as the default export |
+| `shopware:data`           | every class on `Shopware.Data`                                              |
+| `shopware:data/<Class>`   | that class as the default export                                            |
+| `shopware:mixins/<name>`  | the registered mixin as the default export                                  |
+| `shopware:stores/<id>`    | a composable returning the store, as the default export                     |
 
 A store subpath never publishes named exports. Destructuring a Pinia store drops reactivity, which is
 what `storeToRefs` exists for.
@@ -69,7 +69,8 @@ Both outputs are committed on purpose: a new specifier then shows up in a pull r
 reviewer can see whether it is real. `generate-shopware-modules.spec.ts` fails when either file drifts
 from the sources and names the command to run.
 
-Each module is declared with `export =`, which is what lets one specifier serve both halves:
+The declarations list the same default and named exports as the generated modules. A namespace subpath
+can provide both forms:
 
 ```ts
 import debug, { warn } from 'shopware:utils/debug';
@@ -105,10 +106,10 @@ if (!shopware) {
     throw new Error('"shopware:utils/debug" was imported before the global Shopware object existed. …');
 }
 
-export const warn = shopware.Utils["debug"]["warn"];
-export const error = shopware.Utils["debug"]["error"];
+export const warn = shopware.Utils['debug']['warn'];
+export const error = shopware.Utils['debug']['error'];
 
-export default shopware.Utils["debug"];
+export default shopware.Utils['debug'];
 ```
 
 A mixin lookup carries `/*@__PURE__*/`, so a production build drops it when the importer's binding is

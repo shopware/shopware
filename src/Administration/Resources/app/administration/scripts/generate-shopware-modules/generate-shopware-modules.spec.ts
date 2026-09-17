@@ -57,4 +57,24 @@ describe('scripts/generate-shopware-modules', () => {
             expect(Object.keys(registry['shopware:stores'].subpaths)).toContain('notification');
         });
     });
+
+    describe('the declarations it renders', () => {
+        const declarations = renderDeclarations(extractModuleRegistry(administrationRoot));
+
+        it('lists only the named exports recorded for a namespace subpath', () => {
+            expect(declarations).toContain("declare module 'shopware:utils/debug'");
+            expect(declarations).toContain("export const warn: (typeof member)['warn'];");
+            expect(declarations).toContain("export const error: (typeof member)['error'];");
+        });
+
+        it('gives a default-only subpath no named exports', () => {
+            const criteriaDeclaration = declarations.slice(
+                declarations.indexOf("declare module 'shopware:data/Criteria'"),
+                declarations.indexOf("declare module 'shopware:data/Entity'"),
+            );
+
+            expect(criteriaDeclaration).toContain('export default member;');
+            expect(criteriaDeclaration).not.toContain('export const');
+        });
+    });
 });

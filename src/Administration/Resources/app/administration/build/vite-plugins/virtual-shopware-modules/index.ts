@@ -49,8 +49,8 @@ export { allSpecifiers, exportNames };
  *
  * A flat list of `export const` bindings rather than one namespace object: Rollup only tree-shakes and
  * validates what it sees statically, so a mistyped import fails the build instead of becoming
- * `undefined` at runtime. The default export mirrors the `export =` in the generated declarations, which
- * is what lets `import debug, { warn } from 'shopware:utils/debug'` work.
+ * `undefined` at runtime. Namespace subpaths expose the same object as their default and through explicit
+ * named exports, so `import debug, { warn } from 'shopware:utils/debug'` works.
  */
 export function generateModuleSource(specifier: string, registry: ModuleRegistry): string | undefined {
     const parsed = parseSpecifier(specifier);

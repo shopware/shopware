@@ -3,8 +3,7 @@
  *
  * Renders the ambient declarations for every `shopware:*` specifier.
  *
- * Each module is declared with `export =`, which is what lets one specifier serve both an import of the
- * whole thing and an import of its members:
+ * Each module declares its default export and the named exports recorded in the registry:
  *
  *     import debug, { warn } from 'shopware:utils/debug';
  *
@@ -34,24 +33,30 @@ function block(specifier: string, body: string[]): string {
     ].join('\n');
 }
 
+function namedExports(value: string, names: string[]): string[] {
+    return names.map((name) => `export const ${name}: (typeof ${value})['${name}'];`);
+}
+
 /** A subpath of a branch that is itself an object, e.g. `shopware:utils/debug`. */
-function branchSubpath(specifier: string, branchModule: string, key: string): string {
+function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[]): string {
     return block(specifier, [
         `import type branch from '${branchModule}';`,
         '',
         `const member: (typeof branch)['${key}'];`,
         '',
-        'export = member;',
+        'export default member;',
+        ...namedExports('member', exports),
     ]);
 }
 
-function barrel(specifier: string, branchModule: string): string {
+function barrel(specifier: string, branchModule: string, exports: string[]): string {
     return block(specifier, [
         `import type branch from '${branchModule}';`,
         '',
         'const members: typeof branch;',
         '',
-        'export = members;',
+        'export default members;',
+        ...namedExports('members', exports),
     ]);
 }
 
@@ -63,14 +68,20 @@ function barrel(specifier: string, branchModule: string): string {
 export function renderDeclarations(registry: ModuleRegistry): string {
     const blocks: string[] = [];
 
-    blocks.push(barrel('shopware:utils', UTILS_MODULE));
-    Object.keys(registry['shopware:utils'].subpaths).forEach((key) =>
-        blocks.push(branchSubpath(`shopware:utils/${key}`, UTILS_MODULE, key)),
+    blocks.push(barrel('shopware:utils', UTILS_MODULE, registry['shopware:utils'].exports));
+    Object.entries(registry['shopware:utils'].subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) => blocks.push(branchSubpath(`shopware:utils/${key}`, UTILS_MODULE, key, exports)),
     );
 
-    blocks.push(barrel('shopware:data', DATA_MODULE));
-    Object.keys(registry['shopware:data'].subpaths).forEach((key) =>
-        blocks.push(branchSubpath(`shopware:data/${key}`, DATA_MODULE, key)),
+    blocks.push(barrel('shopware:data', DATA_MODULE, registry['shopware:data'].exports));
+    Object.entries(registry['shopware:data'].subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) => blocks.push(branchSubpath(`shopware:data/${key}`, DATA_MODULE, key, exports)),
     );
 
     Object.keys(registry['shopware:mixins'].subpaths).forEach((key) =>
@@ -78,7 +89,7 @@ export function renderDeclarations(registry: ModuleRegistry): string {
             block(`shopware:mixins/${key}`, [
                 `const mixin: MixinContainer['${key}'];`,
                 '',
-                'export = mixin;',
+                'export default mixin;',
             ]),
         ),
     );
@@ -88,7 +99,7 @@ export function renderDeclarations(registry: ModuleRegistry): string {
             block(`shopware:stores/${key}`, [
                 `const useStore: () => PiniaRootState['${key}'];`,
                 '',
-                'export = useStore;',
+                'export default useStore;',
             ]),
         ),
     );

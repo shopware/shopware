@@ -228,8 +228,8 @@ export function resolveVirtualExport(
         throw new Error(`"${specifier}" is not a Shopware virtual module.`);
     }
 
-    // A root import's default export is the whole branch, mirroring the `export =` in the generated
-    // declarations. Its named exports are the branch's members, and every member is also a subpath.
+    // A root import's default export is the whole branch. Its named exports are the branch's members,
+    // and every member is also a subpath.
     if (parsed.subpath === undefined) {
         return exportName === 'default' ? branch.root.read(shopware) : branch.subpath.read(shopware, exportName);
     }

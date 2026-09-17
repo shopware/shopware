@@ -15,7 +15,28 @@ declare module 'shopware:utils' {
 
     const members: typeof branch;
 
-    export = members;
+    export default members;
+    export const createId: (typeof members)['createId'];
+    export const throttle: (typeof members)['throttle'];
+    export const debounce: (typeof members)['debounce'];
+    export const flow: (typeof members)['flow'];
+    export const get: (typeof members)['get'];
+    export const object: (typeof members)['object'];
+    export const debug: (typeof members)['debug'];
+    export const format: (typeof members)['format'];
+    export const dom: (typeof members)['dom'];
+    export const string: (typeof members)['string'];
+    export const types: (typeof members)['types'];
+    export const fileReader: (typeof members)['fileReader'];
+    export const sort: (typeof members)['sort'];
+    export const array: (typeof members)['array'];
+    export const moveItem: (typeof members)['moveItem'];
+    export const VueHelper: (typeof members)['VueHelper'];
+    export const EventBus: (typeof members)['EventBus'];
+    export const genericRuleCondition: (typeof members)['genericRuleCondition'];
+    export const unitConversion: (typeof members)['unitConversion'];
+    export const extension: (typeof members)['extension'];
+    export const mapInheritanceSlotPropsToMeteorProps: (typeof members)['mapInheritanceSlotPropsToMeteorProps'];
 }
 
 declare module 'shopware:utils/createId' {
@@ -23,7 +44,7 @@ declare module 'shopware:utils/createId' {
 
     const member: (typeof branch)['createId'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/throttle' {
@@ -31,7 +52,7 @@ declare module 'shopware:utils/throttle' {
 
     const member: (typeof branch)['throttle'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/debounce' {
@@ -39,7 +60,7 @@ declare module 'shopware:utils/debounce' {
 
     const member: (typeof branch)['debounce'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/flow' {
@@ -47,7 +68,7 @@ declare module 'shopware:utils/flow' {
 
     const member: (typeof branch)['flow'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/get' {
@@ -55,7 +76,7 @@ declare module 'shopware:utils/get' {
 
     const member: (typeof branch)['get'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/object' {
@@ -63,7 +84,20 @@ declare module 'shopware:utils/object' {
 
     const member: (typeof branch)['object'];
 
-    export = member;
+    export default member;
+    export const deepCopyObject: (typeof member)['deepCopyObject'];
+    export const hasOwnProperty: (typeof member)['hasOwnProperty'];
+    export const getObjectDiff: (typeof member)['getObjectDiff'];
+    export const getArrayChanges: (typeof member)['getArrayChanges'];
+    export const cloneDeep: (typeof member)['cloneDeep'];
+    export const merge: (typeof member)['merge'];
+    export const mergeWith: (typeof member)['mergeWith'];
+    export const deepMergeObject: (typeof member)['deepMergeObject'];
+    export const get: (typeof member)['get'];
+    export const set: (typeof member)['set'];
+    export const pick: (typeof member)['pick'];
+    export const unset: (typeof member)['unset'];
+    export const has: (typeof member)['has'];
 }
 
 declare module 'shopware:utils/debug' {
@@ -71,7 +105,9 @@ declare module 'shopware:utils/debug' {
 
     const member: (typeof branch)['debug'];
 
-    export = member;
+    export default member;
+    export const warn: (typeof member)['warn'];
+    export const error: (typeof member)['error'];
 }
 
 declare module 'shopware:utils/format' {
@@ -79,7 +115,14 @@ declare module 'shopware:utils/format' {
 
     const member: (typeof branch)['format'];
 
-    export = member;
+    export default member;
+    export const currency: (typeof member)['currency'];
+    export const date: (typeof member)['date'];
+    export const dateWithUserTimezone: (typeof member)['dateWithUserTimezone'];
+    export const fileSize: (typeof member)['fileSize'];
+    export const localeName: (typeof member)['localeName'];
+    export const md5: (typeof member)['md5'];
+    export const toISODate: (typeof member)['toISODate'];
 }
 
 declare module 'shopware:utils/dom' {
@@ -87,7 +130,10 @@ declare module 'shopware:utils/dom' {
 
     const member: (typeof branch)['dom'];
 
-    export = member;
+    export default member;
+    export const getScrollbarHeight: (typeof member)['getScrollbarHeight'];
+    export const getScrollbarWidth: (typeof member)['getScrollbarWidth'];
+    export const copyStringToClipboard: (typeof member)['copyStringToClipboard'];
 }
 
 declare module 'shopware:utils/string' {
@@ -95,7 +141,17 @@ declare module 'shopware:utils/string' {
 
     const member: (typeof branch)['string'];
 
-    export = member;
+    export default member;
+    export const capitalizeString: (typeof member)['capitalizeString'];
+    export const camelCase: (typeof member)['camelCase'];
+    export const upperFirst: (typeof member)['upperFirst'];
+    export const kebabCase: (typeof member)['kebabCase'];
+    export const snakeCase: (typeof member)['snakeCase'];
+    export const md5: (typeof member)['md5'];
+    export const isEmptyOrSpaces: (typeof member)['isEmptyOrSpaces'];
+    export const isUrl: (typeof member)['isUrl'];
+    export const isValidIp: (typeof member)['isValidIp'];
+    export const isValidCidr: (typeof member)['isValidCidr'];
 }
 
 declare module 'shopware:utils/types' {
@@ -103,7 +159,19 @@ declare module 'shopware:utils/types' {
 
     const member: (typeof branch)['types'];
 
-    export = member;
+    export default member;
+    export const isObject: (typeof member)['isObject'];
+    export const isPlainObject: (typeof member)['isPlainObject'];
+    export const isEmpty: (typeof member)['isEmpty'];
+    export const isRegExp: (typeof member)['isRegExp'];
+    export const isArray: (typeof member)['isArray'];
+    export const isFunction: (typeof member)['isFunction'];
+    export const isDate: (typeof member)['isDate'];
+    export const isString: (typeof member)['isString'];
+    export const isBoolean: (typeof member)['isBoolean'];
+    export const isEqual: (typeof member)['isEqual'];
+    export const isNumber: (typeof member)['isNumber'];
+    export const isUndefined: (typeof member)['isUndefined'];
 }
 
 declare module 'shopware:utils/fileReader' {
@@ -111,7 +179,12 @@ declare module 'shopware:utils/fileReader' {
 
     const member: (typeof branch)['fileReader'];
 
-    export = member;
+    export default member;
+    export const readAsArrayBuffer: (typeof member)['readAsArrayBuffer'];
+    export const readAsDataURL: (typeof member)['readAsDataURL'];
+    export const readAsText: (typeof member)['readAsText'];
+    export const getNameAndExtensionFromFile: (typeof member)['getNameAndExtensionFromFile'];
+    export const getNameAndExtensionFromUrl: (typeof member)['getNameAndExtensionFromUrl'];
 }
 
 declare module 'shopware:utils/sort' {
@@ -119,7 +192,8 @@ declare module 'shopware:utils/sort' {
 
     const member: (typeof branch)['sort'];
 
-    export = member;
+    export default member;
+    export const afterSort: (typeof member)['afterSort'];
 }
 
 declare module 'shopware:utils/array' {
@@ -127,7 +201,13 @@ declare module 'shopware:utils/array' {
 
     const member: (typeof branch)['array'];
 
-    export = member;
+    export default member;
+    export const flattenDeep: (typeof member)['flattenDeep'];
+    export const remove: (typeof member)['remove'];
+    export const slice: (typeof member)['slice'];
+    export const uniqBy: (typeof member)['uniqBy'];
+    export const chunk: (typeof member)['chunk'];
+    export const intersectionBy: (typeof member)['intersectionBy'];
 }
 
 declare module 'shopware:utils/moveItem' {
@@ -135,7 +215,7 @@ declare module 'shopware:utils/moveItem' {
 
     const member: (typeof branch)['moveItem'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/VueHelper' {
@@ -143,7 +223,7 @@ declare module 'shopware:utils/VueHelper' {
 
     const member: (typeof branch)['VueHelper'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/EventBus' {
@@ -151,7 +231,7 @@ declare module 'shopware:utils/EventBus' {
 
     const member: (typeof branch)['EventBus'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:utils/genericRuleCondition' {
@@ -159,7 +239,8 @@ declare module 'shopware:utils/genericRuleCondition' {
 
     const member: (typeof branch)['genericRuleCondition'];
 
-    export = member;
+    export default member;
+    export const getPlaceholderSnippet: (typeof member)['getPlaceholderSnippet'];
 }
 
 declare module 'shopware:utils/unitConversion' {
@@ -167,7 +248,8 @@ declare module 'shopware:utils/unitConversion' {
 
     const member: (typeof branch)['unitConversion'];
 
-    export = member;
+    export default member;
+    export const convert: (typeof member)['convert'];
 }
 
 declare module 'shopware:utils/extension' {
@@ -175,7 +257,8 @@ declare module 'shopware:utils/extension' {
 
     const member: (typeof branch)['extension'];
 
-    export = member;
+    export default member;
+    export const getExtensionNameByOrigin: (typeof member)['getExtensionNameByOrigin'];
 }
 
 declare module 'shopware:utils/mapInheritanceSlotPropsToMeteorProps' {
@@ -183,7 +266,7 @@ declare module 'shopware:utils/mapInheritanceSlotPropsToMeteorProps' {
 
     const member: (typeof branch)['mapInheritanceSlotPropsToMeteorProps'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data' {
@@ -191,7 +274,17 @@ declare module 'shopware:data' {
 
     const members: typeof branch;
 
-    export = members;
+    export default members;
+    export const ChangesetGenerator: (typeof members)['ChangesetGenerator'];
+    export const Criteria: (typeof members)['Criteria'];
+    export const Entity: (typeof members)['Entity'];
+    export const EntityCollection: (typeof members)['EntityCollection'];
+    export const EntityDefinition: (typeof members)['EntityDefinition'];
+    export const EntityFactory: (typeof members)['EntityFactory'];
+    export const EntityHydrator: (typeof members)['EntityHydrator'];
+    export const Repository: (typeof members)['Repository'];
+    export const ErrorResolver: (typeof members)['ErrorResolver'];
+    export const FilterFactory: (typeof members)['FilterFactory'];
 }
 
 declare module 'shopware:data/ChangesetGenerator' {
@@ -199,7 +292,7 @@ declare module 'shopware:data/ChangesetGenerator' {
 
     const member: (typeof branch)['ChangesetGenerator'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/Criteria' {
@@ -207,7 +300,7 @@ declare module 'shopware:data/Criteria' {
 
     const member: (typeof branch)['Criteria'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/Entity' {
@@ -215,7 +308,7 @@ declare module 'shopware:data/Entity' {
 
     const member: (typeof branch)['Entity'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/EntityCollection' {
@@ -223,7 +316,7 @@ declare module 'shopware:data/EntityCollection' {
 
     const member: (typeof branch)['EntityCollection'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/EntityDefinition' {
@@ -231,7 +324,7 @@ declare module 'shopware:data/EntityDefinition' {
 
     const member: (typeof branch)['EntityDefinition'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/EntityFactory' {
@@ -239,7 +332,7 @@ declare module 'shopware:data/EntityFactory' {
 
     const member: (typeof branch)['EntityFactory'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/EntityHydrator' {
@@ -247,7 +340,7 @@ declare module 'shopware:data/EntityHydrator' {
 
     const member: (typeof branch)['EntityHydrator'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/Repository' {
@@ -255,7 +348,7 @@ declare module 'shopware:data/Repository' {
 
     const member: (typeof branch)['Repository'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/ErrorResolver' {
@@ -263,7 +356,7 @@ declare module 'shopware:data/ErrorResolver' {
 
     const member: (typeof branch)['ErrorResolver'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:data/FilterFactory' {
@@ -271,371 +364,371 @@ declare module 'shopware:data/FilterFactory' {
 
     const member: (typeof branch)['FilterFactory'];
 
-    export = member;
+    export default member;
 }
 
 declare module 'shopware:mixins/notification' {
     const mixin: MixinContainer['notification'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/validation' {
     const mixin: MixinContainer['validation'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/user-settings' {
     const mixin: MixinContainer['user-settings'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/sw-inline-snippet' {
     const mixin: MixinContainer['sw-inline-snippet'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/translate-with-fallback' {
     const mixin: MixinContainer['translate-with-fallback'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/notification-translation' {
     const mixin: MixinContainer['notification-translation'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/salutation' {
     const mixin: MixinContainer['salutation'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/ruleContainer' {
     const mixin: MixinContainer['ruleContainer'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/remove-api-error' {
     const mixin: MixinContainer['remove-api-error'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/position' {
     const mixin: MixinContainer['position'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/placeholder' {
     const mixin: MixinContainer['placeholder'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/listing' {
     const mixin: MixinContainer['listing'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/cart-notification' {
     const mixin: MixinContainer['cart-notification'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/sw-extension-error' {
     const mixin: MixinContainer['sw-extension-error'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/cms-element' {
     const mixin: MixinContainer['cms-element'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/cms-state' {
     const mixin: MixinContainer['cms-state'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/generic-condition' {
     const mixin: MixinContainer['generic-condition'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/sw-form-field' {
     const mixin: MixinContainer['sw-form-field'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/discard-detail-page-changes' {
     const mixin: MixinContainer['discard-detail-page-changes'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:mixins/rule-between-operator' {
     const mixin: MixinContainer['rule-between-operator'];
 
-    export = mixin;
+    export default mixin;
 }
 
 declare module 'shopware:stores/cmsPage' {
     const useStore: () => PiniaRootState['cmsPage'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/topBarButton' {
     const useStore: () => PiniaRootState['topBarButton'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/teaserPopover' {
     const useStore: () => PiniaRootState['teaserPopover'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/adminMenu' {
     const useStore: () => PiniaRootState['adminMenu'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/inAppPurchaseCheckout' {
     const useStore: () => PiniaRootState['inAppPurchaseCheckout'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/extensionComponentSections' {
     const useStore: () => PiniaRootState['extensionComponentSections'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/blockOverride' {
     const useStore: () => PiniaRootState['blockOverride'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/extensionEntryRoutes' {
     const useStore: () => PiniaRootState['extensionEntryRoutes'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/extensionSdkModules' {
     const useStore: () => PiniaRootState['extensionSdkModules'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/extensions' {
     const useStore: () => PiniaRootState['extensions'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/error' {
     const useStore: () => PiniaRootState['error'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/context' {
     const useStore: () => PiniaRootState['context'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/adminHelpCenter' {
     const useStore: () => PiniaRootState['adminHelpCenter'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/actionButtons' {
     const useStore: () => PiniaRootState['actionButtons'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/licenseViolation' {
     const useStore: () => PiniaRootState['licenseViolation'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/extensionMainModules' {
     const useStore: () => PiniaRootState['extensionMainModules'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/marketing' {
     const useStore: () => PiniaRootState['marketing'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/sdkLocation' {
     const useStore: () => PiniaRootState['sdkLocation'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/ruleConditionsConfig' {
     const useStore: () => PiniaRootState['ruleConditionsConfig'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/settingsItems' {
     const useStore: () => PiniaRootState['settingsItems'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/shopwareApps' {
     const useStore: () => PiniaRootState['shopwareApps'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/system' {
     const useStore: () => PiniaRootState['system'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/modals' {
     const useStore: () => PiniaRootState['modals'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/sidebar' {
     const useStore: () => PiniaRootState['sidebar'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/menuItem' {
     const useStore: () => PiniaRootState['menuItem'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/notification' {
     const useStore: () => PiniaRootState['notification'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/tabs' {
     const useStore: () => PiniaRootState['tabs'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/session' {
     const useStore: () => PiniaRootState['session'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swCategoryDetail' {
     const useStore: () => PiniaRootState['swCategoryDetail'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swSeoUrl' {
     const useStore: () => PiniaRootState['swSeoUrl'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/shopwareExtensions' {
     const useStore: () => PiniaRootState['shopwareExtensions'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swOrderDetail' {
     const useStore: () => PiniaRootState['swOrderDetail'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swOrder' {
     const useStore: () => PiniaRootState['swOrder'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swShippingDetail' {
     const useStore: () => PiniaRootState['swShippingDetail'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/paymentOverviewCard' {
     const useStore: () => PiniaRootState['paymentOverviewCard'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swProductDetail' {
     const useStore: () => PiniaRootState['swProductDetail'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swProfile' {
     const useStore: () => PiniaRootState['swProfile'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swPromotionDetail' {
     const useStore: () => PiniaRootState['swPromotionDetail'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swFlow' {
     const useStore: () => PiniaRootState['swFlow'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/swBulkEdit' {
     const useStore: () => PiniaRootState['swBulkEdit'];
 
-    export = useStore;
+    export default useStore;
 }
 
 declare module 'shopware:stores/mediaModal' {
     const useStore: () => PiniaRootState['mediaModal'];
 
-    export = useStore;
+    export default useStore;
 }

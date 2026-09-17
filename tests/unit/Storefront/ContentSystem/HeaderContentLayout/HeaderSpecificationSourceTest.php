@@ -50,6 +50,12 @@ class HeaderSpecificationSourceTest extends TestCase
         static::assertTrue($this->source->supports('', new Request(), $context));
     }
 
+    #[TestDox('uses the header section as its mapping catalogue source')]
+    public function testRootSourceReturnsHeaderSection(): void
+    {
+        static::assertSame('header', $this->source->rootSource());
+    }
+
     #[TestDox('resolves layout ID from domain-aware assignment')]
     public function testResolveLayoutIdReturnsLayoutIdFromAssignment(): void
     {

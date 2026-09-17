@@ -29,6 +29,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNorma
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
@@ -149,6 +155,33 @@ class ContentDiagnoseControllerTest extends TestCase
         );
 
         static::assertSame($rootContext, $threadedRootContext);
+    }
+
+    /**
+     * The source travels beside the resolved context because the mapping checks need the id itself: a
+     * catalogue is looked up by source, and a resolved root context cannot be turned back into one.
+     */
+    #[TestDox('threads the requested root source into the analysis alongside the resolved context')]
+    public function testDiagnoseThreadsRootSource(): void
+    {
+        $threadedRootSource = 'unset';
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnCallback(
+            function (array $tree, ?array $rootContext, ?string $rootSource) use (&$threadedRootSource): LayoutAnalysis {
+                $threadedRootSource = $rootSource;
+
+                return new LayoutAnalysis(new DiagnosticsReport([]), []);
+            }
+        );
+
+        $controller = $this->controller(diagnostics: $diagnostics);
+
+        $controller->diagnose(
+            new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']], rootSource: 'product'),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('product', $threadedRootSource);
     }
 
     #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
@@ -284,6 +317,7 @@ class ContentDiagnoseControllerTest extends TestCase
             $mapResolver,
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(DataLoaderProvider::class),
+            new MappingConsumers(),
         );
 
         return new LayoutDiagnostics(
@@ -295,6 +329,15 @@ class ContentDiagnoseControllerTest extends TestCase
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             new ContextPathResolver(),
+            new MappingConsumers(),
+            new StoredMappingInspector(
+                $registry,
+                static::createStub(AbstractContentSystemMappingCandidateRegistry::class),
+                new MappingTypeCompatibility(),
+                new MappingConsumers(),
+                new ContentSystemPropertyProjectionRegistry([]),
+                new InlineMappingTokenParser(),
+            ),
         );
     }
 

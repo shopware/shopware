@@ -1,0 +1,112 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(MappingCandidate::class)]
+class MappingCandidateTest extends TestCase
+{
+    public function testSchemaCarriesEveryFieldTheAdministrationNeedsToOfferTheCandidate(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'category.media',
+            label: 'sw-experience-studio.mapping.category.media.label',
+            description: 'sw-experience-studio.mapping.category.media.description',
+            group: 'media',
+            valueType: MediaEntity::class,
+            contextType: ContextType::Single,
+            projection: 'media_from_category',
+        );
+
+        $schema = $candidate->toSchema();
+        $labelTranslations = $schema['labelTranslations'];
+        $descriptionTranslations = $schema['descriptionTranslations'];
+        unset($schema['labelTranslations'], $schema['descriptionTranslations']);
+
+        static::assertSame([
+            'path' => 'category.media',
+            'source' => ['type' => 'root', 'id' => 'category', 'path' => 'media'],
+            'label' => 'sw-experience-studio.mapping.category.media.label',
+            'description' => 'sw-experience-studio.mapping.category.media.description',
+            'group' => 'media',
+            'valueType' => MediaEntity::class,
+            'compatibleTypes' => [
+                MediaEntity::class,
+                ...array_values(class_parents(MediaEntity::class) ?: []),
+                ...array_values(class_implements(MediaEntity::class) ?: []),
+            ],
+            'contextType' => 'single',
+            'projection' => 'media_from_category',
+        ], $schema);
+        static::assertContains(Entity::class, $schema['compatibleTypes']);
+        static::assertContains(Struct::class, $schema['compatibleTypes']);
+        static::assertIsObject($labelTranslations);
+        static::assertIsObject($descriptionTranslations);
+        static::assertSame([], get_object_vars($labelTranslations));
+        static::assertSame([], get_object_vars($descriptionTranslations));
+    }
+
+    public function testAnUnprojectedCandidateReportsANullProjectionRatherThanOmittingTheKey(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'category.name',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+        );
+
+        $schema = $candidate->toSchema();
+
+        static::assertArrayHasKey('projection', $schema);
+        static::assertNull($schema['projection']);
+        static::assertSame([], $schema['compatibleTypes']);
+    }
+
+    public function testAnInterfaceValuedCandidateIncludesItsParentInterfaces(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'category.iterable',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: \IteratorAggregate::class,
+        );
+
+        static::assertSame([
+            \IteratorAggregate::class,
+            \Traversable::class,
+        ], $candidate->toSchema()['compatibleTypes']);
+    }
+
+    /**
+     * An undotted path names a root-ambient value outright, which is the shape
+     * `Mutation/ContextConsumerMirror` writes for resolved reference wiring. `Validation/StoredMappingValidator`
+     * tells the two apart by the dot, so offering one would leave every mapping onto it unvalidated.
+     */
+    public function testRefusesAnUndottedPathThatWouldEscapeTheWriteGate(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidMappingCandidatePath('productListing'));
+
+        new MappingCandidate(
+            path: 'productListing',
+            label: 'a label',
+            description: 'a description',
+            group: 'basic',
+            valueType: 'string',
+        );
+    }
+}

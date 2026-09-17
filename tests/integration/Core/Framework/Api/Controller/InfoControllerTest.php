@@ -684,6 +684,46 @@ class InfoControllerTest extends TestCase
         static::assertContains('landing_page', $data['entityTypes']);
     }
 
+    /**
+     * Proves the category provider really reaches the endpoint through the DI tag, which is the half of the
+     * data-mapping catalogue a unit test with a stubbed registry cannot see.
+     */
+    public function testContentSystemMappingCandidates(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-mapping-candidates.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertIsArray($data['mappingCandidates'] ?? null);
+        static::assertIsArray($data['mappingCandidates']['category'] ?? null);
+
+        $paths = array_column($data['mappingCandidates']['category'], 'path');
+
+        static::assertContains('category.name', $paths);
+        static::assertContains('category.media', $paths);
+
+        // Root entity candidates lead with the page-level requirement key; the shared Storefront context
+        // candidates are also available on entity-backed layouts.
+        foreach ($paths as $path) {
+            static::assertTrue(
+                str_starts_with((string) $path, 'category.') || str_starts_with((string) $path, 'context:storefront.'),
+                \sprintf('Unexpected candidate path "%s".', $path)
+            );
+        }
+
+        static::assertContains('context:storefront.currency.isoCode', $paths);
+        static::assertContains('context:storefront.currency.symbol', $paths);
+        static::assertContains('context:storefront.language.localeCode', $paths);
+        static::assertContains('context:storefront.tax.state', $paths);
+    }
+
     public function testContentSystemRootSources(): void
     {
         $client = $this->getBrowser();

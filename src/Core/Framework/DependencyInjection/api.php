@@ -82,6 +82,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentS
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
@@ -334,6 +335,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemBindingSpecificationRegistry::class),
             service(StoredSchemaResolver::class),
             service(ContentSystemLayoutPresetRegistry::class),
+            service(ContentSystemMappingCandidateRegistry::class),
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
         ])

@@ -2,14 +2,21 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Answers, for a whole stored forest, what context every element received. It walks the forest pre-order and
@@ -37,6 +44,9 @@ final readonly class ContextDeliveryResolver
     public function __construct(
         private ContextDistributor $distributor,
         private ContextPathResolver $pathResolver,
+        private AbstractContentSystemPropertyProjectionRegistry $projections,
+        private MappingTypeCompatibility $compatibility,
+        private ?AbstractContentSystemMappingCandidateRegistry $mappingSources = null,
     ) {
     }
 
@@ -58,12 +68,29 @@ final readonly class ContextDeliveryResolver
      *
      * @throws ContentSystemException when a required consumer's path cannot be resolved
      */
-    public function resolve(array $forest, array $loaderValues, array $ambientContext): ContextDeliveryIndex
-    {
+    public function resolve(
+        array $forest,
+        array $loaderValues,
+        array $ambientContext,
+        ?SalesChannelContext $salesChannelContext = null,
+        ?Request $request = null,
+        ?RenderingCacheContext $cacheContext = null,
+        ?string $rootSource = null,
+    ): ContextDeliveryIndex {
         $deliveries = [];
 
         foreach ($forest as $root) {
-            $this->walk($root, $loaderValues, $ambientContext, new ContextDelivery($root->id), $deliveries);
+            $this->walk(
+                $root,
+                $loaderValues,
+                $ambientContext,
+                new ContextDelivery($root->id),
+                $deliveries,
+                $salesChannelContext,
+                $request,
+                $cacheContext,
+                $rootSource,
+            );
         }
 
         return new ContextDeliveryIndex($deliveries);
@@ -85,8 +112,21 @@ final readonly class ContextDeliveryResolver
         array $ambientContext,
         ContextDelivery $delivery,
         array &$deliveries,
+        ?SalesChannelContext $salesChannelContext,
+        ?Request $request,
+        ?RenderingCacheContext $cacheContext,
+        ?string $rootSource,
     ): void {
-        $delivery = $this->overlayRootContext($element, $ambientContext, $delivery);
+        $delivery = $this->overlayRootContext(
+            $element,
+            $loaderValues,
+            $ambientContext,
+            $delivery,
+            $salesChannelContext,
+            $request,
+            $cacheContext,
+            $rootSource,
+        );
 
         $deliveries[$element->id] = $delivery;
 
@@ -103,32 +143,50 @@ final readonly class ContextDeliveryResolver
         );
 
         foreach ($children as $index => $child) {
-            $this->walk($child, $loaderValues, $ambientContext, $childDeliveries[$index], $deliveries);
+            $this->walk(
+                $child,
+                $loaderValues,
+                $ambientContext,
+                $childDeliveries[$index],
+                $deliveries,
+                $salesChannelContext,
+                $request,
+                $cacheContext,
+                $rootSource,
+            );
         }
     }
 
     /**
      * Fills this element's root-scoped consumers from the ambient map, on top of what its parent delivered.
      *
-     * Matching, dot-path resolution, and the delivered-under key (`propertyAlias ?? consumerKey`) follow the
-     * parent-delivery rules ({@see ContextDistributor}), against ambient keys instead of provider keys.
+     * Ordinary consumers match on their map key; mappings match on their typed source reference. Delivery lands
+     * under `propertyAlias ?? consumerKey`, so a mapping lands on the property that keys its map entry.
      *
      * An ambient `null` delivers nothing and writes no key, matching the provider null gate in
      * {@see ContextDistributor::distribute()}: a key absent from a delivery is one nothing delivered, and an
      * ambient null must not be turned into the present null that means a resolution ran and found nothing.
+     * A mapping whose source resolves to null writes no key either; `RenderedElementFactory` then omits the
+     * destination property instead of falling back to authored or loader-resolved data.
      *
      * Root-scoped writes run after the parent's, so they win a shared property key. Nothing can produce that
      * collision today (`WiringPlanner::validatePropertyAliases()` makes the base keys an element's consumers
      * write unique across both scopes), so the order is defensive rather than a rule anything relies on.
      *
+     * @param array<string, array<string, mixed>> $loaderValues
      * @param array<string, mixed> $ambientContext
      */
     private function overlayRootContext(
         StoredElement $element,
+        array $loaderValues,
         array $ambientContext,
         ContextDelivery $delivery,
+        ?SalesChannelContext $salesChannelContext,
+        ?Request $request,
+        ?RenderingCacheContext $cacheContext,
+        ?string $rootSource,
     ): ContextDelivery {
-        if ($ambientContext === []) {
+        if ($ambientContext === [] && $salesChannelContext === null && $this->mappingSources === null) {
             return $delivery;
         }
 
@@ -140,18 +198,61 @@ final readonly class ContextDeliveryResolver
                 continue;
             }
 
-            foreach ($ambientContext as $ambientKey => $value) {
-                if ($value === null || !$this->pathResolver->matches($ambientKey, $consumerKey)) {
+            $mappingSource = $consumer->source;
+            if ($mappingSource !== null && $mappingSource->type !== 'root') {
+                if ($this->mappingSources === null) {
                     continue;
                 }
 
-                $context[$consumer->propertyAlias ?? $consumerKey] = $this->ambientValueFor(
-                    $element,
-                    $consumerKey,
-                    $consumer,
-                    $ambientKey,
-                    $value
+                $resolved = $this->mappingSources->resolveSourceForRootSource(
+                    $rootSource,
+                    $mappingSource,
+                    new MappingSourceResolutionContext(
+                        $element,
+                        $ambientContext,
+                        $loaderValues[$element->id] ?? [],
+                        $salesChannelContext,
+                        $request,
+                        $cacheContext,
+                    ),
                 );
+                if ($resolved === null) {
+                    continue;
+                }
+
+                if ($consumer->projection !== null) {
+                    $resolved = $this->project($element, (string) $consumerKey, $consumer, $consumer->projection, $resolved);
+                    if ($resolved === null) {
+                        continue;
+                    }
+                }
+
+                $context[$consumer->propertyAlias ?? $consumerKey] = $resolved;
+                $overlaid = true;
+
+                continue;
+            }
+            $contextPath = $mappingSource === null
+                ? (string) $consumerKey
+                : $mappingSource->displayName();
+            $sourceKey = explode('.', $contextPath, 2)[0];
+
+            foreach ($ambientContext as $ambientKey => $value) {
+                if ($value === null || !$this->pathResolver->matches($ambientKey, $contextPath)) {
+                    continue;
+                }
+
+                $resolved = $mappingSource !== null || $contextPath !== $ambientKey
+                    ? $this->ambientValueFor($element, $contextPath, $consumer, $ambientKey, $value)
+                    : $value;
+
+                // A dotted path that resolves to nothing writes NO key. A mapped property is omitted in the
+                // final element; optional ordinary context wiring keeps its established no-delivery behavior.
+                if ($resolved === null && $contextPath !== $ambientKey) {
+                    continue;
+                }
+
+                $context[$consumer->propertyAlias ?? $consumerKey] = $resolved;
                 $overlaid = true;
             }
         }
@@ -163,7 +264,10 @@ final readonly class ContextDeliveryResolver
      * An exact match hands on the SAME PHP instance, which is what makes the value-index instance map collapse
      * a root delivery onto the ambient loader value's ref. A dot path resolves through the value, which needs
      * a {@see Struct} to traverse: a required consumer that cannot get one fails naming this element, an
-     * optional one takes an explicit null.
+     * optional one yields null — which the caller reads as "deliver nothing" rather than writing through.
+     *
+     * A declared projection runs last, on the resolved value, so the property receives the reshaped one. It is
+     * reached only for a mapping, which is the shape the codec admits a projection on.
      */
     private function ambientValueFor(
         StoredElement $element,
@@ -173,10 +277,8 @@ final readonly class ContextDeliveryResolver
         mixed $data,
     ): mixed {
         if ($consumerKey === $ambientKey) {
-            return $data;
-        }
-
-        if (!$data instanceof Struct) {
+            $resolved = $data;
+        } elseif (!$data instanceof Struct) {
             if ($consumer->required) {
                 throw ContentSystemException::contextPathNotResolvable(
                     $consumerKey,
@@ -186,15 +288,64 @@ final readonly class ContextDeliveryResolver
             }
 
             return null;
+        } else {
+            $path = $this->pathResolver->parseContextKey($consumerKey);
+            $resolved = $consumer->source !== null
+                ? $this->pathResolver->resolveMappingPath($data, $path, $consumer->required, $consumerKey, $element->id)
+                : $this->pathResolver->resolvePath($data, $path, $consumer->required, $consumerKey, $element->id);
         }
 
-        return $this->pathResolver->resolvePath(
-            $data,
-            $this->pathResolver->parseContextKey($consumerKey),
-            $consumer->required,
-            $consumerKey,
-            $element->id
-        );
+        if ($consumer->projection === null || $resolved === null) {
+            return $resolved;
+        }
+
+        return $this->project($element, $consumerKey, $consumer, $consumer->projection, $resolved);
+    }
+
+    /**
+     * Runs the declared projection over a resolved value.
+     *
+     * Two things can be wrong here, and both are the ground giving way under stored data the write gate did
+     * admit: the projection is gone (the plugin that registered it was removed) or the value is not the type
+     * it declared (a provider's candidate names the wrong input type, or the path's own shape changed). Either
+     * way this follows the same rule as the path resolution above — a required consumer fails naming the
+     * element, an optional one yields null, which the caller turns into delivering nothing.
+     *
+     * Every mapping an author makes is written optional, so in practice a storefront keeps rendering and falls
+     * back to the authored value rather than going down over a missing plugin.
+     */
+    private function project(
+        StoredElement $element,
+        string $consumerKey,
+        ContextConsumer $consumer,
+        string $name,
+        mixed $resolved,
+    ): mixed {
+        $projection = $this->projections->get($name);
+
+        if ($projection === null) {
+            return $this->projectionFailed($element, $consumerKey, $consumer, \sprintf('Projection "%s" is not registered', $name));
+        }
+
+        if (!$this->compatibility->admits($projection->inputType(), $resolved)) {
+            return $this->projectionFailed($element, $consumerKey, $consumer, \sprintf(
+                'Projection "%s" expects "%s", got "%s"',
+                $name,
+                $projection->inputType(),
+                get_debug_type($resolved)
+            ));
+        }
+
+        return $projection->project($resolved);
+    }
+
+    private function projectionFailed(StoredElement $element, string $consumerKey, ContextConsumer $consumer, string $reason): mixed
+    {
+        if ($consumer->required) {
+            throw ContentSystemException::contextPathNotResolvable($consumerKey, $element->id, $reason);
+        }
+
+        return null;
     }
 
     /**

@@ -7,6 +7,112 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Neues Layout erstellen"
     },
+    "mapping": {
+      "category": {
+        "name": {
+          "label": "Kategoriename",
+          "description": "Der Name der Kategorie, die die Seite zeigt."
+        },
+        "description": {
+          "label": "Kategoriebeschreibung",
+          "description": "Der Beschreibungstext der Kategorie."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel der Kategorie."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung der Kategorie."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter der Kategorie."
+        },
+        "media": {
+          "label": "Kategoriebild",
+          "description": "Das der Kategorie zugewiesene Bild."
+        }
+      },
+      "product": {
+        "entity": {
+          "label": "Produktentität",
+          "description": "Das vollständige Produkt, das auf der Seite angezeigt wird."
+        },
+        "name": {
+          "label": "Produktname",
+          "description": "Der Name des Produkts, das die Seite zeigt."
+        },
+        "description": {
+          "label": "Produktbeschreibung",
+          "description": "Der Beschreibungstext des Produkts."
+        },
+        "productNumber": {
+          "label": "Produktnummer",
+          "description": "Die Bestellnummer des Produkts."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel des Produkts."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung des Produkts."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter des Produkts."
+        },
+        "cover": {
+          "label": "Titelbild",
+          "description": "Das Hauptbild des Produkts."
+        },
+        "media": {
+          "label": "Produktbilder",
+          "description": "Alle Bilder des Produkts, in der am Produkt festgelegten Reihenfolge."
+        }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landingpage-Name",
+          "description": "Der Name der angezeigten Landingpage."
+        },
+        "url": {
+          "label": "Landingpage-URL",
+          "description": "Der für die Landingpage konfigurierte URL-Pfad."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel der Landingpage."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung der Landingpage."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter der Landingpage."
+        }
+      },
+      "context": {
+        "currencyIsoCode": {
+          "label": "Währungs-ISO-Code",
+          "description": "Der ISO-4217-Code der aktuellen Storefront-Währung."
+        },
+        "currencySymbol": {
+          "label": "Währungssymbol",
+          "description": "Das Symbol der aktuellen Storefront-Währung."
+        },
+        "languageLocale": {
+          "label": "Sprach-Locale",
+          "description": "Der Locale-Code der aktuellen Storefront-Sprache."
+        },
+        "taxState": {
+          "label": "Steuerstatus",
+          "description": "Der aktuelle Steuerstatus der Storefront."
+        }
+      }
+    },
     "elements": {
       "sw-grid-container": {
         "panels": {
@@ -126,8 +232,30 @@
         "boxSpacingLeft": "Links",
         "boxSpacingLinkSides": "Alle Seiten gemeinsam bearbeiten",
         "boxSpacingUnlinkSides": "Seiten einzeln bearbeiten",
-        "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
-        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
+        "mapping": {
+          "mapAction": "Dynamische Daten",
+          "insertAction": "Dynamische Daten einfügen",
+          "unmapAction": "Dynamische Daten entfernen",
+          "modalTitle": "Dynamische Daten auswählen",
+          "modalIntro": "Wähle die Daten, die „{property}“ beim Anzeigen der Seite füllen.",
+          "sourceIntro": "Wähle eine Eigenschaft für dieses Feld aus.",
+          "searchLabel": "Suche",
+          "searchPlaceholder": "Datenfelder suchen",
+          "noCandidates": "Für dieses Feld sind keine dynamischen Daten verfügbar.",
+          "noSearchResults": "Kein Datenfeld entspricht deiner Suche.",
+          "groups": {
+            "basic": "Basisinformationen",
+            "seo": "SEO",
+            "media": "Medien",
+            "customFields": "Zusatzfelder",
+            "storefront-context": "Storefront-Kontext"
+          },
+          "sources": {
+            "rootEntity": "Stammentität",
+            "storefrontContext": "Storefront-Kontext",
+            "navigationLabel": "Datenquellen"
+          }
+        }
       },
       "elementPicker": {
         "title": "Element hinzufügen",

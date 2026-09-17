@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 #[CoversClass(ProductContentLayoutDefinition::class)]
 class ProductContentLayoutDefinitionTest extends TestCase
 {

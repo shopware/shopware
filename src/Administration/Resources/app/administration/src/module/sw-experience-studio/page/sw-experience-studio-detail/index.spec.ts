@@ -14,82 +14,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: null })).toBe(false);
     });
 
-    it('starts inline session for text elements', () => {
-        const vm = {
-            selectedElementId: null as string | null,
-            inlineEditSession: null,
-            findElementById: jest.fn().mockReturnValue({
-                id: 'element-1',
-                component: 'content:text',
-                properties: { text: '<p>Initial</p>' },
-            }),
-            isTextElement: jest.fn().mockReturnValue(true),
-            getElementTextValue: jest.fn().mockReturnValue('<p>Initial</p>'),
-        };
-
-        methods.onInlineEditStart.call(vm, {
-            elementId: 'element-1',
-        });
-
-        expect(vm.selectedElementId).toBe('element-1');
-        expect(vm.inlineEditSession).toEqual({
-            elementId: 'element-1',
-            originalValue: '<p>Initial</p>',
-            draftValue: '<p>Initial</p>',
-            isEditing: true,
-        });
-    });
-
-    it('commits inline session only when value changed', () => {
-        const applyLayoutMutation = jest.fn();
-        const clearInlineEditSession = jest.fn();
-        const vm = {
-            inlineEditSession: {
-                elementId: 'element-1',
-                originalValue: '<p>Before</p>',
-                draftValue: '<p>After</p>',
-                isEditing: true,
-            },
-            clearInlineEditSession,
-            applyLayoutMutation,
-        };
-
-        methods.onInlineEditCommit.call(vm, {
-            elementId: 'element-1',
-            value: '<p>Before</p>',
-        });
-        expect(applyLayoutMutation).not.toHaveBeenCalled();
-
-        vm.inlineEditSession = {
-            elementId: 'element-1',
-            originalValue: '<p>Before</p>',
-            draftValue: '<p>After</p>',
-            isEditing: true,
-        };
-
-        methods.onInlineEditCommit.call(vm, {
-            elementId: 'element-1',
-            value: '<p>After</p>',
-        });
-        expect(applyLayoutMutation).toHaveBeenCalledTimes(1);
-    });
-
-    it('clears inline session on cancel for matching element', () => {
-        const clearInlineEditSession = jest.fn();
-        const vm = {
-            inlineEditSession: {
-                elementId: 'element-1',
-                originalValue: '<p>Before</p>',
-                draftValue: '<p>Before</p>',
-                isEditing: true,
-            },
-            clearInlineEditSession,
-        };
-
-        methods.onInlineEditCancel.call(vm, { elementId: 'element-1' });
-        expect(clearInlineEditSession).toHaveBeenCalledTimes(1);
-    });
-
     it('uses layout rootSource for draft mutation payloads', () => {
         const vm = {
             layout: {
@@ -101,6 +25,78 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(methods.resolveMutationRootSource.call(vm)).toBe('product');
     });
 
+    it('resizes the element settings panel while preserving a minimum preview width', () => {
+        const vm = {
+            isResizingElementSettings: true,
+            resizeStartX: 500,
+            resizeStartWidth: 320,
+            elementSettingsWidth: 320,
+            $refs: {
+                workspace: {
+                    getBoundingClientRect: () => ({ width: 1200 }),
+                },
+            },
+        };
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: 200 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(600);
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: -500 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(600);
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: 1000 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(320);
+    });
+
+    it('captures the pointer for the entire resize gesture', () => {
+        const vm = {
+            elementSettingsWidth: 320,
+            resizeStartX: 500,
+            resizeStartWidth: 320,
+            isResizingElementSettings: false,
+            resizeMoveHandler: null,
+            resizeEndHandler: null,
+            resizeHandle: null,
+            resizePointerId: null,
+            onElementSettingsResizeMove: methods.onElementSettingsResizeMove,
+            stopElementSettingsResize: methods.stopElementSettingsResize,
+        };
+        const event = {
+            clientX: 500,
+            pointerId: 1,
+            currentTarget: {
+                setPointerCapture: jest.fn(),
+                hasPointerCapture: jest.fn().mockReturnValue(true),
+                releasePointerCapture: jest.fn(),
+            },
+            preventDefault: jest.fn(),
+        } as unknown as PointerEvent;
+
+        methods.onElementSettingsResizeStart.call(vm, event);
+        expect(vm.isResizingElementSettings).toBe(true);
+        const setPointerCapture = Reflect.get(event.currentTarget as HTMLElement, 'setPointerCapture') as jest.Mock;
+        expect(setPointerCapture).toHaveBeenCalledWith(1);
+
+        const resizeEndHandler = vm.resizeEndHandler as (() => void) | null;
+        if (resizeEndHandler) {
+            Reflect.apply(resizeEndHandler, vm, []);
+        }
+
+        expect(vm.isResizingElementSettings).toBe(false);
+        expect(vm.resizeEndHandler).toBeNull();
+    });
+
+    it('grows the settings panel for elements with rich-text properties', () => {
+        const vm = {
+            selectedElementHasRichText: true,
+            elementSettingsWidth: 320,
+        };
+
+        methods.adjustElementSettingsWidth.call(vm);
+
+        expect(vm.elementSettingsWidth).toBe(640);
+    });
+
     it('returns null rootSource when no rootSource is set', () => {
         const vm = {
             layout: {
@@ -110,6 +106,44 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
 
         expect(methods.resolveMutationRootSource.call(vm)).toBeNull();
+    });
+
+    it('stores violations returned by draft diagnosis', async () => {
+        const violation = {
+            code: 'invalid_mapping',
+            scope: 'binding',
+            severity: 'error',
+            elementId: 'element-1',
+            key: 'text',
+            message: 'Invalid mapping',
+            candidates: [],
+        };
+        const diagnose = jest.fn().mockResolvedValue({
+            resolutions: {},
+            diagnostics: {
+                wellFormed: true,
+                resolvable: false,
+                violations: [violation],
+            },
+        });
+        const vm = {
+            layout: {
+                layout: [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            },
+            diagnostics: [],
+            diagnoseRequestSequence: 0,
+            latestDiagnoseRequestId: 0,
+            draftMutationService: () => ({ diagnose }),
+            resolveMutationRootSource: () => 'category',
+        };
+
+        await methods.diagnoseLayout.call(vm);
+
+        expect(diagnose).toHaveBeenCalledWith({
+            layout: [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            rootSource: 'category',
+        });
+        expect(vm.diagnostics).toEqual([violation]);
     });
 
     it('creates draft mutation payload from typed layout elements and rootSource', () => {
@@ -218,7 +252,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
             'move',
-            [{ id: 'element-1', component: 'Sw:Content:Text' }],
             {
                 elementId: 'element-1',
                 newParentId: 'parent-1',
@@ -229,19 +262,62 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         );
     });
 
+    it.each([
+        [
+            'map-property',
+            { type: 'root', id: 'category', path: 'name' },
+        ],
+        [
+            'unmap-property',
+            null,
+        ],
+    ] as const)('changes an element mapping via the %s draft mutation', async (operation, source) => {
+        const executeStructuralDraftMutation = jest.fn().mockResolvedValue(undefined);
+        const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];
+        const vm = {
+            layout: { layout },
+            executeStructuralDraftMutation,
+            resolveMutationRootSource: jest.fn().mockReturnValue('category'),
+            notifyMutationError: jest.fn(),
+        };
+
+        await methods.onElementMappingChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            source,
+            contextType: 'single',
+        });
+
+        expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
+            operation,
+            {
+                elementId: 'element-1',
+                propertyKey: 'text',
+                ...(source === null ? {} : { source }),
+            },
+            expect.any(Function),
+        );
+    });
+
     it('records history and applies latest successful draft mutation response', async () => {
         const pushToHistory = jest.fn();
+        const previousLayout: ContentElementNode[] = [
+            {
+                id: 'element-1',
+                component: 'Sw:Content:Text',
+            },
+        ];
         const respondedElement: ContentElementNode = {
             id: 'element-2',
             component: 'Sw:Content:Text',
         };
         const vm = {
             layout: {
-                layout: [] as ContentElementNode[],
+                layout: previousLayout,
             },
             allowSave: true,
-            mutationRequestSequence: 0,
-            latestMutationRequestId: 0,
+            mutationQueue: Promise.resolve(),
+            pendingMutationCount: 0,
             isLoading: false,
             selectedElementId: 'element-1',
             editorStore: {
@@ -263,17 +339,9 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             notifyMutationError: jest.fn(),
             extractMutationErrorCodes: jest.fn().mockReturnValue([]),
         };
-        const previousLayout: ContentElementNode[] = [
-            {
-                id: 'element-1',
-                component: 'Sw:Content:Text',
-            },
-        ];
-
         await methods.executeStructuralDraftMutation.call(
             vm,
             'insert',
-            previousLayout,
             { type: 'Sw:Content:Text' },
             (response: ContentLayoutDraftMutationResponse) => response.affectedElementIds[0] ?? null,
         );
@@ -285,69 +353,91 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(vm.isLoading).toBe(false);
     });
 
-    it('ignores stale mutation responses by request id', async () => {
+    it('serializes draft mutations and uses the latest layout for each request', async () => {
         let resolveFirstRequest!: (response: ContentLayoutDraftMutationResponse) => void;
-        const newerElement: ContentElementNode = { id: 'newer', component: 'Sw:Content:Text' };
+        const firstMapping: ContentElementNode = { id: 'first-mapping', component: 'Sw:Content:Text' };
+        const secondMapping: ContentElementNode = { id: 'second-mapping', component: 'Sw:Content:Text' };
+        const initialLayout: ContentElementNode[] = [{ id: 'initial', component: 'Sw:Content:Text' }];
+        const requestDraftMutation = jest
+            .fn()
+            .mockImplementationOnce(
+                () =>
+                    new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
+                        resolveFirstRequest = resolve;
+                    }),
+            )
+            .mockImplementationOnce((_operation: string, layout: ContentElementNode[]) =>
+                Promise.resolve({
+                    layout: [
+                        ...layout,
+                        secondMapping,
+                    ],
+                    resolutions: {},
+                    diagnostics: { wellFormed: true, resolvable: true, violations: [] },
+                    affectedElementIds: ['second-mapping'],
+                    orphaned: [],
+                    droppedWiring: [],
+                    droppedProperties: {},
+                }),
+            );
         const vm = {
             layout: {
-                layout: [] as ContentElementNode[],
+                layout: initialLayout,
             },
             allowSave: true,
-            mutationRequestSequence: 0,
-            latestMutationRequestId: 0,
+            mutationQueue: Promise.resolve(),
+            pendingMutationCount: 0,
             isLoading: false,
             selectedElementId: 'element-1',
             editorStore: {
                 pushToHistory: jest.fn(),
             },
-            requestDraftMutation: jest
-                .fn()
-                .mockImplementationOnce(
-                    () =>
-                        new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
-                            resolveFirstRequest = resolve;
-                        }),
-                )
-                .mockResolvedValueOnce({
-                    layout: [newerElement],
-                    resolutions: {},
-                    diagnostics: { wellFormed: true, resolvable: true, violations: [] },
-                    affectedElementIds: ['newer'],
-                    orphaned: [],
-                    droppedWiring: [],
-                    droppedProperties: {},
-                }),
+            requestDraftMutation,
             notifyMutationError: jest.fn(),
             extractMutationErrorCodes: jest.fn().mockReturnValue([]),
         };
         const firstCall = methods.executeStructuralDraftMutation.call(
             vm,
-            'insert',
-            [{ id: 'first', component: 'Sw:Content:Text' }],
-            { type: 'Sw:Content:Text' },
-            () => 'first',
+            'map-property',
+            { propertyKey: 'first', source: { type: 'context', id: 'first' } },
+            () => 'element-1',
         );
         const secondCall = methods.executeStructuralDraftMutation.call(
             vm,
-            'insert',
-            [{ id: 'second', component: 'Sw:Content:Text' }],
-            { type: 'Sw:Content:Text' },
-            (response: ContentLayoutDraftMutationResponse) => response.affectedElementIds[0] ?? null,
+            'map-property',
+            { propertyKey: 'second', source: { type: 'context', id: 'second' } },
+            () => 'element-1',
         );
 
-        await secondCall;
+        await Promise.resolve();
+        expect(requestDraftMutation).toHaveBeenCalledTimes(1);
         resolveFirstRequest({
-            layout: [{ id: 'stale', component: 'Sw:Content:Text' }],
+            layout: [firstMapping],
             resolutions: {},
             diagnostics: { wellFormed: true, resolvable: true, violations: [] },
-            affectedElementIds: ['stale'],
+            affectedElementIds: ['first-mapping'],
             orphaned: [],
             droppedWiring: [],
             droppedProperties: {},
         });
-        await firstCall;
+        await Promise.all([
+            firstCall,
+            secondCall,
+        ]);
 
-        expect(vm.layout.layout).toEqual([newerElement]);
+        expect(requestDraftMutation).toHaveBeenNthCalledWith(1, 'map-property', initialLayout, {
+            propertyKey: 'first',
+            source: { type: 'context', id: 'first' },
+        });
+        expect(requestDraftMutation).toHaveBeenNthCalledWith(2, 'map-property', [firstMapping], {
+            propertyKey: 'second',
+            source: { type: 'context', id: 'second' },
+        });
+        expect(vm.layout.layout).toEqual([
+            firstMapping,
+            secondMapping,
+        ]);
+        expect(vm.isLoading).toBe(false);
     });
 
     it('calls move mutation endpoint for move operations', async () => {
@@ -449,5 +539,80 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
 
         expect(normalizedIndex).toBe(1);
+    });
+
+    it('adopts the server-canonical layout returned by the save reload without client-side re-normalization', async () => {
+        // Authored client-side: style as a bare scalar, no seeded default, keys in author order.
+        const authoredElement: ContentElementNode = {
+            component: 'Sw:Filter:Panel',
+            style: { 'col-span': 6 },
+            id: 'element-1',
+            properties: { visibleFilterCount: 5 },
+        };
+        // Server-canonical: `ElementStyleNormalizer::normalizeValue()` broadcasts a breakpoint-aware
+        // scalar across every `Breakpoint::values()` entry, `LayoutDefaultSeeder::seedElement()` appends
+        // the `showLayoutSwitch: true` default the type declares and the author left out, and
+        // `StoredElement::jsonSerialize()` fixes the key order.
+        const canonicalElement: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Filter:Panel',
+            properties: { visibleFilterCount: 5, showLayoutSwitch: true },
+            style: { 'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 } },
+        };
+        const reloadedLayout = {
+            id: 'layout-1',
+            name: 'Landing page',
+            layout: [canonicalElement],
+        };
+        const save = jest.fn().mockResolvedValue(undefined);
+        const get = jest.fn().mockResolvedValue(reloadedLayout);
+        const vm = {
+            layout: {
+                id: 'layout-1',
+                name: 'Landing page',
+                layout: [authoredElement],
+            } as unknown as typeof reloadedLayout,
+            allowSave: true,
+            layoutRootSource: 'product',
+            layoutLoadCriteria: {},
+            layoutRepository: { save, get },
+            applyPreviewContextDefaults: jest.fn(),
+            createNotificationSuccess: jest.fn(),
+            $t: jest.fn().mockReturnValue('saved'),
+            isCreateMode: false,
+            isLoading: false,
+            showDiagnostics: true,
+        };
+
+        await methods.onSave.call(vm);
+
+        const saveCalls = save.mock.calls as unknown[][];
+
+        expect(saveCalls[0][0]).toEqual({
+            id: 'layout-1',
+            name: 'Landing page',
+            layout: [
+                {
+                    component: 'Sw:Filter:Panel',
+                    style: { 'col-span': 6 },
+                    id: 'element-1',
+                    properties: { visibleFilterCount: 5 },
+                },
+            ],
+        });
+        expect(vm.layout).toBe(reloadedLayout);
+        expect(vm.layout.layout[0]).toBe(canonicalElement);
+        expect(Object.keys(vm.layout.layout[0])).toEqual([
+            'id',
+            'component',
+            'properties',
+            'style',
+        ]);
+        expect(vm.layout.layout[0].style).toEqual({
+            'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 },
+        });
+        expect(vm.layout.layout[0].properties).toEqual({ visibleFilterCount: 5, showLayoutSwitch: true });
+        expect(vm.showDiagnostics).toBe(false);
+        expect(vm.isLoading).toBe(false);
     });
 });

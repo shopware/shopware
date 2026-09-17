@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 final readonly class ServiceMenuLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**

@@ -1154,7 +1154,7 @@ class EntityReader implements EntityReaderInterface
                 break;
             }
 
-            \assert($scoreExpression !== null);
+            \assert($scoreExpression !== null, 'A query with the _score state must select the _score expression.');
         }
 
         $windowOrderByParts = $orderByParts;

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -67,6 +68,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\Attri
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithInheritance;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithSearchRanking;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\_fixtures\CascadingManyToOneEntity;
 
 /**
  * @internal
@@ -166,6 +168,15 @@ class AttributeEntityCompilerTest extends TestCase
         $result = (new AttributeEntityCompiler())->compile(Entity::class);
 
         static::assertSame([], $result);
+    }
+
+    public function testCompileRejectsCascadeDeleteOnManyToOne(): void
+    {
+        $this->expectExceptionObject(
+            DataAbstractionLayerException::cascadeDeleteOnManyToOne('cascading_many_to_one', 'currency')
+        );
+
+        (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);
     }
 
     /**

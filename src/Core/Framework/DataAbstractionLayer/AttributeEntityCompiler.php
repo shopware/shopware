@@ -231,7 +231,7 @@ class AttributeEntityCompiler
             'type' => $field->type,
             'name' => $property->getName(),
             'class' => $this->getFieldClass($field),
-            'flags' => $this->getFlags($field, $property),
+            'flags' => $this->getFlags($entity, $field, $property),
             'translated' => $field->translated,
             'args' => $this->getFieldArgs($entity, $field, $property),
         ];
@@ -329,7 +329,7 @@ class AttributeEntityCompiler
     /**
      * @return array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>
      */
-    private function getFlags(Field $field, \ReflectionProperty $property): array
+    private function getFlags(string $entity, Field $field, \ReflectionProperty $property): array
     {
         $flags = [];
 
@@ -404,6 +404,10 @@ class AttributeEntityCompiler
 
         if ($association = $this->getAttribute($property, ...self::ASSOCIATIONS)) {
             $association = $association->newInstance();
+
+            if ($association instanceof ManyToOne && $association->onDelete === OnDelete::CASCADE) {
+                throw DataAbstractionLayerException::cascadeDeleteOnManyToOne($entity, $property->getName());
+            }
 
             $flags['cascade'] = match ($association->onDelete) {
                 OnDelete::CASCADE => ['class' => CascadeDelete::class],

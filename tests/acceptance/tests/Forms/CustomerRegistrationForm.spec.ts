@@ -42,6 +42,13 @@ test.describe('Customer Registration Form', () => {
             await ShopCustomer.expects(privacyNotice).toContainText(/Please note|Bitte beachten/i);
             await ShopCustomer.expects(StorefrontAccountLogin.registerButton).toContainText(/Register|Registrieren/i);
 
+            const legalGuaranteeNoticeLinkWithoutCheckbox = privacyNotice.locator('[data-bs-target="#legalGuaranteeNoticeModal"]');
+            await ShopCustomer.expects(legalGuaranteeNoticeLinkWithoutCheckbox).toBeVisible();
+
+            await legalGuaranteeNoticeLinkWithoutCheckbox.click();
+
+            await ShopCustomer.expects(StorefrontAccountLogin.page.locator('#legalGuaranteeNoticeModal')).toBeVisible();
+
             await TestDataService.setSystemConfig({
                 'core.loginRegistration.requireDataProtectionCheckbox': true,
             });
@@ -49,6 +56,13 @@ test.describe('Customer Registration Form', () => {
 
             await ShopCustomer.expects(dataProtectionCheckbox).toBeVisible();
             await ShopCustomer.expects(privacyNotice).not.toContainText(/Please note|Bitte beachten/i);
+
+            const legalGuaranteeNoticeLink = privacyNotice.locator('[data-bs-target="#legalGuaranteeNoticeModal"]');
+            await ShopCustomer.expects(legalGuaranteeNoticeLink).toBeVisible();
+
+            await legalGuaranteeNoticeLink.click();
+
+            await ShopCustomer.expects(StorefrontAccountLogin.page.locator('#legalGuaranteeNoticeModal')).toBeVisible();
         },
     );
 

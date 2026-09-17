@@ -62,6 +62,12 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
         ]);
     }
 
+    /**
+     * Data provided through the page context is not available to data loaders; this
+     * loader receives the resolved product ID instead of the product entity. It loads the
+     * required product fields by ID and adapts the PartialEntity for ProductConfiguratorLoader
+     * to avoid a full product load and its regular loaded events.
+     */
     public function load(
         LoaderInputs $inputs,
         DataRequirement $requirement,

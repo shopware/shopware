@@ -4,16 +4,6 @@
 import template from './sw-users-permissions-permissions-grid.html.twig';
 import './sw-users-permissions-permissions-grid.scss';
 
-// Mirrors the order of the main navigation; unknown parents follow alphabetically, "other" is last.
-const PARENT_ORDER = [
-    'catalogues',
-    'orders',
-    'customers',
-    'content',
-    'marketing',
-    'settings',
-];
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -112,6 +102,18 @@ export default {
                 'deleter',
             ];
         },
+
+        // Mirrors the order of the main navigation; unknown parents follow alphabetically, "other" is last.
+        parentOrder() {
+            return [
+                'catalogues',
+                'orders',
+                'customers',
+                'content',
+                'marketing',
+                'settings',
+            ];
+        },
     },
 
     methods: {
@@ -121,12 +123,12 @@ export default {
 
             const rank = (key) => {
                 if (key === 'other') {
-                    return PARENT_ORDER.length + 1;
+                    return this.parentOrder.length + 1;
                 }
 
-                const index = PARENT_ORDER.indexOf(key);
+                const index = this.parentOrder.indexOf(key);
 
-                return index === -1 ? PARENT_ORDER.length : index;
+                return index === -1 ? this.parentOrder.length : index;
             };
 
             const rankDiff = rank(keyA) - rank(keyB);

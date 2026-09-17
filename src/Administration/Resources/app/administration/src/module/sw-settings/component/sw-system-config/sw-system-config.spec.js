@@ -21,7 +21,8 @@ let numberOfTabs = 1;
 let numberOfCards = 2;
 let firstCardHasCssField = false;
 
-async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}) {
+// @deprecated tag:v6.8.0 - The legacyConfig parameter will be removed together with the config data prop.
+async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}, legacyConfig = null) {
     const systemConfigApiService = {
         getSchema: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
@@ -33,6 +34,11 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
         }),
         batchSave: jest.fn(() => Promise.resolve()),
     };
+
+    // @deprecated tag:v6.8.0 - Only simulates an extension still overriding the deprecated getConfig method.
+    if (legacyConfig !== null) {
+        systemConfigApiService.getConfig = jest.fn(() => Promise.resolve(legacyConfig));
+    }
 
     return mount(await wrapTestComponent('sw-system-config'), {
         slots,
@@ -1895,6 +1901,75 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(card.find('.mt-card__title').text()).not.toBe('Custom card 2 with css field');
             expect(card.find('.sw-system-config__compile-notice').exists()).toBe(false);
         });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should consider custom legacy getConfig overrides when loading the schema', async () => {
+        numberOfTabs = 2;
+
+        const config = createConfig();
+        const legacyConfig = config
+            .flatMap((tab) => tab.cards)
+            .map((card) => {
+                return card.title?.['en-GB'] === 'Custom card 1'
+                    ? { ...card, title: { 'en-GB': 'Renamed via legacy override' } }
+                    : card;
+            });
+        legacyConfig.push({
+            name: null,
+            title: { 'en-GB': 'Custom card via legacy override' },
+            elements: [],
+        });
+
+        wrapper = await createWrapper({}, config, {}, {}, legacyConfig);
+        await flushPromises();
+
+        expect(wrapper.vm.systemConfigApiService.getConfig).toHaveBeenCalled();
+
+        // A card matched by its element names keeps its original tab, even without a __configId yet
+        expect(wrapper.vm.schema[1].name).toBe('custom');
+        expect(wrapper.vm.schema[1].cards.map((card) => card.title?.['en-GB'])).toContain('Renamed via legacy override');
+
+        // A brand new card without elements cannot be matched and falls back to the general tab
+        expect(wrapper.vm.schema[0].name).toBeNull();
+        expect(wrapper.vm.schema[0].cards.map((card) => card.title?.['en-GB'])).toContain('Custom card via legacy override');
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should keep a card on its original tab when a new element is added to it via a legacy getConfig override', async () => {
+        numberOfTabs = 2;
+
+        const config = createConfig();
+        const newElement = {
+            name: 'ConfigRenderer.config.customField5',
+            type: 'text',
+            config: {
+                defaultValue: 'Custom field 5',
+                label: {
+                    'en-GB': 'Custom field 5',
+                },
+            },
+        };
+        const legacyConfig = config
+            .flatMap((tab) => tab.cards)
+            .map((card) => {
+                return card.title?.['en-GB'] === 'Custom card 1'
+                    ? {
+                          ...card,
+                          elements: [
+                              ...card.elements,
+                              newElement,
+                          ],
+                      }
+                    : card;
+            });
+
+        wrapper = await createWrapper({}, config, {}, {}, legacyConfig);
+        await flushPromises();
+
+        expect(wrapper.vm.schema[1].name).toBe('custom');
+        const matchedCard = wrapper.vm.schema[1].cards.find((card) => card.title?.['en-GB'] === 'Custom card 1');
+        expect(matchedCard.elements.map((element) => element.name)).toContain(newElement.name);
     });
 
     // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.

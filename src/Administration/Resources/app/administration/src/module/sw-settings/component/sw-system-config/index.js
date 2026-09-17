@@ -230,9 +230,10 @@ export default {
         },
 
         async readConfig() {
-            const schema = await this.systemConfigApiService.getSchema(this.domain);
+            // @deprecated tag:v6.8.0 - The getSchemaForDomain method call will be replaced with this.systemConfigApiService.getSchema(this.domain).
+            const schema = await this.getSchemaForDomain();
 
-            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed together with config data prop.
+            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed without replacement.
             this.assignConfigIds(schema);
 
             this.schema = schema;
@@ -248,6 +249,37 @@ export default {
                     });
                 });
             });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * The modern schema endpoint is the preferred source of truth, but a decorated or overwritten
+         * legacy `getConfig` method is still used by extensions. If that method is custom, merge the
+         * legacy config into the schema result to keep the compatibility layer intact.
+         */
+        async getSchemaForDomain() {
+            const getSchema = this.systemConfigApiService.getSchema?.bind(this.systemConfigApiService);
+            const getConfig = this.systemConfigApiService.getConfig?.bind(this.systemConfigApiService);
+            const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
+
+            if (typeof getSchema !== 'function') {
+                return [];
+            }
+
+            const schema = await getSchema(this.domain);
+
+            if (typeof getConfig !== 'function' || getConfig === defaultGetConfig) {
+                return schema;
+            }
+
+            const config = await getConfig(this.domain);
+
+            if (!Array.isArray(config)) {
+                return schema;
+            }
+
+            return this.configToSchema(config, schema);
         },
 
         /**
@@ -616,11 +648,48 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
          *
-         * Keeps existing tabs instead of collapsing everything into a single tab. Cards are matched back to
-         * their original tab via the internal `__configId` (see assignConfigIds), which is reliable across
-         * reordering and immutable updates. Cards without a matching id (e.g. newly added ones, or ones that
-         * lost the id because they were rebuilt from scratch instead of spread) end up in the general tab
-         * (name === null) and are assigned a fresh id, so their tab is tracked correctly from then on.
+         * Finds the tab a card most likely belongs to by counting, per previous tab, how many of the
+         * card's elements were already present there. Element names are the actual system config keys,
+         * so they are stable and unique across both endpoints, unlike the internal `__configId` which is
+         * only assigned to cards that went through `assignConfigIds`. Using majority overlap instead of
+         * an exact match keeps the card matched to its tab even if elements were added to or removed from
+         * it. Returns null if no element matches, e.g. for cards without elements.
+         */
+        getTabIndexByElementOverlap(card, elementNameToTabIndex) {
+            const voteCountByTabIndex = new Map();
+
+            (card.elements ?? []).forEach((element) => {
+                const tabIndex = elementNameToTabIndex.get(element.name);
+                if (tabIndex === undefined) {
+                    return;
+                }
+
+                voteCountByTabIndex.set(tabIndex, (voteCountByTabIndex.get(tabIndex) ?? 0) + 1);
+            });
+
+            let bestTabIndex = null;
+            let bestVoteCount = 0;
+            voteCountByTabIndex.forEach((voteCount, tabIndex) => {
+                if (voteCount > bestVoteCount) {
+                    bestVoteCount = voteCount;
+                    bestTabIndex = tabIndex;
+                }
+            });
+
+            return bestTabIndex;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Keeps existing tabs instead of collapsing everything into a single tab. Cards are primarily matched
+         * back to their original tab via the internal `__configId` (see assignConfigIds), which is reliable
+         * across reordering and immutable updates. This id is not available yet when merging a freshly fetched
+         * legacy config (e.g. from a decorated getConfig method) with the schema for the first time, so cards
+         * are additionally matched by the tab their elements were previously found in (see
+         * getTabIndexByElementOverlap). Cards that cannot be matched at all (e.g. newly added ones, or ones
+         * without elements) end up in the general tab (name === null) and are assigned a fresh id, so their
+         * tab is tracked correctly from then on.
          */
         configToSchema(config, previousSchema) {
             const cards = config ?? [];
@@ -640,16 +709,30 @@ export default {
             const fallbackTabIndex = generalTabIndex !== -1 ? generalTabIndex : newSchema.length - 1;
 
             const idToTabIndex = new Map();
+            const elementNameToTabIndex = new Map();
             previousTabs.forEach((tab, tabIndex) => {
                 (tab.cards ?? []).forEach((card) => {
                     if (card.__configId !== undefined) {
                         idToTabIndex.set(card.__configId, tabIndex);
                     }
+
+                    (card.elements ?? []).forEach((element) => {
+                        elementNameToTabIndex.set(element.name, tabIndex);
+                    });
                 });
             });
 
             cards.forEach((card) => {
-                const tabIndex = idToTabIndex.has(card.__configId) ? idToTabIndex.get(card.__configId) : fallbackTabIndex;
+                let tabIndex = fallbackTabIndex;
+
+                if (idToTabIndex.has(card.__configId)) {
+                    tabIndex = idToTabIndex.get(card.__configId);
+                } else {
+                    const overlapTabIndex = this.getTabIndexByElementOverlap(card, elementNameToTabIndex);
+                    if (overlapTabIndex !== null) {
+                        tabIndex = overlapTabIndex;
+                    }
+                }
 
                 if (card.__configId === undefined) {
                     card.__configId = utils.createId();

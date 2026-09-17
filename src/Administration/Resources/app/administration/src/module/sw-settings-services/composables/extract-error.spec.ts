@@ -16,26 +16,11 @@ describe('src/module/sw-settings-services/composables/extract-error.ts', () => {
     }
 
     it.each([
-        [
-            new Error('Test error'),
-            'Test error',
-        ],
-        [
-            new MockAxiosError(),
-            'API error',
-        ],
-        [
-            { response: { data: {} } },
-            'unknown error',
-        ],
-        [
-            null,
-            'unknown error',
-        ],
-        [
-            'string error',
-            'unknown error',
-        ],
+        [new Error('Test error'), 'Test error'],
+        [new MockAxiosError(), 'API error'],
+        [{ response: { data: {} } }, 'unknown error'],
+        [null, 'unknown error'],
+        ['string error', 'unknown error'],
     ])('extracts the correct error message', (exception, expected) => {
         expect(extractError(exception)).toBe(expected);
     });

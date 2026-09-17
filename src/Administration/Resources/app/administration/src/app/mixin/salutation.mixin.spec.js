@@ -12,9 +12,7 @@ async function createWrapper() {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('salutation'),
-            ],
+            mixins: [Shopware.Mixin.getByName('salutation')],
             data() {
                 return {
                     name: 'sw-mock-field',

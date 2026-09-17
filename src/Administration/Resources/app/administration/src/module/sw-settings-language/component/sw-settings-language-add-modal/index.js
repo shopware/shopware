@@ -11,19 +11,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'translationService',
-    ],
+    inject: ['repositoryFactory', 'translationService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    emits: [
-        'close',
-        'language-added',
-    ],
+    emits: ['close', 'language-added'],
 
     data() {
         return {
@@ -95,10 +87,7 @@ export default {
         async createdComponent() {
             this.isLoading = true;
 
-            const [
-                listResponse,
-                metaResponse,
-            ] = await Promise.all([
+            const [listResponse, metaResponse] = await Promise.all([
                 this.translationService.getList().catch(() => null),
                 this.translationService.getMeta().catch(() => null),
                 this.loadExistingLanguageLocales(),

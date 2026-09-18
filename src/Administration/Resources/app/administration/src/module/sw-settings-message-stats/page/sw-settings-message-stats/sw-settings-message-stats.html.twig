@@ -102,10 +102,14 @@
                         </sw-data-grid>
                     </div>
 
-                    <div v-else>
+                    <div
+                        v-else
+                        class="sw-settings-message-stats__empty-state"
+                    >
                         <mt-empty-state
                             :headline="$t('sw-settings-message-stats.general.emptyStateTitle')"
                             :description="$t('sw-settings-message-stats.general.emptyStateSubline')"
+                            centered
                             icon="regular-bars-square"
                         />
                         {# rendering button separately as mt-empty-state does not support custom button icons #}

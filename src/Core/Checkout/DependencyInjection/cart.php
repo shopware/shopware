@@ -88,6 +88,7 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
 use Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Checkout\Cart\Validator;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecutor;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AddCartErrorCommandHandler;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AddPaymentMethodCommandHandler;
@@ -353,7 +354,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Tax calculation
     $services->set(PercentageTaxRuleBuilder::class);
 
-    $services->set(TaxDetector::class);
+    $services->set(TaxDetector::class)
+        ->args([
+            service(VatIdPatternProvider::class),
+        ]);
 
     $services->set(TaxCalculator::class);
 

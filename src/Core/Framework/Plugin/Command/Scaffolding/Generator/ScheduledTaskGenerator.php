@@ -24,6 +24,12 @@ class ScheduledTaskGenerator implements ScaffoldingGenerator
 
     $services->set(\{{ namespace }}\ScheduledTask\ExampleTask::class)
         ->tag('shopware.scheduled.task');
+    $services->set(\{{ namespace }}\ScheduledTask\ExampleTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+        ])
+        ->tag('messenger.message_handler');
 
 EOL;
 
@@ -36,6 +42,7 @@ EOL;
         }
 
         $stubCollection->add($this->createScheduledTask($configuration));
+        $stubCollection->add($this->createScheduledTaskHandler($configuration));
 
         $stubCollection->append(
             'src/Resources/config/services.php',
@@ -52,6 +59,17 @@ EOL;
         return Stub::template(
             'src/ScheduledTask/ExampleTask.php',
             self::STUB_DIRECTORY . '/scheduled-task.stub',
+            [
+                'namespace' => $configuration->namespace,
+            ]
+        );
+    }
+
+    private function createScheduledTaskHandler(PluginScaffoldConfiguration $configuration): Stub
+    {
+        return Stub::template(
+            'src/ScheduledTask/ExampleTaskHandler.php',
+            self::STUB_DIRECTORY . '/scheduled-task-handler.stub',
             [
                 'namespace' => $configuration->namespace,
             ]

@@ -27,7 +27,7 @@ class NoClassAliasExpressionUsageRuleTest extends RuleTestCase
         $message = 'Class alias "Shopware\Tests\Legacy\UnregisteredClass" is kept only for backwards compatibility. Use "Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ClassMovedAttributeUsage" instead.';
 
         $this->analyse([__DIR__ . '/data/NoClassAliasUsageRule/ClassAliasUsage.php'], [
-            [$message, 17],
+            [$message, 16],
             [$message, 19],
             [$message, 20],
             [$message, 21],

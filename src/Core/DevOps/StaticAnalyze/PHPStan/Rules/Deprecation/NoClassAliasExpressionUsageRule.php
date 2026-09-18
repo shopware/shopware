@@ -4,8 +4,8 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Instanceof_;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Name;
@@ -36,7 +36,7 @@ class NoClassAliasExpressionUsageRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $name = match (true) {
-            $node instanceof ClassConstFetch,
+            $node instanceof New_,
             $node instanceof Instanceof_,
             $node instanceof StaticCall,
             $node instanceof StaticPropertyFetch => $node->class instanceof Name ? $node->class : null,

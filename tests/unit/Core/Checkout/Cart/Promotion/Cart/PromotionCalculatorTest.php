@@ -134,6 +134,122 @@ class PromotionCalculatorTest extends TestCase
         static::assertSame('Promotion second-promotion was excluded for cart.', $error->getMessage());
     }
 
+    /**
+     * Same-priority promotions are processed in loading order to avoid mutually excluding each other.
+     */
+    public function testSamePriorityExclusionsRespectLoadingOrder(): void
+    {
+        $this->promotionCalculator = $this->getCalculatorWithProductPackage();
+        $firstDiscountItem = $this->getDiscountItem('first-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('exclusions', ['second-promotion']);
+        $secondDiscountItem = $this->getDiscountItem('second-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('exclusions', ['first-promotion']);
+
+        $cart = $this->getCartWithProduct();
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$firstDiscountItem, $secondDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertSame($firstDiscountItem, $cart->getLineItems()->get($firstDiscountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($secondDiscountItem->getId()));
+    }
+
+    /**
+     * A higher-priority promotion configured to prevent combinations excludes every other promotion.
+     */
+    public function testHigherPriorityPreventCombinationExcludesOtherPromotion(): void
+    {
+        $this->promotionCalculator = $this->getCalculatorWithProductPackage();
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 2);
+        $otherDiscountItem = $this->getDiscountItem('other-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1);
+
+        $cart = $this->getCartWithProduct();
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$otherDiscountItem, $preventCombinationDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertSame($preventCombinationDiscountItem, $cart->getLineItems()->get($preventCombinationDiscountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($otherDiscountItem->getId()));
+    }
+
+    /**
+     * Reverse exclusions ensure a lower-priority prevent-combination promotion cannot override a higher-priority one.
+     */
+    public function testLowerPriorityPreventCombinationIsExcludedByHigherPriorityPromotion(): void
+    {
+        $this->promotionCalculator = $this->getCalculatorWithProductPackage();
+        $higherPriorityDiscountItem = $this->getDiscountItem('higher-priority-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('priority', 2);
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 1);
+
+        $cart = $this->getCartWithProduct();
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$preventCombinationDiscountItem, $higherPriorityDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertSame($higherPriorityDiscountItem, $cart->getLineItems()->get($higherPriorityDiscountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($preventCombinationDiscountItem->getId()));
+    }
+
+    /**
+     * A valid higher-priority delivery promotion can exclude a cart-scope promotion before delivery processing runs.
+     */
+    public function testHigherPriorityDeliveryPromotionExcludesCartPromotion(): void
+    {
+        $deliveryDiscountItem = $this->getDiscountItem('delivery-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_DELIVERY)
+            ->setPayloadValue('exclusions', ['cart-promotion'])
+            ->setPayloadValue('priority', 2);
+        $cartDiscountItem = $this->getDiscountItem('cart-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$cartDiscountItem, $deliveryDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertInstanceOf(PromotionExcludedError::class, $cart->getErrors()->first());
+        static::assertNull($cart->getLineItems()->get($cartDiscountItem->getId()));
+        static::assertCount(0, $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE));
+    }
+
     public function testAddDiscountWithPackages(): void
     {
         $lineItem1 = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('line-item-1'));
@@ -424,6 +540,40 @@ class PromotionCalculatorTest extends TestCase
         static::assertCount(0, $cart->getErrors());
     }
 
+    private function getCalculatorWithProductPackage(): PromotionCalculator
+    {
+        $cartPackager = static::createStub(DiscountPackager::class);
+        $cartPackager->method('getMatchingItems')->willReturn(new DiscountPackageCollection([
+            new DiscountPackage(new LineItemQuantityCollection([new LineItemQuantity($this->ids->get('line-item-1'), 1)])),
+        ]));
+
+        $splitter = static::createStub(LineItemQuantitySplitter::class);
+        $splitter->method('split')->willReturnCallback(static fn (LineItem $item) => $item);
+        $filter = static::createStub(PackageFilter::class);
+        $filter->method('filterPackages')->willReturnCallback(static fn (DiscountLineItem $discount, DiscountPackageCollection $packages) => $packages);
+        $picker = static::createStub(AdvancedPackagePicker::class);
+        $picker->method('pickItems')->willReturnCallback(static fn (DiscountLineItem $discount, DiscountPackageCollection $packages) => $packages);
+        $rules = static::createStub(SetGroupScopeFilter::class);
+        $rules->method('filter')->willReturnCallback(static fn (DiscountLineItem $discount, DiscountPackageCollection $packages) => $packages);
+        $priceCalculator = static::createStub(AbsolutePriceCalculator::class);
+        $priceCalculator->method('calculate')->willReturnCallback(static fn (float $price) => new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        return new PromotionCalculator(
+            static::createStub(AmountCalculator::class),
+            $priceCalculator,
+            static::createStub(LineItemGroupBuilder::class),
+            static::createStub(DiscountCompositionBuilder::class),
+            $filter,
+            $picker,
+            $rules,
+            $splitter,
+            static::createStub(PercentagePriceCalculator::class),
+            $cartPackager,
+            static::createStub(DiscountPackager::class),
+            static::createStub(DiscountPackager::class)
+        );
+    }
+
     private function getCalculatorWithoutPackages(): PromotionCalculator
     {
         $cartPackager = static::createStub(DiscountPackager::class);
@@ -466,6 +616,7 @@ class PromotionCalculatorTest extends TestCase
         $product = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
         $product->setLabel('Product');
         $product->setPriceDefinition(new AbsolutePriceDefinition(50.0));
+        $product->setPrice(new CalculatedPrice(50.0, 50.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $cart = new Cart('promotion-test');
         $cart->add($product);

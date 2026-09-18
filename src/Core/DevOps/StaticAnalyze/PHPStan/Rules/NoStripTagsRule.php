@@ -9,7 +9,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -34,7 +33,6 @@ class NoStripTagsRule implements Rule
      * @var list<class-string>
      */
     private const ALLOWLIST = [
-        Tokenizer::class,
         'Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils',
     ];
 

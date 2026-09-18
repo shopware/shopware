@@ -1246,9 +1246,9 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').resetApiErrors();
+            useErrorStore().resetApiErrors();
 
-            Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+            EventBus.emit('sw-product-detail-save-success');
 
             if (this.updateSeoPromises.length === 0) {
                 this.isSaveSuccessful = true;

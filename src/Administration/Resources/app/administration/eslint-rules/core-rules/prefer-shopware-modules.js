@@ -7,6 +7,10 @@
  * the standing guard that keeps new code from reintroducing the old style. Both decide what exists from
  * `shopware-modules.json`, so neither can name an export the generated module does not have.
  *
+ * Administration-only while the modules are experimental. They become stable with 6.8, and this rule
+ * should then be given to extensions as well: add it to the `sw-core-rules` block in
+ * `extension-tooling/eslint.mjs`, which is the list of core rules an extension program receives.
+ *
  * Which files are exempt is not decided here. `src/core`, specs and the modules evaluated before
  * `window.Shopware` exists are excluded by the ESLint config, which can compute that set; this file is
  * plain CommonJS and ESLint loads it outside any TypeScript runtime.

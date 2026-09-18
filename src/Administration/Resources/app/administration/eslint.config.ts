@@ -774,8 +774,9 @@ export default [
         },
     },
 
-    // The `shopware:*` modules are experimental, so this is a warning and the Administration is the only
-    // consumer: `extension-tooling/eslint.mjs` names the `sw-core-rules` extensions get, and omits it.
+    // The `shopware:*` modules are experimental until 6.8, so this is a warning and the Administration is
+    // the only consumer: `extension-tooling/eslint.mjs` names the `sw-core-rules` extensions get, and
+    // omits this one until the modules are stable.
     //
     // The exemptions match the codemod that did the one-time sweep. `src/core` is excluded as a layer —
     // it is the Vue-independent framework code, part of it runs in the admin worker where no

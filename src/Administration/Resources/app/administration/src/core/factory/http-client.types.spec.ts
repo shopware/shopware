@@ -10,14 +10,15 @@ describe('core/factory/http-client.types.ts', () => {
     it('keeps common extension TypeScript usage compatible', () => {
         function assertCompatibility(httpClient: HttpClient): void {
             const axiosClient: AxiosInstance = httpClient;
-            const requestConfig: AxiosRequestConfig & { useAxiosV1: boolean } = {
-                useAxiosV1: true,
+            const requestConfig: AxiosRequestConfig = {
+                signal: new AbortController().signal,
                 auth: { username: 'admin', password: 'password' },
                 onUploadProgress: () => {},
                 validateStatus: (status) => status < 500,
             };
             const interceptorId = httpClient.interceptors.response.use((response) => response);
             const responsePromise: Promise<AxiosResponse> = httpClient.get('/test', requestConfig);
+            // @deprecated tag:v6.8.0 - CancelToken stays typed until the shim is removed.
             const cancelToken = new httpClient.CancelToken(() => {});
 
             httpClient.defaults.headers.common['x-extension-header'] = 'value';

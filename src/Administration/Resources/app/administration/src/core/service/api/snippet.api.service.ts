@@ -1,5 +1,4 @@
-import type { AxiosResponse } from 'axios';
-import type { HttpClient } from 'src/core/factory/http-client.types';
+import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import type { SnippetRegistry } from 'src/core/factory/locale.factory';
 import type LocaleFactory from 'src/core/factory/locale.factory';
@@ -31,7 +30,7 @@ class SnippetApiService extends ApiService {
             .get(`/_action/${this.getApiBasePath()}/filter`, {
                 headers,
             })
-            .then((response: AxiosResponse<SnippetFilter>) => {
+            .then((response: HttpResponse<SnippetFilter>) => {
                 return ApiService.handleResponse(response);
             });
     }
@@ -44,7 +43,7 @@ class SnippetApiService extends ApiService {
             .get(`/_admin/snippets?locale=${locale}`, {
                 headers,
             })
-            .then((response: AxiosResponse<SnippetRegistry>) => {
+            .then((response: HttpResponse<SnippetRegistry>) => {
                 return ApiService.handleResponse(response);
             })
             .then((snippetRegistry: SnippetRegistry) => {
@@ -82,7 +81,7 @@ class SnippetApiService extends ApiService {
             .get(`/_admin/locales`, {
                 headers,
             })
-            .then((response: AxiosResponse<InstalledLocales>) => {
+            .then((response: HttpResponse<InstalledLocales>) => {
                 return ApiService.handleResponse(response);
             });
     }

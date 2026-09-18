@@ -1,4 +1,4 @@
-import type { AxiosResponse } from 'axios';
+import type { HttpResponse } from 'src/core/factory/http-client.types';
 import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { Cart, ContextSwitchParameters, LineItem, SalesChannelContext } from '../order.types';
 import type CartStoreService from '../../../core/service/api/cart-store-api.api.service';
@@ -24,17 +24,17 @@ describe('src/module/sw-order/store/order.store', () => {
         name: 'test',
     } as unknown as LineItem;
 
-    const createCartMock = jest.fn(() => Promise.resolve({ data: { token, lineItems: [] } } as unknown as AxiosResponse));
-    const getCartMock = jest.fn(() => Promise.resolve({ data: { token, lineItems: [] } } as unknown as AxiosResponse));
-    const cancelCartMock = jest.fn(() => Promise.resolve({ data: {} } as unknown as AxiosResponse));
-    const addPromotionCodeMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as AxiosResponse));
-    const getSalesChannelContextMock = jest.fn(() => Promise.resolve({ data: { id: '1' } } as unknown as AxiosResponse));
-    const updateContextMock = jest.fn(() => Promise.resolve({ data: {} } as unknown as AxiosResponse));
+    const createCartMock = jest.fn(() => Promise.resolve({ data: { token, lineItems: [] } } as unknown as HttpResponse));
+    const getCartMock = jest.fn(() => Promise.resolve({ data: { token, lineItems: [] } } as unknown as HttpResponse));
+    const cancelCartMock = jest.fn(() => Promise.resolve({ data: {} } as unknown as HttpResponse));
+    const addPromotionCodeMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as HttpResponse));
+    const getSalesChannelContextMock = jest.fn(() => Promise.resolve({ data: { id: '1' } } as unknown as HttpResponse));
+    const updateContextMock = jest.fn(() => Promise.resolve({ data: {} } as unknown as HttpResponse));
     const checkoutMock = jest.fn(() => Promise.resolve());
-    const removeLineItemsMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as AxiosResponse));
-    const saveLineItemMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as AxiosResponse));
-    const addMultipleLineItemsMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as AxiosResponse));
-    const modifyShippingCostsMock = jest.fn(() => Promise.resolve({ data: { data: cart } } as unknown as AxiosResponse));
+    const removeLineItemsMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as HttpResponse));
+    const saveLineItemMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as HttpResponse));
+    const addMultipleLineItemsMock = jest.fn(() => Promise.resolve({ data: cart } as unknown as HttpResponse));
+    const modifyShippingCostsMock = jest.fn(() => Promise.resolve({ data: { data: cart } } as unknown as HttpResponse));
     const transitionOrderTransactionStateMock = jest.fn(() => Promise.resolve());
 
     beforeAll(() => {

@@ -620,16 +620,11 @@ declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
-        useAxiosV1?: boolean;
-    }
-}
-
-declare module 'axios-v1' {
-    interface AxiosRequestConfig {
-        // adds the shopware API version to the RequestConfig
-        version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
+        /**
+         * Selects the legacy compatibility mode for a single request.
+         *
+         * @deprecated tag:v6.9.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
+         */
         useAxiosV1?: boolean;
     }
 }

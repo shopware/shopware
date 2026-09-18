@@ -1,4 +1,4 @@
-import type { AxiosError } from 'axios';
+import type { HttpError } from 'src/core/factory/http-client.types';
 import template from './sw-extension-my-extensions-account.html.twig';
 import './sw-extension-my-extensions-account.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
@@ -88,7 +88,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$emit('logout-success');
             } catch (errorResponse) {
                 this.commitErrors(
-                    errorResponse as AxiosError<{
+                    errorResponse as HttpError<{
                         errors: StoreApiException[];
                     }>,
                 );
@@ -110,7 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
                 });
             } catch (errorResponse) {
                 this.commitErrors(
-                    errorResponse as AxiosError<{
+                    errorResponse as HttpError<{
                         errors: StoreApiException[];
                     }>,
                 );
@@ -152,7 +152,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        commitErrors(errorResponse: AxiosError<{ errors: StoreApiException[] }>): never {
+        commitErrors(errorResponse: HttpError<{ errors: StoreApiException[] }>): never {
             if (errorResponse.response) {
                 const mappedErrors = extensionErrorHandler.mapErrors(errorResponse.response.data.errors);
                 Shopware.Store.get('shopwareExtensions').pluginErrorsMapped(mappedErrors);

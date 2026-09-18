@@ -13,12 +13,10 @@ function getConsumeRequests(history) {
 }
 
 /**
- * Flushes the microtask queue multiple times to handle the dispatcher's promise chain.
- * The new HTTP dispatcher architecture adds extra promise layers (dispatcher → adapter → client),
- * requiring multiple microtask flushes to fully resolve all promises.
+ * Flushes the microtask queue multiple times so the axios promise chain (interceptors, adapter, response
+ * transformation) fully settles before assertions run.
  */
 async function flushMicrotasks() {
-    // Flush microtask queue twice to handle dispatcher → adapter → client promise chain
     await Promise.resolve();
     await Promise.resolve();
 }
@@ -224,9 +222,7 @@ describe('core/worker/admin-worker.worker.js', () => {
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
 
         const isCanceled = (index) => {
-            const cancelToken = getConsumeRequests(axiosMock.history)[index].cancelToken;
-
-            return !!cancelToken.reason;
+            return getConsumeRequests(axiosMock.history)[index].signal.aborted;
         };
 
         const message = {

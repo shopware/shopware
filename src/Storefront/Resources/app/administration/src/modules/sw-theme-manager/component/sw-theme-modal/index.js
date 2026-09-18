@@ -13,14 +13,9 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-theme-select',
-        'modal-close',
-    ],
+    emits: ['modal-theme-select', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         selectedThemeId: {

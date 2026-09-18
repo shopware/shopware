@@ -35,8 +35,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-route',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // The replacement is still experimental, so the deprecation is announced but stays silent for now.
-        'reason:experimental-replacement',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
     ];

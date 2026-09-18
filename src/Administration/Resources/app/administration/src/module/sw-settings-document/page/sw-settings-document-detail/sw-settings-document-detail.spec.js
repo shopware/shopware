@@ -53,10 +53,7 @@ const documentBaseConfigRepositoryMock = {
                 id: id,
                 documentTypeId: 'documentTypeId',
                 config: {
-                    fileTypes: [
-                        'pdf',
-                        'html',
-                    ],
+                    fileTypes: ['pdf', 'html'],
                 },
             });
         }
@@ -83,9 +80,7 @@ const documentBaseConfigRepositoryMock = {
             id: id,
             documentTypeId: 'documentTypeId',
             config: {
-                fileTypes: [
-                    'pdf',
-                ],
+                fileTypes: ['pdf'],
             },
         });
     },
@@ -212,9 +207,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
-            'salesChannelId1',
-        ]);
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual(['salesChannelId1']);
     });
 
     it('should create an entity collection with document config sales channels associations', async () => {
@@ -272,9 +265,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
         await flushPromises();
 
-        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual([
-            'salesChannelId1',
-        ]);
+        expect([...wrapper.vm.documentConfigSalesChannels]).toEqual(['salesChannelId1']);
 
         wrapper.vm.onChangeType({ id: 'documentTypeId2' });
 
@@ -778,10 +769,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 displayPageCount: true,
                 displayPrices: true,
                 displayReturnAddress: false,
-                fileTypes: [
-                    'pdf',
-                    'html',
-                ],
+                fileTypes: ['pdf', 'html'],
                 itemsPerPage: 10,
                 pageOrientation: 'portrait',
                 pageSize: 'a4',
@@ -820,10 +808,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
                 displayPageCount: true,
                 displayPrices: true,
                 displayReturnAddress: false,
-                fileTypes: [
-                    'pdf',
-                    'html',
-                ],
+                fileTypes: ['pdf', 'html'],
                 itemsPerPage: 10,
                 pageOrientation: 'portrait',
                 pageSize: 'a4',

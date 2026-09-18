@@ -176,14 +176,8 @@ describe('src/app/composables/use-listing', () => {
 
         expect(listing.selectionArray.value).toHaveLength(2);
         expect(listing.selectionCount.value).toBe(2);
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            'id-1',
-            'id-2',
-        ]);
-        expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual([
-            'id-1',
-            'id-2',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['id-1', 'id-2']);
+        expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual(['id-1', 'id-2']);
     });
 
     it('suspends the current sorting while a fresh search term is set', async () => {

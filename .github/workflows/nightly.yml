@@ -104,6 +104,31 @@ jobs:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
+
+  # Gated on all four so a partial upload never reports a wrong total; trunk-only by design, one point per day.
+  push-coverage-to-getdx:
+    name: Push coverage to getDX
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk' && needs.php.result == 'success' && needs.integration.result == 'success' && needs.admin.result == 'success' && needs.storefront.result == 'success'
+    needs:
+      - php
+      - integration
+      - admin
+      - storefront
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: lts/*
+      - name: Push coverage to getDX
+        run: node ./.github/bin/js/push-coverage-to-getdx.ts
+        env:
+          CODECOV_API_TOKEN: ${{ secrets.CODECOV_API_TOKEN }}
+          DX_API_TOKEN: ${{ secrets.DX_API_TOKEN }}
   zugferd-compliance:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/zugferd-compliance.yml

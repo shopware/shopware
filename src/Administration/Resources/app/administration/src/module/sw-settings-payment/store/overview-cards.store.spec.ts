@@ -14,9 +14,6 @@ describe('module/sw-settings-payment/store/overview-cards.store', () => {
 
         Shopware.Store.get('paymentOverviewCard').add(paymentOverviewCard2);
 
-        expect(Shopware.Store.get('paymentOverviewCard').cards).toStrictEqual([
-            paymentOverviewCard1,
-            paymentOverviewCard2,
-        ]);
+        expect(Shopware.Store.get('paymentOverviewCard').cards).toStrictEqual([paymentOverviewCard1, paymentOverviewCard2]);
     });
 });

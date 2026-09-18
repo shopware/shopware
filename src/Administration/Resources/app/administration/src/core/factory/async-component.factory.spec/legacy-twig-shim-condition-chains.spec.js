@@ -142,11 +142,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         const wrapper = await withMutedConsoleWarn(() => {
             return mountNativeBlockComponent('native-block-legacy-twig-shim-override-chain');
         });
-        const branches = [
-            '.condition-one',
-            '.condition-two',
-            '.fallback-condition',
-        ];
+        const branches = ['.condition-one', '.condition-two', '.fallback-condition'];
 
         expectOnlyBranch(wrapper, branches, '.fallback-condition');
 
@@ -257,11 +253,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         const wrapper = await withMutedConsoleWarn(() => {
             return mountNativeBlockComponent('native-block-legacy-twig-adjacent-named-chain');
         });
-        const branches = [
-            '.native-one',
-            '.native-two',
-            '.plugin-two',
-        ];
+        const branches = ['.native-one', '.native-two', '.plugin-two'];
 
         await settleLegacyChain(wrapper);
         expectOnlyBranch(wrapper, branches, '.plugin-two');
@@ -326,10 +318,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         const wrapper = await withMutedConsoleWarn(() => {
             return mountNativeBlockComponent('native-block-legacy-twig-started-chain');
         });
-        const branches = [
-            '.plugin-one-condition',
-            '.plugin-two-fallback',
-        ];
+        const branches = ['.plugin-one-condition', '.plugin-two-fallback'];
 
         await settleLegacyChain(wrapper);
 

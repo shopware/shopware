@@ -14,14 +14,9 @@ export default Component.wrapComponentConfig({
 
     inject: ['updateService'],
 
-    emits: [
-        'update-started',
-        'update-stopped',
-    ],
+    emits: ['update-started', 'update-stopped'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         updateInfo: {
@@ -233,10 +228,7 @@ export default Component.wrapComponentConfig({
                     return;
                 }
 
-                const [
-                    licenseCheck,
-                    extensions,
-                ] = await Promise.all([
+                const [licenseCheck, extensions] = await Promise.all([
                     this.updateService.checkLicense(),
                     this.updateService.extensionCompatibility(),
                 ]);

@@ -13,9 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     computed: {
         usageDataTabs(): TabItem[] {

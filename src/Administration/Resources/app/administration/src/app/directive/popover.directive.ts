@@ -147,19 +147,14 @@ function setElementPosition(element: HTMLElement, refElement: Element | undefine
     }
 
     // set custom inline element styling
-    Object.entries(config.style).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            if (customStylingBlacklist.includes(key)) {
-                return;
-            }
+    Object.entries(config.style).forEach(([key, value]) => {
+        if (customStylingBlacklist.includes(key)) {
+            return;
+        }
 
-            // @ts-expect-error - key can be set
-            element.style[key] = value;
-        },
-    );
+        // @ts-expect-error - key can be set
+        element.style[key] = value;
+    });
 
     // add inline styling
     element.style.position = 'absolute';

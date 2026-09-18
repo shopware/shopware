@@ -21,10 +21,7 @@ describe('scripts/codemods/sfc-migration', () => {
     // classifyOptions() reads OPTION_TIERS before dispatching, so an option in both tables would
     // never reach its handler.
     it('assigns each option either a tier or a handler, never both', () => {
-        const dispatched = [
-            ...Object.keys(OPTION_HANDLERS),
-            ...Object.keys(LIFECYCLE_HOOKS),
-        ];
+        const dispatched = [...Object.keys(OPTION_HANDLERS), ...Object.keys(LIFECYCLE_HOOKS)];
 
         expect(dispatched.filter((option) => option in OPTION_TIERS)).toEqual([]);
     });
@@ -156,9 +153,7 @@ describe('scripts/codemods/sfc-migration', () => {
             });
 
             expect(result.outcome).toBe('skipped');
-            expect(result.reasons).toEqual([
-                "validation: binding 'swBlock' shadows a component tag the template renders",
-            ]);
+            expect(result.reasons).toEqual(["validation: binding 'swBlock' shadows a component tag the template renders"]);
         });
 
         // A ref is nearly always named after the component it points at, and the `ref` attribute in
@@ -183,16 +178,16 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.sfc).not.toContain(`<template>\n    ${rootComment}`);
         });
 
-        it.each([
-            '<div>content</div>',
-            '<some-component />',
-        ])('keeps a non-block root single-rooted when preceded by a Twig comment: %s', (root) => {
-            const result = transformTemplate(`{# note #}\n${root}`);
+        it.each(['<div>content</div>', '<some-component />'])(
+            'keeps a non-block root single-rooted when preceded by a Twig comment: %s',
+            (root) => {
+                const result = transformTemplate(`{# note #}\n${root}`);
 
-            expect(result.template?.trim()).toBe(root);
-            expect(result.sfcComments).toEqual(['<!-- note -->']);
-            expect(result.warnings).toEqual([]);
-        });
+                expect(result.template?.trim()).toBe(root);
+                expect(result.sfcComments).toEqual(['<!-- note -->']);
+                expect(result.warnings).toEqual([]);
+            },
+        );
 
         // Every authoring form has to be refused: the leftover-twig check only looks for `{%`/`{#`,
         // so a surviving `{{ parent() }}` would compile as a live interpolation and fail at runtime.
@@ -207,18 +202,9 @@ describe('scripts/codemods/sfc-migration', () => {
         // A `-->` in the body would close the generated comment early and spill the rest into
         // rendered markup — output Vue parses happily, so nothing downstream would catch it.
         it.each([
-            [
-                '{# see --> here #}',
-                '<!-- see -- > here -->',
-            ],
-            [
-                '{# see --!> here #}',
-                '<!-- see -- !> here -->',
-            ],
-            [
-                '{# arrow ---> tail #}',
-                '<!-- arrow --- > tail -->',
-            ],
+            ['{# see --> here #}', '<!-- see -- > here -->'],
+            ['{# see --!> here #}', '<!-- see -- !> here -->'],
+            ['{# arrow ---> tail #}', '<!-- arrow --- > tail -->'],
         ])('converts %s without letting the comment terminate early', (twig, expected) => {
             const result = transformTemplate(`<div>${twig}<span>kept</span></div>`);
 

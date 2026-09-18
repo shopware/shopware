@@ -50,10 +50,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             wrapper.vm.onSelectChange({ name: 'A' }, true);
             wrapper.vm.onSelectChange({ name: 'C' }, true);
 
-            expect(wrapper.vm.selectedExtensions.map((extension) => extension.name)).toEqual([
-                'A',
-                'C',
-            ]);
+            expect(wrapper.vm.selectedExtensions.map((extension) => extension.name)).toEqual(['A', 'C']);
             expect(wrapper.vm.hasSelection).toBe(true);
         });
 
@@ -100,86 +97,22 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
     describe('bulk operations: actionApplies branch matrix', () => {
         it.each([
-            [
-                'install',
-                { installedAt: null },
-                true,
-            ],
-            [
-                'install',
-                { installedAt: 'x' },
-                false,
-            ],
-            [
-                'activate',
-                { installedAt: 'x', active: false },
-                true,
-            ],
-            [
-                'activate',
-                { installedAt: 'x', active: true },
-                false,
-            ],
-            [
-                'activate',
-                { installedAt: null, active: false },
-                false,
-            ],
-            [
-                'deactivate',
-                { installedAt: 'x', active: true, allowDisable: true },
-                true,
-            ],
-            [
-                'deactivate',
-                { installedAt: 'x', active: true, allowDisable: false },
-                false,
-            ],
-            [
-                'deactivate',
-                { installedAt: 'x', active: false, allowDisable: true },
-                false,
-            ],
-            [
-                'update',
-                { installedAt: 'x', allowUpdate: true, latestVersion: '2.0', version: '1.0' },
-                true,
-            ],
-            [
-                'update',
-                { installedAt: 'x', allowUpdate: true, latestVersion: '1.0', version: '1.0' },
-                false,
-            ],
-            [
-                'update',
-                { installedAt: 'x', allowUpdate: false, latestVersion: '2.0', version: '1.0' },
-                false,
-            ],
-            [
-                'update',
-                { installedAt: 'x', allowUpdate: true, latestVersion: null, version: '1.0' },
-                false,
-            ],
-            [
-                'update',
-                { installedAt: 'x', allowUpdate: true, latestVersion: '', version: '1.0' },
-                false,
-            ],
-            [
-                'uninstall',
-                { installedAt: 'x' },
-                true,
-            ],
-            [
-                'uninstall',
-                { installedAt: null },
-                false,
-            ],
-            [
-                'foo',
-                { installedAt: 'x' },
-                false,
-            ],
+            ['install', { installedAt: null }, true],
+            ['install', { installedAt: 'x' }, false],
+            ['activate', { installedAt: 'x', active: false }, true],
+            ['activate', { installedAt: 'x', active: true }, false],
+            ['activate', { installedAt: null, active: false }, false],
+            ['deactivate', { installedAt: 'x', active: true, allowDisable: true }, true],
+            ['deactivate', { installedAt: 'x', active: true, allowDisable: false }, false],
+            ['deactivate', { installedAt: 'x', active: false, allowDisable: true }, false],
+            ['update', { installedAt: 'x', allowUpdate: true, latestVersion: '2.0', version: '1.0' }, true],
+            ['update', { installedAt: 'x', allowUpdate: true, latestVersion: '1.0', version: '1.0' }, false],
+            ['update', { installedAt: 'x', allowUpdate: false, latestVersion: '2.0', version: '1.0' }, false],
+            ['update', { installedAt: 'x', allowUpdate: true, latestVersion: null, version: '1.0' }, false],
+            ['update', { installedAt: 'x', allowUpdate: true, latestVersion: '', version: '1.0' }, false],
+            ['uninstall', { installedAt: 'x' }, true],
+            ['uninstall', { installedAt: null }, false],
+            ['foo', { installedAt: 'x' }, false],
         ])('should compute actionApplies(%s) as %j -> %s', async (action, extension, expected) => {
             const wrapper = await createWrapper();
 

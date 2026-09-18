@@ -17,9 +17,7 @@ export default {
 
     emits: ['log-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         logEntity: {

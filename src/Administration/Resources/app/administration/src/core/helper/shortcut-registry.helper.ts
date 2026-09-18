@@ -116,10 +116,7 @@ function getMatchedShortcut(shortcutKey: string, allowSequence: boolean): Shortc
         return findShortcut(shortcutKey);
     }
 
-    sequenceBuffer = [
-        ...sequenceBuffer,
-        shortcutKey,
-    ];
+    sequenceBuffer = [...sequenceBuffer, shortcutKey];
 
     const sequence = sequenceBuffer.join('');
     const matchedShortcut = findShortcut(sequence);

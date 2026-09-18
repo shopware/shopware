@@ -155,11 +155,7 @@ export default Shopware.Component.wrapComponentConfig({
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
             const nativeBlocks = getBlocks(props.name);
-            const blocksAndParent = [
-                slots.default ?? (() => []),
-                ...shimSlots,
-                ...nativeBlocks,
-            ];
+            const blocksAndParent = [slots.default ?? (() => []), ...shimSlots, ...nativeBlocks];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
             const lastNode = blocksNodes.pop();

@@ -19,11 +19,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithInheritedAssociationsStub;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithInheritedFlagWithoutInheritanceStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
 
 /**
@@ -387,6 +390,57 @@ class DefinitionValidatorTest extends TestCase
         static::assertStringContainsString('fk_child_parent_id', reset($ownerFkViolations));
     }
 
+    public function testInheritedAssociationHelperColumnPresentReportsNoViolation(): void
+    {
+        $definition = new DefinitionWithInheritedAssociationsStub();
+        $validator = $this->createValidatorWithTable(
+            $definition,
+            ['id'],
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at']
+        );
+
+        static::assertSame([], $this->filterInheritanceViolations($validator, $definition));
+    }
+
+    public function testMissingInheritedHelperColumnReportsViolation(): void
+    {
+        $definition = new DefinitionWithInheritedAssociationsStub();
+        $validator = $this->createValidatorWithTable(
+            $definition,
+            ['id'],
+            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at']
+        );
+
+        $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
+
+        static::assertCount(3, $inheritanceViolations, 'Expected three missing helper column violations, but got: ' . implode(', ', $inheritanceViolations));
+
+        $joined = implode("\n", $inheritanceViolations);
+        static::assertStringContainsString('helper column `children` is missing', $joined);
+        static::assertStringContainsString('helper column `parent` is missing', $joined);
+        static::assertStringContainsString('helper column `optional` is missing', $joined);
+        static::assertStringContainsString(InheritanceUpdaterTrait::class, $joined);
+    }
+
+    public function testInheritedFlagOnNonInheritanceAwareDefinitionReportsViolation(): void
+    {
+        $definition = new DefinitionWithInheritedFlagWithoutInheritanceStub();
+        $validator = $this->createValidatorWithTable(
+            $definition,
+            ['id'],
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at']
+        );
+
+        $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
+
+        static::assertCount(3, $inheritanceViolations, 'Expected three superfluous Inherited flag violations, but got: ' . implode(', ', $inheritanceViolations));
+
+        foreach ($inheritanceViolations as $violation) {
+            static::assertStringContainsString('is not inheritance aware', $violation);
+            static::assertStringContainsString('Remove the `' . Inherited::class . '` flag', $violation);
+        }
+    }
+
     /**
      * A column that no field maps to is reported as a violation, unless the `<entity>.<column>` key is
      * ignored. The reported violations are therefore the observable behaviour of the ignore lists.
@@ -448,52 +502,22 @@ class DefinitionValidatorTest extends TestCase
         ));
     }
 
-    public function testInheritedAssociationHelperColumnPresentReportsNoViolation(): void
+    /**
+     * @return list<string>
+     */
+    private function filterInheritanceViolations(DefinitionValidator $validator, EntityDefinition $definition): array
     {
-        $definition = new DefinitionWithInheritedAssociationsStub();
-        $validator = $this->createValidatorWithColumns(
-            $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
-            ['id']
-        );
-
-        $violations = $validator->validate();
-        $inheritanceViolations = array_values(array_filter(
-            $violations[$definition::class] ?? [],
-            static fn (string $violation): bool => str_contains($violation, 'inheritance helper column')
+        return array_values(array_filter(
+            $validator->validate()[$definition::class] ?? [],
+            static fn (string $violation): bool => str_contains($violation, 'inheritance helper column') || str_contains($violation, 'is not inheritance aware')
         ));
-
-        static::assertEmpty($inheritanceViolations, 'Expected no inheritance helper column violations, but got: ' . implode(', ', $inheritanceViolations));
-    }
-
-    public function testMissingInheritedHelperColumnReportsViolation(): void
-    {
-        $definition = new DefinitionWithInheritedAssociationsStub();
-        $validatorWithMissingColumns = $this->createValidatorWithColumns(
-            $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at'],
-            ['id']
-        );
-
-        $violations = $validatorWithMissingColumns->validate();
-        $inheritanceViolations = array_values(array_filter(
-            $violations[$definition::class] ?? [],
-            static fn (string $violation): bool => str_contains($violation, 'inheritance helper column')
-        ));
-
-        static::assertCount(3, $inheritanceViolations, 'Expected three missing helper column violations, but got: ' . implode(', ', $inheritanceViolations));
-
-        $joined = implode("\n", $inheritanceViolations);
-        static::assertStringContainsString('helper column `children` is missing', $joined);
-        static::assertStringContainsString('helper column `parent` is missing', $joined);
-        static::assertStringContainsString('helper column `optional` is missing', $joined);
     }
 
     /**
-     * @param list<string> $columnNames
      * @param list<string> $dbPrimaryKeys
+     * @param list<string>|null $columnNames
      */
-    private function createValidatorWithColumns(EntityDefinition $definition, array $columnNames, array $dbPrimaryKeys): DefinitionValidator
+    private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys, ?array $columnNames = null): DefinitionValidator
     {
         $pkConstraint = null;
         if ($dbPrimaryKeys !== []) {
@@ -508,76 +532,30 @@ class DefinitionValidatorTest extends TestCase
             $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
         }
 
-        $columns = array_map(
-            static fn (string $name): Column => new Column($name, Type::getType(Types::BINARY)),
-            $columnNames
-        );
+        if ($columnNames === null) {
+            $columns = [
+                new Column('id', Type::getType(Types::BINARY)),
+                new Column('foo', Type::getType(Types::INTEGER)),
+                new Column('created_at', Type::getType(Types::DATETIME_MUTABLE)),
+                new Column('updated_at', Type::getType(Types::DATETIME_MUTABLE)),
+            ];
+            $columnNames = ['id', 'foo', 'created_at', 'updated_at'];
+        } else {
+            $columns = array_map(
+                static fn (string $name): Column => new Column($name, Type::getType(Types::BINARY)),
+                $columnNames
+            );
+        }
 
         $columnLookup = array_fill_keys($columnNames, true);
 
-        $table = $this->createMock(Table::class);
+        $table = $this->createStub(Table::class);
         $table->method('getName')->willReturn($definition->getEntityName());
         $table->method('getColumns')->willReturn($columns);
         $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
         $table->method('hasColumn')->willReturnCallback(
             static fn (string $name): bool => isset($columnLookup[$name])
         );
-
-        $schema = $this->createMock(Schema::class);
-        $schema->method('hasTable')->willReturn(true);
-        $schema->method('getTable')->willReturn($table);
-        $schema->method('getTables')->willReturn([$table]);
-
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
-        $schemaManager->method('introspectSchema')->willReturn($schema);
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('createSchemaManager')->willReturn($schemaManager);
-
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definition->compile($registry);
-        $registry->method('getDefinitions')->willReturn([$definition]);
-        $registry->method('getByEntityName')->willReturn($definition);
-        $registry->method('getByClassOrEntityName')->willReturn($definition);
-
-        // @phpstan-ignore class.extendsFinalByPhpDoc
-        return new class($registry, $connection) extends DefinitionValidator {
-            protected function shouldSkipDefinition(string $definitionClass): bool
-            {
-                return false;
-            }
-        };
-    }
-
-    /**
-     * @param list<string> $dbPrimaryKeys
-     */
-    private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
-    {
-        $pkConstraint = null;
-        if ($dbPrimaryKeys !== []) {
-            $pkColumns = array_map(
-                static function (string $col): UnqualifiedName {
-                    static::assertNotEmpty($col);
-
-                    return new UnqualifiedName(Identifier::unquoted($col));
-                },
-                $dbPrimaryKeys
-            );
-            $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
-        }
-
-        $columns = [
-            new Column('id', Type::getType(Types::BINARY)),
-            new Column('foo', Type::getType(Types::INTEGER)),
-            new Column('created_at', Type::getType(Types::DATETIME_MUTABLE)),
-            new Column('updated_at', Type::getType(Types::DATETIME_MUTABLE)),
-        ];
-
-        $table = static::createStub(Table::class);
-        $table->method('getName')->willReturn('definition_validator_test');
-        $table->method('getColumns')->willReturn($columns);
-        $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);
 
         $schema = static::createStub(Schema::class);
         $schema->method('hasTable')->willReturn(true);
@@ -594,6 +572,7 @@ class DefinitionValidatorTest extends TestCase
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getByClassOrEntityName')->willReturn($definition);
 
         // @phpstan-ignore class.extendsFinalByPhpDoc
         return new class($registry, $connection) extends DefinitionValidator {

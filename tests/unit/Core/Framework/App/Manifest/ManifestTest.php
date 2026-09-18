@@ -130,6 +130,23 @@ class ManifestTest extends TestCase
         static::assertSame('~6.5.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
     }
 
+    public function testGetStorefront(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
+
+        $storefront = $manifest->getStorefront();
+        static::assertNotNull($storefront);
+        static::assertSame(100, $storefront->getTemplateLoadPriority());
+
+        $seoUrls = $storefront->getSeoUrls();
+        static::assertCount(2, $seoUrls);
+        static::assertSame('imprint', $seoUrls[0]->getName());
+        static::assertSame(['en-GB' => 'imprint', 'de-DE' => 'impressum'], $seoUrls[0]->getPath());
+        static::assertSame('blog-detail', $seoUrls[1]->getName());
+        static::assertSame('ce_blog', $seoUrls[1]->getEntity());
+        static::assertSame('blog/{{ ceBlog.translated.title }}', $seoUrls[1]->getDefaultTemplate());
+    }
+
     public function testGetShippingMethods(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');

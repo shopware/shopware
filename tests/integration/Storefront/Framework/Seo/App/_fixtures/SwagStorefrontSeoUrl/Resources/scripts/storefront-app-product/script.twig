@@ -1,0 +1,2 @@
+{% set response = services.response.json({ 'page': 'app-product', 'productId': hook.query.id }) %}
+{% do hook.setResponse(response) %}

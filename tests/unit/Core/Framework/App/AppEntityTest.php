@@ -121,6 +121,7 @@ class AppEntityTest extends TestCase
         $mcpTools = new AppMcpToolCollection();
         $mcpPrompts = new AppMcpPromptCollection();
         $mcpResources = new AppMcpResourceCollection();
+        $seoUrlRoutes = new EntityCollection();
 
         $app->setTranslations($translations);
         $app->setIntegration($integration);
@@ -140,6 +141,7 @@ class AppEntityTest extends TestCase
         $app->setMcpTools($mcpTools);
         $app->setMcpPrompts($mcpPrompts);
         $app->setMcpResources($mcpResources);
+        $app->setSeoUrlRoutes($seoUrlRoutes);
 
         static::assertSame($translations, $app->getTranslations());
         static::assertSame($integration, $app->getIntegration());
@@ -159,5 +161,6 @@ class AppEntityTest extends TestCase
         static::assertSame($mcpTools, $app->getMcpTools());
         static::assertSame($mcpPrompts, $app->getMcpPrompts());
         static::assertSame($mcpResources, $app->getMcpResources());
+        static::assertSame($seoUrlRoutes, $app->getSeoUrlRoutes());
     }
 }

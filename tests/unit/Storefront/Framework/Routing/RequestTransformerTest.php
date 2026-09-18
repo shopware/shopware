@@ -501,6 +501,73 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $expectedQuery
+     */
+    #[DataProvider('resolvedQueryProvider')]
+    public function testTransformMergesTheQueryOfTheResolvedPathInfo(
+        string $requestUri,
+        string $resolvedPathInfo,
+        array $expectedQuery,
+    ): void {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturn(new ResolvedSeoUrl(pathInfo: $resolvedPathInfo, isCanonical: true));
+
+        $domains = new DomainCollection();
+        $domains->set('http://shopware.com/', DomainStruct::fromArray([
+            'url' => 'http://shopware.com',
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => Uuid::randomHex(),
+            'typeId' => Uuid::randomHex(),
+            'snippetSetId' => Uuid::randomHex(),
+            'currencyId' => Uuid::randomHex(),
+            'languageId' => Uuid::randomHex(),
+            'themeId' => Uuid::randomHex(),
+            'maintenance' => '0',
+            'maintenanceIpAllowlist' => '',
+            'locale' => 'en-GB',
+            'themeName' => 'Storefront',
+            'parentThemeName' => '',
+        ]));
+
+        $domainLoader = static::createStub(AbstractDomainLoader::class);
+        $domainLoader->method('loadDomains')->willReturn($domains);
+
+        $requestTransformer = new RequestTransformer($decorated, $resolver, [], $domainLoader);
+
+        $transformedRequest = $requestTransformer->transform(Request::create('http://shopware.com' . $requestUri));
+
+        static::assertSame($expectedQuery, $transformedRequest->query->all());
+        static::assertSame(parse_url($resolvedPathInfo, \PHP_URL_PATH), $transformedRequest->getPathInfo());
+    }
+
+    /**
+     * @return iterable<string, array{requestUri: string, resolvedPathInfo: string, expectedQuery: array<string, string>}>
+     */
+    public static function resolvedQueryProvider(): iterable
+    {
+        yield 'parameters of the resolved path info reach the query bag' => [
+            'requestUri' => '/my-render-page',
+            'resolvedPathInfo' => '/storefront/script/render?product-id=p1',
+            'expectedQuery' => ['product-id' => 'p1'],
+        ];
+
+        yield 'resolved parameters win over browser parameters of the same name' => [
+            'requestUri' => '/my-render-page?product-id=from-browser&keep=me',
+            'resolvedPathInfo' => '/storefront/script/render?product-id=p1',
+            'expectedQuery' => ['product-id' => 'p1', 'keep' => 'me'],
+        ];
+
+        yield 'browser parameters survive a resolved path info without a query' => [
+            'requestUri' => '/awesome-product?test=123',
+            'resolvedPathInfo' => '/detail/1234',
+            'expectedQuery' => ['test' => '123'],
+        ];
+    }
+
+    /**
      * @return iterable<string, array{registeredApiPrefixes: list<string>, requestUri: string}>
      */
     public static function notRequiredSalesChannelProvider(): iterable

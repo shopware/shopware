@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppExtractor;
@@ -37,7 +38,8 @@ class ServiceSourceResolver implements Source
         private readonly Client $client,
         private readonly TemporaryDirectoryFactory $temporaryDirectoryFactory,
         private readonly AppExtractor $appExtractor,
-        private readonly Io $io
+        private readonly Io $io,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -97,7 +99,7 @@ class ServiceSourceResolver implements Source
                 $this->io->appendToFile($localZipLocation, $chunk->getContent());
             }
         } catch (\Exception $e) {
-            $this->io->remove($staging); // corrupted download, remove partially written data
+            $this->removeTemporaryDirectory($staging);
             throw AppException::cannotMountAppFilesystem( // @phpstan-ignore shopware.domainException
                 $serviceName,
                 ServiceException::cannotWriteAppToDestination($destination, $e)
@@ -116,7 +118,7 @@ class ServiceSourceResolver implements Source
                 ServiceException::cannotWriteAppToDestination($destination, $e)
             );
         } finally {
-            $this->io->remove($staging);
+            $this->removeTemporaryDirectory($staging);
         }
 
         return $destination;
@@ -145,7 +147,19 @@ class ServiceSourceResolver implements Source
         }
 
         if ($backup !== null) {
-            $this->io->remove($backup);
+            $this->removeTemporaryDirectory($backup);
+        }
+    }
+
+    private function removeTemporaryDirectory(string $path): void
+    {
+        try {
+            $this->io->remove($path);
+        } catch (IOException $e) {
+            $this->logger->warning('Cannot remove temporary service directory', [
+                'path' => $path,
+                'exception' => $e,
+            ]);
         }
     }
 }

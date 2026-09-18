@@ -267,8 +267,6 @@ class FeatureTest extends TestCase
 
     public function testSetActiveOnUnregisteredFeature(): void
     {
-        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
-
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
             'FEATURE_ONE' => [
@@ -280,12 +278,15 @@ class FeatureTest extends TestCase
         ]);
 
         static::assertFalse(Feature::has('FEATURE_TWO'));
+
+        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
+
         Feature::setActive('FEATURE_TWO', false);
     }
 
     public function testTriggerDeprecationOrThrowThrows(): void
     {
-        $this->expectException(FeatureException::class);
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
 
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }

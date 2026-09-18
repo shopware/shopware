@@ -83,14 +83,14 @@ class StorefrontSnippetStorage
             return false;
         }
 
-        $this->discard($appName);
+        $this->removeLocalFiles($appName);
 
         return true;
     }
 
     public function remove(string $appName): bool
     {
-        $removed = $this->discard($appName);
+        $removed = $this->removeLocalFiles($appName);
 
         $path = $this->path($appName);
         if ($this->filesystem->fileExists($path)) {
@@ -102,11 +102,11 @@ class StorefrontSnippetStorage
     }
 
     /**
-     * Drops the local copies: their version-keyed path cannot tell changed contents apart.
+     * Drops the local files: their version-keyed path cannot tell changed contents apart.
      *
-     * @return bool whether local copies existed
+     * @return bool whether local files existed
      */
-    private function discard(string $appName): bool
+    private function removeLocalFiles(string $appName): bool
     {
         $appDirectory = Path::join($this->directory, $appName);
         if (!$this->io->exists($appDirectory)) {

@@ -1,6 +1,6 @@
 import { test } from '@fixtures/AcceptanceTest';
-// eslint-disable-next-line playwright/no-skipped-test
-test.skip(
+
+test(
     'Visual: Storefront Account Pages',
     { tag: '@Visual' },
     async ({

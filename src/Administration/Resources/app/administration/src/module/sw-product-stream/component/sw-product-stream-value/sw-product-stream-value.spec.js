@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '', render = false) {
     let stubs = {
@@ -32,7 +32,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             'sw-select-result': await wrapTestComponent('sw-select-result'),
             'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
             'sw-popover': await wrapTestComponent('sw-popover'),
-            'sw-popover-deprecated': true,
+            'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
         };
@@ -217,7 +217,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await productStreamValueSwitch.get('.sw-select-option--1').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
@@ -231,7 +231,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
+        const productStreamValueYes = new DOMWrapper(document.body).findAll('.sw-select-result').at(0);
 
         expect(productStreamValueYes.text()).toBe('global.default.yes');
         await productStreamValueYes.trigger('click');
@@ -250,7 +250,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const productStreamValueNo = productStreamValueSwitch.findAll('.sw-select-result').at(1);
+        const productStreamValueNo = new DOMWrapper(document.body).findAll('.sw-select-result').at(1);
 
         expect(productStreamValueNo.text()).toBe('global.default.no');
         await productStreamValueNo.trigger('click');
@@ -268,7 +268,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        let productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
+        let productStreamValueYes = new DOMWrapper(document.body).findAll('.sw-select-result').at(0);
 
         expect(productStreamValueYes.text()).toBe('global.default.yes');
         await productStreamValueYes.trigger('click');
@@ -280,7 +280,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(1);
+        productStreamValueYes = new DOMWrapper(document.body).findAll('.sw-select-result').at(1);
 
         expect(productStreamValueYes.text()).toBe('global.default.no');
         await productStreamValueYes.trigger('click');

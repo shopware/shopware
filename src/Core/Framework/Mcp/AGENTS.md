@@ -41,12 +41,13 @@ Static data the AI client can read. Resources are identified by URIs and provide
 | AI needs instructions on how to use the system | Prompt |
 | AI needs static reference data (lists, schemas) | Resource |
 
-## Tool discovery: guaranteed vs best-effort
+## Tool discovery: three routes, one of them universal
 
-The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus any session-enabled toolsets), not the full catalogue. There are two ways to reach a hidden tool, and they are not equivalent:
+The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus anything the connection advertises up front or has enabled), not the full catalogue. There are three ways to reach a deferred tool, and they differ in what they demand of the client:
 
-- **`shopware-toolset-enable` + `listChanged` (guaranteed).** Enabling a toolset stores it on the session, advertises its tools in `tools/list`, and emits a `tools/listChanged` notification. Any spec-compliant client refreshes `tools/list` and can then call the tools. This path works on every client and is the one to rely on.
-- **`shopware-tool-search` inline definitions (best-effort).** Search returns full tool definitions inline so a capable client can call them immediately without enabling anything. This only works if the client promotes inline results into its callable set (Anthropic's tool-search-capable clients do; many others do not). `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends — but a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result therefore carries a `_meta.usage` hint pointing at the enable path as the fallback.
+- **Connect-time selection (works on every client).** Naming toolsets in the MCP URL as `?toolsets=order,media` or `?toolsets=all` advertises those tools from the first `tools/list` of the connection. The only client behaviour this relies on is posting to the URL it was configured with, which is the Streamable HTTP transport itself. `McpRequestedToolsetResolver` reads the parameter off the main request, and `McpToolsetRegistry::advertisedToolsForNames()` validates it and resolves `all`. The result is paginated like any other list (`shopware.mcp.pagination_limit`, 50), so a client that ignores `nextCursor` sees the first page only — a constraint `?toolsets=all` can reach once enough apps contribute toolsets.
+- **`shopware-toolset-enable` + `listChanged` (only for clients that re-read `tools/list`).** Enabling a toolset stores it on the session, advertises its tools, and emits a `tools/listChanged` notification. The notification is advisory: a client MAY refresh, and nothing obliges it to. claude.ai reads `tools/list` once per connection and ignores the notification, so an enable mid-conversation never becomes visible there. Claude Code re-lists but does not re-index its deferred-tool store ([claude-code#66084](https://github.com/anthropics/claude-code/issues/66084)). Treat this path as an optimisation for well-behaved clients.
+- **`shopware-tool-search` inline definitions (only for tool-search-capable clients).** Search returns full tool definitions inline. This requires the client to promote inline results into its callable set. Anthropic expands a `tool_reference` only for tools already present in the request's top-level `tools` array, so a tool that was never advertised cannot be promoted this way. `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends, though a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result carries a `_meta.usage` hint pointing at the enable path.
 
 Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
 
@@ -64,7 +65,7 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 - **Plugin**: `{plugin-name}-{capability-name}` (e.g., `swag-admin-users-list-admins`)
 - **App**: `{app-name}-{capability-name}` (e.g., `my-erp-sync-orders`)
 
-The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `shopware-` prefix is reserved for core tools; `AppMcpToolLoader` skips app tools whose computed name starts with `shopware-`.
+`McpToolDiscoveryCompilerPass` enforces unique names per server and throws on conflicts. The `shopware-` prefix is reserved for core tools; `AppMcpToolLoader` skips app tools whose computed name starts with `shopware-`.
 
 ## Folder structure
 - `AllowList/` -- Per-integration capability allowlist (`McpAllowlistProvider`, `McpAllowlistFilter`, `McpAllowlist`)
@@ -108,31 +109,34 @@ Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest re
 
 ## Validating capabilities are loaded
 
-How many layers you need to worry about depends on where the tool lives:
+Two things have to hold: the service carries the DI tag, and it is assigned to a server.
 
-### Plugin tools (tagged `shopware.mcp.tool`)
-Only one layer is required: **the DI tag**. The `McpToolCompilerPass` reads the `#[McpTool]` attribute via reflection and calls `addTool()` on the MCP server builder at compile time. Plugin lifecycle is respected: if the plugin is inactive the service is absent from the container and the tool is not registered.
+### One layer: the DI tag
+The DI tag is all that is required, for core, in-tree bundle, plugin and third-party bundle tools alike. The MCP bundle collects every service tagged `mcp.tool` at container compile time, reads its `#[McpTool]` attribute and registers it on a server. There is no directory scanning: `scan_dirs` was removed when the bundle replaced the SDK's file-based discovery with compile-time container registration (mcp-bundle 0.12).
 
-### Core / in-tree bundle tools (tagged `mcp.tool` directly)
-Two layers are required: the DI tag **and** the directory must appear in `mcp.yaml` `scan_dirs`. The MCP SDK's `DiscoveryLoader` scans those directories at runtime to find `#[McpTool]` attributes. Missing either causes the tool to be silently absent.
+Plugin lifecycle is respected: if the plugin is inactive the service is absent from the container and the tool is not registered.
+
+### Which server a tool lands on
+Each MCP server declares in `packages/mcp.php` which capabilities it exposes, as namespace prefixes — `Shopware\Core\Framework\Mcp\` and `Shopware\Storefront\Mcp\` for the Admin API server, `Shopware\Core\System\SalesChannel\Mcp\` for the Store API one. A capability outside those namespaces (any plugin or third-party bundle) cannot be named by a prefix, so `McpToolDiscoveryCompilerPass` assigns it explicitly: it appends the class to the bundle's `mcp.servers.elements` parameter, plugin capabilities going to the Admin API server. A capability assigned to no server is silently absent; both `bin/console debug:mcp` (in its footer) and `bin/console debug:mcp --native` report those.
 
 ### Verification methods
 
 | Method | What it covers | When to use |
 |---|---|---|
 | `bin/console debug:mcp` | Both registries (admin + store-api) — same source as the HTTP endpoints | Quick manual check during development |
+| `bin/console debug:mcp --native` | The MCP bundle's own view: configured servers and clients, prompts and resources, and capabilities assigned to no server | Checking a prompt or resource, or why a capability does not show up |
 | `McpCapabilityDiscoveryTest` | HTTP → `tools/list` (full kernel) | CI — authoritative end-to-end check |
 | `McpServiceRegistrationTest` | DI layer only | Fast integration-level guard that every MCP service is registered in the container |
 
-`bin/console debug:mcp` uses the same `Registry` instances as the HTTP endpoints (populated by calling `Builder::build()` per scope), so it shows core tools, plugin tools, app tools, and Store API tools in one view, grouped per endpoint. It is the fastest way to check that a newly registered capability is visible. Use `--scope=api` or `--scope=store-api` to narrow it to one endpoint.
+`bin/console debug:mcp` uses the same `Registry` instances as the HTTP endpoints (populated by calling `Builder::build()` per scope), so it shows core tools, plugin tools, app tools, and Store API tools in one view, grouped per endpoint. It lists tools only, with the Shopware data the bundle's command has no equivalent for; prompts and resources are listed by `--native`. Use `--scope=api` or `--scope=store-api` to narrow it to one endpoint.
 
 **`McpCapabilityDiscoveryTest`** (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) boots the full kernel, authenticates, and calls the live MCP HTTP endpoint. It is the authoritative check that mirrors what the MCP Inspector does interactively. Add new capability names to its `expectedTools()` / `expectedPrompts()` / `expectedResources()` lists when adding new core capabilities.
 
 ## Extensibility
-- **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` re-tags them as `mcp.tool` AND calls `addTool()` on the MCP server builder so they appear in both `debug:mcp` and the HTTP endpoint. No `scan_dirs` entry is needed. Use `McpToolResponse` for consistent error handling and response formatting.
-- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
+- **Plugins**: Tag services with `shopware.mcp.tool` -- `McpToolDiscoveryCompilerPass` re-tags them as `mcp.tool` and assigns them to the Admin API server, so they appear in both `debug:mcp` and the HTTP endpoint. Use `McpToolResponse` for consistent error handling and response formatting.
+- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolDiscoveryCompilerPass` handles it. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
 - **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
-- **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`) and ensure the bundle directory is listed in `mcp.yaml` `scan_dirs`. Using `shopware.mcp.tool` here would cause double-registration (compiler pass + scan_dirs).
+- **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`), and make sure the class sits under a namespace the Admin API server's `registry` prefixes in `packages/mcp.php` cover -- otherwise add it there.
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.
 
 ## Serverless app tools (app scripts)

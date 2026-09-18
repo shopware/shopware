@@ -95,6 +95,10 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Product stream builders can migrate without dropping the legacy contract
+
+`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
+
 ### Shopware Services reconcile their full state daily
 
 A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.
@@ -1869,7 +1873,7 @@ Now, product streams have a new boolean field `displayAsGroup` and a correspondi
 When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
 
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.
-Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead. `AbstractProductStreamBuilder` implements the deprecated interface and forwards `buildFilters()` to `enrichCriteria()`, so extensions can migrate to the abstract class without dropping compatibility with legacy interface consumers.
+Also, `ProductStreamBuilderInterface` and `buildFilters()` are deprecated and will be removed in `v6.8.0.0`; use the new `AbstractProductStreamBuilder::enrichCriteria()` as the primary extension point instead.
 
 ### New `Criteria::excludeFields()` for reduced entity reads
 

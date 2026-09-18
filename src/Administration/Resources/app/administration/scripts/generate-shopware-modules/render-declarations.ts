@@ -44,7 +44,8 @@ function branchSubpath(specifier: string, branchModule: string, key: string, exp
     ]);
 }
 
-function barrel(specifier: string, branchModule: string, exports: string[]): string {
+/** The root import of a branch, e.g. `shopware:utils`, which publishes the whole branch and its members. */
+function branchRoot(specifier: string, branchModule: string, exports: string[]): string {
     return block(specifier, [
         `import type branch from '${branchModule}';`,
         '',
@@ -67,7 +68,7 @@ function defaultOnlyModule(specifier: string, value: string, type: string): stri
 export function renderDeclarations(registry: ModuleRegistry): string {
     const blocks: string[] = [];
 
-    blocks.push(barrel('shopware:utils', UTILS_MODULE, registry['shopware:utils'].exports));
+    blocks.push(branchRoot('shopware:utils', UTILS_MODULE, registry['shopware:utils'].exports));
     Object.entries(registry['shopware:utils'].subpaths).forEach(
         ([
             key,
@@ -75,7 +76,7 @@ export function renderDeclarations(registry: ModuleRegistry): string {
         ]) => blocks.push(branchSubpath(`shopware:utils/${key}`, UTILS_MODULE, key, exports)),
     );
 
-    blocks.push(barrel('shopware:data', DATA_MODULE, registry['shopware:data'].exports));
+    blocks.push(branchRoot('shopware:data', DATA_MODULE, registry['shopware:data'].exports));
     Object.entries(registry['shopware:data'].subpaths).forEach(
         ([
             key,

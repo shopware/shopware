@@ -30,14 +30,14 @@ describe('scripts/generate-shopware-modules', () => {
     });
 
     describe('the registry it builds', () => {
-        it('gives the branch-backed families a barrel and the registry-backed ones none', () => {
+        it('gives the branch-backed families root exports and the registry-backed ones none', () => {
             expect(registry['shopware:utils'].exports.length).toBeGreaterThan(0);
             expect(registry['shopware:data'].exports.length).toBeGreaterThan(0);
             expect(registry['shopware:mixins'].exports).toEqual([]);
             expect(registry['shopware:stores'].exports).toEqual([]);
         });
 
-        it('makes every barrel member a subpath of its own', () => {
+        it('makes every root export a subpath of its own', () => {
             expect(Object.keys(registry['shopware:utils'].subpaths)).toEqual(registry['shopware:utils'].exports);
             expect(Object.keys(registry['shopware:data'].subpaths)).toEqual(registry['shopware:data'].exports);
         });

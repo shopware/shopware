@@ -16,7 +16,7 @@ import useNotificationStore from 'shopware:stores/notification';
 import useSystemStore from 'shopware:stores/system';
 
 describe('shopware:* virtual modules', () => {
-    describe('barrels', () => {
+    describe('root imports', () => {
         it('export the members of their branch', () => {
             expect(createId).toBe(Shopware.Utils.createId);
             expect(object).toBe(Shopware.Utils.object);

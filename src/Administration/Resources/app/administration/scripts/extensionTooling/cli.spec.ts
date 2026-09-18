@@ -26,14 +26,7 @@ const COMMAND: CommandSpec = {
 describe('scripts/extensionTooling/cli', () => {
     describe('parseCli', () => {
         it('parses boolean flags and value options', () => {
-            const parsed = parseCli(
-                [
-                    '--check',
-                    '--root-config=Swag:.',
-                    '--project-root=/srv/shop',
-                ],
-                COMMAND,
-            );
+            const parsed = parseCli(['--check', '--root-config=Swag:.', '--project-root=/srv/shop'], COMMAND);
 
             expect(parsed.help).toBe(false);
             expect(parsed.flags.has('--check')).toBe(true);
@@ -64,15 +57,7 @@ describe('scripts/extensionTooling/cli', () => {
         });
 
         it('short-circuits on --help / -h without validating the rest', () => {
-            expect(
-                parseCli(
-                    [
-                        '--bogus',
-                        '--help',
-                    ],
-                    COMMAND,
-                ).help,
-            ).toBe(true);
+            expect(parseCli(['--bogus', '--help'], COMMAND).help).toBe(true);
             expect(parseCli(['-h'], COMMAND).help).toBe(true);
         });
     });

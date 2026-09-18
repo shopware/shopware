@@ -54,6 +54,8 @@ class AnnotationTagTest extends TestCase
         'Core/Framework/Adapter/Doctrine/Patch',
         // PHPStan rule fixtures intentionally contain malformed annotations and attributes
         'DevOps/StaticAnalyse/PHPStan/Rules/data',
+        // asserts rule messages that quote deprecation and experimental annotations verbatim
+        'DevOps/StaticAnalyse/PHPStan/Rules/BCChangeAttributeUsageRuleTest.php',
     ];
 
     private string $rootDir;
@@ -125,6 +127,38 @@ class AnnotationTagTest extends TestCase
 
             try {
                 $this->getDeprecationTagTester()->validateBCChangeAttributeVersions($content);
+            } catch (\InvalidArgumentException $error) {
+                $area = $this->getAreaForContent($content);
+                $invalidFiles[$area ?? 'undefined'][$filePath] = $error->getMessage();
+            }
+        }
+
+        static::assertEmpty($invalidFiles, print_r($invalidFiles, true));
+    }
+
+    public function testSourceFilesForWrongSilentUntilMarkers(): void
+    {
+        $finder = new Finder();
+        $finder->in([$this->rootDir, $this->rootDir . '/../tests'])
+            ->files()
+            ->name('*.php')
+            ->exclude('node_modules')
+            ->contains('silentUntil:');
+
+        foreach ($this->whiteList as $path) {
+            $finder->notPath($path);
+        }
+
+        $finder->notPath('unit/Core/Framework/FeatureTest.php');
+
+        $invalidFiles = [];
+
+        foreach ($finder->getIterator() as $file) {
+            $filePath = $file->getRealPath();
+            $content = (string) file_get_contents($filePath);
+
+            try {
+                $this->getDeprecationTagTester()->validateSilentUntilMarkers($content);
             } catch (\InvalidArgumentException $error) {
                 $area = $this->getAreaForContent($content);
                 $invalidFiles[$area ?? 'undefined'][$filePath] = $error->getMessage();

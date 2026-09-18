@@ -24,9 +24,12 @@ class CriteriaCollectionTest extends TestCase
         $collection->add(new Criteria());
 
         $this->expectExceptionObject(FrameworkException::collectionElementInvalidType(Criteria::class, NotificationEntity::class));
-        /** @phpstan-ignore argument.type (for test purpose) */
-        $collection->add(new NotificationEntity());
 
-        static::assertCount(1, $collection);
+        try {
+            /** @phpstan-ignore argument.type (for test purpose) */
+            $collection->add(new NotificationEntity());
+        } finally {
+            static::assertCount(1, $collection);
+        }
     }
 }

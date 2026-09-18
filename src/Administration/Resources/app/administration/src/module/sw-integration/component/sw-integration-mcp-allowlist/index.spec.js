@@ -348,7 +348,10 @@ describe('sw-integration-mcp-allowlist', () => {
         // would show the per-type "All" switch as on while shopware-entity-read is still denied.
         const wrapper = await createWrapper({
             allowlist: {
-                tools: ['shopware-entity-search', 'shopware-entity-search'],
+                tools: [
+                    'shopware-entity-search',
+                    'shopware-entity-search',
+                ],
                 resources: [],
                 prompts: [],
             },

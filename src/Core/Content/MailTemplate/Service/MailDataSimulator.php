@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
@@ -82,6 +83,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
@@ -165,6 +167,14 @@ class MailDataSimulator
             }
 
             $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context, $name, $flowEvent);
+        }
+
+        if (is_a($eventClass, A11yRenderedDocumentAware::class, true)) {
+            $templateData[A11yRenderedDocumentAware::A11Y_DOCUMENTS] ??= [[
+                'documentId' => Uuid::randomHex(),
+                'deepLinkCode' => Random::getAlphanumericString(32),
+                'fileExtension' => DocumentFormat::HTML->fileExtension(),
+            ]];
         }
 
         return $templateData;

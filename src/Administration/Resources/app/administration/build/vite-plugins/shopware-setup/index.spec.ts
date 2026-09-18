@@ -145,14 +145,7 @@ swDefinePublic({ count });
 
         // One transform for resolveId + load; load only re-reads to verify the stash is current.
         expect(loaded).toHaveProperty('code');
-        expect(
-            transformSpy.mock.calls.filter(
-                ([
-                    ,
-                    fileName,
-                ]) => fileName === vueFile,
-            ),
-        ).toHaveLength(1);
+        expect(transformSpy.mock.calls.filter(([, fileName]) => fileName === vueFile)).toHaveLength(1);
 
         transformSpy.mockRestore();
     });
@@ -326,10 +319,7 @@ swDefinePublic({ count });
             });
 
             // Appended to the modules Vite already considers affected, not substituted.
-            expect(result).toEqual([
-                otherModule,
-                { id: virtualId },
-            ]);
+            expect(result).toEqual([otherModule, { id: virtualId }]);
         });
 
         it('leaves a .vue file alone that was never redirected to a virtual module', () => {
@@ -378,20 +368,13 @@ swDefinePublic({ count });
             bin: { jiti: string };
         };
         const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
-        const { stdout } = await execFileAsync(
-            process.execPath,
-            [
-                jitiBin,
-                path.join(root, 'probe.ts'),
-            ],
-            {
-                cwd: process.cwd(),
-                env: {
-                    ...process.env,
-                    SHOPWARE_ADMIN_ROOT: process.cwd(),
-                },
+        const { stdout } = await execFileAsync(process.execPath, [jitiBin, path.join(root, 'probe.ts')], {
+            cwd: process.cwd(),
+            env: {
+                ...process.env,
+                SHOPWARE_ADMIN_ROOT: process.cwd(),
             },
-        );
+        });
         const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is

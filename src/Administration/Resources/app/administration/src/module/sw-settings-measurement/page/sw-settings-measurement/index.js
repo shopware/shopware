@@ -11,15 +11,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     metaInfo() {
         return {
@@ -103,10 +97,7 @@ export default {
             );
 
             this.defaultDisplayUnits = (this.measurementSystem?.units || []).filter((u) =>
-                [
-                    this.measurementUnits.length,
-                    this.measurementUnits.weight,
-                ].includes(u.shortName),
+                [this.measurementUnits.length, this.measurementUnits.weight].includes(u.shortName),
             );
         },
 
@@ -159,10 +150,7 @@ export default {
                 });
             } finally {
                 this.defaultDisplayUnits = (this.measurementSystem?.units || []).filter((u) =>
-                    [
-                        this.measurementUnits.length,
-                        this.measurementUnits.weight,
-                    ].includes(u.shortName),
+                    [this.measurementUnits.length, this.measurementUnits.weight].includes(u.shortName),
                 );
 
                 this.isLoading = false;

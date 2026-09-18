@@ -39,10 +39,7 @@ export function renderSkippedTargetLines(
     const visible = verbose ? sorted : sorted.slice(0, MAX_SKIPPED_CONFIGS);
     const lines: string[] = [];
 
-    for (const [
-        configPath,
-        group,
-    ] of visible) {
+    for (const [configPath, group] of visible) {
         const targetNote = group.length > 1 ? colors.dim(` (${group.length} targets)`) : '';
 
         lines.push(`      ${colors.yellow(`skipped: ${configPath}`)}${targetNote}`);

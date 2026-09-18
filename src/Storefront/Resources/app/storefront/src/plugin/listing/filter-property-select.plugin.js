@@ -72,10 +72,12 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
             this.enableFilter();
         }
 
-        if (actualValues.properties.length > 0) {
-            return;
-        }
-
+        /*
+         * Pair with the backend's group-aware aggregation (issue #15812): even when this widget
+         * has selections, sibling options must be re-evaluated because the backend reports them
+         * as available when OR-within-group would yield results. _disableInactiveFilterOptions
+         * already preserves currently-checked items, so this is safe.
+         */
         this._disableInactiveFilterOptions(activeItems.map(entity => entity.id));
     }
 }

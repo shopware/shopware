@@ -80,10 +80,7 @@ describe('src/core/service/api/oauth-authorize.api.service', () => {
         });
     });
 
-    it.each([
-        true,
-        false,
-    ])('posts the decision approved=%s together with the authorization params', async (approved) => {
+    it.each([true, false])('posts the decision approved=%s together with the authorization params', async (approved) => {
         const { oauthAuthorizeApiService, clientMock } = createOAuthAuthorizeApiService();
         const redirectUri = approved
             ? 'http://127.0.0.1:53421/callback?code=abc&state=xyz'

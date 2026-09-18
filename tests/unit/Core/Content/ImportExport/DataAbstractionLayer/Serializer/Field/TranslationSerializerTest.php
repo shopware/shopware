@@ -58,9 +58,7 @@ class TranslationSerializerTest extends TestCase
 
         $this->expectExceptionObject(ImportExportException::invalidInstanceType('associationField', TranslationsAssociationField::class));
 
-        $translations = \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
-
-        static::assertEmpty($translations);
+        \iterator_to_array($translationsSerializer->serialize($this->getConfig(), $field, []));
     }
 
     public function testSerialization(): void
@@ -132,9 +130,7 @@ class TranslationSerializerTest extends TestCase
 
         $this->expectExceptionObject(ImportExportException::invalidInstanceType('associationField', '*ToOneField'));
 
-        $translations = $translationsSerializer->deserialize($this->getConfig(), $field, []);
-
-        static::assertEmpty($translations);
+        $translationsSerializer->deserialize($this->getConfig(), $field, []);
     }
 
     public function testDeserialization(): void

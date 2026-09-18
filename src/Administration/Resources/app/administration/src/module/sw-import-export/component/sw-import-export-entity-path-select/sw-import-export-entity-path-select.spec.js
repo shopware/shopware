@@ -35,17 +35,11 @@ async function createWrapper(entityType = 'product') {
                 customFieldSets: [
                     {
                         relations: [{ entityName: 'product' }],
-                        customFields: [
-                            { name: 'custom_field_product_1' },
-                            { name: 'custom_field_product_2' },
-                        ],
+                        customFields: [{ name: 'custom_field_product_1' }, { name: 'custom_field_product_2' }],
                     },
                     {
                         relations: [{ entityName: 'product_manufacturer' }],
-                        customFields: [
-                            { name: 'custom_field_manufacturer_1' },
-                            { name: 'custom_field_manufacturer_2' },
-                        ],
+                        customFields: [{ name: 'custom_field_manufacturer_1' }, { name: 'custom_field_manufacturer_2' }],
                     },
                 ],
             },
@@ -72,10 +66,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             value: 'media.id.',
         });
 
-        expect(wrapper.vm.actualPathParts).toEqual([
-            'media',
-            'id',
-        ]);
+        expect(wrapper.vm.actualPathParts).toEqual(['media', 'id']);
     });
 
     it('should return valid price properties on `getPriceProperties` with given currencies', async () => {
@@ -83,10 +74,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await flushPromises();
 
         await wrapper.setProps({
-            currencies: [
-                { isoCode: 'EUR' },
-                { isoCode: 'USD' },
-            ],
+            currencies: [{ isoCode: 'EUR' }, { isoCode: 'USD' }],
         });
 
         const actual = wrapper.vm.getPriceProperties('');
@@ -189,10 +177,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await flushPromises();
 
         await wrapper.setProps({
-            currencies: [
-                { isoCode: 'EUR' },
-                { isoCode: 'USD' },
-            ],
+            currencies: [{ isoCode: 'EUR' }, { isoCode: 'USD' }],
         });
 
         const actual = wrapper.vm.getPriceProperties('parent.');
@@ -381,21 +366,13 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid translation properties on `getTranslationProperties', async () => {
-        const mockProperties = [
-            'metaDescription',
-            'keywords',
-            'description',
-        ];
+        const mockProperties = ['metaDescription', 'keywords', 'description'];
 
         const wrapper = await createWrapper();
         await flushPromises();
 
         await wrapper.setProps({
-            languages: [
-                { locale: { code: 'en-GB' } },
-                { locale: { code: 'de-DE' } },
-                { locale: { code: 'DEFAULT' } },
-            ],
+            languages: [{ locale: { code: 'en-GB' } }, { locale: { code: 'de-DE' } }, { locale: { code: 'DEFAULT' } }],
         });
 
         const actual = wrapper.vm.getTranslationProperties('', mockProperties);
@@ -448,11 +425,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         await wrapper.setProps({
             value: 'cover.media.',
-            languages: [
-                { locale: { code: 'en-GB' } },
-                { locale: { code: 'de-DE' } },
-                { locale: { code: 'DEFAULT' } },
-            ],
+            languages: [{ locale: { code: 'en-GB' } }, { locale: { code: 'de-DE' } }, { locale: { code: 'DEFAULT' } }],
         });
 
         const actual = wrapper.vm.visibleResults;
@@ -485,11 +458,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         await wrapper.setProps({
             value: 'parent.parent.translations.name',
-            languages: [
-                { locale: { code: 'en-GB' } },
-                { locale: { code: 'de-DE' } },
-                { locale: { code: 'DEFAULT' } },
-            ],
+            languages: [{ locale: { code: 'en-GB' } }, { locale: { code: 'de-DE' } }, { locale: { code: 'DEFAULT' } }],
         });
 
         const actual = wrapper.vm.visibleResults;
@@ -622,9 +591,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         await wrapper.setProps({
             value: '',
-            languages: [
-                { locale: { code: 'DEFAULT' } },
-            ],
+            languages: [{ locale: { code: 'DEFAULT' } }],
         });
 
         const definition = Shopware.EntityDefinition.get('product');

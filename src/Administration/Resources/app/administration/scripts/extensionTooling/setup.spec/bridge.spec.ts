@@ -39,10 +39,7 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
         expect(fs.readFileSync(path.join(shimDir, 'eslint.mjs'), 'utf8')).toContain('shopwareAdminExtension');
 
         // Multi-bundle suite with independent roots: one bridge per root.
-        for (const bundle of [
-            'BundleA',
-            'BundleB',
-        ]) {
+        for (const bundle of ['BundleA', 'BundleB']) {
             expect(
                 fs.existsSync(
                     path.join(projectRoot, `custom/plugins/Suite/src/${bundle}/Resources/app/administration/.shopware`),

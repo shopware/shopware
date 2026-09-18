@@ -26,10 +26,7 @@ describe('sw-settings-usage-data-consent-modal opt-out information', () => {
 
     it.each([
         [
-            [
-                'system.system_config',
-                'user.update_profile',
-            ],
+            ['system.system_config', 'user.update_profile'],
             false,
             'snippet',
             'profile',
@@ -47,10 +44,7 @@ describe('sw-settings-usage-data-consent-modal opt-out information', () => {
             'profile',
         ],
         [
-            [
-                'system.system_config',
-                'user.update_profile',
-            ],
+            ['system.system_config', 'user.update_profile'],
             true,
             'single-option-snippet',
             'profile',

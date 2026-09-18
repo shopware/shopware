@@ -10,10 +10,7 @@ import './sw-integration-mcp-allowlist.scss';
 export default {
     template,
 
-    inject: [
-        'mcpToolService',
-        'acl',
-    ],
+    inject: ['mcpToolService', 'acl'],
 
     props: {
         /**
@@ -161,11 +158,7 @@ export default {
         },
 
         staleEntries() {
-            return [
-                ...this.staleToolNames,
-                ...this.staleResourceUris,
-                ...this.stalePromptNames,
-            ];
+            return [...this.staleToolNames, ...this.staleResourceUris, ...this.stalePromptNames];
         },
 
         uncoveredTools() {
@@ -208,35 +201,25 @@ export default {
 
             // Only check partially-restricted types; fully-denied types are already covered by the deniedTypes banner
             if (this.resourcesAllowlist !== null && this.resourcesAllowlist.length > 0) {
-                Object.entries(this.resourceGroups).forEach(
-                    ([
-                        prefix,
-                        resources,
-                    ]) => {
-                        if (!activePrefixes.has(prefix)) return;
-                        resources.forEach((resource) => {
-                            if (!this.resourcesAllowlist.includes(resource.uri)) {
-                                suggestions.push({ kind: 'resource', name: resource.uri });
-                            }
-                        });
-                    },
-                );
+                Object.entries(this.resourceGroups).forEach(([prefix, resources]) => {
+                    if (!activePrefixes.has(prefix)) return;
+                    resources.forEach((resource) => {
+                        if (!this.resourcesAllowlist.includes(resource.uri)) {
+                            suggestions.push({ kind: 'resource', name: resource.uri });
+                        }
+                    });
+                });
             }
 
             if (this.promptsAllowlist !== null && this.promptsAllowlist.length > 0) {
-                Object.entries(this.promptGroups).forEach(
-                    ([
-                        prefix,
-                        prompts,
-                    ]) => {
-                        if (!activePrefixes.has(prefix)) return;
-                        prompts.forEach((prompt) => {
-                            if (!this.promptsAllowlist.includes(prompt.name)) {
-                                suggestions.push({ kind: 'prompt', name: prompt.name });
-                            }
-                        });
-                    },
-                );
+                Object.entries(this.promptGroups).forEach(([prefix, prompts]) => {
+                    if (!activePrefixes.has(prefix)) return;
+                    prompts.forEach((prompt) => {
+                        if (!this.promptsAllowlist.includes(prompt.name)) {
+                            suggestions.push({ kind: 'prompt', name: prompt.name });
+                        }
+                    });
+                });
             }
 
             return suggestions;
@@ -418,14 +401,8 @@ export default {
             if (isSelected) {
                 const tool = this.availableTools.find((t) => t.name === toolName);
                 const deps = tool?.dependencies ?? [];
-                const toAdd = [
-                    toolName,
-                    ...deps,
-                ].filter((n) => !current.includes(n));
-                updated = [
-                    ...current,
-                    ...toAdd,
-                ];
+                const toAdd = [toolName, ...deps].filter((n) => !current.includes(n));
+                updated = [...current, ...toAdd];
             } else {
                 updated = current.filter((n) => n !== toolName);
             }
@@ -483,12 +460,7 @@ export default {
 
         onToggleResource(uri, isSelected) {
             const current = this.resourcesAllowlist ?? [];
-            const updated = isSelected
-                ? [
-                      ...current,
-                      uri,
-                  ]
-                : current.filter((u) => u !== uri);
+            const updated = isSelected ? [...current, uri] : current.filter((u) => u !== uri);
             this.emitUpdated({ resources: updated });
         },
 
@@ -500,12 +472,7 @@ export default {
 
         onTogglePrompt(name, isSelected) {
             const current = this.promptsAllowlist ?? [];
-            const updated = isSelected
-                ? [
-                      ...current,
-                      name,
-                  ]
-                : current.filter((n) => n !== name);
+            const updated = isSelected ? [...current, name] : current.filter((n) => n !== name);
             this.emitUpdated({ prompts: updated });
         },
 
@@ -548,15 +515,9 @@ export default {
                         const tool = this.availableTools.find((t) => t.name === n);
                         return tool?.dependencies ?? [];
                     });
-                    const toAdd = [
-                        ...names,
-                        ...deps,
-                    ].filter((n) => !current.includes(n));
+                    const toAdd = [...names, ...deps].filter((n) => !current.includes(n));
                     this.emitUpdated({
-                        tools: [
-                            ...current,
-                            ...toAdd,
-                        ],
+                        tools: [...current, ...toAdd],
                     });
                 } else {
                     this.emitUpdated({ tools: current.filter((n) => !names.includes(n)) });
@@ -568,10 +529,7 @@ export default {
                 const current = this.resourcesAllowlist ?? [];
                 const uris = items.map((r) => r.uri);
                 const updated = checked
-                    ? [
-                          ...current,
-                          ...uris.filter((u) => !current.includes(u)),
-                      ]
+                    ? [...current, ...uris.filter((u) => !current.includes(u))]
                     : current.filter((u) => !uris.includes(u));
                 this.emitUpdated({ resources: updated });
                 return;
@@ -581,10 +539,7 @@ export default {
                 const current = this.promptsAllowlist ?? [];
                 const names = items.map((p) => p.name);
                 const updated = checked
-                    ? [
-                          ...current,
-                          ...names.filter((n) => !current.includes(n)),
-                      ]
+                    ? [...current, ...names.filter((n) => !current.includes(n))]
                     : current.filter((n) => !names.includes(n));
                 this.emitUpdated({ prompts: updated });
             }

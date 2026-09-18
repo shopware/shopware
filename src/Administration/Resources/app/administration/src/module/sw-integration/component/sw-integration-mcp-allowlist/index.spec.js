@@ -9,12 +9,8 @@ const defaultCapabilities = {
         { name: 'shopware-entity-search', description: 'Search entities', dependencies: [], requiredPrivileges: [] },
         { name: 'shopware-entity-read', description: 'Read entity', dependencies: [], requiredPrivileges: [] },
     ],
-    resources: [
-        { uri: 'shopware://entities', name: 'Entities', description: 'All entities', mimeType: 'application/json' },
-    ],
-    prompts: [
-        { name: 'shopware-context', description: 'Context prompt' },
-    ],
+    resources: [{ uri: 'shopware://entities', name: 'Entities', description: 'All entities', mimeType: 'application/json' }],
+    prompts: [{ name: 'shopware-context', description: 'Context prompt' }],
 };
 
 const mcpToolService = {
@@ -136,9 +132,7 @@ describe('sw-integration-mcp-allowlist', () => {
 
         wrapper.vm.allCapabilitiesEnabled = false;
 
-        expect(wrapper.emitted('update:allowlist')).toStrictEqual([
-            [{ tools: [], resources: [], prompts: [] }],
-        ]);
+        expect(wrapper.emitted('update:allowlist')).toStrictEqual([[{ tools: [], resources: [], prompts: [] }]]);
     });
 
     it('allCapabilitiesEnabled is true when a bypassing principal has no allowlist', async () => {
@@ -254,10 +248,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({ allowlist: { tools: null, resources: null, prompts: null } });
         await flushPromises();
 
-        expect(Object.keys(wrapper.vm.toolGroups)).toStrictEqual([
-            'catalogue',
-            'orders',
-        ]);
+        expect(Object.keys(wrapper.vm.toolGroups)).toStrictEqual(['catalogue', 'orders']);
         expect(wrapper.vm.groupLabel('tools', 'catalogue')).toBe('Catalogue');
     });
 
@@ -280,10 +271,7 @@ describe('sw-integration-mcp-allowlist', () => {
     it('staleEntries includes stale tool names', async () => {
         const wrapper = await createWrapper({
             allowlist: {
-                tools: [
-                    'old-tool',
-                    'shopware-entity-search',
-                ],
+                tools: ['old-tool', 'shopware-entity-search'],
                 resources: null,
                 prompts: null,
             },
@@ -299,10 +287,7 @@ describe('sw-integration-mcp-allowlist', () => {
         const wrapper = await createWrapper({
             allowlist: {
                 tools: null,
-                resources: [
-                    'shopware://old',
-                    'shopware://entities',
-                ],
+                resources: ['shopware://old', 'shopware://entities'],
                 prompts: null,
             },
         });
@@ -318,10 +303,7 @@ describe('sw-integration-mcp-allowlist', () => {
             allowlist: {
                 tools: null,
                 resources: null,
-                prompts: [
-                    'old-prompt',
-                    'shopware-context',
-                ],
+                prompts: ['old-prompt', 'shopware-context'],
             },
         });
 

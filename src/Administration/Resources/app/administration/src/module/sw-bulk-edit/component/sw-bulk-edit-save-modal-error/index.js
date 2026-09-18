@@ -7,6 +7,14 @@ import template from './sw-bulk-edit-save-modal-error.html.twig';
 export default {
     template,
 
+    props: {
+        failedItems: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+    },
+
     emits: [
         'title-set',
         'buttons-update',
@@ -17,6 +25,16 @@ export default {
     },
 
     methods: {
+        getFailureReason(failedItem) {
+            const snippets = {
+                'not-found': 'sw-bulk-edit.modal.error.orderNotFound',
+                load: 'sw-bulk-edit.modal.error.orderLoadFailed',
+                transition: 'sw-bulk-edit.modal.error.transitionFailed',
+            };
+
+            return this.$t(snippets[failedItem.reason] ?? snippets.transition);
+        },
+
         createdComponent() {
             this.updateButtons();
             this.setTitle();

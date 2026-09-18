@@ -279,6 +279,10 @@
       "error": {
         "title": "Bulk edit - Error",
         "description": "Bulk edit finished with errors.",
+        "failedStatusChanges": "The following status change failed: | The following {count} status changes failed:",
+        "orderNotFound": "Order not found or no longer available.",
+        "orderLoadFailed": "Order could not be loaded. No status change was attempted.",
+        "transitionFailed": "Status change reported an error. Check the current order status before trying again.",
         "buttons": {
           "openLog": "Open log file"
         }
@@ -316,6 +320,11 @@
         "statusMails": {
           "label": "Send: Status emails",
           "helpText": "Available only if status has been changed."
+        },
+        "failedFields": {
+          "orderTransactions": "Payment status",
+          "orderDeliveries": "Delivery status",
+          "orders": "Order status"
         },
         "documents": {
           "label": "Send: Documents",

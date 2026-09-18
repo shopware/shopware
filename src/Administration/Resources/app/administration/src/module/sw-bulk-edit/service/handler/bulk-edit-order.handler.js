@@ -3,6 +3,19 @@ import RetryHelper from '../../../../core/helper/retry.helper';
 
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
+const { chunk } = Shopware.Utils.array;
+
+const MAX_CONCURRENT_STATUS_TRANSITIONS = 5;
+const MAX_ORDERS_PER_REQUEST = 100;
+
+class BulkEditOrderStatusError extends Error {
+    constructor(failures) {
+        super('One or more order status transitions failed.');
+
+        this.name = 'BulkEditOrderStatusError';
+        this.failures = failures;
+    }
+}
 
 /**
  * @class
@@ -17,65 +30,171 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.orderStateMachineService = Shopware.Service('orderStateMachineService');
         this.orderRepository = Shopware.Service('repositoryFactory').create('order');
         this.entityName = 'order';
+        this.maxConcurrentStatusTransitions = MAX_CONCURRENT_STATUS_TRANSITIONS;
     }
 
     async bulkEditStatus(entityIds, payload) {
         this.entityIds = entityIds;
 
-        let promises = [];
+        const changes = payload.filter((change) => change.value);
+
+        if (entityIds.length === 0 || changes.length === 0) {
+            return [];
+        }
+
         const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
+        const failures = [];
+        const responses = [];
 
-        const orders = await this.orderRepository.search(this.getCriteria());
+        // Searches by IDs ignore the criteria limit, so bound the IDs sent in each request instead.
+        for (const orderIds of chunk(entityIds, MAX_ORDERS_PER_REQUEST)) {
+            const criteria = this.getCriteria();
+            criteria.setIds(orderIds);
+            criteria.setLimit(orderIds.length);
 
-        payload.forEach((change) => {
-            if (!change.value) {
-                return;
+            let orders;
+
+            try {
+                orders = await this.orderRepository.search(criteria);
+            } catch (error) {
+                orderIds.forEach((orderId) => {
+                    changes.forEach((change) => {
+                        failures.push({
+                            orderId,
+                            orderNumber: orderId,
+                            field: change.field,
+                            reason: 'load',
+                            code: this.getStatusTransitionErrorCode(error),
+                            error,
+                        });
+                    });
+                });
+
+                continue;
             }
 
-            promises = orders.map((order) => {
-                const options = {
-                    documentTypes: change.documentTypes,
-                    skipSentDocuments: change.skipSentDocuments,
-                    sendMail: change.sendMail,
-                    internalComment: change.internalComment,
-                };
+            const foundOrderIds = new Set(orders.map((order) => order.id));
 
-                switch (change.field) {
-                    case 'orderTransactions':
-                        return this.orderStateMachineService.transitionOrderTransactionState(
-                            order.transactions.first()?.id,
-                            change.value,
-                            options,
-                            {},
-                            {
-                                'sw-skip-trigger-flow': !shouldTriggerFlows,
-                            },
-                        );
-                    case 'orderDeliveries':
-                        return this.orderStateMachineService.transitionOrderDeliveryState(
-                            order.deliveries.first()?.id,
-                            change.value,
-                            options,
-                            {},
-                            {
-                                'sw-skip-trigger-flow': !shouldTriggerFlows,
-                            },
-                        );
-                    default:
-                        return this.orderStateMachineService.transitionOrderState(
-                            order.id,
-                            change.value,
-                            options,
-                            {},
-                            {
-                                'sw-skip-trigger-flow': !shouldTriggerFlows,
-                            },
-                        );
+            orderIds.forEach((orderId) => {
+                if (foundOrderIds.has(orderId)) {
+                    return;
                 }
-            });
-        });
 
-        return Promise.all(promises);
+                changes.forEach((change) => {
+                    failures.push({
+                        orderId,
+                        orderNumber: orderId,
+                        field: change.field,
+                        reason: 'not-found',
+                        code: '',
+                    });
+                });
+            });
+
+            responses.push(...(await this.transitionOrderStatuses(orders, changes, shouldTriggerFlows, failures)));
+        }
+
+        if (failures.length > 0) {
+            throw new BulkEditOrderStatusError(failures);
+        }
+
+        return responses;
+    }
+
+    async transitionOrderStatuses(orders, changes, shouldTriggerFlows, failures) {
+        const iterator = Array.from(orders).entries();
+        const responses = [];
+
+        const runWorker = async () => {
+            let entry = iterator.next();
+
+            while (!entry.done) {
+                const [
+                    orderIndex,
+                    order,
+                ] = entry.value;
+
+                for (const [
+                    changeIndex,
+                    change,
+                ] of changes.entries()) {
+                    try {
+                        // Preserve repository order within each ID batch, then the requested status-field order.
+                        responses[orderIndex * changes.length + changeIndex] = await this.transitionOrderStatus(
+                            order,
+                            change,
+                            shouldTriggerFlows,
+                        );
+                    } catch (error) {
+                        failures.push({
+                            orderId: order.id,
+                            orderNumber: order.orderNumber ?? order.id,
+                            field: change.field,
+                            reason: 'transition',
+                            code: this.getStatusTransitionErrorCode(error),
+                            error,
+                        });
+                    }
+                }
+
+                entry = iterator.next();
+            }
+        };
+
+        const workerCount = Math.min(this.maxConcurrentStatusTransitions, orders.length);
+        const workers = Array.from({ length: workerCount }, () => runWorker());
+
+        await Promise.all(workers);
+
+        // Remove failed slots without discarding successful undefined or falsy responses.
+        return responses.filter(() => true);
+    }
+
+    transitionOrderStatus(order, change, shouldTriggerFlows) {
+        const options = {
+            documentTypes: change.documentTypes,
+            skipSentDocuments: change.skipSentDocuments,
+            sendMail: change.sendMail,
+            internalComment: change.internalComment,
+        };
+
+        // Even lock errors can originate from a listener after the state committed. Surface failures without replaying.
+        switch (change.field) {
+            case 'orderTransactions':
+                return this.orderStateMachineService.transitionOrderTransactionState(
+                    order.transactions.first()?.id,
+                    change.value,
+                    options,
+                    {},
+                    {
+                        'sw-skip-trigger-flow': !shouldTriggerFlows,
+                    },
+                );
+            case 'orderDeliveries':
+                return this.orderStateMachineService.transitionOrderDeliveryState(
+                    order.deliveries.first()?.id,
+                    change.value,
+                    options,
+                    {},
+                    {
+                        'sw-skip-trigger-flow': !shouldTriggerFlows,
+                    },
+                );
+            default:
+                return this.orderStateMachineService.transitionOrderState(
+                    order.id,
+                    change.value,
+                    options,
+                    {},
+                    {
+                        'sw-skip-trigger-flow': !shouldTriggerFlows,
+                    },
+                );
+        }
+    }
+
+    getStatusTransitionErrorCode(error) {
+        return String(error?.response?.data?.errors?.[0]?.code ?? '');
     }
 
     async bulkEdit(entityIds, payload) {
@@ -100,7 +219,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     }
 
     getCriteria() {
-        const criteria = new Criteria(1, 25);
+        const criteria = new Criteria(1, this.entityIds.length);
         criteria.setIds(this.entityIds);
         criteria.getAssociation('deliveries');
         criteria.getAssociation('transactions');

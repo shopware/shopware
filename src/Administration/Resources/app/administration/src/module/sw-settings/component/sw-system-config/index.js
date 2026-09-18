@@ -4,6 +4,7 @@
 import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
+import utils from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -76,11 +77,24 @@ export default {
         return {
             currentSalesChannelId: this.salesChannelId,
             isLoading: false,
-            config: {},
+            schema: [],
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, use schema instead.
+             */
+            config: [],
             actualConfigData: {},
             initialConfigData: {},
             salesChannelModel: null,
             hasCssFields: false,
+            activeTab: null,
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+             */
+            isSyncingFromSchema: false,
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+             */
+            isSyncingFromConfig: false,
         };
     },
 
@@ -101,6 +115,30 @@ export default {
                 'colorpicker',
             ];
         },
+
+        showGlobalSection() {
+            return this.showTabs || this.schema.at(0)?.cards.length > 1;
+        },
+
+        showTabs() {
+            return this.schema?.length > 1;
+        },
+
+        tabItems() {
+            return this.schema?.map((tab) => {
+                return {
+                    name: this.getTabName(tab),
+                    label:
+                        tab.title !== null
+                            ? this.getInlineSnippet(tab.title)
+                            : this.$t('sw-settings.system-config.tabGeneral'),
+                };
+            });
+        },
+
+        defaultTabItem() {
+            return this.schema?.at(0) ? this.getTabName(this.schema.at(0)) : '';
+        },
     },
 
     watch: {
@@ -119,6 +157,42 @@ export default {
 
         isLoading(value) {
             this.$emit('loading-changed', value);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        schema: {
+            handler(newSchema) {
+                if (this.isSyncingFromConfig) {
+                    return;
+                }
+
+                this.isSyncingFromSchema = true;
+                this.config = this.schemaToConfig(newSchema);
+                this.$nextTick(() => {
+                    this.isSyncingFromSchema = false;
+                });
+            },
+            deep: true,
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        config: {
+            handler(newConfig) {
+                if (this.isSyncingFromSchema) {
+                    return;
+                }
+
+                this.isSyncingFromConfig = true;
+                this.schema = this.configToSchema(newConfig, this.schema);
+                this.$nextTick(() => {
+                    this.isSyncingFromConfig = false;
+                });
+            },
+            deep: true,
         },
     },
 
@@ -140,9 +214,15 @@ export default {
 
                 await this.readConfig();
                 await this.readAll();
+
+                this.activeTab = this.getTabName(this.schema.at(0));
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
+                } else {
+                    this.createNotificationError({
+                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
                 }
             } finally {
                 this.isLoading = false;
@@ -150,14 +230,74 @@ export default {
         },
 
         async readConfig() {
-            this.config = await this.systemConfigApiService.getConfig(this.domain);
-            this.config.every((card) => {
-                return card?.elements.every((field) => {
-                    if (field?.config?.css) {
-                        this.hasCssFields = true;
-                        return false;
-                    }
-                    return true;
+            // @deprecated tag:v6.8.0 - The getSchemaForDomain method call will be replaced with this.systemConfigApiService.getSchema(this.domain).
+            const schema = await this.getSchemaForDomain();
+
+            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed without replacement.
+            this.assignConfigIds(schema);
+
+            this.schema = schema;
+
+            this.schema.every((tab) => {
+                return tab?.cards.every((card) => {
+                    return card?.elements.every((field) => {
+                        if (field?.config?.css) {
+                            this.hasCssFields = true;
+                            return false;
+                        }
+                        return true;
+                    });
+                });
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * The modern schema endpoint is the preferred source of truth, but a decorated or overwritten
+         * legacy `getConfig` method is still used by extensions. If that method is custom, merge the
+         * legacy config into the schema result to keep the compatibility layer intact.
+         */
+        async getSchemaForDomain() {
+            const getSchema = this.systemConfigApiService.getSchema?.bind(this.systemConfigApiService);
+            const getConfig = this.systemConfigApiService.getConfig?.bind(this.systemConfigApiService);
+            const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
+
+            if (typeof getSchema !== 'function') {
+                return [];
+            }
+
+            const schema = await getSchema(this.domain);
+
+            if (typeof getConfig !== 'function' || getConfig === defaultGetConfig) {
+                return schema;
+            }
+
+            const config = await getConfig(this.domain);
+
+            if (!Array.isArray(config)) {
+                return schema;
+            }
+
+            return this.configToSchema(config, schema);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Tags cards and elements with an unofficial, internal id (`__configId`). It survives immutable
+         * updates (e.g. `card.map((c) => ({ ...c, title }))`) because object spread copies it along with
+         * the other properties, so it is used to reliably match cards back to their original tab in
+         * `configToSchema`, regardless of mutation style or reordering.
+         */
+        assignConfigIds(schema) {
+            (schema ?? []).forEach((tab) => {
+                (tab.cards ?? []).forEach((card) => {
+                    card.__configId = utils.createId();
+
+                    (card.elements ?? []).forEach((element) => {
+                        element.__configId = utils.createId();
+                    });
                 });
             });
         },
@@ -252,11 +392,13 @@ export default {
         getCacheRelevantFieldNames() {
             const fieldNames = new Set();
 
-            this.config.forEach((card) => {
-                card.elements?.forEach((element) => {
-                    if (element.config?.cacheRelevant === true) {
-                        fieldNames.add(element.name);
-                    }
+            this.schema.forEach((tab) => {
+                tab.cards?.forEach((card) => {
+                    card.elements?.forEach((element) => {
+                        if (element.config?.cacheRelevant === true) {
+                            fieldNames.add(element.name);
+                        }
+                    });
                 });
             });
 
@@ -490,6 +632,122 @@ export default {
             eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
 
             return eventHandler;
+        },
+
+        getTabName(tab) {
+            return `tab-${tab.name ?? this.schema.indexOf(tab)}`;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        schemaToConfig(schema) {
+            return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Finds the tab a card most likely belongs to by counting, per previous tab, how many of the
+         * card's elements were already present there. Element names are the actual system config keys,
+         * so they are stable and unique across both endpoints, unlike the internal `__configId` which is
+         * only assigned to cards that went through `assignConfigIds`. Using majority overlap instead of
+         * an exact match keeps the card matched to its tab even if elements were added to or removed from
+         * it. Returns null if no element matches, e.g. for cards without elements.
+         */
+        getTabIndexByElementOverlap(card, elementNameToTabIndex) {
+            const voteCountByTabIndex = new Map();
+
+            (card.elements ?? []).forEach((element) => {
+                const tabIndex = elementNameToTabIndex.get(element.name);
+                if (tabIndex === undefined) {
+                    return;
+                }
+
+                voteCountByTabIndex.set(tabIndex, (voteCountByTabIndex.get(tabIndex) ?? 0) + 1);
+            });
+
+            let bestTabIndex = null;
+            let bestVoteCount = 0;
+            voteCountByTabIndex.forEach((voteCount, tabIndex) => {
+                if (voteCount > bestVoteCount) {
+                    bestVoteCount = voteCount;
+                    bestTabIndex = tabIndex;
+                }
+            });
+
+            return bestTabIndex;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Keeps existing tabs instead of collapsing everything into a single tab. Cards are primarily matched
+         * back to their original tab via the internal `__configId` (see assignConfigIds), which is reliable
+         * across reordering and immutable updates. This id is not available yet when merging a freshly fetched
+         * legacy config (e.g. from a decorated getConfig method) with the schema for the first time, so cards
+         * are additionally matched by the tab their elements were previously found in (see
+         * getTabIndexByElementOverlap). Cards that cannot be matched at all (e.g. newly added ones, or ones
+         * without elements) end up in the general tab (name === null) and are assigned a fresh id, so their
+         * tab is tracked correctly from then on.
+         */
+        configToSchema(config, previousSchema) {
+            const cards = config ?? [];
+            const previousTabs =
+                previousSchema && previousSchema.length > 0
+                    ? previousSchema
+                    : [
+                          {
+                              name: null,
+                              title: null,
+                              cards: [],
+                          },
+                      ];
+
+            const newSchema = previousTabs.map((tab) => ({ ...tab, cards: [] }));
+            const generalTabIndex = previousTabs.findIndex((tab) => tab.name === null);
+            const fallbackTabIndex = generalTabIndex !== -1 ? generalTabIndex : newSchema.length - 1;
+
+            const idToTabIndex = new Map();
+            const elementNameToTabIndex = new Map();
+            previousTabs.forEach((tab, tabIndex) => {
+                (tab.cards ?? []).forEach((card) => {
+                    if (card.__configId !== undefined) {
+                        idToTabIndex.set(card.__configId, tabIndex);
+                    }
+
+                    (card.elements ?? []).forEach((element) => {
+                        elementNameToTabIndex.set(element.name, tabIndex);
+                    });
+                });
+            });
+
+            cards.forEach((card) => {
+                let tabIndex = fallbackTabIndex;
+
+                if (idToTabIndex.has(card.__configId)) {
+                    tabIndex = idToTabIndex.get(card.__configId);
+                } else {
+                    const overlapTabIndex = this.getTabIndexByElementOverlap(card, elementNameToTabIndex);
+                    if (overlapTabIndex !== null) {
+                        tabIndex = overlapTabIndex;
+                    }
+                }
+
+                if (card.__configId === undefined) {
+                    card.__configId = utils.createId();
+                }
+
+                (card.elements ?? []).forEach((element) => {
+                    if (element.__configId === undefined) {
+                        element.__configId = utils.createId();
+                    }
+                });
+
+                newSchema[tabIndex].cards.push(card);
+            });
+
+            return newSchema;
         },
     },
 };

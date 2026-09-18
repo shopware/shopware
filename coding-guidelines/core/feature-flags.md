@@ -166,7 +166,7 @@ class ExampleClass
 }
 ```
 
-Move the implementation to the canonical namespace and register the previous name eagerly with `class_alias()` in `src/Core/Framework/Deprecation/class_aliases.php`.
+Move the implementation to the canonical namespace and register the previous and canonical names in `ClassAliasRegistry::ALIASES`.
 Use a string literal for `previousClassName`: the previous name is compatibility metadata and must not become a new Core source reference.
 Update all Core callers to the canonical name.
 

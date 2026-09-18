@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
-use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,46 +12,39 @@ use Shopware\Core\Framework\Log\Package;
 class ClassAliasMap
 {
     /**
-     * @var array<lowercase-string, class-string>|null
+     * @var array<lowercase-string, class-string>
      */
-    private ?array $classAliases = null;
+    private array $classAliases = [];
+
+    /**
+     * @var array<lowercase-string, list<non-empty-string>>
+     */
+    private array $aliasesByCanonicalClassName = [];
+
+    /**
+     * @param array<non-empty-string, class-string> $classAliases
+     */
+    public function __construct(array $classAliases = ClassAliasRegistry::ALIASES)
+    {
+        foreach ($classAliases as $previousClassName => $currentClassName) {
+            $this->classAliases[\strtolower($previousClassName)] = $currentClassName;
+            $this->aliasesByCanonicalClassName[\strtolower($currentClassName)][] = $previousClassName;
+        }
+    }
 
     /**
      * @return class-string|null
      */
     public function canonicalClassName(string $className): ?string
     {
-        return $this->classAliases()[\strtolower($className)] ?? null;
+        return $this->classAliases[\strtolower($className)] ?? null;
     }
 
     /**
-     * @return array<lowercase-string, class-string>
+     * @return list<non-empty-string>
      */
-    private function classAliases(): array
+    public function aliasesForCanonicalClassName(string $className): array
     {
-        if ($this->classAliases !== null) {
-            return $this->classAliases;
-        }
-
-        $this->classAliases = [];
-        foreach (\get_declared_classes() as $declaredClassName) {
-            if (!\str_starts_with(\strtolower($declaredClassName), 'shopware\\')) {
-                continue;
-            }
-
-            $reflection = new \ReflectionClass($declaredClassName);
-            $resolvedClassName = $reflection->getName();
-            if (\strcasecmp($declaredClassName, $resolvedClassName) === 0) {
-                continue;
-            }
-
-            foreach ($reflection->getAttributes(ClassMoved::class) as $attribute) {
-                if (\strcasecmp($attribute->newInstance()->previousClassName, $declaredClassName) === 0) {
-                    $this->classAliases[\strtolower($declaredClassName)] = $resolvedClassName;
-                }
-            }
-        }
-
-        return $this->classAliases;
+        return $this->aliasesByCanonicalClassName[\strtolower($className)] ?? [];
     }
 }

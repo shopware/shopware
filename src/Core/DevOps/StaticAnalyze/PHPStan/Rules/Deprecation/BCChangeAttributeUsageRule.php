@@ -112,15 +112,11 @@ class BCChangeAttributeUsageRule implements Rule
      */
     private ?array $deprecatedServiceAliases = null;
 
-    /**
-     * @var array<lowercase-string, list<string>>|null
-     */
-    private ?array $runtimeClassAliases = null;
-
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
         private readonly ServiceMap $serviceMap,
         private readonly ?string $containerXmlPath,
+        private readonly ClassAliasMap $classAliasMap,
     ) {
     }
 
@@ -304,22 +300,9 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         $currentClassName = $class->getName();
-        if (!\class_exists($previousClassName, autoload: false)) {
+        if ($this->classAliasMap->canonicalClassName($previousClassName) !== $currentClassName) {
             return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": register the eager runtime alias "%s" => "%s" in class_aliases.php.',
-                $symbol,
-                $previousClassName,
-                $currentClassName
-            ))];
-        }
-
-        // @phpstan-ignore phpstanApi.runtimeReflection (this deliberately verifies the Composer runtime alias)
-        $previousMatchesCurrent = \is_a($previousClassName, $currentClassName, true);
-        // @phpstan-ignore phpstanApi.runtimeReflection (this deliberately verifies the Composer runtime alias)
-        $currentMatchesPrevious = \is_a($currentClassName, $previousClassName, true);
-        if (!$previousMatchesCurrent || !$currentMatchesPrevious) {
-            return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": alias "%s" and "%s" do not resolve to the same runtime class.',
+                'ClassMoved on "%s": register the class alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
                 $symbol,
                 $previousClassName,
                 $currentClassName
@@ -359,13 +342,13 @@ class BCChangeAttributeUsageRule implements Rule
 
         $currentClassName = $class->getName();
         $errors = [];
-        foreach ($this->runtimeClassAliases()[\strtolower($currentClassName)] ?? [] as $registeredAlias) {
+        foreach ($this->classAliasMap->aliasesForCanonicalClassName($currentClassName) as $registeredAlias) {
             if (isset($declaredAliases[\strtolower($registeredAlias)])) {
                 continue;
             }
 
             $errors[] = $this->error($line, \sprintf(
-                'Runtime class alias "%s" => "%s" must be declared with #[ClassMoved(previousClassName: "%s")] on "%s".',
+                'Class alias registry entry "%s" => "%s" must be declared with #[ClassMoved(previousClassName: "%s")] on "%s".',
                 $registeredAlias,
                 $currentClassName,
                 $registeredAlias,
@@ -374,33 +357,6 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return $errors;
-    }
-
-    /**
-     * @return array<lowercase-string, list<string>>
-     */
-    private function runtimeClassAliases(): array
-    {
-        if ($this->runtimeClassAliases !== null) {
-            return $this->runtimeClassAliases;
-        }
-
-        $this->runtimeClassAliases = [];
-        foreach (\get_declared_classes() as $declaredClassName) {
-            if (!\str_starts_with(\strtolower($declaredClassName), 'shopware\\')) {
-                continue;
-            }
-
-            // @phpstan-ignore phpstanApi.runtimeReflection (this deliberately inspects Composer runtime aliases)
-            $resolvedClassName = (new \ReflectionClass($declaredClassName))->getName();
-            if (\strcasecmp($declaredClassName, $resolvedClassName) === 0) {
-                continue;
-            }
-
-            $this->runtimeClassAliases[\strtolower($resolvedClassName)][] = $declaredClassName;
-        }
-
-        return $this->runtimeClassAliases;
     }
 
     private function isDeprecatedServiceAlias(string $serviceId): bool

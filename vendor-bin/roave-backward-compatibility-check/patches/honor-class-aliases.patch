@@ -2,7 +2,7 @@ diff --git a/bin/roave-backward-compatibility-check.php b/bin/roave-backward-com
 index 470779f..61c1804 100644
 --- a/bin/roave-backward-compatibility-check.php
 +++ b/bin/roave-backward-compatibility-check.php
-@@ -60,6 +60,20 @@ use const E_DEPRECATED;
+@@ -60,6 +60,13 @@ use const E_DEPRECATED;
          throw new RuntimeException('Could not find Composer autoload.php');
      })();
 -
@@ -10,15 +10,8 @@ index 470779f..61c1804 100644
 +    require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
 +
 +    $classAliases = [];
-+    foreach (get_declared_classes() as $declaredClass) {
-+        if (! str_starts_with(strtolower($declaredClass), 'shopware\\')) {
-+            continue;
-+        }
-+
-+        $resolvedClass = (new \ReflectionClass($declaredClass))->getName();
-+        if (strcasecmp($declaredClass, $resolvedClass) !== 0) {
-+            $classAliases[strtolower($declaredClass)] = $resolvedClass;
-+        }
++    foreach (\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
++        $classAliases[strtolower($previousClassName)] = $currentClassName;
 +    }
 +
      class ExcludeExperimental implements  ClassBased\ClassBased, InterfaceBased\InterfaceBased, TraitBased\TraitBased, MethodBased\MethodBased, PropertyBased\PropertyBased, FunctionBased\FunctionBased

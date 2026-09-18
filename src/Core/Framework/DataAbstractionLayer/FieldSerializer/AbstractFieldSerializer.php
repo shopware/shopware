@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -86,7 +87,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            throw new WriteConstraintViolationException($violationList, $path);
+            throw DataAbstractionLayerException::invalidWriteConstraintViolation($violationList, $path);
         }
     }
 
@@ -127,11 +128,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return false;
         }
 
-        $parent = $parameters->getDefinition()->getParentDefinition();
+        $parentField = $parameters->getDefinition()->getParentDefinition()->getFields()->get($field->getPropertyName());
 
-        $field = $parent->getFields()->get($field->getPropertyName());
-
-        return $field->is(Inherited::class);
+        return $parentField !== null && $parentField->is(Inherited::class);
     }
 
     protected function validateIfNeeded(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): void

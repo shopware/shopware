@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
@@ -374,6 +375,8 @@ const BlockDataScopePlugin = {
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    // Guards deprecated components and props at mount, the same boundary the running application uses
+    DeprecationPlugin,
     BlockDataScopePlugin,
     i18n,
 ];

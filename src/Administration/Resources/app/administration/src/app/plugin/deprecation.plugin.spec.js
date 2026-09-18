@@ -12,10 +12,10 @@ const createComponent = ({ customComponent, customOptions, customGlobalOptions }
         ...customComponent,
     };
 
+    // The plugin is installed globally by the Jest setup, mirroring the running application.
     return mount(baseComponent, {
         ...{
             global: {
-                plugins: [deprecationPlugin],
                 ...customGlobalOptions,
             },
         },
@@ -25,32 +25,54 @@ const createComponent = ({ customComponent, customOptions, customGlobalOptions }
 
 describe('app/plugins/deprecated.plugin', () => {
     let component;
-    let orgMock;
+    let guard;
 
-    beforeAll(() => {
-        orgMock = global.console.warn;
-    });
-
-    beforeEach(async () => {
-        global.console.warn = jest.fn();
+    beforeEach(() => {
+        guard = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
     });
 
     afterEach(async () => {
-        global.console.warn.mockReset();
-        global.console.warn = orgMock;
-        deprecationPlugin.pluginInstalled = false;
+        guard.mockRestore();
 
-        await component.unmount();
+        await component?.unmount();
         await flushPromises();
+        component = undefined;
     });
 
-    it('should not throw an error if the example component gets created', async () => {
+    it('should not guard anything if the example component gets created', async () => {
         component = createComponent();
 
-        expect(global.console.warn).not.toHaveBeenCalled();
+        expect(guard).not.toHaveBeenCalled();
     });
 
-    it('[prop] should not throw an error if the deprecated prop is not used', async () => {
+    it('should install on every app, because each test mount creates its own', async () => {
+        expect(deprecationPlugin.install({ mixin: () => {} })).toBe(true);
+
+        const app = { mixin: () => {} };
+        expect(deprecationPlugin.install(app)).toBe(true);
+        expect(deprecationPlugin.install(app)).toBe(false);
+    });
+
+    describe('toMajorFlag', () => {
+        it.each([
+            [
+                '6.4.0',
+                'V6_4_0_0',
+            ],
+            [
+                'v6.8.0.0',
+                'V6_8_0_0',
+            ],
+            [
+                '6.8',
+                'V6_8_0_0',
+            ],
+        ])('turns the version %s into the feature flag %s', (version, flag) => {
+            expect(deprecationPlugin.constructor.toMajorFlag(version)).toBe(flag);
+        });
+    });
+
+    it('[prop] should not guard if the deprecated prop is not used', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -64,10 +86,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        expect(global.console.warn).not.toHaveBeenCalled();
+        expect(guard).not.toHaveBeenCalled();
     });
 
-    it('[prop] should throw an error if the deprecated (string) prop is used', async () => {
+    it('[prop] should guard if the deprecated (string) prop is used', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -87,10 +109,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        expect(global.console.warn).toHaveBeenCalled();
+        expect(guard).toHaveBeenCalledWith('V6_4_0_0', expect.stringContaining('examplePropertyTest'));
     });
 
-    it('[prop] should throw an error if the deprecated (object) prop is used', async () => {
+    it('[prop] should guard if the deprecated (object) prop is used', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -112,10 +134,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        expect(global.console.warn).toHaveBeenCalled();
+        expect(guard).toHaveBeenCalledWith('V6_4_0_0', expect.stringContaining('examplePropertyTest'));
     });
 
-    it('[prop] should show the relevant deprecation (string) information in the warning', async () => {
+    it('[prop] should name the component, the property and the removal version', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -135,16 +157,14 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        // Revert to first call once compat warnings are fixed
-        const lastCall = global.console.warn.mock.calls[0];
+        const message = guard.mock.calls[0][1];
 
-        expect(lastCall[0]).toEqual(expect.stringContaining('[base-component]'));
-        expect(lastCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(lastCall[1]).toEqual(expect.stringContaining('examplePropertyTest'));
-        expect(lastCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(message).toEqual(expect.stringContaining('base-component'));
+        expect(message).toEqual(expect.stringContaining('examplePropertyTest'));
+        expect(message).toEqual(expect.stringContaining('6.4.0'));
     });
 
-    it('[prop] should show the relevant deprecation (object) information in the warning', async () => {
+    it('[prop] should name the component, the property and the removal version in object notation', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -166,15 +186,14 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const firstCall = global.console.warn.mock.calls[0];
+        const message = guard.mock.calls[0][1];
 
-        expect(firstCall[0]).toEqual(expect.stringContaining('[base-component]'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('examplePropertyTest'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(message).toEqual(expect.stringContaining('base-component'));
+        expect(message).toEqual(expect.stringContaining('examplePropertyTest'));
+        expect(message).toEqual(expect.stringContaining('6.4.0'));
     });
 
-    it('[prop] should throw a trace after the warning', async () => {
+    it('[prop] should append the component trace, so two usage sites are reported separately', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -194,13 +213,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const secondCall = global.console.warn.mock.calls[1];
-
-        expect(secondCall).toContain('[base-component]');
-        expect(secondCall[1]).toEqual(expect.stringContaining('--> base-component'));
+        expect(guard.mock.calls[0][1]).toEqual(expect.stringContaining('--> base-component'));
     });
 
-    it('[prop] should show the additional comment in the warnings', async () => {
+    it('[prop] should show the additional comment', async () => {
         component = createComponent({
             customComponent: {
                 props: {
@@ -223,26 +239,23 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const firstCall = global.console.warn.mock.calls[0];
-
-        expect(firstCall[1]).toEqual(expect.stringContaining('Dale a tu cuerpo alegria, Macarena. \n Hey Macarena'));
+        expect(guard.mock.calls[0][1]).toEqual(
+            expect.stringContaining('Dale a tu cuerpo alegria, Macarena. \n Hey Macarena'),
+        );
     });
 
-    it('[component] should throw a deprecation warning if the deprecated (string) component is used', async () => {
+    it('[component] should guard a deprecated (string) component', async () => {
         component = createComponent({
             customComponent: {
                 deprecated: '6.4.0',
             },
         });
 
-        const firstCall = global.console.warn.mock.calls[0];
-
-        expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(guard).toHaveBeenCalledWith('V6_4_0_0', expect.stringContaining('base-component'));
+        expect(guard.mock.calls[0][1]).toEqual(expect.stringContaining('6.4.0'));
     });
 
-    it('[component] should throw a deprecation warning if the deprecated (object) component is used', async () => {
+    it('[component] should guard a deprecated (object) component', async () => {
         component = createComponent({
             customComponent: {
                 deprecated: {
@@ -251,14 +264,11 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const firstCall = global.console.warn.mock.calls[0];
-
-        expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(guard).toHaveBeenCalledWith('V6_4_0_0', expect.stringContaining('base-component'));
+        expect(guard.mock.calls[0][1]).toEqual(expect.stringContaining('6.4.0'));
     });
 
-    it('[component] should show the additional comment in the warnings', async () => {
+    it('[component] should show the additional comment', async () => {
         component = createComponent({
             customComponent: {
                 deprecated: {
@@ -268,15 +278,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const firstCall = global.console.warn.mock.calls[0];
-
-        expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('Summer of 69'));
+        expect(guard.mock.calls[0][1]).toEqual(expect.stringContaining('Summer of 69'));
     });
 
-    it('[component] should throw a trace after the warning', async () => {
+    it('[component] should append the component trace', async () => {
         component = createComponent({
             customComponent: {
                 deprecated: {
@@ -286,13 +291,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const secondCall = global.console.warn.mock.calls[1];
-
-        expect(secondCall).toContain('[base-component]');
-        expect(secondCall[1]).toEqual(expect.stringContaining('--> base-component'));
+        expect(guard.mock.calls[0][1]).toEqual(expect.stringContaining('--> base-component'));
     });
 
-    it('[component] should throw a trace after the warning in nested components', async () => {
+    it('[component] should trace nested components', async () => {
         component = createComponent({
             customComponent: {
                 template: `
@@ -315,21 +317,18 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        // Check if any of the warnings contains the correct values
-        let wasFound = false;
-        global.console.warn.mock.calls.forEach((call) => {
-            if (call[1].includes('base-component')) {
-                wasFound = true;
-            } else {
-                return;
-            }
+        const nestedCall = guard.mock.calls.find((call) => call[1].includes('deprecated-component'));
 
-            expect(call).toContain('[deprecated-component]');
-            expect(call[1]).toEqual(expect.stringContaining('--> deprecated-component'));
-            expect(call[1]).toEqual(expect.stringContaining('base-component'));
-            expect(call[1]).toMatch(' --> deprecated-component \n      base-component ');
-        });
+        expect(nestedCall).toBeDefined();
+        expect(nestedCall[1]).toMatch(' --> deprecated-component \n      base-component ');
+    });
 
-        expect(wasFound).toBeTruthy();
+    it('throws once the major flag of the deprecation is active', async () => {
+        guard.mockRestore();
+        guard = jest.spyOn(Shopware.Feature, 'isActive').mockReturnValue(true);
+
+        expect(() => deprecationPlugin.guard('v6.8.0.0', 'The component "base-component" is deprecated')).toThrow(
+            'Tried to access deprecated functionality: The component "base-component" is deprecated',
+        );
     });
 });

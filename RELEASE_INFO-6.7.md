@@ -577,6 +577,37 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
+### `triggerDeprecationOrThrow` for Administration deprecations
+
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` gives Administration deprecations the lifecycle the PHP `Feature::triggerDeprecationOrThrow()` already has. Before the major it emits a development warning naming the API, the migration and the call site; once the major flag is active it throws, so a missed migration fails in next-major mode instead of after the removal.
+
+Use it at the boundary where the deprecated functionality is consumed:
+
+```js
+Shopware.Feature.triggerDeprecationOrThrow(
+    'V6_8_0_0',
+    'myService.oldMethod() is deprecated. Use newMethod() instead.',
+);
+```
+
+Deprecated components and props are annotated declaratively instead. The Administration deprecation plugin guards a component when it is created and a prop when it is supplied:
+
+```js
+export default {
+    deprecated: { version: 'v6.8.0.0', comment: 'Use "mt-select" instead.' },
+
+    props: {
+        emptyImagePath: {
+            type: String,
+            required: false,
+            deprecated: { version: 'v6.8.0.0', comment: 'Use "emptyIcon" instead.' },
+        },
+    },
+};
+```
+
+Under Jest the pre-major warning is suppressed, because the suite covers both sides of a flag on purpose and an unexpected `console.warn` fails a test. The next-major error is never suppressed.
+
 ## Storefront
 
 ### Static theme compilation without a database

@@ -18,7 +18,7 @@ into version 2.
 | Phase   | Version  | Action                                                                                                                                                                               |
 | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Phase 1 | 6.7      | Opt-in: v2 is available behind the feature flag (default off). Version 1 is marked with `#[ExperimentalReplacement]` for removal in 6.9. Compatibility gaps are closed and the backfill process is prepared. |
-| Phase 2 | 6.8      | Opt-out: v2 becomes the default (flag flips to `default: true`). The `@experimental` annotations are removed, the marked surface becomes the stable public API. The `#[ExperimentalReplacement]` attributes become `@deprecated tag:v6.9.0` annotations. |
+| Phase 2 | 6.8      | Opt-out: v2 becomes the default (flag flips to `default: true`). The `@experimental` annotations are removed, the marked surface becomes the stable public API. The `#[ExperimentalReplacement]` attributes become `@deprecated tag:v6.9.0` annotations and legacy implementation will throw if 6.9 flag is active. |
 | Phase 3 | 6.9      | Version 1 and the feature flag are completely removed. Backfills are executed.                                                                                                       |
 | Phase 4 | post-6.9 | Destructive schema drops are executed to finalize the database cleanup.                                                                                                              |
 

@@ -49,8 +49,6 @@ All classes below live under `Shopware\Core\Checkout\Document` and carry `#[Expe
 | `Event\DocumentOrderEvent` | Data provider (base class of the events above) |
 | `Event\DocumentOrderCriteriaEvent` | `AbstractDocumentDataProvider::enrichOrderCriteria()` |
 | `Event\DocumentTemplateRendererParameterEvent` | `AbstractDocumentDataProvider::provideRenderingData()` |
-| `Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator` | none |
-| `Api\DocumentTypeTechnicalNameFkResolver` | none |
 | `DocumentEvents` | none |
 | `DocumentGenerator\Counter` | none |
 | `DocumentIdCollection` | none |
@@ -60,8 +58,6 @@ All classes below live under `Shopware\Core\Checkout\Document` and carry `#[Expe
 | `Service\DocumentConfigLoader` | none |
 | `Service\DocumentFileRendererRegistry` | none |
 | `Service\DocumentMerger` | none |
-| `Service\ZugferdEmbeddedService` | none |
-| `Subscriber\DocumentDeleteSubscriber` | none |
 | `Zugferd\ZugferdBuilder` | none |
 | `Zugferd\ZugferdDocument` | none |
 | `Zugferd\ZugferdInvoiceGeneratedEvent` | none |

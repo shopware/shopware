@@ -242,6 +242,66 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
+    #[DisabledFeatures(['v6.5.0.0'])]
+    public function testTriggerDeprecationOrThrowStaysSilentWhileSilentUntilFlagIsInactive(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
+    public function testTriggerDeprecationOrThrowDeprecatesOnceSilentUntilFlagIsActive(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->once())
+            ->method('deprecation')
+            ->with('', '', 'test');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => false]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+        Feature::registerFeature('v6.6.0.0', ['major' => true]);
+
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
+    public function testTriggerDeprecationOrThrowOnlyWarnsWhileTheMajorFlagIsNotRegisteredYet(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->once())
+            ->method('deprecation')
+            ->with('', '', 'test');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
+    public function testTriggerDeprecationOrThrowThrowsOnceMajorFlagIsActiveDespiteSilentUntil(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => true]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+        Feature::registerFeature('v6.6.0.0', ['major' => true]);
+
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
     public function testSetActive(): void
     {
         Feature::resetRegisteredFeatures();

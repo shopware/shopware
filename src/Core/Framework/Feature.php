@@ -270,8 +270,15 @@ class Feature
         }
     }
 
-    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
+    /**
+     * @param string|null $silentUntil
+     */
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null, ?string $silentUntil = null): void
     {
+        if ($silentUntil !== null && !self::isActive($silentUntil)) {
+            return;
+        }
+
         if (!self::$emitDeprecations) {
             return;
         }
@@ -280,12 +287,16 @@ class Feature
             return;
         }
 
-        if (self::isActive($majorFlag)) {
-            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
-        }
+        $majorFlagPending = $silentUntil !== null && self::$registeredFeatures !== [] && !self::has($majorFlag);
 
-        if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
-            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        if (!$majorFlagPending) {
+            if (self::isActive($majorFlag)) {
+                throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+            }
+
+            if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
+                throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+            }
         }
 
         if (\PHP_SAPI !== 'cli') {

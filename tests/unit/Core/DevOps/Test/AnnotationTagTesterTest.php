@@ -180,6 +180,46 @@ class AnnotationTagTesterTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
+    public function testSilentUntilMarkerWithFutureFlagDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            <<<'PHP'
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                'Method is removed with the legacy implementation',
+                silentUntil: 'v6.5.0.0',
+            );
+            PHP
+        );
+    }
+
+    public function testSilentUntilMarkerWithLiveFlagThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            'Feature::triggerDeprecationOrThrow(\'v6.5.0.0\', \'test\', silentUntil: \'v6.4.0.0\');'
+        );
+    }
+
+    public function testSilentUntilMarkerWithDeprecationTagVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The silentUntil marker must reference a major feature flag, starting with `v` and comprising 4 digits separated by periods.'));
+
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            'Feature::triggerDeprecationOrThrow(\'v6.6.0.0\', \'test\', silentUntil: \'v6.5.0\');'
+        );
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testContentWithoutSilentUntilMarkerDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            'Feature::triggerDeprecationOrThrow(\'v6.4.0.0\', \'test\');'
+        );
+    }
+
     public function testDeprecatedWithoutPropertiesWillThrowException(): void
     {
         $deprecatedContent = '@deprecated';

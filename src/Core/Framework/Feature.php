@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, majorVersion?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class Feature
 {
     final public const ALL_MAJOR = 'major';

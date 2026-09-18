@@ -170,6 +170,10 @@ The following components are fully deprecated including their registration, temp
 
 `sw-bulk-edit-save-modal-process` (order bulk edit): the methods `createDocument()`, `getDocumentGenerationResult()`, `getFailedDocumentGenerationItems()`
 
+## `Feature` becomes final
+
+`Shopware\Core\Framework\Feature` carries `#[BecomesFinal(version: 'v6.8.0')]` and cannot be extended from Shopware 6.8. It is a static utility class, call it directly instead of subclassing it.
+
 # 6.7.14.0
 
 ## Product export templates: media URLs are encoded automatically

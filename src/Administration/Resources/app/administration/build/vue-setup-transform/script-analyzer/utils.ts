@@ -56,9 +56,7 @@ function absoluteRange(node: BabelNode, blockOffset: number): ShopwareSetupError
  * Parses user setup code with the plugins required by the declared script language.
  */
 function parseScript(script: string, lang: string, scriptOffset: number): BabelFile {
-    const plugins: ParserPlugin[] = [
-        'importMeta',
-    ];
+    const plugins: ParserPlugin[] = ['importMeta'];
 
     if (lang === 'ts' || lang === 'tsx') {
         plugins.push('typescript');
@@ -97,10 +95,7 @@ function walk(node: BabelNode | null | undefined, visitor: AstVisitor, ancestors
 
     visitor(node, ancestors);
 
-    const childAncestors = [
-        ...ancestors,
-        node,
-    ];
+    const childAncestors = [...ancestors, node];
 
     childBabelNodes(node).forEach((child) => walk(child, visitor, childAncestors));
 }

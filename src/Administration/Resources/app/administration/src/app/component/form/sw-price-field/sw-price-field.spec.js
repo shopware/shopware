@@ -46,10 +46,7 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        value: [
-            dollarPrice,
-            euroPrice,
-        ],
+        value: [dollarPrice, euroPrice],
         taxRate,
         currency,
         defaultPrice,
@@ -143,10 +140,7 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.vm.isInherited).toBeTruthy();
         await wrapper.setProps({
-            value: [
-                dollarPrice,
-                euroPrice,
-            ],
+            value: [dollarPrice, euroPrice],
         });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });

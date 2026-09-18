@@ -32,10 +32,7 @@ describe('src/app/component/meteor/tab-slot-parser', () => {
 
         it('joins nested array children recursively', () => {
             const nested = vnode({
-                children: [
-                    vnode({ children: 'Hello ' }),
-                    vnode({ children: [vnode({ children: 'World' })] }),
-                ],
+                children: [vnode({ children: 'Hello ' }), vnode({ children: [vnode({ children: 'World' })] })],
             });
 
             expect(getTextFromSlotItem(nested)).toBe('Hello World');
@@ -59,10 +56,7 @@ describe('src/app/component/meteor/tab-slot-parser', () => {
             const first = jest.fn();
             const second = jest.fn();
 
-            triggerTabItemClick([
-                first,
-                second,
-            ]);
+            triggerTabItemClick([first, second]);
 
             expect(first).toHaveBeenCalledTimes(1);
             expect(second).toHaveBeenCalledTimes(1);

@@ -28,10 +28,7 @@ describe('Shopware update check failure and retry', () => {
         expect(wrapper.find('.sw-settings-shopware-updates-extensions').exists()).toBe(false);
     });
 
-    it.each([
-        null,
-        '6.4.18.0',
-    ])('retries the check and shows the successful result for version %s', async (version) => {
+    it.each([null, '6.4.18.0'])('retries the check and shows the successful result for version %s', async (version) => {
         let resolveCheck!: (response: { version: string | null }) => void;
         const checkForUpdates = jest
             .fn()

@@ -1,5 +1,68 @@
+import { Text, type VNode } from 'vue';
+import type { RouteLocationRaw, Router } from 'vue-router';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-tabs.html.twig';
+
+type SwTabsItemProps = {
+    name?: string;
+    route?: RouteLocationRaw;
+    title?: string;
+};
+
+type VNodeTypeWithName = {
+    name?: string;
+};
+
+type VNodeChildrenWithDefaultSlot = {
+    default?: () => VNode[];
+};
+
+function isTabItemVNode(vnode: VNode): boolean {
+    return (vnode.type as VNodeTypeWithName | undefined)?.name === 'sw-tabs-item';
+}
+
+function isFragmentVNode(vnode: VNode): boolean {
+    // A `v-for` of `sw-tabs-item` is wrapped in a fragment vnode.
+    return typeof vnode.type === 'symbol' && vnode.type.toString() === 'Symbol(v-fgt)';
+}
+
+/**
+ * Returns the text of a `sw-tabs-item`'s default slot, or `undefined` when it has none.
+ * Used as the label fallback for items that provide their label as slot text.
+ */
+function getTabItemSlotText(vnode: VNode): string | undefined {
+    const slotChild = (vnode.children as VNodeChildrenWithDefaultSlot | null)?.default?.()?.[0];
+
+    return slotChild?.type === Text ? (slotChild.children as string) : undefined;
+}
+
+/**
+ * Maps a legacy `sw-tabs-item` vnode to the `mt-tabs` item format.
+ *
+ * The label is resolved from the `title` prop, then the default slot text, so an item whose label is
+ * only provided as slot text (`<sw-tabs-item :name="id">{{ label }}</sw-tabs-item>`) still renders it.
+ */
+function resolveTabItem(vnode: VNode, router: Router): TabItem {
+    const props = (vnode.props ?? {}) as SwTabsItemProps;
+
+    const label = props.title ?? getTabItemSlotText(vnode) ?? '';
+    const name = props.name ?? props.title ?? label;
+
+    const tabItem: TabItem = {
+        label,
+        name,
+    };
+
+    if (props.route) {
+        tabItem.onClick = () => {
+            if (props.route) {
+                void router.push(props.route);
+            }
+        };
+    }
+
+    return tabItem;
+}
 
 /**
  * @sw-package framework
@@ -57,90 +120,23 @@ export default Shopware.Component.wrapComponentConfig({
                 return [];
             }
 
-            /**
-             * Iterate over the default slot content and extract the tab items
-             * and convert them to the new format
-             */
-            let items = defaultSlotContent
-                .filter((item) => {
-                    return (
-                        // @ts-expect-error
-                        item.type?.name === 'sw-tabs-item' ||
-                        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-                        item.type?.toString() === 'Symbol(v-fgt)'
-                    );
-                })
-                .map((item) => {
-                    // Handle fragments
+            // Convert the slotted `sw-tabs-item` vnodes into `mt-tabs` items. A `v-for` of items is
+            // wrapped in a fragment vnode, so its children are unwrapped and mapped individually.
+            return defaultSlotContent.flatMap((item) => {
+                // v-for
+                if (isFragmentVNode(item)) {
+                    const children = Array.isArray(item.children) ? (item.children as VNode[]) : [];
 
-                    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-                    if (item.type?.toString() === 'Symbol(v-fgt)') {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                        return (
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                            (item.children ?? [])
-                                // @ts-expect-error
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                                ?.filter((child) => child.type?.name === 'sw-tabs-item')
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
-                                .map((child: any) => {
-                                    return {
-                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                                        label: child.props?.title ?? child.props?.name,
-                                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                                        name: child.props?.name ?? child.props?.title,
-                                        onClick: () => {
-                                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                                            if (child.props?.route) {
-                                                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-                                                void this.$router.push(child.props.route);
-                                            }
-                                        },
-                                    };
-                                })
-                        );
-                    }
+                    return children.filter(isTabItemVNode).map((child) => resolveTabItem(child, this.$router));
+                }
 
-                    /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call */
-                    let label = item.props?.title;
-                    let name = item.props?.name ?? item.props?.title;
+                // normal cases
+                if (isTabItemVNode(item)) {
+                    return [resolveTabItem(item, this.$router)];
+                }
 
-                    if (label === undefined) {
-                        // @ts-expect-error
-                        // Get label from default slot content of item
-                        const defaultSlot = item.children?.default?.()?.[0];
-                        // Check if default slot is Symbol(v-txt)
-                        if (defaultSlot?.type?.toString() === 'Symbol(v-txt)') {
-                            label = defaultSlot.children;
-                        }
-                    }
-
-                    if (name === undefined) {
-                        // Use label as name if name is not set
-                        name = label;
-                    }
-
-                    /* eslint-enable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access */
-
-                    return {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        label,
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        name,
-                        onClick: () => {
-                            if (item.props?.route) {
-                                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                                void this.$router.push(item.props.route);
-                            }
-                        },
-                    };
-                });
-
-            // Flat map items
-            items = items.flat();
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return items;
+                return [];
+            });
         },
     },
 
@@ -166,18 +162,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         mountedComponent() {
             // Fallback for $refs access in some modules
-            if (this.$refs.tabComponent) {
-                // @ts-expect-error
-                this.$refs.tabComponent.mountedComponent();
-            }
+            const tabComponent = this.$refs.tabComponent as { mountedComponent?: () => void } | undefined;
+            tabComponent?.mountedComponent?.();
         },
 
         setActiveItem(item: unknown) {
             // Fallback for $refs access in some modules
-            if (this.$refs.tabComponent) {
-                // @ts-expect-error
-                this.$refs.tabComponent.setActiveItem(item);
-            }
+            const tabComponent = this.$refs.tabComponent as { setActiveItem?: (item: unknown) => void } | undefined;
+            tabComponent?.setActiveItem?.(item);
         },
 
         onNewItemActive(item: unknown) {

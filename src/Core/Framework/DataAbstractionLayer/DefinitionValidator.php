@@ -507,7 +507,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($column->getNotnull() && empty($column->getDefault())) {
+            if ($column->getNotnull() && (bool) $column->getDefault() === false) {
                 $violations[$translationDefinition->getClass()][] = \sprintf(
                     'Column `%s`.`%s` is not nullable',
                     $translationDefinition->getEntityName(),

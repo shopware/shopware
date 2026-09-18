@@ -46,7 +46,7 @@
             class="sw-price-field__lock"
             :class="{
                 'is--locked': priceForCurrency.linked,
-                'is--disabled': isDisabled
+                'is--disabled': isDisabled || netDisabled
             }"
             :aria-label="$t('global.sw-price-field.toggleLinkedCurrency')"
             :aria-pressed="priceForCurrency.linked"
@@ -78,7 +78,7 @@
             :min="0"
             :digits="20"
             :error="netError"
-            :disabled="isInherited || disabled"
+            :disabled="isInherited || disabled || netDisabled"
             :name="netFieldName"
             v-bind="attributesWithoutListeners"
             @update:model-value="onPriceNetInputChange"

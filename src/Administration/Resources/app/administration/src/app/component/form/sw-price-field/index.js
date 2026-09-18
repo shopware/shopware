@@ -104,6 +104,12 @@ export default {
             default: false,
         },
 
+        netDisabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         grossLabel: {
             type: String,
             required: false,
@@ -265,7 +271,7 @@ export default {
 
     methods: {
         onLockSwitch() {
-            if (this.isDisabled) {
+            if (this.isDisabled || this.netDisabled) {
                 return;
             }
             this.priceForCurrency.linked = !this.priceForCurrency.linked;

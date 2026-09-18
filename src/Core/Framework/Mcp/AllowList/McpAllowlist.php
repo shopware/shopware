@@ -11,10 +11,6 @@ use Shopware\Core\Framework\Log\Package;
  * null for a type means unrestricted (all capabilities allowed).
  * An empty array means the type is fully blocked.
  *
- * Only administrator users ever reach {@see self::unrestricted()}. Every stored allowlist is parsed
- * through {@see self::restrictedFromJson()}, which resolves a missing, null or unusable value to a
- * blocked type rather than an unrestricted one.
- *
  * @internal
  */
 #[Package('framework')]
@@ -41,20 +37,15 @@ final class McpAllowlist
         return new self(null, null, null);
     }
 
-    /**
-     * No capability of any type is allowed. This is the default for every principal that is not a
-     * verified administrator user.
-     */
     public static function blocked(): self
     {
         return new self([], [], []);
     }
 
     /**
-     * Parses a stored allowlist for a principal that has no unrestricted bypass: anything the
-     * caller did not explicitly select is blocked. A null column, an empty column, unparseable JSON,
-     * a missing per-type key, an explicit `null` per-type value and a per-type value of the wrong
-     * shape all resolve to an empty list, so no path back to unrestricted access remains.
+     * Parses a stored allowlist for a principal without the administrator bypass: anything not
+     * explicitly selected is blocked, so every unusable value resolves to an empty list rather than
+     * to null. See the allowlist section of Mcp/AGENTS.md.
      */
     public static function restrictedFromJson(?string $json): self
     {

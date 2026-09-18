@@ -17,10 +17,8 @@ export default {
 
     props: {
         /**
-         * null = no explicit selection was ever saved.
-         * For a principal with `unrestrictedWhenUnset` that means every capability is accessible;
-         * for every other principal it means none are.
-         * {tools, resources, prompts} = per-type allowlists.
+         * null = nothing was ever selected. Whether that means everything or nothing depends on
+         * `unrestrictedWhenUnset`.
          */
         allowlist: {
             type: Object,
@@ -42,11 +40,7 @@ export default {
             default: () => [],
         },
 
-        /**
-         * True only for principals that bypass the MCP allowlist when nothing is selected, which is
-         * administrator users alone. Integrations never bypass it, not even admin integrations, so
-         * for them an unset allowlist grants nothing and the UI persists explicit selections.
-         */
+        /** True for administrator users, the only principals that bypass the allowlist when unset. */
         unrestrictedWhenUnset: {
             type: Boolean,
             default: false,
@@ -74,8 +68,7 @@ export default {
                     return this.allowlist === null;
                 }
 
-                // Without the bypass there is no "unrestricted" state to read off, so the toggle
-                // reflects whether every available capability is explicitly selected.
+                // No bypass means no "unrestricted" state to read off.
                 const populated = this.typeConfigs.filter((tc) => tc.available.length > 0);
                 return (
                     populated.length > 0 && populated.every((tc) => this.typeSelectedCount(tc.key) === tc.available.length)
@@ -103,10 +96,7 @@ export default {
             return this.selectionForType('prompts');
         },
 
-        /**
-         * True when this principal has no explicit selection and no bypass, so the MCP endpoint
-         * grants it nothing beyond the discovery meta-tools.
-         */
+        /** No selection and no bypass: the endpoint grants nothing beyond the discovery meta-tools. */
         hasNoEffectiveCapabilities() {
             return !this.unrestrictedWhenUnset && this.allowlist === null;
         },
@@ -288,10 +278,7 @@ export default {
                 });
         },
 
-        /**
-         * `null` means unrestricted only where the bypass exists. Everywhere else it is resolved to
-         * an empty selection so the editor shows what the server actually grants.
-         */
+        /** Resolves null to an empty selection without the bypass, so the editor shows what the server grants. */
         selectionForType(type) {
             const fallback = this.unrestrictedWhenUnset ? null : [];
 
@@ -414,8 +401,7 @@ export default {
                 return;
             }
 
-            // Without the bypass, "all" has to be persisted as an explicit list: a null per-type
-            // value grants nothing rather than everything.
+            // Without the bypass a null per-type value grants nothing, so "all" must be explicit.
             this.emitUpdated({ [type]: this.unrestrictedWhenUnset ? null : this.allNamesForType(type) });
         },
 

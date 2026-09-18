@@ -23,15 +23,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * - Bearer JWT, client_credentials → integration.mcp_allowlist via ATTRIBUTE_OAUTH_CLIENT_ID
  * - Admin users (admin=true) → always unrestricted regardless of auth mode
  *
- * The administrator bypass is the only path to an unrestricted allowlist. Every other principal —
- * a non-admin user, and an integration whether or not it is flagged admin — needs an explicit
- * selection: an unset, empty or unparseable `mcp_allowlist` grants no tools, resources or prompts.
- * A principal that cannot be resolved at all is treated the same way, so the endpoint fails closed.
- *
- * The server-owned discovery meta-tools stay advertised and callable regardless, see
- * {@see \Shopware\Core\Framework\Mcp\AllowList\McpAllowlistListRequestHandler}. They expose only
- * capability names the effective allowlist already permits, so a principal without a selection
- * reaches a discovery surface that resolves to nothing.
+ * That administrator bypass is the only path to an unrestricted allowlist; every other principal
+ * needs an explicit selection. The full rule, and why the discovery meta-tools are exempt, is in
+ * the allowlist section of Mcp/AGENTS.md.
  */
 #[Package('framework')]
 class McpAllowlistProvider
@@ -113,7 +107,6 @@ class McpAllowlistProvider
             return $this->forUserId($userId);
         }
 
-        // No principal could be resolved, so no explicit selection can exist for one.
         return McpAllowlist::blocked();
     }
 
@@ -124,8 +117,7 @@ class McpAllowlistProvider
             ['key' => $accessKey],
         );
 
-        // Integrations have no administrator bypass: they must select their capabilities explicitly,
-        // including when the integration itself is flagged as an admin integration.
+        // No bypass here, not even for an integration flagged `admin`: that flag only waives ACL.
         return $this->fromAllowlist(McpAllowlist::restrictedFromJson(\is_string($json) ? $json : null));
     }
 
@@ -136,12 +128,12 @@ class McpAllowlistProvider
             ['id' => Uuid::fromHexToBytes($userId)],
         );
 
-        // An unknown or inactive user is not a verified administrator, so it gets nothing.
+        // Unknown or inactive: not a verified administrator, so no bypass.
         if ($row === false) {
             return McpAllowlist::blocked();
         }
 
-        // Admin users bypass ACL checks — mirror that for MCP allowlist. This is the only bypass.
+        // Admin users bypass ACL checks — mirror that for MCP allowlist.
         if ((bool) $row['admin']) {
             return McpAllowlist::unrestricted();
         }

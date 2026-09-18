@@ -106,6 +106,9 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Store API responses vary on `sw-include-seo-urls`
+
+The `sw-include-seo-urls` request header adds `seoUrls` to Store API responses, but it was not part of `Vary` or of the built-in HTTP cache key. A cached response without `seoUrls` could be served to a request that asked for them. The header is now listed in `HttpCacheVariantHeaders::HEADERS`, so it is emitted in `Vary` and folded into the cache key. Reverse proxies that honor `Vary` need no change. Setups with a custom cache key should add the header. An empty header value now counts as absent, matching the cache key.
 ### Shopware Services reconcile their full state daily
 
 A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.
@@ -310,6 +313,11 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
+### `MailService` renders mails with the snippets of their sales channel
+
+`MailService` now configures the translator for the mail's sales channel while it renders the subject and content. Previously the Flow Builder mail action and `SendMailTemplate` did this before calling it; now it applies to every mail sent through `MailService`.
+
+If you replace `AbstractMailService` without calling the decorated service, configure the translator in your implementation with `AbstractTranslator::injectSettings()` and `resetInjection()`. Because the settings only apply during rendering, listeners of `FlowSendMailActionEvent` and `MailBeforeValidateEvent` see the translator's default configuration.
 ### MCP servers are registered declaratively
 
 Shopware runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers declaratively. The extension tags `shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and their `shopware.store_api_mcp.*` equivalents are unchanged, so plugins and apps that register tools, prompts, or resources need no adjustment. Code that integrates with the MCP internals has to be updated; those classes are marked `@experimental stableVersion:v6.8.0`. The motivation, the considered alternatives, and the consequences are described in [MCP capability registration via the container](adr/2026-08-31-mcp-capability-registration-via-container.md).
@@ -690,6 +698,16 @@ The lifetime of authorization codes is configurable with `shopware.api.auth_code
 The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
 
 While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
+
+# 6.7.14.2
+
+## Critical Fixes
+
+### Product and promotion duplication works again
+
+Duplicating products could fail because the request resubmitted the protected variant count. Promotion duplication failed for the same reason when it resubmitted the protected total and per-customer redemption counts.
+
+Both duplication flows now succeed. Products keep their correct variant count, while duplicated promotions start with zero total redemptions and no per-customer redemptions instead of inheriting the usage of the original promotion.
 
 # 6.7.14.1
 

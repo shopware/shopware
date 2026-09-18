@@ -161,8 +161,6 @@ export default {
                         individualCodePattern: '',
                         individualCodes: null,
                         active: false,
-                        orderCount: 0,
-                        ordersPerCustomerCount: null,
                     },
                 };
                 const clone = await this.promotionRepository.clone(referencePromotion.id, behavior, Shopware.Context.api);

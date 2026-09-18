@@ -34,82 +34,58 @@ class McpAllowlistTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string|null}>
+     * @param list<string> $tools
+     * @param list<string> $resources
+     * @param list<string> $prompts
      */
-    public static function unusableJsonProvider(): iterable
-    {
-        yield 'null column' => [null];
-        yield 'empty string' => [''];
-        yield 'invalid JSON' => ['{not-valid-json}'];
-        yield 'scalar JSON' => ['"just-a-string"'];
-    }
-
-    #[DataProvider('unusableJsonProvider')]
-    public function testRestrictedFromJsonBlocksEverythingForUnusableInput(?string $json): void
+    #[DataProvider('restrictedFromJsonProvider')]
+    public function testRestrictedFromJson(?string $json, array $tools, array $resources, array $prompts): void
     {
         $allowlist = McpAllowlist::restrictedFromJson($json);
 
-        static::assertSame([], $allowlist->tools);
-        static::assertSame([], $allowlist->resources);
-        static::assertSame([], $allowlist->prompts);
+        static::assertSame($tools, $allowlist->tools);
+        static::assertSame($resources, $allowlist->resources);
+        static::assertSame($prompts, $allowlist->prompts);
     }
 
-    public function testRestrictedFromJsonKeepsExplicitSelections(): void
+    /**
+     * Anything that is not an explicit list of names resolves to an empty selection, so there is no
+     * path back to unrestricted access for a principal without the administrator bypass.
+     *
+     * @return iterable<string, array{string|null, list<string>, list<string>, list<string>}>
+     */
+    public static function restrictedFromJsonProvider(): iterable
     {
-        $allowlist = McpAllowlist::restrictedFromJson(
-            '{"tools":["tool-a"],"resources":["shopware://entities"],"prompts":["shopware-context"]}'
-        );
+        yield 'null column' => [null, [], [], []];
+        yield 'empty column' => ['', [], [], []];
+        yield 'unparseable JSON' => ['{not-valid-json}', [], [], []];
+        yield 'JSON that is not an object' => ['"just-a-string"', [], [], []];
+        yield 'empty object' => ['{}', [], [], []];
 
-        static::assertSame(['tool-a'], $allowlist->tools);
-        static::assertSame(['shopware://entities'], $allowlist->resources);
-        static::assertSame(['shopware-context'], $allowlist->prompts);
-    }
+        yield 'explicit selection per type' => [
+            '{"tools":["tool-a"],"resources":["shopware://entities"],"prompts":["shopware-context"]}',
+            ['tool-a'],
+            ['shopware://entities'],
+            ['shopware-context'],
+        ];
+        yield 'explicit null per type' => [
+            '{"tools":["tool-a"],"resources":null,"prompts":null}',
+            ['tool-a'],
+            [],
+            [],
+        ];
+        yield 'per-type value is a string' => ['{"tools":"not-an-array"}', [], [], []];
 
-    public function testRestrictedFromJsonTreatsNullKeyAsBlockedInsteadOfUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::restrictedFromJson('{"tools":["tool-a"],"resources":null,"prompts":null}');
-
-        static::assertSame(['tool-a'], $allowlist->tools);
-        static::assertSame([], $allowlist->resources);
-        static::assertSame([], $allowlist->prompts);
-    }
-
-    public function testRestrictedFromJsonTreatsAbsentKeyAsBlockedInsteadOfUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::restrictedFromJson('{}');
-
-        static::assertSame([], $allowlist->tools);
-        static::assertSame([], $allowlist->resources);
-        static::assertSame([], $allowlist->prompts);
-    }
-
-    public function testRestrictedFromJsonTreatsWrongShapeAsBlockedInsteadOfUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::restrictedFromJson('{"tools":"not-an-array"}');
-
-        static::assertSame([], $allowlist->tools);
-    }
-
-    public function testRestrictedFromJsonTreatsAnObjectShapedPerTypeValueAsBlocked(): void
-    {
         // json_decode(..., true) turns a JSON object into an associative array. It is not a list of
         // capability names, so reading its values as one would hand out capabilities nobody listed.
-        $allowlist = McpAllowlist::restrictedFromJson('{"tools":{"x":"shopware-entity-delete"}}');
+        yield 'per-type value is an object' => ['{"tools":{"x":"shopware-entity-delete"}}', [], [], []];
+        yield 'per-type value is a sparse list' => ['{"tools":{"0":"tool-a","2":"tool-b"}}', [], [], []];
 
-        static::assertSame([], $allowlist->tools);
-    }
-
-    public function testRestrictedFromJsonTreatsASparseListAsBlocked(): void
-    {
-        $allowlist = McpAllowlist::restrictedFromJson('{"tools":{"0":"tool-a","2":"tool-b"}}');
-
-        static::assertSame([], $allowlist->tools);
-    }
-
-    public function testRestrictedFromJsonFiltersNonStringValues(): void
-    {
-        $allowlist = McpAllowlist::restrictedFromJson('{"tools":["valid-tool",123,null,"another-tool"]}');
-
-        static::assertSame(['valid-tool', 'another-tool'], $allowlist->tools);
+        yield 'non-string entries are dropped' => [
+            '{"tools":["valid-tool",123,null,"another-tool"]}',
+            ['valid-tool', 'another-tool'],
+            [],
+            [],
+        ];
     }
 }

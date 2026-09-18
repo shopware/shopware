@@ -117,7 +117,7 @@ class ServiceSourceResolverTest extends TestCase
         $filesystem = $this->source->filesystem($app);
 
         static::assertSame($this->path('TestService'), $filesystem->location);
-        static::assertSame("<manifest/>\n", $filesystem->read('manifest.xml'));
+        static::assertStringContainsString('<name>TestService</name>', $filesystem->read('manifest.xml'));
     }
 
     public function testFilesystemWithManifest(): void
@@ -130,7 +130,7 @@ class ServiceSourceResolverTest extends TestCase
         $filesystem = $this->source->filesystem($manifest);
 
         static::assertSame($this->path('TestService'), $filesystem->location);
-        static::assertSame("<manifest/>\n", $filesystem->read('manifest.xml'));
+        static::assertStringContainsString('<name>TestService</name>', $filesystem->read('manifest.xml'));
     }
 
     public function testFilesFromThePreviousRevisionAreRemoved(): void
@@ -142,7 +142,7 @@ class ServiceSourceResolverTest extends TestCase
         $filesystem = $this->source->filesystemForVersion($this->appInfo);
 
         static::assertSame($this->path('TestService'), $filesystem->location);
-        static::assertSame("<manifest/>\n", $filesystem->read('manifest.xml'));
+        static::assertStringContainsString('<name>TestService</name>', $filesystem->read('manifest.xml'));
         static::assertFileDoesNotExist($this->path('TestService/Resources/config/custom-fields.xml'));
         static::assertSame(['TestService'], $this->entriesInRoot());
     }
@@ -260,7 +260,7 @@ class ServiceSourceResolverTest extends TestCase
         $filesystem = $this->resolver($io)->filesystemForVersion($this->appInfo);
 
         static::assertSame($this->path('TestService'), $filesystem->location);
-        static::assertSame("<manifest/>\n", $filesystem->read('manifest.xml'));
+        static::assertStringContainsString('<name>TestService</name>', $filesystem->read('manifest.xml'));
         static::assertCount(2, $this->entriesInRoot());
     }
 

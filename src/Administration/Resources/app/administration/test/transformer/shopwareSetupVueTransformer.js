@@ -3,7 +3,7 @@
  */
 
 const vueJest = require('@vue/vue3-jest');
-const { transformShopwareSetupSfc } = require('../../build/vue-setup-transform');
+const { transformShopwareSetupSfc, ShopwareSetupTransformError } = require('../../build/vue-setup-transform');
 
 /**
  * @typedef {object} JestTransformerConfig
@@ -34,9 +34,22 @@ function transformSource(source, filename) {
         return source;
     }
 
-    const result = transformShopwareSetupSfc(source, filename);
+    try {
+        const result = transformShopwareSetupSfc(source, filename);
 
-    return result?.code ?? source;
+        return result?.code ?? source;
+    } catch (error) {
+        if (error instanceof ShopwareSetupTransformError && error.loc) {
+            const { file, line, column } = error.loc;
+
+            // Jest ignores loc/frame and prints the stack. Show the author diagnostic without an
+            // internal throw-site frame; display columns are 1-based.
+            error.message = `${error.message}\n\n${file}:${line}:${column + 1}\n${error.frame}`;
+            error.stack = `${error.name}: ${error.message}`;
+        }
+
+        throw error;
+    }
 }
 
 module.exports = {

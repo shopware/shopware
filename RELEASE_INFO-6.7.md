@@ -279,17 +279,16 @@ Product breadcrumbs are generated again when the product's main category — or 
 
 ### Company tax exemption accepts VAT IDs from other EU member states
 
-Settings > Basic information has a new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel). Once it is set:
+Settings > Basic information has a new *Shop owner's country* setting (`core.basicInformation.sellerCountryId`, per sales channel). While it is empty, nothing changes. Once it is set:
 
 - *Tax-free (B2B)* also applies to a VAT ID of any other EU member state. A VAT ID of the shop's own member state, or of no member state, is taxed.
 - A delivery within the shop's own member state is never *Tax-free (B2B)*, whichever VAT ID the customer holds. Domestic deliveries that were exempt before are taxed now. *Tax-free (B2C)* is unaffected and keeps exempting the delivery.
 - A customer identified in the shop's own member state whose delivery leaves it is no longer *Tax-free (B2B)*, but is charged the delivery country's rate rather than the shop's, and the default rate of the product's tax when no tax rule for the delivery country exists. Tax rules are resolved from the delivery country, which is also the rate a customer without a VAT ID has to pay, so the two cases cannot be told apart.
 - The invoice, cancellation invoice and credit note print the intra-community delivery note for exactly the orders the cart exempts.
 
-If the setting is empty, nothing changes: the exemption and the note keep checking the delivery country's pattern only.
-Independently of the setting, a customer counts as a business based on `accountType` instead of a non-empty `company`.
+Digital products follow the same rules as goods, decided by the delivery country. The separate EU rules for them are not part of this release.
 
-The exemption applies for all product types: digital products follow the same delivery-country rules as goods.
+Independently of the setting, a customer counts as a business based on `accountType` instead of a non-empty `company`.
 
 `store-api/account/register` and `store-api/account/change-profile` now accept a VAT ID of any EU member state when the billing country is an EU member state with *Check VAT ID pattern* enabled.
 
@@ -318,11 +317,8 @@ The tag association routes and a nested `tags` payload on the order or category 
 
 ### The cart hash covers the checkout addresses
 
-The hash returned by `GET /store-api/checkout/cart` and verified by `POST /store-api/checkout/order` now also covers the active billing and shipping address of the context: id, country, country state, zip code and city, as well as the customer's account type, company and VAT IDs.
+The hash returned by `GET /store-api/checkout/cart` and verified by `POST /store-api/checkout/order` additionally covers the active billing and shipping address (id, country, country state, zip code, city) of the context and the customer's account type, company and VAT IDs. Name, street and phone number stay out, so correcting a typo does not interrupt a checkout.
 
-When any of those change between reading the cart and placing the order, the order route answers `409 CHECKOUT__CART_HASH_MISMATCH` instead of creating an order with data the customer never confirmed. This happens for example when an administrator edits the customer's addresses while the checkout confirm page is open. The Storefront returns the customer to the confirm page with a notice and the updated values; a Store API client that sends `hash` should read the cart again and let the customer confirm before retrying. Clients that do not send `hash` are unaffected.
-
-Purely cosmetic address fields such as name, street or phone number are not part of the hash, so correcting a typo does not interrupt a checkout. Extensions that need additional data covered can add it to the struct provided by `Shopware\Core\Checkout\Cart\Event\CartContextHashEvent`.
 ### Storefront snippets of apps are served from a persisted snapshot
 
 Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an app are written to the translation filesystem on install and update, and removed on uninstall. A snippet catalogue build reads them from there instead of from the app's location, so a self-managed app's source is no longer downloaded during a storefront request.

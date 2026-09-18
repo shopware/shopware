@@ -5,6 +5,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { ref } from 'vue';
 import type { VueWrapper } from '@vue/test-utils';
+import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 import {
     CLASS_THIS_FIXTURE,
     CREATED_ASYNC_FIXTURE,
@@ -24,6 +25,8 @@ import {
     PROP_INJECT_DATA_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
+    SHORTCUT_FIXTURE,
+    SHORTCUT_QUOTED_KEY_FIXTURE,
     SIBLING_DATA_FIXTURE,
 } from './runtime-equivalence-fixtures';
 import {
@@ -171,6 +174,49 @@ describe('SFC migration runtime equivalence', () => {
 
         expect(result.outcome).toBeDefined();
         expectConservative(result.outcome);
+    });
+
+    it('fires shortcuts the same way through useShortcut()', async () => {
+        const result = await convertFixture(SHORTCUT_FIXTURE);
+
+        expect(result.outcome).toBe('full');
+
+        const press = (key: string): void => {
+            document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+        };
+
+        const trace = async (wrapper: VueWrapper): Promise<unknown[]> => {
+            const probe = setProbe();
+
+            press('f');
+            press('Escape');
+            (wrapper.vm as unknown as { enabled: boolean }).enabled = true;
+            await flushPromises();
+            press('Escape');
+            wrapper.unmount();
+            press('f');
+
+            return probe.events;
+        };
+
+        // Only the Options API side needs the plugin that reads the `shortcuts` option.
+        const original = await trace(mountOriginal(SHORTCUT_FIXTURE, { plugins: [shortcutPlugin as never] }));
+        const generated = await trace(mountGenerated(SHORTCUT_FIXTURE, result));
+
+        // `active()` gates ESCAPE until it flips, and nothing fires after unmount.
+        expect(original).toEqual([
+            'focus',
+            'esc',
+        ]);
+        expect(generated).toEqual(original);
+    });
+
+    it('escapes a shortcut key that would break a single-quoted emit', async () => {
+        const result = await convertFixture(SHORTCUT_QUOTED_KEY_FIXTURE);
+
+        // A raw single-quote splice would make prettier reject the output and downgrade the outcome.
+        expect(result.outcome).toBe('full');
+        expect(result.sfc).toContain("a'b");
     });
 
     it('does not confuse class-local this with component this', async () => {

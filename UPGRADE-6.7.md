@@ -1,5 +1,41 @@
 # 6.7.15.0
 
+## Existing MCP integrations and non-admin users need an explicit MCP allowlist
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` changed meaning when they are unset. Until now an unset column meant unrestricted MCP access; it now means no MCP capabilities at all.
+
+Only administrator users still bypass the allowlist. Integrations never do, including integrations flagged as admin integrations.
+
+### Who is affected
+
+Any integration or non-admin user that reaches `/api/_mcp` today without an explicit allowlist. After the update those credentials still authenticate and still see the discovery meta-tools, but `tools/list`, `resources/list` and `prompts/list` return nothing else, and a `tools/call` for a domain tool is rejected with "Tool ... is not enabled in your MCP allowlist.".
+
+This also covers allowlists that are only partly filled in. A per-type entry that is missing or explicitly `null` is now an empty selection, so an integration saved as `{"tools": ["shopware-entity-search"], "resources": null, "prompts": null}` keeps its one tool but loses every resource and prompt. If you used the per-type "All" switch in the Administration, re-save the allowlist so the selection is stored as an explicit list.
+
+### What to do
+
+Before updating, note which MCP capabilities each integration actually uses. After updating, select them:
+
+- Integrations: Settings > System > Integrations > context menu > "Edit MCP allowlist".
+- Users: Settings > System > Users & permissions > the user > "MCP allowlist".
+
+Both write the same JSON shape, which can also be set through the API:
+
+```
+POST /api/_action/integration/{integrationId}/mcp-allowlist
+POST /api/_action/user/{userId}/mcp-allowlist
+
+{
+  "allowlist": {
+    "tools": ["shopware-entity-search", "shopware-entity-schema"],
+    "resources": ["shopware://entities"],
+    "prompts": []
+  }
+}
+```
+
+An empty array blocks a type. There is no value that means "everything" for a principal without the administrator bypass, by design: the selection has to be explicit.
+
 ## Document generation v1 deprecated for removal in Shopware 6.9
 
 The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.

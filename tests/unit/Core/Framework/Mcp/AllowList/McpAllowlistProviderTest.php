@@ -29,8 +29,8 @@ class McpAllowlistProviderTest extends TestCase
 
         $result = $provider->forCurrentRequest();
         static::assertSame(['shopware-entity-search', 'shopware-entity-schema'], $result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
     }
 
     public function testToolsForCurrentRequestDelegatesToForCurrentRequest(): void
@@ -41,8 +41,8 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         static::assertSame(['tool-a'], $provider->toolsForCurrentRequest());
-        static::assertNull($provider->resourcesForCurrentRequest());
-        static::assertNull($provider->promptsForCurrentRequest());
+        static::assertSame([], $provider->resourcesForCurrentRequest());
+        static::assertSame([], $provider->promptsForCurrentRequest());
     }
 
     public function testResourcesAndPromptsAreFiltered(): void
@@ -59,7 +59,7 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result->tools);
+        static::assertSame([], $result->tools);
         static::assertSame(['shopware://entities'], $result->resources);
         static::assertSame(['shopware-context'], $result->prompts);
     }
@@ -122,60 +122,6 @@ class McpAllowlistProviderTest extends TestCase
         static::assertSame([], $result->tools);
     }
 
-    public function testReturnsUnrestrictedWhenNoRequest(): void
-    {
-        $provider = new McpAllowlistProvider(
-            static::createStub(Connection::class),
-            new RequestStack(),
-        );
-
-        $result = $provider->forCurrentRequest();
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testReturnsUnrestrictedWhenNoAccessKey(): void
-    {
-        $requestStack = new RequestStack();
-        $requestStack->push(new Request());
-
-        $provider = new McpAllowlistProvider(
-            static::createStub(Connection::class),
-            $requestStack,
-        );
-
-        $result = $provider->forCurrentRequest();
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    /**
-     * @return iterable<string, array{string|false}>
-     */
-    public static function unrestrictedDatabaseValueProvider(): iterable
-    {
-        yield 'DB column is null' => [false];
-        yield 'DB column is empty string' => [''];
-        yield 'invalid JSON' => ['{not-valid-json}'];
-        yield 'JSON is not an array/object' => ['"just-a-string"'];
-    }
-
-    #[DataProvider('unrestrictedDatabaseValueProvider')]
-    public function testReturnsUnrestrictedForNonArrayDbValue(string|false $dbValue): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn($dbValue);
-
-        $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
-
-        $result = $provider->forCurrentRequest();
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
     public function testForAccessKeyReturnsAllowlistForValidKey(): void
     {
         $connection = static::createStub(Connection::class);
@@ -202,20 +148,7 @@ class McpAllowlistProviderTest extends TestCase
         static::assertContains('shopware-entity-search', $result->tools);
     }
 
-    public function testForAccessKeyReturnsUnrestrictedWhenKeyNotFound(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn(false);
-
-        $provider = new McpAllowlistProvider($connection, new RequestStack());
-
-        $result = $provider->forAccessKey('SWIA-unknown');
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testReturnsNullForKeyWhenValueIsNonArrayNonNull(): void
+    public function testPerTypeValueOfTheWrongShapeIsBlockedRatherThanUnrestricted(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn('{"tools":"not-an-array","resources":null,"prompts":null}');
@@ -223,20 +156,9 @@ class McpAllowlistProviderTest extends TestCase
         $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
 
         $result = $provider->forCurrentRequest();
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testForAccessKeyReturnsUnrestrictedForInvalidJson(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn('{not-valid-json}');
-
-        $provider = new McpAllowlistProvider($connection, new RequestStack());
-
-        $result = $provider->forAccessKey('SWIA-test');
-        static::assertNull($result->tools);
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
     }
 
     // --- Bearer JWT, client_credentials ---
@@ -261,8 +183,8 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         static::assertSame(['cc-tool'], $result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
     }
 
     // --- forUserId / bearer JWT ---
@@ -288,27 +210,8 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         static::assertSame(['bearer-tool'], $result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testBearerJwtWithoutUserIdIsUnrestricted(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAssociative');
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'administration');
-        // No ATTRIBUTE_OAUTH_USER_ID set.
-
-        $stack = new RequestStack();
-        $stack->push($request);
-
-        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
-
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
     }
 
     public function testAdminUserAlwaysUnrestrictedRegardlessOfAllowlist(): void
@@ -322,61 +225,6 @@ class McpAllowlistProviderTest extends TestCase
         ]);
 
         $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId($userId);
-
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testForUserIdReturnsUnrestrictedWhenUserNotFound(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAssociative')->willReturn(false);
-
-        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
-
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testForUserIdReturnsUnrestrictedWhenAllowlistIsNull(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAssociative')->willReturn([
-            'mcp_allowlist' => null,
-            'admin' => false,
-        ]);
-
-        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
-
-        static::assertNull($result->tools);
-    }
-
-    public function testForUserIdReturnsUnrestrictedForInvalidJson(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAssociative')->willReturn([
-            'mcp_allowlist' => '{not-valid-json}',
-            'admin' => false,
-        ]);
-
-        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
-
-        static::assertNull($result->tools);
-        static::assertNull($result->resources);
-        static::assertNull($result->prompts);
-    }
-
-    public function testForUserIdReturnsUnrestrictedWhenJsonIsNotArray(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAssociative')->willReturn([
-            'mcp_allowlist' => '"just-a-string"',
-            'admin' => false,
-        ]);
-
-        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
 
         static::assertNull($result->tools);
         static::assertNull($result->resources);
@@ -398,17 +246,6 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey('SWUAtestuseraccesskey00')))->forCurrentRequest();
 
         static::assertSame(['user-key-tool'], $result->tools);
-    }
-
-    public function testUserAccessKeyReturnsUnrestrictedWhenKeyNotFound(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')->willReturn(false);
-        $connection->expects($this->never())->method('fetchAssociative');
-
-        $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey('SWUAtestuseraccesskey00')))->forCurrentRequest();
-
-        static::assertNull($result->tools);
     }
 
     // --- Copilot intersection ---
@@ -440,83 +277,6 @@ class McpAllowlistProviderTest extends TestCase
 
         // Intersection: only tool-b is in both allowlists.
         static::assertSame(['tool-b'], $result->tools);
-    }
-
-    public function testCopilotIntersectionWithNullIntegrationAllowlistUsesUserAllowlist(): void
-    {
-        $appUserId = Uuid::randomHex();
-
-        $connection = static::createStub(Connection::class);
-        // Integration has no allowlist (null = unrestricted).
-        $connection->method('fetchOne')->willReturn(false);
-        // User allowlist restricts to tool-a only.
-        $connection->method('fetchAssociative')->willReturn([
-            'mcp_allowlist' => '{"tools":["tool-a"],"resources":null,"prompts":null}',
-            'admin' => false,
-        ]);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAtestintegrationkey00');
-        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $appUserId);
-
-        $stack = new RequestStack();
-        $stack->push($request);
-
-        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
-
-        // null ∩ [tool-a] = [tool-a]
-        static::assertSame(['tool-a'], $result->tools);
-    }
-
-    public function testCopilotIntersectionWithNullUserAllowlistUsesIntegrationAllowlist(): void
-    {
-        $appUserId = Uuid::randomHex();
-
-        $connection = static::createStub(Connection::class);
-        // Integration restricts to tool-b.
-        $connection->method('fetchOne')
-            ->willReturn('{"tools":["tool-b"],"resources":null,"prompts":null}');
-        // User has no allowlist (null = unrestricted).
-        $connection->method('fetchAssociative')->willReturn([
-            'mcp_allowlist' => null,
-            'admin' => false,
-        ]);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAtestintegrationkey00');
-        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $appUserId);
-
-        $stack = new RequestStack();
-        $stack->push($request);
-
-        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
-
-        // [tool-b] ∩ null = [tool-b]
-        static::assertSame(['tool-b'], $result->tools);
-    }
-
-    public function testCopilotIntersectionWithBothNullIsUnrestricted(): void
-    {
-        $appUserId = Uuid::randomHex();
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn(false);
-        $connection->method('fetchAssociative')->willReturn([
-            'mcp_allowlist' => null,
-            'admin' => false,
-        ]);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAtestintegrationkey00');
-        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $appUserId);
-
-        $stack = new RequestStack();
-        $stack->push($request);
-
-        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
-
-        // null ∩ null = null (unrestricted)
-        static::assertNull($result->tools);
     }
 
     public function testAppUserIdHeaderUuidIsPassedToUserLookup(): void
@@ -618,6 +378,248 @@ class McpAllowlistProviderTest extends TestCase
         $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
 
         // [tool-b] ∩ null (admin bypass) = [tool-b]
+        static::assertSame(['tool-b'], $result->tools);
+    }
+
+    // --- Null allowlist must not bypass for non-admin principals (issue #20374) ---
+
+    public function testIntegrationWithoutAllowlistGetsNoCapabilities(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn(null);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forAccessKey('SWIAtestintegrationkey00');
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testUnknownIntegrationAccessKeyGetsNoCapabilities(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forAccessKey('SWIAunknownkey0000000000');
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    /**
+     * @return iterable<string, array{string|false|null}>
+     */
+    public static function blockedDatabaseValueProvider(): iterable
+    {
+        yield 'DB column is null' => [null];
+        yield 'DB column not selected' => [false];
+        yield 'DB column is empty string' => [''];
+        yield 'invalid JSON' => ['{not-valid-json}'];
+        yield 'JSON is not an array/object' => ['"just-a-string"'];
+    }
+
+    #[DataProvider('blockedDatabaseValueProvider')]
+    public function testIntegrationWithUnusableAllowlistGetsNoCapabilities(string|false|null $dbValue): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn($dbValue);
+
+        $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey()))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    #[DataProvider('blockedDatabaseValueProvider')]
+    public function testNonAdminUserWithUnusableAllowlistGetsNoCapabilities(string|false|null $dbValue): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => $dbValue === false ? null : $dbValue,
+            'admin' => false,
+        ]);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testMissingPerTypeKeysDoNotReintroduceUnrestrictedAccessForIntegrations(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('{"tools":["tool-a"]}');
+
+        $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey()))->forCurrentRequest();
+
+        static::assertSame(['tool-a'], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testNullPerTypeKeysDoNotReintroduceUnrestrictedAccessForNonAdminUsers(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => '{"tools":["tool-a"],"resources":null,"prompts":null}',
+            'admin' => false,
+        ]);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
+
+        static::assertSame(['tool-a'], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testUnknownUserGetsNoCapabilities(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn(false);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testAdministratorUserKeepsTheUnrestrictedBypass(): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => null,
+            'admin' => true,
+        ]);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
+
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
+    }
+
+    public function testUnknownUserAccessKeyGetsNoCapabilities(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+        $connection->expects($this->never())->method('fetchAssociative');
+
+        $result = (new McpAllowlistProvider($connection, $this->requestStackWithKey('SWUAtestuseraccesskey00')))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+    }
+
+    public function testBearerJwtWithoutPrincipalGetsNoCapabilities(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAssociative');
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'administration');
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testRequestWithoutCredentialsGetsNoCapabilities(): void
+    {
+        $stack = new RequestStack();
+        $stack->push(new Request());
+
+        $result = (new McpAllowlistProvider(static::createStub(Connection::class), $stack))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testNoRequestGetsNoCapabilities(): void
+    {
+        $result = (new McpAllowlistProvider(static::createStub(Connection::class), new RequestStack()))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+        static::assertSame([], $result->resources);
+        static::assertSame([], $result->prompts);
+    }
+
+    public function testDelegatedRequestWithoutIntegrationAllowlistGetsNoCapabilities(): void
+    {
+        $appUserId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        // Integration has no allowlist at all.
+        $connection->method('fetchOne')->willReturn(null);
+        // User is explicitly allowed to use tool-a.
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => '{"tools":["tool-a"],"resources":[],"prompts":[]}',
+            'admin' => false,
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAtestintegrationkey00');
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $appUserId);
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+    }
+
+    public function testDelegatedRequestWithoutUserAllowlistGetsNoCapabilities(): void
+    {
+        $appUserId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('{"tools":["tool-b"],"resources":[],"prompts":[]}');
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => null,
+            'admin' => false,
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAtestintegrationkey00');
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $appUserId);
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
+
+        static::assertSame([], $result->tools);
+    }
+
+    public function testDelegatedRequestWithAdministratorUserKeepsIntegrationRestrictions(): void
+    {
+        $appUserId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('{"tools":["tool-b"],"resources":[],"prompts":[]}');
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => null,
+            'admin' => true,
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAtestintegrationkey00');
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $appUserId);
+
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $result = (new McpAllowlistProvider($connection, $stack))->forCurrentRequest();
+
         static::assertSame(['tool-b'], $result->tools);
     }
 

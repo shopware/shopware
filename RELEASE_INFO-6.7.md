@@ -99,6 +99,20 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.
 
+### An unset MCP allowlist no longer grants unrestricted MCP access
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` used to mean "everything is allowed" when they were unset, so every existing integration and non-admin user could reach the full MCP capability surface without anyone selecting it. They now mean the opposite: nothing is allowed until capabilities are selected explicitly.
+
+The administrator bypass is the only remaining path to unrestricted MCP access, and it applies to administrator **users** only. An integration flagged as an admin integration is not covered: it needs an explicit selection like any other integration.
+
+The rule applies to every authentication mode the MCP endpoint serves (integration access key, user access key, bearer token from either grant, and delegated requests carrying `sw-app-user-id`) and to all three capability types. A missing or null per-type entry, and an allowlist column that cannot be parsed, are treated as an empty selection rather than an unrestricted one, so no path back to unrestricted access remains. In a delegated request the two allowlists are still intersected, so neither principal can widen the other.
+
+Tool-level ACL checks are unchanged and still apply on top.
+
+A principal without a selection keeps seeing the discovery meta-tools `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. They are server-owned and always advertised, but they only ever surface capabilities the effective allowlist already permits, so for such a principal they resolve to nothing. This is intentional: it keeps the discovery path reachable the moment an allowlist is granted.
+
+Operators grant capabilities in the Administration, under Settings > System > Integrations for integrations and on the user detail page for users. See UPGRADE-6.7.md for what to do about existing integrations.
+
 ### Extensions can change the API CORS header lists
 
 The API answers CORS preflight requests with a fixed list of allowed and exposed headers, so a custom request header of an extension was rejected by the browser on cross-origin calls.

@@ -17,8 +17,10 @@ export default {
 
     props: {
         /**
-         * null = all capabilities unrestricted (primary toggle on)
-         * {tools, resources, prompts} = per-type allowlists (null per type = unrestricted)
+         * null = no explicit selection was ever saved.
+         * For a principal with `unrestrictedWhenUnset` that means every capability is accessible;
+         * for every other principal it means none are.
+         * {tools, resources, prompts} = per-type allowlists.
          */
         allowlist: {
             type: Object,
@@ -39,6 +41,16 @@ export default {
             type: Array,
             default: () => [],
         },
+
+        /**
+         * True only for principals that bypass the MCP allowlist when nothing is selected, which is
+         * administrator users alone. Integrations never bypass it, not even admin integrations, so
+         * for them an unset allowlist grants nothing and the UI persists explicit selections.
+         */
+        unrestrictedWhenUnset: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: ['update:allowlist'],
@@ -58,26 +70,45 @@ export default {
     computed: {
         allCapabilitiesEnabled: {
             get() {
-                return this.allowlist === null;
+                if (this.unrestrictedWhenUnset) {
+                    return this.allowlist === null;
+                }
+
+                // Without the bypass there is no "unrestricted" state to read off, so the toggle
+                // reflects whether every available capability is explicitly selected.
+                const populated = this.typeConfigs.filter((tc) => tc.available.length > 0);
+                return (
+                    populated.length > 0 && populated.every((tc) => this.typeSelectedCount(tc.key) === tc.available.length)
+                );
             },
             set(enabled) {
-                this.$emit('update:allowlist', enabled ? null : { tools: null, resources: null, prompts: null });
+                if (this.unrestrictedWhenUnset) {
+                    this.$emit('update:allowlist', enabled ? null : this.emptySelection());
+                    return;
+                }
+
+                this.$emit('update:allowlist', enabled ? this.fullSelection() : this.emptySelection());
             },
         },
 
         toolsAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.tools ?? null;
+            return this.selectionForType('tools');
         },
 
         resourcesAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.resources ?? null;
+            return this.selectionForType('resources');
         },
 
         promptsAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.prompts ?? null;
+            return this.selectionForType('prompts');
+        },
+
+        /**
+         * True when this principal has no explicit selection and no bypass, so the MCP endpoint
+         * grants it nothing beyond the discovery meta-tools.
+         */
+        hasNoEffectiveCapabilities() {
+            return !this.unrestrictedWhenUnset && this.allowlist === null;
         },
 
         toolGroups() {
@@ -257,8 +288,41 @@ export default {
                 });
         },
 
+        /**
+         * `null` means unrestricted only where the bypass exists. Everywhere else it is resolved to
+         * an empty selection so the editor shows what the server actually grants.
+         */
+        selectionForType(type) {
+            const fallback = this.unrestrictedWhenUnset ? null : [];
+
+            if (this.allowlist === null) return fallback;
+
+            return this.allowlist[type] ?? fallback;
+        },
+
+        emptySelection() {
+            return { tools: [], resources: [], prompts: [] };
+        },
+
+        fullSelection() {
+            return {
+                tools: this.availableTools.map((t) => t.name),
+                resources: this.availableResources.map((r) => r.uri),
+                prompts: this.availablePrompts.map((p) => p.name),
+            };
+        },
+
+        allNamesForType(type) {
+            if (type === 'tools') return this.availableTools.map((t) => t.name);
+            if (type === 'resources') return this.availableResources.map((r) => r.uri);
+            if (type === 'prompts') return this.availablePrompts.map((p) => p.name);
+            return [];
+        },
+
         emitUpdated(patch) {
-            const current = this.allowlist ?? { tools: null, resources: null, prompts: null };
+            const current =
+                this.allowlist ??
+                (this.unrestrictedWhenUnset ? { tools: null, resources: null, prompts: null } : this.emptySelection());
             this.$emit('update:allowlist', { ...current, ...patch });
         },
 
@@ -345,7 +409,14 @@ export default {
         },
 
         onToggleTypeAll(type, enabled) {
-            this.emitUpdated({ [type]: enabled ? null : [] });
+            if (!enabled) {
+                this.emitUpdated({ [type]: [] });
+                return;
+            }
+
+            // Without the bypass, "all" has to be persisted as an explicit list: a null per-type
+            // value grants nothing rather than everything.
+            this.emitUpdated({ [type]: this.unrestrictedWhenUnset ? null : this.allNamesForType(type) });
         },
 
         // Tools
@@ -615,10 +686,10 @@ export default {
         },
 
         typeAllEnabled(type) {
-            if (type === 'tools') return this.toolsAllowlist === null;
-            if (type === 'resources') return this.resourcesAllowlist === null;
-            if (type === 'prompts') return this.promptsAllowlist === null;
-            return true;
+            if (this.selectionForType(type) === null) return true;
+
+            const total = this.typeTotal(type);
+            return total > 0 && this.typeSelectedCount(type) === total;
         },
     },
 };

@@ -137,31 +137,24 @@ class CurrencyRepositoryTest extends TestCase
     {
         $this->expectExceptionObject(CurrencyException::isoCodeNotUnique('EUR'));
 
-        try {
-            $this->currencyRepository->create([[
-                'id' => Uuid::randomHex(),
-                'decimalPrecision' => 2,
-                'name' => 'Euro Austria',
-                'isoCode' => 'EUR',
-                'shortName' => 'Euro Austria',
-                'factor' => 1.1,
-                'symbol' => '€',
-                'itemRounding' => [
-                    'decimals' => 2,
-                    'interval' => 0.01,
-                    'roundForNet' => true,
-                ],
-                'totalRounding' => [
-                    'decimals' => 2,
-                    'interval' => 0.01,
-                    'roundForNet' => true,
-                ],
-            ]], Context::createDefaultContext());
-        } catch (CurrencyException $exception) {
-            static::assertSame(CurrencyException::ISO_CODE_NOT_UNIQUE, $exception->getErrorCode());
-            static::assertSame('The ISO code "EUR" is already in use.', $exception->getMessage());
-
-            throw $exception;
-        }
+        $this->currencyRepository->create([[
+            'id' => Uuid::randomHex(),
+            'decimalPrecision' => 2,
+            'name' => 'Euro Austria',
+            'isoCode' => 'EUR',
+            'shortName' => 'Euro Austria',
+            'factor' => 1.1,
+            'symbol' => '€',
+            'itemRounding' => [
+                'decimals' => 2,
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+            'totalRounding' => [
+                'decimals' => 2,
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+        ]], Context::createDefaultContext());
     }
 }

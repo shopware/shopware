@@ -65,7 +65,7 @@ class SerializationTest extends TestCase
 
     public function testAssertDeserializesFailsOnInvalidSerializedString(): void
     {
-        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionObject(new AssertionFailedError('The string could not be unserialized: unserialize(): Error at offset 0 of 29 bytes'));
 
         Serialization::assertUnserializedInstanceOf(\stdClass::class, 'not-a-valid-serialized-string');
     }
@@ -94,7 +94,7 @@ class SerializationTest extends TestCase
 
     public function testAssertUnserializedEqualsFailsOnInvalidSerializedString(): void
     {
-        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionObject(new AssertionFailedError('The string could not be unserialized: unserialize(): Error at offset 0 of 29 bytes'));
 
         Serialization::assertUnserializedEquals(new \stdClass(), 'not-a-valid-serialized-string');
     }
@@ -115,7 +115,7 @@ class SerializationTest extends TestCase
 
     public function testAssertUnserializedIsArrayFailsOnInvalidSerializedString(): void
     {
-        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionObject(new AssertionFailedError('The string could not be unserialized: unserialize(): Error at offset 0 of 29 bytes'));
 
         Serialization::assertUnserializedIsArray('not-a-valid-serialized-string');
     }
@@ -137,9 +137,28 @@ class SerializationTest extends TestCase
         Serialization::assertUnserializedSame('expected', \serialize('actual'));
     }
 
+    public function testInvalidSerializedStringDoesNotLeakAPhpWarning(): void
+    {
+        $warnings = [];
+        set_error_handler(static function (int $errno, string $message) use (&$warnings): bool {
+            $warnings[] = $message;
+
+            return true;
+        }, \E_WARNING);
+
+        try {
+            Serialization::assertUnserializedIsArray('not-a-valid-serialized-string');
+        } catch (AssertionFailedError) {
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertSame([], $warnings);
+    }
+
     public function testAssertUnserializedSameFailsOnInvalidSerializedString(): void
     {
-        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionObject(new AssertionFailedError('The string could not be unserialized: unserialize(): Error at offset 0 of 29 bytes'));
 
         Serialization::assertUnserializedSame('hello', 'not-a-valid-serialized-string');
     }

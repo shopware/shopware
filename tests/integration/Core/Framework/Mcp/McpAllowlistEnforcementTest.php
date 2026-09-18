@@ -4,14 +4,18 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * End-to-end enforcement of the per-principal MCP allowlist against real `user` and `integration`
@@ -145,6 +149,99 @@ class McpAllowlistEnforcementTest extends TestCase
         static::assertSame(
             ['shopware-tool-search', 'shopware-toolset-enable', 'shopware-toolsets-list'],
             $tools,
+        );
+    }
+
+    public function testWritingAnotherUsersAllowlistRequiresUserUpdate(): void
+    {
+        $victimId = $this->victimUserId();
+
+        // Holds the route privilege but not user:update. Before this route required user:update the
+        // SYSTEM_SCOPE wrapper skipped AclWriteValidator entirely, so this write went through.
+        $caller = $this->getBrowser(true, [], ['api_action_user_mcp-allowlist']);
+
+        $this->postAllowlist($caller, $victimId, ['tools' => ['shopware-entity-delete']]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $caller->getResponse()->getStatusCode());
+        static::assertNull($this->allowlistColumn('user', Uuid::fromHexToBytes($victimId)));
+    }
+
+    public function testWritingAnotherUsersAllowlistSucceedsWithUserUpdate(): void
+    {
+        $victimId = $this->victimUserId();
+
+        $caller = $this->getBrowser(true, [], ['api_action_user_mcp-allowlist', 'user:update']);
+
+        $this->postAllowlist($caller, $victimId, ['tools' => ['shopware-entity-search']]);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $caller->getResponse()->getStatusCode());
+        static::assertSame(
+            '{"tools":["shopware-entity-search"]}',
+            $this->allowlistColumn('user', Uuid::fromHexToBytes($victimId)),
+        );
+    }
+
+    public function testWritingAnIntegrationAllowlistRequiresIntegrationUpdate(): void
+    {
+        $integrationId = $this->createIntegrationRow();
+
+        // integration_mcp.editor grants only api_action_integration_mcp-allowlist and depends on
+        // integration.viewer, so this is the exact privilege set that role produces.
+        $caller = $this->getBrowser(true, [], ['api_action_integration_mcp-allowlist', 'integration:read']);
+
+        $caller->request(
+            'POST',
+            '/api/_action/integration/' . $integrationId . '/mcp-allowlist',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['allowlist' => ['tools' => ['shopware-entity-delete']]], \JSON_THROW_ON_ERROR),
+        );
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $caller->getResponse()->getStatusCode());
+        static::assertNull($this->allowlistColumn('integration', Uuid::fromHexToBytes($integrationId)));
+    }
+
+    private function createIntegrationRow(): string
+    {
+        $id = Uuid::randomBytes();
+
+        $this->connection()->insert('integration', [
+            'id' => $id,
+            'access_key' => AccessKeyHelper::generateAccessKey('integration'),
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'allowlist-target',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return Uuid::fromBytesToHex($id);
+    }
+
+    /**
+     * A second, non-admin user to be written to, distinct from the caller.
+     */
+    private function victimUserId(): string
+    {
+        $browser = $this->getBrowser();
+        $id = $this->userId($browser);
+        $this->connection()->update('user', ['admin' => 0], ['id' => $id]);
+        $this->resetBrowser();
+
+        return Uuid::fromBytesToHex($id);
+    }
+
+    /**
+     * @param array<string, list<string>|null> $allowlist
+     */
+    private function postAllowlist(KernelBrowser $browser, string $userId, array $allowlist): void
+    {
+        $browser->request(
+            'POST',
+            '/api/_action/user/' . $userId . '/mcp-allowlist',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['allowlist' => $allowlist], \JSON_THROW_ON_ERROR),
         );
     }
 

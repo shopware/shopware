@@ -11,10 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -197,6 +199,19 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
         $response = $controller->save($integrationId, $request, Context::createDefaultContext());
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    public function testRouteRequiresBothTheActionAndTheEntityPrivilege(): void
+    {
+        // Mirrors UserMcpAllowlistController. AclWriteValidator already enforced integration:update
+        // on the write; naming it on the route turns a DAL exception into a plain 403.
+        $attribute = (new \ReflectionMethod(IntegrationMcpAllowlistController::class, 'save'))
+            ->getAttributes(Route::class)[0];
+
+        static::assertSame(
+            ['api_action_integration_mcp-allowlist', 'integration:update'],
+            $attribute->getArguments()['defaults'][PlatformRequest::ATTRIBUTE_ACL] ?? null,
+        );
     }
 
     public function testObjectShapedPerTypeValueIsRejected(): void

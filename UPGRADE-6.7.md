@@ -36,6 +36,14 @@ POST /api/_action/user/{userId}/mcp-allowlist
 
 An empty array blocks a type. There is no value that means "everything" for a principal without the administrator bypass, by design: the selection has to be explicit.
 
+### The allowlist routes now require the entity privilege
+
+`POST /api/_action/user/{userId}/mcp-allowlist` now requires `user:update` in addition to `api_action_user_mcp-allowlist`, and `POST /api/_action/integration/{integrationId}/mcp-allowlist` requires `integration:update` in addition to `api_action_integration_mcp-allowlist`. A caller without them gets `403` instead of writing the allowlist.
+
+The `users_and_permissions.editor` role already grants `user:update`, so the Administration is unaffected. A custom role or integration that was built to carry only the action privilege has to be extended.
+
+Note that `integration_mcp.editor` does **not** bundle `integration:update` — it depends on `integration.viewer`. That role could not write an allowlist before this change either, because the data layer rejected it; the difference is only that the rejection is now a clean `403`.
+
 ## Document generation v1 deprecated for removal in Shopware 6.9
 
 The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.

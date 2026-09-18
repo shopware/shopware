@@ -51,7 +51,7 @@ class CartWeightRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy($lineItemWeight1, $lineItemWeight2, $lineItem1WithoutDeliveryInfo, $lineItem2WithoutDeliveryInfo),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -77,7 +77,7 @@ class CartWeightRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);

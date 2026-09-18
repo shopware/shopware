@@ -11,7 +11,7 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bootstrapClosure } from './scripts/codemods/shopware-virtual-modules/bootstrap-closure';
+import { bootstrapClosure } from './scripts/generate-shopware-modules/bootstrap-closure';
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';

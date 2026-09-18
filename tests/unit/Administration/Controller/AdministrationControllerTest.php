@@ -565,14 +565,24 @@ class AdministrationControllerTest extends TestCase
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $entityDefinition = new TestEntityDefinition();
         $entityDefinition->compile($definitionRegistry);
-        $definitionRegistry->expects($this->once())->method('getByEntityName')->willReturn($entityDefinition);
+        $definitionRegistry->expects($this->exactly(2))->method('getByEntityName')->willReturn($entityDefinition);
 
-        $controller = $this->createAdministrationController(definitionRegistry: $definitionRegistry);
+        $controller = $this->createAdministrationController(
+            htmlSanitizer: new HtmlSanitizer(cacheEnabled: false),
+            definitionRegistry: $definitionRegistry
+        );
+
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<p>test</p>', 'field' => 'test_entity.id']), $this->context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"test"}', $response->getContent());
+
+        $response = $controller->sanitizeHtml(new Request([], ['html' => 'I <3 Kisses', 'field' => 'test_entity.id']), $this->context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertNotFalse($response->getContent());
+        static::assertJsonStringEqualsJsonString('{"preview":"I <3 Kisses"}', $response->getContent());
     }
 
     public function testSanitizeHtmlReturnsRawHTMLWhenHTMLIsAllowedAndFlagIsNotSanitized(): void

@@ -338,18 +338,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Field/StateMachineStateField.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Cannot call method is() on Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field|null.',
-    'identifier' => 'method.nonObject',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\PriceDefinitionFieldSerializer::buildViolation() has parameter $parameters with no value type specified in iterable type array.',
     'identifier' => 'missingType.iterableValue',
     'count' => 1,

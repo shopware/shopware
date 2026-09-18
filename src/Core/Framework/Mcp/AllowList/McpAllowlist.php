@@ -81,7 +81,9 @@ final class McpAllowlist
             return null;
         }
 
-        if (!\is_array($data[$key])) {
+        // A JSON object decodes to an associative array. It is not a list of capability names, so
+        // it must not be read as one: under restrictedFromJson() the caller gets an empty selection.
+        if (!\is_array($data[$key]) || !array_is_list($data[$key])) {
             return null;
         }
 

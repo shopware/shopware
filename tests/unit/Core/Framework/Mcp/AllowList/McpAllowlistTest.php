@@ -90,6 +90,22 @@ class McpAllowlistTest extends TestCase
         static::assertSame([], $allowlist->tools);
     }
 
+    public function testRestrictedFromJsonTreatsAnObjectShapedPerTypeValueAsBlocked(): void
+    {
+        // json_decode(..., true) turns a JSON object into an associative array. It is not a list of
+        // capability names, so reading its values as one would hand out capabilities nobody listed.
+        $allowlist = McpAllowlist::restrictedFromJson('{"tools":{"x":"shopware-entity-delete"}}');
+
+        static::assertSame([], $allowlist->tools);
+    }
+
+    public function testRestrictedFromJsonTreatsASparseListAsBlocked(): void
+    {
+        $allowlist = McpAllowlist::restrictedFromJson('{"tools":{"0":"tool-a","2":"tool-b"}}');
+
+        static::assertSame([], $allowlist->tools);
+    }
+
     public function testRestrictedFromJsonFiltersNonStringValues(): void
     {
         $allowlist = McpAllowlist::restrictedFromJson('{"tools":["valid-tool",123,null,"another-tool"]}');

@@ -603,20 +603,16 @@ export default {
             return humanizeCommonPrefix(items.map((item) => item.name));
         },
 
+        /**
+         * Counts distinct available capabilities, not entries: the save endpoints accept duplicates,
+         * and counting those would make a partial selection look complete.
+         */
         typeSelectedCount(type) {
-            if (type === 'tools') {
-                if (this.toolsAllowlist === null) return this.availableTools.length;
-                return this.toolsAllowlist.filter((n) => this.availableTools.some((t) => t.name === n)).length;
-            }
-            if (type === 'resources') {
-                if (this.resourcesAllowlist === null) return this.availableResources.length;
-                return this.resourcesAllowlist.filter((u) => this.availableResources.some((r) => r.uri === u)).length;
-            }
-            if (type === 'prompts') {
-                if (this.promptsAllowlist === null) return this.availablePrompts.length;
-                return this.promptsAllowlist.filter((n) => this.availablePrompts.some((p) => p.name === n)).length;
-            }
-            return 0;
+            const selection = this.selectionForType(type);
+            if (selection === null) return this.typeTotal(type);
+
+            const selected = new Set(selection);
+            return this.allNamesForType(type).filter((name) => selected.has(name)).length;
         },
 
         isFlatType(type) {

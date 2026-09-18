@@ -343,6 +343,22 @@ describe('sw-integration-mcp-allowlist', () => {
         ]);
     });
 
+    it('does not count a duplicated entry as covering another capability', async () => {
+        // The save endpoints accept duplicates. Counting entries rather than distinct capabilities
+        // would show the per-type "All" switch as on while shopware-entity-read is still denied.
+        const wrapper = await createWrapper({
+            allowlist: {
+                tools: ['shopware-entity-search', 'shopware-entity-search'],
+                resources: [],
+                prompts: [],
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.typeSelectedCount('tools')).toBe(1);
+        expect(wrapper.vm.typeAllEnabled('tools')).toBe(false);
+    });
+
     it('emitUpdated uses null defaults when a bypassing principal has no allowlist', async () => {
         const wrapper = await createWrapper({ allowlist: null, unrestrictedWhenUnset: true });
 

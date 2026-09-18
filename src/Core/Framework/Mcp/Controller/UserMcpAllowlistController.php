@@ -98,6 +98,11 @@ class UserMcpAllowlistController
             if ($value !== null && !\is_array($value)) {
                 return false;
             }
+            // A JSON object is rejected rather than stored: the allowlist parser only reads lists,
+            // so accepting one would silently persist a selection that grants nothing.
+            if (\is_array($value) && !array_is_list($value)) {
+                return false;
+            }
             if (\is_array($value) && array_filter($value, static fn ($item) => !\is_string($item)) !== []) {
                 return false;
             }

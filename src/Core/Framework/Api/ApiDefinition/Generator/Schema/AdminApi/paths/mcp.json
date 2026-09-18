@@ -43,19 +43,19 @@
                                                     "tools": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
-                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                            {"type": "null", "description": "Null denies all tools, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "resources": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
-                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                            {"type": "null", "description": "Null denies all resources, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "prompts": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
-                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                            {"type": "null", "description": "Null denies all prompts, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     }
                                                 }
@@ -131,19 +131,19 @@
                                                     "tools": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
-                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                            {"type": "null", "description": "Null denies all tools, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "resources": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
-                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                            {"type": "null", "description": "Null denies all resources, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "prompts": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
-                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                            {"type": "null", "description": "Null denies all prompts, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     }
                                                 }

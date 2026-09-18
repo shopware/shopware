@@ -199,6 +199,26 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
+    public function testObjectShapedPerTypeValueIsRejected(): void
+    {
+        $integrationId = Uuid::randomHex();
+        $integration = new IntegrationEntity();
+        $integration->setId($integrationId);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->method('search')->willReturn($this->makeSearchResult([$integration]));
+        $repository->expects($this->never())->method('update');
+
+        $controller = new IntegrationMcpAllowlistController($repository);
+        // A JSON object here would be stored but read back as an empty selection, so reject it
+        // instead of silently persisting something that grants nothing.
+        $request = $this->makeRequest(['allowlist' => ['tools' => ['x' => 'shopware-entity-delete']]]);
+
+        $response = $controller->save($integrationId, $request, Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
     public function testAllowlistWithSubsetOfKnownKeysIsAccepted(): void
     {
         $integrationId = Uuid::randomHex();

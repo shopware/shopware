@@ -114,6 +114,19 @@ class UserMcpAllowlistControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
+    public function testObjectShapedPerTypeValueIsRejected(): void
+    {
+        $this->repository->expects($this->never())->method('update');
+
+        // A JSON object here would be stored but read back as an empty selection, so reject it
+        // instead of silently persisting something that grants nothing.
+        $request = $this->makeRequest(['allowlist' => ['tools' => ['x' => 'shopware-entity-delete']]]);
+
+        $response = $this->controller->save($this->userId, $request, $this->context);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
     public function testAllowlistWithSubsetOfKnownKeysIsAccepted(): void
     {
         $allowlist = ['tools' => null];

@@ -64,7 +64,7 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 - **Plugin**: `{plugin-name}-{capability-name}` (e.g., `swag-admin-users-list-admins`)
 - **App**: `{app-name}-{capability-name}` (e.g., `my-erp-sync-orders`)
 
-The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `shopware-` prefix is reserved for core tools; `AppMcpToolLoader` skips app tools whose computed name starts with `shopware-`.
+`McpToolDiscoveryCompilerPass` enforces unique names per server and throws on conflicts. The `shopware-` prefix is reserved for core tools; `AppMcpToolLoader` skips app tools whose computed name starts with `shopware-`.
 
 ## Folder structure
 - `AllowList/` -- Per-integration capability allowlist (`McpAllowlistProvider`, `McpAllowlistFilter`, `McpAllowlist`)
@@ -108,31 +108,34 @@ Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest re
 
 ## Validating capabilities are loaded
 
-How many layers you need to worry about depends on where the tool lives:
+Two things have to hold: the service carries the DI tag, and it is assigned to a server.
 
-### Plugin tools (tagged `shopware.mcp.tool`)
-Only one layer is required: **the DI tag**. The `McpToolCompilerPass` reads the `#[McpTool]` attribute via reflection and calls `addTool()` on the MCP server builder at compile time. Plugin lifecycle is respected: if the plugin is inactive the service is absent from the container and the tool is not registered.
+### One layer: the DI tag
+The DI tag is all that is required, for core, in-tree bundle, plugin and third-party bundle tools alike. The MCP bundle collects every service tagged `mcp.tool` at container compile time, reads its `#[McpTool]` attribute and registers it on a server. There is no directory scanning: `scan_dirs` was removed when the bundle replaced the SDK's file-based discovery with compile-time container registration (mcp-bundle 0.12).
 
-### Core / in-tree bundle tools (tagged `mcp.tool` directly)
-Two layers are required: the DI tag **and** the directory must appear in `mcp.yaml` `scan_dirs`. The MCP SDK's `DiscoveryLoader` scans those directories at runtime to find `#[McpTool]` attributes. Missing either causes the tool to be silently absent.
+Plugin lifecycle is respected: if the plugin is inactive the service is absent from the container and the tool is not registered.
+
+### Which server a tool lands on
+Each MCP server declares in `packages/mcp.php` which capabilities it exposes, as namespace prefixes — `Shopware\Core\Framework\Mcp\` and `Shopware\Storefront\Mcp\` for the Admin API server, `Shopware\Core\System\SalesChannel\Mcp\` for the Store API one. A capability outside those namespaces (any plugin or third-party bundle) cannot be named by a prefix, so `McpToolDiscoveryCompilerPass` assigns it explicitly: it appends the class to the bundle's `mcp.servers.elements` parameter, plugin capabilities going to the Admin API server. A capability assigned to no server is silently absent; both `bin/console debug:mcp` (in its footer) and `bin/console debug:mcp --native` report those.
 
 ### Verification methods
 
 | Method | What it covers | When to use |
 |---|---|---|
 | `bin/console debug:mcp` | Both registries (admin + store-api) — same source as the HTTP endpoints | Quick manual check during development |
+| `bin/console debug:mcp --native` | The MCP bundle's own view: configured servers and clients, prompts and resources, and capabilities assigned to no server | Checking a prompt or resource, or why a capability does not show up |
 | `McpCapabilityDiscoveryTest` | HTTP → `tools/list` (full kernel) | CI — authoritative end-to-end check |
 | `McpServiceRegistrationTest` | DI layer only | Fast integration-level guard that every MCP service is registered in the container |
 
-`bin/console debug:mcp` uses the same `Registry` instances as the HTTP endpoints (populated by calling `Builder::build()` per scope), so it shows core tools, plugin tools, app tools, and Store API tools in one view, grouped per endpoint. It is the fastest way to check that a newly registered capability is visible. Use `--scope=api` or `--scope=store-api` to narrow it to one endpoint.
+`bin/console debug:mcp` uses the same `Registry` instances as the HTTP endpoints (populated by calling `Builder::build()` per scope), so it shows core tools, plugin tools, app tools, and Store API tools in one view, grouped per endpoint. It lists tools only, with the Shopware data the bundle's command has no equivalent for; prompts and resources are listed by `--native`. Use `--scope=api` or `--scope=store-api` to narrow it to one endpoint.
 
 **`McpCapabilityDiscoveryTest`** (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) boots the full kernel, authenticates, and calls the live MCP HTTP endpoint. It is the authoritative check that mirrors what the MCP Inspector does interactively. Add new capability names to its `expectedTools()` / `expectedPrompts()` / `expectedResources()` lists when adding new core capabilities.
 
 ## Extensibility
-- **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` re-tags them as `mcp.tool` AND calls `addTool()` on the MCP server builder so they appear in both `debug:mcp` and the HTTP endpoint. No `scan_dirs` entry is needed. Use `McpToolResponse` for consistent error handling and response formatting.
-- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
+- **Plugins**: Tag services with `shopware.mcp.tool` -- `McpToolDiscoveryCompilerPass` re-tags them as `mcp.tool` and assigns them to the Admin API server, so they appear in both `debug:mcp` and the HTTP endpoint. Use `McpToolResponse` for consistent error handling and response formatting.
+- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolDiscoveryCompilerPass` handles it. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
 - **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
-- **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`) and ensure the bundle directory is listed in `mcp.yaml` `scan_dirs`. Using `shopware.mcp.tool` here would cause double-registration (compiler pass + scan_dirs).
+- **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`), and make sure the class sits under a namespace the Admin API server's `registry` prefixes in `packages/mcp.php` cover -- otherwise add it there.
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.
 
 ## Serverless app tools (app scripts)

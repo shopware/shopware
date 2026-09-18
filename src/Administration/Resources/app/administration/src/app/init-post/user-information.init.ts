@@ -6,6 +6,13 @@ import { initializeUserNotifications } from 'src/app/store/notification.store';
 import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
+function loadUserPreferences(): Promise<unknown> {
+    return Promise.allSettled([
+        useTheme().loadUserTheme(),
+        useModuleIconColors().loadUserModuleIconColors(),
+    ]);
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
     return new Promise<void>((resolve) => {
@@ -13,8 +20,7 @@ export default function initializeUserContext() {
         const userService = Shopware.Service('userService');
 
         loginService.addOnLoginListener(() => {
-            void useTheme().loadUserTheme();
-            void useModuleIconColors().loadUserModuleIconColors();
+            void loadUserPreferences();
         });
 
         // The user isn't logged in
@@ -25,8 +31,7 @@ export default function initializeUserContext() {
             return;
         }
 
-        void useTheme().loadUserTheme();
-        void useModuleIconColors().loadUserModuleIconColors();
+        const userPreferencesLoaded = loadUserPreferences();
 
         userService
             .getUser()
@@ -38,8 +43,12 @@ export default function initializeUserContext() {
 
                 Shopware.Store.get('session').setCurrentUser(data as Entity<'user'>);
                 initializeUserNotifications();
-                resolve();
+
+                // Resolving after the preferences guarantees that everything waiting for
+                // `Shopware.Application.viewInitialized` sees the loaded preferences.
+                return userPreferencesLoaded;
             })
+            .then(() => resolve())
             .catch(() => {
                 // An error occurred which means the user isn't logged in so get rid of the information in local storage
                 loginService.logout();

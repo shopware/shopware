@@ -24,9 +24,9 @@ class QueryBuilder extends DBALQueryBuilder
     private array $selectParts = [];
 
     /**
-     * @var array<string>
+     * @var list<array{string, string}>
      */
-    private array $oderByParts = [];
+    private array $orderBy = [];
 
     private ?string $title = null;
 
@@ -128,7 +128,7 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function orderBy(string $sort, ?string $order = null): self
     {
-        $this->oderByParts = [$sort . ' ' . ($order ?? 'ASC')];
+        $this->orderBy = [[$sort, $order ?? 'ASC']];
 
         return parent::orderBy($sort, $order);
     }
@@ -138,7 +138,7 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function addOrderBy(string $sort, ?string $order = null): self
     {
-        $this->oderByParts[] = $sort . ' ' . ($order ?? 'ASC');
+        $this->orderBy[] = [$sort, $order ?? 'ASC'];
 
         return parent::addOrderBy($sort, $order);
     }
@@ -164,7 +164,17 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function getOrderByParts(): array
     {
-        return $this->oderByParts;
+        return array_map(static fn (array $part) => $part[0] . ' ' . $part[1], $this->orderBy);
+    }
+
+    /**
+     * @internal
+     *
+     * @return list<array{string, string}> the expression and the direction of every order by clause
+     */
+    public function getOrderByPairs(): array
+    {
+        return $this->orderBy;
     }
 
     /**

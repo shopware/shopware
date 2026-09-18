@@ -1,9 +1,11 @@
+@import "~scss/variables";
+
 .sw-settings-customer-group-detail {
     .sw-settings-customer-group-detail__registration-form-title {
-        margin: var(--scale-size-24) 0 var(--scale-size-8);
+        margin: 24px 0 8px;
         line-height: 16px;
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-semibold);
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semi-bold;
         color: var(--color-text-primary-default);
     }
 

@@ -146,18 +146,8 @@ test(
 
 test(
     'Shop administrator should be able to duplicate an existing product.',
-    {
-        tag: '@Product',
-        annotation: {
-            type: 'issue',
-            description: 'https://github.com/shopware/shopware/issues/20528',
-        },
-    },
+    { tag: '@Product' },
     async ({ ShopAdmin, TestDataService, AdminProductDetail, SaveAndDuplicateProduct }) => {
-        test.fixme(
-            true,
-            'Duplicating an existing product fails with a write constraint violation on "childCount", see https://github.com/shopware/shopware/issues/20528. Fixed by https://github.com/shopware/shopware/pull/20575.',
-        );
 
         const product = await TestDataService.createBasicProduct();
         const duplicateName = `${product.name} ${translate('administration:product:detail.copySuffix')}`;

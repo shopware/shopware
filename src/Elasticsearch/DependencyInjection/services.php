@@ -22,6 +22,8 @@ use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
 use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
+use Shopware\Elasticsearch\Admin\AdminCreateAliasTask;
+use Shopware\Elasticsearch\Admin\AdminCreateAliasTaskHandler;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearchController;
@@ -49,6 +51,7 @@ use Shopware\Elasticsearch\FieldQueryBuilder;
 use Shopware\Elasticsearch\Framework\ClientFactory;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminResetCommand;
+use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminStatusCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminTestCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminUpdateMappingCommand;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchCleanIndicesCommand;
@@ -473,6 +476,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(ElasticsearchAdminStatusCommand::class)
+        ->args([
+            service('admin.openSearch.client'),
+            service(Connection::class),
+            service(AdminElasticsearchHelper::class),
+        ])
+        ->tag('console.command');
+
     $services->set(ElasticsearchAdminIndexingCommand::class)
         ->args([
             service(AdminSearchRegistry::class),
@@ -589,6 +600,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('elasticsearch.administration.throw_exception'),
             service('shopware.elasticsearch.logger'),
         ]);
+
+    $services->set(AdminCreateAliasTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('shopware.elasticsearch.logger'),
+            service(AdminSearchRegistry::class),
+            service(AdminElasticsearchHelper::class),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(AdminCreateAliasTask::class)
+        ->tag('shopware.scheduled.task');
 
     $services->set(AdminSearchController::class)
         ->public()

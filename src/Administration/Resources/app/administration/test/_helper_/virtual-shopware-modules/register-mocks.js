@@ -12,7 +12,9 @@
  * The factory is lazy, so a spec that imports nothing virtual never loads the resolver.
  */
 
-// eslint-disable-next-line no-undef
-const specifiers = shopwareVirtualModules;
+const path = require('path');
+const { allSpecifiers, readRegistry } = require('../../../build/vite-plugins/virtual-shopware-modules/index');
 
-specifiers.forEach((specifier) => jest.mock(specifier, () => require('./resolve-module')(specifier), { virtual: true }));
+allSpecifiers(readRegistry(path.resolve(__dirname, '../../..'))).forEach((specifier) =>
+    jest.mock(specifier, () => require('./resolve-module')(specifier), { virtual: true }),
+);

@@ -211,6 +211,8 @@ export default [
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',
+            '!scripts/mutation/',
+            '!scripts/mutation/**/*',
             // Codemod inputs are intentionally old-style Options API components.
             'scripts/codemods/sfc-migration/__fixtures__/**/*',
             // Declaration-only type surface; admin-types imports the gitignored
@@ -784,6 +786,7 @@ export default [
             'extension-tooling/**/*.mjs',
             'scripts/extensionTooling/**/*.ts',
             'scripts/codemods/sfc-migration/**/*.ts',
+            'scripts/mutation/**/*.ts',
         ],
         rules: {
             'filename-rules/match': 'off',

@@ -77,6 +77,9 @@ npx jest --collectCoverage=false src/core/factory/http.factory.spec.js # Example
 # All jest tests without coverage for better readability, run inside "src/Administration/Resources/app/administration" folder
 npx jest --collectCoverage=false
 
+# Mutation testing (StrykerJS) for the files changed against trunk, run inside "src/Administration/Resources/app/administration" folder
+npm run mutation:changed # add "-- --list" to only print the targets, "-- --base <ref>" for another base
+
 # Build
 composer build:js:admin # Build the administration
 ```

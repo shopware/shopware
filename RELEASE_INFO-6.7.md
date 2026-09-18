@@ -393,7 +393,7 @@ The update API endpoints enforce both flags server-side: all `GET /api/_action/u
 
 The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.
 
-### Import the global Shopware object with `shopware:*` modules
+### Import the global Shopware object with `shopware:*` modules (experimental)
 
 Administration code and extensions can now import selected APIs from the global `Shopware` object:
 
@@ -404,6 +404,11 @@ import { Criteria } from 'shopware:data';
 import swFormFieldMixin from 'shopware:mixins/sw-form-field';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 ```
+
+This surface is **experimental** and not covered by the backwards-compatibility promise: the available
+specifiers, what each one exports, and their types can change in any release without a deprecation cycle.
+It is annotated `@experimental stableVersion:v6.8.0`, and becomes stable public API with Shopware 6.8.
+`Shopware.*` access is stable, so code that keeps using the global needs no change.
 
 The `shopware:utils` and `shopware:data` roots provide named exports. Their subpaths provide default
 exports, and declared utility namespaces can also provide named exports. Mixins and stores only provide

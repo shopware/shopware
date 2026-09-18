@@ -1,6 +1,8 @@
 /**
  * @sw-package framework
  *
+ * @experimental stableVersion:v6.8.0
+ *
  * Types for the `shopware:*` modules, which expose the global `Shopware` object as ordinary
  * imports. `build/vite-plugins/virtual-shopware-modules` generates their runtime counterpart from
  * the same `shopware-modules.json`.

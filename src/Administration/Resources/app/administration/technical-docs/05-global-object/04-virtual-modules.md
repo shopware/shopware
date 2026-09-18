@@ -1,6 +1,9 @@
 # `shopware:*` Modules
 
-Status: Stable
+Status: Experimental, stable with v6.8.0
+
+The set of specifiers, what each one exports, and their types can change in any release until then, with
+no deprecation cycle. `Shopware.*` access is stable and unaffected.
 
 The `shopware:*` modules expose selected parts of the global `Shopware` object as ES modules. The global
 object remains available, and existing `Shopware.*` calls continue to work.

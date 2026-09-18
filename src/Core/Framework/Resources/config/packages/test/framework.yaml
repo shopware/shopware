@@ -5,8 +5,7 @@ parameters:
 framework:
     test: true
     http_cache:
-        enabled: true
-        debug: true
+        enabled: false
     session:
         storage_factory_id: session.storage.factory.mock_file
     profiler:

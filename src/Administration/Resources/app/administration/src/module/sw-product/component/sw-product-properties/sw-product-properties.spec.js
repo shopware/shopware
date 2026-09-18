@@ -98,10 +98,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-inheritance-switch': {
-                    props: [
-                        'isInherited',
-                        'disabled',
-                    ],
+                    props: ['isInherited', 'disabled'],
                     template: `
                         <div class="sw-inheritance-switch">
                             <div v-if="isInherited"
@@ -147,10 +144,7 @@ async function createWrapper() {
                     `,
                 },
                 'mt-empty-state': {
-                    props: [
-                        'headline',
-                        'description',
-                    ],
+                    props: ['headline', 'description'],
                     template: `
                         <div class="mt-empty-state">
                             <div class="mt-empty-state__headline">{{ headline }}</div>
@@ -173,10 +167,7 @@ async function createWrapper() {
                     `,
                 },
                 'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'dataSource',
-                    ],
+                    props: ['items', 'dataSource'],
                     computed: {
                         listingItems() {
                             return this.dataSource || this.items || [];
@@ -249,12 +240,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         Store.get('swProductDetail').product = productMock;
         await wrapper.vm.getGroupIds();
 
-        expect(wrapper.vm.groupIds).toEqual(
-            expect.arrayContaining([
-                'sizeId',
-                'colorId',
-            ]),
-        );
+        expect(wrapper.vm.groupIds).toEqual(expect.arrayContaining(['sizeId', 'colorId']));
     });
 
     it('should get group ids failed', async () => {
@@ -336,10 +322,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await flushPromises();
 
         await wrapper.setData({
-            groupIds: [
-                'sizeId',
-                'colorId',
-            ],
+            groupIds: ['sizeId', 'colorId'],
             properties: propertiesMock,
         });
 

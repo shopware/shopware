@@ -21,9 +21,7 @@ export default {
         'ssoSettingsService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -156,10 +154,7 @@ export default {
             const defaultUserPrivileges = this.privileges.getDefaultUserPrivileges();
 
             this.detailedPrivileges = this.role.privileges.filter((privilege) => {
-                return ![
-                    ...allGeneralPrivileges,
-                    ...defaultUserPrivileges,
-                ].includes(privilege);
+                return ![...allGeneralPrivileges, ...defaultUserPrivileges].includes(privilege);
             });
             this.role.privileges = filteredPrivileges;
         },

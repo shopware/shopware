@@ -31,9 +31,7 @@ async function createWrapper({ featureActive = false } = {}) {
                 'sw-tabs-item': true,
                 'mt-tabs': {
                     name: 'mt-tabs',
-                    emits: [
-                        'new-item-active',
-                    ],
+                    emits: ['new-item-active'],
                     props: {
                         defaultItem: {
                             type: String,
@@ -52,9 +50,7 @@ async function createWrapper({ featureActive = false } = {}) {
                     template: '<div class="mt-tabs"></div>',
                 },
                 'mt-button': {
-                    emits: [
-                        'click',
-                    ],
+                    emits: ['click'],
                     props: [
                         'block',
                         'disabled',

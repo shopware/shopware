@@ -42,9 +42,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         orderId: {
@@ -94,10 +92,7 @@ export default {
                 return this.loading.order;
             },
             set(value) {
-                Store.get('swOrderDetail').setLoading([
-                    'order',
-                    value,
-                ]);
+                Store.get('swOrderDetail').setLoading(['order', value]);
             },
         },
 
@@ -294,15 +289,9 @@ export default {
 
             Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['order', true]);
             this.createNewVersionId().finally(() => {
-                Shopware.Store.get('swOrderDetail').setLoading([
-                    'order',
-                    false,
-                ]);
+                Shopware.Store.get('swOrderDetail').setLoading(['order', false]);
             });
         },
 
@@ -356,10 +345,7 @@ export default {
         onStartEditing() {},
 
         async onSaveEdits() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             await this.handleOrderAddressUpdate(this.orderAddressIds);
 
@@ -375,10 +361,7 @@ export default {
                 });
 
                 this.createNewVersionId().then(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
 
                 return;
@@ -406,10 +389,7 @@ export default {
                     this.onError(error);
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
         },
 
@@ -450,10 +430,7 @@ export default {
         },
 
         onCancelEditing() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             const oldVersionContext = this.versionContext;
             Store.get('swOrderDetail').versionContext = Shopware.Context.api;
@@ -471,10 +448,7 @@ export default {
                     this.missingProductLineItems = [];
 
                     return this.createNewVersionId().then(() => {
-                        Store.get('swOrderDetail').setLoading([
-                            'order',
-                            false,
-                        ]);
+                        Store.get('swOrderDetail').setLoading(['order', false]);
                     });
                 });
         },
@@ -488,10 +462,7 @@ export default {
         },
 
         async onRecalculateAndReload() {
-            Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             try {
                 await this.orderService
@@ -501,10 +472,7 @@ export default {
             } catch (error) {
                 this.onError(error);
             } finally {
-                Store.get('swOrderDetail').setLoading([
-                    'recalculation',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['recalculation', false]);
             }
         },
 
@@ -516,10 +484,7 @@ export default {
         },
 
         async saveAndReload(afterSaveFn = null) {
-            Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
@@ -530,10 +495,7 @@ export default {
             } catch (error) {
                 this.onError(error);
             } finally {
-                Store.get('swOrderDetail').setLoading([
-                    'recalculation',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['recalculation', false]);
             }
         },
 

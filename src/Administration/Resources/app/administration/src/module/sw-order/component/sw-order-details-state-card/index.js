@@ -20,14 +20,9 @@ export default {
         'swOrderDetailAskAndSaveEdits',
     ],
 
-    emits: [
-        'show-status-history',
-        'save-edits',
-    ],
+    emits: ['show-status-history', 'save-edits'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         order: {

@@ -98,10 +98,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
                     },
                 },
 
-                productTypes: [
-                    'physical',
-                    'digital',
-                ],
+                productTypes: ['physical', 'digital'],
             },
             stubs,
         },
@@ -118,27 +115,15 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
     });
 
     it.each([
-        [
-            'boolean',
-            'equals',
-            'sw-single-select-stub',
-        ],
-        [
-            'empty',
-            'equals',
-            'sw-single-select-stub',
-        ],
+        ['boolean', 'equals', 'sw-single-select-stub'],
+        ['empty', 'equals', 'sw-single-select-stub'],
         [
             'uuid',
             'equals',
             'sw-entity-single-select-stub',
             'product',
         ],
-        [
-            'uuid',
-            'equals',
-            'sw-entity-single-select-stub',
-        ],
+        ['uuid', 'equals', 'sw-entity-single-select-stub'],
     ])('should have a disabled input with %s field type', async (fieldType, actualCondition, element, entity = '') => {
         const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity, false);
         await wrapper.setProps({ disabled: true });

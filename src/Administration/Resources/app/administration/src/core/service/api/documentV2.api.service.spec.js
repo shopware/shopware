@@ -30,10 +30,7 @@ describe('documentV2ApiService', () => {
         clientMock.onGet('/_action/order/document-v2/available-types').reply(200, {
             documentTypes: {
                 invoice: {
-                    formats: [
-                        'html',
-                        'zugferd_xml',
-                    ],
+                    formats: ['html', 'zugferd_xml'],
                 },
             },
         });
@@ -44,10 +41,7 @@ describe('documentV2ApiService', () => {
         expect(availableDocumentTypesResponse).toEqual({
             documentTypes: {
                 invoice: {
-                    formats: [
-                        'html',
-                        'zugferd_xml',
-                    ],
+                    formats: ['html', 'zugferd_xml'],
                 },
             },
         });
@@ -61,19 +55,13 @@ describe('documentV2ApiService', () => {
         clientMock.onPost('/_action/order/document-v2/create').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
-            formats: [
-                'html',
-                'zugferd_xml',
-            ],
+            formats: ['html', 'zugferd_xml'],
         });
 
         const createDocumentResponse = await documentV2ApiService.createDocument(
             orderId,
             'invoice',
-            [
-                'html',
-                'zugferd_xml',
-            ],
+            ['html', 'zugferd_xml'],
             '1000',
             '2021-02-22T04:34:56.441Z',
             '',
@@ -82,10 +70,7 @@ describe('documentV2ApiService', () => {
         expect(createDocumentResponse).toStrictEqual({
             deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
             documentId: '4d03324edcd0490b9180df8161c9167f',
-            formats: [
-                'html',
-                'zugferd_xml',
-            ],
+            formats: ['html', 'zugferd_xml'],
         });
     });
 
@@ -253,10 +238,7 @@ describe('documentV2ApiService', () => {
 
     it('downloads all document files as archive for multiple documents', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
-        const documentIds = [
-            '4a4a687257644d52bf481b4c20e59213',
-            '5b5b798368755e63c0592c5d31f6a324',
-        ];
+        const documentIds = ['4a4a687257644d52bf481b4c20e59213', '5b5b798368755e63c0592c5d31f6a324'];
 
         clientMock.onPost('/_action/order/document-v2/download-archive').reply(200, '');
 

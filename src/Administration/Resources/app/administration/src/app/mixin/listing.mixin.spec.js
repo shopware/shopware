@@ -316,6 +316,27 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(getListMock).toHaveBeenCalledWith();
     });
 
+    it('should reset the search term when navigating to the same listing route without query', async () => {
+        await router.push({
+            name: 'sw.product.index',
+            query: {
+                page: 3,
+                limit: 25,
+                term: 'shirt',
+            },
+        });
+
+        expect(wrapper.vm.term).toBe('shirt');
+
+        // simulate clicking the already active admin menu item
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(wrapper.vm.term).toBeUndefined();
+        expect(wrapper.vm.page).toBe(1);
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+    });
+
     it('should reload when stored filter query changes without local filter criteria', async () => {
         await wrapper.unmount();
 

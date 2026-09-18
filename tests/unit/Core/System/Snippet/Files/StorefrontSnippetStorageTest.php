@@ -301,6 +301,36 @@ class StorefrontSnippetStorageTest extends TestCase
         static::assertTrue($this->filesystem->fileExists('translation/apps/OtherApp.json'));
     }
 
+    public function testPersistingChangedContentsUnderTheSameVersionDropsTheMaterializedDirectory(): void
+    {
+        $storage = $this->createStorage();
+        $storage->persist('TestApp', '1.0.0', $this->source());
+        $directory = $storage->directory('TestApp', '1.0.0');
+        static::assertNotNull($directory);
+        static::assertFileExists($directory . '/Resources/snippet/storefront.en.base.json');
+
+        static::assertTrue($storage->persist('TestApp', '1.0.0', $this->source('AppWithNestedSnippets')));
+
+        static::assertFileDoesNotExist($directory . '/.complete');
+
+        $directory = $storage->directory('TestApp', '1.0.0');
+        static::assertNotNull($directory);
+        static::assertFileExists($directory . '/Resources/snippet/de/storefront.de.json');
+        static::assertFileDoesNotExist($directory . '/Resources/snippet/storefront.en.base.json');
+    }
+
+    public function testRemoveDropsTheMaterializedDirectoryWithTheSnapshot(): void
+    {
+        $storage = $this->createStorage();
+        $storage->persist('TestApp', '1.0.0', $this->source());
+        $directory = $storage->directory('TestApp', '1.0.0');
+        static::assertNotNull($directory);
+
+        static::assertTrue($storage->remove('TestApp'));
+
+        static::assertFileDoesNotExist($directory . '/.complete');
+    }
+
     private function createStorage(?SourceResolver $source = null, ?Io $io = null, ?LoggerInterface $logger = null): StorefrontSnippetStorage
     {
         return new StorefrontSnippetStorage(

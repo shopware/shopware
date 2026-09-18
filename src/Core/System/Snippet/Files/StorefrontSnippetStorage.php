@@ -79,19 +79,31 @@ class StorefrontSnippetStorage
         $files = $this->collect($appFilesystem);
         $this->write($appName, $version, $files);
 
-        return $previousFiles !== $files;
+        $changed = $previousFiles !== $files;
+        if ($changed) {
+            // The materialized directories are keyed by (app name, version) only: a content change under
+            // the same version must drop them, or requests keep serving the previous snapshot forever.
+            $this->io->remove(Path::join($this->directory, $appName));
+        }
+
+        return $changed;
     }
 
     public function remove(string $appName): bool
     {
+        $removed = false;
+
         $path = $this->path($appName);
-        if (!$this->filesystem->fileExists($path)) {
-            return false;
+        if ($this->filesystem->fileExists($path)) {
+            $this->filesystem->delete($path);
+            $removed = true;
         }
 
-        $this->filesystem->delete($path);
+        // The materialized directories can exist without a stored snapshot (source fallback with a failed
+        // write), so they are dropped independently of it.
+        $this->io->remove(Path::join($this->directory, $appName));
 
-        return true;
+        return $removed;
     }
 
     /**

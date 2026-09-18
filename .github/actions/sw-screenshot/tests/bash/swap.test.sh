@@ -23,4 +23,9 @@ fi
 
 assert_contains 'database:migrate --all' "$body" "runs migrations after moving the source"
 
+# `composer build:js:admin` runs `npm run build` and no install of its own, so a head that adds a
+# dependency would build against the merge base's node_modules.
+assert_contains 'src/Administration/Resources/app/administration && npm ci' "$body" \
+  "installs admin dependencies when the head moved them"
+
 finish

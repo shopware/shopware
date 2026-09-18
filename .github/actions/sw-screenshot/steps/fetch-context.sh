@@ -70,12 +70,16 @@ else
   gh api "repos/${REPO}/issues/${NUMBER}" \
     --jq '"## Issue\n\n### Title\n\n" + .title + "\n\n### Body\n\n" + (.body // "_(empty)_")' >> context.md
 
+  # Assigned first so a failed fetch takes the step down: repro steps live in the comments more often
+  # than in the body, and an empty section reads to the agent as an issue with nothing on it.
+  comments=$(gh api --paginate "repos/${REPO}/issues/${NUMBER}/comments" \
+    --jq '.[] | "### @" + .user.login + "\n\n" + (.body // "")')
+
   {
     echo
     echo "## Comments"
     echo
-    gh api --paginate "repos/${REPO}/issues/${NUMBER}/comments" \
-      --jq '.[] | "### @" + .user.login + "\n\n" + (.body // "")' || echo "_(none)_"
+    echo "${comments:-_(none)_}"
   } >> context.md
 fi
 

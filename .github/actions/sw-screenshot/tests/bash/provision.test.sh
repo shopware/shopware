@@ -78,6 +78,10 @@ assert_contains "TCP:127.0.0.1:8000" "$forward" "forwards to the unprivileged po
 
 # The agent is sandboxed, where localhost is the sandbox rather than the runner; port 80 is implied.
 assert_contains "APP_URL=http://host.docker.internal" "$(cat "$work/env")" "exports the sandbox-reachable url"
+
+# swap.sh polls the shop on APP_PORT. Left to its own default it would probe 8000 on a run that
+# moved the shop elsewhere, and report every swap as unreachable while the shop is healthy.
+assert_contains "APP_PORT=8000" "$(cat "$work/env")" "passes the shop's port on to the swap"
 if grep -qE '^SHOP_DIR=' "$work/env"; then
   echo "  FAIL exported SHOP_DIR into the agent's environment"; FAIL=$((FAIL + 1))
 else

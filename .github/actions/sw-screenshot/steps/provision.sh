@@ -152,9 +152,11 @@ if [ "${forwarded:-0}" != 1 ]; then
 fi
 
 # SHOP_DIR is deliberately absent from the agent's environment: it has no business touching the
-# source tree, and the swap runs host-side.
+# source tree, and the swap runs host-side. APP_PORT rides along because swap.sh probes the shop on
+# it; on its own default it would poll a dead port on any run that moved the shop off 8000.
 {
   echo "APP_URL=${SANDBOX_URL}"
+  echo "APP_PORT=${APP_PORT}"
   echo "SHOPWARE_ADMIN_USERNAME=admin"
   echo "SHOPWARE_ADMIN_PASSWORD=shopware"
   echo "SW_SHOT_SHOP_DIR=${SHOP_DIR}"

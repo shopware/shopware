@@ -62,6 +62,11 @@ async function findStorefrontSalesChannel(api: AdminApi): Promise<SalesChannelRo
 /** Resolve any tax rate to satisfy the mandatory `taxId` on product factories. */
 async function findTaxId(api: AdminApi): Promise<string> {
     const response = await api.post('search/tax', { data: { limit: 1, sort: [{ field: 'position', order: 'ASC' }] } });
+
+    if (!response.ok()) {
+        throw new Error(`tax lookup failed (HTTP ${response.status()}): ${await response.text()}`);
+    }
+
     const body = (await response.json()) as { data?: { id: string }[] };
     const tax = body.data?.[0];
 

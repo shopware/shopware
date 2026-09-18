@@ -69,6 +69,11 @@ fi
 # into the one Administration build, so any of them changing means a full rebuild.
 if changed_in '^src/[A-Za-z]*/Resources/app/administration/' || changed_in '^src/Administration/'; then
   echo "::group::administration build"
+  # `composer build:js:admin` runs `npm run build` and no install of its own, so a head that moved a
+  # dependency would otherwise build against the merge base's node_modules.
+  if changed_in '^src/Administration/Resources/app/administration/package\(\.json\|-lock\.json\)$'; then
+    (cd src/Administration/Resources/app/administration && npm ci --no-audit --no-fund)
+  fi
   composer build:js:admin
   echo "::endgroup::"
 fi

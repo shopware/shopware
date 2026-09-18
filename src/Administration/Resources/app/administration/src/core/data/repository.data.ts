@@ -655,7 +655,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         );
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return fetch(this.httpClient.getUri({ url, useAxiosV1: true }), {
+        return fetch(this.httpClient.getUri({ url }), {
             method: 'POST',
             headers,
             body: JSON.stringify({}),

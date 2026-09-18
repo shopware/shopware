@@ -21,16 +21,18 @@ The facade remains the extension boundary. `createHTTPClient()` returns the Axio
 
 `AbortController` is the only supported cancellation mechanism. `httpClient.isCancel()` recognises both `AbortController` cancellations and errors produced by the deprecated `CancelToken`.
 
-Compatibility members are kept for one major and warn on first use: the `useAxiosV1` request option is accepted as a no-op, `httpClient.CancelToken` and the `cancelToken` request option keep working, and `axiosV1`, `interceptorsV1` and `defaultsV1` stay as aliases of the client, its interceptors and its defaults. The `axiosV0`, `interceptorsV0` and `defaultsV0` escape hatches are removed because there is no second instance for them to expose.
+`useAxiosV1` keeps working, but it selects a compatibility mode instead of a transport. A comparison of the two shipped clients showed that only two behaviours actually differ: Axios 0.x decoded `[`, `]`, `:`, `$` and `,` back to their literal form in query strings, and it returned response headers as a plain object rather than an `AxiosHeaders` instance. Error classes and codes, `FormData` handling, JSON parsing and `CancelToken` are already identical. Those two behaviours are restored by request and response interceptors on the single client, so `useAxiosV1: false` still does what it did before without a second Axios copy, and the resolution order stays the same: an explicit `useAxiosV1` wins, otherwise the `V6_8_0_0` feature flag decides.
+
+The remaining compatibility members warn on first use and are kept for one more major: the `useAxiosV1` request option, `httpClient.CancelToken` and the `cancelToken` request option, and `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1`, which now all alias the single client, its interceptors and its defaults.
 
 The Administration does not migrate to `fetch` or `ofetch` now. Upload progress needs XHR, which Axios selects in the browser, and the facade obligations (`.data`, `.status`, `.headers`, `error.response.*`, `responseType`, `timeout`, `signal`, interceptors) cost the same regardless of the engine. If the engine is ever swapped, it happens behind this facade.
 
 ## Consequences
 
-Extensions keep using `httpClient` unchanged. Code that set `useAxiosV1`, used `CancelToken` or read the version-specific escape hatches keeps working until the next major and receives a development-mode deprecation warning that names the replacement. The `UPGRADE-6.8.md` entry and the migration guide describe the required changes.
+Extensions keep using `httpClient` unchanged, and the documented opt-out stays available: an extension that breaks on Axios 1.x sets `useAxiosV1: false` and keeps the previous behaviour, exactly as before. Code that used `CancelToken` or read the version-specific escape hatches also keeps working and receives a development-mode deprecation warning that names the replacement. The `UPGRADE-6.8.md` entry and the migration guide describe the required changes.
 
 The client bundle carries one Axios copy instead of two, and the factory loses the adapter layer, the `Proxy` mirroring and the dual cache interceptor. Tests exercise one transport; `axios-mock-adapter` attaches to the Axios instance directly.
 
-Behaviour that only the legacy transport provided, such as the `__CANCEL__`-marked `Cancel` objects or Axios 0.x error shapes, is gone. Extensions that depended on it must move to `httpClient.isCancel()` and the documented response and error properties.
+The compatibility mode restores the two known behavioural differences, not the legacy implementation. An extension that depended on an Axios 0.x internal the comparison did not surface has to migrate; `httpClient.isCancel()` and the documented response and error properties are the supported surface. Because the mode is a small, enumerable set of interceptors rather than a second dependency, it can be carried until the next major at negligible cost.
 
 A later transport change stays possible, but is a separate decision with its own ADR.

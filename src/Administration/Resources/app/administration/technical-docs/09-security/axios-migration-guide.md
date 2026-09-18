@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Shopware Administration HTTP client (`httpClient`) is a single Axios 1.x instance behind a Shopware-owned facade. The legacy Axios 0.x transport, the per-request transport switch, and the dual-transport compatibility machinery have been removed.
+The Shopware Administration HTTP client (`httpClient`) is a single Axios 1.x instance behind a Shopware-owned facade. The legacy Axios 0.x dependency, the `axios-v1` package alias and the dual-transport machinery have been removed. The `useAxiosV1` opt-out survives the removal as a compatibility mode on the single client, so nothing is forced to migrate at once.
 
 Extension code continues to use the injected `httpClient`. Axios stays an implementation detail: the facade, not Axios, is the extension boundary, and Shopware's HTTP types describe the supported contract.
 
@@ -11,16 +11,37 @@ Extension code continues to use the injected `httpClient`. Axios stays an implem
 | Before | Now |
 | --- | --- |
 | Two Axios copies (`axios` 0.x and `axios-v1`) | One `axios` 1.x dependency |
-| `useAxiosV1` selected the transport per request | `useAxiosV1` has no effect and is deprecated |
+| `useAxiosV1` selected the transport per request | `useAxiosV1` selects the legacy compatibility mode per request and is deprecated |
 | `CancelToken` cancelled Axios 0.x requests | `AbortController` cancels requests; `CancelToken` is deprecated |
-| `axiosV0`, `interceptorsV0`, `defaultsV0` escape hatches | Removed |
+| `axiosV0`, `interceptorsV0`, `defaultsV0` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 | `axiosV1`, `interceptorsV1`, `defaultsV1` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 
 All deprecated members stay functional until the next major and log a deprecation warning in development mode the first time they are used.
 
+## The opt-out still works
+
+Removing the second Axios copy does not force you to migrate. `useAxiosV1: false` still restores the behaviour of the legacy transport, it is just implemented as a compatibility mode on the single Axios 1.x client instead of a second dependency.
+
+The defaults are unchanged:
+
+| Context | Default behaviour | Override |
+| --- | --- | --- |
+| Shopware 6.7 | Legacy compatibility mode | `useAxiosV1: true` |
+| Shopware 6.8 (`V6_8_0_0` active) | Axios 1.x | `useAxiosV1: false` |
+| Repository requests | Follows the same defaults; the option is not part of the repository contract | None |
+
+Two behaviours differ between the legacy transport and plain Axios 1.x, and the compatibility mode restores both:
+
+1. **Query encoding.** The legacy transport decoded `[`, `]`, `:`, `$` and `,` back to their literal form, so `{ ids: [1, 2] }` became `?ids[]=1&ids[]=2`. Axios 1.x leaves them percent-encoded: `?ids%5B%5D=1&ids%5B%5D=2`. Both are equivalent for a correct server, but signature checks, log filters and strict route matchers can depend on the literal form.
+2. **Response headers.** The legacy transport returned `response.headers` as a plain object. Axios 1.x returns an `AxiosHeaders` instance. Lower-case property access such as `response.headers['content-type']` works with both.
+
+Everything else, including the error class and its codes, `FormData` handling, JSON parsing and `CancelToken`, is already identical in both. If your extension breaks on something outside this list, it depends on an Axios internal that was never part of the contract; please report it.
+
+An explicit `paramsSerializer` in the request configuration always wins over the compatibility mode.
+
 ## Migrating direct HTTP requests
 
-Remove the `useAxiosV1` option. Everything else stays the same:
+Remove the `useAxiosV1` option once the request works without it:
 
 ```javascript
 // Before
@@ -29,6 +50,8 @@ this.httpClient.get('/api/endpoint', { useAxiosV1: true });
 // Now
 this.httpClient.get('/api/endpoint');
 ```
+
+If a request does break, set `useAxiosV1: false` on it as a temporary measure and migrate later. Avoid spreading the override across an extension: a widespread opt-out hides migration problems and makes the eventual removal harder.
 
 API services extending `ApiService` need no further change.
 
@@ -40,7 +63,7 @@ No change is required:
 const product = await this.productRepository.get(productId, context);
 ```
 
-Repositories never exposed the transport as part of their contract.
+Repositories never exposed the transport as part of their contract, so `useAxiosV1` is not available on repository calls. If a repository operation behaves differently, treat it as a Shopware compatibility issue rather than working around it.
 
 ## Request cancellation
 
@@ -141,7 +164,15 @@ FEATURE_ALL=major composer admin:unit
 
 ### A deprecation warning mentions `useAxiosV1`
 
-Remove the option from the request configuration. It has no effect anymore.
+The option still works, but it will be removed. Check whether the request also works without it and remove it then. If it does not, keep `useAxiosV1: false` for now and report what breaks.
+
+### A query string looks different than before
+
+Axios 1.x percent-encodes `[`, `]`, `:`, `$` and `,`. Set `useAxiosV1: false` on the request to get the literal form back, or pass your own `paramsSerializer`.
+
+### `response.headers` is no longer a plain object
+
+Axios 1.x returns an `AxiosHeaders` instance. Lower-case property access keeps working; `Object.keys`, spreading and deep-equality assertions do not see the same object. Set `useAxiosV1: false` on the request to get a plain object back.
 
 ### A deprecation warning mentions `cancelToken`
 

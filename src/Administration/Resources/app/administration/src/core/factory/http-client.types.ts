@@ -28,7 +28,11 @@ export interface HttpRequestConfig<Data = HttpClientValue> {
     adapter?: HttpClientValue;
     version?: number;
     /**
-     * @deprecated tag:v6.8.0 - Has no effect anymore and will be removed. The client only ships Axios 1.x.
+     * Selects the legacy compatibility mode for a single request. `false` restores the query encoding and plain
+     * response headers of the removed Axios 0.x transport, `true` uses plain Axios 1.x behaviour. Without the
+     * option the `V6_8_0_0` feature flag decides.
+     *
+     * @deprecated tag:v6.9.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
      */
     useAxiosV1?: boolean;
 }

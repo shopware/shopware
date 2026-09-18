@@ -5,6 +5,7 @@
  */
 import Axios from 'axios';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
+import { legacyCompatInterceptor } from 'src/core/factory/http-legacy-compat';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -48,6 +49,7 @@ function createClient() {
         timeout: 30000, // 30 second timeout
     });
 
+    legacyCompatInterceptor(client);
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
     storeSessionExpiredInterceptor(client);
@@ -73,11 +75,15 @@ function createClient() {
     client.CancelToken = Axios.CancelToken;
 
     /**
-     * @deprecated tag:v6.8.0 - The version-specific runtime escape hatches will be removed. The client itself is the
-     * Axios instance; use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly.
+     * @deprecated tag:v6.9.0 - The version-specific runtime escape hatches will be removed. There is only one
+     * transport left, so they all point at the same client; use `httpClient`, `httpClient.interceptors` and
+     * `httpClient.defaults` directly.
      */
+    client.axiosV0 = client;
     client.axiosV1 = client;
+    client.interceptorsV0 = client.interceptors;
     client.interceptorsV1 = client.interceptors;
+    client.defaultsV0 = client.defaults;
     client.defaultsV1 = client.defaults;
 
     return client;
@@ -125,12 +131,12 @@ function requestCacheAdapterInterceptor(client) {
 }
 
 /**
- * Sets up an interceptor that accepts the request options of the removed dual-transport facade and warns once
- * per client so extensions get migration feedback.
+ * Sets up an interceptor that warns once per client about the request options that are kept for compatibility with
+ * the removed dual-transport facade.
  *
  * The interceptor runs synchronously so the request pipeline keeps its synchronous fast path.
  *
- * @deprecated tag:v6.8.0 - Will be removed together with the `useAxiosV1` and `cancelToken` request options.
+ * @deprecated tag:v6.9.0 - Will be removed together with the `useAxiosV1` and `cancelToken` request options.
  * @param {AxiosInstance} client
  * @returns {AxiosInstance}
  */
@@ -144,8 +150,10 @@ function legacyRequestOptionsInterceptor(client) {
                 warnedTransportFlag = true;
                 Shopware.Utils.debug.warn(
                     'http.factory',
-                    'The "useAxiosV1" request option is deprecated and has no effect anymore. ' +
-                        'The Administration HTTP client only ships Axios 1.x. Remove the option from your requests.',
+                    'The "useAxiosV1" request option is deprecated and will be removed. ' +
+                        'The Administration HTTP client only ships Axios 1.x; the option now selects the legacy ' +
+                        'compatibility mode instead of a second Axios copy. Migrate to Axios 1.x behaviour and ' +
+                        'remove the option from your requests.',
                 );
             }
 

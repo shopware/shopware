@@ -1477,11 +1477,24 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 
 ## Administration HTTP client ships only Axios 1.x
 
-The Administration HTTP client (`httpClient`) is a single Axios 1.x instance. The legacy Axios 0.x transport, the `axios-v1` package alias, and the per-request transport selection were removed. Most extensions need no change; the members below keep working until 6.8.0.0 and log a deprecation warning in development mode.
+The Administration HTTP client (`httpClient`) is a single Axios 1.x instance. The legacy Axios 0.x dependency and the `axios-v1` package alias were removed. Most extensions need no change; the members below keep working and log a deprecation warning in development mode.
 
 ### `useAxiosV1` request option
 
-The option has no effect anymore and will be removed. Remove it from your requests:
+The option still works and still defaults the same way: legacy behaviour on 6.7, Axios 1.x once `V6_8_0_0` is active. It no longer selects a second Axios copy, it selects a compatibility mode on the single client that restores the two behaviours which actually differ between the two versions:
+
+- **Query encoding.** Axios 0.x decoded `[`, `]`, `:`, `$` and `,` back to their literal form (`?ids[]=1&ids[]=2`), Axios 1.x leaves them percent-encoded (`?ids%5B%5D=1&ids%5B%5D=2`).
+- **Response headers.** Axios 0.x returned `response.headers` as a plain object, Axios 1.x returns an `AxiosHeaders` instance. Lower-case property access works with both.
+
+Error classes and codes, `FormData` handling, JSON parsing and `CancelToken` are identical in both versions and need no opt-out.
+
+If a request breaks on Axios 1.x, keep it working with the opt-out and migrate later:
+
+```javascript
+this.httpClient.get('/api/endpoint', { useAxiosV1: false });
+```
+
+The option is deprecated and will be removed in the next major. Drop it once the request works without it:
 
 ```javascript
 // Before
@@ -1513,7 +1526,7 @@ Detect cancellations with `httpClient.isCancel(error)`. It recognises both mecha
 
 ### Version-specific escape hatches
 
-`httpClient.axiosV0`, `httpClient.interceptorsV0` and `httpClient.defaultsV0` were removed. `httpClient.axiosV1`, `httpClient.interceptorsV1` and `httpClient.defaultsV1` are deprecated aliases and will be removed. Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
+`httpClient.axiosV0`, `httpClient.axiosV1`, `httpClient.interceptorsV0`, `httpClient.interceptorsV1`, `httpClient.defaultsV0` and `httpClient.defaultsV1` now all point at the same client. They are deprecated aliases and will be removed. Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
 
 ```javascript
 // Before

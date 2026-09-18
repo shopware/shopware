@@ -330,21 +330,72 @@ describe('core/factory/http.factory.js', () => {
         expect(httpClient.isCancel('string')).toBe(false);
     });
 
-    // @deprecated tag:v6.8.0 - The useAxiosV1 request option will be removed.
-    it.deprecated('v6.8.0.0')('should accept the useAxiosV1 request option as a no-op and warn once', async () => {
-        const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
-        mock.onGet('/legacy-flag').reply(200, { ok: true });
+    // @deprecated tag:v6.9.0 - The useAxiosV1 request option will be removed.
+    describe('legacy compatibility mode', () => {
+        const params = {
+            ids: [
+                1,
+                2,
+            ],
+            filter: { term: 'a,b' },
+        };
 
-        const optIn = await httpClient.get('/legacy-flag', { useAxiosV1: true });
-        const optOut = await httpClient.get('/legacy-flag', { useAxiosV1: false });
+        it.deprecated('v6.9.0.0')('should keep the legacy query encoding for useAxiosV1: false', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet(/\/legacy-params/).reply(200, { ok: true });
 
-        expect(optIn.data).toEqual({ ok: true });
-        expect(optOut.data).toEqual({ ok: true });
-        expect(mock.history.get).toHaveLength(2);
-        expect(warnSpy).toHaveBeenCalledTimes(1);
-        expect(warnSpy).toHaveBeenCalledWith('[http.factory]', expect.stringContaining('useAxiosV1'));
+            await httpClient.get('/legacy-params', { params, useAxiosV1: false });
 
-        warnSpy.mockRestore();
+            expect(mock.history.get[0].paramsSerializer.serialize(params)).toBe('ids[]=1&ids[]=2&filter[term]=a,b');
+        });
+
+        it.deprecated('v6.9.0.0')('should use the Axios 1.x query encoding for useAxiosV1: true', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet(/\/modern-params/).reply(200, { ok: true });
+
+            await httpClient.get('/modern-params', { params, useAxiosV1: true });
+
+            expect(mock.history.get[0].paramsSerializer).toBeUndefined();
+        });
+
+        it.deprecated('v6.9.0.0')('should warn once about the useAxiosV1 request option', async () => {
+            const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet('/legacy-flag').reply(200, { ok: true });
+
+            const optIn = await httpClient.get('/legacy-flag', { useAxiosV1: true });
+            const optOut = await httpClient.get('/legacy-flag', { useAxiosV1: false });
+
+            expect(optIn.data).toEqual({ ok: true });
+            expect(optOut.data).toEqual({ ok: true });
+            expect(mock.history.get).toHaveLength(2);
+            expect(warnSpy).toHaveBeenCalledTimes(1);
+            expect(warnSpy).toHaveBeenCalledWith('[http.factory]', expect.stringContaining('useAxiosV1'));
+
+            warnSpy.mockRestore();
+        });
+
+        it.deprecated('v6.9.0.0')('should hand out plain response headers for useAxiosV1: false', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet('/legacy-headers').reply(200, {}, { 'x-custom': 'yes' });
+
+            const legacy = await httpClient.get('/legacy-headers', { useAxiosV1: false });
+            const modern = await httpClient.get('/legacy-headers', { useAxiosV1: true });
+
+            expect(Object.getPrototypeOf(legacy.headers)).toBe(Object.prototype);
+            expect(legacy.headers['x-custom']).toBe('yes');
+            expect(Object.getPrototypeOf(modern.headers)).not.toBe(Object.prototype);
+            expect(modern.headers['x-custom']).toBe('yes');
+        });
+
+        it.deprecated('v6.9.0.0')('should not overwrite an explicit paramsSerializer', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet(/\/own-serializer/).reply(200, { ok: true });
+            const paramsSerializer = () => 'custom=1';
+
+            await httpClient.get('/own-serializer', { params, paramsSerializer, useAxiosV1: false });
+
+            expect(mock.history.get[0].paramsSerializer).toEqual({ serialize: paramsSerializer });
+        });
     });
 
     // @deprecated tag:v6.8.0 - CancelToken will be removed in favour of AbortController.
@@ -377,15 +428,14 @@ describe('core/factory/http.factory.js', () => {
         warnSpy.mockRestore();
     });
 
-    // @deprecated tag:v6.8.0 - The version-specific runtime escape hatches will be removed.
-    it.deprecated('v6.8.0.0')('should keep the v1 runtime escape hatches as aliases and drop the v0 ones', () => {
+    // @deprecated tag:v6.9.0 - The version-specific runtime escape hatches will be removed.
+    it.deprecated('v6.9.0.0')('should keep the runtime escape hatches as aliases of the single client', () => {
+        expect(httpClient.axiosV0).toBe(httpClient);
         expect(httpClient.axiosV1).toBe(httpClient);
+        expect(httpClient.interceptorsV0).toBe(httpClient.interceptors);
         expect(httpClient.interceptorsV1).toBe(httpClient.interceptors);
+        expect(httpClient.defaultsV0).toBe(httpClient.defaults);
         expect(httpClient.defaultsV1).toBe(httpClient.defaults);
-
-        expect(httpClient).not.toHaveProperty('axiosV0');
-        expect(httpClient).not.toHaveProperty('interceptorsV0');
-        expect(httpClient).not.toHaveProperty('defaultsV0');
     });
 
     describe('Cache Interceptor', () => {

@@ -82,6 +82,8 @@ type Collected = {
     methods: CollectedMember[];
     watchEntries: { key: string; prop: t.ObjectProperty | t.ObjectMethod }[];
     hooks: { hook: string; fn: FnLike }[];
+    /** In-component route guards, as the vue-router composable that replaces each one. */
+    routeGuards: { guard: string; fn: FnLike }[];
     rewriteFns: FnLike[];
     foreignNodes: t.Node[];
     createdFn: FnLike | null;
@@ -129,6 +131,7 @@ function createCollected(): Collected {
         methods: [],
         watchEntries: [],
         hooks: [],
+        routeGuards: [],
         rewriteFns: [],
         foreignNodes: [],
         createdFn: null,
@@ -227,6 +230,24 @@ function handleLifecycleHook(prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, 
     } else {
         report(ctx, 'todo', `${name} is not a plain function`, prop);
     }
+}
+
+/**
+ * `beforeRouteLeave` and `beforeRouteUpdate` have vue-router composable equivalents that take the
+ * same guard signature, so the body converts like a lifecycle hook's. `beforeRouteEnter` has no
+ * instance while it runs and stays a TODO.
+ */
+function routeGuardHandler(guard: string): OptionHandler {
+    return (prop, ctx, collected) => {
+        const fn = asFunction(prop);
+
+        if (!fn) {
+            report(ctx, 'todo', `${keyName(prop) as string} is not a plain function`, prop);
+            return;
+        }
+
+        collected.routeGuards.push({ guard, fn });
+    };
 }
 
 const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler>({
@@ -432,6 +453,10 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
             }
         }
     },
+
+    beforeRouteLeave: routeGuardHandler('onBeforeRouteLeave'),
+
+    beforeRouteUpdate: routeGuardHandler('onBeforeRouteUpdate'),
 
     created: (prop, ctx, collected) => {
         collected.createdFn = asFunction(prop);

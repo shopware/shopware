@@ -27,7 +27,8 @@ class Migration1788531955MakeProductGuaranteeConfirmedInheritable extends Migrat
         }
 
         if ($this->isColumnNotNull($connection, 'product', 'guarantee_confirmed')) {
-            $connection->executeStatement(
+            $this->executeDdlStatement(
+                $connection,
                 'ALTER TABLE `product` MODIFY COLUMN `guarantee_confirmed` TINYINT(1) NULL DEFAULT NULL'
             );
         }

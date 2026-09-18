@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -62,6 +63,7 @@ class DocsAppEventCommandTest extends TestCase
         $this->command = new DocsAppEventCommandTestable(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            $this->policies(),
             [],
             $this->twig,
             self::$testFilePath
@@ -93,6 +95,7 @@ class DocsAppEventCommandTest extends TestCase
         $command = new DocsAppEventCommand(
             $this->businessEventCollector,
             $this->hookableEventCollector,
+            $this->policies(),
             [],
             $this->twig
         );
@@ -204,7 +207,16 @@ class DocsAppEventCommandTest extends TestCase
         $result = $this->command->render();
         static::assertSame('rendered content', $result);
     }
+
+    private function policies(): PolicyRegistry
+    {
+        $policies = static::createStub(PolicyRegistry::class);
+        $policies->method('permitsSubscription')->willReturn(true);
+
+        return $policies;
+    }
 }
+
 /**
  * @internal
  *
@@ -215,11 +227,12 @@ class DocsAppEventCommandTestable extends DocsAppEventCommand
     public function __construct(
         BusinessEventCollector $businessEventCollector,
         HookableEventCollector $hookableEventCollector,
+        PolicyRegistry $policies,
         iterable $hookableEventDescribers,
         Environment $twig,
         private readonly string $testPath
     ) {
-        parent::__construct($businessEventCollector, $hookableEventCollector, $hookableEventDescribers, $twig);
+        parent::__construct($businessEventCollector, $hookableEventCollector, $policies, $hookableEventDescribers, $twig);
     }
 
     public function getListEventPath(): string

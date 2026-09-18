@@ -155,6 +155,14 @@ shopware:
                         s_maxage: 1800
                         stale_while_revalidate: 86400
                         stale_if_error: 7200
+                    # The order of query parameters never changes the response. Sending this header
+                    # lets a client match a stored response against a differently ordered URL
+                    # instead of refetching it.
+                    # `HttpCacheKeyGenerator::getRequestUri()` and the reverse proxy configurations
+                    # Shopware documents do the same.
+                    # Do not add a `params=(...)` part without checking that the listed parameters really
+                    # have no effect on the response, see `ignored_url_parameters` above.
+                    no_vary_search: 'key-order'
 
             storefront.cacheable:
                 headers:
@@ -163,6 +171,8 @@ shopware:
                         max_age: 0
                         must_revalidate: true
                         s_maxage: 7200
+                    # See `store_api.cacheable` above for why `key-order` is safe for every area.
+                    no_vary_search: 'key-order'
 
         default_policies:
             storefront:
@@ -438,6 +448,8 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        url_upload_timeout: 0.0
+        external_link_timeout: 0.0
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'

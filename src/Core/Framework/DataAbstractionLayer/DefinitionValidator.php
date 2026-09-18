@@ -1004,6 +1004,18 @@ class DefinitionValidator
             }
 
             $columnName = $field->getPropertyName();
+
+            if (!$definition->isInheritanceAware()) {
+                $violations[] = \sprintf(
+                    'Field %s on %s is flagged as Inherited, but the definition is not inheritance aware. Remove the `%s` flag from the field or make the definition inheritance aware by overriding `isInheritanceAware()`.',
+                    $columnName,
+                    $definition->getClass(),
+                    Inherited::class
+                );
+
+                continue;
+            }
+
             if ($table->hasColumn($columnName)) {
                 continue;
             }

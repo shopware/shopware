@@ -1,0 +1,24 @@
+{
+  "name": "reproduce-action",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tooling and tests for the issue-reproduction CI action (see README.md).",
+  "scripts": {
+    "test": "node --test $(find . -path ./node_modules -prune -o -name '*.test.ts' -print)",
+    "test:coverage": "node --test --experimental-test-coverage $(find . -path ./node_modules -prune -o -name '*.test.ts' -print)",
+    "test:bash": "bash tests/bash/run.sh",
+    "test:e2e": "bash tests/e2e/drive.sh",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^22.20.1",
+    "eslint": "^9.37.0",
+    "globals": "^15.15.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0"
+  }
+}

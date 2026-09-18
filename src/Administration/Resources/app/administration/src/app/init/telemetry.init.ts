@@ -1,5 +1,6 @@
 import type { telemetryDispatch } from '@shopware-ag/meteor-admin-sdk/es/telemetry';
 import type { TrackableType } from '../../core/telemetry/types';
+import { extension } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -13,7 +14,7 @@ export default function initializeTelemetry(): void {
         Shopware.Telemetry.track({
             eventName: payload.event,
             ...(payload.data as Record<string, TrackableType>),
-            source: Shopware.Utils.extension.getExtensionNameByOrigin(event.origin, sourceWindow) ?? 'unknown',
+            source: extension.getExtensionNameByOrigin(event.origin, sourceWindow) ?? 'unknown',
         });
     });
 }

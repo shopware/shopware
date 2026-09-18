@@ -1,5 +1,6 @@
 import './sw-select-result.scss';
 import template from './sw-select-result.html.twig';
+import { EventBus } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -94,13 +95,13 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Utils.EventBus.on('active-item-change', this.checkIfActive);
-            Shopware.Utils.EventBus.on('item-select-by-keyboard', this.checkIfSelected);
+            EventBus.on('active-item-change', this.checkIfActive);
+            EventBus.on('item-select-by-keyboard', this.checkIfSelected);
         },
 
         destroyedComponent() {
-            Shopware.Utils.EventBus.off('active-item-change', this.checkIfActive);
-            Shopware.Utils.EventBus.off('item-select-by-keyboard', this.checkIfSelected);
+            EventBus.off('active-item-change', this.checkIfActive);
+            EventBus.off('item-select-by-keyboard', this.checkIfSelected);
         },
 
         checkIfSelected(selectedItemIndex) {
@@ -120,7 +121,7 @@ export default {
                 return;
             }
 
-            Shopware.Utils.EventBus.emit('item-select', this.item);
+            EventBus.emit('item-select', this.item);
         },
 
         onMouseEnter() {

@@ -1,4 +1,6 @@
 import template from './sw-extension-my-extensions-index.html.twig';
+import { types } from 'shopware:utils';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -30,7 +32,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            return useContextStore().app.config.settings?.disableExtensionManagement;
         },
     },
 
@@ -55,7 +57,7 @@ export default {
             };
 
             // If query is empty then replace route, otherwise push
-            if (Shopware.Utils.types.isEmpty(routeQuery)) {
+            if (types.isEmpty(routeQuery)) {
                 this.$router.replace(route);
             } else {
                 this.$router.push(route);

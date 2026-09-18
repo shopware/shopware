@@ -2,8 +2,7 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-dynamic-url-field.html.twig';
 import './sw-dynamic-url-field.scss';
-
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
 
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
 

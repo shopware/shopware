@@ -1,5 +1,6 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-snippet-field-edit-modal.html.twig';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @sw-package framework
@@ -78,7 +79,7 @@ export default {
         },
 
         currentAuthor() {
-            return `user/${Shopware.Store.get('session').currentUser.username}`;
+            return `user/${useSessionStore().currentUser.username}`;
         },
 
         snippetRepository() {

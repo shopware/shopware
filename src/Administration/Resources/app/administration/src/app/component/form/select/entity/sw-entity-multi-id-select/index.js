@@ -3,11 +3,10 @@
  */
 
 import template from './sw-entity-multi-id-select.html.twig';
+import { get, types } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context, Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-const { get } = Shopware.Utils;
-
 /**
  * @private
  */
@@ -75,7 +74,7 @@ export default {
                 return;
             }
 
-            if (Shopware.Utils.types.isEqual(this.collection.getIds(), value)) {
+            if (types.isEqual(this.collection.getIds(), value)) {
                 return;
             }
 

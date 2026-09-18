@@ -1,8 +1,7 @@
 import template from './sw-multi-select.html.twig';
+import { debounce, get } from 'shopware:utils';
 
 const { Mixin } = Shopware;
-const { debounce, get } = Shopware.Utils;
-
 /**
  * @sw-package framework
  *

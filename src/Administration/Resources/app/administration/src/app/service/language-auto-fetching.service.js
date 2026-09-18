@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { watch } from 'vue';
+import useContextStore from 'shopware:stores/context';
 
 let isInitialized = false;
 
@@ -23,8 +24,8 @@ export default function LanguageAutoFetchingService() {
             inheritance: true,
         });
 
-        Shopware.Store.get('context').api.language = newLanguage;
+        useContextStore().api.language = newLanguage;
     }
 
-    watch(() => Shopware.Store.get('context').api.languageId, loadLanguage);
+    watch(() => useContextStore().api.languageId, loadLanguage);
 }

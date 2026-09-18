@@ -1,3 +1,5 @@
+import useContextStore from 'shopware:stores/context';
+
 /**
  * @sw-package discovery
  *
@@ -7,7 +9,7 @@ export default {
     methods: {
         createdComponent() {
             this.isLoading = true;
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.customerGroup = this.customerGroupRepository.create();
             this.isLoading = false;
         },

@@ -2,8 +2,7 @@
  * @sw-package discovery
  */
 import template from './sw-sales-channel-config.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

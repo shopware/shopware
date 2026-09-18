@@ -8,6 +8,7 @@ import { createFocusTrap } from 'focus-trap';
 import type { FocusTrap } from 'focus-trap';
 import template from './sw-sidebar-renderer.html.twig';
 import './sw-sidebar-renderer.scss';
+import useSidebarStore from 'shopware:stores/sidebar';
 
 /**
  * @private
@@ -25,16 +26,16 @@ export default Shopware.Component.wrapComponentConfig({
         const isResizing = ref(false);
         const windowWidth = ref(window.innerWidth);
 
-        const closingSidebar = computed(() => Shopware.Store.get('sidebar').closingSidebar);
+        const closingSidebar = computed(() => useSidebarStore().closingSidebar);
 
-        const switchedWhileOpen = computed(() => Shopware.Store.get('sidebar').switchedWhileOpen);
+        const switchedWhileOpen = computed(() => useSidebarStore().switchedWhileOpen);
 
         const activeSidebar = computed(() => {
-            return Shopware.Store.get('sidebar').getActiveSidebar;
+            return useSidebarStore().getActiveSidebar;
         });
 
         const sidebars = computed(() => {
-            return Shopware.Store.get('sidebar').sidebars;
+            return useSidebarStore().sidebars;
         });
 
         const sidebarDisplayOptions = computed(() => {
@@ -69,7 +70,7 @@ export default Shopware.Component.wrapComponentConfig({
         });
 
         const closeSidebar = (locationId: string) => {
-            Shopware.Store.get('sidebar').requestCloseSidebar(locationId);
+            useSidebarStore().requestCloseSidebar(locationId);
         };
 
         const collapseSidebar = () => {

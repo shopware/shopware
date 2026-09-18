@@ -1,7 +1,7 @@
 import type { I18n } from 'vue-i18n';
+import { camelCase, capitalizeString, snakeCase } from 'shopware:utils/string';
 
 const { Utils, EntityDefinition } = Shopware;
-const { capitalizeString, camelCase, snakeCase } = Shopware.Utils.string;
 const { ACTION, ACTION_GROUP, ACTION_TYPE, CUSTOMER_GROUP, GENERAL_GROUP, ORDER_GROUP, TAG_GROUP } = Shopware.Constants.FLOW;
 
 type Node = {

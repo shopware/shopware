@@ -5,6 +5,7 @@
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
 import type { LoginConfig } from '../../../../core/service/login.service';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component } = Shopware;
 
@@ -76,7 +77,7 @@ export default Component.wrapComponentConfig({
             if (!localStorage.getItem('sw-admin-locale')) {
                 const localeFactory = Shopware.Application.getContainer('factory').locale;
 
-                await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
+                await useSessionStore().setAdminLocale(localeFactory.getLastKnownLocale());
             }
 
             try {

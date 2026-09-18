@@ -1,4 +1,5 @@
 import template from './sw-order-state-history-card.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
@@ -7,8 +8,6 @@ import template from './sw-order-state-history-card.html.twig';
  */
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

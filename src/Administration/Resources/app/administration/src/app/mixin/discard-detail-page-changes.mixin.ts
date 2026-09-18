@@ -1,8 +1,8 @@
 import type { NavigationGuardNext } from 'vue-router';
+import { debug, types } from 'shopware:utils';
+import useErrorStore from 'shopware:stores/error';
 
 const { Mixin } = Shopware;
-const { types } = Shopware.Utils;
-
 /**
  * @sw-package framework
  * @private
@@ -67,14 +67,14 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
                         return;
                     }
 
-                    Shopware.Utils.debug.warn(
+                    debug.warn(
                         'Discard-detail-page-changes Mixin',
                         `Could not discard changes for entity with name "${entityName}".`,
                     );
                 });
 
                 // reset all api errors
-                const errorStore = Shopware.Store.get('error');
+                const errorStore = useErrorStore();
                 errorStore.resetApiErrors();
             },
         },

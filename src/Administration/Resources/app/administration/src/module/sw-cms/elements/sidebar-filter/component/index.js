@@ -1,5 +1,6 @@
 import template from './sw-cms-el-sidebar-filter.html.twig';
 import './sw-cms-el-sidebar-filter.scss';
+import cmsElementMixin from 'shopware:mixins/cms-element';
 
 /**
  * @private
@@ -9,7 +10,7 @@ export default {
     template,
 
     mixins: [
-        Shopware.Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     computed: {

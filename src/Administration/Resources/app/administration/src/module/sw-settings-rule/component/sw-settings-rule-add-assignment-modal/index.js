@@ -1,10 +1,9 @@
 import EntityCollection from 'src/core/data/entity-collection.data';
 import template from './sw-settings-rule-add-assignment-modal.html.twig';
 import './sw-settings-rule-assignment-modal.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales

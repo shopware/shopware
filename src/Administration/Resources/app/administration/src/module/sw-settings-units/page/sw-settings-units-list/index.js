@@ -3,10 +3,9 @@
  */
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  */

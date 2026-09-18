@@ -4,11 +4,13 @@
 
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
+import { dom, EventBus, object } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component, Mixin, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
-const domUtils = Shopware.Utils.dom;
-const objectHelper = Shopware.Utils.object;
+const domUtils = dom;
+const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
@@ -717,7 +719,7 @@ export default {
             return this.salesChannelRepository
                 .delete(salesChannelId, Context.api)
                 .then(() => {
-                    Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+                    EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
                     this.salesChannelFavoritesService.refresh();
 
                     return true;
@@ -727,7 +729,7 @@ export default {
                     const assignment = this.extractFkInfo(current?.detail);
 
                     if (current?.code === FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE && assignment) {
-                        Shopware.Store.get('error').resetApiErrors();
+                        useErrorStore().resetApiErrors();
                         const translated = this.$t(`global.entities.${assignment}`, 0).toLowerCase();
 
                         this.createNotificationError({

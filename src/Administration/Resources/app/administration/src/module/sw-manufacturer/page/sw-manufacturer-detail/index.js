@@ -4,6 +4,7 @@
 
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
+import useContextStore from 'shopware:stores/context';
 
 const {
     Mixin,
@@ -146,7 +147,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.manufacturer = this.manufacturerRepository.create();
         },
 

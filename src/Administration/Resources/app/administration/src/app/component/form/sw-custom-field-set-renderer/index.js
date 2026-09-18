@@ -4,10 +4,11 @@ import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/met
 
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
+import { object } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package framework
  *
@@ -193,7 +194,7 @@ export default {
         },
 
         translatedInheritanceSourceLanguageId() {
-            const language = Shopware.Store.get('context')?.api?.language;
+            const language = useContextStore()?.api?.language;
             const parentLanguageId = language?.parentId;
 
             if (parentLanguageId) {
@@ -474,7 +475,7 @@ export default {
         },
 
         getBind(customField, props) {
-            const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
+            const customFieldClone = object.cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;

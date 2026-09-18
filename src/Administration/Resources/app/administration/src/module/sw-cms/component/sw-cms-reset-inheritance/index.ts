@@ -1,7 +1,9 @@
 import template from './sw-cms-reset-inheritance.html.twig';
 import './sw-cms-reset-inheritance.scss';
-
-const { set, merge } = Shopware.Utils.object;
+import { types } from 'shopware:utils';
+import { merge, set } from 'shopware:utils/object';
+import cmsStateMixin from 'shopware:mixins/cms-state';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private
@@ -10,7 +12,7 @@ const { set, merge } = Shopware.Utils.object;
 export default Shopware.Component.wrapComponentConfig({
     template,
     mixins: [
-        Shopware.Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
     data() {
         return {
@@ -19,10 +21,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
     computed: {
         cmsPageStore() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
         hasOverrides() {
-            return !Shopware.Utils.types.isEmpty(this.contentEntity?.slotConfig);
+            return !types.isEmpty(this.contentEntity?.slotConfig);
         },
     },
     methods: {

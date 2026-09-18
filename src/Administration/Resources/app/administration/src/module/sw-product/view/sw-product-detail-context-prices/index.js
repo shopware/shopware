@@ -4,10 +4,10 @@
 
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
+import { Criteria } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -51,39 +51,39 @@ export default {
         },
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         taxes() {
-            return Shopware.Store.get('swProductDetail').taxes;
+            return useSwProductDetailStore().taxes;
         },
 
         currencies() {
-            return Shopware.Store.get('swProductDetail').currencies;
+            return useSwProductDetailStore().currencies;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swProductDetail').defaultCurrency;
+            return useSwProductDetailStore().defaultCurrency;
         },
 
         defaultPrice() {
-            return Shopware.Store.get('swProductDetail').defaultPrice;
+            return useSwProductDetailStore().defaultPrice;
         },
 
         productTaxRate() {
-            return Shopware.Store.get('swProductDetail').productTaxRate;
+            return useSwProductDetailStore().productTaxRate;
         },
 
         isChild() {
-            return Shopware.Store.get('swProductDetail').isChild;
+            return useSwProductDetailStore().isChild;
         },
 
         priceRepository() {
@@ -263,7 +263,7 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.Store.get('swProductDetail').setLoading([
+                useSwProductDetailStore().setLoading([
                     'rules',
                     true,
                 ]);
@@ -272,7 +272,7 @@ export default {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.Store.get('swProductDetail').setLoading([
+                useSwProductDetailStore().setLoading([
                     'rules',
                     false,
                 ]);

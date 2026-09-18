@@ -3,8 +3,7 @@
  */
 
 import template from './sw-multi-select-filter.html.twig';
-
-const { Criteria, EntityCollection } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @private

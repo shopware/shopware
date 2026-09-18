@@ -3,8 +3,8 @@ import type Repository from 'src/core/data/repository.data';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import template from './sw-model-viewer.html.twig';
 import './sw-model-viewer.scss';
+import { EventBus } from 'shopware:utils';
 
-const { EventBus } = Shopware.Utils;
 const { Context } = Shopware;
 
 /**

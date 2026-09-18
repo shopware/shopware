@@ -1,7 +1,6 @@
 import template from './sw-settings-rule-category-tree.html.twig';
 import './sw-settings-rule-category-tree.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

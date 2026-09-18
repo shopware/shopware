@@ -1,3 +1,5 @@
+import useContextStore from 'shopware:stores/context';
+
 /**
  * @sw-package discovery
  */
@@ -14,7 +16,7 @@ export default {
         },
 
         createdComponent() {
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
 
             this.deliveryTime = this.deliveryTimeRepository.create();
         },

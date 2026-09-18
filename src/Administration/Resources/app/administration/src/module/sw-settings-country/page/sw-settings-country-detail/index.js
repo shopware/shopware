@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
+import { object } from 'shopware:utils';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -268,7 +269,7 @@ export default {
          * @param value
          */
         onUpdateCountry(path, value) {
-            Shopware.Utils.object.set(this.country, path, value);
+            object.set(this.country, path, value);
         },
     },
 };

@@ -1,4 +1,7 @@
 import template from './sw-customer-create.html.twig';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
@@ -7,7 +10,6 @@ import template from './sw-customer-create.html.twig';
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -114,7 +116,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(`customer_address.${this.address.id}.company`);
+            useErrorStore().removeApiError(`customer_address.${this.address.id}.company`);
         },
     },
 
@@ -126,7 +128,7 @@ export default {
         async createdComponent() {
             const defaultSalutationId = await this.getDefaultSalutation();
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.customer = this.customerRepository.create();
 
             const addressRepository = this.repositoryFactory.create(
@@ -172,7 +174,7 @@ export default {
                     return emailIsValid;
                 })
                 .catch((exception) => {
-                    Shopware.Store.get('error').addApiError({
+                    useErrorStore().addApiError({
                         expression: `customer.${this.customer.id}.email`,
                         error: new ShopwareError(exception.response.data.errors[0]),
                     });
@@ -244,7 +246,7 @@ export default {
 
         createErrorMessageForCompanyField() {
             this.isLoading = false;
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: `customer_address.${this.address.id}.company`,
                 error: new Shopware.Classes.ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',

@@ -2,8 +2,9 @@
  * @sw-package checkout
  */
 import template from './sw-bulk-edit-order-documents-download-documents.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +17,7 @@ export default {
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     computed: {
@@ -36,10 +37,10 @@ export default {
 
         documentTypes: {
             get() {
-                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+                return useSwBulkEditStore()?.orderDocuments?.download?.value;
             },
             set(documentTypes) {
-                Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+                useSwBulkEditStore().setOrderDocumentsValue({
                     type: 'download',
                     value: documentTypes,
                 });

@@ -4,8 +4,8 @@
 
 import template from './sw-error-summary.html.twig';
 import './sw-error-summary.scss';
-
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
+import useErrorStore from 'shopware:stores/error';
 
 type error = {
     _code: string;
@@ -21,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         errors(): { [key: string]: number } {
-            const allErrors = (Shopware.Store.get('error').getAllApiErrors() || []) as Array<unknown>;
+            const allErrors = (useErrorStore().getAllApiErrors() || []) as Array<unknown>;
 
             // Helper function to recursively get all error objects
             const extractErrorObjects = (errors: Array<unknown>) => {

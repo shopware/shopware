@@ -1,3 +1,6 @@
+import useExtensionsStore from 'shopware:stores/extensions';
+import useSidebarStore from 'shopware:stores/sidebar';
+
 /**
  * @sw-package framework
  *
@@ -6,7 +9,7 @@
 export default function initializeSidebar(): void {
     // eslint-disable-next-line @typescript-eslint/require-await
     Shopware.ExtensionAPI.handle('uiSidebarAdd', async (sidebarConfig, { _event_ }) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(_event_.origin),
         );
 
@@ -15,7 +18,7 @@ export default function initializeSidebar(): void {
         }
 
         // create sidebar store
-        Shopware.Store.get('sidebar').addSidebar({
+        useSidebarStore().addSidebar({
             baseUrl: extension.baseUrl,
             active: false,
             ...sidebarConfig,
@@ -24,14 +27,14 @@ export default function initializeSidebar(): void {
 
     Shopware.ExtensionAPI.handle('uiSidebarClose', ({ locationId }) => {
         // Same close path as the panel's close button, so the animation plays too
-        Shopware.Store.get('sidebar').requestCloseSidebar(locationId);
+        useSidebarStore().requestCloseSidebar(locationId);
     });
 
     Shopware.ExtensionAPI.handle('uiSidebarSetActive', ({ locationId }: { locationId: string }) => {
-        Shopware.Store.get('sidebar').setActiveSidebar(locationId);
+        useSidebarStore().setActiveSidebar(locationId);
     });
 
     Shopware.ExtensionAPI.handle('uiSidebarRemove', ({ locationId }) => {
-        Shopware.Store.get('sidebar').removeSidebar(locationId);
+        useSidebarStore().removeSidebar(locationId);
     });
 }

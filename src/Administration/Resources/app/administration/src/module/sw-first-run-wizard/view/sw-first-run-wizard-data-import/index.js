@@ -1,7 +1,6 @@
 import template from './sw-first-run-wizard-data-import.html.twig';
 import './sw-first-run-wizard-data-import.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package fundamentals@after-sales

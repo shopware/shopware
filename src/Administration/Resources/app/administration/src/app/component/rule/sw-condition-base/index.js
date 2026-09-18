@@ -1,5 +1,6 @@
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
+import useErrorStore from 'shopware:stores/error';
 
 const ShopwareError = Shopware.Classes.ShopwareError;
 
@@ -67,7 +68,7 @@ export default {
                 return null;
             }
 
-            return Shopware.Store.get('error').getErrorsForEntity('rule_condition', this.condition.id);
+            return useErrorStore().getErrorsForEntity('rule_condition', this.condition.id);
         },
 
         fieldErrors() {
@@ -153,7 +154,7 @@ export default {
     watch: {
         value() {
             if (this.hasError) {
-                Shopware.Store.get('error').removeApiError(this.valueErrorPath);
+                useErrorStore().removeApiError(this.valueErrorPath);
             }
 
             if (this.isEmpty && !!this.inputKey) {

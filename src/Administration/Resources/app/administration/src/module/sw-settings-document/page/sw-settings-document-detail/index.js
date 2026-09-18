@@ -1,8 +1,9 @@
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component, Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -776,7 +777,7 @@ export default {
                 return null;
             }
 
-            const error = Shopware.Store.get('error').getApiErrorFromPath('document_base_config', this.documentConfig.id, [
+            const error = useErrorStore().getApiErrorFromPath('document_base_config', this.documentConfig.id, [
                 'filenameInfixes',
                 format,
             ]);

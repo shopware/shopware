@@ -1,8 +1,11 @@
 import { defineComponent } from 'vue';
 import '../store/cms-page.store';
 import type { CmsSlotConfig } from '../service/cms.service';
-
-const { cloneDeep } = Shopware.Utils.object;
+import { cloneDeep } from 'shopware:utils/object';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useContextStore from 'shopware:stores/context';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 type WithSlotConfig = {
     slotConfig?: {
@@ -28,7 +31,7 @@ export default Shopware.Mixin.register(
     defineComponent({
         computed: {
             cmsPageState() {
-                return Shopware.Store.get('cmsPage');
+                return useCmsPageStore();
             },
 
             selectedBlock: {
@@ -61,7 +64,7 @@ export default Shopware.Mixin.register(
 
             category() {
                 try {
-                    return Shopware.Store.get('swCategoryDetail')?.category as ContentEntity<'category'>;
+                    return useSwCategoryDetailStore()?.category as ContentEntity<'category'>;
                 } catch {
                     return null;
                 }
@@ -69,7 +72,7 @@ export default Shopware.Mixin.register(
 
             product() {
                 try {
-                    return Shopware.Store.get('swProductDetail')?.product as ContentEntity<'product'>;
+                    return useSwProductDetailStore()?.product as ContentEntity<'product'>;
                 } catch {
                     return null;
                 }
@@ -77,7 +80,7 @@ export default Shopware.Mixin.register(
 
             landingPage() {
                 try {
-                    return Shopware.Store.get('swCategoryDetail')?.landingPage as ContentEntity<'landing_page'>;
+                    return useSwCategoryDetailStore()?.landingPage as ContentEntity<'landing_page'>;
                 } catch {
                     return null;
                 }
@@ -102,10 +105,8 @@ export default Shopware.Mixin.register(
             },
 
             inheritedSlotConfig() {
-                const currentLanguageId = Shopware.Store.get('context').api.languageId;
-                const parentLanguageId =
-                    Shopware.Store.get('context').api.language?.parentId ??
-                    Shopware.Store.get('context').api.systemLanguageId;
+                const currentLanguageId = useContextStore().api.languageId;
+                const parentLanguageId = useContextStore().api.language?.parentId ?? useContextStore().api.systemLanguageId;
 
                 const currentSlotConfig = this.getSlotConfigForLanguage(currentLanguageId);
                 const parentSlotConfig = parentLanguageId ? this.getSlotConfigForLanguage(parentLanguageId) : null;
@@ -146,7 +147,7 @@ export default Shopware.Mixin.register(
                     return null;
                 }
 
-                if (languageId === Shopware.Store.get('context').api.languageId) {
+                if (languageId === useContextStore().api.languageId) {
                     return this.contentEntity?.slotConfig ?? null;
                 }
 

@@ -3,9 +3,9 @@
  */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Context, Component } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

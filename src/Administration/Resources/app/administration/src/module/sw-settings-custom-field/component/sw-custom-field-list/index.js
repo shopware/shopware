@@ -3,8 +3,9 @@
  */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
-const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
@@ -147,7 +148,7 @@ export default {
                 .catch((error) => {
                     const [{ detail: message = 'Error', code = 'UNKNOWN_ERROR' } = {}] = error?.response?.data?.errors ?? [];
 
-                    Shopware.Store.get('error').addApiError({
+                    useErrorStore().addApiError({
                         expression: `custom_field.${field.id}.name.error`,
                         error: new ShopwareError({ code, detail: message }),
                     });

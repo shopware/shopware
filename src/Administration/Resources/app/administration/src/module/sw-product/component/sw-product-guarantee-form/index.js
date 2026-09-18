@@ -5,6 +5,7 @@
 import template from './sw-product-guarantee-form.html.twig';
 import './sw-product-guarantee-form.scss';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import { EventBus } from 'shopware:utils';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
@@ -179,11 +180,11 @@ export default {
     },
 
     mounted() {
-        Shopware.Utils.EventBus.on('sw-product-detail-save-success', this.revealUnmetLabelRequirements);
+        EventBus.on('sw-product-detail-save-success', this.revealUnmetLabelRequirements);
     },
 
     beforeUnmount() {
-        Shopware.Utils.EventBus.off('sw-product-detail-save-success', this.revealUnmetLabelRequirements);
+        EventBus.off('sw-product-detail-save-success', this.revealUnmetLabelRequirements);
     },
 
     methods: {

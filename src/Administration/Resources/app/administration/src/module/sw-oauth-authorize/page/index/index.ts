@@ -1,6 +1,7 @@
 import type { OAuthAuthorizationInfo, OAuthAuthorizationParams } from 'src/core/service/api/oauth-authorize.api.service';
 import template from './sw-oauth-authorize-index.html.twig';
 import './sw-oauth-authorize-index.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const { Component } = Shopware;
 
@@ -86,7 +87,7 @@ export default Component.wrapComponentConfig({
         },
 
         username(): string {
-            return Shopware.Store.get('session').currentUser?.username ?? '';
+            return useSessionStore().currentUser?.username ?? '';
         },
 
         clientName(): string {

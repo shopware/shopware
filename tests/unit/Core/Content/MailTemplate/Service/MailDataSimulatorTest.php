@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
@@ -41,6 +42,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Clock\NativeClock;
@@ -455,6 +457,43 @@ class MailDataSimulatorTest extends TestCase
         static::assertInstanceOf(Entity::class, $mappingChildren->first());
     }
 
+    public function testGetTemplateDataProvidesDummyA11yDocumentForA11yRenderedDocumentAwareEvents(): void
+    {
+        $simulator = $this->createSimulator([], eventClass: TestA11yRenderedDocumentAwareEvent::class);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        $a11yDocuments = $result[A11yRenderedDocumentAware::A11Y_DOCUMENTS];
+        static::assertIsArray($a11yDocuments);
+        static::assertCount(1, $a11yDocuments);
+
+        $a11yDocument = $a11yDocuments[0];
+        static::assertTrue(Uuid::isValid($a11yDocument['documentId']));
+        static::assertMatchesRegularExpression('/^[a-zA-Z0-9]{32}$/', $a11yDocument['deepLinkCode']);
+        static::assertSame('html', $a11yDocument['fileExtension']);
+    }
+
+    public function testGetTemplateDataDoesNotProvideA11yDocumentsForOtherEvents(): void
+    {
+        $simulator = $this->createSimulator([]);
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertArrayNotHasKey(A11yRenderedDocumentAware::A11Y_DOCUMENTS, $result);
+    }
+
+    public function testGetTemplateDataKeepsA11yDocumentsDeclaredByTheEvent(): void
+    {
+        $simulator = $this->createSimulator(
+            [A11yRenderedDocumentAware::A11Y_DOCUMENTS => ['type' => ScalarValueType::TYPE_STRING]],
+            eventClass: TestA11yRenderedDocumentAwareEvent::class,
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertSame('Lorem ipsum dolor', $result[A11yRenderedDocumentAware::A11Y_DOCUMENTS]);
+    }
+
     public static function formDataObjectProvider(): \Generator
     {
         yield 'contact form data' => [
@@ -497,6 +536,7 @@ class MailDataSimulatorTest extends TestCase
      * @param array<string, mixed> $eventData
      * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
      * @param list<EntityDefinition> $additionalDefinitions
+     * @param class-string<MailAware> $eventClass
      */
     private function createSimulator(
         array $eventData,
@@ -504,9 +544,10 @@ class MailDataSimulatorTest extends TestCase
         ?EventDispatcherInterface $dispatcher = null,
         iterable $dataProviders = [],
         array $additionalDefinitions = [],
+        string $eventClass = TestMailAwareEvent::class,
     ): MailDataSimulator {
         $response = new BusinessEventCollectorResponse();
-        $response->set('test.flow', new BusinessEventDefinition('test.flow', TestMailAwareEvent::class, $eventData));
+        $response->set('test.flow', new BusinessEventDefinition('test.flow', $eventClass, $eventData));
 
         $businessEventCollector = static::createStub(BusinessEventCollector::class);
         $businessEventCollector->method('collect')->willReturn($response);
@@ -597,6 +638,17 @@ class TestMailAwareEvent implements MailAware
     public function getSalesChannelId(): ?string
     {
         return null;
+    }
+}
+
+/**
+ * @internal
+ */
+class TestA11yRenderedDocumentAwareEvent extends TestMailAwareEvent implements A11yRenderedDocumentAware
+{
+    public function getA11yDocumentIds(): array
+    {
+        return [];
     }
 }
 

@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception as PdoException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -252,7 +254,10 @@ class EntityWriteGatewayTest extends TestCase
     {
         $gateway = $this->createGateway();
         $failure = new \RuntimeException('pre-write listener failed');
+        $commands = [$this->createUpdateCommand('initial', 'initial')];
+        $context = WriteContext::createFromContext(Context::createDefaultContext());
         $compensations = 0;
+        $notifications = 0;
         $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$compensations, $failure): never {
             $event->addError(static function () use (&$compensations): void {
                 ++$compensations;
@@ -260,13 +265,20 @@ class EntityWriteGatewayTest extends TestCase
 
             throw $failure;
         });
+        $this->dispatcher->addListener(WriteCommandExceptionEvent::class, static function (WriteCommandExceptionEvent $event) use ($failure, $commands, $context, &$notifications): void {
+            ++$notifications;
+            static::assertSame($failure, $event->getException());
+            static::assertSame($commands, $event->getCommands());
+            static::assertSame($context->getContext(), $event->getContext());
+        });
 
         $this->expectExceptionObject($failure);
 
         try {
-            $gateway->execute([], WriteContext::createFromContext(Context::createDefaultContext()));
+            $gateway->execute($commands, $context);
         } finally {
             static::assertSame(1, $compensations);
+            static::assertSame(1, $notifications);
         }
     }
 
@@ -298,7 +310,39 @@ class EntityWriteGatewayTest extends TestCase
         }
     }
 
-    public function testSuccessfulDeleteCallbacksPreventRetryAfterPostWriteFailure(): void
+    public function testStandaloneDeleteRetriesAfterSuccessfulCompensation(): void
+    {
+        $connection = $this->createTransactionConnection();
+        $gateway = $this->createGateway($connection);
+        $failure = new DeadlockException(new PdoException('Deadlock found when trying to get lock', '40001', 1213), null);
+        $attempts = 0;
+        $connection->method('delete')->willReturnCallback(static function () use ($failure, &$attempts): int {
+            if (++$attempts === 1) {
+                throw $failure;
+            }
+
+            return 1;
+        });
+        $compensations = 0;
+        $successes = 0;
+        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$compensations, &$successes): void {
+            $event->addError(static function () use (&$compensations): void {
+                ++$compensations;
+            });
+            $event->addSuccess(static function () use (&$successes): void {
+                ++$successes;
+            });
+        });
+
+        $gateway->execute([$this->createDeleteCommand()], WriteContext::createFromContext(Context::createDefaultContext()));
+
+        static::assertSame(2, $attempts);
+        static::assertSame(1, $compensations);
+        static::assertSame(1, $successes);
+    }
+
+    #[DataProvider('transactionOwnershipProvider')]
+    public function testSuccessfulDeleteCallbacksPreventRetryAfterPostWriteFailure(bool $hasOuterTransaction): void
     {
         $connection = $this->createTransactionConnection();
         $gateway = $this->createGateway($connection);
@@ -306,7 +350,8 @@ class EntityWriteGatewayTest extends TestCase
         $command = $this->createDeleteCommand();
         $attempts = 0;
         $successes = 0;
-        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$successes): void {
+        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$attempts, &$successes): void {
+            ++$attempts;
             $event->addSuccess(static function () use (&$successes): void {
                 ++$successes;
             });
@@ -318,26 +363,32 @@ class EntityWriteGatewayTest extends TestCase
         $this->expectExceptionObject($failure);
 
         try {
-            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, $command, &$attempts): void {
-                ++$attempts;
+            $write = static function () use ($gateway, $command): void {
                 $gateway->execute([$command], WriteContext::createFromContext(Context::createDefaultContext()));
-            });
+            };
+            if ($hasOuterTransaction) {
+                RetryableWriteTransaction::retryable($connection, $write);
+            } else {
+                $write();
+            }
         } finally {
             static::assertSame(1, $attempts);
             static::assertSame(1, $successes);
         }
     }
 
-    public function testThrowingDeleteCompensationPreservesTheDeleteFailureWithoutRetrying(): void
+    #[DataProvider('transactionOwnershipProvider')]
+    public function testThrowingDeleteCompensationPreservesTheDeleteFailureWithoutRetrying(bool $hasOuterTransaction): void
     {
         $connection = $this->createTransactionConnection();
         $gateway = $this->createGateway($connection);
-        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+        $failure = new DeadlockException(new PdoException('Deadlock found when trying to get lock', '40001', 1213), null);
         $connection->method('delete')->willThrowException($failure);
         $command = $this->createDeleteCommand();
         $attempts = 0;
         $compensations = 0;
-        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$compensations): void {
+        $this->dispatcher->addListener(EntityDeleteEvent::class, static function (EntityDeleteEvent $event) use (&$attempts, &$compensations): void {
+            ++$attempts;
             $event->addError(static function () use (&$compensations): never {
                 ++$compensations;
 
@@ -348,10 +399,14 @@ class EntityWriteGatewayTest extends TestCase
         $this->expectExceptionObject($failure);
 
         try {
-            RetryableWriteTransaction::retryable($connection, static function () use ($gateway, $command, &$attempts): void {
-                ++$attempts;
+            $write = static function () use ($gateway, $command): void {
                 $gateway->execute([$command], WriteContext::createFromContext(Context::createDefaultContext()));
-            });
+            };
+            if ($hasOuterTransaction) {
+                RetryableWriteTransaction::retryable($connection, $write);
+            } else {
+                $write();
+            }
         } catch (\Throwable $exception) {
             static::assertSame($failure, $exception);
 
@@ -360,6 +415,15 @@ class EntityWriteGatewayTest extends TestCase
             static::assertSame(1, $attempts);
             static::assertSame(1, $compensations);
         }
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function transactionOwnershipProvider(): iterable
+    {
+        yield 'standalone write' => [false];
+        yield 'guarded outer transaction' => [true];
     }
 
     private function createDeleteCommand(): DeleteCommand

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableWriteTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -113,7 +112,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $this->eventDispatcher->dispatch($beforeWriteEvent);
             $firstAttempt = true;
 
-            RetryableTransaction::retryable($this->connection, function () use ($commands, $context, &$firstAttempt): void {
+            RetryableWriteTransaction::retryable($this->connection, function () use ($commands, $context, &$firstAttempt): void {
                 if (!$firstAttempt) {
                     $context->resetExceptions();
                 }

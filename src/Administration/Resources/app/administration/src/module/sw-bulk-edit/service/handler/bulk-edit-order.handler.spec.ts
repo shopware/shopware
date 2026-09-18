@@ -165,6 +165,43 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         ]);
     });
 
+    it('omits failed response slots while preserving successful undefined and falsy responses', async () => {
+        const responses = [
+            new Error('First transition failed'),
+            undefined,
+            false,
+            new Error('Middle transition failed'),
+            null,
+            0,
+            '',
+            new Error('Last transition failed'),
+        ];
+        const orders = responses.map((response, index) => createOrder(String(index)));
+        const handler = createHandler(orders);
+        const failures: unknown[] = [];
+
+        handler.orderStateMachineService.transitionOrderState.mockImplementation((orderId: string) => {
+            const response = responses[Number(orderId)];
+
+            return response instanceof Error ? Promise.reject(response) : Promise.resolve(response);
+        });
+
+        const result = await handler.transitionOrderStatuses(orders, [{ field: 'orders', value: 'cancel' }], true, failures);
+
+        expect(result).toStrictEqual([
+            undefined,
+            false,
+            null,
+            0,
+            '',
+        ]);
+        expect(failures).toEqual([
+            expect.objectContaining({ orderId: '0', reason: 'transition' }),
+            expect.objectContaining({ orderId: '3', reason: 'transition' }),
+            expect.objectContaining({ orderId: '7', reason: 'transition' }),
+        ]);
+    });
+
     it('waits for an earlier status field and reports its failure before completing', async () => {
         const handler = createHandler();
         let failFirst: (error: Error) => void = () => {};

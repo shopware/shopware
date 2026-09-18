@@ -16,6 +16,8 @@ const productManufacturerRepositoryMock = {
         });
     },
     create: async () => Promise.resolve({}),
+    save: jest.fn(() => Promise.resolve()),
+    hasChanges: jest.fn(() => true),
 };
 
 const mockCustomFieldSetId = 'MOCK_CUSTOM_FIELD_SET_ID';
@@ -116,6 +118,11 @@ async function createWrapper(privileges = []) {
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+        productGetShouldFail = false;
+        customFieldSetSearchShouldFail = false;
+        productManufacturerRepositoryMock.save.mockReset();
+        productManufacturerRepositoryMock.save.mockResolvedValue();
+        productManufacturerRepositoryMock.hasChanges.mockClear();
     });
 
     it('should be able to save edit', async () => {
@@ -153,6 +160,41 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
         const textEditor = wrapper.find('.sw-text-editor');
         expect(textEditor.exists()).toBeTruthy();
         expect(textEditor.attributes().disabled).toBeUndefined();
+    });
+
+    it('should wait until manufacturer changes are saved before switching languages', async () => {
+        let resolveSave;
+        const delayedSave = new Promise((resolve) => {
+            resolveSave = resolve;
+        });
+        productManufacturerRepositoryMock.save.mockReturnValueOnce(delayedSave);
+
+        const wrapper = await createWrapper([
+            'product_manufacturer.editor',
+        ]);
+        await flushPromises();
+
+        wrapper.vm.loadEntityData = jest.fn();
+        let saveResolved = false;
+
+        const saveOnLanguageChangePromise = wrapper.vm.saveOnLanguageChange().then(() => {
+            saveResolved = true;
+        });
+
+        expect(saveOnLanguageChangePromise).toEqual(
+            expect.objectContaining({
+                then: expect.any(Function),
+            }),
+        );
+
+        expect(productManufacturerRepositoryMock.save).toHaveBeenCalledWith(wrapper.vm.manufacturer);
+        expect(saveResolved).toBe(false);
+
+        resolveSave();
+        await saveOnLanguageChangePromise;
+
+        expect(saveResolved).toBe(true);
+        expect(wrapper.vm.loadEntityData).not.toHaveBeenCalled();
     });
 
     it('should not be able to edit the manufacturer', async () => {

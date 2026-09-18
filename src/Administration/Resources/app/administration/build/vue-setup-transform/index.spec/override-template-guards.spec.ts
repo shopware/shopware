@@ -92,7 +92,7 @@ describe('build/vue-setup-transform override template guards', () => {
         expect(() => transformOrFail(source, 'authored-v-bind.override.vue')).toThrow('"v-bind" is not supported');
     });
 
-    it('rejects writing to a forwarded binding from sw-block extends content', () => {
+    it('rejects writing to a declared override binding from sw-block extends content', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -108,14 +108,15 @@ describe('build/vue-setup-transform override template guards', () => {
             </script>
         `;
 
-        // The forwarded `count` arrives ref-unwrapped as a slot-scope local, so the assignment silently
-        // no-ops (the identical line works in a base component). Reject it loudly.
+        // A declared override binding is the overridden component's state, and the block's data scope
+        // hands the content a copy of its value, so the assignment silently no-ops. Reject it loudly.
+        // An override's *own* local is not affected - see the mutable cases below.
         expect(() => transformOrFail(source, 'forwarded-write.override.vue')).toThrow(
             'Cannot assign to "count" inside <sw-block extends> content',
         );
     });
 
-    it('rejects an update expression (count++) on a forwarded binding', () => {
+    it('rejects an update expression (count++) on a declared override binding', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -134,6 +135,76 @@ describe('build/vue-setup-transform override template guards', () => {
         expect(() => transformOrFail(source, 'forwarded-update.override.vue')).toThrow(
             'Cannot assign to "count" inside <sw-block extends> content',
         );
+    });
+
+    it('accepts a write to an override-local binding and routes it through the forwarded state', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <span>{{ count }}</span>
+                <button @click="count++">inc</button>
+            </sw-block>
+            </template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const count = ref(0);
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'local-write.override.vue').code;
+
+        // The object is bound instead of destructured, so `count++` assigns a property of the reactive
+        // state the override returned rather than a `const` in the compiled slot function.
+        expect(result).toContain('#default="{ __swOverride: { [__swSetupNamespace]: __swSetupOverrideState } }"');
+        expect(result).toContain('{{ __swSetupOverrideState.count }}');
+        expect(result).toContain('@click="__swSetupOverrideState.count++"');
+    });
+
+    it('rewrites a v-bind same-name shorthand into an explicit binding', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <sw-thing :label />
+            </sw-block>
+            </template>
+            <script setup>
+            const label = 'Local';
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        // `:label` carries no expression to rewrite - the attribute name is the reference - so it gains
+        // one rather than having a range replaced.
+        expect(transformOrFail(source, 'shorthand.override.vue').code).toContain(':label="__swSetupOverrideState.label"');
+    });
+
+    it('leaves a name shadowed by a v-for alias alone', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <span v-for="count in rows" :key="count">{{ count }}</span>
+            </sw-block>
+            </template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const count = ref(0);
+            const rows = ref([]);
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'shadowed.override.vue').code;
+
+        // The alias wins inside the loop, so only the iterated source is rewritten.
+        expect(result).toContain('v-for="count in __swSetupOverrideState.rows"');
+        expect(result).toContain('{{ count }}');
+        expect(result).not.toContain('__swSetupOverrideState.count');
     });
 
     it('rejects a bound :extends on sw-block (only a static extends is allowed)', () => {

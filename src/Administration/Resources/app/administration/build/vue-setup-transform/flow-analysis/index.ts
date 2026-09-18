@@ -25,9 +25,11 @@
 export {
     addPatternNames,
     collectExpressionReferences,
+    collectExpressionReferenceOccurrences,
     collectExpressionWriteTargets,
     collectPatternReferences,
     parseBindingPattern,
+    type ReferenceOccurrence,
 } from './references';
 
 /**

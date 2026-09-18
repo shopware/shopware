@@ -18,9 +18,10 @@ import { fromSource, generated, type SourceChunk } from '../source-edits/chunks'
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
+import type { TemplateReferenceOccurrence } from '../template-analyzer/template-references';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
-import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
+import { OVERRIDE_NAMESPACE_BINDING, OVERRIDE_STATE_BINDING } from '../script-analyzer/macros';
 import { transformRanges } from '../source-edits/transform-ranges';
 
 /**
@@ -57,15 +58,21 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
  * The generated `#default` slot scope that carries override-local bindings into `<sw-block extends>`
  * content.
  *
- * Declared override bindings destructure under their own name; everything else the content reads goes
- * through the module's namespace symbol, emitted as a **computed** key so the pattern destructures by
- * that Symbol rather than by a literal name. Authoring `#default` on `<sw-block>` is rejected, so there
- * is never a user pattern to merge with.
+ * Declared override bindings destructure under their own name; everything else the content reads is
+ * bound as one object under the module's namespace symbol, emitted as a **computed** key so the
+ * pattern destructures by that Symbol rather than by a literal name. Authoring `#default` on
+ * `<sw-block>` is rejected, so there is never a user pattern to merge with.
+ *
+ * The object is bound rather than destructured because a slot-scope variable is a `const` in the
+ * compiled render function: `count++` would assign to that local and never reach the ref behind it,
+ * which is why Vue refuses `v-model` on one. Reading through the object keeps the write on the
+ * reactive state the override returned, where assigning a property that holds a ref sets its value.
+ * {@link toPrivateRewriteEdit} rewrites the content's references to match.
  */
 function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
     const mappings = [
         ...(scope.privateNames.length > 0
-            ? [`__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${scope.privateNames.join(', ')} } }`]
+            ? [`__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: ${OVERRIDE_STATE_BINDING} }`]
             : []),
         ...scope.publicNames,
     ];
@@ -74,6 +81,28 @@ function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
         start: scope.at,
         end: scope.at,
         replacement: ` #default="{ ${mappings.join(', ')} }"`,
+    };
+}
+
+/**
+ * Points one reference inside `<sw-block extends>` content at the forwarded state object.
+ *
+ * The `v-bind` same-name shorthand (`:count`) has no expression to rewrite - the attribute name *is*
+ * the reference - so it gains one instead of having its range replaced.
+ */
+function toPrivateRewriteEdit(occurrence: TemplateReferenceOccurrence): SourceEdit {
+    if (occurrence.shorthand) {
+        return {
+            start: occurrence.end,
+            end: occurrence.end,
+            replacement: `="${OVERRIDE_STATE_BINDING}.${occurrence.name}"`,
+        };
+    }
+
+    return {
+        start: occurrence.start,
+        end: occurrence.end,
+        replacement: `${OVERRIDE_STATE_BINDING}.${occurrence.name}`,
     };
 }
 
@@ -168,6 +197,7 @@ function buildOverrideScript(
     return [
         ...registrationTemplate,
         ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
+        ...templateAnalysis.slotScopes.flatMap((scope) => scope.privateRewrites.map(toPrivateRewriteEdit)),
         {
             start: block.contentStart,
             end: block.contentEnd,

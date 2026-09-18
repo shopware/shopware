@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -27,13 +29,34 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @internal
+     *
+     * @return string|null the fingerprint of the resolved tax rates, or null when the customer group does not derive prices from them
+     */
+    public static function buildTaxRuleFingerprint(SalesChannelContext $context): ?string
+    {
+        if (!self::derivesPricesFromTaxRates($context)) {
+            return null;
+        }
+
+        $rates = [];
+        foreach ($context->getTaxRules() as $tax) {
+            $rates[$tax->getId()] = $tax->getRules()?->first()?->getTaxRate() ?? $tax->getTaxRate();
+        }
+
+        ksort($rates);
+
+        return Hasher::hash($rates);
+    }
+
+    /**
      * @param string[] $areas
      */
     public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
     {
         $ruleIds = $context->getRuleIdsByAreas($areas);
 
-        return Hasher::hash([
+        $parts = [
             $context->getSalesChannelId(),
             $context->getDomainId(),
             $context->getLanguageIdChain(),
@@ -42,7 +65,14 @@ class EntityCacheKeyGenerator
             $context->getTaxState(),
             $context->getItemRounding(),
             $ruleIds,
-        ]);
+        ];
+
+        $taxRuleFingerprint = self::buildTaxRuleFingerprint($context);
+        if ($taxRuleFingerprint !== null) {
+            $parts[] = $taxRuleFingerprint;
+        }
+
+        return Hasher::hash($parts);
     }
 
     public function getCriteriaHash(Criteria $criteria): string
@@ -63,5 +93,16 @@ class EntityCacheKeyGenerator
             $criteria->getFields(),
             $criteria->getExcludedFields(),
         ]);
+    }
+
+    private static function derivesPricesFromTaxRates(SalesChannelContext $context): bool
+    {
+        $basis = $context->getCurrentCustomerGroup()->getPriceBasis();
+
+        return match ($context->getTaxState()) {
+            CartPrice::TAX_STATE_GROSS => $basis === CustomerGroupEntity::PRICE_BASIS_NET,
+            CartPrice::TAX_STATE_NET => $basis === CustomerGroupEntity::PRICE_BASIS_GROSS,
+            default => false,
+        };
     }
 }

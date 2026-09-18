@@ -1,3 +1,15 @@
+# 6.7.16.0 (upcoming)
+
+## Features
+
+### Price calculation basis per customer group
+
+Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new nullable field `customer_group.priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.
+
+Leaving the field unset keeps the previous behaviour, where the display mode also decides the used price value. Manually maintained values of the non-authoritative flavour are ignored for display and calculation, but remain the sorting and filtering key in listings.
+
+The customer group detail page offers both settings separately. Plugins can decorate the new `Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector` to customize the selection, for example to apply charm-price rounding to derived gross prices. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+
 # 6.7.15.0 (upcoming)
 
 ## Features

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Service\ServiceRegistry\Client;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as Io;
 use Symfony\Component\Filesystem\Path;
 
@@ -86,16 +87,17 @@ class ServiceSourceResolver implements Source
         string $zipUrl,
     ): string {
         $destination = Path::join($this->temporaryDirectoryFactory->path(), $serviceName);
-        $localZipLocation = Path::join($destination, $serviceName . '.zip');
+        $staging = $destination . '.tmp-' . uniqid('', true);
+        $localZipLocation = Path::join($staging, $serviceName . '.zip');
 
         try {
             $zipData = $this->client->fetchServiceZip($zipUrl);
-            $this->io->mkdir($destination);
+            $this->io->mkdir($staging);
             foreach ($zipData as $chunk) {
                 $this->io->appendToFile($localZipLocation, $chunk->getContent());
             }
         } catch (\Exception $e) {
-            $this->io->remove($destination); // corrupted download, remove partially written data
+            $this->io->remove($staging); // corrupted download, remove partially written data
             throw AppException::cannotMountAppFilesystem( // @phpstan-ignore shopware.domainException
                 $serviceName,
                 ServiceException::cannotWriteAppToDestination($destination, $e)
@@ -103,17 +105,47 @@ class ServiceSourceResolver implements Source
         }
 
         try {
-            $this->appExtractor->extract(
-                $localZipLocation,
-                $this->temporaryDirectoryFactory->path(),
-                $serviceName,
-            );
+            $extracted = $this->appExtractor->extract($localZipLocation, $staging, $serviceName);
+
+            $this->replace($extracted, $destination);
         } catch (PluginException|AppArchiveValidationFailure $e) {
             throw AppException::cannotMountAppFilesystem($serviceName, $e); // @phpstan-ignore shopware.domainException
+        } catch (IOException $e) {
+            throw AppException::cannotMountAppFilesystem( // @phpstan-ignore shopware.domainException
+                $serviceName,
+                ServiceException::cannotWriteAppToDestination($destination, $e)
+            );
         } finally {
-            $this->io->remove($localZipLocation);
+            $this->io->remove($staging);
         }
 
         return $destination;
+    }
+
+    /**
+     * The previous revision is renamed aside instead of removed, so $destination is never absent for
+     * longer than a single rename. Anything resolving the service mid-swap must not see a partial directory.
+     */
+    private function replace(string $source, string $destination): void
+    {
+        $backup = null;
+        if ($this->io->exists($destination)) {
+            $backup = $destination . '.bak-' . uniqid('', true);
+            $this->io->rename($destination, $backup);
+        }
+
+        try {
+            $this->io->rename($source, $destination);
+        } catch (IOException $e) {
+            if ($backup !== null) {
+                $this->io->rename($backup, $destination);
+            }
+
+            throw $e;
+        }
+
+        if ($backup !== null) {
+            $this->io->remove($backup);
+        }
     }
 }

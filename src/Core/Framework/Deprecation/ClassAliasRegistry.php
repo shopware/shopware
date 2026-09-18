@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Notification\NotificationEntity;
 final class ClassAliasRegistry
 {
     /**
+     * The keys cannot be class-string because the legacy classes intentionally have no declarations.
+     *
      * @var array<non-empty-string, class-string>
      */
     public const ALIASES = [

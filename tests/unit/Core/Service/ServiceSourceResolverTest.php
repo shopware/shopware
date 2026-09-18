@@ -12,13 +12,12 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
-use Symfony\Component\Filesystem\Filesystem as Io;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Contracts\HttpClient\ChunkInterface;
 
@@ -33,13 +32,13 @@ class ServiceSourceResolverTest extends TestCase
 
     private const CUSTOM_FIELDS = 'Resources/config/custom-fields.xml';
 
-    private Io $io;
+    private Filesystem $io;
 
     private string $root;
 
     protected function setUp(): void
     {
-        $this->io = new Io();
+        $this->io = new Filesystem();
         $this->root = Path::join((string) realpath(sys_get_temp_dir()), Uuid::randomHex());
     }
 
@@ -50,14 +49,27 @@ class ServiceSourceResolverTest extends TestCase
 
     public function testName(): void
     {
-        static::assertSame('service', $this->resolver(static::createStub(Client::class))->name());
+        $source = new ServiceSourceResolver(
+            static::createStub(Client::class),
+            new TemporaryDirectoryFactory(),
+            static::createStub(AppExtractor::class),
+            static::createStub(Filesystem::class)
+        );
+        static::assertSame('service', $source->name());
     }
 
     public function testSupportsOnlyConsidersServiceTypes(): void
     {
-        $source = $this->resolver(static::createStub(Client::class));
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setSourceType('service');
 
-        $app = $this->serviceApp();
+        $source = new ServiceSourceResolver(
+            static::createStub(Client::class),
+            new TemporaryDirectoryFactory(),
+            static::createStub(AppExtractor::class),
+            static::createStub(Filesystem::class)
+        );
 
         static::assertTrue($source->supports($app));
 
@@ -68,19 +80,37 @@ class ServiceSourceResolverTest extends TestCase
 
     public function testSupportSelfManagedManifestsWithHttpUrls(): void
     {
-        $metadata = $this->metadata('TestApp');
-        $metadata->setSelfManaged(true);
-
         $manifest = static::createStub(Manifest::class);
         $manifest->method('getPath')->willReturn('https://example.com');
+
+        $metadata = Metadata::fromArray([
+            'name' => 'TestApp',
+            'label' => [],
+            'author' => 'Shopware',
+            'copyright' => 'Shopware',
+            'license' => 'Shopware',
+            'version' => '1.0',
+        ]);
+
+        $metadata->setSelfManaged(true);
+
         $manifest->method('getMetadata')->willReturn($metadata);
 
-        static::assertTrue($this->resolver(static::createStub(Client::class))->supports($manifest));
+        $source = new ServiceSourceResolver(
+            static::createStub(Client::class),
+            new TemporaryDirectoryFactory(),
+            static::createStub(AppExtractor::class),
+            static::createStub(Filesystem::class)
+        );
+
+        static::assertTrue($source->supports($manifest));
     }
 
     public function testFilesystemForVersion(): void
     {
-        $filesystem = $this->download('TestService', [self::MANIFEST => '<manifest/>']);
+        $client = $this->clientServing('TestService', [self::MANIFEST => '<manifest/>']);
+
+        $filesystem = $this->resolver($client)->filesystemForVersion($this->appInfo('TestService'));
 
         static::assertSame($this->path('TestService'), $filesystem->location);
         static::assertFileExists($this->path('TestService', self::MANIFEST));
@@ -88,21 +118,44 @@ class ServiceSourceResolverTest extends TestCase
 
     public function testFilesystemWhenAppExists(): void
     {
-        $this->io->mkdir($this->path('TestService'));
-
         $client = $this->createMock(Client::class);
+        $temporaryDirectoryFactory = $this->createMock(TemporaryDirectoryFactory::class);
+        $appExtractor = $this->createMock(AppExtractor::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $temporaryDirectoryFactory->expects($this->once())
+            ->method('path')
+            ->willReturn('/tmp/test');
+
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with('/tmp/test/TestService')
+            ->willReturn(true);
+
+        // Should not call download methods when app exists
         $client->expects($this->never())->method('fetchServiceZip');
+        $appExtractor->expects($this->never())->method('extract');
 
-        $filesystem = $this->resolver($client)->filesystem($this->serviceApp());
+        $source = new ServiceSourceResolver($client, $temporaryDirectoryFactory, $appExtractor, $filesystem);
 
-        static::assertSame($this->path('TestService'), $filesystem->location);
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setName('TestService');
+        $app->setSourceType('service');
+
+        $result = $source->filesystem($app);
+
+        static::assertSame('/tmp/test/TestService', $result->location);
     }
 
     public function testAppIsDownloadedIfItDoesNotExistOnFilesystem(): void
     {
         $client = $this->clientServing('TestService', [self::MANIFEST => '<manifest/>']);
 
-        $app = $this->serviceApp();
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setName('TestService');
+        $app->setSourceType('service');
         $app->setSourceConfig($this->sourceConfig());
 
         $filesystem = $this->resolver($client)->filesystem($app);
@@ -157,7 +210,7 @@ class ServiceSourceResolverTest extends TestCase
         $client = static::createStub(Client::class);
         $client->method('fetchServiceZip')->willReturn($this->chunks('irrelevant'));
 
-        $io = static::createStub(Io::class);
+        $io = static::createStub(Filesystem::class);
         $io->method('appendToFile')->willThrowException($underlying);
 
         $this->expectExceptionObject(AppException::cannotMountAppFilesystem(
@@ -205,13 +258,13 @@ class ServiceSourceResolverTest extends TestCase
     /**
      * @param array<string, string> $files
      */
-    private function download(string $serviceName, array $files): Filesystem
+    private function download(string $serviceName, array $files): void
     {
-        return $this->resolver($this->clientServing($serviceName, $files))
+        $this->resolver($this->clientServing($serviceName, $files))
             ->filesystemForVersion($this->appInfo($serviceName));
     }
 
-    private function resolver(Client $client, ?Io $io = null): ServiceSourceResolver
+    private function resolver(Client $client, ?Filesystem $io = null): ServiceSourceResolver
     {
         $temporaryDirectoryFactory = static::createStub(TemporaryDirectoryFactory::class);
         $temporaryDirectoryFactory->method('path')->willReturn($this->root);
@@ -284,16 +337,6 @@ class ServiceSourceResolverTest extends TestCase
         \assert($entries !== false);
 
         return array_values(array_diff($entries, ['.', '..']));
-    }
-
-    private function serviceApp(): AppEntity
-    {
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setName('TestService');
-        $app->setSourceType('service');
-
-        return $app;
     }
 
     private function appInfo(string $serviceName): AppInfo

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -23,7 +24,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('framework')]
 #[CoversClass(HttpCacheKeyGenerator::class)]
-#[CoversClass(HttpCacheKeyEvent::class)]
 #[Group('cache')]
 class HttpCacheKeyGeneratorTest extends TestCase
 {
@@ -136,6 +136,28 @@ class HttpCacheKeyGeneratorTest extends TestCase
             $this->cacheKeyGenerator->generate($cookieOnlyRequest)->key,
             $this->cacheKeyGenerator->generate($headerRequest, $response)->key
         );
+    }
+
+    #[DataProvider('contextSourceProvider')]
+    public function testSessionContextSourceBypassesCacheReadsAndWrites(?string $source, bool $cacheable): void
+    {
+        $request = Request::create('https://domain.com/store-api/product');
+        if ($source !== null) {
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, $source);
+        }
+
+        static::assertSame($cacheable, $this->cacheKeyGenerator->generate($request)->isCacheable);
+        static::assertSame($cacheable, $this->cacheKeyGenerator->generate($request, new Response())->isCacheable);
+    }
+
+    /**
+     * @return iterable<string, array{?string, bool}>
+     */
+    public static function contextSourceProvider(): iterable
+    {
+        yield 'session source must reach the resolver even without a cookie' => [SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION, false];
+        yield 'ordinary requests remain cacheable' => [null, true];
+        yield 'unrecognized sources keep ordinary behavior' => ['token', true];
     }
 
     public function testCacheKeyStaysTheSameIfEventPartsAreSortedDifferently(): void

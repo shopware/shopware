@@ -99,6 +99,8 @@ use Shopware\Core\Framework\Routing\RouteScope;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
+use Shopware\Core\Framework\Routing\SessionContextTokenSubscriber;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist;
 use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
@@ -716,6 +718,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(RouteScopeRegistry::class),
         ]);
+
+    $services->set(SessionContextTokenAccessor::class)
+        ->args([
+            param('session.storage.options'),
+            service(SystemConfigService::class),
+        ]);
+
+    $services->set(SessionContextTokenSubscriber::class)
+        ->args([
+            service(SessionContextTokenAccessor::class),
+            service('request_stack'),
+            service(RouteScopeRegistry::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(SalesChannelRequestContextResolver::class)
         ->decorate(ApiRequestContextResolver::class)

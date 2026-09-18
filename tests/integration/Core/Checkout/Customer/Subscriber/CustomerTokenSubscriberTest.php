@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,11 +81,14 @@ class CustomerTokenSubscriberTest extends TestCase
         $customerId = $this->createCustomer();
 
         $request = Request::create('/');
+        // a storefront request owns the session
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
         $request->setSession(new Session(new MockArraySessionStorage()));
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getToken')->willReturn('test');
         $context->method('getCustomerId')->willReturn($customerId);
+        $context->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
 
         static::getContainer()->get('request_stack')->push($request);

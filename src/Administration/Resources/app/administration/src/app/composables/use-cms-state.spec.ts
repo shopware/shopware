@@ -90,18 +90,9 @@ describe('src/app/composables/use-cms-state', () => {
     });
 
     it.each([
-        [
-            'sw.category.detail',
-            'category-1',
-        ],
-        [
-            'sw.category.landingPageDetail.base',
-            'landing-page-1',
-        ],
-        [
-            'sw.product.detail',
-            'product-1',
-        ],
+        ['sw.category.detail', 'category-1'],
+        ['sw.category.landingPageDetail.base', 'landing-page-1'],
+        ['sw.product.detail', 'product-1'],
     ])('resolves the content entity of the %s route', (routeName, expectedId) => {
         stubShopware({
             swCategoryDetail: { category: { id: 'category-1' }, landingPage: { id: 'landing-page-1' } },

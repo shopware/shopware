@@ -59,10 +59,7 @@ async function createWrapper({
             },
             stubs: {
                 'i18n-t': {
-                    props: [
-                        'keypath',
-                        'tag',
-                    ],
+                    props: ['keypath', 'tag'],
                     template: `
                         <component :is="tag || 'span'" :data-keypath="keypath">
                             <template v-for="(_, name) in $slots" :key="name">
@@ -138,10 +135,7 @@ describe('src/module/sw-oauth-authorize/page/index', () => {
             query: {
                 ...validQuery,
                 // @ts-expect-error arrays are valid vue-router query values but must be ignored
-                state: [
-                    'a',
-                    'b',
-                ],
+                state: ['a', 'b'],
                 unrelated: 'value',
             },
         });

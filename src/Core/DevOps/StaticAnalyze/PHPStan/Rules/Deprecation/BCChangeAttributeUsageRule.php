@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
@@ -56,6 +57,8 @@ use Shopware\Core\Framework\Log\Package;
 class BCChangeAttributeUsageRule implements Rule
 {
     private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
+
+    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/';
 
     private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
 
@@ -261,6 +264,62 @@ class BCChangeAttributeUsageRule implements Rule
 
         if ($attribute->getName() === BecomesInternal::class && $this->isMarkedInternal($class->getDocComment())) {
             return [$this->error($line, \sprintf('BecomesInternal on "%s": the class is already @internal.', $symbol))];
+        }
+
+        if ($attribute->getName() === ExperimentalReplacement::class) {
+            return $this->validateExperimentalReplacement($attribute, $symbol, $line);
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateExperimentalReplacement(ReflectionAttribute|FakeReflectionAttribute $attribute, string $symbol, int $line): array
+    {
+        $feature = $this->argument($attribute, 'feature', 1);
+
+        if (!\is_string($feature) || preg_match(self::FEATURE_FLAG_PATTERN, $feature) !== 1) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": feature "%s" must be the ALL_CAPS name of the experimental feature flag.',
+                $symbol,
+                \is_scalar($feature) ? (string) $feature : \gettype($feature)
+            ))];
+        }
+
+        $replacement = $this->argument($attribute, 'replacement', 2);
+        $description = $this->argument($attribute, 'description', 3);
+
+        if ($replacement === null && (!\is_string($description) || \trim($description) === '')) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": name a replacement class or describe what supersedes the symbol.',
+                $symbol
+            ))];
+        }
+
+        if ($replacement === null) {
+            return [];
+        }
+
+        if (!\is_string($replacement) || !$this->reflectionProvider->hasClass($replacement)) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": replacement "%s" is not a resolvable class. Reference the replacement via ::class.',
+                $symbol,
+                \is_scalar($replacement) ? (string) $replacement : \gettype($replacement)
+            ))];
+        }
+
+        $replacementDoc = (string) $this->reflectionProvider->getClass($replacement)->getNativeReflection()->getDocComment();
+        $experimentalPattern = \sprintf('/@experimental\b[^\n]*\bfeature:%s\b/', preg_quote($feature, '/'));
+
+        if (preg_match($experimentalPattern, $replacementDoc) !== 1) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": replacement "%s" is not marked @experimental for feature "%s". Once the replacement is stable, turn this attribute into a real @deprecated annotation.',
+                $symbol,
+                $this->shortClassName($replacement),
+                $feature
+            ))];
         }
 
         return [];

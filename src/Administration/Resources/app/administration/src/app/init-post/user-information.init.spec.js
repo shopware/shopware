@@ -114,12 +114,8 @@ describe('src/app/init-post/user-information.init.ts', () => {
         await initializeUserContext();
         await flushPromises();
 
-        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([
-            USER_THEME_CONFIG_KEY,
-        ]);
-        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([
-            USER_MODULE_ICON_COLORS_CONFIG_KEY,
-        ]);
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([USER_THEME_CONFIG_KEY]);
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([USER_MODULE_ICON_COLORS_CONFIG_KEY]);
         expect(useTheme().theme.value).toBe('dark');
         expect(useModuleIconColors().enabled.value).toBe(true);
     });

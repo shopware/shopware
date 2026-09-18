@@ -19,14 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
-use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(EntitySearchTool::class)]
-#[CoversClass(McpEntityIncludes::class)]
 class EntitySearchToolTest extends TestCase
 {
     public function testSearchWithDefaultCriteria(): void

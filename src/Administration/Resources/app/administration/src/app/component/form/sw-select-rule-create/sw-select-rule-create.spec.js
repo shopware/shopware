@@ -109,10 +109,7 @@ describe('components/sw-select-rule-create', () => {
         const resultItems = wrapper.findAllComponents('.sw-select-result-list__item-list .sw-select-result');
         expect(resultItems).toHaveLength(2);
 
-        const [
-            firstResult,
-            secondResult,
-        ] = resultItems;
+        const [firstResult, secondResult] = resultItems;
 
         expect(firstResult.attributes('class')).not.toContain('is--disabled');
         expect(secondResult.attributes('class')).toContain('is--disabled');
@@ -164,17 +161,12 @@ describe('components/sw-select-rule-create', () => {
 
         wrapper.vm.onSaveRule(rule.id, rule);
 
-        const [
-            updatedRules,
-        ] = wrapper.emitted('update:rules')[0];
+        const [updatedRules] = wrapper.emitted('update:rules')[0];
 
         expect(updatedRules).not.toBe(rules);
         expect(updatedRules.has(rule.id)).toBe(true);
         expect(rules.has(rule.id)).toBe(false);
-        expect(wrapper.emitted('save-rule')[0]).toEqual([
-            rule.id,
-            rule,
-        ]);
+        expect(wrapper.emitted('save-rule')[0]).toEqual([rule.id, rule]);
     });
 
     it('should not duplicate an already selected rule when saving from the modal', async () => {
@@ -190,9 +182,7 @@ describe('components/sw-select-rule-create', () => {
 
         wrapper.vm.onSaveRule(rule.id, rule);
 
-        const [
-            updatedRules,
-        ] = wrapper.emitted('update:rules')[0];
+        const [updatedRules] = wrapper.emitted('update:rules')[0];
 
         expect(updatedRules).toHaveLength(1);
         expect(updatedRules.get(rule.id).id).toBe(rule.id);

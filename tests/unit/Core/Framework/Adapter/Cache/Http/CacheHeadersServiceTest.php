@@ -422,6 +422,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertContains(PlatformRequest::HEADER_ACCESS_KEY, $vary);
         static::assertContains(PlatformRequest::HEADER_LANGUAGE_ID, $vary);
         static::assertContains(PlatformRequest::HEADER_CURRENCY_ID, $vary);
+        static::assertContains(PlatformRequest::HEADER_INCLUDE_SEO_URLS, $vary);
         static::assertContains(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $vary);
         static::assertContains(PlatformRequest::HEADER_CONTEXT_SOURCE, $vary);
     }

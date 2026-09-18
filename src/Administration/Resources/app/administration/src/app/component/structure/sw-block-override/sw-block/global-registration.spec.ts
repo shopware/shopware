@@ -21,14 +21,8 @@ const componentWithBlock = {
 
 describe('sw-block global registration', () => {
     it.each([
-        [
-            'mount',
-            mount,
-        ],
-        [
-            'shallowMount',
-            shallowMount,
-        ],
+        ['mount', mount],
+        ['shallowMount', shallowMount],
     ])('renders no element of its own under %s', (_name, mountingMethod) => {
         const wrapper = mountingMethod(componentWithBlock);
 

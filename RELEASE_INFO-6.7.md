@@ -144,6 +144,11 @@ Note that the label is embedded as an SVG `data:` URI, which Gmail and Outlook d
 ### Primary/replica connections switch back to the replica between requests
 
 When database replicas are configured (`DATABASE_REPLICA_*_URL`), the connection now keeps the replica connection open next to the primary one and switches back to the replica between HTTP requests and Messenger messages. Previously a request that wrote to the primary pinned the connection to the primary — in long running runtimes (for example FrankenPHP worker mode) for the whole lifetime of the worker, which silently disabled replica reads. A worker that has written to the primary may now hold two open database connections instead of one; add `?keepReplica=0` to the `DATABASE_URL` to restore the previous behaviour.
+### Delivery promotion requirements are evaluated before any delivery discount is applied
+
+Requirement rules of delivery promotions are now evaluated against the cart as the customer has it, instead of against the cart as it is progressively changed by the delivery discounts applied before them. A promotion whose requirement does not match is skipped before the fixed price reduction, so it can no longer suppress the delivery promotions that do apply.
+
+If several delivery promotions are active and one of them uses a rule that depends on the cart contents, that rule no longer sees the placeholder line items and deliveries added by the promotions applied before it, and the promotion can stop applying. Adjust such rules to describe the customer's cart.
 
 ### State machine transitions resolve deterministically
 

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * The transaction owner and participating writers must share the identical Connection instance.
+ * Callback notifications on another instance cannot disable this connection's retries.
  */
 #[Package('framework')]
 class RetryableWriteTransaction

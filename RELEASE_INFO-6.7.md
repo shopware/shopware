@@ -101,6 +101,8 @@ Live state transitions persist history and entity state in one retryable DAL bat
 
 The core Flow Builder state action shares the transaction-wide retry boundary. Retries stop once any write-success callback or written listener starts, including nested writes with a fresh context; later contention rolls back without replaying side effects. Custom transactional actions and versioned writes retain their existing non-retrying behavior. Entity-written events remain separate, in history-before-state order.
 
+`WriteCommandExceptionEvent` and registered error callbacks also run when an `EntityWriteEvent` subscriber throws before commands execute. Listeners must not assume that SQL commands ran. Standalone DAL deletes stop retrying once delete-success callbacks begin or error compensation fails.
+
 ### MariaDB record-change conflicts are retryable
 
 MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions, including when wrapped in an application exception. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error and its original query are reported instead. Other application exception wrappers are preserved when retries stop.

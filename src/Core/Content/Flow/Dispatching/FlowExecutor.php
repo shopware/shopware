@@ -236,6 +236,7 @@ class FlowExecutor
             };
 
             // Only the core live-state action participates in the write callback retry boundary.
+            // Subclasses and decorators may add side effects that cannot safely be replayed.
             if ($action::class === SetOrderStateAction::class && $event->getContext()->getVersionId() === Defaults::LIVE_VERSION) {
                 RetryableWriteTransaction::retryable($this->connection, $handle);
             } else {

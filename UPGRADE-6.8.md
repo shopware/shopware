@@ -2105,8 +2105,8 @@ The HTTP route is still the same. The old class has been removed.
 
 ## Removed Elasticsearch search configuration loader alias
 
-`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed. Use
-`Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
 
 ## Removal of snippets
 

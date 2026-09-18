@@ -11,6 +11,7 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bootstrapClosure } from './scripts/codemods/shopware-virtual-modules/bootstrap-closure';
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';
@@ -770,6 +771,35 @@ export default [
         files: ['build/vue-setup-transform/**/*.ts'],
         rules: {
             'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
+
+    // The `shopware:*` modules are experimental, so this is a warning and the Administration is the only
+    // consumer: `extension-tooling/eslint.mjs` names the `sw-core-rules` extensions get, and omits it.
+    //
+    // The exemptions match the codemod that did the one-time sweep. `src/core` is excluded as a layer —
+    // it is the Vue-independent framework code, part of it runs in the admin worker where no
+    // `window.Shopware` exists. Specs read the global deliberately. The rest is computed: every module
+    // the Administration evaluates before `src/index.ts` assigns the global cannot import one of these.
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        // Written out rather than braced: the minimatch bundled with @eslint/config-array throws on
+        // brace expansion.
+        ignores: [
+            'src/core/**',
+            '**/*.spec.ts',
+            '**/*.spec.js',
+            '**/*.spec.vue2.ts',
+            '**/*.spec.vue2.js',
+            '**/*.spec/**',
+            ...[...bootstrapClosure(path.join(__dirname, 'src'))].map((file) => path.relative(__dirname, file)),
+        ],
+        rules: {
+            'sw-core-rules/prefer-shopware-modules': 'warn',
         },
     },
     {

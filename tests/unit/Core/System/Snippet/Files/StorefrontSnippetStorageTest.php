@@ -60,7 +60,7 @@ class StorefrontSnippetStorageTest extends TestCase
 
         static::assertSame(1, $this->adapter->writes);
         static::assertJsonStringEqualsJsonString(
-            '{"version":"1.0.0","files":{"Resources/snippet/storefront.de-DE.json":"{\"app\":{\"title\":\"Hallo\"}}","Resources/snippet/storefront.en-GB.base.json":"{\"app\":{\"title\":\"Hello\"}}"}}',
+            '{"version":"1.0.0","files":{"Resources/snippet/storefront.de.json":"{\"app\":{\"title\":\"Hallo\"}}","Resources/snippet/storefront.en.base.json":"{\"app\":{\"title\":\"Hello\"}}"}}',
             $this->filesystem->read('translation/apps/TestApp.json')
         );
     }
@@ -76,8 +76,8 @@ class StorefrontSnippetStorageTest extends TestCase
 
         static::assertNotNull($directory);
         static::assertSame($reads + 1, $this->adapter->reads);
-        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
-        static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en-GB.base.json'));
+        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
+        static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en.base.json'));
 
         $remote = $this->createMock(FilesystemOperator::class);
         $remote->expects($this->never())->method(static::anything());
@@ -124,7 +124,7 @@ class StorefrontSnippetStorageTest extends TestCase
         $directory = $this->createStorage($source)->directory('TestApp', '1.0.0');
 
         static::assertNotNull($directory);
-        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
+        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
         static::assertSame($directory, $this->createStorage($source)->directory('TestApp', '1.0.0'));
         static::assertSame(1, $this->adapter->writes);
         static::assertJsonStringEqualsJsonString('{"version":"0.9.0","files":[]}', $this->filesystem->read('translation/apps/TestApp.json'));
@@ -141,7 +141,7 @@ class StorefrontSnippetStorageTest extends TestCase
         $directory = $this->createStorage($source, logger: $logger)->directory('TestApp', '1.0.0');
 
         static::assertNotNull($directory);
-        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
+        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
         static::assertSame($directory, $this->createStorage($source, logger: $logger)->directory('TestApp', '1.0.0'));
         static::assertSame(1, $this->adapter->reads);
         static::assertSame(1, $this->adapter->writes);
@@ -156,7 +156,7 @@ class StorefrontSnippetStorageTest extends TestCase
         $directory = $this->createStorage($source)->directory('TestApp', '1.0.0');
 
         static::assertNotNull($directory);
-        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
+        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
         static::assertSame($directory, $this->createStorage($source)->directory('TestApp', '1.0.0'));
         static::assertSame(1, $this->adapter->reads);
     }
@@ -194,8 +194,8 @@ class StorefrontSnippetStorageTest extends TestCase
             $directory = $this->createStorage()->directory('TestApp', '1.0.0');
             static::assertNotNull($directory);
             static::assertStringStartsWith($this->directory, $directory);
-            static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
-            static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en-GB.base.json'));
+            static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
+            static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en.base.json'));
         }
     }
 
@@ -213,7 +213,7 @@ class StorefrontSnippetStorageTest extends TestCase
         $oldDirectory = $storage->directory('TestApp', '1.0.0');
 
         static::assertNotNull($oldDirectory);
-        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($oldDirectory . '/Resources/snippet/storefront.de-DE.json'));
+        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($oldDirectory . '/Resources/snippet/storefront.de.json'));
         $newDirectory = $storage->directory('TestApp', '2.0.0');
         static::assertNotNull($newDirectory);
         static::assertNotSame($oldDirectory, $newDirectory);
@@ -236,16 +236,16 @@ class StorefrontSnippetStorageTest extends TestCase
             $interleaved = true;
             $directory = $this->createStorage()->directory('TestApp', '1.0.0');
             static::assertNotNull($directory);
-            static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
-            static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en-GB.base.json'));
+            static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
+            static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en.base.json'));
         });
 
         $directory = $this->createStorage(io: $io)->directory('TestApp', '1.0.0');
 
         static::assertNotNull($directory);
         static::assertSame($directory, $this->createStorage()->directory('TestApp', '1.0.0'));
-        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
-        static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en-GB.base.json'));
+        static::assertSame('{"app":{"title":"Hallo"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
+        static::assertSame('{"app":{"title":"Hello"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.en.base.json'));
     }
 
     public function testNestedFilesKeepTheirPaths(): void
@@ -256,10 +256,10 @@ class StorefrontSnippetStorageTest extends TestCase
         $directory = $storage->directory('TestApp', '1.0.0');
 
         static::assertNotNull($directory);
-        static::assertJsonStringEqualsJsonString('{"app":{"title":"Root"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de-DE.json'));
+        static::assertJsonStringEqualsJsonString('{"app":{"title":"Root"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
         static::assertSame(
-            $this->io->readFile(__DIR__ . '/_fixtures/AppWithNestedSnippets/Resources/snippet/de_DE/storefront.de-DE.json'),
-            $this->io->readFile($directory . '/Resources/snippet/de_DE/storefront.de-DE.json')
+            $this->io->readFile(__DIR__ . '/_fixtures/AppWithNestedSnippets/Resources/snippet/de/storefront.de.json'),
+            $this->io->readFile($directory . '/Resources/snippet/de/storefront.de.json')
         );
     }
 

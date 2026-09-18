@@ -3,23 +3,56 @@
  *
  * Extracts the `shopware:*` registry from the sources that define each global branch.
  *
- * The four branches are written down in three different shapes, so each needs its own matcher:
+ * The four branches are written down in three different shapes, so each needs its own matcher.
  *
- * `Shopware.Utils` is `src/core/service/util.service.ts`. Every namespace is a top-level exported const,
- * and a default-export literal re-lists them by shorthand:
+ * `Shopware.Utils` — src/core/service/util.service.ts
+ * Every namespace is a top-level exported const, and a default-export literal re-lists them by shorthand:
  *
  *     export const debug = { warn: warn, error: error };
  *     export default { createId, throttle, object, debug, format, … };
  *
- * The literal gives `shopware:utils` its named exports and the set of subpath keys; the consts give each
- * subpath its own members, so `shopware:utils/debug` publishes `warn` and `error`. Two passes, joined by
- * name in `extractModuleRegistry`.
+ *     → shopware:utils           named exports { createId, throttle, object, debug, format, … }
+ *       shopware:utils/debug     default is the namespace, named exports { warn, error }
+ *       shopware:utils/createId  default only, because a function has no const object to read
  *
- * `Shopware.Data` is `src/core/data/index.js`, a default-export literal of imported classes and nothing
- * else, so it needs the first pass only and every subpath is default-only.
+ * Two passes joined by name in `extractModuleRegistry`: the literal gives the named exports and the set
+ * of subpath keys, the consts give each subpath its own members.
  *
- * `Shopware.Mixin` and `Shopware.Store` are runtime registries with no literal to read. Their declared
- * contract is two interfaces in `src/global.types.ts`, so the subpaths come from the type instead.
+ * `Shopware.Data` — src/core/data/index.js
+ * One default-export literal of imported classes and nothing else, so the first pass alone covers it:
+ *
+ *     export default { ChangesetGenerator, Criteria, Entity, EntityCollection, … };
+ *
+ *     → shopware:data           named exports { ChangesetGenerator, Criteria, Entity, … }
+ *       shopware:data/Criteria  default only, like every class subpath
+ *
+ * `Shopware.Mixin` — src/global.types.ts, `interface MixinContainer`
+ * A runtime registry, so there is no literal to read and the declared contract is the type itself:
+ *
+ *     declare global {
+ *         interface MixinContainer {
+ *             notification: typeof NotificationMixin;
+ *             'sw-form-field': typeof SwFormFieldMixin;
+ *         }
+ *     }
+ *
+ *     → shopware:mixins/notification   default only
+ *       shopware:mixins/sw-form-field  default only; a hyphenated key arrives as a string literal
+ *
+ * `Shopware.Store` — src/global.types.ts, `interface PiniaRootState`
+ * The same shape for the same reason:
+ *
+ *     declare global {
+ *         interface PiniaRootState {
+ *             cmsPage: CmsPageStore;
+ *             swOrderDetail: SwOrderDetailStore;
+ *         }
+ *     }
+ *
+ *     → shopware:stores/swOrderDetail  default only, and that default is a composable
+ *
+ * Neither registry family publishes a root import: resolving one would have to resolve every entry. And
+ * both are only as honest as the interface — a key nobody registers passes here and throws on import.
  *
  * Only this generator parses source. Vite reads the checked-in `shopware-modules.json`.
  */

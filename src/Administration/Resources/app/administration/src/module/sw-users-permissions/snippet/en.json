@@ -231,7 +231,6 @@
         },
         "permissions": {
             "parents": {
-                "catalogues": "Catalogues",
                 "content": "Content",
                 "customers": "Customers",
                 "marketing": "Marketing",

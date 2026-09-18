@@ -587,17 +587,7 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ### Main menu group "Catalogues" is now "Products"
 
-The first main menu group is labelled "Products", and its product list entry is labelled "Overview". The matching group in Settings > Users & permissions is labelled "Products" as well.
-
-Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`. Only the labels moved to new snippet keys:
-
-| Label | Previous key | New key |
-| --- | --- | --- |
-| Menu group | `global.sw-admin-menu.navigation.mainMenuItemCatalogue` | `global.sw-admin-menu.navigation.mainMenuItemProducts` |
-| Product list entry | `sw-product.general.mainMenuItemGeneral` | `sw-product.general.mainMenuItemOverview` |
-| Permission group | `sw-privileges.permissions.parents.catalogues` | `sw-privileges.permissions.parents.products` |
-
-The previous keys keep their previous wording and still resolve, so extensions referencing them keep working; point them at the new keys to stay consistent with the Administration. `sw-product.general.mainMenuItemGeneral` is unchanged and stays the title of the product module.
+The first main menu group is labelled "Products", its product list entry is labelled "Overview", and the matching group in Settings > Users & permissions is labelled "Products" as well. Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`.
 
 The category menu entry moved from position `20` to `25` so that it no longer ties with the reviews entry at `20`. Extension entries in the group that relied on the tie order need an explicit position.
 

@@ -299,6 +299,11 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
+### `MailService` renders mails with the snippets of their sales channel
+
+`MailService` now configures the translator for the mail's sales channel while it renders the subject and content. Previously the Flow Builder mail action and `SendMailTemplate` did this before calling it; now it applies to every mail sent through `MailService`.
+
+If you replace `AbstractMailService` without calling the decorated service, configure the translator in your implementation with `AbstractTranslator::injectSettings()` and `resetInjection()`. Because the settings only apply during rendering, listeners of `FlowSendMailActionEvent` and `MailBeforeValidateEvent` see the translator's default configuration.
 ### MCP servers are registered declaratively
 
 Shopware runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers declaratively. The extension tags `shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and their `shopware.store_api_mcp.*` equivalents are unchanged, so plugins and apps that register tools, prompts, or resources need no adjustment. Code that integrates with the MCP internals has to be updated; those classes are marked `@experimental stableVersion:v6.8.0`. The motivation, the considered alternatives, and the consequences are described in [MCP capability registration via the container](adr/2026-08-31-mcp-capability-registration-via-container.md).

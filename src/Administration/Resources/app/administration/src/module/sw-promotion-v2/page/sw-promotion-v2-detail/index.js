@@ -1,6 +1,9 @@
 /**
  * @sw-package checkout
  */
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
 import { Criteria } from 'shopware:data';
@@ -8,7 +11,6 @@ import useContextStore from 'shopware:stores/context';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useSwPromotionDetailStore from 'shopware:stores/swPromotionDetail';
 
-const { Mixin } = Shopware;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -22,9 +24,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('promotion'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('promotion'),
     ],
 
     shortcuts: {

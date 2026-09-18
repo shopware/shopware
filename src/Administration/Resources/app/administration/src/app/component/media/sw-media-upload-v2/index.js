@@ -1,10 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
 import { debug, fileReader } from 'shopware:utils';
 import { fileSize } from 'shopware:utils/format';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
@@ -42,7 +43,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

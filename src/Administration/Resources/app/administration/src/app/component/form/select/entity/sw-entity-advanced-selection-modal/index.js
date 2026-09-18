@@ -2,12 +2,12 @@
  * @sw-package framework
  */
 
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
 import { debounce } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 /**
  * @private
  * @description This component should not be used directly.
@@ -32,7 +32,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     props: {

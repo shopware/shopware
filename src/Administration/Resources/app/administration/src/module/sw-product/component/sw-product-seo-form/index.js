@@ -2,11 +2,11 @@
  * @sw-package inventory
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-product-seo-form.html.twig';
 import { Criteria } from 'shopware:data';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const createId = Shopware.Utils.createId;
 
@@ -19,7 +19,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {

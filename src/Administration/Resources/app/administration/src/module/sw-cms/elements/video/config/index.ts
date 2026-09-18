@@ -1,9 +1,10 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import type RepositoryType from 'src/core/data/repository.data';
 import type { RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
 import template from './sw-cms-el-config-video.html.twig';
 import './sw-cms-el-config-video.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 type Options = { id: number; value: string; label: string }[];
 
 /**
@@ -18,7 +19,7 @@ export default Component.wrapComponentConfig({
     emits: ['element-update'],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     data(): { showMediaModal: boolean; initialFolderId: EntityKey<'media_folder'> | null } {

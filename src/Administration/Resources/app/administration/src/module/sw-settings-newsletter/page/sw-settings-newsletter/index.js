@@ -1,17 +1,16 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-newsletter.html.twig';
 
 /**
  * @sw-package after-sales
  */
 
-const { Mixin } = Shopware;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

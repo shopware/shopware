@@ -1,8 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.scss';
 import useNotificationStore from 'shopware:stores/notification';
 
-const { Context, Mixin, Filter } = Shopware;
+const { Context, Filter } = Shopware;
 
 /**
  * @status ready
@@ -25,7 +26,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

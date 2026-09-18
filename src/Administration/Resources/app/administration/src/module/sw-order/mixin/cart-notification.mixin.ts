@@ -1,3 +1,4 @@
+import useSwOrderStore from 'shopware:stores/swOrder';
 import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
 import { getCartErrorMessage } from '../cart-error.helper';
@@ -6,7 +7,7 @@ import { getCartErrorMessage } from '../cart-error.helper';
  * @sw-package checkout
  */
 
-const { Store, Mixin } = Shopware;
+const { Mixin } = Shopware;
 /**
  * @private
  *
@@ -17,7 +18,7 @@ export default Mixin.register(
     defineComponent({
         computed: {
             cartErrors(): CartError[] {
-                return Store.get('swOrder').cartErrors;
+                return useSwOrderStore().cartErrors;
             },
         },
 

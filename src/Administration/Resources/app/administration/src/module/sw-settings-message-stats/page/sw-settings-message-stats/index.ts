@@ -1,11 +1,10 @@
+import notificationMixin from 'shopware:mixins/notification';
 import { defineComponent } from 'vue';
 import type { MessageStatsResponse } from 'src/core/service/api/message-stats.api.service';
 import type MessageStatsApiService from 'src/core/service/api/message-stats.api.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
 import { format } from 'shopware:utils';
-
-const { Mixin } = Shopware;
 
 interface Column {
     property: string;
@@ -23,7 +22,7 @@ export default defineComponent({
     inject: ['messageStatsService'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import { createFocusTrap } from 'focus-trap';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu.html.twig';
@@ -10,7 +11,6 @@ import useNotificationStore from 'shopware:stores/notification';
 import useSessionStore from 'shopware:stores/session';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
-const { Mixin } = Shopware;
 const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
 
 const VIEWPORT_RESIZE_SETTLE_DURATION = 200;
@@ -35,7 +35,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     shortcuts: {

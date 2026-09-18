@@ -1,8 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
 import { Criteria } from 'shopware:data';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -23,7 +24,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

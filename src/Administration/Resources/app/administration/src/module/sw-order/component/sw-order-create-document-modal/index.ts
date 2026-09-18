@@ -1,10 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
 import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
 import type { DocumentConfig, DeliveryNoteConfig } from '../../service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 /**
  * @private
@@ -25,7 +26,7 @@ export default Component.wrapComponentConfig({
         'update:documentType',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         order: {

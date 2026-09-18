@@ -1,3 +1,5 @@
+import { format } from 'shopware:utils';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
@@ -6,8 +8,7 @@ import './sw-order-create-promotion-modal.scss';
  * @sw-package checkout
  */
 
-const { Store, Utils, Service } = Shopware;
-const { format } = Utils;
+const { Service } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -38,7 +39,7 @@ export default {
 
     computed: {
         cart() {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         cartAutomaticPromotionItems() {

@@ -1,8 +1,8 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-shipping-tax-cost.html.twig';
 import { Criteria } from 'shopware:data';
 import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 /**
@@ -13,7 +13,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {

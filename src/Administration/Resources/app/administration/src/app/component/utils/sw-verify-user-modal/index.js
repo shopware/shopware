@@ -2,9 +2,8 @@
  * @sw-package framework
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-verify-user-modal.html.twig';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -22,7 +21,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

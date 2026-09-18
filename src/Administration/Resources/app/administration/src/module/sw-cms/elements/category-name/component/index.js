@@ -1,6 +1,5 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import './sw-cms-el-category-name.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -8,7 +7,7 @@ const { Mixin } = Shopware;
  */
 export default {
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     computed: {

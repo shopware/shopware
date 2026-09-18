@@ -2,10 +2,11 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
-const { Mixin, Defaults } = Shopware;
+const { Defaults } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
@@ -22,7 +23,7 @@ export default {
 
     emits: ['sales-channel-changed'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

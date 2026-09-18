@@ -2,11 +2,11 @@
  * @sw-package framework
  */
 
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import './sw-meteor-single-select.scss';
 import template from './sw-meteor-single-select.html.twig';
 import { debounce, get } from 'shopware:utils';
 
-const { Mixin } = Shopware;
 /**
  * @private
  */
@@ -22,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('remove-api-error'),
+        removeApiErrorMixin,
     ],
 
     props: {

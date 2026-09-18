@@ -1,9 +1,8 @@
+import cmsStateMixin from 'shopware:mixins/cms-state';
 import template from './sw-cms-section-config.html.twig';
 import './sw-cms-section-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';
 import useCmsPageStore from 'shopware:stores/cmsPage';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package discovery
@@ -22,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
 
     props: {

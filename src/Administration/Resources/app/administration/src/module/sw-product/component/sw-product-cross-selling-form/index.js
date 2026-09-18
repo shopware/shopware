@@ -2,12 +2,13 @@
  * @sw-package inventory
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 import { Criteria } from 'shopware:data';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -26,7 +27,7 @@ export default {
     },
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {

@@ -1,3 +1,6 @@
+import { format, array } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import template from './sw-order-detail-general.html.twig';
 import { cloneDeep } from 'shopware:utils/object';
 
@@ -5,8 +8,6 @@ import { cloneDeep } from 'shopware:utils/object';
  * @sw-package checkout
  */
 
-const { Utils, Mixin, Store } = Shopware;
-const { format, array } = Utils;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -52,7 +53,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -77,13 +78,13 @@ export default {
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => useSwOrderDetailStore().isLoading,
 
-        loading: () => Store.get('swOrderDetail').loading,
+        loading: () => useSwOrderDetailStore().loading,
 
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
         delivery() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
@@ -200,7 +201,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'order',
                 loadingValue,
             ]);

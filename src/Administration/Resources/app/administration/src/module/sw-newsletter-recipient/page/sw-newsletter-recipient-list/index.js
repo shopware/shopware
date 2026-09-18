@@ -1,8 +1,8 @@
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
 const {
-    Mixin,
     Context,
     Data: { Criteria },
 } = Shopware;
@@ -22,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     shortcuts: {

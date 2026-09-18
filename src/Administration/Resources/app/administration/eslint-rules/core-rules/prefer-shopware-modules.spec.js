@@ -38,6 +38,14 @@ tester.run('prefer-shopware-modules', rule, {
             name: 'an unrelated global',
             code: `const x = Other.Utils.createId();`,
         },
+        {
+            name: 'an aliased branch used for something no specifier covers',
+            code: `const { Mixin } = Shopware;\nMixin.register('my-mixin', {});`,
+        },
+        {
+            name: 'a local that merely shares a branch name',
+            code: `const Mixin = somethingElse;\nconst m = Mixin.getByName('sw-form-field');`,
+        },
     ],
     invalid: [
         {
@@ -67,19 +75,19 @@ tester.run('prefer-shopware-modules', rule, {
         {
             name: 'a branch destructuring becomes one import',
             code: `const { Criteria, EntityCollection } = Shopware.Data;`,
-            output: `import { Criteria, EntityCollection } from 'shopware:data';`,
+            output: `import { Criteria, EntityCollection } from 'shopware:data';\n`,
             errors: [{ messageId: 'preferModule' }],
         },
         {
             name: 'a namespace destructuring imports from that subpath',
             code: `const { warn } = Shopware.Utils.debug;`,
-            output: `import { warn } from 'shopware:utils/debug';`,
+            output: `import { warn } from 'shopware:utils/debug';\n`,
             errors: [{ messageId: 'preferModule' }],
         },
         {
             name: 'a renamed destructuring keeps the local name',
             code: `const { createId: makeId } = Shopware.Utils;`,
-            output: `import { createId as makeId } from 'shopware:utils';`,
+            output: `import { createId as makeId } from 'shopware:utils';\n`,
             errors: [{ messageId: 'preferModule' }],
         },
         {
@@ -90,6 +98,42 @@ tester.run('prefer-shopware-modules', rule, {
                 { messageId: 'preferModule' },
                 { messageId: 'preferModule' },
             ],
+        },
+        {
+            name: 'an aliased mixin lookup is rewritten and the dead alias removed',
+            code: `const { Mixin } = Shopware;\nconst m = Mixin.getByName('sw-form-field');`,
+            output: `import swFormFieldMixin from 'shopware:mixins/sw-form-field';\n\nconst m = swFormFieldMixin;`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
+            name: 'an aliased store lookup becomes a composable call',
+            code: `const { Store } = Shopware;\nconst s = Store.get('swOrderDetail');`,
+            output: `import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';\n\nconst s = useSwOrderDetailStore();`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
+            name: 'an aliased utils member is rewritten',
+            code: `const { Utils } = Shopware;\nconst id = Utils.createId();`,
+            output: `import { createId } from 'shopware:utils';\n\nconst id = createId();`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
+            name: 'an alias with another reader keeps its binding',
+            code: `const { Mixin } = Shopware;\nconst m = Mixin.getByName('sw-form-field');\nMixin.register('x', {});`,
+            output: `import swFormFieldMixin from 'shopware:mixins/sw-form-field';\nconst { Mixin } = Shopware;\nconst m = swFormFieldMixin;\nMixin.register('x', {});`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
+            name: 'a dead alias beside a live one loses only its own property',
+            code: `const { Component, Mixin } = Shopware;\nconst m = Mixin.getByName('sw-form-field');\nComponent.register('x', {});`,
+            output: `import swFormFieldMixin from 'shopware:mixins/sw-form-field';\nconst { Component } = Shopware;\nconst m = swFormFieldMixin;\nComponent.register('x', {});`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
+            name: 'a renamed alias is followed',
+            code: `const { Mixin: M } = Shopware;\nconst m = M.getByName('sw-form-field');`,
+            output: `import swFormFieldMixin from 'shopware:mixins/sw-form-field';\n\nconst m = swFormFieldMixin;`,
+            errors: [{ messageId: 'preferModule' }],
         },
         {
             name: 'an existing import of the same specifier gains the name',

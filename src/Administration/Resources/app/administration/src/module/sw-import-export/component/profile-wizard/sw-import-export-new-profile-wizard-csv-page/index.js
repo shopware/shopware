@@ -1,10 +1,9 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-new-profile-wizard-csv-page.html.twig';
 import './sw-import-export-new-profile-wizard-csv-page.scss';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -20,7 +19,7 @@ export default {
         'next-allow',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         profile: {

@@ -1,10 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
 import { EventBus } from 'shopware:utils';
 import useNotificationStore from 'shopware:stores/notification';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -16,7 +15,7 @@ export default {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

@@ -2,10 +2,11 @@
  * @sw-package framework
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import { UploadEvents } from 'src/core/service/api/media.api.service';
 import useNotificationStore from 'shopware:stores/notification';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -53,7 +54,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

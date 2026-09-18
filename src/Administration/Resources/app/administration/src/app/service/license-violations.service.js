@@ -1,4 +1,5 @@
-const { Application, Store } = Shopware;
+import useNotificationStore from 'shopware:stores/notification';
+const { Application } = Shopware;
 
 /**
  * @private
@@ -242,7 +243,7 @@ export default function createLicenseViolationsService(storeService) {
             method: () => ignorePlugin(warning.name, getIgnoredPlugins()),
         };
 
-        Store.get('notification').createGrowlNotification({
+        useNotificationStore().createGrowlNotification({
             title: plugin.label,
             message: warning.text,
             autoClose: false,

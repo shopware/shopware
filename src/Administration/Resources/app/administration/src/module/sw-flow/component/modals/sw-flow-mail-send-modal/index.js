@@ -1,13 +1,12 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
-import { debounce } from 'shopware:utils';
+import { debounce, createId } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Component,
-    Mixin,
-    Utils,
     Classes: { ShopwareError },
     Store,
 } = Shopware;
@@ -32,7 +31,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -327,7 +326,7 @@ export default {
                             key,
                             value,
                         ]) => {
-                            const newId = Utils.createId();
+                            const newId = createId();
                             this.recipients.push({
                                 id: newId,
                                 email: key,
@@ -558,7 +557,7 @@ export default {
 
         createEmptyRecipient() {
             return {
-                id: Utils.createId(),
+                id: createId(),
                 email: '',
                 name: '',
                 isNew: true,

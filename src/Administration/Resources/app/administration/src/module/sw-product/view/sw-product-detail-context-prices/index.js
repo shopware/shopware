@@ -2,12 +2,12 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
 import { Criteria } from 'shopware:data';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -19,7 +19,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import type { PaymentOverviewCard } from '../../store/overview-cards.store';
@@ -22,7 +23,6 @@ interface PaymentMethodCard {
     paymentMethods?: EntityCollection<'payment_method'>;
 }
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -33,7 +33,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data(): {

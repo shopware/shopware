@@ -1,9 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
 import { Criteria, EntityCollection } from 'shopware:data';
 import useSessionStore from 'shopware:stores/session';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -32,8 +34,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     props: {

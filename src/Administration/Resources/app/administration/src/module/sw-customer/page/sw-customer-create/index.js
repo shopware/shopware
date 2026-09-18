@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-customer-create.html.twig';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
@@ -9,7 +10,7 @@ import useErrorStore from 'shopware:stores/error';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-const { Mixin } = Shopware;
+
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -24,7 +25,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

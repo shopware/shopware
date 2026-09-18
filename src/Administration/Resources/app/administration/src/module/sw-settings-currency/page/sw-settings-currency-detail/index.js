@@ -1,13 +1,14 @@
 /**
  * @sw-package fundamentals@framework
  */
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -22,8 +23,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     props: {

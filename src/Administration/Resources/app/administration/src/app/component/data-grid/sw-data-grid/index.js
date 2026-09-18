@@ -1,8 +1,8 @@
+import translateWithFallbackMixin from 'shopware:mixins/translate-with-fallback';
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 import { debounce } from 'shopware:utils';
 
-const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -38,7 +38,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('translate-with-fallback'),
+        translateWithFallbackMixin,
     ],
 
     emits: [

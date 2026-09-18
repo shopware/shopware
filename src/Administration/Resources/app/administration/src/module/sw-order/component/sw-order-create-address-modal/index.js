@@ -1,3 +1,6 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 import { Criteria } from 'shopware:data';
@@ -7,7 +10,7 @@ import useErrorStore from 'shopware:stores/error';
  * @sw-package checkout
  */
 
-const { Mixin, Store, Service } = Shopware;
+const { Service } = Shopware;
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */
@@ -21,8 +24,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     props: {
@@ -155,7 +158,7 @@ export default {
                 [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId],
             };
 
-            await Store.get('swOrder').updateOrderContext({
+            await useSwOrderStore().updateOrderContext({
                 context,
                 salesChannelId: this.activeCustomer.salesChannelId,
                 contextToken: this.cart.token,

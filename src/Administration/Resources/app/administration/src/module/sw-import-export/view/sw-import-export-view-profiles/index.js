@@ -1,11 +1,11 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 /**
  * @private
  */
@@ -19,7 +19,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

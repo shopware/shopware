@@ -1,9 +1,10 @@
+import cmsStateMixin from 'shopware:mixins/cms-state';
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Component, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 type SlotsErrorObject = {
@@ -46,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('cms-state'),
+        cmsStateMixin,
     ],
 
     props: {

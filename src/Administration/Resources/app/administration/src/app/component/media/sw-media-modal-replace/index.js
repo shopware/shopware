@@ -1,9 +1,8 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
-import { createId } from 'shopware:utils';
+import { createId, fileReader } from 'shopware:utils';
 import useContextStore from 'shopware:stores/context';
-
-const { Mixin } = Shopware;
 
 /**
  * @status ready
@@ -31,7 +30,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -104,7 +103,6 @@ export default {
         },
 
         async runPresignedReplace(fileHandle) {
-            const { fileReader } = Shopware.Utils;
             const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
             const mimeType = fileHandle.type || 'application/octet-stream';
 

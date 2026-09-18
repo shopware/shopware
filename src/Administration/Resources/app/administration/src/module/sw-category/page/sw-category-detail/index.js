@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
@@ -9,7 +11,7 @@ import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
-const { Context, Mixin } = Shopware;
+const { Context } = Shopware;
 /**
  * @sw-package discovery
  */
@@ -26,8 +28,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     shortcuts: {

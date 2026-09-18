@@ -1,3 +1,7 @@
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
+import useContextStore from 'shopware:stores/context';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from '../../../../core/data/repository.data';
 
@@ -11,7 +15,7 @@ import { Criteria } from 'shopware:data';
  * @sw-package checkout
  */
 
-const { Component, Store, Mixin, Context } = Shopware;
+const { Component, Context } = Shopware;
 
 interface GridColumn {
     property: string;
@@ -43,8 +47,8 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     data(): {
@@ -75,7 +79,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         customerData(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         customerRepository(): RepositoryType<'customer'> {
@@ -155,7 +159,7 @@ export default Component.wrapComponentConfig({
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         assetFilter() {
@@ -264,11 +268,11 @@ export default Component.wrapComponentConfig({
         },
 
         createCart(salesChannelId: EntityKey<'sales_channel'>): Promise<void> {
-            return Store.get('swOrder').createCart({ salesChannelId });
+            return useSwOrderStore().createCart({ salesChannelId });
         },
 
         setCustomer(customer: Entity<'customer'> | null): void {
-            void Store.get('swOrder').selectExistingCustomer({ customer });
+            void useSwOrderStore().selectExistingCustomer({ customer });
         },
 
         async handleSelectCustomer(): Promise<void> {
@@ -318,7 +322,7 @@ export default Component.wrapComponentConfig({
         async updateCustomerContext(): Promise<void> {
             if (!this.customer) return;
 
-            await Store.get('swOrder')
+            await useSwOrderStore()
                 .updateCustomerContext({
                     customerId: this.customer.id,
                     salesChannelId: this.customer.salesChannelId,
@@ -335,7 +339,7 @@ export default Component.wrapComponentConfig({
         async getCart(): Promise<void> {
             if (!this.customer) return;
 
-            await Store.get('swOrder').getCart({
+            await useSwOrderStore().getCart({
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });
@@ -405,11 +409,11 @@ export default Component.wrapComponentConfig({
             );
 
             if (!exists && this.customer?.salesChannel?.languageId) {
-                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
+                useContextStore().api.languageId = this.customer.salesChannel.languageId;
             }
 
-            if (exists && !Store.get('context').isSystemDefaultLanguage) {
-                Store.get('context').resetLanguageToDefault();
+            if (exists && !useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
         },
     },

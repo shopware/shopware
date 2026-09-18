@@ -1,9 +1,10 @@
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-settings-rule-list.scss';
 import template from './sw-settings-rule-list.html.twig';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
 /**
  * @private
  * @sw-package fundamentals@after-sales
@@ -20,8 +21,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     data() {

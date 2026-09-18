@@ -1,8 +1,9 @@
+import { createId } from 'shopware:utils';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
 import { Criteria } from 'shopware:data';
 
-const { Context, Utils } = Shopware;
+const { Context } = Shopware;
 /**
  * @status ready
  * @description The <u>sw-media-field</u> component is used to bind your
@@ -70,7 +71,7 @@ export default {
             suggestedItems: [],
             isLoadingSuggestions: false,
             pickerClasses: {},
-            uploadTag: Utils.createId(),
+            uploadTag: createId(),
             page: 1,
             limit: 5,
             total: 0,

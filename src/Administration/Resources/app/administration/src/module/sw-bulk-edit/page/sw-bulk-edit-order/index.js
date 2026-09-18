@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import { types } from 'shopware:utils';
@@ -5,7 +6,6 @@ import { chunk, intersectionBy, uniqBy } from 'shopware:utils/array';
 import { Criteria } from 'shopware:data';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
-const { Mixin } = Shopware;
 /**
  * @sw-package checkout
  */
@@ -22,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

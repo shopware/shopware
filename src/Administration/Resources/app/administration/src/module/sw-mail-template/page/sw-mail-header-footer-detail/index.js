@@ -2,12 +2,13 @@
  * @sw-package after-sales
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-mail-header-footer-detail.html.twig';
 import './sw-mail-header-footer-detail.scss';
 import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -24,8 +25,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        placeholderMixin,
+        notificationMixin,
     ],
 
     shortcuts: {

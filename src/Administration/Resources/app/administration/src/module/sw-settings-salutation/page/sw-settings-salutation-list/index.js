@@ -1,10 +1,11 @@
 /**
  * @sw-package checkout
  */
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-salutation-list.html.twig';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -15,8 +16,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
+        listingMixin,
+        placeholderMixin,
     ],
 
     data() {

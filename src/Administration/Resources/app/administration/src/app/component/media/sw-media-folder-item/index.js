@@ -1,9 +1,10 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import { warn } from 'shopware:utils/debug';
 
-const { Application, Mixin, Context } = Shopware;
+const { Application, Context } = Shopware;
 /**
  * @sw-package discovery
  */
@@ -24,7 +25,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

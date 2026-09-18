@@ -1,11 +1,11 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 /**
  * @private
  */
@@ -18,7 +18,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

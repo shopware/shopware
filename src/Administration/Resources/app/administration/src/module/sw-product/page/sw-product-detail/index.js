@@ -2,6 +2,8 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import errorConfiguration from './error.cfg.json';
@@ -18,7 +20,7 @@ import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
-const { Context, Mixin, EntityDefinition } = Shopware;
+const { Context, EntityDefinition } = Shopware;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const type = types;
 
@@ -47,8 +49,8 @@ export default {
     },
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     shortcuts: {

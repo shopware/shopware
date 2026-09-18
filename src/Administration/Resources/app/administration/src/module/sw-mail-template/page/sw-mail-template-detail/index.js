@@ -1,3 +1,5 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import camelCase from 'lodash-es/camelCase';
 import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
@@ -7,7 +9,7 @@ import { warn } from 'shopware:utils/debug';
 import { Criteria, EntityCollection } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -27,8 +29,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        placeholderMixin,
+        notificationMixin,
     ],
 
     shortcuts: {

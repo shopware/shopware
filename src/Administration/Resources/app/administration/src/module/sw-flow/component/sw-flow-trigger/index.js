@@ -1,8 +1,9 @@
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 import { camelCase, capitalizeString } from 'shopware:utils/string';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 const { isEmpty } = utils.types;
@@ -92,7 +93,7 @@ export default {
         },
 
         ...mapState(
-            () => Store.get('swFlow'),
+            () => useSwFlowStore(),
             [
                 'flow',
                 'triggerEvents',
@@ -181,9 +182,9 @@ export default {
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
 
             this.isLoading = true;
-            Store.get('swFlow').fetchTriggerActions();
-            Store.get('swFlow').triggerEvent = this.getDataByEvent(this.eventName);
-            Store.get('swFlow').restrictedRules = this.eventName;
+            useSwFlowStore().fetchTriggerActions();
+            useSwFlowStore().triggerEvent = this.getDataByEvent(this.eventName);
+            useSwFlowStore().restrictedRules = this.eventName;
 
             this.isLoading = false;
         },
@@ -589,8 +590,8 @@ export default {
             if (this.isSequenceEmpty) {
                 const { id } = item.data;
 
-                Store.get('swFlow').triggerEvent = this.getDataByEvent(id);
-                Store.get('swFlow').restrictedRules = id;
+                useSwFlowStore().triggerEvent = this.getDataByEvent(id);
+                useSwFlowStore().restrictedRules = id;
                 this.$emit('option-select', id);
             } else {
                 this.showConfirmModal = this.flow.eventName !== item.id;
@@ -599,8 +600,8 @@ export default {
         },
 
         onConfirm() {
-            Store.get('swFlow').triggerEvent = this.triggerSelect;
-            Store.get('swFlow').restrictedRules = this.triggerSelect.name;
+            useSwFlowStore().triggerEvent = this.triggerSelect;
+            useSwFlowStore().restrictedRules = this.triggerSelect.name;
             this.$emit('option-select', this.triggerSelect.name);
         },
 
@@ -716,8 +717,8 @@ export default {
 
             if (this.isSequenceEmpty) {
                 this.$emit('option-select', item.name);
-                Store.get('swFlow').triggerEvent = item;
-                Store.get('swFlow').restrictedRules = item.name;
+                useSwFlowStore().triggerEvent = item;
+                useSwFlowStore().restrictedRules = item.name;
             } else {
                 this.showConfirmModal = true;
                 this.triggerSelect = item;

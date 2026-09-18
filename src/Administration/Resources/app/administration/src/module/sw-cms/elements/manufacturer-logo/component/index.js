@@ -1,6 +1,5 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-manufacturer-logo.html.twig';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -10,7 +9,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     computed: {

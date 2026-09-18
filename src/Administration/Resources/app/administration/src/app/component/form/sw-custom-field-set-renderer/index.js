@@ -1,3 +1,5 @@
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import { computed } from 'vue';
 
 import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
@@ -8,7 +10,6 @@ import { object } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
 /**
  * @sw-package framework
  *
@@ -44,8 +45,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('placeholder'),
+        swInlineSnippetMixin,
+        placeholderMixin,
     ],
 
     props: {

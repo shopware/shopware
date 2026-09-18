@@ -1,3 +1,6 @@
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 import { Criteria } from 'shopware:data';
@@ -6,7 +9,7 @@ import { Criteria } from 'shopware:data';
  * @sw-package checkout
  */
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -18,9 +21,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-        Mixin.getByName('listing'),
+        notificationMixin,
+        salutationMixin,
+        listingMixin,
     ],
 
     data() {
@@ -451,7 +454,7 @@ export default {
          */
         updateCriteria(criteria) {
             // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
+            return listingMixin.methods.updateCriteria.call(this, criteria);
         },
 
         async onBulkEditItems() {

@@ -1,7 +1,8 @@
+import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 import template from './sw-condition-all-line-items-container.html.twig';
 import { EntityCollection } from 'shopware:data';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 /**
  * @private
  * @sw-package fundamentals@after-sales
@@ -27,7 +28,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('ruleContainer'),
+        ruleContainerMixin,
     ],
 
     computed: {

@@ -1,3 +1,7 @@
+import { get, format, array } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import cartNotificationMixin from 'shopware:mixins/cart-notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-general.html.twig';
 import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
 
@@ -5,16 +9,15 @@ import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, Sal
  * @sw-package checkout
  */
 
-const { Component, Store, Mixin, Utils } = Shopware;
-const { get, format, array } = Utils;
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
+        notificationMixin,
+        cartNotificationMixin,
     ],
 
     data(): {
@@ -27,23 +30,23 @@ export default Component.wrapComponentConfig({
 
     computed: {
         customer(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         currency(): Entity<'currency'> {
-            return Store.get('swOrder').context.currency;
+            return useSwOrderStore().context.currency;
         },
 
         context(): SalesChannelContext {
-            return Store.get('swOrder').context;
+            return useSwOrderStore().context;
         },
 
         isCustomerActive(): boolean {
-            return Store.get('swOrder').isCustomerActive;
+            return useSwOrderStore().isCustomerActive;
         },
 
         cartDelivery(): CartDelivery {
@@ -143,7 +146,7 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
             if (!this.customer) return;
 
-            await Store.get('swOrder')
+            await useSwOrderStore()
                 .saveLineItem({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -158,7 +161,7 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
             if (!this.customer) return;
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .modifyShippingCosts({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -176,7 +179,7 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
             if (!this.customer) return;
 
-            await Store.get('swOrder')
+            await useSwOrderStore()
                 .removeLineItems({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -185,13 +188,13 @@ export default Component.wrapComponentConfig({
                 .then(() => {
                     // Remove promotion code tag if corresponding line item removed
                     lineItemKeys.forEach((key) => {
-                        const removedTag = Store.get('swOrder').promotionCodes.find(
+                        const removedTag = useSwOrderStore().promotionCodes.find(
                             (tag: PromotionCodeTag) => tag.discountId === key,
                         );
 
                         if (removedTag) {
-                            Store.get('swOrder').setPromotionCodes(
-                                Store.get('swOrder').promotionCodes.filter((item: PromotionCodeTag) => {
+                            useSwOrderStore().setPromotionCodes(
+                                useSwOrderStore().promotionCodes.filter((item: PromotionCodeTag) => {
                                     return item.discountId !== removedTag.discountId;
                                 }),
                             );
@@ -206,7 +209,7 @@ export default Component.wrapComponentConfig({
         async loadCart(): Promise<void> {
             if (!this.customer) return;
 
-            await Store.get('swOrder').getCart({
+            await useSwOrderStore().getCart({
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });

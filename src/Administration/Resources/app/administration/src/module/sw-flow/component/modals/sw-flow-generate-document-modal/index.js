@@ -1,8 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-generate-document-modal.html.twig';
 import { Criteria } from 'shopware:data';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Mixin, Store } = Shopware;
+const { Component, Store } = Shopware;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -24,7 +25,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './store';
@@ -6,7 +8,7 @@ import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 /**
  * @sw-package checkout
  */
@@ -22,8 +24,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     shortcuts: {

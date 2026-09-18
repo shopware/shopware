@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
@@ -11,7 +13,7 @@ import useContextStore from 'shopware:stores/context';
  * @sw-package checkout
  */
 
-const { Context, Store, Mixin } = Shopware;
+const { Context, Store } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -22,7 +24,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data(): {
@@ -49,15 +51,15 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customer(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         invalidPromotionCodes(): PromotionCodeTag[] {
-            return Store.get('swOrder').invalidPromotionCodes;
+            return useSwOrderStore().invalidPromotionCodes;
         },
 
         /**
@@ -161,7 +163,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isSaveSuccessful = false;
 
             try {
-                const { data } = (await Store.get('swOrder').saveOrder({
+                const { data } = (await useSwOrderStore().saveOrder({
                     salesChannelId: this.customer!.salesChannelId,
                     contextToken: this.cart.token,
                 })) as {
@@ -213,7 +215,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            void Store.get('swOrder')
+            void useSwOrderStore()
                 .cancelCart({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -241,7 +243,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         removeInvalidCode() {
-            Store.get('swOrder').removeInvalidPromotionCodes();
+            useSwOrderStore().removeInvalidPromotionCodes();
             this.closeInvalidCodeModal();
         },
 
@@ -256,7 +258,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (!this.orderTransaction) return;
 
-            void Store.get('swOrder')
+            void useSwOrderStore()
                 .remindPayment({
                     orderTransactionId: this.orderTransaction.id,
                 })

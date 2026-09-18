@@ -1,3 +1,5 @@
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
@@ -5,8 +7,6 @@ import template from './sw-datepicker-deprecated.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
 import useSessionStore from 'shopware:stores/session';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -57,8 +57,8 @@ export default {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
+        swFormFieldMixin,
+        removeApiErrorMixin,
     ],
 
     props: {

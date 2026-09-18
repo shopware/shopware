@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
 
@@ -20,7 +21,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet'),
+        swInlineSnippetMixin,
         Mixin.getByName('sw-settings-list'),
     ],
 

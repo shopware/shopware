@@ -1,3 +1,5 @@
+import { array } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
@@ -10,8 +12,8 @@ import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
  * @sw-package checkout
  */
 
-const { Store, Mixin, Utils } = Shopware;
-const { array } = Utils;
+const { Store } = Shopware;
+
 const ApiService = Shopware.Classes.ApiService;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -45,7 +47,7 @@ export default {
     },
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

@@ -1,9 +1,10 @@
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
 import template from './sw-sso-users-permission-user-detail.html.twig';
 import useTheme from 'src/app/composables/use-theme';
 import './sw-sso-users-permissions-user-detail.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 const MODE = Object.freeze({
     VIEW: 'view',
     EDIT: 'edit',
@@ -25,8 +26,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
+        notificationMixin,
+        salutationMixin,
     ],
 
     shortcuts: {

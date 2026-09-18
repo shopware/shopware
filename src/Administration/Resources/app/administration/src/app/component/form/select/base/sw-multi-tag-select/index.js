@@ -1,8 +1,8 @@
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import template from './sw-multi-tag-select.html.twig';
 import './sw-multi-tag-select.scss';
 import { get } from 'shopware:utils';
 
-const { Mixin } = Shopware;
 /**
  * @sw-package framework
  *
@@ -30,7 +30,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('remove-api-error'),
+        removeApiErrorMixin,
     ],
 
     props: {

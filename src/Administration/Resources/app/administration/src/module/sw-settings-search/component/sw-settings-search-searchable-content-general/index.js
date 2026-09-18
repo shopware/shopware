@@ -1,9 +1,9 @@
 /**
  * @sw-package inventory
  */
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search-searchable-content-general.html.twig';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,8 +19,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     props: {

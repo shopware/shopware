@@ -1,10 +1,12 @@
 /**
  * @sw-package framework
  */
+import notificationMixin from 'shopware:mixins/notification';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import template from './sw-settings-custom-field-set-detail.html.twig';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -15,9 +17,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('discard-detail-page-changes')('set'),
+        notificationMixin,
+        swInlineSnippetMixin,
+        discardDetailPageChangesMixin('set'),
     ],
 
     shortcuts: {

@@ -1,6 +1,8 @@
 /**
  * @sw-package fundamentals@framework
  */
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
 import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
@@ -10,7 +12,7 @@ import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
 import useSessionStore from 'shopware:stores/session';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -30,8 +32,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
+        notificationMixin,
+        salutationMixin,
     ],
 
     shortcuts: {

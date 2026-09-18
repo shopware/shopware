@@ -1,10 +1,12 @@
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import useSwFlowStore from 'shopware:stores/swFlow';
 import orderBy from 'lodash-es/orderBy';
 import sortBy from 'lodash-es/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 import useSessionStore from 'shopware:stores/session';
 
-const { Component, Store, Mixin } = Shopware;
+const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
@@ -25,7 +27,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet'),
+        swInlineSnippetMixin,
     ],
 
     props: {
@@ -152,7 +154,7 @@ export default {
         },
 
         ...mapState(
-            () => Store.get('swFlow'),
+            () => useSwFlowStore(),
             [
                 'invalidSequences',
                 'stateMachineState',
@@ -250,7 +252,7 @@ export default {
                     data.appFlowActionId = appAction.id;
                 }
 
-                Store.get('swFlow').updateSequence(data);
+                useSwFlowStore().updateSequence(data);
             } else {
                 const lastSequence = this.sequenceData[this.sequenceData.length - 1];
 
@@ -272,7 +274,7 @@ export default {
                 }
 
                 sequence = Object.assign(sequence, newSequence);
-                Store.get('swFlow').addSequence(sequence);
+                useSwFlowStore().addSequence(sequence);
             }
 
             this.removeFieldError();
@@ -283,7 +285,7 @@ export default {
                 return;
             }
 
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: this.currentSequence.id,
                 actionName: action.name,
                 config: action.config,
@@ -298,7 +300,7 @@ export default {
                 );
 
                 sequencesInGroup.forEach((item, index) => {
-                    Store.get('swFlow').updateSequence({
+                    useSwFlowStore().updateSequence({
                         id: item.id,
                         position: index + 1,
                     });
@@ -307,7 +309,7 @@ export default {
 
             if (this.isAppDisabled(this.getSelectedAppAction(this.sequence[id]?.actionName))) return;
 
-            Store.get('swFlow').removeSequences([id]);
+            useSwFlowStore().removeSequences([id]);
         },
 
         actionsWithoutStopFlow() {
@@ -341,11 +343,11 @@ export default {
             const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
             const moveActionClone = cloneDeep(moveAction);
 
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: moveAction.id,
                 position: action.position,
             });
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: action.id,
                 position: moveActionClone.position,
             });
@@ -388,7 +390,7 @@ export default {
         removeActionContainer() {
             const removeSequences = this.sequence.id ? [this.sequence.id] : Object.keys(this.sequence);
 
-            Store.get('swFlow').removeSequences(removeSequences);
+            useSwFlowStore().removeSequences(removeSequences);
         },
 
         getActionTitle(actionName) {
@@ -461,7 +463,7 @@ export default {
             }
 
             this.fieldError = null;
-            Store.get('swFlow').invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
+            useSwFlowStore().invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
         },
 
         isNotStopFlow(item) {

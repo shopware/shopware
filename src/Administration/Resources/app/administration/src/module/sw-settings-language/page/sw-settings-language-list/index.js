@@ -1,13 +1,14 @@
 /**
  * @sw-package fundamentals@discovery
  */
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
 import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -20,8 +21,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     data() {

@@ -1,7 +1,6 @@
+import useCmsPageStore from 'shopware:stores/cmsPage';
 import template from './sw-cms-block-product-heading.html.twig';
 import './sw-cms-block-product-heading.scss';
-
-const { Store } = Shopware;
 
 /**
  * @private
@@ -12,7 +11,7 @@ export default {
 
     computed: {
         currentDeviceView() {
-            return Store.get('cmsPage').currentCmsDeviceView;
+            return useCmsPageStore().currentCmsDeviceView;
         },
 
         currentDeviceViewClass() {

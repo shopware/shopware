@@ -1,3 +1,5 @@
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-delivery-time-list.html.twig';
 import './sw-settings-delivery-time-list.scss';
 import { Criteria } from 'shopware:data';
@@ -6,7 +8,6 @@ import { Criteria } from 'shopware:data';
  * @sw-package discovery
  */
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -17,8 +18,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
+        listingMixin,
+        placeholderMixin,
     ],
 
     data() {

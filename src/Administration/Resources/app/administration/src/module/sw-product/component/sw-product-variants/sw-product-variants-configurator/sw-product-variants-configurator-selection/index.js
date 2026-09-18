@@ -2,10 +2,9 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-variants-configurator-selection.html.twig';
 import './sw-product-variants-configurator-selection.scss';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +15,7 @@ export default {
     emits: ['option-select'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

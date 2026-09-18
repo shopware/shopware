@@ -1,3 +1,4 @@
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import template from './sw-condition-customer-custom-field.html.twig';
 import './sw-condition-customer-custom-field.scss';
 import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
@@ -20,7 +21,7 @@ export default {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet'),
+        swInlineSnippetMixin,
         Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME),
     ],
 

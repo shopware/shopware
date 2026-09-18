@@ -1,7 +1,6 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-config-form.html.twig';
 import './sw-cms-el-config-form.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -16,7 +15,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     data() {

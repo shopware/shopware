@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
@@ -10,7 +12,7 @@ import useSessionStore from 'shopware:stores/session';
  * @sw-package checkout
  */
 
-const { Mixin, Defaults } = Shopware;
+const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { CUSTOMER } = Shopware.Constants;
 
@@ -25,8 +27,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
+        notificationMixin,
+        salutationMixin,
     ],
 
     props: {

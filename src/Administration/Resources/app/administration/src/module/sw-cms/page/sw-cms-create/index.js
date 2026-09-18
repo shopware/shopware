@@ -1,9 +1,9 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-create.html.twig';
 import { EntityCollection } from 'shopware:data';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -14,7 +14,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     data() {

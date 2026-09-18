@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
@@ -8,7 +9,6 @@ import useErrorStore from 'shopware:stores/error';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const { CUSTOMER } = Shopware.Constants;
 
@@ -30,7 +30,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

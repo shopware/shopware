@@ -1,6 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-folder-dissolve.html.twig';
-
-const { Mixin } = Shopware;
 
 /**
  * @status ready
@@ -23,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

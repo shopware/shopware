@@ -1,9 +1,10 @@
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
 /**
  * @sw-package checkout
  */
@@ -19,8 +20,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     data() {

@@ -1,7 +1,6 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-config-youtube-video.html.twig';
 import './sw-cms-el-config-youtube-video.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -15,7 +14,7 @@ export default {
     emits: ['element-update'],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     data() {

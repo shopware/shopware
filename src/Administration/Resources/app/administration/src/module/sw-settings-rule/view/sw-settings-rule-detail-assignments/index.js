@@ -1,9 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
+import { object } from 'shopware:utils';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin, Context, Utils } = Shopware;
+const { Context } = Shopware;
 /**
  * @private
  * @sw-package fundamentals@after-sales
@@ -19,7 +21,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -181,9 +183,9 @@ export default {
             const repository = this.repositoryFactory.create(this.deleteItem.getEntityName());
 
             if (this.deleteEntity.deleteContext.type === 'one-to-many') {
-                Utils.object.set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
+                object.set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
             } else {
-                Utils.object.get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
+                object.get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
             }
 
             this.isLoading = true;
@@ -263,7 +265,7 @@ export default {
                     return acc;
                 }
 
-                const value = Utils.object.get(item, path);
+                const value = object.get(item, path);
 
                 if (value) {
                     acc[key] = value;
@@ -285,7 +287,7 @@ export default {
             }
 
             return column.routerParameters.every(({ path }) => {
-                return path && !!Utils.object.get(item, path);
+                return path && !!object.get(item, path);
             });
         },
 

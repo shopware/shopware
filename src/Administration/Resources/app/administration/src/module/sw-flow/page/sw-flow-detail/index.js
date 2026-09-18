@@ -1,10 +1,13 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import { createId } from 'shopware:utils';
 import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria, EntityCollection } from 'shopware:data';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Mixin, Context, Store, Utils, Service } = Shopware;
+const { Component, Context, Store, Service } = Shopware;
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -22,8 +25,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        placeholderMixin,
+        notificationMixin,
     ],
 
     props: {
@@ -338,7 +341,7 @@ export default {
             }
 
             const flow = this.flowRepository.create();
-            flow.id = Utils.createId();
+            flow.id = createId();
             flow.priority = 0;
             flow.eventName = '';
             flow.sequences = [];
@@ -654,7 +657,7 @@ export default {
 
         createFromFlowTemplate() {
             const flow = this.flowRepository.create();
-            flow.id = Utils.createId();
+            flow.id = createId();
             flow.priority = 0;
 
             return this.flowTemplateRepository
@@ -705,7 +708,7 @@ export default {
             sequences = sequences.map((sequence) => {
                 sequence = this.createSequenceEntity(sequence);
 
-                parentIds[sequence.id] = Utils.createId();
+                parentIds[sequence.id] = createId();
                 sequence.id = parentIds[sequence.id];
 
                 return sequence;

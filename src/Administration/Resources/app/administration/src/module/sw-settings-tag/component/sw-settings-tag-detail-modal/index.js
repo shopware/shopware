@@ -1,10 +1,10 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tag-detail-modal.html.twig';
 import './sw-settings-tag-detail-modal.scss';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -24,7 +24,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     shortcuts: {

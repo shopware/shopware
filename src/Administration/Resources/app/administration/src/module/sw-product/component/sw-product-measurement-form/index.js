@@ -1,11 +1,12 @@
 /*
  * @sw-package inventory
  */
+import placeholderMixin from 'shopware:mixins/placeholder';
+import { unitConversion } from 'shopware:utils';
 import template from './sw-product-measurement-form.html.twig';
 import './sw-product-measurement-form.scss';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin, Utils } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -13,7 +14,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {
@@ -73,7 +74,7 @@ export default {
                 return;
             }
 
-            this.product.width = Utils.unitConversion.convert(this.product.width, this.lengthUnit, unit);
+            this.product.width = unitConversion.convert(this.product.width, this.lengthUnit, unit);
         },
 
         convertHeight(unit) {
@@ -81,7 +82,7 @@ export default {
                 return;
             }
 
-            this.product.height = Utils.unitConversion.convert(this.product.height, this.lengthUnit, unit);
+            this.product.height = unitConversion.convert(this.product.height, this.lengthUnit, unit);
         },
 
         convertLength(unit) {
@@ -89,7 +90,7 @@ export default {
                 return;
             }
 
-            this.product.length = Utils.unitConversion.convert(this.product.length, this.lengthUnit, unit);
+            this.product.length = unitConversion.convert(this.product.length, this.lengthUnit, unit);
         },
 
         onUpdateWeightUnit(unit) {

@@ -1,3 +1,4 @@
+import { Criteria } from 'shopware:data';
 import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
@@ -205,7 +206,6 @@ export default class ShopwareExtensionService {
     }
 
     private async getLinkToTheme(extension: Extension) {
-        const { Criteria } = Shopware.Data;
         const themeRepository = Shopware.Service('repositoryFactory').create('theme');
 
         const criteria = new Criteria(1, 1);

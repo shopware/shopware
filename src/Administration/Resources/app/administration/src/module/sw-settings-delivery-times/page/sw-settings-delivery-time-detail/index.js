@@ -1,10 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-delivery-time-detail.html.twig';
 
 /**
  * @sw-package discovery
  */
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -19,7 +20,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     shortcuts: {

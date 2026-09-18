@@ -1,9 +1,8 @@
 /**
  * @sw-package fundamentals@framework
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-users-permissions.html.twig';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,7 +14,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {

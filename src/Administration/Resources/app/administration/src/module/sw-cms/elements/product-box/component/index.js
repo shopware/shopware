@@ -1,7 +1,9 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-el-product-box.html.twig';
 import './sw-cms-el-product-box.scss';
 
-const { Mixin, Filter } = Shopware;
+const { Filter } = Shopware;
 
 /**
  * @private
@@ -11,8 +13,8 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element'),
-        Mixin.getByName('placeholder'),
+        cmsElementMixin,
+        placeholderMixin,
     ],
 
     computed: {

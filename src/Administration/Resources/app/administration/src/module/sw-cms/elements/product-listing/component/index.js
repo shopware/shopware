@@ -1,8 +1,7 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-product-listing.html.twig';
 import './sw-cms-el-product-listing.scss';
 import useCmsPageStore from 'shopware:stores/cmsPage';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -12,7 +11,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     computed: {

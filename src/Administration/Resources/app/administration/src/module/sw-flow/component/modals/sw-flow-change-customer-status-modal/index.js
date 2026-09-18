@@ -1,6 +1,7 @@
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-change-customer-status-modal.html.twig';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -32,7 +33,7 @@ export default {
     },
 
     computed: {
-        ...mapState(() => Store.get('swFlow'), ['customerStatus']),
+        ...mapState(() => useSwFlowStore(), ['customerStatus']),
 
         options() {
             return [

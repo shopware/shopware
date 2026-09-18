@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import { required } from 'src/core/service/validation.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
@@ -10,7 +11,7 @@ import useErrorStore from 'shopware:stores/error';
  */
 
 const { ShopwareError } = Shopware.Classes;
-const { Mixin, EntityDefinition } = Shopware;
+const { EntityDefinition } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -18,7 +19,7 @@ export default {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

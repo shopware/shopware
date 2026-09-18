@@ -1,8 +1,9 @@
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-event-change-confirm-modal.html.twig';
 import './sw-flow-event-change-confirm-modal.scss';
 import { EntityCollection } from 'shopware:data';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -18,7 +19,7 @@ export default {
     ],
 
     computed: {
-        ...mapState(() => Store.get('swFlow'), ['sequences']),
+        ...mapState(() => useSwFlowStore(), ['sequences']),
     },
 
     methods: {
@@ -31,7 +32,7 @@ export default {
                 [],
             );
 
-            Store.get('swFlow').setSequences(sequencesCollection);
+            useSwFlowStore().setSequences(sequencesCollection);
 
             this.$emit('modal-confirm');
             this.onClose();

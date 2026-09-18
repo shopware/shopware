@@ -1,8 +1,9 @@
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 /**
  * @sw-package inventory
  * @private
@@ -16,8 +17,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     data() {

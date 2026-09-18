@@ -1,10 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 import useSession from 'src/app/composables/use-session';
 import useSnackbar from 'src/app/composables/use-snackbar';
 import { dom } from 'shopware:utils';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 /**
  * @sw-package framework
@@ -21,7 +22,7 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data(): {

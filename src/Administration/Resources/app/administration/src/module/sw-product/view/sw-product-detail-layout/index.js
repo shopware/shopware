@@ -2,14 +2,14 @@
  * @sw-package inventory
  */
 
+import { get } from 'shopware:utils/object';
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 import { Criteria } from 'shopware:data';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Context, Utils } = Shopware;
-const { get } = Utils.object;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

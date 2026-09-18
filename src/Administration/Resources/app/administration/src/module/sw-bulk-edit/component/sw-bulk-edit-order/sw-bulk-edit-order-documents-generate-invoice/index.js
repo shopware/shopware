@@ -1,11 +1,10 @@
 /**
  * @sw-package checkout
  */
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 import template from './sw-bulk-edit-order-documents-generate-invoice.html.twig';
 import './sw-bulk-edit-order-documents-generate-invoice.scss';
 import notificationMixin from 'shopware:mixins/notification';
-
-const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -31,10 +30,10 @@ export default {
     computed: {
         generateData: {
             get() {
-                return Store.get('swBulkEdit')?.orderDocuments?.invoice?.value;
+                return useSwBulkEditStore()?.orderDocuments?.invoice?.value;
             },
             set(generateData) {
-                Store.get('swBulkEdit').setOrderDocumentsValue({
+                useSwBulkEditStore().setOrderDocumentsValue({
                     type: 'invoice',
                     value: generateData,
                 });

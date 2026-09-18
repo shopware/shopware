@@ -1,7 +1,8 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Mixin, Filter } = Shopware;
+const { Filter } = Shopware;
 
 /**
  * @private
@@ -15,7 +16,7 @@ export default {
     emits: ['element-update'],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        cmsElementMixin,
     ],
 
     data() {

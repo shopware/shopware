@@ -266,6 +266,11 @@ class HttpCacheKeyGeneratorTest extends TestCase
             Request::create('https://domain.com/method'),
         ];
 
+        yield 'same Url with and without sw-include-seo-urls header' => [
+            self::createRequestWithHeaders('https://domain.com/method', [PlatformRequest::HEADER_INCLUDE_SEO_URLS => 'true']),
+            Request::create('https://domain.com/method'),
+        ];
+
         yield 'same Url with different sales channel base urls (storefront language/domain selector)' => [
             self::createRequestWithBaseUrl('https://domain.com/method', '/de'),
             self::createRequestWithBaseUrl('https://domain.com/method', '/en'),

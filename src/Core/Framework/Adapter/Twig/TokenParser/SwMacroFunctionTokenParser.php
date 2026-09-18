@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
-use Shopware\Core\Framework\Adapter\Twig\Node\MacroOverrideNode;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Error\SyntaxError;
 use Twig\Node\BodyNode;
@@ -12,6 +11,7 @@ use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\Unary\NegUnary;
 use Twig\Node\Expression\Unary\PosUnary;
 use Twig\Node\Expression\Variable\LocalVariable;
+use Twig\Node\MacroNode;
 use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -20,8 +20,9 @@ use Twig\TokenParser\MacroTokenParser;
 /**
  * @internal
  *
- * @see MacroTokenParser -> basically copied, we use our own Macro node,
- * that returns the actual instance of returned value instead of the markup
+ * @see MacroTokenParser -> basically copied, as the upstream parser is final and bound to the `macro` tag.
+ * The parsed macro is a regular Twig macro; `{% return %}` values are picked up at the call site by
+ * {@see \Shopware\Core\Framework\Adapter\Twig\NodeVisitor\MacroReturnValueNodeVisitor}.
  *
  * @codeCoverageIgnore
  *
@@ -50,7 +51,7 @@ class SwMacroFunctionTokenParser extends AbstractTokenParser
         $this->parser->popLocalScope();
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $this->parser->setMacro($name, new MacroOverrideNode($name, new BodyNode([$body]), $arguments, $lineno));
+        $this->parser->setMacro($name, new MacroNode($name, new BodyNode([$body]), $arguments, $lineno));
 
         return new EmptyNode($lineno);
     }

@@ -110,6 +110,32 @@ class SwTwigFunctionTest extends TestCase
         static::assertSame($expected, $result);
     }
 
+    public function testCallMacroReturnsTheRenderedMarkupWithoutReturnValue(): void
+    {
+        static::assertSame('markup', SwTwigFunction::callMacro(static fn (): string => 'markup'));
+        static::assertNull(SwTwigFunction::$macroResult);
+    }
+
+    public function testCallMacroPrefersTheReturnValueAndResetsIt(): void
+    {
+        $result = SwTwigFunction::callMacro(static function (): string {
+            SwTwigFunction::$macroResult = [1, 2];
+
+            return '';
+        });
+
+        static::assertSame([1, 2], $result);
+        static::assertNull(SwTwigFunction::$macroResult);
+    }
+
+    public function testCallMacroDiscardsAStaleReturnValue(): void
+    {
+        SwTwigFunction::$macroResult = 'stale';
+
+        static::assertSame('markup', SwTwigFunction::callMacro(static fn (): string => 'markup'));
+        static::assertNull(SwTwigFunction::$macroResult);
+    }
+
     public function testGetAttributeFallsBackToCoreExtensionWhenMethodThrows(): void
     {
         $source = new Source('', 'test_template');

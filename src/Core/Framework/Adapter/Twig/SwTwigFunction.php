@@ -17,7 +17,7 @@ use Twig\Template;
 class SwTwigFunction
 {
     /**
-     * Used in {@see MacroOverrideNode::compile()}
+     * Value handed over by `{% return %}` inside a macro, see {@see Node\ReturnNode} and {@see self::callMacro()}
      */
     public static mixed $macroResult = null;
 
@@ -28,6 +28,22 @@ class SwTwigFunction
      * @var array<class-string, array<string, string>>
      */
     private static array $getterCache = [];
+
+    /**
+     * Runs a compiled macro call and hands back the value a `{% return %}` inside the macro parked in
+     * {@see self::$macroResult}, falling back to the rendered markup when the macro returned none.
+     * Twig types the macro call path as string|Markup, so the value cannot travel through the call itself.
+     * The call is wrapped by {@see Node\MacroReturnValueExpression}.
+     */
+    public static function callMacro(\Closure $call): mixed
+    {
+        // a value a previous template-level `{% return %}` left behind must not leak into this call
+        self::$macroResult = null;
+
+        $rendered = $call();
+
+        return self::takeMacroResult() ?? $rendered;
+    }
 
     /**
      * Wrapper around {@see CoreExtension::getAttribute()}
@@ -72,6 +88,14 @@ class SwTwigFunction
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }
+    }
+
+    private static function takeMacroResult(): mixed
+    {
+        $result = self::$macroResult;
+        self::$macroResult = null;
+
+        return $result;
     }
 
     private static function resolveGetter(Struct $object, string $item): string

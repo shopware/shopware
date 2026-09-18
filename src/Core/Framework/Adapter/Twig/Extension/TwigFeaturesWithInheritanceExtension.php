@@ -116,6 +116,11 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         }
         // sw-fix-end
 
-        return CoreExtension::include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
+        // Twig 3.29 deprecates passing the sandboxed argument at all, so it is only forwarded when it was requested
+        if ($sandboxed) {
+            return CoreExtension::include($env, $context, $template, $variables, $withContext, $ignoreMissing, true);
+        }
+
+        return CoreExtension::include($env, $context, $template, $variables, $withContext, $ignoreMissing);
     }
 }

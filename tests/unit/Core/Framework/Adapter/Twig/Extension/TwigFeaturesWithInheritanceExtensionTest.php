@@ -43,6 +43,19 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
         );
     }
 
+    public function testIncludeDoesNotForwardTheSandboxedArgumentByDefault(): void
+    {
+        static::assertSame([], $this->collectDeprecations(fn () => $this->parseTemplate('{{ sw_include("foo.html.twig") }}')));
+    }
+
+    public function testIncludeForwardsARequestedSandboxedArgument(): void
+    {
+        $deprecations = $this->collectDeprecations(fn () => $this->parseTemplate('{{ sw_include("foo.html.twig", {}, true, false, true) }}'));
+
+        static::assertCount(1, $deprecations);
+        static::assertStringContainsString('"sandboxed"', $deprecations[0]);
+    }
+
     public function testGetTag(): void
     {
         $extension = new TwigFeaturesWithInheritanceExtension(static::createStub(TemplateFinder::class));
@@ -66,6 +79,27 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
             new Nodes([static::createStub(Node::class)]),
             100
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectDeprecations(callable $render): array
+    {
+        $deprecations = [];
+        set_error_handler(static function (int $errno, string $message) use (&$deprecations): bool {
+            $deprecations[] = $message;
+
+            return true;
+        }, \E_USER_DEPRECATED);
+
+        try {
+            $render();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $deprecations;
     }
 
     private function parseTemplate(string $template): string

@@ -334,6 +334,10 @@ Each server owns its own session store, defaulting to `%kernel.cache_dir%/mcp-se
 
 Both endpoints stay pinned to the protocol revision they served before, so the negotiated `protocolVersion` and the `Mcp-Session-Id` behaviour are unchanged.
 
+### Twig 3.29 is the minimum version
+
+Shopware requires `twig/twig` 3.29 or newer. Twig 3.29 compiles macros as closures in a per-template registry instead of `macro_`-prefixed methods, and Shopware adapted its macro handling accordingly: `{% return %}` inside `{% sw_macro_function %}` and `{% macro %}` keeps handing the value back to the caller, and `{% sw_import %}` and `{% sw_from %}` use the new macro variable nodes. Extensions that read compiled templates through `macro_`-prefixed method names or that build on the removed internal `MacroOverrideNode` need to follow Twig 3.29 instead.
+
 ## API
 
 ### OAuth authorization endpoint

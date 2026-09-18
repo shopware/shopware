@@ -118,9 +118,10 @@
                         />
                         {% endblock %}
 
-                        <hr class="sw-settings-customer-group-detail__price-separator">
-
                         {% block sw_settings_customer_group_detail_content_card_registration_form %}
+                        <h4 class="sw-settings-customer-group-detail__registration-form-title">
+                            {{ $t('sw-settings-customer-group.detail.registrationFormTitle') }}
+                        </h4>
 
                         <mt-switch
                             v-model="customerGroup.registrationActive"

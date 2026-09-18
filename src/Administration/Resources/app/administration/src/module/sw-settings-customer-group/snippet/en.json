@@ -19,6 +19,7 @@
       "placeholderName": "Enter a name...",
       "placeholderNewCustomerGroup": "New customer group",
       "notificationErrorMessage": "An error occured while saving your customer group.",
+      "registrationFormTitle": "Sign up form",
       "registrationForm": "Custom signup form",
       "taxDisplay": {
         "label": "Tax display",

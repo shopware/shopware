@@ -336,6 +336,12 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             ]);
         });
 
+        it('should render a section title above the signup form switch', async () => {
+            expect(wrapper.find('.sw-settings-customer-group-detail__registration-form-title').text()).toBe(
+                'sw-settings-customer-group.detail.registrationFormTitle',
+            );
+        });
+
         it('should leave both fields untouched as long as nobody selects anything', async () => {
             expect(wrapper.vm.customerGroup.displayGross).toBe(false);
             expect(wrapper.vm.customerGroup.priceBasis).toBeNull();

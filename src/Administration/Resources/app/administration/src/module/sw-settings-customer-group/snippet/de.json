@@ -19,6 +19,7 @@
       "placeholderName": "Einen Namen eingeben ...",
       "placeholderNewCustomerGroup": "Neue Kundengruppe",
       "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
+      "registrationFormTitle": "Registrierungsformular",
       "registrationForm": "Benutzerdefiniertes Registrierungsformular",
       "taxDisplay": {
         "label": "Steuerdarstellung",

@@ -26,8 +26,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * Loads the merged document configuration (global + sales-channel override)
  * for a document type. Reads typed columns directly; falls back to the JSON
  * `config` blob only for fields not yet migrated to columns.
- * Sales-channel configured values override global. For the filename prefix
- * and suffix, '' counts as unconfigured.
+ * Sales-channel configured values override global. For the filename prefix,
+ * suffix, and infixes, '' counts as unconfigured.
  *
  * @internal
  */
@@ -152,6 +152,34 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     }
 
     /**
+     * @param array<string, mixed> $global
+     * @param array<string, mixed> $salesChannel
+     *
+     * @return array<string, string>
+     */
+    public static function mergeFilenameInfixes(array $global, array $salesChannel): array
+    {
+        return array_merge(self::configuredFilenameInfixes($global), self::configuredFilenameInfixes($salesChannel));
+    }
+
+    /**
+     * @param array<string, mixed> $infixes
+     *
+     * @return array<string, string>
+     */
+    public static function configuredFilenameInfixes(array $infixes): array
+    {
+        $configured = [];
+        foreach ($infixes as $format => $infix) {
+            if (\is_scalar($infix) && (string) $infix !== '') {
+                $configured[(string) $format] = (string) $infix;
+            }
+        }
+
+        return $configured;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     private function resolveCompanyInfoFromSystemConfig(string $salesChannelId): ?array
@@ -220,7 +248,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             itemsPerPage: $itemsPerPage,
             filenamePrefix: self::firstConfiguredValue($salesChannelRow?->getFilenamePrefix(), $globalRow?->getFilenamePrefix()),
             filenameSuffix: self::firstConfiguredValue($salesChannelRow?->getFilenameSuffix(), $globalRow?->getFilenameSuffix()),
-            filenameInfixes: array_merge(
+            filenameInfixes: self::mergeFilenameInfixes(
                 $globalRow?->getFilenameInfixes() ?? [],
                 $salesChannelRow?->getFilenameInfixes() ?? [],
             ),

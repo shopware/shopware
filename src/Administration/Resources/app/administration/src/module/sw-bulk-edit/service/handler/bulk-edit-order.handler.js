@@ -146,7 +146,8 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
 
         await Promise.all(workers);
 
-        return responses;
+        // Remove failed slots without discarding successful undefined or falsy responses.
+        return responses.filter(() => true);
     }
 
     transitionOrderStatus(order, change, shouldTriggerFlows) {

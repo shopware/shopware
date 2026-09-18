@@ -196,7 +196,7 @@ export function loadExtensions(): ExtensionDefinition[] {
                     isApp: false,
                     technicalName: technicalName,
                     // There is an edge case where symfony removes the "bundle" suffix from the bundle name
-                    // @see \Shopware\Core\Framework\Plugin\Util\AssetService::getTargetDirectory
+                    // @see \Shopware\Core\Framework\Adapter\Asset\AssetService::getTargetDirectory
                     technicalFolderName: name
                         .toLowerCase()
                         .replace(/bundle$/, '')

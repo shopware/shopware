@@ -2108,6 +2108,11 @@ The HTTP route is still the same. The old class has been removed.
 `Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
 Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
 
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
+
 ## Removal of snippets
 
 The following snippet keys have been removed:

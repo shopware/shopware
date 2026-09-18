@@ -568,6 +568,12 @@ Installations can configure `shopware.media.url_upload_timeout` and
 uploads and external-media link checks. Both values default to `0.0`, which
 preserves the previous unlimited behavior.
 
+### HTML in customer name and address fields is rejected with a dedicated violation
+
+Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".
+
+Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
+
 ## Administration
 
 ### An empty string can be saved on fields that allow one

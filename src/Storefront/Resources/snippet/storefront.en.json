@@ -102,6 +102,7 @@
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
     "VIOLATION::ZIP_CODE_INVALID": "The postal code you have entered does not have the correct format.",
     "VIOLATION::INVALID_FORMAT_ERROR": "The input does not have the correct format.",
+    "VIOLATION::CONTAINS_HTML_ERROR": "Please do not use HTML tags.",
     "VIOLATION::INVALID_EMAIL_FORMAT_ERROR": "Invalid email address. Email addresses must use the format \"user@example.com\".",
     "VIOLATION::NOT_EQUAL_ERROR": "Confirmation field does not match.",
     "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Please fill in your first name.",

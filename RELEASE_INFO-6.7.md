@@ -1,3 +1,13 @@
+# 6.7.14.2
+
+## Critical Fixes
+
+### Product and promotion duplication works again
+
+Duplicating products could fail because the request resubmitted the protected variant count. Promotion duplication failed for the same reason when it resubmitted the protected total and per-customer redemption counts.
+
+Both duplication flows now succeed. Products keep their correct variant count, while duplicated promotions start with zero total redemptions and no per-customer redemptions instead of inheriting the usage of the original promotion.
+
 # 6.7.14.1
 
 ## Security Fixes

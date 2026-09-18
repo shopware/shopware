@@ -95,6 +95,9 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
+### Stock availability uses shared parent locks
+
+Stock availability recalculation uses shared locks for inherited parent settings, allowing sibling variants to update concurrently while keeping those settings consistent. Standalone recalculation retries database contention and holds child locks through the complete calculation; inside an existing transaction, the transaction owner controls retries and commit timing. `ProductNoLongerAvailableEvent` still runs before an existing outer transaction commits.
 ### Live state transition writes are batched
 
 Live state transitions persist history and entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive commands for both entities; use `getCommandsForEntity()` rather than assuming a single entity. Pre-write work can run again on contention and must be idempotent or compensated through `addError()`. Each failed attempt invokes its error callbacks before retrying. A failing error callback stops retries and preserves the original write failure.

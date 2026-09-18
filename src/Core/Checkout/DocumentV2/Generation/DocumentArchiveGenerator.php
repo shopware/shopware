@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -111,7 +112,12 @@ final class DocumentArchiveGenerator
             $hasFiles = true;
         }
 
-        foreach ([$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()] as $media) {
+        $legacyMedia = Feature::silent(
+            'v6.9.0.0',
+            static fn (): array => [$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()],
+        );
+
+        foreach ($legacyMedia as $media) {
             if ($media === null || isset($mediaIds[$media->getId()])) {
                 continue;
             }

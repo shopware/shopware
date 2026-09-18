@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
@@ -721,6 +722,12 @@ class InfoControllerTest extends TestCase
             [
                 'contextKey' => 'configuratorSettings',
                 'fqcn' => PropertyGroupCollection::class,
+                'contextType' => 'single',
+                'distribution' => 'broadcast',
+            ],
+            [
+                'contextKey' => 'reviews',
+                'fqcn' => ProductReviewResult::class,
                 'contextType' => 'single',
                 'distribution' => 'broadcast',
             ],

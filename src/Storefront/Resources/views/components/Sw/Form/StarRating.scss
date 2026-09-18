@@ -1,0 +1,51 @@
+// A bare <legend> defaults to an oversized font; match the other field labels.
+.sw-form-star-rating__legend {
+    font-size: inherit;
+}
+
+.sw-form-star-rating__input {
+    display: flex;
+    align-items: center;
+}
+
+.sw-form-star-rating__radio {
+    // Visually hidden but kept focusable for keyboard use; the star icon is the visible control.
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.sw-form-star-rating__star {
+    margin-right: 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+
+    &:has(.sw-form-star-rating__radio:focus-visible) {
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    .sw-icon {
+        color: var(--bs-gray-200);
+    }
+
+    &.is-active .sw-icon {
+        color: var(--icon-review-color);
+    }
+}
+
+.sw-form-star-rating__text {
+    margin-left: var(--spacer-sm);
+    margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .sw-form-star-rating__star {
+        margin-right: 5px;
+    }
+}

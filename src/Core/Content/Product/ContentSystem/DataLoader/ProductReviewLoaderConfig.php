@@ -7,9 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-type ProductReviewLoaderConfigData array{
- *   property?: non-empty-string,
- *   associations?: list<non-empty-string>,
- *   associationOverride?: non-empty-string
+ *   property?: non-empty-string
  * }
  *
  * @internal
@@ -18,14 +16,10 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ProductReviewLoaderConfig extends AbstractContentDataLoaderConfig
 {
     /**
-     * @param non-empty-string|null $property Element property name to read product ID from
-     * @param list<non-empty-string> $associations
-     * @param non-empty-string|null $associationOverride Element property name to read additional associations from
+     * @param non-empty-string|null $property Element property name to read the product ID from
      */
     public function __construct(
         public ?string $property = null,
-        public array $associations = [],
-        public ?string $associationOverride = null,
     ) {
     }
 
@@ -38,14 +32,6 @@ final readonly class ProductReviewLoaderConfig extends AbstractContentDataLoader
 
         if ($this->property !== null) {
             $data['property'] = $this->property;
-        }
-
-        if ($this->associations !== []) {
-            $data['associations'] = $this->associations;
-        }
-
-        if ($this->associationOverride !== null) {
-            $data['associationOverride'] = $this->associationOverride;
         }
 
         return $data;

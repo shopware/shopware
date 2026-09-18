@@ -1,0 +1,49 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    reviews = null,
+%}
+
+{% set productReviewCount = reviews ? reviews.total : 0 %}
+{% set totalInCurrentLanguage = reviews and reviews.totalReviewsInCurrentLanguage ? reviews.totalReviewsInCurrentLanguage : productReviewCount %}
+{% set foreignReviewCount = productReviewCount - totalInCurrentLanguage %}
+{% set currentSort = reviews and reviews.criteria.sorting|length > 0 ? reviews.criteria.sorting[0].field : 'createdAt' %}
+
+{% set attributeDefaults = {
+    class: 'sw-product-reviews__filters',
+    'data-component': 'Sw:Product:ReviewFilters',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block language %}
+        <div class="sw-product-reviews__language form-check form-switch">
+            <input type="checkbox" class="form-check-input js-reviews-language-toggle"
+                   id="sw-reviews-foreign" name="language" value="filter-language"
+                   {% if app.request.get('language') %}checked="checked"{% endif %}
+                   {% if foreignReviewCount is same as(0) and not app.request.get('language') %}disabled="disabled"{% endif %}>
+            <label class="form-check-label form-label" for="sw-reviews-foreign">
+                <small>{{ 'detail.reviewLanguageFilterLabel'|trans|sw_sanitize }}</small>
+            </label>
+        </div>
+    {% endblock %}
+
+    {% block sort %}
+        {% if productReviewCount > 0 %}
+            <div class="sw-product-reviews__sort">
+                <label class="form-label sw-product-reviews__sort-label" for="sw-reviews-sort">
+                    <small>{{ 'detail.reviewSortLabel'|trans|sw_sanitize }}</small>
+                </label>
+                <select class="form-select form-select-sm js-reviews-sort" name="sort" id="sw-reviews-sort">
+                    <option value="createdAt"{% if currentSort == 'createdAt' %} selected{% endif %}>
+                        {{ 'detail.reviewSortNewLabel'|trans|sw_sanitize }}
+                    </option>
+                    <option value="points"{% if currentSort == 'points' %} selected{% endif %}>
+                        {{ 'detail.reviewSortTopRatedLabel'|trans|sw_sanitize }}
+                    </option>
+                </select>
+            </div>
+        {% endif %}
+    {% endblock %}
+</div>

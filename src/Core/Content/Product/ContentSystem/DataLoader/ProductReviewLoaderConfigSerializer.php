@@ -32,29 +32,7 @@ class ProductReviewLoaderConfigSerializer extends AbstractContentDataLoaderConfi
             $property = $data['property'];
         }
 
-        $associations = [];
-        if (\array_key_exists('associations', $data) && $data['associations'] !== null) {
-            if (!\is_array($data['associations'])) {
-                throw ProductException::invalidFieldValueType('associations', 'array', \gettype($data['associations']));
-            }
-            foreach ($data['associations'] as $i => $association) {
-                if (!\is_string($association) || $association === '') {
-                    throw ProductException::invalidFieldValueType('associations.' . $i, 'non-empty string', \gettype($association));
-                }
-
-                $associations[] = $association;
-            }
-        }
-
-        $associationOverride = null;
-        if (\array_key_exists('associationOverride', $data)) {
-            if (!\is_string($data['associationOverride']) || $data['associationOverride'] === '') {
-                throw ProductException::invalidFieldValueType('associationOverride', 'non-empty string', \gettype($data['associationOverride']));
-            }
-            $associationOverride = $data['associationOverride'];
-        }
-
-        return new ProductReviewLoaderConfig($property, $associations, $associationOverride);
+        return new ProductReviewLoaderConfig($property);
     }
 
     /**

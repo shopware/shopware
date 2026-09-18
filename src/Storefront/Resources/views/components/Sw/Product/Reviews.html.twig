@@ -1,0 +1,84 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    reviews = null,
+    slots = [],
+%}
+
+{% set reviewsPerPage = config('core.listing.reviewsPerPage') %}
+{% if reviewsPerPage <= 0 %}
+    {% set reviewsPerPage = 10 %}
+{% endif %}
+
+{% set matrix = reviews ? reviews.matrix : null %}
+{% set productReviewCount = reviews ? reviews.total : 0 %}
+{% set currentPage = reviews ? reviews.page : 1 %}
+{% set maxPoints = matrix ? matrix.maxPoints : 5 %}
+{% set totalPages = (productReviewCount / reviewsPerPage)|round(0, 'ceil') %}
+
+{% set reviewsOptions = {
+    contentUrl: reviews ? path('frontend.content.layout', {
+        path: 'product/' ~ (reviews.parentId ?: reviews.productId),
+        elementId: attributes.all()['data-element-id'] ?? null,
+    }) : null,
+} %}
+
+{% set attributeDefaults = {
+    class: 'sw-product-reviews',
+    'data-component': 'Sw:Product:Reviews',
+    'data-component-options': reviewsOptions|json_encode,
+} %}
+
+<section {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        <div class="sw-product-reviews__inner">
+            {# Only this region is swapped on sort/filter/paginate; summary and filters are separate elements. #}
+            <div class="sw-product-reviews__results">
+                {% block counter %}
+                    {% if productReviewCount > 0 %}
+                        <hr>
+                        <p class="sw-product-reviews__counter text-end">
+                            <small><strong>{{ productReviewCount }}</strong> {{ 'detail.reviewCountAfter'|trans({ '%count%': productReviewCount })|sw_sanitize }}</small>
+                        </p>
+                    {% endif %}
+                {% endblock %}
+
+                {% block list %}
+                    {% if productReviewCount > 0 %}
+                        <twig:Slot name="list">
+                            <div class="sw-product-reviews__list">
+                                {% for review in reviews.entities %}
+                                    <twig:Sw:Product:Review :review="review" :maxPoints="maxPoints" />
+                                {% endfor %}
+                            </div>
+                        </twig:Slot>
+
+                        {% block pagination %}
+                            {% if totalPages > 1 %}
+                                <twig:Slot name="pagination">
+                                    <div class="sw-product-reviews__pagination">
+                                        <twig:Sw:Content:Pagination
+                                            :page="currentPage"
+                                            :totalPages="totalPages"
+                                            :total="productReviewCount"
+                                            :limit="reviewsPerPage"
+                                            scope="reviews"
+                                        />
+                                    </div>
+                                </twig:Slot>
+                            {% endif %}
+                        {% endblock %}
+                    {% else %}
+                        {% block empty_state %}
+                            <div class="sw-product-reviews__empty alert alert-info" role="alert">
+                                {{ 'detail.reviewListEmpty'|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+</section>

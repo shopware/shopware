@@ -1,0 +1,81 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name = 'points',
+    id = "#{name}-#{random()}",
+    label = null,
+    maxPoints = 5,
+    value = null,
+    validationRules = null,
+    violationPath = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set currentValue = value is not null ? value : maxPoints %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-star-rating sw-form-field',
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+<fieldset {{ attributes.defaults(attributeDefaults) }}>
+    {% block label %}
+        <twig:Sw:Form:Field:FieldsetLabel
+            :label="label"
+            :required="required"
+            class="sw-form-star-rating__legend"
+        />
+    {% endblock %}
+
+    {% block content %}
+        <div class="sw-form-star-rating__input" data-component="Sw:Form:StarRating">
+            {% for point in 1..maxPoints %}
+                <label class="sw-form-star-rating__star{% if currentValue >= point %} is-active{% endif %}"
+                       data-star-point="{{ point }}">
+                    <input class="sw-form-star-rating__radio sw-form-field__control"
+                           type="radio"
+                           name="{{ name }}"
+                           value="{{ point }}"
+                           aria-label="{{ "detail.review#{point}PointRatingText"|trans|striptags }}"
+                           {% if currentValue >= point %} checked="checked"{% endif %}
+                           {% if clientValidationRules is not empty %} data-validation="{{ clientValidationRules }}"{% endif %}
+                           {% if required %} aria-required="true"{% endif %}
+                           {% if isInvalid %} aria-invalid="true"{% endif %}>
+                    <span class="sw-form-star-rating__icon" aria-hidden="true">
+                        <twig:Sw:Icon name="star" pack="solid" size="xs" />
+                    </span>
+                </label>
+            {% endfor %}
+
+            {% for point in 1..maxPoints %}
+                <p class="sw-form-star-rating__text h6{% if currentValue != point %} d-none{% endif %}"
+                   data-star-text="{{ point }}"
+                   aria-hidden="true">
+                    {{ "detail.review#{point}PointRatingText"|trans|sw_sanitize }}
+                </p>
+            {% endfor %}
+        </div>
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Field:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</fieldset>

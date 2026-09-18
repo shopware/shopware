@@ -1,0 +1,105 @@
+.sw-product-reviews {
+    display: block;
+    margin-bottom: var(--spacer-md);
+}
+
+// Summary and list are plain stacked blocks; column layouts are left to the studio's style options.
+.sw-product-reviews__summary {
+    display: block;
+    margin-bottom: var(--spacer-lg);
+}
+
+// Summary
+.sw-product-reviews__summary-title {
+    margin-bottom: var(--spacer-sm);
+}
+
+.sw-product-reviews__summary-rating {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacer-sm);
+    margin-bottom: var(--spacer-md);
+}
+
+.sw-product-reviews__summary-rating-value {
+    margin-bottom: 0;
+}
+
+// Per-star breakdown
+.sw-product-reviews__breakdown {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--spacer-md);
+}
+
+.sw-product-reviews__breakdown-row {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) max-content;
+    align-items: center;
+    gap: var(--spacer-sm);
+    margin-bottom: var(--spacer-xs);
+}
+
+.sw-product-reviews__breakdown-bar {
+    height: 14px;
+}
+
+.sw-product-reviews__breakdown-fill {
+    background-color: var(--progress-bar-review, var(--bs-primary));
+}
+
+.sw-product-reviews__breakdown-percent {
+    text-align: right;
+}
+
+// Filters
+.sw-product-reviews__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacer-sm);
+}
+
+.sw-product-reviews__sort {
+    display: flex;
+    align-items: center;
+    gap: var(--spacer-xs);
+}
+
+// List + item
+.sw-product-reviews__counter {
+    margin-bottom: var(--spacer-sm);
+}
+
+.sw-product-reviews__item {
+    border-bottom: 1px solid var(--bs-border-color);
+    margin-bottom: var(--spacer-lg);
+    padding-bottom: var(--spacer-md);
+}
+
+.sw-product-reviews__item-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacer-sm);
+    margin-bottom: var(--spacer-sm);
+}
+
+.sw-product-reviews__item-date {
+    flex-basis: 100%;
+    margin-bottom: 0;
+}
+
+.sw-product-reviews__item-title {
+    margin-bottom: 0;
+}
+
+.sw-product-reviews__item-content {
+    word-break: break-word;
+}
+
+.sw-product-reviews__pagination {
+    margin-top: var(--spacer-md);
+}

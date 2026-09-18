@@ -26,9 +26,7 @@ const categoryMock = {
 const defaultProps = {
     rule: ruleMock,
     association: testAssociationName,
-    categoriesCollection: createEntityCollectionMock('category', [
-        categoryMock,
-    ]),
+    categoriesCollection: createEntityCollectionMock('category', [categoryMock]),
     hideHeadline: true,
     hideSearch: true,
 };
@@ -83,9 +81,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
     });
 
     it('should not re-get tree items category entity is empty', async () => {
-        const collection = createEntityCollectionMock('category', [
-            categoryMock,
-        ]);
+        const collection = createEntityCollectionMock('category', [categoryMock]);
         collection.entity = null;
 
         await createWrapper({
@@ -97,10 +93,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(categoryRepositoryMock.search).toHaveBeenCalledTimes(0);
     });
 
-    it.each([
-        { expected: true },
-        { expected: false },
-    ])('should hide headline: $expected', async ({ expected }) => {
+    it.each([{ expected: true }, { expected: false }])('should hide headline: $expected', async ({ expected }) => {
         const wrapper = await createWrapper({
             ...defaultProps,
             hideHeadline: expected,
@@ -110,10 +103,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-category-tree',
         expect(wrapper.find('.sw-tree-actions__headline').exists()).toBe(!expected);
     });
 
-    it.each([
-        { expected: true },
-        { expected: false },
-    ])('should hide search: $expected', async ({ expected }) => {
+    it.each([{ expected: true }, { expected: false }])('should hide search: $expected', async ({ expected }) => {
         const wrapper = await createWrapper({
             ...defaultProps,
             hideSearch: expected,

@@ -377,10 +377,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             subject: 'Alt cancellation subject',
         });
 
-        const wrapper = await createWrapper(defaultProps, true, [
-            mockMailTemplates[0],
-            altCancellationTemplate,
-        ]);
+        const wrapper = await createWrapper(defaultProps, true, [mockMailTemplates[0], altCancellationTemplate]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
@@ -564,67 +561,25 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         });
 
         it.each([
-            [
-                'invoice',
-                'invoice_mail',
-            ],
-            [
-                'delivery_note',
-                'delivery_mail',
-            ],
-            [
-                'credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'storno',
-                'cancellation_mail',
-            ],
-            [
-                'zugferd_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_embedded_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'zugferd_embedded_credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'zugferd_cancellation_invoice',
-                'cancellation_mail',
-            ],
-            [
-                'zugferd_embedded_cancellation_invoice',
-                'cancellation_mail',
-            ],
+            ['invoice', 'invoice_mail'],
+            ['delivery_note', 'delivery_mail'],
+            ['credit_note', 'credit_note_mail'],
+            ['storno', 'cancellation_mail'],
+            ['zugferd_invoice', 'invoice_mail'],
+            ['zugferd_embedded_invoice', 'invoice_mail'],
+            ['zugferd_credit_note', 'credit_note_mail'],
+            ['zugferd_embedded_credit_note', 'credit_note_mail'],
+            ['zugferd_cancellation_invoice', 'cancellation_mail'],
+            ['zugferd_embedded_cancellation_invoice', 'cancellation_mail'],
         ])('should map document type "%s" to mail template type "%s"', (docType, mailTemplateType) => {
             expect(DOCUMENT_MAIL_TEMPLATE_MAPPING[docType]).toBe(mailTemplateType);
         });
 
         it.each([
-            [
-                'zugferd_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_embedded_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'zugferd_cancellation_invoice',
-                'cancellation_mail',
-            ],
+            ['zugferd_invoice', 'invoice_mail'],
+            ['zugferd_embedded_invoice', 'invoice_mail'],
+            ['zugferd_credit_note', 'credit_note_mail'],
+            ['zugferd_cancellation_invoice', 'cancellation_mail'],
         ])('should auto select correct template for %s document', async (docType, mailType) => {
             const document = makeDocument(docType);
             const template = makeMailTemplate(mailType);

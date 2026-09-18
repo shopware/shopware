@@ -16,16 +16,11 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'customSnippetApiService',
-        'repositoryFactory',
-    ],
+    inject: ['customSnippetApiService', 'repositoryFactory'],
 
     emits: ['change-address'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         address: {
@@ -390,12 +385,7 @@ export default {
 
         addressLabel(address) {
             const label = [
-                [
-                    address.company,
-                    address.department,
-                ]
-                    .filter((v) => v)
-                    .join(' - '),
+                [address.company, address.department].filter((v) => v).join(' - '),
                 address.street,
                 `${address.zipcode ?? ''} ${address.city}`.trim(),
                 address?.countryState?.translated?.name,

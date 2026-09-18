@@ -160,10 +160,7 @@ export function projectHasOwnedConfig(project: ExtensionToolingProject): boolean
 /** Every extension-owned config of this project, both tools. */
 function ownedConfigs(project: ExtensionToolingProject): OwnedConfig[] {
     return project.targets
-        .flatMap((target) => [
-            target.tsconfig,
-            target.eslintConfig,
-        ])
+        .flatMap((target) => [target.tsconfig, target.eslintConfig])
         .filter((config): config is OwnedConfig => config !== null);
 }
 
@@ -331,12 +328,9 @@ function escapeRegExp(value: string): string {
  * `/privatecustom/a.ts`.
  */
 export function relativizeToolOutput(output: string, projectRoot: string): string {
-    const roots = [
-        ...new Set([
-            projectRoot,
-            canonicalizePath(projectRoot),
-        ]),
-    ].sort((left, right) => right.length - left.length);
+    const roots = [...new Set([projectRoot, canonicalizePath(projectRoot)])].sort(
+        (left, right) => right.length - left.length,
+    );
 
     let relativized = output;
 
@@ -498,11 +492,7 @@ export const MANAGED_BLOCK_END = `# <<< ${GENERATED_MARKER}`;
  * byte-identically; a begin marker without its end reports a conflict.
  */
 export function writeManagedBlock(filePath: string, blockBody: string[], dryRun = false): WriteResult {
-    const block = [
-        MANAGED_BLOCK_BEGIN,
-        ...blockBody,
-        MANAGED_BLOCK_END,
-    ].join('\n');
+    const block = [MANAGED_BLOCK_BEGIN, ...blockBody, MANAGED_BLOCK_END].join('\n');
 
     if (!fs.existsSync(filePath)) {
         if (!dryRun) {

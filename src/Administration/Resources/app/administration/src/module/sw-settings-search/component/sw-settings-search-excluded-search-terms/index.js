@@ -1,10 +1,9 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search-excluded-search-terms.html.twig';
 import './sw-settings-search-excluded-search-terms.scss';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +13,9 @@ export default {
 
     emits: ['edit-change', 'data-load'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         searchConfigs: {

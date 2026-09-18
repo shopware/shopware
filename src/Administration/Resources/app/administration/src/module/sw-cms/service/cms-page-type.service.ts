@@ -1,9 +1,8 @@
 /**
  * @sw-package discovery
  */
+import { string } from 'shopware:utils';
 import { reactive } from 'vue';
-
-const { Utils } = Shopware;
 
 /**
  * @private
@@ -29,8 +28,8 @@ export default class CmsPageTypeService {
             throw new Error(`Can't register new Page Type with "${newTypeData.name}" already in use.`);
         }
 
-        const camelCase = Utils.string.camelCase(newTypeData.name);
-        const kebabCase = Utils.string.kebabCase(newTypeData.name);
+        const camelCase = string.camelCase(newTypeData.name);
+        const kebabCase = string.kebabCase(newTypeData.name);
         const newType = {
             name: newTypeData.name,
             icon: newTypeData.icon,

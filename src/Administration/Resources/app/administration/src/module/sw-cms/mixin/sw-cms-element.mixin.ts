@@ -1,3 +1,4 @@
+import cmsStateMixin from 'shopware:mixins/cms-state';
 import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
@@ -17,7 +18,9 @@ export default Mixin.register(
     defineComponent({
         inject: ['cmsService'],
 
-        mixins: [Mixin.getByName('cms-state')],
+        mixins: [
+            cmsStateMixin,
+        ],
 
         props: {
             element: {

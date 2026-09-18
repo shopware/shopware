@@ -1,11 +1,13 @@
 /**
  * @sw-package checkout
  */
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import template from './sw-settings-salutation-detail.html.twig';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
@@ -17,9 +19,9 @@ export default {
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('salutation'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('salutation'),
     ],
 
     props: {

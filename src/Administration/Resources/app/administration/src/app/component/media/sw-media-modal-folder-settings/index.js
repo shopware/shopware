@@ -1,8 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
 import { Criteria } from 'shopware:data';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -16,7 +17,9 @@ export default {
 
     emits: ['media-settings-modal-save', 'media-settings-modal-close'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         mediaFolderId: {

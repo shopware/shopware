@@ -1,8 +1,7 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-landing-page-view.html.twig';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package discovery
@@ -13,7 +12,9 @@ export default {
 
     inject: ['acl', 'feature'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [
+        placeholderMixin,
+    ],
 
     props: {
         isLoading: {

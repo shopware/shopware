@@ -2,18 +2,20 @@
  * @sw-package inventory
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [
+        placeholderMixin,
+    ],
 
     props: {
         allowEdit: {

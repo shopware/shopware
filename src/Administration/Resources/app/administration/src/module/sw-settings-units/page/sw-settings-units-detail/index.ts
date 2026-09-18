@@ -1,12 +1,13 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-settings-units-detail.html.twig';
 import type Repository from '../../../../core/data/repository.data';
 import { mapPropertyErrors } from '../../../../app/service/map-errors.service';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 /**
  * @private
@@ -14,7 +15,9 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 

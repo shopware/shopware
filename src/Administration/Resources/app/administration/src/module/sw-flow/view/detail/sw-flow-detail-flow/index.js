@@ -1,9 +1,10 @@
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-detail-flow.html.twig';
 import './sw-flow-detail-flow.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import useErrorStore from 'shopware:stores/error';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { mapState } = Component.getComponentHelper();
 
@@ -79,7 +80,7 @@ export default {
         },
 
         ...mapState(
-            () => Store.get('swFlow'),
+            () => useSwFlowStore(),
             [
                 'flow',
                 'triggerActions',
@@ -99,7 +100,7 @@ export default {
 
                 if (!value.length) {
                     const sequence = this.createSequence();
-                    Store.get('swFlow').addSequence(sequence);
+                    useSwFlowStore().addSequence(sequence);
                 }
             },
             immediate: true,
@@ -145,7 +146,7 @@ export default {
 
         getTriggerActions() {
             return this.flowActionService.getActions().then((actions) => {
-                Store.get('swFlow').triggerActions = actions;
+                useSwFlowStore().triggerActions = actions;
             });
         },
 
@@ -229,12 +230,12 @@ export default {
         },
 
         onEventChange(eventName) {
-            Store.get('swFlow').setEventName(eventName);
+            useSwFlowStore().setEventName(eventName);
             useErrorStore().removeApiError(`flow.${this.flow.id}.eventName`);
 
             if (!this.rootSequences.length) {
                 const sequence = this.createSequence();
-                Store.get('swFlow').addSequence(sequence);
+                useSwFlowStore().addSequence(sequence);
             }
         },
 
@@ -247,7 +248,7 @@ export default {
             newItem.position = 1;
             newItem.displayGroup = this.rootSequences[this.rootSequences.length - 1].displayGroup + 1;
 
-            Store.get('swFlow').addSequence(newItem);
+            useSwFlowStore().addSequence(newItem);
         },
 
         getSequenceId(sequence) {

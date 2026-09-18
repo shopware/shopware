@@ -2,11 +2,10 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +15,9 @@ export default {
 
     emits: ['media-open'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         disabled: {

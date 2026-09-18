@@ -1,18 +1,23 @@
 /**
  * @sw-package checkout
  */
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [
+        listingMixin,
+        notificationMixin,
+    ],
 
     data() {
         return {

@@ -1,6 +1,9 @@
+import cmsStateMixin from 'shopware:mixins/cms-state';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
-import { debounce } from 'shopware:utils';
+import { debounce, string } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
 import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
 import { isEmpty } from 'shopware:utils/types';
@@ -9,7 +12,7 @@ import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { CMS } = Shopware.Constants;
@@ -35,7 +38,11 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        cmsStateMixin,
+        notificationMixin,
+        placeholderMixin,
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -767,7 +774,7 @@ export default {
 
                     block.slots.forEach((slot) => {
                         if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL && this.isProductPageElement(slot)) {
-                            const camelSlotType = Utils.string.camelCase(slot.type);
+                            const camelSlotType = string.camelCase(slot.type);
                             if (!uniqueSlotCount.hasOwnProperty(camelSlotType)) {
                                 uniqueSlotCount[camelSlotType] = {
                                     type: camelSlotType,

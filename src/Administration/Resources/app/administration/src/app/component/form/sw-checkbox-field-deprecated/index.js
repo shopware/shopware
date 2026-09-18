@@ -1,8 +1,9 @@
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import { inject } from 'vue';
 import template from './sw-checkbox-field-deprecated.html.twig';
 import './sw-checkbox-field.scss';
 
-const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -24,7 +25,10 @@ export default {
 
     emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
-    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error')],
+    mixins: [
+        swFormFieldMixin,
+        removeApiErrorMixin,
+    ],
 
     props: {
         id: {

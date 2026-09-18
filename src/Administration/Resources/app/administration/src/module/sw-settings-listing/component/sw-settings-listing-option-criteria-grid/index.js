@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
 import { Criteria } from 'shopware:data';
@@ -6,7 +8,6 @@ import { Criteria } from 'shopware:data';
  * @sw-package inventory
  */
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -20,7 +21,10 @@ export default {
         'inline-edit-cancel',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
+    mixins: [
+        notificationMixin,
+        swInlineSnippetMixin,
+    ],
 
     props: {
         productSortingEntity: {

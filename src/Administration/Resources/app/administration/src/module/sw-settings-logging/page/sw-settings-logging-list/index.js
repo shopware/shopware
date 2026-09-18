@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
 import './sw-settings-logging-list.scss';
 import template from './sw-settings-logging-list.html.twig';
 import { Criteria } from 'shopware:data';
@@ -13,7 +14,10 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [Mixin.getByName('sw-settings-list'), Mixin.getByName('placeholder')],
+    mixins: [
+        Mixin.getByName('sw-settings-list'),
+        placeholderMixin,
+    ],
 
     data() {
         return {

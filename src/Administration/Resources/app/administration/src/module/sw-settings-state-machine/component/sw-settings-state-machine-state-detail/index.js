@@ -1,6 +1,7 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-state-machine-state-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -16,7 +17,9 @@ export default Component.wrapComponentConfig({
 
     emits: ['modal-close'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         currentStateMachineState: {

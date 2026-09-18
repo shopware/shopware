@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 import { Criteria, EntityCollection } from 'shopware:data';
@@ -5,7 +6,7 @@ import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
 import useSessionStore from 'shopware:stores/session';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 /**
  * @private
@@ -23,7 +24,9 @@ export default {
         'acl',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

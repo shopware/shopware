@@ -1,13 +1,12 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
-import { debounce } from 'shopware:utils';
+import { debounce, createId } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Component,
-    Mixin,
-    Utils,
     Classes: { ShopwareError },
     Store,
 } = Shopware;
@@ -24,7 +23,9 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         sequence: {
@@ -282,16 +283,21 @@ export default {
                 this.mailRecipient = config.recipient?.type;
 
                 if (config.recipient?.type === 'custom') {
-                    Object.entries(config.recipient.data).forEach(([key, value]) => {
-                        const newId = Utils.createId();
-                        this.recipients.push({
-                            id: newId,
-                            email: key,
-                            name: value,
-                            isNew: false,
-                            isMailValid: true,
-                        });
-                    });
+                    Object.entries(config.recipient.data).forEach(
+                        ([
+                            key,
+                            value,
+                        ]) => {
+                            const newId = createId();
+                            this.recipients.push({
+                                id: newId,
+                                email: key,
+                                name: value,
+                                isNew: false,
+                                isMailValid: true,
+                            });
+                        },
+                    );
 
                     this.showRecipientEmails = true;
                 }
@@ -513,7 +519,7 @@ export default {
 
         createEmptyRecipient() {
             return {
-                id: Utils.createId(),
+                id: createId(),
                 email: '',
                 name: '',
                 isNew: true,

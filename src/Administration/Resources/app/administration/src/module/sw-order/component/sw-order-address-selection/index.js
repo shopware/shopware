@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import { required } from 'src/core/service/validation.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
@@ -11,7 +13,7 @@ import useErrorStore from 'shopware:stores/error';
  */
 
 const { ShopwareError } = Shopware.Classes;
-const { EntityDefinition, Mixin, Store } = Shopware;
+const { EntityDefinition } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -20,7 +22,9 @@ export default {
 
     emits: ['change-address'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         address: {
@@ -64,9 +68,9 @@ export default {
     },
 
     computed: {
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
         orderCustomer() {
             return this.order.orderCustomer;

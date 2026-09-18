@@ -1,11 +1,12 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
 import { Criteria } from 'shopware:data';
 
-const { Context, Mixin } = Shopware;
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -14,7 +15,9 @@ export default {
 
     emits: ['edit-change'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         searchConfigId: {

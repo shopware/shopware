@@ -1,10 +1,9 @@
 /**
  * @sw-package fundamentals@framework
  */
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import template from './sw-settings-captcha-select-v2.html.twig';
 import './sw-settings-captcha-select-v2.scss';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +13,9 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet')],
+    mixins: [
+        swInlineSnippetMixin,
+    ],
 
     props: {
         value: {

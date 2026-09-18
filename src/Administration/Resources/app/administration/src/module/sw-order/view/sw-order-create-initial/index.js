@@ -1,11 +1,12 @@
+import { Criteria } from 'shopware:data';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-initial.html.twig';
 
 /**
  * @sw-package checkout
  */
 
-const { Store, Data, Service } = Shopware;
-const { Criteria } = Data;
+const { Service } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -49,7 +50,7 @@ export default {
     methods: {
         async createdComponent() {
             const customerId = this.$route.query?.customerId;
-            const orderStore = Store.get('swOrder');
+            const orderStore = useSwOrderStore();
 
             // Reset so grid never sees a stale customer (with or without customerId)
             orderStore.$reset();

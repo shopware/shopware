@@ -1,12 +1,13 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
 const {
     Component,
-    Mixin,
     Data: { Criteria, EntityCollection },
 } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -22,7 +23,10 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        notificationMixin,
+        placeholderMixin,
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

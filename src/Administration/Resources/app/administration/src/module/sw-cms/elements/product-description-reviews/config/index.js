@@ -1,8 +1,7 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-cms-el-config-product-description-reviews.html.twig';
 import './sw-cms-el-config-product-description-reviews.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -15,7 +14,9 @@ export default {
 
     emits: ['element-update'],
 
-    mixins: [Mixin.getByName('cms-element')],
+    mixins: [
+        cmsElementMixin,
+    ],
 
     data() {
         return {

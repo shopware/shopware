@@ -1,8 +1,8 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
 import { fileSize } from 'shopware:utils/format';
 
-const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -26,7 +26,9 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         maxFileSize: {

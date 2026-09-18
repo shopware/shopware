@@ -1,6 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-login-registration.html.twig';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package fundamentals@framework
@@ -9,7 +8,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data() {
         return {

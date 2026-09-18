@@ -1,7 +1,6 @@
+import { throttle } from 'shopware:utils';
 import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
-
-const { Utils } = Shopware;
 
 /**
  * @sw-package framework
@@ -126,7 +125,7 @@ export default {
                 const body = document.querySelector('body');
                 body.appendChild(this.$el);
 
-                this.scrollEventHandler = Utils.throttle(() => {
+                this.scrollEventHandler = throttle(() => {
                     this.setToolbarPosition();
                 }, 16);
 

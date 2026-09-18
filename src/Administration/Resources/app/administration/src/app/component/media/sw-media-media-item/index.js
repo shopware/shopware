@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
@@ -49,7 +50,10 @@ export default {
         'media-item-replaced',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('video-cover')],
+    mixins: [
+        notificationMixin,
+        Mixin.getByName('video-cover'),
+    ],
 
     data() {
         return {

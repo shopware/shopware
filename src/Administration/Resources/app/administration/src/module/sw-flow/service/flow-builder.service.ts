@@ -1,7 +1,8 @@
+import { types } from 'shopware:utils';
 import type { I18n } from 'vue-i18n';
 import { camelCase, capitalizeString, snakeCase } from 'shopware:utils/string';
 
-const { Utils, EntityDefinition } = Shopware;
+const { EntityDefinition } = Shopware;
 const { ACTION, ACTION_GROUP, ACTION_TYPE, CUSTOMER_GROUP, GENERAL_GROUP, ORDER_GROUP, TAG_GROUP } = Shopware.Constants.FLOW;
 
 type Node = {
@@ -273,9 +274,9 @@ export default class FlowBuilderService {
         Object.entries(format).forEach(([key, value]) => {
             let label = value;
 
-            if (Utils.types.isPlainObject(value)) {
-                label = Object.values(value).join(', ');
-            }
+                if (types.isPlainObject(value)) {
+                    label = Object.values(value).join(', ');
+                }
 
             const text = `<span>${key}:</span> <span>${label}</span></br>`;
             description.push(`<p class="${key.toLowerCase().replace(/ /g, '_')}">${text}</p>`);

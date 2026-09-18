@@ -1,7 +1,6 @@
+import translateWithFallbackMixin from 'shopware:mixins/translate-with-fallback';
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -11,7 +10,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [Mixin.getByName('translate-with-fallback')],
+    mixins: [
+        translateWithFallbackMixin,
+    ],
 
     emits: [
         'change-compact-mode',

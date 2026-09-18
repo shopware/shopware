@@ -1,3 +1,5 @@
+import cmsStateMixin from 'shopware:mixins/cms-state';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
 import { type PageType } from '../../service/cms-page-type.service';
@@ -6,7 +8,7 @@ import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const types = Shopware.Utils.types;
 const { CMS } = Shopware.Constants;
@@ -72,7 +74,10 @@ export default Shopware.Component.wrapComponentConfig({
         'open-layout-set-as-default',
     ],
 
-    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('placeholder')],
+    mixins: [
+        cmsStateMixin,
+        placeholderMixin,
+    ],
 
     props: {
         page: {

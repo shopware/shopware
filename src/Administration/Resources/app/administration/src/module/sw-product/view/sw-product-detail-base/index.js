@@ -2,13 +2,14 @@
  * @sw-package inventory
  */
 
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Context, Utils, Mixin } = Shopware;
-const { isEmpty } = Utils.types;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +17,9 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         productId: {

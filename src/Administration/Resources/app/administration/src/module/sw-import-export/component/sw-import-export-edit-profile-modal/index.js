@@ -1,11 +1,11 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -23,7 +23,7 @@ export default {
 
     emits: ['profile-close', 'profile-save'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         profile: {

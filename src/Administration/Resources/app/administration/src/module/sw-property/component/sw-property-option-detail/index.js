@@ -2,10 +2,11 @@
  * @sw-package inventory
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-property-option-detail.html.twig';
 import useErrorStore from 'shopware:stores/error';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,7 +15,9 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [
+        placeholderMixin,
+    ],
 
     props: {
         currentOption: {

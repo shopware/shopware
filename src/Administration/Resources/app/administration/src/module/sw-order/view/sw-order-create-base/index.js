@@ -1,12 +1,14 @@
+import { Criteria } from 'shopware:data';
+import { get, format, array } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-base.html.twig';
 
 /**
  * @sw-package checkout
  */
 
-const { Store, Utils, Data, Service, Mixin } = Shopware;
-const { Criteria } = Data;
-const { get, format, array } = Utils;
+const { Service } = Shopware;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
@@ -17,7 +19,9 @@ export default {
 
     emits: ['error'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data() {
         return {
@@ -37,7 +41,7 @@ export default {
 
     computed: {
         cartErrors() {
-            return Store.get('swOrder').cartErrors;
+            return useSwOrderStore().cartErrors;
         },
 
         customerRepository() {
@@ -87,7 +91,7 @@ export default {
         },
 
         customer() {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         salesChannelId() {
@@ -95,11 +99,11 @@ export default {
         },
 
         isCustomerActive() {
-            return Store.get('swOrder').isCustomerActive;
+            return useSwOrderStore().isCustomerActive;
         },
 
         cart() {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         cartLineItems() {
@@ -115,7 +119,7 @@ export default {
         },
 
         currency() {
-            return Store.get('swOrder').context.currency;
+            return useSwOrderStore().context.currency;
         },
 
         cartDelivery() {
@@ -124,11 +128,11 @@ export default {
 
         promotionCodeTags: {
             get() {
-                return Store.get('swOrder').promotionCodes;
+                return useSwOrderStore().promotionCodes;
             },
 
             set(promotionCodeTags) {
-                Store.get('swOrder').setPromotionCodes(promotionCodeTags);
+                useSwOrderStore().setPromotionCodes(promotionCodeTags);
             },
         },
 
@@ -265,19 +269,19 @@ export default {
                 return;
             }
 
-            Store.get('swOrder').setCustomer(customer);
+            useSwOrderStore().setCustomer(customer);
             this.onSelectExistingCustomer(customer.id);
         },
 
         async createCart(salesChannelId) {
-            await Store.get('swOrder').createCart({ salesChannelId });
+            await useSwOrderStore().createCart({ salesChannelId });
         },
 
         async loadCart() {
             if (!this.cart.token || this.cart.lineItems.length === 0) return;
             this.updateLoading(true);
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .getCart({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -321,7 +325,7 @@ export default {
         },
 
         async updateCustomerContext() {
-            await Store.get('swOrder').updateCustomerContext({
+            await useSwOrderStore().updateCustomerContext({
                 customerId: this.customer.id,
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
@@ -329,12 +333,12 @@ export default {
         },
 
         setCustomer(customer) {
-            Store.get('swOrder').selectExistingCustomer({ customer });
+            useSwOrderStore().selectExistingCustomer({ customer });
         },
 
         setCurrency(customer) {
             this.currencyRepository.get(customer.salesChannel.currencyId).then((currency) => {
-                Store.get('swOrder').setCurrency(currency);
+                useSwOrderStore().setCurrency(currency);
             });
         },
 
@@ -420,7 +424,7 @@ export default {
         onSaveItem(item) {
             this.updateLoading(true);
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .saveLineItem({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -432,7 +436,7 @@ export default {
         onRemoveItems(lineItemKeys) {
             this.updateLoading(true);
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .removeLineItems({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -465,7 +469,7 @@ export default {
         onSubmitCode(code) {
             this.updateLoading(true);
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .addPromotionCode({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -528,7 +532,7 @@ export default {
         onShippingChargeEdited() {
             this.updateLoading(true);
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .modifyShippingCosts({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,

@@ -1,3 +1,6 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 import { Criteria } from 'shopware:data';
@@ -5,7 +8,7 @@ import { Criteria } from 'shopware:data';
 /**
  * @sw-package discovery
  */
-const { Mixin } = Shopware;
+
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
@@ -22,9 +25,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('customerGroup'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('customerGroup'),
     ],
 
     props: {

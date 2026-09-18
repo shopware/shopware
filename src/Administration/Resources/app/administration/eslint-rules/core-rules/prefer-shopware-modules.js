@@ -32,6 +32,9 @@ const LOOKUPS = {
     'Store.get': { family: 'shopware:stores', declaredIn: 'PiniaRootState' },
 };
 
+/** The branch halves of LOOKUPS, so an alias of one is recognised as a branch worth following. */
+const LOOKUP_BRANCHES = new Set(Object.keys(LOOKUPS).map((key) => key.split('.')[0]));
+
 function upperFirst(value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
 }
@@ -55,23 +58,37 @@ function storeLocalName(storeId) {
     return `use${upperFirst(storeId)}Store`;
 }
 
-/** `Shopware.Utils` and friends, as `<branch>.<member>`, or undefined for anything else. */
-function branchAccess(node) {
+/**
+ * The branch and member a `<branch>.<member>` access names, or undefined for anything else.
+ *
+ * Two spellings reach the same branch, and the second is why `aliases` exists:
+ *
+ *     Shopware.Mixin.getByName('notification')
+ *     const { Mixin } = Shopware;  …  Mixin.getByName('notification')
+ *
+ * In the second the call site never mentions `Shopware`, so the branch is only knowable by following
+ * the binding — which is what the caller passes in.
+ */
+function branchAccess(node, aliases) {
     if (node.type !== 'MemberExpression' || node.computed) {
         return undefined;
     }
 
-    const branch = node.object;
+    const object = node.object;
+    const member = node.property.name;
 
-    if (branch.type !== 'MemberExpression' || branch.computed) {
-        return undefined;
+    if (
+        object.type === 'MemberExpression' &&
+        !object.computed &&
+        object.object.type === 'Identifier' &&
+        object.object.name === 'Shopware'
+    ) {
+        return { branch: object.property.name, member };
     }
 
-    if (branch.object.type !== 'Identifier' || branch.object.name !== 'Shopware') {
-        return undefined;
-    }
+    const aliased = object.type === 'Identifier' && aliases && aliases.get(object.name);
 
-    return { branch: branch.property.name, member: node.property.name };
+    return aliased ? { branch: aliased.branch, member, alias: object.name } : undefined;
 }
 
 /**
@@ -80,7 +97,14 @@ function branchAccess(node) {
  *     const { Criteria } = Shopware.Data;          → shopware:data, names from that family's exports
  *     const { warn } = Shopware.Utils.debug;       → shopware:utils/debug, names from that subpath
  */
-function destructuringTarget(init, registry) {
+function destructuringTarget(init, registry, aliases) {
+    // `const { Criteria } = Data;`, where Data is the branch destructured earlier.
+    if (init.type === 'Identifier' && aliases && aliases.has(init.name)) {
+        const family = FAMILY_BY_BRANCH[aliases.get(init.name).branch];
+
+        return family ? { specifier: family, names: registry[family].exports } : undefined;
+    }
+
     if (init.type !== 'MemberExpression' || init.computed) {
         return undefined;
     }
@@ -91,7 +115,7 @@ function destructuringTarget(init, registry) {
         return family ? { specifier: family, names: registry[family].exports } : undefined;
     }
 
-    const access = branchAccess(init);
+    const access = branchAccess(init, aliases);
     const family = access && FAMILY_BY_BRANCH[access.branch];
     const names = family && registry[family].subpaths[access.member];
 
@@ -109,6 +133,37 @@ function literalKeyOf(node) {
     const [argument] = call.arguments;
 
     return argument.type === 'Literal' && typeof argument.value === 'string' ? argument.value : undefined;
+}
+
+/** Depth-first walk over the AST, visiting every node object under `root`. */
+function walk(root, visit) {
+    const seen = new Set();
+
+    const step = (node) => {
+        if (!node || typeof node !== 'object' || seen.has(node)) {
+            return;
+        }
+
+        seen.add(node);
+
+        if (Array.isArray(node)) {
+            node.forEach(step);
+
+            return;
+        }
+
+        if (typeof node.type === 'string') {
+            visit(node);
+        }
+
+        Object.entries(node).forEach(([key, value]) => {
+            if (key !== 'parent' && value && typeof value === 'object') {
+                step(value);
+            }
+        });
+    };
+
+    step(root);
 }
 
 module.exports = {
@@ -130,23 +185,29 @@ module.exports = {
         const registry = require(REGISTRY_FILE);
         const source = context.sourceCode ?? context.getSourceCode();
 
-        /** Names the file already binds. A rewrite that would shadow one is left alone, as the codemod leaves it. */
+        /** Names the file already binds. A rewrite that would shadow one is left alone. */
         const bound = new Set();
-        /** Import declarations by specifier, so a second rewrite reuses the one the first added. */
+        /** Import declarations by specifier, so a rewrite can merge into one the file already has. */
         const imports = new Map();
-        const reported = new Set();
-        /** Initialisers a destructuring already owns, so the member visitor does not rewrite them too. */
+        /** Local name -> { branch, property, declarator } for `const { Mixin } = Shopware;`. */
+        const aliases = new Map();
+        /** Every rewrite this file needs, in source order, keyed by the node that carries it. */
+        const plans = new Map();
+        /** Aliases every reader of which is rewritten, so the binding goes too. */
+        const dead = new Set();
+        /** Initialisers a destructuring already owns, so the member planner does not claim them too. */
         const claimed = new Set();
-        /**
-         * Imports an earlier fix in this pass already adds.
-         *
-         * Every occurrence needs the same import, but two fixes inserting it at the same position collide
-         * and ESLint drops one of them per pass. A file reading `Criteria` seventeen times would then need
-         * seventeen passes and never finish, so only the first fix carries the import.
-         */
-        const importPlanned = new Set();
 
-        function collectBindings(program) {
+        /**
+         * The whole file is planned before a single problem is reported.
+         *
+         * ESLint applies one pass of non-overlapping fixes, and every rewrite in a file wants its import
+         * at the same spot — the top. Left to themselves those insertions collide and all but one are
+         * dropped, so a file needing four imports would take four passes, and an alias removed alongside
+         * the first rewrite would strand the other three. Planning up front lets the first problem carry
+         * every import and every alias removal at once, while the rest carry only their own replacement.
+         */
+        function plan(program) {
             const scope = source.getScope ? source.getScope(program) : context.getScope();
 
             scope.variables.forEach((variable) => bound.add(variable.name));
@@ -157,169 +218,366 @@ module.exports = {
             program.body
                 .filter((statement) => statement.type === 'ImportDeclaration')
                 .forEach((statement) => imports.set(statement.source.value, statement));
-        }
 
-        /** The edit that makes `local` available, or null when the file already imports it. */
-        function importFix(fixer, specifier, local, imported) {
-            const existing = imports.get(specifier);
+            collectAliases(program);
 
-            if (existing) {
-                const alreadyThere = existing.specifiers.some((one) => one.local.name === local);
+            const aliasUses = new Map();
 
-                if (alreadyThere) {
-                    return null;
-                }
+            const countUse = (name) => {
+                const seen = aliasUses.get(name) ?? { total: 0, covered: 0 };
 
-                const last = existing.specifiers[existing.specifiers.length - 1];
+                seen.total += 1;
+                aliasUses.set(name, seen);
+            };
 
-                return imported === undefined
-                    ? fixer.insertTextBefore(last, `${local}, `)
-                    : fixer.insertTextAfter(last, `, ${imported === local ? local : `${imported} as ${local}`}`);
-            }
-
-            const clause = imported === undefined ? local : `{ ${imported === local ? local : `${imported} as ${local}`} }`;
-            const [first] = source.ast.body;
-
-            // Always above the first statement. Chaining onto the last import instead would follow an
-            // import this same pass had just written into the middle of the file.
-            return fixer.insertTextBefore(first, `import ${clause} from '${specifier}';\n`);
-        }
-
-        function report(node, target, specifier, local, imported, replacement) {
-            if (bound.has(local) || reported.has(target)) {
-                return;
-            }
-
-            reported.add(target);
-
-            context.report({
-                node: target,
-                messageId: 'preferModule',
-                data: { specifier, expression: source.getText(node) },
-                fix(fixer) {
-                    const key = `${specifier}|${local}`;
-                    const edits = [fixer.replaceText(target, replacement)];
-
-                    if (!importPlanned.has(key)) {
-                        const addImport = importFix(fixer, specifier, local, imported);
-
-                        importPlanned.add(key);
-
-                        if (addImport) {
-                            // Ahead of the replacement, so the import can never arrive without its use.
-                            edits.unshift(addImport);
-                        }
+            walk(program, (node) => {
+                if (node.type === 'VariableDeclarator') {
+                    // `const { get, format } = Utils;` reads the alias without a member expression.
+                    if (node.init && node.init.type === 'Identifier' && aliases.has(node.init.name)) {
+                        countUse(node.init.name);
                     }
 
-                    return edits;
-                },
+                    planDestructuring(node);
+                }
+
+                if (node.type !== 'MemberExpression') {
+                    return;
+                }
+
+                // Counted before the claimed check: `const { isEmpty } = Utils.types;` reads the alias
+                // even though the destructuring planner owns the expression.
+                if (node.object.type === 'Identifier' && aliases.has(node.object.name)) {
+                    countUse(node.object.name);
+                }
+
+                if (!claimed.has(node)) {
+                    planMember(node);
+                }
+            });
+
+            // Only now is it known which uses are actually rewritten, guards included.
+            plans.forEach((entry) => {
+                if (!entry.alias) {
+                    return;
+                }
+
+                const seen = aliasUses.get(entry.alias);
+
+                if (seen) {
+                    seen.covered += 1;
+                }
+            });
+
+            aliasUses.forEach((seen, name) => {
+                if (seen.total > 0 && seen.total === seen.covered) {
+                    dead.add(name);
+                }
             });
         }
 
-        return {
-            Program: collectBindings,
-
-            VariableDeclarator(node) {
-                if (node.id.type !== 'ObjectPattern' || !node.init) {
-                    return;
-                }
-
-                const target = destructuringTarget(node.init, registry);
-
-                if (!target) {
-                    return;
-                }
-
-                const names = node.id.properties.map((property) =>
-                    property.type === 'Property' && !property.computed && property.value.type === 'Identifier'
-                        ? { imported: property.key.name, local: property.value.name }
-                        : undefined,
-                );
-
-                // All or nothing: a rest element or a default leaves a binding the import cannot express.
-                if (names.some((one) => one === undefined || !target.names.includes(one.imported))) {
-                    return;
-                }
-
-                // Claimed, so the MemberExpression visitor leaves the initialiser alone.
-                claimed.add(node.init);
-
-                const clause = names
-                    .map((one) => (one.imported === one.local ? one.local : `${one.imported} as ${one.local}`))
-                    .join(', ');
-                const declaration = node.parent;
-
-                context.report({
-                    node: declaration,
-                    messageId: 'preferModule',
-                    data: { specifier: target.specifier, expression: source.getText(node.init) },
-                    fix(fixer) {
-                        const [first] = source.ast.body;
-                        const statement = `import { ${clause} } from '${target.specifier}';\n`;
-
-                        // The declaration goes away entirely; its names arrive as the import instead.
-                        if (declaration === first) {
-                            return [fixer.replaceText(declaration, statement.trimEnd())];
+        /** Records every `const { <branch> } = Shopware;` at the top level of the module. */
+        function collectAliases(program) {
+            program.body
+                .filter((statement) => statement.type === 'VariableDeclaration')
+                .forEach((statement) =>
+                    statement.declarations.forEach((declarator) => {
+                        if (
+                            declarator.id.type !== 'ObjectPattern' ||
+                            !declarator.init ||
+                            declarator.init.type !== 'Identifier' ||
+                            declarator.init.name !== 'Shopware'
+                        ) {
+                            return;
                         }
 
-                        // From the start of the line, so the indentation the statement sat on goes with
-                        // it rather than prefixing the next one.
-                        const text = source.getText();
-                        const lineStart = text.lastIndexOf('\n', declaration.range[0] - 1) + 1;
-                        const indentOnly = text.slice(lineStart, declaration.range[0]).trim() === '';
+                        declarator.id.properties.forEach((property) => {
+                            if (
+                                property.type !== 'Property' ||
+                                property.computed ||
+                                property.value.type !== 'Identifier' ||
+                                !(FAMILY_BY_BRANCH[property.key.name] || LOOKUP_BRANCHES.has(property.key.name))
+                            ) {
+                                return;
+                            }
 
-                        return [
-                            fixer.insertTextBefore(first, statement),
-                            fixer.removeRange([
-                                indentOnly ? lineStart : declaration.range[0],
-                                declaration.range[1] + 1,
-                            ]),
-                        ];
-                    },
-                });
-            },
+                            aliases.set(property.value.name, { branch: property.key.name, property, declarator });
+                        });
+                    }),
+                );
+        }
 
-            MemberExpression(node) {
-                if (claimed.has(node)) {
-                    return;
+        /**
+         * What one `<branch>.<member>` access becomes, or undefined when no specifier covers it.
+         *
+         * `Shopware.Store.get(id)` with a non-literal id, and any member the registry does not list, both
+         * fall through here and keep their alias alive.
+         */
+        function rewriteFor(node, access) {
+            const lookup = LOOKUPS[`${access.branch}.${access.member}`];
+
+            if (lookup) {
+                const key = literalKeyOf(node);
+
+                if (key === undefined || !(key in registry[lookup.family].subpaths)) {
+                    return undefined;
                 }
 
-                const access = branchAccess(node);
+                const isStore = lookup.family === 'shopware:stores';
+                const local = isStore ? storeLocalName(key) : mixinLocalName(key);
 
-                if (!access) {
-                    return;
-                }
+                return {
+                    node: node.parent,
+                    target: node.parent,
+                    specifier: `${lookup.family}/${key}`,
+                    local,
+                    imported: undefined,
+                    replacement: isStore ? `${local}()` : local,
+                    alias: access.alias,
+                };
+            }
 
-                const lookup = LOOKUPS[`${access.branch}.${access.member}`];
+            const family = FAMILY_BY_BRANCH[access.branch];
 
-                if (lookup) {
-                    const key = literalKeyOf(node);
+            if (!family || !registry[family].exports.includes(access.member)) {
+                return undefined;
+            }
 
-                    // A key only known at runtime names no specifier, so the read has to stay.
-                    if (key === undefined || !(key in registry[lookup.family].subpaths)) {
-                        return;
-                    }
+            return {
+                node,
+                target: node,
+                specifier: family,
+                local: access.member,
+                imported: access.member,
+                replacement: access.member,
+                alias: access.alias,
+            };
+        }
 
-                    const isStore = lookup.family === 'shopware:stores';
-                    const local = isStore ? storeLocalName(key) : mixinLocalName(key);
+        function planMember(node) {
+            const access = branchAccess(node, aliases);
+            const entry = access && rewriteFor(node, access);
 
-                    report(
-                        node.parent,
-                        node.parent,
-                        `${lookup.family}/${key}`,
-                        local,
-                        undefined,
-                        isStore ? `${local}()` : local,
+            if (!entry || bound.has(entry.local) || plans.has(entry.target)) {
+                return;
+            }
+
+            plans.set(entry.target, entry);
+        }
+
+        /** `const { Criteria } = Shopware.Data;` and friends: the statement becomes the import. */
+        function planDestructuring(node) {
+            if (node.id.type !== 'ObjectPattern' || !node.init) {
+                return;
+            }
+
+            const target = destructuringTarget(node.init, registry, aliases);
+
+            if (!target) {
+                return;
+            }
+
+            const names = node.id.properties.map((property) =>
+                property.type === 'Property' && !property.computed && property.value.type === 'Identifier'
+                    ? { imported: property.key.name, local: property.value.name }
+                    : undefined,
+            );
+
+            // All or nothing: a rest element or a default leaves a binding the import cannot express.
+            if (names.some((one) => one === undefined || !target.names.includes(one.imported))) {
+                return;
+            }
+
+            claimed.add(node.init);
+            plans.set(node.parent, {
+                kind: 'destructuring',
+                node: node.init,
+                target: node.parent,
+                specifier: target.specifier,
+                names,
+                alias: aliasReadBy(node.init),
+            });
+        }
+
+        /** The alias an initialiser reads, for `Utils` and for `Utils.types` alike. */
+        function aliasReadBy(init) {
+            if (init.type === 'Identifier' && aliases.has(init.name)) {
+                return init.name;
+            }
+
+            if (init.type === 'MemberExpression' && init.object.type === 'Identifier' && aliases.has(init.object.name)) {
+                return init.object.name;
+            }
+
+            return undefined;
+        }
+
+        /** Every import the planned rewrites need, deduplicated, in the order they were planned. */
+        function plannedImports() {
+            const wanted = new Map();
+
+            plans.forEach((entry) => {
+                if (entry.kind === 'destructuring') {
+                    entry.names.forEach((one) =>
+                        wanted.set(`${entry.specifier}|${one.local}`, {
+                            specifier: entry.specifier,
+                            local: one.local,
+                            imported: one.imported,
+                        }),
                     );
 
                     return;
                 }
 
-                const family = FAMILY_BY_BRANCH[access.branch];
+                wanted.set(`${entry.specifier}|${entry.local}`, entry);
+            });
 
-                if (family && registry[family].exports.includes(access.member)) {
-                    report(node, node, family, access.member, access.member, access.member);
+            return [...wanted.values()];
+        }
+
+        /**
+         * The import statements a set of planned imports needs, one per specifier.
+         *
+         * Two names from one specifier belong on one line: `import { Criteria, EntityCollection } from
+         * 'shopware:data';`, the shape the destructuring they replace already had.
+         */
+        function importStatements(wanted) {
+            const bySpecifier = new Map();
+
+            wanted.forEach((one) => {
+                const group = bySpecifier.get(one.specifier) ?? { named: [], default: undefined };
+
+                if (one.imported === undefined) {
+                    group.default = one.local;
+                } else {
+                    group.named.push(one.imported === one.local ? one.local : `${one.imported} as ${one.local}`);
                 }
+
+                bySpecifier.set(one.specifier, group);
+            });
+
+            return [...bySpecifier.entries()].map(([specifier, group]) => {
+                const clause = [
+                    group.default,
+                    group.named.length > 0 ? `{ ${group.named.join(', ')} }` : undefined,
+                ]
+                    .filter(Boolean)
+                    .join(', ');
+
+                return `import ${clause} from '${specifier}';`;
+            });
+        }
+
+        /**
+         * Every import the file needs, as one insertion, plus merges into imports it already has.
+         *
+         * One insertion rather than one per rewrite: several insertions at the same offset overlap, and
+         * ESLint keeps only the first of an overlapping set.
+         */
+        function importFixes(fixer) {
+            const [first] = source.ast.body;
+            const fresh = [];
+            const edits = [];
+
+            plannedImports().forEach((one) => {
+                const existing = imports.get(one.specifier);
+
+                if (!existing) {
+                    fresh.push(one);
+
+                    return;
+                }
+
+                if (existing.specifiers.some((specifier) => specifier.local.name === one.local)) {
+                    return;
+                }
+
+                const last = existing.specifiers[existing.specifiers.length - 1];
+
+                edits.push(
+                    one.imported === undefined
+                        ? fixer.insertTextBefore(last, `${one.local}, `)
+                        : fixer.insertTextAfter(
+                              last,
+                              `, ${one.imported === one.local ? one.local : `${one.imported} as ${one.local}`}`,
+                          ),
+                );
+            });
+
+            if (fresh.length > 0) {
+                edits.unshift(fixer.insertTextBefore(first, `${importStatements(fresh).join('\n')}\n`));
+            }
+
+            return edits;
+        }
+
+        /**
+         * Removes the bindings the rewrites leave with no readers.
+         *
+         * One edit per declaration, not per alias: `const { Mixin, Store, Service } = Shopware;` can lose
+         * two of three, and two ranges cut out of the same pattern overlap, which ESLint rejects outright.
+         * Rewriting the pattern from its survivors is one edit whatever dies.
+         */
+        function aliasRemovalFixes(fixer) {
+            const text = source.getText();
+            const byDeclarator = new Map();
+
+            dead.forEach((name) => {
+                const { declarator, property } = aliases.get(name);
+                const group = byDeclarator.get(declarator) ?? [];
+
+                group.push(property);
+                byDeclarator.set(declarator, group);
+            });
+
+            return [...byDeclarator.entries()].map(([declarator, removed]) => {
+                const survivors = declarator.id.properties.filter((property) => !removed.includes(property));
+
+                if (survivors.length > 0) {
+                    return fixer.replaceText(
+                        declarator.id,
+                        `{ ${survivors.map((property) => source.getText(property)).join(', ')} }`,
+                    );
+                }
+
+                // The statement only: a range reaching into the next line touches the fix that line
+                // carries, and ESLint keeps just one of a touching pair. Prettier clears the blank line.
+                return fixer.remove(declarator.parent);
+            });
+        }
+
+        /** The replacement for one planned rewrite. */
+        function replacementFix(fixer, entry) {
+            return entry.kind === 'destructuring'
+                ? [fixer.remove(entry.target)]
+                : [fixer.replaceText(entry.target, entry.replacement)];
+        }
+
+        return {
+            // On exit, not enter: ESLint assigns `node.parent` as it traverses, and the planner reads it
+            // to find the call around a lookup and the statement around a destructuring.
+            'Program:exit'(program) {
+                plan(program);
+
+                let carrier = true;
+
+                plans.forEach((entry) => {
+                    const isCarrier = carrier;
+
+                    carrier = false;
+
+                    context.report({
+                        node: entry.target,
+                        messageId: 'preferModule',
+                        data: { specifier: entry.specifier, expression: source.getText(entry.node) },
+                        fix(fixer) {
+                            const edits = replacementFix(fixer, entry);
+
+                            // The first problem carries what the whole file needs; every other one carries
+                            // only its own replacement, so none of them overlap.
+                            return isCarrier ? [...importFixes(fixer), ...aliasRemovalFixes(fixer), ...edits] : edits;
+                        },
+                    });
+                });
             },
         };
     },

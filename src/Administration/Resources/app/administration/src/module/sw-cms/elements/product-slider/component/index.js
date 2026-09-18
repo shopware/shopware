@@ -1,7 +1,6 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-product-slider.html.twig';
 import './sw-cms-el-product-slider.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @private
@@ -12,7 +11,9 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [Mixin.getByName('cms-element')],
+    mixins: [
+        cmsElementMixin,
+    ],
 
     data() {
         return {

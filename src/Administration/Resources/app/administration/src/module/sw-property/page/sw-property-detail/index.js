@@ -2,17 +2,21 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-property-detail.html.twig';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        notificationMixin,
+        placeholderMixin,
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': {

@@ -2,12 +2,13 @@
  * @sw-package framework
  */
 
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import template from './sw-entity-multi-select.html.twig';
 import './sw-entity-multi-select.scss';
 import { debounce, get } from 'shopware:utils';
 import { Criteria, EntityCollection } from 'shopware:data';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 /**
  * @private
  */
@@ -27,7 +28,9 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [Mixin.getByName('remove-api-error')],
+    mixins: [
+        removeApiErrorMixin,
+    ],
 
     props: {
         labelProperty: {

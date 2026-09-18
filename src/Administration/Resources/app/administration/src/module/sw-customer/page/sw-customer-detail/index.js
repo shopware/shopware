@@ -1,3 +1,6 @@
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
@@ -10,7 +13,6 @@ import useShopwareAppsStore from 'shopware:stores/shopwareApps';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const { CUSTOMER } = Shopware.Constants;
@@ -28,9 +30,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-        Mixin.getByName('discard-detail-page-changes')('customer'),
+        notificationMixin,
+        salutationMixin,
+        discardDetailPageChangesMixin('customer'),
     ],
 
     shortcuts: {

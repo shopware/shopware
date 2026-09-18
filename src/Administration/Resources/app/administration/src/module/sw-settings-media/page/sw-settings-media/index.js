@@ -2,9 +2,8 @@
  * @sw-package innovation
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-media.html.twig';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,7 +11,9 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data() {
         return {

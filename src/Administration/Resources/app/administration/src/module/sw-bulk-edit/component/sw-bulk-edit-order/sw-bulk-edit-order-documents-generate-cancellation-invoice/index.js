@@ -1,17 +1,17 @@
 /**
  * @sw-package checkout
  */
-const { Store } = Shopware;
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     computed: {
         generateData: {
             get() {
-                return Store.get('swBulkEdit')?.orderDocuments?.storno?.value;
+                return useSwBulkEditStore()?.orderDocuments?.storno?.value;
             },
             set(generateData) {
-                Store.get('swBulkEdit').setOrderDocumentsValue({
+                useSwBulkEditStore().setOrderDocumentsValue({
                     type: 'storno',
                     value: generateData,
                 });

@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
@@ -9,7 +10,7 @@ import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
  * @sw-package checkout
  */
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 interface StateMachineHistoryData {
     order: Entity<'state_machine_state'>;
@@ -41,7 +42,9 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'stateStyleDataProviderService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         order: {

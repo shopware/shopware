@@ -1,8 +1,9 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-cms-el-video.html.twig';
 import './sw-cms-el-video.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Component, Filter } = Shopware;
 
 /**
  * @private
@@ -13,7 +14,9 @@ export default Component.wrapComponentConfig({
 
     inject: ['feature', 'repositoryFactory'],
 
-    mixins: [Mixin.getByName('cms-element')],
+    mixins: [
+        cmsElementMixin,
+    ],
 
     data(): { mappedDemoMedia: Entity<'media'> | null; mappedDemoMediaFetchId: number } {
         return {

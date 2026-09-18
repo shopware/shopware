@@ -2,13 +2,13 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-download-form.html.twig';
 import './sw-product-download-form.scss';
 import { format } from 'shopware:utils';
 import useErrorStore from 'shopware:stores/error';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
 /**
  * @private
  */
@@ -24,7 +24,9 @@ export default {
 
     emits: ['media-open'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         disabled: {

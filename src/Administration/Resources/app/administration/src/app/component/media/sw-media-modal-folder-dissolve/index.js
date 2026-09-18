@@ -1,6 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-folder-dissolve.html.twig';
-
-const { Mixin } = Shopware;
 
 /**
  * @status ready
@@ -19,7 +18,9 @@ export default {
 
     emits: ['media-folder-dissolve-modal-close', 'media-folder-dissolve-modal-dissolve'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         itemsToDissolve: {

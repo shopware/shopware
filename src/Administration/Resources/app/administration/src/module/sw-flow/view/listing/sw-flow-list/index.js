@@ -1,9 +1,10 @@
+import notificationMixin from 'shopware:mixins/notification';
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-flow-list.html.twig';
 import './sw-flow-list.scss';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
-    Mixin,
     Data: { Criteria },
     Component,
     Store,
@@ -21,7 +22,10 @@ export default {
 
     emits: ['on-update-total'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
+    mixins: [
+        notificationMixin,
+        listingMixin,
+    ],
 
     props: {
         searchTerm: {

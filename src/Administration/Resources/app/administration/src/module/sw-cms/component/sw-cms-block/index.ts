@@ -1,8 +1,9 @@
+import useCmsPageStore from 'shopware:stores/cmsPage';
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
 
-const { Filter, Store } = Shopware;
+const { Filter } = Shopware;
 
 /**
  * @sw-package discovery
@@ -115,7 +116,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVisible() {
-            const view = Store.get('cmsPage').currentCmsDeviceView;
+            const view = useCmsPageStore().currentCmsDeviceView;
 
             const visibility = this.block.visibility as CmsVisibility;
 

@@ -1,7 +1,6 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-payment-sorting-modal.html.twig';
 import './sw-settings-payment-sorting-modal.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package checkout
@@ -14,7 +13,7 @@ export default {
 
     emits: ['modal-close', 'modal-save'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         paymentMethods: {

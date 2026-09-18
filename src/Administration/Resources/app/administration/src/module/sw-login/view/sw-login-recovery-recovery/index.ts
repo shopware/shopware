@@ -2,10 +2,11 @@
  * @sw-package framework
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-login-recovery-recovery.html.twig';
 import useErrorStore from 'shopware:stores/error';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -16,7 +17,9 @@ export default Component.wrapComponentConfig({
 
     inject: ['userRecoveryService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     emits: ['is-loading', 'is-not-loading'],
 

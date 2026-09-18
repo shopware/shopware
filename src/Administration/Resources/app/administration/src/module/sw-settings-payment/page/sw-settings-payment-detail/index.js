@@ -1,9 +1,10 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -15,7 +16,10 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        notificationMixin,
+        placeholderMixin,
+    ],
 
     shortcuts: {
         'SYSTEMKEY+S': {

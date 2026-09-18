@@ -1,8 +1,8 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-config-cross-selling.html.twig';
 import './sw-cms-el-config-cross-selling.scss';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 /**
  * @private
  * @sw-package discovery
@@ -14,7 +14,9 @@ export default {
 
     emits: ['element-update'],
 
-    mixins: [Mixin.getByName('cms-element')],
+    mixins: [
+        cmsElementMixin,
+    ],
 
     data() {
         return {

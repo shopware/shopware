@@ -1,12 +1,12 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-measurement.html.twig';
 import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
 
-const { Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -15,7 +15,9 @@ export default {
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     metaInfo() {
         return {

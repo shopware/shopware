@@ -2,18 +2,21 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-variants-media-upload.html.twig';
 import './sw-product-variants-media-upload.scss';
 import { isEmpty } from 'shopware:utils/types';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['repositoryFactory', 'mediaDefaultFolderService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         source: {

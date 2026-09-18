@@ -1,13 +1,14 @@
 /**
  * @sw-package framework
  */
+import notificationMixin from 'shopware:mixins/notification';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
-const { Mixin } = Shopware;
 const {
     object,
     types,
@@ -41,7 +42,10 @@ export default {
 
     emits: ['loading-changed', 'config-changed'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
+    mixins: [
+        notificationMixin,
+        swInlineSnippetMixin,
+    ],
 
     props: {
         domain: {

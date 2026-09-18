@@ -1,7 +1,8 @@
+import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
-const { Mixin, Filter } = Shopware;
+const { Filter } = Shopware;
 const { CMS } = Shopware.Constants;
 
 /**
@@ -11,7 +12,9 @@ const { CMS } = Shopware.Constants;
 export default {
     template,
 
-    mixins: [Mixin.getByName('cms-element')],
+    mixins: [
+        cmsElementMixin,
+    ],
 
     data() {
         return {

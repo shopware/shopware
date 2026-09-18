@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 import { Criteria } from 'shopware:data';
@@ -7,7 +9,6 @@ import useErrorStore from 'shopware:stores/error';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -16,7 +17,10 @@ export default {
 
     emits: ['reset', 'address-select', 'save'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [
+        notificationMixin,
+        placeholderMixin,
+    ],
 
     props: {
         address: {

@@ -1,3 +1,5 @@
+import { get, format } from 'shopware:utils';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
@@ -6,8 +8,7 @@ import './sw-order-line-items-grid-sales-channel.scss';
  * @sw-package checkout
  */
 
-const { Utils, Store, Service } = Shopware;
-const { get, format } = Utils;
+const { Service } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -88,7 +89,7 @@ export default {
         },
 
         isCartTokenAvailable() {
-            return Store.get('swOrder').isCartTokenAvailable;
+            return useSwOrderStore().isCartTokenAvailable;
         },
 
         isAddNewItemButtonDisabled() {
@@ -189,7 +190,7 @@ export default {
 
         onInlineEditCancel(item) {
             if (item._isNew) {
-                Store.get('swOrder').removeEmptyLineItem(item.id);
+                useSwOrderStore().removeEmptyLineItem(item.id);
 
                 return;
             }
@@ -252,7 +253,7 @@ export default {
 
         insertLineItem(item) {
             this.cartLineItems.unshift(item);
-            Store.get('swOrder').setCartLineItems(this.cartLineItems);
+            useSwOrderStore().setCartLineItems(this.cartLineItems);
 
             this.$nextTick(() => {
                 this.$refs.dataGrid?.onDbClickCell(item);
@@ -268,7 +269,7 @@ export default {
 
             Object.keys(this.selectedItems).forEach((key) => {
                 if (this.selectedItems[key].label === '') {
-                    Store.get('swOrder').removeEmptyLineItem(key);
+                    useSwOrderStore().removeEmptyLineItem(key);
                 } else {
                     selectedIds.push(key);
                 }
@@ -283,7 +284,7 @@ export default {
 
         onDeleteItem(item) {
             if (item.label === '') {
-                Store.get('swOrder').removeEmptyLineItem(item.id);
+                useSwOrderStore().removeEmptyLineItem(item.id);
             } else {
                 this.$emit('on-remove-items', [item.id]);
             }

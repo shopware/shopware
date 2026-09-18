@@ -1,3 +1,4 @@
+import notificationMixin from 'shopware:mixins/notification';
 import type { AxiosError } from 'axios';
 import template from './sw-extension-my-extensions-account.html.twig';
 import './sw-extension-my-extensions-account.scss';
@@ -6,7 +7,7 @@ import type { MappedError } from '../../service/extension-error-handler.service'
 import type { UserInfo } from '../../../../core/service/api/store.api.service';
 import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
-const { Store, Mixin, Filter } = Shopware;
+const { Store, Filter } = Shopware;
 
 /**
  * @sw-package checkout
@@ -17,7 +18,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['systemConfigApiService', 'shopwareExtensionService', 'storeService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data(): {
         isLoading: boolean;

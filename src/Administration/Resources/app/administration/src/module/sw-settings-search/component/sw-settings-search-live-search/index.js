@@ -1,12 +1,12 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search-live-search.html.twig';
 import './sw-settings-search-live-search.scss';
 import '../sw-settings-search-live-search-keyword';
 import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -15,7 +15,9 @@ export default {
 
     emits: ['live-search-results-change', 'sales-channel-change'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         currentSalesChannelId: {

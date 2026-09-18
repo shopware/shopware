@@ -1,12 +1,11 @@
 /**
  * @sw-package framework
  */
+import notificationMixin from 'shopware:mixins/notification';
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-settings-cache-index.html.twig';
 import './sw-settings-cache-index.scss';
 import useNotificationStore from 'shopware:stores/notification';
-
-const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +13,9 @@ export default {
 
     inject: ['cacheApiService', 'feature'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     data() {
         return {

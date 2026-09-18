@@ -2,20 +2,22 @@
  * @sw-package discovery
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 import { string } from 'shopware:utils';
 import { EntityCollection } from 'shopware:data';
 import useErrorStore from 'shopware:stores/error';
 
-const { Mixin } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['feature'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [
+        notificationMixin,
+    ],
 
     props: {
         salesChannel: {

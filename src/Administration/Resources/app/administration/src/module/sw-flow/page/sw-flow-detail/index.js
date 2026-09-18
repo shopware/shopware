@@ -20,10 +20,7 @@ export default {
         'flowBuilderService',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         flowId: {
@@ -206,10 +203,7 @@ export default {
                 };
             };
 
-            return [
-                createRouteTab('sw-flow.page.tabGeneral', 'general'),
-                createRouteTab('sw-flow.page.tabFlow', 'flow'),
-            ];
+            return [createRouteTab('sw-flow.page.tabGeneral', 'general'), createRouteTab('sw-flow.page.tabFlow', 'flow')];
         },
 
         ...mapState(
@@ -224,10 +218,7 @@ export default {
                 'hasFlowChanged',
             ],
         ),
-        ...mapPropertyErrors('flow', [
-            'name',
-            'eventName',
-        ]),
+        ...mapPropertyErrors('flow', ['name', 'eventName']),
     },
 
     watch: {
@@ -553,10 +544,7 @@ export default {
         validateEmptySequence() {
             const invalidSequences = this.sequences.reduce((result, sequence) => {
                 if (sequence.ruleId === '' || sequence.actionName === '') {
-                    return [
-                        ...result,
-                        sequence.id,
-                    ];
+                    return [...result, sequence.id];
                 }
 
                 return result;

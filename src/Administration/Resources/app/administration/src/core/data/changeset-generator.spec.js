@@ -11,14 +11,9 @@ const entityFactory = new EntityFactory();
 
 describe('src/core/data/changeset-generator.data.js', () => {
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
     });
 
     it('should generate no changes', async () => {
@@ -45,22 +40,14 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'sum',
-                        'add',
-                        'divide',
-                    ],
+                    test: ['sum', 'add', 'divide'],
                 },
             },
             expected: {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'sum',
-                        'add',
-                        'divide',
-                    ],
+                    test: ['sum', 'add', 'divide'],
                 },
             },
         },
@@ -71,22 +58,14 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'sum',
-                        'add',
-                        'divide',
-                    ],
+                    test: ['sum', 'add', 'divide'],
                 },
             },
             entityChanges: {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'sum',
-                        'add',
-                        'divide',
-                    ],
+                    test: ['sum', 'add', 'divide'],
                 },
             },
             expected: null,
@@ -99,20 +78,12 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'sum',
-                        'add',
-                        'divide',
-                    ],
+                    test: ['sum', 'add', 'divide'],
                 },
             },
             entityChanges: {
                 config: {
-                    test: [
-                        'sum',
-                        'add',
-                        'divide',
-                    ],
+                    test: ['sum', 'add', 'divide'],
                     b: 'bar',
                     a: 'foo',
                 },
@@ -124,29 +95,17 @@ describe('src/core/data/changeset-generator.data.js', () => {
             entityName: 'cms_page',
             originChanges: {
                 config: {
-                    numbers: [
-                        1,
-                        2,
-                        3,
-                    ],
+                    numbers: [1, 2, 3],
                 },
             },
             entityChanges: {
                 config: {
-                    numbers: [
-                        2,
-                        1,
-                        3,
-                    ],
+                    numbers: [2, 1, 3],
                 },
             },
             expected: {
                 config: {
-                    numbers: [
-                        2,
-                        1,
-                        3,
-                    ],
+                    numbers: [2, 1, 3],
                 },
             },
         },
@@ -158,20 +117,12 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'First',
-                        'Second',
-                        'Third',
-                    ],
+                    test: ['First', 'Second', 'Third'],
                 },
             },
             entityChanges: {
                 config: {
-                    test: [
-                        'Second',
-                        'First',
-                        'Third',
-                    ],
+                    test: ['Second', 'First', 'Third'],
                     b: 'bar',
                     a: 'foo',
                 },
@@ -180,11 +131,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
                 config: {
                     a: 'foo',
                     b: 'bar',
-                    test: [
-                        'Second',
-                        'First',
-                        'Third',
-                    ],
+                    test: ['Second', 'First', 'Third'],
                 },
             },
         },
@@ -193,11 +140,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
             entityName: 'cms_page',
             originChanges: {
                 config: {
-                    numbers: [
-                        1,
-                        2,
-                        3,
-                    ],
+                    numbers: [1, 2, 3],
                 },
             },
             entityChanges: {
@@ -258,11 +201,7 @@ describe('src/core/data/changeset-generator.data.js', () => {
                             bar: 'Shop',
                             second: 'ware',
                         },
-                        animals: [
-                            'dog',
-                            'cat',
-                            'bird',
-                        ],
+                        animals: ['dog', 'cat', 'bird'],
                     },
                 },
             },
@@ -317,25 +256,13 @@ describe('src/core/data/changeset-generator.data.js', () => {
             description: 'Should create a changeset when the json root is an array and the order changes',
             entityName: 'cms_page',
             originChanges: {
-                config: [
-                    1,
-                    2,
-                    3,
-                ],
+                config: [1, 2, 3],
             },
             entityChanges: {
-                config: [
-                    2,
-                    1,
-                    3,
-                ],
+                config: [2, 1, 3],
             },
             expected: {
-                config: [
-                    2,
-                    1,
-                    3,
-                ],
+                config: [2, 1, 3],
             },
         },
         {
@@ -361,24 +288,14 @@ describe('src/core/data/changeset-generator.data.js', () => {
         it(`${description}`, async () => {
             const testEntity = entityFactory.create(entityName);
 
-            Object.entries(originChanges).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    testEntity.getDraft()[key] = value;
-                    testEntity.getOrigin()[key] = value;
-                },
-            );
+            Object.entries(originChanges).forEach(([key, value]) => {
+                testEntity.getDraft()[key] = value;
+                testEntity.getOrigin()[key] = value;
+            });
 
-            Object.entries(entityChanges).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    testEntity[key] = value;
-                },
-            );
+            Object.entries(entityChanges).forEach(([key, value]) => {
+                testEntity[key] = value;
+            });
 
             const { changes } = changesetGenerator.generate(testEntity);
 

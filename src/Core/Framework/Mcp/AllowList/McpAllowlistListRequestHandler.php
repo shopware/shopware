@@ -133,10 +133,9 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * The tools of every toolset this connection has, from either source: pinned in the connect URL,
-     * which needs no prior round trip and is therefore already there on the first tools/list, or
-     * enabled on the session. Both are resolved to names first and advertised in one pass, because
-     * each call into the registry re-reads the app tool groups from the database.
+     * Toolsets pinned in the connect URL need no prior round trip, so they are already there on the
+     * first tools/list. Merged with the session's in one registry call to keep it at one catalogue
+     * read per tools/list.
      *
      * @return list<string>
      */
@@ -146,21 +145,10 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
             return [];
         }
 
-        $toolsets = array_merge($this->connectUrlToolsets(), $this->sessionToolsets());
-
-        return $toolsets === [] ? [] : $this->toolsetRegistry->advertisedTools($toolsets);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function connectUrlToolsets(): array
-    {
-        if ($this->toolsetRegistry === null || $this->requestedToolsetResolver === null) {
-            return [];
-        }
-
-        return $this->toolsetRegistry->expandToolsetNames($this->requestedToolsetResolver->resolve());
+        return $this->toolsetRegistry->advertisedToolsForNames(array_merge(
+            $this->requestedToolsetResolver?->resolve() ?? [],
+            $this->sessionToolsets(),
+        ));
     }
 
     /**

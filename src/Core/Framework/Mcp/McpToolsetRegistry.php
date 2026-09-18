@@ -98,27 +98,43 @@ class McpToolsetRegistry
     }
 
     /**
-     * Expands {@see self::ALL_TOOLSETS} and drops unknown names rather than rejecting them: a
-     * configured name can outlive the plugin that contributed its toolset, and a typo in a connect
-     * URL must not break an otherwise fine connection.
+     * The tools of every named toolset, resolving {@see self::ALL_TOOLSETS} on the way. Unknown
+     * names are dropped, not rejected: a name can outlive the plugin that contributed its toolset,
+     * and a typo must not break an otherwise fine connection.
+     *
+     * Takes connect-URL and session names together because each call costs one catalogue read.
      *
      * @param list<string> $names
      *
      * @return list<string>
      */
-    public function expandToolsetNames(array $names): array
+    public function advertisedToolsForNames(array $names): array
     {
         if ($names === []) {
             return [];
         }
 
-        $known = array_column($this->toolsets(), 'name');
+        $toolsets = $this->toolsets();
+        $known = array_column($toolsets, 'name');
 
-        if (\in_array(self::ALL_TOOLSETS, $names, true)) {
-            return array_values($known);
+        $enabled = \in_array(self::ALL_TOOLSETS, $names, true)
+            ? $known
+            : array_intersect($names, $known);
+
+        $tools = [];
+
+        foreach ($toolsets as $toolset) {
+            if (!\in_array($toolset['name'], $enabled, true)) {
+                continue;
+            }
+
+            array_push($tools, ...$toolset['tools']);
         }
 
-        return array_values(array_unique(array_intersect($names, $known)));
+        $tools = array_values(array_unique($tools));
+        sort($tools);
+
+        return $tools;
     }
 
     /**

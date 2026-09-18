@@ -204,7 +204,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
         $toolsetRegistry->expects($this->exactly(2))
-            ->method('advertisedTools')
+            ->method('advertisedToolsForNames')
             ->with(['entity'])
             ->willReturn([
                 'shopware-entity-search',
@@ -292,7 +292,7 @@ class McpAllowlistListRequestHandlerTest extends TestCase
 
         $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
         $toolsetRegistry->expects($this->once())
-            ->method('advertisedTools')
+            ->method('advertisedToolsForNames')
             ->with(['order'])
             ->willReturn(['shopware-order-state']);
 
@@ -331,11 +331,11 @@ class McpAllowlistListRequestHandlerTest extends TestCase
             $registry->registerTool($this->tool($toolName), static fn (): string => '');
         }
 
-        // No session and no connect-URL toolsets means there is nothing to resolve, so the registry
-        // is not consulted at all. Asking it to advertise an empty list would cost a full catalogue
-        // read for a provably empty result.
         $toolsetRegistry = $this->createMock(McpToolsetRegistry::class);
-        $toolsetRegistry->expects($this->never())->method('advertisedTools');
+        $toolsetRegistry->expects($this->exactly(2))
+            ->method('advertisedToolsForNames')
+            ->with([])
+            ->willReturn([]);
 
         $toolsetSessionStorage = $this->createMock(McpToolsetSessionStorage::class);
         $toolsetSessionStorage->expects($this->never())->method('enabledToolsets');

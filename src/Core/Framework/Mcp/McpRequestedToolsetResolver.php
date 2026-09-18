@@ -23,7 +23,7 @@ class McpRequestedToolsetResolver
     }
 
     /**
-     * Names are returned verbatim; {@see McpToolsetRegistry::expandToolsetNames()} validates them.
+     * Names are returned verbatim; {@see McpToolsetRegistry::advertisedToolsForNames()} validates them.
      *
      * @return list<string>
      */

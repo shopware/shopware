@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -183,42 +185,47 @@ class McpToolsetRegistryTest extends TestCase
         static::assertSame([], $toolsetRegistry->advertisedTools(['order']));
     }
 
-    public function testExpandToolsetNamesReturnsEmptyForNoNames(): void
+    public function testAdvertisedToolsForNamesReturnsEmptyWithoutReadingTheCatalogue(): void
     {
-        static::assertSame([], $this->toolsetRegistry()->expandToolsetNames([]));
+        $privilegeProvider = $this->createMock(AppMcpPrivilegeProvider::class);
+        $privilegeProvider->expects($this->never())->method('getAppToolGroups');
+        $privilegeProvider->expects($this->never())->method('getAppToolPrivileges');
+
+        $toolsetRegistry = new McpToolsetRegistry(new McpCapabilityCatalog(
+            $this->buildRegistry(['shopware-entity-search']),
+            $privilegeProvider,
+            toolGroups: ['shopware-entity-search' => 'entity'],
+        ));
+
+        static::assertSame([], $toolsetRegistry->advertisedToolsForNames([]));
     }
 
-    public function testExpandToolsetNamesKeepsKnownNames(): void
+    /**
+     * @param list<string> $names
+     * @param list<string> $expected
+     */
+    #[DataProvider('advertisedToolsForNamesCases')]
+    #[TestDox('advertisedToolsForNames $_dataName')]
+    public function testAdvertisedToolsForNames(array $names, array $expected): void
     {
-        static::assertSame(['entity', 'order'], $this->toolsetRegistry()->expandToolsetNames(['entity', 'order']));
+        static::assertSame($expected, $this->toolsetRegistry()->advertisedToolsForNames($names));
     }
 
-    public function testExpandToolsetNamesDropsUnknownNames(): void
+    /**
+     * @return \Generator<string, array{list<string>, list<string>}>
+     */
+    public static function advertisedToolsForNamesCases(): \Generator
     {
-        static::assertSame(['entity'], $this->toolsetRegistry()->expandToolsetNames(['entity', 'does-not-exist']));
-    }
+        $entity = 'shopware-entity-search';
+        $order = 'shopware-order-state';
 
-    public function testExpandToolsetNamesDeduplicates(): void
-    {
-        static::assertSame(['entity'], $this->toolsetRegistry()->expandToolsetNames(['entity', 'entity']));
-    }
-
-    public function testExpandToolsetNamesResolvesTheAllShorthand(): void
-    {
-        static::assertSame(['entity', 'order'], $this->toolsetRegistry()->expandToolsetNames([McpToolsetRegistry::ALL_TOOLSETS]));
-    }
-
-    public function testExpandToolsetNamesLetsAllSubsumeOtherNames(): void
-    {
-        static::assertSame(
-            ['entity', 'order'],
-            $this->toolsetRegistry()->expandToolsetNames(['order', McpToolsetRegistry::ALL_TOOLSETS]),
-        );
-    }
-
-    public function testExpandToolsetNamesRejectsTheDiscoveryGroup(): void
-    {
-        static::assertSame([], $this->toolsetRegistry()->expandToolsetNames([McpToolsetRegistry::DISCOVERY_GROUP]));
+        yield 'returns empty for no names' => [[], []];
+        yield 'resolves known names' => [['entity', 'order'], [$entity, $order]];
+        yield 'drops unknown names' => [['entity', 'does-not-exist'], [$entity]];
+        yield 'deduplicates' => [['entity', 'entity'], [$entity]];
+        yield 'resolves the all shorthand' => [[McpToolsetRegistry::ALL_TOOLSETS], [$entity, $order]];
+        yield 'lets all subsume other names' => [['order', McpToolsetRegistry::ALL_TOOLSETS], [$entity, $order]];
+        yield 'rejects the discovery group' => [[McpToolsetRegistry::DISCOVERY_GROUP], []];
     }
 
     /**

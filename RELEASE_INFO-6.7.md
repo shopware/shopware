@@ -4,18 +4,14 @@
 
 ### Connect-time toolset selection for the MCP server
 
-The MCP endpoints advertise only their discovery meta-tools by default and defer every domain tool until an agent enables its toolset. That relies on the agent re-reading `tools/list` after the server announces the change. Several agents read `tools/list` once when they connect and never again, so anything enabled later in a conversation stays invisible to them.
-
-Toolsets can now be named in the MCP URL, which works regardless of how the agent handles list-change notifications:
+MCP toolsets can now be named in the URL an agent connects to, so their tools are advertised on the first `tools/list` instead of after a `shopware-toolset-enable` round trip:
 
 ```
 https://<shop>/api/_mcp?toolsets=order,media
 https://<shop>/api/_mcp?toolsets=all
 ```
 
-Those toolsets are advertised from the first `tools/list` of the connection, with no enable round trip. Unknown toolset names are ignored, so a URL survives uninstalling the plugin that contributed a toolset.
-
-This changes visibility only. The MCP allowlist and the assigned role continue to decide what may actually be called, so a wider connect URL reaches nothing the credential could not already reach. Connections that pass no parameter behave exactly as before.
+This is for agents that read `tools/list` once per connection. It changes visibility only: the MCP allowlist and the assigned role still decide what may be called, and a connection that passes no parameter behaves as before.
 
 ### Browser login for CLI tools and other public OAuth clients
 

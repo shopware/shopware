@@ -6,7 +6,8 @@
                 {% set price = product.calculatedPrices.last %}
             {% endif %}
 
-            {% set listPrice = price.listPrice.percentage > 0 %}
+            {# A saving exists against the list price or, when set, the regulation price. #}
+            {% set hasDiscount = price.listPrice.percentage > 0 or price.regulationPrice.percentage > 0 %}
             {% set hasRange = product.calculatedPrices.count > 1 %}
 
             {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
@@ -14,7 +15,7 @@
                 {% set displayFromVariants = displayParent and price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
             {% endif %}
 
-            {% if listPrice and not hasRange and not displayFromVariants %}
+            {% if hasDiscount and not hasRange and not displayFromVariants %}
                 <span class="badge bg-danger badge-discount">
                     <span class="visually-hidden">{{ 'listing.boxLabelDiscount'|trans|sw_sanitize }}</span>
                     <span aria-hidden="true">&#37;</span>

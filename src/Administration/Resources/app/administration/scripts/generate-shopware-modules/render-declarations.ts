@@ -18,8 +18,17 @@ const DATA_MODULE = 'src/core/data/index';
 /** @private The command shown in generated files and drift diagnostics. */
 export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
 
+/**
+ * The stability marker every specifier carries.
+ *
+ * Per block rather than once per file: an editor shows the doc comment nearest the declaration being
+ * hovered, so a file-level one would reach the first module and silently leave the rest looking stable.
+ */
+const EXPERIMENTAL = '/** @experimental stableVersion:v6.8.0 */';
+
 function block(specifier: string, body: string[]): string {
     return [
+        EXPERIMENTAL,
         `declare module '${specifier}' {`,
         // A blank line keeps its emptiness: an indented one would fail the formatting check.
         ...body.map((line) => (line === '' ? '' : `    ${line}`)),

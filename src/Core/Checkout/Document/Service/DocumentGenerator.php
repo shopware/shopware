@@ -272,7 +272,7 @@ class DocumentGenerator
             $documentId,
             $document->getOrderId(),
             $document->getOrderVersionId(),
-            $document->getTypeName(),
+            $document->getTypeName() ?? '',
             $document->getDocumentNumber() ?? '',
             $context,
         ));
@@ -358,7 +358,7 @@ class DocumentGenerator
         $operation->setDocumentId($documentId);
 
         $documentStruct = $this->generate(
-            $document->getTypeName(),
+            $document->getTypeName() ?? '',
             [$document->getOrderId() => $operation],
             $context
         )->getSuccess()->first();

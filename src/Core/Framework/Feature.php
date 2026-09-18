@@ -276,9 +276,6 @@ class Feature
         }
     }
 
-    /**
-     * @param string|null $silentUntil
-     */
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null, ?string $silentUntil = null): void
     {
         if ($silentUntil !== null && !self::isActive($silentUntil)) {
@@ -293,6 +290,8 @@ class Feature
             return;
         }
 
+        // A silenced deprecation may name a major flag that is not registered yet, so a removal can be announced
+        // before the major that carries it exists. Enforcing the flag here would reject that pending major.
         $majorFlagPending = $silentUntil !== null && self::$registeredFeatures !== [] && !self::has($majorFlag);
 
         if (!$majorFlagPending) {

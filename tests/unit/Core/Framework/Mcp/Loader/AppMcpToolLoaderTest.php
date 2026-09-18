@@ -78,7 +78,13 @@ class AppMcpToolLoaderTest extends TestCase
                     static::assertSame('my-app-sync-orders', $tool->name);
                     static::assertSame('Sync Orders', $tool->title);
                     static::assertSame('Syncs orders', $tool->description);
-                    static::assertSame(['type' => 'object', 'properties' => [], 'required' => []], $tool->inputSchema);
+                    static::assertSame('object', $tool->inputSchema['type']);
+                    static::assertSame([], $tool->inputSchema['required']);
+                    // mcp/sdk normalizes an empty properties map to an object in the Tool
+                    // constructor, so it serializes as {} rather than [] — strict clients reject the
+                    // array form.
+                    static::assertInstanceOf(\stdClass::class, $tool->inputSchema['properties']);
+                    static::assertSame([], (array) $tool->inputSchema['properties']);
 
                     return true;
                 }),
@@ -149,6 +155,9 @@ class AppMcpToolLoaderTest extends TestCase
             ->with(
                 static::callback(function (Tool $tool): bool {
                     static::assertSame('my-app-sync-orders', $tool->name);
+                    // A populated properties map stays an array; mcp/sdk only swaps an empty one for
+                    // an object so it serializes as {}.
+                    static::assertIsArray($tool->inputSchema['properties']);
                     static::assertArrayHasKey('since', $tool->inputSchema['properties']);
                     static::assertSame('string', $tool->inputSchema['properties']['since']['type']);
                     static::assertSame('ISO date', $tool->inputSchema['properties']['since']['description']);
@@ -234,7 +243,13 @@ class AppMcpToolLoaderTest extends TestCase
             ->method('registerTool')
             ->with(
                 static::callback(function (Tool $tool): bool {
-                    static::assertSame(['type' => 'object', 'properties' => [], 'required' => []], $tool->inputSchema);
+                    static::assertSame('object', $tool->inputSchema['type']);
+                    static::assertSame([], $tool->inputSchema['required']);
+                    // mcp/sdk normalizes an empty properties map to an object in the Tool
+                    // constructor, so it serializes as {} rather than [] — strict clients reject the
+                    // array form.
+                    static::assertInstanceOf(\stdClass::class, $tool->inputSchema['properties']);
+                    static::assertSame([], (array) $tool->inputSchema['properties']);
 
                     return true;
                 }),

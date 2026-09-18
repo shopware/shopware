@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Translation;
+namespace Shopware\Tests\Integration\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -12,13 +12,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TranslationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
-use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
+use Shopware\Tests\Integration\Core\System\Snippet\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -26,10 +31,15 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class TranslatorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use BasicTestDataBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use RequestStackTestBehaviour;
+    use TranslationTestBehaviour;
 
     private Connection $connection;
 

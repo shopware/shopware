@@ -7,7 +7,10 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\TranslationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -22,7 +25,10 @@ use Shopware\Storefront\Theme\ThemeService;
 class ThemeSnippetTranslationTest extends TestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use TranslationTestBehaviour;
 
     public function testThemeSnippetsGetsMergedWithOverride(): void
     {

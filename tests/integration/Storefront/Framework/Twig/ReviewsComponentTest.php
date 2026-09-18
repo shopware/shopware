@@ -101,19 +101,74 @@ class ReviewsComponentTest extends TestCase
         static::assertStringNotContainsString('js-reviews-sort', $html);
     }
 
-    public function testReviewsElementShowsLoginNoticeForGuests(): void
+    public function testReviewFormShowsLoginNoticeForGuests(): void
     {
         // Generator defaults to a logged-in customer, so a guest state has to be requested explicitly.
         $guest = new CustomerEntity();
         $guest->setId(Uuid::randomHex());
         $guest->setGuest(true);
 
-        $html = $this->render('Sw:Product:Reviews', $this->reviewResult($this->matrix(), new ProductReviewCollection(), 0, 0), $guest);
+        $html = $this->render('Sw:Product:ReviewForm', $this->reviewResult($this->matrix(), new ProductReviewCollection(), 0, 0), $guest);
 
-        static::assertStringContainsString('sw-product-reviews__login', $html);
+        // Guests get the login prompt instead of the form.
+        static::assertStringContainsString('sw-product-review-form__login', $html);
+        static::assertStringNotContainsString('sw-product-review-form__form', $html);
     }
 
-    public function testReviewsElementHidesLoginNoticeForLoggedInCustomers(): void
+    public function testReviewFormRendersTheFormForLoggedInCustomers(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
+
+        $html = $this->render('Sw:Product:ReviewForm', $this->reviewResult($this->matrix(), new ProductReviewCollection(), 0, 0), $customer);
+
+        static::assertStringNotContainsString('sw-product-review-form__login', $html);
+
+        // The AJAX form and its fields render for a logged-in customer.
+        static::assertStringContainsString('sw-product-review-form__form', $html);
+        static::assertStringContainsString('name="points"', $html);
+        static::assertStringContainsString('name="title"', $html);
+        static::assertStringContainsString('name="content"', $html);
+
+        // The rating renders as the interactive star widget.
+        static::assertStringContainsString('sw-form-star-rating', $html);
+        static::assertStringContainsString('sw-form-star-rating__star', $html);
+        static::assertStringContainsString('data-star-point="5"', $html);
+
+        // Without an existing review the edit teaser is present but hidden (revealed after submitting),
+        // and the form is visible right away.
+        static::assertMatchesRegularExpression('/js-review-form-teaser[^"]*d-none/', $html);
+        static::assertDoesNotMatchRegularExpression('/sw-product-review-form__form[^"]*d-none/', $html);
+    }
+
+    public function testReviewFormShowsEditTeaserWhenCustomerHasReviewed(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
+
+        $result = $this->reviewResult($this->matrix(five: 1), new ProductReviewCollection(), total: 1, totalInCurrentLanguage: 1);
+        $result->setCustomerReview($this->review(5.0, 'My review title', 'My existing review content that is long enough.'));
+
+        $html = $this->render('Sw:Product:ReviewForm', $result, $customer);
+
+        // The teaser stands in for the form, which is present but hidden and offers a cancel action.
+        static::assertStringContainsString('js-review-form-teaser', $html);
+        static::assertStringContainsString('js-review-form-toggle', $html);
+        static::assertStringContainsString('js-review-form-cancel', $html);
+        static::assertMatchesRegularExpression('/sw-product-review-form__form[^"]*d-none/', $html);
+
+        // The existing review pre-fills the form.
+        static::assertStringContainsString('My review title', $html);
+        static::assertStringContainsString('name="id"', $html);
+    }
+
+    /**
+     * The review form is a standalone element placed on its own in the layout, so the Product Reviews element
+     * renders the list only and never the form.
+     */
+    public function testReviewsElementDoesNotRenderTheReviewForm(): void
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -121,7 +176,8 @@ class ReviewsComponentTest extends TestCase
 
         $html = $this->render('Sw:Product:Reviews', $this->reviewResult($this->matrix(), new ProductReviewCollection(), 0, 0), $customer);
 
-        static::assertStringNotContainsString('sw-product-reviews__login', $html);
+        static::assertStringNotContainsString('data-component="Sw:Product:ReviewForm"', $html);
+        static::assertStringNotContainsString('sw-product-review-form__form', $html);
     }
 
     public function testReviewsElementRendersEmptyStateWithoutAList(): void

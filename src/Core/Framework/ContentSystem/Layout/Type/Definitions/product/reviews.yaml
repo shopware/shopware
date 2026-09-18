@@ -22,5 +22,3 @@ slots:
     description: "The list of review items."
   - name: pagination
     description: "Pagination controls for the review list."
-  - name: form
-    description: "Empty by default. Drop a review submission form element here; it renders below the list."

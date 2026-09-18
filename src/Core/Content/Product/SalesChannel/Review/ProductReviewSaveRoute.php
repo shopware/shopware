@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -92,7 +93,9 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $data->set('productId', $productId);
         $this->validate($data, $context->getContext());
 
+        $reviewId = $data->get('id') ?: Uuid::randomHex();
         $review = [
+            'id' => $reviewId,
             'productId' => $productId,
             'customerId' => $customerId,
             'salesChannelId' => $salesChannelId,
@@ -104,10 +107,6 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             'points' => $data->get('points'),
             'status' => false,
         ];
-
-        if ($data->get('id')) {
-            $review['id'] = $data->get('id');
-        }
 
         $product = $this->productProvider->getData($productId, $context->getContext());
         if ($product === null) {
@@ -133,7 +132,10 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             ReviewFormEvent::EVENT_NAME
         );
 
-        return new NoContentResponse();
+        $response = new NoContentResponse();
+        $response->getObject()->set(self::REVIEW_ID, $reviewId);
+
+        return $response;
     }
 
     private function validate(DataBag $data, Context $context): void

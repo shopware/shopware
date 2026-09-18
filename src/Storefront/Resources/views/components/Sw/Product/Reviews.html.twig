@@ -79,31 +79,6 @@
                     {% endif %}
                 {% endblock %}
             </div>
-
-            {# Review submission form is its own element (issues #19523 / #19524); empty by default. #}
-            {% block form %}
-                <twig:Slot name="form"></twig:Slot>
-            {% endblock %}
-
-            {% block login %}
-                {% if not (context.customer and not context.customer.guest) %}
-                    <div class="sw-product-reviews__login card login-card">
-                        <div class="card-body">
-                            <h3 class="card-title">{{ 'detail.reviewLoginHeader'|trans|sw_sanitize }}</h3>
-                            <p class="sw-product-reviews__login-description">
-                                {{ 'detail.reviewLoginDescription'|trans|sw_sanitize }}
-                                <a href="{{ path('frontend.account.login.page') }}"
-                                   title="{{ 'detail.reviewRegisterLink'|trans|striptags }}">
-                                    {{ 'detail.reviewRegisterLink'|trans|sw_sanitize }}
-                                </a>
-                            </p>
-                            <a href="{{ path('frontend.account.login.page') }}" class="btn btn-primary">
-                                {{ 'account.loginSubmit'|trans|sw_sanitize }}
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endblock %}
         </div>
     {% endblock %}
 </section>

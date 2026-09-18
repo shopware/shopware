@@ -10,18 +10,21 @@ export default class ProductReviews extends ShopwareComponent {
         this.activeParams = this.paramsFromUrl();
         this.debouncedReload = this.debounce(this.reload.bind(this), 200);
 
-        // Filters and pagination are separate components (possibly outside this element),
-        // so they reach us over the event bus.
+        // Filters, pagination and the review form are separate components (possibly outside this
+        // element), so they reach us over the event bus.
         this.onFiltersChange = this.handleFiltersChange.bind(this);
         this.onPageChange = this.handlePageChange.bind(this);
+        this.onReviewSubmitted = this.handleReviewSubmitted.bind(this);
 
         window.Shopware.on('ReviewFilters:Change', this.onFiltersChange);
         window.Shopware.on('Pagination:Change', this.onPageChange);
+        window.Shopware.on('ReviewForm:Submitted', this.onReviewSubmitted);
     }
 
     destroy() {
         window.Shopware.off('ReviewFilters:Change', this.onFiltersChange);
         window.Shopware.off('Pagination:Change', this.onPageChange);
+        window.Shopware.off('ReviewForm:Submitted', this.onReviewSubmitted);
     }
 
     handleFiltersChange(params) {
@@ -32,6 +35,13 @@ export default class ProductReviews extends ShopwareComponent {
 
     handlePageChange(page) {
         this.activeParams.p = page;
+        this.debouncedReload();
+    }
+
+    handleReviewSubmitted() {
+        // The customer's own review shows even while pending. Clear any sort/filter/page so it is
+        // not filtered out of view; the default order is newest-first, so it lands on the first page.
+        this.activeParams = {};
         this.debouncedReload();
     }
 

@@ -12,6 +12,12 @@ The flag became an opt-out. Set it to `false` to keep running the legacy impleme
 
 The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
 
+## Attribute entities reject a cascading many-to-one
+
+`#[ManyToOne(onDelete: OnDelete::CASCADE)]` on an attribute entity no longer builds. On a many-to-one the flag made the DAL resolve the referenced record as affected by the delete, which no foreign key ever does. Shopware 6.7 ignored it and warned.
+
+Declare the cascade on the inverse `#[OneToMany]` instead. The `ON DELETE` behaviour of the foreign key lives in your migration and is unaffected.
+
 ## State machine actions enforce a single destination per source state
 
 A state machine action now maps to exactly one destination state per source state:

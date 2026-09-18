@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
@@ -62,11 +63,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithInheritance;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithSearchRanking;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\_fixtures\CascadingManyToOneEntity;
 
 /**
  * @internal
@@ -166,6 +169,30 @@ class AttributeEntityCompilerTest extends TestCase
         $result = (new AttributeEntityCompiler())->compile(Entity::class);
 
         static::assertSame([], $result);
+    }
+
+    public function testCompileRejectsCascadeDeleteOnManyToOne(): void
+    {
+        $this->expectExceptionObject(
+            DataAbstractionLayerException::cascadeDeleteOnManyToOne('cascading_many_to_one', 'currency')
+        );
+
+        (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCompileDropsCascadeDeleteFromManyToOneBeforeTheMajor(): void
+    {
+        $compiledResult = (new AttributeEntityCompiler())->compile(CascadingManyToOneEntity::class);
+
+        $entityDefinition = $this->findEntityDefinition($compiledResult, 'cascading_many_to_one');
+        $fields = array_column($entityDefinition['fields'], null, 'name');
+
+        $currency = $fields['currency'] ?? null;
+
+        static::assertNotNull($currency, 'currency field not found');
+        static::assertIsArray($currency['flags']);
+        static::assertArrayNotHasKey('cascade', $currency['flags']);
     }
 
     /**

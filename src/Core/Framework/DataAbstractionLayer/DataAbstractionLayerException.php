@@ -84,6 +84,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
     public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
     public const ATTRIBUTE_NOT_FOUND = 'FRAMEWORK__ATTRIBUTE_NOT_FOUND';
+    public const CASCADE_DELETE_ON_MANY_TO_ONE = 'FRAMEWORK__CASCADE_DELETE_ON_MANY_TO_ONE';
     public const EXPECTED_ARRAY_WITH_TYPE = 'FRAMEWORK__EXPECTED_ARRAY_WITH_TYPE';
     public const EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE = 'FRAMEWORK__EXPECTED_FIELD_VALUE_TYPE_WITH_VALUE';
     public const REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID = 'FRAMEWORK__REPOSITORY_ITERATOR_EXPECTED_STRING_LAST_ID';
@@ -611,6 +612,18 @@ class DataAbstractionLayerException extends HttpException
             self::ATTRIBUTE_NOT_FOUND,
             'Can not find attribute "{{ attribute }}" for property {{ property }}',
             ['attribute' => $attribute, 'property' => $property]
+        );
+    }
+
+    public static function cascadeDeleteOnManyToOne(string $entity, string $property): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CASCADE_DELETE_ON_MANY_TO_ONE,
+            'Association "{{ property }}" of entity "{{ entity }}" must not use OnDelete::CASCADE. On a many-to-one it '
+            . 'makes the DAL resolve the referenced record as affected by the delete, which no foreign key ever does. '
+            . 'Declare the cascade on the inverse one-to-many association instead.',
+            ['entity' => $entity, 'property' => $property]
         );
     }
 

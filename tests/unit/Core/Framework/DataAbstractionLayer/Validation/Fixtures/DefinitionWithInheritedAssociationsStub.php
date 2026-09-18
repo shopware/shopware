@@ -19,6 +19,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DefinitionWithInheritedAssociationsStub extends DefinitionStub
 {
+    public function isInheritanceAware(): bool
+    {
+        return true;
+    }
+
     protected function defineFields(): FieldCollection
     {
         $fields = parent::defineFields();

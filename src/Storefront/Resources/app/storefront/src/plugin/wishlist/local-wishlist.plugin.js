@@ -26,11 +26,13 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      */
     // eslint-disable-next-line no-unused-vars
     add(productId, router = null) {
+        this.load();
         super.add(productId);
         this._save();
     }
 
     remove(productId) {
+        this.load();
         super.remove(productId);
 
         this._save();
@@ -42,10 +44,6 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
     _fetch() {
         if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             this.storage.removeItem(this._getStorageKey());
-        }
-
-        if (this.getCurrentCounter() > 0) {
-            return this.products;
         }
 
         const productStr = this.storage.getItem(this._getStorageKey());

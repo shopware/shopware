@@ -78,7 +78,6 @@ jest.mock('src/service/http-client.service', () => {
 
 describe('CookieConfiguration plugin tests', () => {
     let plugin;
-    let originalHref;
 
     beforeEach(() => {
         window.router = {
@@ -95,7 +94,7 @@ describe('CookieConfiguration plugin tests', () => {
             initializePlugins: jest.fn(),
             getPluginInstances: jest.fn(() => []),
             getPluginInstancesFromElement: jest.fn(() => new Map()),
-            getPlugin: jest.fn(() => new Map([['instances', []]]))
+            getPlugin: jest.fn(() => new Map([['instances', []]])),
         };
 
         const container = document.createElement('div');
@@ -105,7 +104,6 @@ describe('CookieConfiguration plugin tests', () => {
 
         jest.spyOn(AjaxOffCanvas, 'open').mockImplementation(jest.fn());
         jest.spyOn(AjaxOffCanvas, 'close').mockImplementation(jest.fn());
-        originalHref = window.location.href;
     });
 
     afterEach(() => {
@@ -274,14 +272,11 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     test('_onLogin closes the offcanvas and redirects', () => {
-        const originalLocation = window.location;
-        delete window.location;
-        window.location = { href: '' };
+        const navigateToSpy = jest.spyOn(CookieConfiguration.prototype, '_navigateTo').mockImplementation(() => {});
         window.router['frontend.account.login.page'] = 'https://shop.example.com/login';
         plugin._onLogin();
         expect(AjaxOffCanvas.close).toHaveBeenCalled();
-        expect(window.location.href).toBe('https://shop.example.com/login');
-        window.location = originalLocation;
+        expect(navigateToSpy).toHaveBeenCalledWith('https://shop.example.com/login');
     });
 
     test('_onCancel closes the offcanvas', () => {

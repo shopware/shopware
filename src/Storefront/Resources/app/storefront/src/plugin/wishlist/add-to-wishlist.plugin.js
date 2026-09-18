@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import DomAccess from 'src/helper/dom-access.helper';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
 /**

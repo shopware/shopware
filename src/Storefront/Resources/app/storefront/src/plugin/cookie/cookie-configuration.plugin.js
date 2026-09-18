@@ -26,7 +26,6 @@ import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
-import CookieStorageHelper from '../../helper/storage/cookie-storage.helper';
 
 // These events will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
@@ -595,8 +594,18 @@ export default class CookieConfiguration extends Plugin {
      * @param {string} cookieName
      */
     _onAccept(cookieName) {
-        CookieStorageHelper.setItem(cookieName, '1', 30);
+        CookieStorage.setItem(cookieName, '1', 30);
         AjaxOffCanvas.close();
+    }
+
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     *
+     * @private
+     * @param {string} url
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 
     /**
@@ -604,7 +613,7 @@ export default class CookieConfiguration extends Plugin {
      */
     _onLogin() {
         AjaxOffCanvas.close();
-        window.location.href = window.router['frontend.account.login.page'];
+        this._navigateTo(window.router['frontend.account.login.page']);
     }
 
     /**
@@ -627,7 +636,7 @@ export default class CookieConfiguration extends Plugin {
             }
             offcanvasElement.addEventListener('hidden.bs.offcanvas',
                 this._restoreFocus.bind(this),
-                { once: true }
+                { once: true },
             );
         });
     }
@@ -638,8 +647,6 @@ export default class CookieConfiguration extends Plugin {
      */
     _restoreFocus() {
         const btn = CookieConfiguration.lastTriggerElement;
-        if (btn && btn.focus) {
-            btn.focus();
-        }
+        btn?.focus?.();
     }
 }

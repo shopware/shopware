@@ -124,13 +124,16 @@ class CookieControllerTest extends TestCase
 
     public function testConsentOffcanvasRouteRendersWithParameters(): void
     {
-        $response = $this->browser->request(
+        $crawler = $this->browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/cookie/consent-offcanvas?featureName=feature&cookieName=cookieName'
         );
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        static::assertCount(1, $crawler->filterXPath('//div[@class="offcanvas-cookie"]'));
         $content = $this->browser->getResponse()->getContent();
+
         static::assertNotFalse($content);
         static::assertStringContainsString('cookie.feature.title', $content);
         static::assertStringContainsString('js-wishlist-cookie-accept', $content);

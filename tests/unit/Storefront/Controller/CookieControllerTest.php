@@ -112,6 +112,26 @@ class CookieControllerTest extends TestCase
         static::assertSame('test-cookie', $controller->renderStorefrontParameters['cookieName']);
     }
 
+    public function testCookieConsentOffcanvasRendersWithDefaults(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        /** @var StaticEntityRepository<SalesChannelAnalyticsCollection> $repository */
+        $repository = new StaticEntityRepository([new SalesChannelAnalyticsCollection([])]);
+
+        $controller = new CookieControllerTestClass(
+            new CookieProvider(),
+            $this->createMock(SystemConfigService::class),
+            $repository
+        );
+
+        $controller->cookieConsentOffcanvas(new Request(), $salesChannelContext);
+
+        static::assertStringContainsString('@Storefront/storefront/layout/cookie/cookie-consent-offcanvas.html.twig', $controller->renderStorefrontView);
+        static::assertSame('wishlist', $controller->renderStorefrontParameters['featureName']);
+        static::assertSame('wishlist-enabled', $controller->renderStorefrontParameters['cookieName']);
+    }
+
     /**
      * @param array<string, mixed> $cookieGroups
      */

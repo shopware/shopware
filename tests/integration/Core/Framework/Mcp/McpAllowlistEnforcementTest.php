@@ -175,9 +175,14 @@ class McpAllowlistEnforcementTest extends TestCase
         $this->postAllowlist($caller, $victimId, ['tools' => ['shopware-entity-search']]);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $caller->getResponse()->getStatusCode());
+
+        // Decoded rather than string-compared: MySQL and MariaDB serialise the JSON column
+        // differently (MySQL inserts a space after the colon).
+        $stored = $this->allowlistColumn('user', Uuid::fromHexToBytes($victimId));
+        static::assertIsString($stored);
         static::assertSame(
-            '{"tools":["shopware-entity-search"]}',
-            $this->allowlistColumn('user', Uuid::fromHexToBytes($victimId)),
+            ['tools' => ['shopware-entity-search']],
+            json_decode($stored, true, 512, \JSON_THROW_ON_ERROR),
         );
     }
 

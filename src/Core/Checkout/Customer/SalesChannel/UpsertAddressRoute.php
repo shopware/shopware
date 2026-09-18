@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -30,7 +32,6 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
@@ -56,6 +57,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly CompanyAccountNameFields $companyAccountNameFields,
     ) {
     }
 
@@ -101,8 +103,18 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
-        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getValidationDefinition($data, $accountType, $isCreate, $context);
+        $namesAreOptional = $customer->isBusinessAccount()
+            && $this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId());
+
+        if ($namesAreOptional) {
+            if (!$isCreate) {
+                $this->keepStoredIdentity($addressId, $data, $context);
+            }
+
+            $this->companyAccountNameFields->normalize($data);
+        }
+
+        $definition = $this->getValidationDefinition($data, $namesAreOptional, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -149,9 +161,37 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         return new UpsertAddressRouteResponse($address);
     }
 
+    private function keepStoredIdentity(?string $addressId, DataBag $data, SalesChannelContext $context): void
+    {
+        if ($addressId === null || ($data->has('firstName') && $data->has('lastName') && $data->has('company'))) {
+            return;
+        }
+
+        $address = $this->addressRepository
+            ->search(new Criteria([$addressId]), $context->getContext())
+            ->getEntities()
+            ->first();
+
+        if (!$address instanceof CustomerAddressEntity) {
+            return;
+        }
+
+        if (!$data->has('firstName')) {
+            $data->set('firstName', $address->getFirstName());
+        }
+
+        if (!$data->has('lastName')) {
+            $data->set('lastName', $address->getLastName());
+        }
+
+        if (!$data->has('company')) {
+            $data->set('company', $address->getCompany());
+        }
+    }
+
     private function getValidationDefinition(
         DataBag $data,
-        string $accountType,
+        bool $namesAreOptional,
         bool $isCreate,
         SalesChannelContext $context
     ): DataValidationDefinition {
@@ -161,10 +201,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
-        ) {
-            $validation->add('company', new NotBlank());
+        if ($namesAreOptional) {
+            $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: $isCreate);
+        } elseif ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
+            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));

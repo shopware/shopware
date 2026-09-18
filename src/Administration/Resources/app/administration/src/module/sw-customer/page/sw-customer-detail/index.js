@@ -1,6 +1,7 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
@@ -22,6 +23,7 @@ export default {
         'acl',
         'customerValidationService',
         'feature',
+        'companyAccountNameFieldsService',
     ],
 
     mixins: [
@@ -50,6 +52,7 @@ export default {
 
     data() {
         return {
+            companyNamesRequired: true,
             isLoading: false,
             isSaveSuccessful: false,
             customer: null,
@@ -183,6 +186,18 @@ export default {
                 : true;
         },
 
+        contactPersonRequired() {
+            return this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || this.companyNamesRequired;
+        },
+
+        validContactPersonFields() {
+            if (!this.contactPersonRequired) {
+                return true;
+            }
+
+            return Boolean(this.customer.firstName?.trim().length && this.customer.lastName?.trim().length);
+        },
+
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
         },
@@ -199,6 +214,9 @@ export default {
     },
 
     watch: {
+        'customer.salesChannelId'() {
+            this.loadCompanyNamesRequired();
+        },
         customerId() {
             this.createdComponent();
         },
@@ -260,10 +278,26 @@ export default {
             }
         },
 
+        async loadCompanyNamesRequired() {
+            const salesChannelId = this.customer?.salesChannelId;
+
+            this.companyNamesRequired = true;
+
+            const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
+
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
+        },
+
         async createdComponent() {
             Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
 
             await this.loadCustomer();
+
+            await this.loadCompanyNamesRequired();
         },
 
         saveFinish() {
@@ -322,6 +356,11 @@ export default {
                 hasError = true;
             }
 
+            if (!this.validContactPersonFields) {
+                this.createErrorMessageForContactPerson();
+                hasError = true;
+            }
+
             if (!(await this.validPassword(this.customer))) {
                 hasError = true;
             }
@@ -356,7 +395,7 @@ export default {
                         message: this.$t(
                             'sw-customer.detail.messageSaveSuccess',
                             {
-                                name: `${this.customer.firstName} ${this.customer.lastName}`,
+                                name: `${this.customer.firstName} ${this.customer.lastName}`.trim() || this.customer.company,
                             },
                             0,
                         ),
@@ -450,12 +489,32 @@ export default {
                 });
         },
 
+        createErrorMessageForContactPerson() {
+            this.isLoading = false;
+
+            [
+                'firstName',
+                'lastName',
+            ].forEach((field) => {
+                if (this.customer[field]?.trim().length) {
+                    return;
+                }
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `customer.${this.customer.id}.${field}`,
+                    error: new ShopwareError({
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
+                    }),
+                });
+            });
+        },
+
         createErrorMessageForCompanyField() {
             this.isLoading = false;
             Shopware.Store.get('error').addApiError({
                 expression: `customer.${this.customer.id}.company`,
                 error: new ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    code: EntityValidationService.ERROR_CODE_REQUIRED,
                 }),
             });
         },

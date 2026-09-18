@@ -52,7 +52,7 @@ export default {
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: `${this.customer.firstName} ${this.customer.lastName}`,
+                        name: this.customer.displayName,
                     }),
                 });
             } catch (error) {
@@ -77,7 +77,7 @@ export default {
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: `${this.customer.firstName} ${this.customer.lastName}`,
+                        name: this.customer.displayName,
                     }),
                 });
             } catch (error) {

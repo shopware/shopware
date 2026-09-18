@@ -217,6 +217,22 @@ export default {
     },
 
     methods: {
+        avatarName(customer) {
+            return Shopware.Utils.string.avatarName(customer);
+        },
+
+        customerName(customer) {
+            const personName = [
+                customer.lastName,
+                customer.firstName,
+            ]
+                .map((part) => (part ?? '').trim())
+                .filter((part) => part)
+                .join(', ');
+
+            return personName || customer.displayName;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
@@ -324,7 +340,7 @@ export default {
             const columns = [
                 {
                     property: 'firstName',
-                    dataIndex: 'lastName,firstName',
+                    dataIndex: 'lastName,firstName,company',
                     inlineEdit: 'string',
                     label: 'sw-customer.list.columnName',
                     routerLink: 'sw.customer.detail',

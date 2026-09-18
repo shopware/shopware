@@ -130,6 +130,7 @@ const baseRules = {
     // has no `--max-warnings`, so at warning level `Bad_Dir/index.vue` would pass CI.
     'sw-core-rules/native-setup-filename': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
+    'sw-deprecation-rules/no-manual-deprecation-notices': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [
         2,
@@ -662,6 +663,7 @@ export default [
             ],
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
+            'sw-deprecation-rules/no-manual-deprecation-notices': 0,
             'jest/expect-expect': [
                 'error',
                 {

@@ -40,7 +40,7 @@ describe('app/plugins/deprecated.plugin', () => {
         global.console.warn = orgMock;
         deprecationPlugin.pluginInstalled = false;
 
-        await component.unmount();
+        await component?.unmount();
         await flushPromises();
     });
 
@@ -65,6 +65,62 @@ describe('app/plugins/deprecated.plugin', () => {
         });
 
         expect(global.console.warn).not.toHaveBeenCalled();
+    });
+
+    it('[prop] should warn if the deprecated prop is explicitly set to its default value', async () => {
+        component = createComponent({
+            customComponent: {
+                props: {
+                    example: {
+                        type: String,
+                        required: false,
+                        deprecated: '6.4.0',
+                        default: 'Lorem ipsum',
+                    },
+                },
+            },
+            customOptions: {
+                props: {
+                    example: 'Lorem ipsum',
+                },
+            },
+        });
+
+        expect(global.console.warn).toHaveBeenCalledTimes(1);
+    });
+
+    it('[prop] should detect a supplied kebab-case prop', async () => {
+        component = createComponent({
+            customComponent: {
+                template: '<deprecated-component example-property-test="value" />',
+            },
+            customGlobalOptions: {
+                stubs: {
+                    'deprecated-component': {
+                        name: 'deprecated-component',
+                        template: '<div></div>',
+                        props: {
+                            examplePropertyTest: {
+                                type: String,
+                                deprecated: '6.4.0',
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(global.console.warn).toHaveBeenCalledWith(expect.stringContaining('examplePropertyTest'));
+    });
+
+    it.activeFeatureFlags(['V6_9_0_0'])('[component] should throw when its major feature flag is active', () => {
+        expect(() => {
+            createComponent({
+                customComponent: {
+                    deprecated: '6.9.0',
+                },
+            });
+        }).toThrow('Tried to access deprecated functionality');
     });
 
     it('[prop] should throw an error if the deprecated (string) prop is used', async () => {
@@ -135,13 +191,11 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        // Revert to first call once compat warnings are fixed
-        const lastCall = global.console.warn.mock.calls[0];
+        const firstCall = global.console.warn.mock.calls[0];
 
-        expect(lastCall[0]).toEqual(expect.stringContaining('[base-component]'));
-        expect(lastCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(lastCall[1]).toEqual(expect.stringContaining('examplePropertyTest'));
-        expect(lastCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('[base-component]'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('examplePropertyTest'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('6.4.0'));
     });
 
     it('[prop] should show the relevant deprecation (object) information in the warning', async () => {
@@ -169,9 +223,8 @@ describe('app/plugins/deprecated.plugin', () => {
         const firstCall = global.console.warn.mock.calls[0];
 
         expect(firstCall[0]).toEqual(expect.stringContaining('[base-component]'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('examplePropertyTest'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('examplePropertyTest'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('6.4.0'));
     });
 
     it('[prop] should throw a trace after the warning', async () => {
@@ -194,10 +247,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const secondCall = global.console.warn.mock.calls[1];
+        const firstCall = global.console.warn.mock.calls[0];
 
-        expect(secondCall).toContain('[base-component]');
-        expect(secondCall[1]).toEqual(expect.stringContaining('--> base-component'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('[base-component]'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('--> base-component'));
     });
 
     it('[prop] should show the additional comment in the warnings', async () => {
@@ -225,7 +278,7 @@ describe('app/plugins/deprecated.plugin', () => {
 
         const firstCall = global.console.warn.mock.calls[0];
 
-        expect(firstCall[1]).toEqual(expect.stringContaining('Dale a tu cuerpo alegria, Macarena. \n Hey Macarena'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('Dale a tu cuerpo alegria, Macarena. \n Hey Macarena'));
     });
 
     it('[component] should throw a deprecation warning if the deprecated (string) component is used', async () => {
@@ -238,8 +291,7 @@ describe('app/plugins/deprecated.plugin', () => {
         const firstCall = global.console.warn.mock.calls[0];
 
         expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('6.4.0'));
     });
 
     it('[component] should throw a deprecation warning if the deprecated (object) component is used', async () => {
@@ -254,8 +306,7 @@ describe('app/plugins/deprecated.plugin', () => {
         const firstCall = global.console.warn.mock.calls[0];
 
         expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('6.4.0'));
     });
 
     it('[component] should show the additional comment in the warnings', async () => {
@@ -271,9 +322,8 @@ describe('app/plugins/deprecated.plugin', () => {
         const firstCall = global.console.warn.mock.calls[0];
 
         expect(firstCall[0]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('base-component'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('6.4.0'));
-        expect(firstCall[1]).toEqual(expect.stringContaining('Summer of 69'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('6.4.0'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('Summer of 69'));
     });
 
     it('[component] should throw a trace after the warning', async () => {
@@ -286,10 +336,10 @@ describe('app/plugins/deprecated.plugin', () => {
             },
         });
 
-        const secondCall = global.console.warn.mock.calls[1];
+        const firstCall = global.console.warn.mock.calls[0];
 
-        expect(secondCall).toContain('[base-component]');
-        expect(secondCall[1]).toEqual(expect.stringContaining('--> base-component'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('[base-component]'));
+        expect(firstCall[0]).toEqual(expect.stringContaining('--> base-component'));
     });
 
     it('[component] should throw a trace after the warning in nested components', async () => {
@@ -318,16 +368,16 @@ describe('app/plugins/deprecated.plugin', () => {
         // Check if any of the warnings contains the correct values
         let wasFound = false;
         global.console.warn.mock.calls.forEach((call) => {
-            if (call[1].includes('base-component')) {
+            if (call[0].includes('base-component')) {
                 wasFound = true;
             } else {
                 return;
             }
 
-            expect(call).toContain('[deprecated-component]');
-            expect(call[1]).toEqual(expect.stringContaining('--> deprecated-component'));
-            expect(call[1]).toEqual(expect.stringContaining('base-component'));
-            expect(call[1]).toMatch(' --> deprecated-component \n      base-component ');
+            expect(call[0]).toEqual(expect.stringContaining('[deprecated-component]'));
+            expect(call[0]).toEqual(expect.stringContaining('--> deprecated-component'));
+            expect(call[0]).toEqual(expect.stringContaining('base-component'));
+            expect(call[0]).toMatch(' --> deprecated-component \n      base-component ');
         });
 
         expect(wasFound).toBeTruthy();

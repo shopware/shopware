@@ -65,8 +65,10 @@ export default Shopware.Component.wrapComponentConfig({
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
+                        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- Deprecated extension positions do not expose a removal version or matching major feature flag.
                         Shopware.Utils.debug.error(...debugArgs);
                     } else {
+                        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- Deprecated extension positions do not expose a removal version or matching major feature flag.
                         Shopware.Utils.debug.warn(...debugArgs);
                     }
                 });

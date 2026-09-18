@@ -250,8 +250,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         );
 
         expect(consoleWarnSpy).toHaveBeenCalledWith(
-            expect.stringContaining('[Deprecation] sw-entity-listing: The "items" prop is deprecated'),
-            expect.anything(),
+            expect.stringContaining('[Shopware Deprecation] sw-entity-listing: The "items" prop is deprecated'),
         );
 
         consoleWarnSpy.mockRestore();
@@ -295,7 +294,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         // Check that no deprecation warning for items prop was shown
         const deprecationCalls = consoleWarnSpy.mock.calls.filter(
-            (call) => call[0] && call[0].includes('[Deprecation] sw-entity-listing'),
+            (call) => call[0] && call[0].includes('[Shopware Deprecation] sw-entity-listing'),
         );
         expect(deprecationCalls).toHaveLength(0);
 

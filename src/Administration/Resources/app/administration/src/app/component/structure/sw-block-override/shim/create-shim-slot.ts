@@ -136,6 +136,7 @@ function isInternalKey(key: string | symbol): boolean {
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
+        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- The legacy Twig shim has no matching major feature flag yet.
         console.warn(
             `[Shopware Deprecation] Block "${blockName}" in component "${entry.componentName}" ` +
                 `uses a legacy Twig override. ` +

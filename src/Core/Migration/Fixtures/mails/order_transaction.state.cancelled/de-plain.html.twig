@@ -15,7 +15,7 @@ Pos. {{ loop.index }}
 {% if lineItem.payload.productNumber is defined %}
 Artikel-Nr. {{ lineItem.payload.productNumber|u.wordwrap(80) }},
 {% endif %}
-{% if nestedItem.cover is defined and nestedItem.cover is not null %}
+{% if lineItem.cover is defined and lineItem.cover is not null %}
 Produktbild {{ lineItem.cover.alt }},
 {% endif %}
 Beschreibung {{ lineItem.label|u.wordwrap(80) }},

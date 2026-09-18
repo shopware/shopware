@@ -14,6 +14,9 @@ use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -183,6 +186,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.admin_worker.enable_admin_worker'),
             service(WebhookDeliveryService::class),
             service(WebhookOutboxStore::class),
+            service(PolicyRegistry::class),
         ]);
 
     $services->set(WebhookCacheClearer::class)
@@ -191,6 +195,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(PolicyRegistry::class)
+        ->args([
+            tagged_iterator('shopware.webhook.policy'),
+            service('logger'),
+        ]);
+
+    $services->set(NotHookablePolicy::class)
+        ->args([service(BusinessEventRegistry::class)])
+        ->tag('shopware.webhook.policy');
 
     $services->set(HookableEventFactory::class)
         ->lazy()

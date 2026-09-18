@@ -121,5 +121,8 @@ return [
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::missingAppSecretInfo() was removed', '/'),
+
+        // Not sure why an external library is complained about
+        preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
     ],
 ];

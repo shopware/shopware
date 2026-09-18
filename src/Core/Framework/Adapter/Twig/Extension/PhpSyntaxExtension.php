@@ -36,7 +36,7 @@ use Twig\TwigFunction;
 use Twig\TwigTest;
 
 #[Package('framework')]
-#[BecomesInternal(version: 'v6.8.0')]
+#[BecomesInternal(version: 'v6.8.0')] // Class should be renamed after that, as it is no longer only about PHP syntax
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array

@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -205,13 +205,10 @@ class IntegrationMcpAllowlistControllerTest extends TestCase
     {
         // Mirrors UserMcpAllowlistController. AclWriteValidator already enforced integration:update
         // on the write; naming it on the route turns a DAL exception into a plain 403.
-        $attribute = (new \ReflectionMethod(IntegrationMcpAllowlistController::class, 'save'))
-            ->getAttributes(Route::class)[0];
+        $route = (new AttributeRouteControllerLoader())->load(IntegrationMcpAllowlistController::class)->get('api.action.integration.mcp-allowlist');
 
-        static::assertSame(
-            ['api_action_integration_mcp-allowlist', 'integration:update'],
-            $attribute->getArguments()['defaults'][PlatformRequest::ATTRIBUTE_ACL] ?? null,
-        );
+        static::assertNotNull($route);
+        static::assertSame(['api_action_integration_mcp-allowlist', 'integration:update'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     public function testObjectShapedPerTypeValueIsRejected(): void

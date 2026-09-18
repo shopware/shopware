@@ -16,9 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -122,13 +122,10 @@ class UserMcpAllowlistControllerTest extends TestCase
 
         // The allowlist decides what a principal may reach over MCP, so writing an arbitrary
         // {userId} is a permission change and needs the entity privilege, not just the action one.
-        $attribute = (new \ReflectionMethod(UserMcpAllowlistController::class, 'save'))
-            ->getAttributes(Route::class)[0];
+        $route = (new AttributeRouteControllerLoader())->load(UserMcpAllowlistController::class)->get('api.action.user.mcp-allowlist');
 
-        static::assertSame(
-            ['api_action_user_mcp-allowlist', 'user:update'],
-            $attribute->getArguments()['defaults'][PlatformRequest::ATTRIBUTE_ACL] ?? null,
-        );
+        static::assertNotNull($route);
+        static::assertSame(['api_action_user_mcp-allowlist', 'user:update'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     public function testObjectShapedPerTypeValueIsRejected(): void

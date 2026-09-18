@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
@@ -20,8 +21,10 @@ use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\DirectHierarchyMethodTrait;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ExperimentalReplacementTarget;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\NewHierarchyParent;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\OldHierarchyParent;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\StableReplacementTarget;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[BecomesFinal(version: 'v6.8.0')]
@@ -370,4 +373,48 @@ class ValidHierarchyChange extends OldHierarchyParent
     public function providedByProtectedNewParent(): void
     {
     }
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'fake_feature', replacement: ExperimentalReplacementTarget::class)]
+class ExperimentalReplacementLowercaseFeature
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE')]
+class ExperimentalReplacementWithoutTarget
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', replacement: 'UnimportedReplacement')]
+class ExperimentalReplacementUnresolvable
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', replacement: StableReplacementTarget::class)]
+class ExperimentalReplacementStableTarget
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'OTHER_FEATURE', replacement: ExperimentalReplacementTarget::class)]
+class ExperimentalReplacementFeatureMismatch
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', replacement: ExperimentalReplacementTarget::class)]
+final class ValidExperimentalReplacementWithTarget
+{
+}
+
+#[ExperimentalReplacement(
+    version: 'v6.8.0',
+    feature: 'FAKE_FEATURE',
+    description: 'Superseded by the fake domain as a whole.',
+)]
+class ValidExperimentalReplacementWithDescription
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', description: '')]
+class ExperimentalReplacementBlankDescription
+{
 }

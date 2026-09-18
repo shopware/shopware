@@ -252,10 +252,7 @@ function arrowText(ctx: Ctx, fn: FnLike): string {
     return `${commentPrefix}${asyncPrefix}function${generator}${typeParameters}(${params})${returnType} ${snip(ctx, fn.body)}`;
 }
 
-const OPTIONS_WRAPPERS = new Set([
-    'wrapComponentConfig',
-    'defineComponent',
-]);
+const OPTIONS_WRAPPERS = new Set(['wrapComponentConfig', 'defineComponent']);
 
 /** Strips the type-only and grouping wrappers an expression may be authored behind. */
 function unwrapExpression(node: t.Node): t.Node {

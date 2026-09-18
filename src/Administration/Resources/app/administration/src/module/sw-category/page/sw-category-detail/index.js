@@ -21,10 +21,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -299,10 +296,7 @@ export default {
             return;
         }
 
-        const keysToDelete = [
-            'id',
-            'versionId',
-        ];
+        const keysToDelete = ['id', 'versionId'];
         const changedKeys = Object.keys(changes).filter((key) => !keysToDelete.includes(key));
         const hasDeletions = deletionQueue.length > 0;
 
@@ -472,9 +466,7 @@ export default {
                     return;
                 }
 
-                Shopware.Store.get('shopwareApps').selectedIds = [
-                    this.landingPageId,
-                ];
+                Shopware.Store.get('shopwareApps').selectedIds = [this.landingPageId];
                 await Shopware.Store.get('swCategoryDetail').loadActiveLandingPage({
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -507,9 +499,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [
-                this.categoryId,
-            ];
+            Shopware.Store.get('shopwareApps').selectedIds = [this.categoryId];
             Shopware.Store.get('swCategoryDetail')
                 .loadActiveCategory({
                     repository: this.categoryRepository,

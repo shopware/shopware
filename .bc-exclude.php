@@ -62,6 +62,7 @@ return [
 
         // Optional parameter added with default null; existing callers are unaffected
         preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
+        preg_quote('ADDED: Parameter silentUntil was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
 
         // Optional parameter added with default null; callers are unaffected and decorations go through
         // AbstractCartLoadRoute::load(), which keeps its signature until the change announced for 6.8.

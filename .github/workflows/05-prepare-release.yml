@@ -2,7 +2,18 @@ name: Prepare release
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_changelog_check:
+        description: "Skip the CHANGELOG.md check (only for exceptional releases with no changelog-worthy changes)"
+        required: false
+        type: boolean
+        default: false
   workflow_call:
+    inputs:
+      skip_changelog_check:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -75,6 +86,29 @@ jobs:
       - name: Check whether the nightly workflow of the recipe repository is successful
         run: |
           bash .github/bin/check_workflow.bash "${CHECK_REPOSITORY}" "${CHECK_WORKFLOW}" "${CHECK_STATUS}"
+
+  verify-changelog:
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check CHANGELOG.md has an entry for this tag
+        run: |
+          if [ "${{ inputs.skip_changelog_check }}" = "true" ]; then
+            echo "::warning::Changelog check skipped via skip_changelog_check input."
+            exit 0
+          fi
+
+          version="${GITHUB_REF_NAME#v}"
+          if ! grep -qxF "## ${version}" CHANGELOG.md; then
+            echo "::error file=CHANGELOG.md::No '## ${version}' section found. Run 'bin/console changelog:release ${version}' and commit the result before tagging a release."
+            exit 1
+          fi
 
   split:
     needs: build
@@ -177,9 +211,9 @@ jobs:
           bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "tmp-${{ github.sha }}"
 
   draft-release-notes:
-    needs: split
+    needs: [split, verify-changelog]
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    if: always() && github.repository == 'shopware/shopware' && (github.ref_type != 'tag' || needs.verify-changelog.result == 'success')
     permissions:
       contents: write
     steps:
@@ -197,9 +231,9 @@ jobs:
           bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
 
   create-sbp-release:
-    needs: split
+    needs: [split, verify-changelog]
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware'
+    if: always() && github.repository == 'shopware/shopware' && (github.ref_type != 'tag' || needs.verify-changelog.result == 'success')
     strategy:
       matrix:
         sbp-environment: [STAGING, PRODUCTION]

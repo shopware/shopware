@@ -73,20 +73,33 @@ describe('core/factory/http-legacy-compat.ts', () => {
     });
 
     describe('isLegacyCompatRequest', () => {
+        // The flag is driven explicitly instead of through `it.activeFeatureFlags()`, because the
+        // major lanes run the whole suite with `FEATURE_ALL` set and the helper cannot deactivate a flag.
+        const withV68 = (active: boolean) =>
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'V6_8_0_0' && active);
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
         it('should enable the compatibility mode while V6_8_0_0 is inactive', () => {
+            withV68(false);
+
             expect(isLegacyCompatRequest({})).toBe(true);
         });
 
-        it('should let an explicit useAxiosV1 win while V6_8_0_0 is inactive', () => {
-            expect(isLegacyCompatRequest({ useAxiosV1: true })).toBe(false);
-            expect(isLegacyCompatRequest({ useAxiosV1: false })).toBe(true);
-        });
+        it('should disable the compatibility mode once V6_8_0_0 is active', () => {
+            withV68(true);
 
-        it.activeFeatureFlags(['v6.8.0.0'])('should disable the compatibility mode once V6_8_0_0 is active', () => {
             expect(isLegacyCompatRequest({})).toBe(false);
         });
 
-        it.activeFeatureFlags(['v6.8.0.0'])('should let an explicit useAxiosV1 win once V6_8_0_0 is active', () => {
+        it.each([
+            false,
+            true,
+        ])('should let an explicit useAxiosV1 win over the V6_8_0_0 flag (flag active: %s)', (active) => {
+            withV68(active);
+
             expect(isLegacyCompatRequest({ useAxiosV1: true })).toBe(false);
             expect(isLegacyCompatRequest({ useAxiosV1: false })).toBe(true);
         });

@@ -283,6 +283,7 @@ Settings > Basic information has a new *Shop owner's country* setting (`core.bas
 
 - *Tax-free (B2B)* also applies to a VAT ID of any other EU member state. A VAT ID of the shop's own member state, or of no member state, is taxed.
 - A delivery within the shop's own member state is never *Tax-free (B2B)*, whichever VAT ID the customer holds. Domestic deliveries that were exempt before are taxed now. *Tax-free (B2C)* is unaffected and keeps exempting the delivery.
+- A customer identified in the shop's own member state whose delivery leaves it is no longer *Tax-free (B2B)*, but is charged the delivery country's rate rather than the shop's, and the default rate of the product's tax when no tax rule for the delivery country exists. Tax rules are resolved from the delivery country, which is also the rate a customer without a VAT ID has to pay, so the two cases cannot be told apart.
 - The invoice, cancellation invoice and credit note print the intra-community delivery note for exactly the orders the cart exempts.
 
 If the setting is empty, nothing changes: the exemption and the note keep checking the delivery country's pattern only.

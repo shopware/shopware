@@ -401,7 +401,10 @@ class TaxDetectorTest extends TestCase
 
     public function testIsCompanyTaxFreeDoesNotLoadEuPatternsWhenCustomerIsNotABusinessAccount(): void
     {
+        // The VAT ID belongs to another member state than the delivery country, so resolving it would
+        // have to read the EU countries. Only the account type keeps the request away from them.
         $country = (new CountryEntity())->assign([
+            'iso' => 'BE',
             'companyTax' => new TaxFreeConfig(true),
             'isEu' => true,
             'vatIdPattern' => 'BE\d{10}',
@@ -415,6 +418,7 @@ class TaxDetectorTest extends TestCase
 
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
 
         $detector = $this->createDetectorRejectingQueries();
         static::assertFalse($detector->isCompanyTaxFree($context, $country));
@@ -423,6 +427,7 @@ class TaxDetectorTest extends TestCase
     public function testIsCompanyTaxFreeDoesNotLoadEuPatternsWhenNonEuCountry(): void
     {
         $country = (new CountryEntity())->assign([
+            'iso' => 'CH',
             'companyTax' => new TaxFreeConfig(true),
             'isEu' => false,
             'vatIdPattern' => 'CHE\d{9}',
@@ -436,14 +441,16 @@ class TaxDetectorTest extends TestCase
 
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
 
         $detector = $this->createDetectorRejectingQueries();
         static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeDoesNotLoadEuPatternsWhenAllVatIdsMatchPattern(): void
+    public function testIsCompanyTaxFreeReadsTheEuCountriesOnceWhenAllVatIdsMatchThePattern(): void
     {
         $country = (new CountryEntity())->assign([
+            'iso' => 'NL',
             'companyTax' => new TaxFreeConfig(true),
             'isEu' => true,
             'vatIdPattern' => 'NL\d{9}B\d{2}',
@@ -457,8 +464,9 @@ class TaxDetectorTest extends TestCase
 
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
 
-        $detector = $this->createDetectorRejectingQueries();
+        $detector = $this->createDetectorCountingQueries(self::EU_PATTERNS, 'DE', 1);
         static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
@@ -670,6 +678,53 @@ class TaxDetectorTest extends TestCase
      */
     private function createDetector(array $euPatterns = [], ?string $sellerIso = null): TaxDetector
     {
+        $countries = $this->createEuCountries($euPatterns);
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context)
+        );
+
+        return new TaxDetector(new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)));
+    }
+
+    /**
+     * @param array<string, string> $euPatterns ISO code => VAT ID format pattern
+     * @param string|null $sellerIso the member state the shop supplies from, null when it configured none
+     * @param int $expectedQueries how often the whole call may read countries
+     */
+    private function createDetectorCountingQueries(array $euPatterns, ?string $sellerIso, int $expectedQueries): TaxDetector
+    {
+        $countries = $this->createEuCountries($euPatterns);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->exactly($expectedQueries))->method('search')->willReturnCallback(
+            static fn (Criteria $criteria, Context $context) => new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context)
+        );
+
+        return new TaxDetector(new VatIdPatternProvider($repository, $this->createSystemConfigService($countries, $sellerIso)));
+    }
+
+    /**
+     * Fails the test as soon as a country is read. A seller country is configured, so every path that
+     * resolves a member state has to read the EU countries first.
+     */
+    private function createDetectorRejectingQueries(): TaxDetector
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn(Uuid::randomHex());
+
+        return new TaxDetector(new VatIdPatternProvider($repository, $systemConfigService));
+    }
+
+    /**
+     * @param array<string, string> $euPatterns ISO code => VAT ID format pattern
+     */
+    private function createEuCountries(array $euPatterns): CountryCollection
+    {
         $countries = new CountryCollection();
         foreach ($euPatterns as $iso => $pattern) {
             $country = new CountryEntity();
@@ -680,24 +735,16 @@ class TaxDetectorTest extends TestCase
             $countries->add($country);
         }
 
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('search')->willReturnCallback(
-            static fn (Criteria $criteria, Context $context) => new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context)
-        );
+        return $countries;
+    }
 
+    private function createSystemConfigService(CountryCollection $countries, ?string $sellerIso): SystemConfigService
+    {
         $sellerCountryId = $sellerIso === null ? '' : $countries->filterByProperty('iso', $sellerIso)->first()?->getId();
 
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId ?? '');
 
-        return new TaxDetector(new VatIdPatternProvider($repository, $systemConfigService));
-    }
-
-    private function createDetectorRejectingQueries(): TaxDetector
-    {
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->expects($this->never())->method('search');
-
-        return new TaxDetector(new VatIdPatternProvider($repository, static::createStub(SystemConfigService::class)));
+        return $systemConfigService;
     }
 }

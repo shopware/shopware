@@ -13,14 +13,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -78,6 +83,92 @@ class ApiControllerTest extends TestCase
             'parent-entity',
             \sprintf('/%s/second-one-to-many-children', $parentId)
         );
+    }
+
+    public function testDeleteVersionSuppressesTheAuditLogAndDropsTheChangeSet(): void
+    {
+        $entityId = Uuid::randomHex();
+        $versionId = Uuid::randomHex();
+        $commitId = Uuid::randomHex();
+
+        $calls = [];
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$calls, $entityId, $versionId): EntityWrittenContainerEvent {
+                $calls[] = 'delete-entity';
+
+                static::assertSame([['id' => $entityId]], $ids);
+                static::assertSame($versionId, $context->getVersionId());
+                static::assertTrue($context->hasState(VersionManager::DISABLE_AUDIT_LOG));
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $commitRepository = $this->createMock(EntityRepository::class);
+        $commitRepository->expects($this->once())->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria, Context $context) use (&$calls, $versionId, $commitId): IdSearchResult {
+                $calls[] = 'search-commits';
+
+                $filter = $criteria->getFilters()[0];
+                static::assertInstanceOf(EqualsFilter::class, $filter);
+                static::assertSame('versionId', $filter->getField());
+                static::assertSame($versionId, $filter->getValue());
+
+                return IdSearchResult::fromIds([$commitId], $criteria, $context);
+            });
+        $commitRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids) use (&$calls, $commitId): EntityWrittenContainerEvent {
+                $calls[] = 'delete-commits';
+
+                static::assertSame([['id' => $commitId]], $ids);
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $versionRepository = $this->createMock(EntityRepository::class);
+        $versionRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids) use (&$calls, $versionId): EntityWrittenContainerEvent {
+                $calls[] = 'delete-version';
+
+                static::assertSame([['id' => $versionId]], $ids);
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+        $container->set(VersionCommitDefinition::ENTITY_NAME . '.repository', $commitRepository);
+        $container->set(VersionDefinition::ENTITY_NAME . '.repository', $versionRepository);
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                ParentDefinition::class,
+                ChildDefinition::class,
+                VersionDefinition::class,
+                VersionCommitDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+            $container
+        );
+
+        $controller = new ApiController(
+            $registry,
+            static::createStub(DecoderInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(EntityProtectionValidator::class),
+            static::createStub(AclCriteriaValidator::class)
+        );
+
+        $controller->deleteVersion(Context::createDefaultContext(), 'parent-entity', $entityId, $versionId);
+
+        static::assertSame([
+            'delete-entity',
+            'search-commits',
+            'delete-commits',
+            'delete-version',
+        ], $calls, 'the change set must be dropped before the version row');
     }
 
     private function createApiController(

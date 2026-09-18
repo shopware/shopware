@@ -43,8 +43,9 @@ class McpToolsetRegistry
         $toolsByGroup = [];
 
         // Scope discovery to the caller's allowlist: toolsets-list and toolset-enable must never
-        // surface tool names outside the caller's allowlist. Only an administrator user, or a scope
-        // without allowlists at all, yields null here, which passes through and lists everything.
+        // surface tool names outside the caller's allowlist. Null passes through and lists
+        // everything; only an administrator user, a scope without allowlists, or a call made outside
+        // the request cycle yields it.
         $allowlist = $this->allowlistProvider?->toolsForCurrentRequest();
 
         foreach ($this->catalog->enrichedTools($allowlist) as $tool) {

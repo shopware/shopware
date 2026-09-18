@@ -70,8 +70,12 @@ class McpAllowlistProvider
     {
         $request = $this->requestStack->getMainRequest();
 
+        // Outside the request cycle there is no principal *and* no response being built for one, so
+        // there is nothing to close off. Blocking here would only empty McpToolsetRegistry for CLI
+        // and container-direct callers. The fail-closed case is a request whose principal cannot be
+        // resolved, handled at the end of this method.
         if ($request === null) {
-            return McpAllowlist::blocked();
+            return McpAllowlist::unrestricted();
         }
 
         $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);

@@ -543,13 +543,15 @@ class McpAllowlistProviderTest extends TestCase
         static::assertSame([], $result->prompts);
     }
 
-    public function testNoRequestGetsNoCapabilities(): void
+    public function testNoRequestStaysUnrestrictedSoNonHttpCallersKeepWorking(): void
     {
+        // McpToolsetRegistry and the debug command resolve capabilities outside the request cycle.
+        // There is no principal to protect there, so this must not be the fail-closed case.
         $result = (new McpAllowlistProvider(static::createStub(Connection::class), new RequestStack()))->forCurrentRequest();
 
-        static::assertSame([], $result->tools);
-        static::assertSame([], $result->resources);
-        static::assertSame([], $result->prompts);
+        static::assertNull($result->tools);
+        static::assertNull($result->resources);
+        static::assertNull($result->prompts);
     }
 
     public function testDelegatedRequestWithoutIntegrationAllowlistGetsNoCapabilities(): void

@@ -2,24 +2,11 @@
 
 ## Existing MCP integrations and non-admin users need an explicit MCP allowlist
 
-`user.mcp_allowlist` and `integration.mcp_allowlist` changed meaning when they are unset. Until now an unset column meant unrestricted MCP access; it now means no MCP capabilities at all.
+`user.mcp_allowlist` and `integration.mcp_allowlist` changed meaning when they are unset: this used to grant unrestricted MCP access, it now grants none. Only administrator users still bypass the allowlist, integrations never do. Affected credentials still authenticate, but the capability lists return only the discovery meta-tools and a `tools/call` for a domain tool is rejected.
 
-Only administrator users still bypass the allowlist. Integrations never do, including integrations flagged as admin integrations.
+A per-type entry that is missing or explicitly `null` counts as an empty selection too, so an allowlist stored as `{"tools": ["shopware-entity-search"], "resources": null, "prompts": null}` keeps its tool and loses every resource and prompt. If you used the per-type "All" switch in the Administration, re-save the allowlist.
 
-### Who is affected
-
-Any integration or non-admin user that reaches `/api/_mcp` today without an explicit allowlist. After the update those credentials still authenticate and still see the discovery meta-tools, but `tools/list`, `resources/list` and `prompts/list` return nothing else, and a `tools/call` for a domain tool is rejected with "Tool ... is not enabled in your MCP allowlist.".
-
-This also covers allowlists that are only partly filled in. A per-type entry that is missing or explicitly `null` is now an empty selection, so an integration saved as `{"tools": ["shopware-entity-search"], "resources": null, "prompts": null}` keeps its one tool but loses every resource and prompt. If you used the per-type "All" switch in the Administration, re-save the allowlist so the selection is stored as an explicit list.
-
-### What to do
-
-Before updating, note which MCP capabilities each integration actually uses. After updating, select them:
-
-- Integrations: Settings > System > Integrations > context menu > "Edit MCP allowlist".
-- Users: Settings > System > Users & permissions > the user > "MCP allowlist".
-
-Both write the same JSON shape, which can also be set through the API:
+Note which capabilities each integration actually uses before updating, then grant them under Settings > System > Integrations, on the user detail page, or through the API:
 
 ```
 POST /api/_action/integration/{integrationId}/mcp-allowlist
@@ -34,15 +21,9 @@ POST /api/_action/user/{userId}/mcp-allowlist
 }
 ```
 
-An empty array blocks a type. There is no value that means "everything" for a principal without the administrator bypass, by design: the selection has to be explicit.
+An empty array blocks a type. There is no value meaning "everything" for a principal without the administrator bypass, by design.
 
-### The allowlist routes now require the entity privilege
-
-`POST /api/_action/user/{userId}/mcp-allowlist` now requires `user:update` in addition to `api_action_user_mcp-allowlist`, and `POST /api/_action/integration/{integrationId}/mcp-allowlist` requires `integration:update` in addition to `api_action_integration_mcp-allowlist`. A caller without them gets `403` instead of writing the allowlist.
-
-The `users_and_permissions.editor` role already grants `user:update`, so the Administration is unaffected. A custom role or integration that was built to carry only the action privilege has to be extended.
-
-Note that `integration_mcp.editor` does **not** bundle `integration:update` — it depends on `integration.viewer`. That role could not write an allowlist before this change either, because the data layer rejected it; the difference is only that the rejection is now a clean `403`.
+Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
 
 ## Document generation v1 deprecated for removal in Shopware 6.9
 

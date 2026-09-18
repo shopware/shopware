@@ -101,26 +101,9 @@ A service that missed an account login or logout, a consent change, a failed upd
 
 ### An unset MCP allowlist no longer grants unrestricted MCP access
 
-`user.mcp_allowlist` and `integration.mcp_allowlist` used to mean "everything is allowed" when they were unset, so every existing integration and non-admin user could reach the full MCP capability surface without anyone selecting it. They now mean the opposite: nothing is allowed until capabilities are selected explicitly.
+`user.mcp_allowlist` and `integration.mcp_allowlist` used to mean "everything is allowed" when they were unset, so every existing integration and non-admin user could reach the full MCP capability surface without anyone selecting it. They now mean the opposite: nothing is allowed until capabilities are selected explicitly. Only administrator users still bypass the allowlist; integrations never do.
 
-The administrator bypass is the only remaining path to unrestricted MCP access, and it applies to administrator **users** only. An integration flagged as an admin integration is not covered: it needs an explicit selection like any other integration.
-
-The rule applies to every authentication mode the MCP endpoint serves (integration access key, user access key, bearer token from either grant, and delegated requests carrying `sw-app-user-id`) and to all three capability types. A missing or null per-type entry, and an allowlist column that cannot be parsed, are treated as an empty selection rather than an unrestricted one, so no path back to unrestricted access remains. In a delegated request the two allowlists are still intersected, so neither principal can widen the other.
-
-Tool-level ACL checks are unchanged and still apply on top.
-
-A principal without a selection keeps seeing the discovery meta-tools `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. They are server-owned and always advertised, but they only ever surface capabilities the effective allowlist already permits, so for such a principal they resolve to nothing. This is intentional: it keeps the discovery path reachable the moment an allowlist is granted.
-
-Operators grant capabilities in the Administration, under Settings > System > Integrations for integrations and on the user detail page for users. See UPGRADE-6.7.md for what to do about existing integrations.
-
-The two routes that write an allowlist now name the matching entity privilege as well:
-
-| Route | Required privileges |
-|---|---|
-| `POST /api/_action/user/{userId}/mcp-allowlist` | `api_action_user_mcp-allowlist` **and** `user:update` |
-| `POST /api/_action/integration/{integrationId}/mcp-allowlist` | `api_action_integration_mcp-allowlist` **and** `integration:update` |
-
-The user route previously performed its write in the system scope, which skipped the ACL write validation, so the action privilege alone was enough to write any user's allowlist. Now that the allowlist is what grants MCP access, that was a way to hand yourself the capabilities your role permits, or to remove another non-admin user's. The integration route already rejected the write at the data layer; naming the privilege on the route turns that into a plain 403.
+Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page. See UPGRADE-6.7.md.
 
 ### Extensions can change the API CORS header lists
 

@@ -7,15 +7,12 @@ use Shopware\Core\DevOps\Docs\Script\HooksReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
 use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\TriggerReferenceGeneratorCommand;
-use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand;
-use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -71,11 +68,4 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.project_dir'),
         ])
         ->tag('shopware.scripts_reference.generator');
-
-    $services->set(OpenApiValidationCommand::class)
-        ->args([
-            service(HttpClientInterface::class),
-            service(DefinitionService::class),
-        ])
-        ->tag('console.command');
 };

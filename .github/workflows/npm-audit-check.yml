@@ -141,9 +141,6 @@ jobs:
           if-no-files-found: error
 
   report-scheduled-audit-failures:
-    permissions:
-      contents: read
-      issues: write
     name: Report scheduled audit failures
     if: ${{ always() && github.event_name == 'schedule' && needs.audit-packages.result == 'failure' }}
     needs: audit-packages

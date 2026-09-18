@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Notification\NotificationEntity;
 /**
  * Runs while Composer initializes, before PHPUnit can start collecting coverage.
  * Keep the aliases explicit so IDEs can index the previous class names.
- *
- * @codeCoverageIgnore
  */
 // @codeCoverageIgnoreStart
 if (!class_exists('Shopware\Administration\Controller\NotificationController', autoload: false)) {

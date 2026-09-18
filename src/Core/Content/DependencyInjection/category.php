@@ -103,6 +103,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityCmsSlotConfigInheritanceBuilder::class),
             service(SalesChannelCategoryDefinition::class),
             service(CacheTagCollector::class),
+            service(CategoryBreadcrumbBuilder::class),
         ]);
 
     $services->set(CategoryListRoute::class)

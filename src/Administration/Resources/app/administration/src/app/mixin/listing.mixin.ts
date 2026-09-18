@@ -21,10 +21,7 @@ export {};
 export default Shopware.Mixin.register(
     'listing',
     defineComponent({
-        inject: [
-            'searchRankingService',
-            'feature',
-        ],
+        inject: ['searchRankingService', 'feature'],
 
         data(): {
             page: number;

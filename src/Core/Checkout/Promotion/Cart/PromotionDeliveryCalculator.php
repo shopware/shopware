@@ -71,9 +71,11 @@ class PromotionDeliveryCalculator
         // build exclusions list before reducing line items
         $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
 
-        // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
-        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems, $toCalculate, $context);
+        $applicableDiscountLineItems = $this->filterApplicableDeliveryDiscounts($discountLineItems, $toCalculate, $context, $notDiscountedDeliveriesValue);
+
+        // reduce discount lineItems if fixed price discounts are in collection
+        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($applicableDiscountLineItems);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -85,23 +87,6 @@ class PromotionDeliveryCalculator
             }
 
             if ($discountItem->getPayloadValue('discountScope') !== PromotionDiscountEntity::SCOPE_DELIVERY) {
-                continue;
-            }
-
-            if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                // hide the notEligibleErrors on automatic discounts
-                if (!$this->isAutomaticDiscount($discountItem)) {
-                    $name = $discountItem->getLabel() ?? $discountItem->getId();
-                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
-                        $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
-                    } else {
-                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
-                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
-                            : [];
-                        $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
-                    }
-                }
-
                 continue;
             }
 
@@ -208,13 +193,49 @@ class PromotionDeliveryCalculator
     }
 
     /**
+     * Filtering before the fixed price reduction stops a not applicable fixed price discount from winning
+     * that reduction and taking the still applicable delivery discounts down with it.
+     */
+    private function filterApplicableDeliveryDiscounts(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context, float $notDiscountedDeliveriesValue): LineItemCollection
+    {
+        if ($notDiscountedDeliveriesValue <= 0.0) {
+            return $discountLineItems;
+        }
+
+        return $discountLineItems->filter(function (LineItem $discountItem) use ($toCalculate, $context) {
+            if ($discountItem->getPayloadValue('discountScope') !== PromotionDiscountEntity::SCOPE_DELIVERY) {
+                return true;
+            }
+
+            if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
+                return true;
+            }
+
+            // hide the notEligibleErrors on automatic discounts
+            if (!$this->isAutomaticDiscount($discountItem)) {
+                $name = $discountItem->getLabel() ?? $discountItem->getId();
+                if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                    $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                } else {
+                    $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                        ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                        : [];
+                    $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                }
+            }
+
+            return false;
+        });
+    }
+
+    /**
      * function reduces discountLineItems if a fixed price lineItem is in collection.
      * If fixed price discount lineItems are in collection:
      * a collection with only one lineItem is returned.
      * if there are more than one fixed price lineItems the lowest fixed price discount lineItem is returned
      * if no fixed price discount lineItems are in collection all discounts are returned
      */
-    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): LineItemCollection
+    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
         $fixedPricesDiscountLineItems = $discountLineItems->filter(static function (LineItem $discountLineItem) {
@@ -232,16 +253,6 @@ class PromotionDeliveryCalculator
         // if there are no fixed price lineItems we may return all discount line items and calculate them
         if ($fixedPricesDiscountLineItems->count() === 0) {
             return $discountLineItems;
-        }
-
-        $applicableDiscountLineItems = $fixedPricesDiscountLineItems->filter(
-            fn (LineItem $discountLineItem) => $this->isRequirementValid($discountLineItem, $toCalculate, $context)
-        );
-
-        // a fixed price discount that does not apply to the current cart must not shadow an applicable one.
-        // if none of them applies we keep the previous selection, so the customer still gets the not eligible notice
-        if ($applicableDiscountLineItems->count() > 0) {
-            $fixedPricesDiscountLineItems = $applicableDiscountLineItems;
         }
 
         // if there is one fixed price lineItem we return the filtered collection and calculate it

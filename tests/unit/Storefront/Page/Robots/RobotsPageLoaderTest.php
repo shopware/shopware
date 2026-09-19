@@ -279,6 +279,77 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('', $domainRule->getBasePath());
     }
 
+    /**
+     * #17735 — a domain whose host is a substring of another domain's host (or vice
+     * versa) must not be selected for a request to the other host. Both directions
+     * are covered since the underlying bug (a raw substring split) is order-dependent.
+     */
+    public function testLoadDoesNotSelectDomainWithOverlappingSubstringHostname(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'tuev-thueringen.de']);
+        $context = Context::createDefaultContext();
+        $salesChannelId1 = 'test-sales-channel-id-1';
+        $salesChannelId2 = 'test-sales-channel-id-2';
+
+        // A different sales channel's domain whose host contains the requested
+        // hostname as a substring, but is not an exact match.
+        $unrelatedDomain = $this->createDomain('https://www.tuev-thueringen.de', $salesChannelId1);
+        $matchingDomain = $this->createDomain('https://tuev-thueringen.de', $salesChannelId2);
+
+        $domains = [$unrelatedDomain, $matchingDomain];
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => [
+                'Disallow: /unrelated-sales-channel/',
+                'Disallow: /matching-sales-channel/',
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        // Only the exact-host domain's sitemap and rules should be present.
+        static::assertEquals(['https://tuev-thueringen.de/sitemap.xml'], $page->getSitemaps());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertCount(1, $domainRule->getDirectives());
+        static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
+    }
+
+    public function testLoadDoesNotSelectDomainWithOverlappingSubstringHostnameReversed(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'www.tuev-thueringen.de']);
+        $context = Context::createDefaultContext();
+        $salesChannelId1 = 'test-sales-channel-id-1';
+        $salesChannelId2 = 'test-sales-channel-id-2';
+
+        // The requested host is itself a superstring of this unrelated domain's host.
+        $unrelatedDomain = $this->createDomain('https://tuev-thueringen.de', $salesChannelId1);
+        $matchingDomain = $this->createDomain('https://www.tuev-thueringen.de', $salesChannelId2);
+
+        $domains = [$unrelatedDomain, $matchingDomain];
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => [
+                'Disallow: /unrelated-sales-channel/',
+                'Disallow: /matching-sales-channel/',
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        static::assertEquals(['https://www.tuev-thueringen.de/sitemap.xml'], $page->getSitemaps());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertCount(1, $domainRule->getDirectives());
+        static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
+    }
+
     public function testLoadWithGlobalUserAgentBlocks(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);
@@ -511,6 +582,20 @@ class RobotsPageLoaderTest extends TestCase
         $domain = new SalesChannelDomainEntity();
         $domain->setId('test-domain-id-different');
         $domain->setUrl('https://different.org');
+        $domain->setSalesChannelId($salesChannelId);
+
+        return $domain;
+    }
+
+    /**
+     * Creates a test domain with an arbitrary URL, for cases where the standard
+     * fixed-hostname helpers above don't fit (e.g. overlapping-substring hostnames).
+     */
+    private function createDomain(string $url, string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
+    {
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId('test-domain-id-' . md5($url));
+        $domain->setUrl($url);
         $domain->setSalesChannelId($salesChannelId);
 
         return $domain;

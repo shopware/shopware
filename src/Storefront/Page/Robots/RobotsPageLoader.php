@@ -155,11 +155,14 @@ class RobotsPageLoader
     }
 
     /**
-     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
+     * Selects domains matching the given hostname exactly, preferring HTTPS over HTTP
+     * when the same host has both.
      *
      * @param non-empty-string $hostname
      *
-     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
+     * @return array<string, SalesChannelDomainEntity> Array keyed by the domain's URL path
+     *                                                 (e.g. `/en`, `''` for the root) with
+     *                                                 selected domain entities
      */
     private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
     {
@@ -169,16 +172,26 @@ class RobotsPageLoader
         foreach ($domains as $domain) {
             $domainUrl = $domain->getUrl();
 
-            $domainPath = explode($hostname, $domainUrl, 2);
-            $domainHostname = trim($domainPath[1] ?? '');
+            // `getDomains()` fetches by a substring `ContainsFilter`, so a domain whose
+            // host merely contains `$hostname` (e.g. `tuev-thueringen.de` inside
+            // `www.tuev-thueringen.de`) can end up here even though it belongs to a
+            // different sales channel. Comparing the parsed host exactly, rather than
+            // splitting on the raw substring, rejects those false matches while still
+            // keeping the same host's different path-based domain variants (e.g. `/en`,
+            // `/de`) as distinct entries below.
+            if (parse_url($domainUrl, \PHP_URL_HOST) !== $hostname) {
+                continue;
+            }
 
-            $existingDomain = $selectedDomains[$domainHostname] ?? null;
+            $domainPath = (string) (parse_url($domainUrl, \PHP_URL_PATH) ?? '');
+
+            $existingDomain = $selectedDomains[$domainPath] ?? null;
             $isHttps = str_starts_with($domainUrl, 'https://');
 
             if ($existingDomain === null) {
-                $selectedDomains[$domainHostname] = $domain;
+                $selectedDomains[$domainPath] = $domain;
             } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
-                $selectedDomains[$domainHostname] = $domain;
+                $selectedDomains[$domainPath] = $domain;
             }
         }
 

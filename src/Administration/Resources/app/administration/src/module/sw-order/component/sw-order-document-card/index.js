@@ -346,8 +346,13 @@ export default {
             if (action === DocumentEvents.DOCUMENT_FAILED) {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
-                    const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$t(translationKey, 1, payload.meta.parameters || {});
+                    const parameters = payload.meta?.parameters ?? {};
+
+                    // keep the server message when the payload cannot fill the snippet, instead of
+                    // showing a message with unresolved placeholders
+                    if (parameters.number && parameters.documentType) {
+                        errorMessage = this.$t('sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS', parameters);
+                    }
                 }
 
                 this.createNotificationError({

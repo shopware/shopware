@@ -3,7 +3,7 @@
 /**
  * @sw-package after-sales
  */
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
@@ -356,7 +356,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(createNewButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should show the error of document number already exists', async () => {
+    it('should show the error of document number already exists with the document type', async () => {
+        // The global `$t` test mock is a dumb passthrough that returns the key
+        // unchanged regardless of params (see test/_setup/prepare_environment.js),
+        // so it can't prove interpolation happens - spying on the call args is
+        // what actually proves the component passes the resolved parameters through.
+        const translate = jest.spyOn(config.global.mocks, '$t');
+
         wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -364,7 +370,39 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             action: 'create-document-fail',
             payload: {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                detail: 'error message',
+                detail: 'Document number 1001 has already been allocated for document type "invoice".',
+                meta: {
+                    parameters: {
+                        number: '1001',
+                        documentType: 'invoice',
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(translate).toHaveBeenCalledWith('sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS', {
+            number: '1001',
+            documentType: 'invoice',
+        });
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
+        });
+
+        translate.mockRestore();
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should keep the server error message when the document number error carries no document type', async () => {
+        wrapper = await createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.convertStoreEventToVueEvent({
+            action: 'create-document-fail',
+            payload: {
+                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                detail: 'Document number 1001 has already been allocated.',
                 meta: {
                     parameters: [],
                 },
@@ -374,7 +412,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
+            message: 'Document number 1001 has already been allocated.',
         });
 
         wrapper.vm.createNotificationError.mockRestore();

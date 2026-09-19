@@ -139,7 +139,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(NumberRangePatternCollisionValidator::class)
         ->args([
-            service(Connection::class),
+            service('number_range.repository'),
+            service('number_range_type.repository'),
             service('logger'),
         ])
         ->tag('kernel.event_subscriber');

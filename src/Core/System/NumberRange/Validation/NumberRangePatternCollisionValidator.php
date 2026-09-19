@@ -2,15 +2,20 @@
 
 namespace Shopware\Core\System\NumberRange\Validation;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeCollection;
+use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -20,20 +25,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @codeCoverageIgnore Tested via integration tests.
  *
  * @see \Shopware\Tests\Integration\Core\System\NumberRange\Validation\NumberRangePatternCollisionValidatorTest
+ *
+ * @phpstan-type WrittenPattern array{typeId: string, pattern: string}
  */
 #[Package('framework')]
-class NumberRangePatternCollisionValidator implements EventSubscriberInterface
+final readonly class NumberRangePatternCollisionValidator implements EventSubscriberInterface
 {
     /**
-     * Document number range types are seeded with this technical name prefix, e.g. `document_invoice`.
-     *
-     * @see \Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX
+     * @param EntityRepository<NumberRangeCollection> $numberRangeRepository
+     * @param EntityRepository<NumberRangeTypeCollection> $numberRangeTypeRepository
      */
-    private const DOCUMENT_TYPE_PREFIX = 'document_';
-
     public function __construct(
-        private readonly Connection $connection,
-        private readonly LoggerInterface $logger,
+        private EntityRepository $numberRangeRepository,
+        private EntityRepository $numberRangeTypeRepository,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -51,38 +56,45 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
             return;
         }
 
-        $states = $this->resolveStates($commands);
-        if ($states === []) {
+        $writtenPatterns = $this->resolveWrittenPatterns($commands, $event->getContext());
+        if ($writtenPatterns === []) {
             return;
         }
 
-        $documentTypeNames = $this->fetchDocumentTypeNames(\array_values(\array_unique(\array_column($states, 'typeId'))));
+        $documentTypeNames = $this->fetchDocumentTypeNames(
+            $this->collectTypeIds($writtenPatterns),
+            $event->getContext(),
+        );
         if ($documentTypeNames === []) {
             return;
         }
 
-        $states = \array_filter($states, static fn (array $state): bool => isset($documentTypeNames[$state['typeId']]));
-        if ($states === []) {
+        $writtenPatterns = \array_filter(
+            $writtenPatterns,
+            static fn (array $written): bool => isset($documentTypeNames[$written['typeId']]),
+        );
+        if ($writtenPatterns === []) {
             return;
         }
 
         $existingPatternsByType = $this->fetchExistingPatternsByType(
-            \array_values(\array_unique(\array_column($states, 'typeId'))),
-            \array_keys($states),
+            $this->collectTypeIds($writtenPatterns),
+            \array_keys($writtenPatterns),
+            $event->getContext(),
         );
 
-        foreach ($states as $numberRangeId => $state) {
-            $otherPatterns = $existingPatternsByType[$state['typeId']] ?? [];
+        foreach ($writtenPatterns as $numberRangeId => $written) {
+            $conflictingPatterns = $existingPatternsByType[$written['typeId']] ?? [];
 
-            foreach ($states as $otherId => $otherState) {
-                if ($otherId === $numberRangeId || $otherState['typeId'] !== $state['typeId']) {
+            foreach ($writtenPatterns as $otherId => $otherWritten) {
+                if ($otherId === $numberRangeId || $otherWritten['typeId'] !== $written['typeId']) {
                     continue;
                 }
 
-                $otherPatterns[] = $otherState['pattern'];
+                $conflictingPatterns[] = $otherWritten['pattern'];
             }
 
-            if (!\in_array($state['pattern'], $otherPatterns, true)) {
+            if (!\in_array($written['pattern'], $conflictingPatterns, true)) {
                 continue;
             }
 
@@ -90,8 +102,8 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
                 'Number range "{numberRangeId}" uses pattern "{pattern}", already used by another {documentType} number range. Generated documents may collide.',
                 [
                     'numberRangeId' => $numberRangeId,
-                    'pattern' => $state['pattern'],
-                    'documentType' => $documentTypeNames[$state['typeId']],
+                    'pattern' => $written['pattern'],
+                    'documentType' => $documentTypeNames[$written['typeId']],
                 ],
             );
         }
@@ -120,44 +132,46 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
     }
 
     /**
+     * Merges the written payload over the persisted row, so a partial update is judged on its resulting state.
+     *
      * @param array<string, WriteCommand> $commands
      *
-     * @return array<string, array{typeId: string, pattern: string}>
+     * @return array<string, WrittenPattern>
      */
-    private function resolveStates(array $commands): array
+    private function resolveWrittenPatterns(array $commands, Context $context): array
     {
-        $currentStates = $this->fetchCurrentStates($commands);
-        $states = [];
+        $persistedPatterns = $this->fetchPersistedPatterns($commands, $context);
+        $writtenPatterns = [];
 
         foreach ($commands as $numberRangeId => $command) {
             $payload = $command->getPayload();
-            $currentState = $currentStates[$numberRangeId] ?? null;
+            $persisted = $persistedPatterns[$numberRangeId] ?? null;
 
             $typeId = \array_key_exists('type_id', $payload)
                 ? $this->normalizeId($payload['type_id'])
-                : ($currentState['typeId'] ?? null);
+                : ($persisted['typeId'] ?? null);
 
-            $pattern = $payload['pattern'] ?? $currentState['pattern'] ?? null;
+            $pattern = $payload['pattern'] ?? $persisted['pattern'] ?? null;
 
             if ($typeId === null || !\is_string($pattern) || $pattern === '') {
                 continue;
             }
 
-            $states[$numberRangeId] = [
+            $writtenPatterns[$numberRangeId] = [
                 'typeId' => $typeId,
                 'pattern' => $pattern,
             ];
         }
 
-        return $states;
+        return $writtenPatterns;
     }
 
     /**
      * @param array<string, WriteCommand> $commands
      *
-     * @return array<string, array{typeId: string, pattern: string}>
+     * @return array<string, WrittenPattern>
      */
-    private function fetchCurrentStates(array $commands): array
+    private function fetchPersistedPatterns(array $commands, Context $context): array
     {
         $numberRangeIds = [];
         foreach ($commands as $numberRangeId => $command) {
@@ -170,89 +184,99 @@ class NumberRangePatternCollisionValidator implements EventSubscriberInterface
             return [];
         }
 
-        /** @var list<array{id: string, type_id: string, pattern: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(`id`)) as `id`, LOWER(HEX(`type_id`)) as `type_id`, `pattern`
-             FROM `number_range`
-             WHERE `id` IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($numberRangeIds)],
-            ['ids' => ArrayParameterType::BINARY],
-        );
+        $numberRanges = $this->numberRangeRepository
+            ->search(new Criteria($numberRangeIds), $context)
+            ->getEntities();
 
-        $states = [];
-        foreach ($rows as $row) {
-            $states[$row['id']] = [
-                'typeId' => $row['type_id'],
-                'pattern' => $row['pattern'],
+        $persistedPatterns = [];
+        foreach ($numberRanges as $numberRange) {
+            $pattern = $numberRange->getPattern();
+            $typeId = $numberRange->getTypeId();
+
+            if ($pattern === null || $typeId === null) {
+                continue;
+            }
+
+            $persistedPatterns[$numberRange->getId()] = [
+                'typeId' => $typeId,
+                'pattern' => $pattern,
             ];
         }
 
-        return $states;
+        return $persistedPatterns;
     }
 
     /**
      * @param list<string> $typeIds
      *
-     * @return array<string, string> type id => document type name (e.g. "invoice")
+     * @return array<string, string> number range type id => document type name (e.g. "invoice")
      */
-    private function fetchDocumentTypeNames(array $typeIds): array
+    private function fetchDocumentTypeNames(array $typeIds, Context $context): array
     {
         if ($typeIds === []) {
             return [];
         }
 
-        /** @var list<array{id: string, technical_name: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(`id`)) as `id`, `technical_name`
-             FROM `number_range_type`
-             WHERE `id` IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($typeIds)],
-            ['ids' => ArrayParameterType::BINARY],
-        );
+        $types = $this->numberRangeTypeRepository
+            ->search(new Criteria($typeIds), $context)
+            ->getEntities();
 
-        $names = [];
-        foreach ($rows as $row) {
-            if (!\str_starts_with($row['technical_name'], self::DOCUMENT_TYPE_PREFIX)) {
+        $prefix = DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX;
+
+        $documentTypeNames = [];
+        foreach ($types as $type) {
+            $technicalName = $type->getTechnicalName();
+
+            if ($technicalName === null || !\str_starts_with($technicalName, $prefix)) {
                 continue;
             }
 
-            $names[$row['id']] = \substr($row['technical_name'], \strlen(self::DOCUMENT_TYPE_PREFIX));
+            $documentTypeNames[$type->getId()] = \substr($technicalName, \strlen($prefix));
         }
 
-        return $names;
+        return $documentTypeNames;
     }
 
     /**
      * @param list<string> $typeIds
      * @param list<string> $excludeNumberRangeIds
      *
-     * @return array<string, list<string>> type id => patterns of other number ranges of that type
+     * @return array<string, list<string>> number range type id => patterns of the other number ranges of that type
      */
-    private function fetchExistingPatternsByType(array $typeIds, array $excludeNumberRangeIds): array
+    private function fetchExistingPatternsByType(array $typeIds, array $excludeNumberRangeIds, Context $context): array
     {
         if ($typeIds === []) {
             return [];
         }
 
-        /** @var list<array{id: string, type_id: string, pattern: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(`id`)) as `id`, LOWER(HEX(`type_id`)) as `type_id`, `pattern`
-             FROM `number_range`
-             WHERE `type_id` IN (:typeIds)',
-            ['typeIds' => Uuid::fromHexToBytesList($typeIds)],
-            ['typeIds' => ArrayParameterType::BINARY],
-        );
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('typeId', $typeIds));
+
+        $numberRanges = $this->numberRangeRepository->search($criteria, $context)->getEntities();
 
         $patternsByType = [];
-        foreach ($rows as $row) {
-            if (\in_array($row['id'], $excludeNumberRangeIds, true)) {
+        foreach ($numberRanges as $numberRange) {
+            $pattern = $numberRange->getPattern();
+            $typeId = $numberRange->getTypeId();
+
+            if ($pattern === null || $typeId === null || \in_array($numberRange->getId(), $excludeNumberRangeIds, true)) {
                 continue;
             }
 
-            $patternsByType[$row['type_id']][] = $row['pattern'];
+            $patternsByType[$typeId][] = $pattern;
         }
 
         return $patternsByType;
+    }
+
+    /**
+     * @param array<string, WrittenPattern> $writtenPatterns
+     *
+     * @return list<string>
+     */
+    private function collectTypeIds(array $writtenPatterns): array
+    {
+        return \array_values(\array_unique(\array_column($writtenPatterns, 'typeId')));
     }
 
     private function normalizeId(mixed $id): ?string

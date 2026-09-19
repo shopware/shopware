@@ -24,6 +24,11 @@ class McpToolsetRegistry
     final public const DISCOVERY_GROUP = 'discovery';
 
     /**
+     * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards.
+     */
+    final public const ALL_TOOLSETS = 'all';
+
+    /**
      * @internal
      *
      * $allowlistProvider is null in scopes without a per-integration allowlist (e.g. the Store API
@@ -90,6 +95,46 @@ class McpToolsetRegistry
         }
 
         return null;
+    }
+
+    /**
+     * The tools of every named toolset, resolving {@see self::ALL_TOOLSETS} on the way. Unknown
+     * names are dropped, not rejected: a name can outlive the plugin that contributed its toolset,
+     * and a typo must not break an otherwise fine connection.
+     *
+     * Takes connect-URL and session names together because each call costs one catalogue read.
+     *
+     * @param list<string> $names
+     *
+     * @return list<string>
+     */
+    public function advertisedToolsForNames(array $names): array
+    {
+        if ($names === []) {
+            return [];
+        }
+
+        $toolsets = $this->toolsets();
+        $known = array_column($toolsets, 'name');
+
+        $enabled = \in_array(self::ALL_TOOLSETS, $names, true)
+            ? $known
+            : array_intersect($names, $known);
+
+        $tools = [];
+
+        foreach ($toolsets as $toolset) {
+            if (!\in_array($toolset['name'], $enabled, true)) {
+                continue;
+            }
+
+            array_push($tools, ...$toolset['tools']);
+        }
+
+        $tools = array_values(array_unique($tools));
+        sort($tools);
+
+        return $tools;
     }
 
     /**

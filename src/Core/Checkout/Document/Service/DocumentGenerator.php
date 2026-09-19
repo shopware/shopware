@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -19,6 +18,7 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ResolvedDocumentFile;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -28,6 +28,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -38,6 +40,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @final
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Generator::class,
+)]
 class DocumentGenerator
 {
     /**
@@ -80,7 +87,7 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
+        $fileType ??= Feature::silent('v6.9.0.0', static fn (): ?string => $document->getDocumentMediaFile()?->getFileExtension()) ?? PdfRenderer::FILE_EXTENSION;
 
         $resolvedFile = $this->documentFileResolver->resolve($document, $fileType, ResolvedDocumentFile::SOURCE_LEGACY);
         if ($resolvedFile !== null) {
@@ -232,7 +239,7 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $documentMedia = $document->getDocumentMediaFile();
+        $documentMedia = Feature::silent('v6.9.0.0', static fn (): ?MediaEntity => $document->getDocumentMediaFile());
         if ($documentMedia?->getId() !== null) {
             throw DocumentException::documentGenerationException('Document already exists');
         }
@@ -264,7 +271,7 @@ class DocumentGenerator
             $documentId,
             $document->getOrderId(),
             $document->getOrderVersionId(),
-            $document->getDocumentType()?->getTechnicalName() ?? '',
+            $document->getTypeName() ?? '',
             $document->getDocumentNumber() ?? '',
             $context,
         ));
@@ -349,11 +356,8 @@ class DocumentGenerator
 
         $operation->setDocumentId($documentId);
 
-        /** @var DocumentTypeEntity $documentType */
-        $documentType = $document->getDocumentType();
-
         $documentStruct = $this->generate(
-            $documentType->getTechnicalName(),
+            $document->getTypeName() ?? '',
             [$document->getOrderId() => $operation],
             $context
         )->getSuccess()->first();
@@ -436,10 +440,12 @@ class DocumentGenerator
             return null;
         }
 
-        foreach ([
-            $document->getDocumentMediaFile(),
-            $document->getDocumentA11yMediaFile(),
-        ] as $media) {
+        $legacyMedia = Feature::silent(
+            'v6.9.0.0',
+            static fn (): array => [$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()],
+        );
+
+        foreach ($legacyMedia as $media) {
             if (
                 $media !== null
                 && $media->getFileExtension() !== null

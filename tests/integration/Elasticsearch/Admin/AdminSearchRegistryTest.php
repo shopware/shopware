@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -17,9 +18,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
+use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
@@ -37,6 +42,7 @@ class AdminSearchRegistryTest extends TestCase
     use AdminApiTestBehaviour;
     use AdminElasticsearchTestBehaviour;
     use KernelTestBehaviour;
+    use OrderFixture;
     use QueueTestBehaviour;
 
     private Connection $connection;
@@ -63,7 +69,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(LoggerInterface::class));
         $this->registry = new AdminSearchRegistry(
-            ['promotion' => $indexer],
+            ['promotion' => $indexer, 'order' => static::getContainer()->get(OrderAdminSearchIndexer::class)],
             $this->connection,
             $this->getDiContainer()->get(MessageBusInterface::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -152,6 +158,11 @@ class AdminSearchRegistryTest extends TestCase
         );
     }
 
+    protected function tearDown(): void
+    {
+        $this->clearElasticsearch();
+    }
+
     public function testIterate(): void
     {
         $c = static::getContainer()->get(Connection::class);
@@ -159,7 +170,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $this->registry->iterate(new AdminIndexingBehavior(true));
 
-        $index = $c->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task`');
+        $index = $c->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task` WHERE `entity` = \'promotion\'');
 
         static::assertNotFalse($index);
 
@@ -203,7 +214,7 @@ class AdminSearchRegistryTest extends TestCase
 
         $this->runWorker();
 
-        $index = $c->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task`');
+        $index = $c->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task` WHERE `entity` = \'promotion\'');
 
         static::assertNotFalse($index);
 
@@ -226,6 +237,42 @@ class AdminSearchRegistryTest extends TestCase
             static::assertArrayHasKey('validFrom', $properties);
             static::assertArrayHasKey('validUntil', $properties);
             static::assertArrayHasKey('createdAt', $properties);
+        }
+    }
+
+    public function testRefreshReachesOrderIndexerThroughDocumentWrite(): void
+    {
+        $context = Context::createDefaultContext();
+        $orderId = Uuid::randomHex();
+
+        $this->connection->beginTransaction();
+
+        try {
+            static::getContainer()->get('order.repository')->create($this->getOrderData($orderId, $context), $context);
+
+            $documentTypeId = $this->connection->fetchOne(
+                'SELECT LOWER(HEX(id)) FROM document_type WHERE technical_name = :name',
+                ['name' => 'invoice']
+            );
+            static::assertIsString($documentTypeId);
+
+            $event = static::getContainer()->get('document.repository')->create([[
+                'id' => Uuid::randomHex(),
+                'orderId' => $orderId,
+                'orderVersionId' => Defaults::LIVE_VERSION,
+                'documentTypeId' => $documentTypeId,
+                'typeName' => 'invoice',
+                'deepLinkCode' => Random::getAlphanumericString(32),
+                'config' => ['documentNumber' => '1000'],
+            ]], $context);
+
+            $this->registry->refresh($event);
+
+            $index = $this->connection->fetchOne('SELECT `index` FROM `admin_elasticsearch_index_task` WHERE `entity` = \'order\'');
+            static::assertIsString($index);
+            static::assertTrue($this->client->exists(['index' => $index, 'id' => $orderId]));
+        } finally {
+            $this->connection->rollBack();
         }
     }
 

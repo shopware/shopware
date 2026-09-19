@@ -80,19 +80,9 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
 
         it.each([
-            [
-                'unknown flag',
-                '--unknown',
-            ],
-            [
-                'replacement without write',
-                '--replace-originals',
-            ],
-            [
-                'duplicate write',
-                '--write',
-                '--write',
-            ],
+            ['unknown flag', '--unknown'],
+            ['replacement without write', '--replace-originals'],
+            ['duplicate write', '--write', '--write'],
         ])('rejects %s with a nonzero exit code', (_label, ...flags: string[]) => {
             const result = runCli(tmpDir, ...flags);
 
@@ -148,11 +138,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
 
     describe('writing a synthesized component tree', () => {
         // Names chosen so the middle component proves the batch remains deterministic.
-        const NAMES = [
-            'sw-alpha-item',
-            'sw-bravo-item',
-            'sw-charlie-item',
-        ];
+        const NAMES = ['sw-alpha-item', 'sw-bravo-item', 'sw-charlie-item'];
 
         let tmpDir: string;
 
@@ -215,11 +201,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
                 '<template><div /></template>\n<script setup>\nswDefinePublic({});\n</script>\n',
                 /^half-migrated:/,
             ],
-            [
-                'foreign file',
-                '<template><p>unrelated storybook demo</p></template>\n',
-                /did not generate/,
-            ],
+            ['foreign file', '<template><p>unrelated storybook demo</p></template>\n', /did not generate/],
         ])('reports an existing .vue as %s and rewrites nothing', async (_label, contents, expected) => {
             const vuePath = path.join(tmpDir, 'sw-alpha-item', 'sw-alpha-item.vue');
 
@@ -302,14 +284,9 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
                 ].sort(),
             );
 
-            Object.entries(beforeManifest).forEach(
-                ([
-                    file,
-                    bytes,
-                ]) => {
-                    expect(afterManifest[file]).toEqual(bytes);
-                },
-            );
+            Object.entries(beforeManifest).forEach(([file, bytes]) => {
+                expect(afterManifest[file]).toEqual(bytes);
+            });
         });
 
         it('writes nothing for a skipped component', () => {
@@ -327,14 +304,8 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
 
         it.each([
-            [
-                'sw-slot-in-child',
-                "Component.extend child of 'sw-simple-card' (inherits the parent template)",
-            ],
-            [
-                'sw-lifecycle-demo',
-                "Component.override registration (patches another component's template)",
-            ],
+            ['sw-slot-in-child', "Component.extend child of 'sw-simple-card' (inherits the parent template)"],
+            ['sw-lifecycle-demo', "Component.override registration (patches another component's template)"],
         ])('leaves %s untouched, because its template is not self-contained', (name, reason) => {
             expect(reportOf(result, name)).toMatchObject({ outcome: 'skipped', reasons: [reason] });
             expect(fs.existsSync(path.join(tmpDir, name, `${name}.vue`))).toBe(false);

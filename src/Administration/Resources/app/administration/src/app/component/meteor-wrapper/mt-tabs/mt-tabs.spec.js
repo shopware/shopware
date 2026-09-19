@@ -21,9 +21,7 @@ async function createWrapper(options = {}) {
                 'sw-extension-component-section': {
                     name: 'sw-extension-component-section',
                     template: '<div class="sw-extension-component-section">{{ positionIdentifier }}</div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
             },
             mocks: {
@@ -152,16 +150,12 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
 
     it('should render the content slot and active extension component section', async () => {
         const routerPush = jest.fn();
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-        ];
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [{ label: 'Tab 3', componentSectionId: 'tab3' }];
 
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'tab1',
-                items: [
-                    { label: 'Tab 1', name: 'tab1' },
-                ],
+                items: [{ label: 'Tab 1', name: 'tab1' }],
             },
             slots: {
                 content: ({ active }) => h('div', { class: 'tab-content' }, active),
@@ -183,26 +177,18 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         expect(wrapper.get('.tab-content').text()).toBe('tab3');
         expect(wrapper.getComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe('tab3');
         expect(routerPush).not.toHaveBeenCalled();
-        expect(wrapper.emitted('new-item-active')).toEqual([
-            [
-                'tab3',
-            ],
-        ]);
+        expect(wrapper.emitted('new-item-active')).toEqual([['tab3']]);
     });
 
     it('should render routed extension tabs only through the generated route', async () => {
         const routerPush = jest.fn();
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-        ];
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [{ label: 'Tab 3', componentSectionId: 'tab3' }];
 
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'tab1',
                 useRoutesForExtensions: true,
-                items: [
-                    { label: 'Tab 1', name: 'tab1' },
-                ],
+                items: [{ label: 'Tab 1', name: 'tab1' }],
             },
             routerPush,
         });
@@ -226,17 +212,13 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
     });
 
     it('should keep generated extension routes active with the component section id', async () => {
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-        ];
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [{ label: 'Tab 3', componentSectionId: 'tab3' }];
 
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'sw.test.index.tab3',
                 useRoutesForExtensions: true,
-                items: [
-                    { label: 'Tab 1', name: 'sw.test.index' },
-                ],
+                items: [{ label: 'Tab 1', name: 'sw.test.index' }],
             },
         });
 
@@ -249,16 +231,12 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
 
     it('should infer route mode for extension tabs when the surface items are route-backed', async () => {
         const routerPush = jest.fn();
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-        ];
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [{ label: 'Tab 3', componentSectionId: 'tab3' }];
 
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'tab1',
-                items: [
-                    { label: 'Tab 1', name: 'tab1', onClick: jest.fn() },
-                ],
+                items: [{ label: 'Tab 1', name: 'tab1', onClick: jest.fn() }],
             },
             routerPush,
         });
@@ -276,16 +254,12 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
 
     it('should infer inline mode for extension tabs when the surface items are not route-backed', async () => {
         const routerPush = jest.fn();
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-        ];
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [{ label: 'Tab 3', componentSectionId: 'tab3' }];
 
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'tab1',
-                items: [
-                    { label: 'Tab 1', name: 'tab1' },
-                ],
+                items: [{ label: 'Tab 1', name: 'tab1' }],
             },
             routerPush,
         });
@@ -303,17 +277,13 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
 
     it('should let an explicit use-routes-for-extensions="false" override route-backed items', async () => {
         const routerPush = jest.fn();
-        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [
-            { label: 'Tab 3', componentSectionId: 'tab3' },
-        ];
+        Shopware.Store.get('tabs').tabItems['jest-test-component'] = [{ label: 'Tab 3', componentSectionId: 'tab3' }];
 
         const wrapper = await createWrapper({
             props: {
                 defaultItem: 'tab1',
                 useRoutesForExtensions: false,
-                items: [
-                    { label: 'Tab 1', name: 'tab1', onClick: jest.fn() },
-                ],
+                items: [{ label: 'Tab 1', name: 'tab1', onClick: jest.fn() }],
             },
             routerPush,
         });

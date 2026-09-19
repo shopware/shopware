@@ -67,10 +67,7 @@ describe('asyncComponent/base/sw-chart', () => {
     beforeEach(async () => {
         Shopware.Store.get('session').setAdminLocaleState({
             locale: 'en-GB',
-            locales: [
-                'en-GB',
-                'nl-NL',
-            ],
+            locales: ['en-GB', 'nl-NL'],
         });
     });
 
@@ -318,10 +315,7 @@ describe('asyncComponent/base/sw-chart', () => {
 
         // check if conversion to label works
         const convertedLabelStructure = seriesToConvert.reduce((acc, serie) => {
-            acc = [
-                ...acc,
-                ...serie.data.map((data) => data.x),
-            ];
+            acc = [...acc, ...serie.data.map((data) => data.x)];
             return acc;
         }, []);
 
@@ -341,10 +335,7 @@ describe('asyncComponent/base/sw-chart', () => {
     it('should load the correct default locale', async () => {
         Shopware.Store.get('session').setAdminLocaleState({
             locale: 'nl-NL',
-            locales: [
-                'en-GB',
-                'nl-NL',
-            ],
+            locales: ['en-GB', 'nl-NL'],
         });
 
         const wrapper = await setup();
@@ -357,11 +348,7 @@ describe('asyncComponent/base/sw-chart', () => {
     it('should load the fallback locale when default locale does not exist', async () => {
         Shopware.Store.get('session').setAdminLocaleState({
             locale: 'foo-BAR',
-            locales: [
-                'en-GB',
-                'nl-NL',
-                'foo-BAR',
-            ],
+            locales: ['en-GB', 'nl-NL', 'foo-BAR'],
         });
 
         const wrapper = await setup();

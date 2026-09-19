@@ -144,10 +144,7 @@ export default {
         },
 
         iconName() {
-            return [
-                'module',
-                'frequently_used',
-            ].includes(this.type) && this.item?.icon
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.icon
                 ? this.item.icon
                 : this.entityIconName;
         },
@@ -157,10 +154,7 @@ export default {
                 return 'var(--color-icon-primary-default)';
             }
 
-            return [
-                'module',
-                'frequently_used',
-            ].includes(this.type) && this.item?.color
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.color
                 ? this.item.color
                 : this.entityIconColor;
         },

@@ -92,10 +92,7 @@ async function createWrapper(
                     },
                     'mt-text-field': {
                         template: '<div class="sw-field" :name="name"></div>',
-                        props: [
-                            'disabled',
-                            'name',
-                        ],
+                        props: ['disabled', 'name'],
                     },
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',
@@ -111,10 +108,7 @@ async function createWrapper(
                     'sw-help-text': true,
                     'sw-multi-select': true,
                     'sw-entity-single-select': {
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
+                        props: ['value', 'disabled'],
                         template: `
                         <input
                            class="sw-entity-single-select"

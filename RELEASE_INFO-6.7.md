@@ -209,6 +209,9 @@ A group left without conditions, or invalid for another reason, now loses its as
 ### Longer advanced postal code patterns for countries
 
 `country.advancedPostalCodePattern` now accepts up to 1024 characters instead of 255, matching `defaultPostalCodePattern`.
+### Document number ranges warn on colliding patterns
+
+Saving a number range whose pattern matches another number range of the same document type (for example two `document_invoice` ranges assigned to different sales channels) now logs a warning naming the collision, instead of silently allowing it and failing later at document generation with a generic "number already allocated" error. If a collision is still hit at generation time, for example on data that predates this change, the error message now names the affected document type.
 
 ### `JsonField::addPropertyMapping()` for entity extensions
 

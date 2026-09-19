@@ -32,10 +32,8 @@ async function createWrapper(
         create: (context, id) => createNumberRange(id),
         get: (id) => Promise.resolve(createNumberRange(id)),
         save: () => Promise.resolve(),
-        search: () =>
-            Promise.resolve({
-                total: 1,
-            }),
+        // mirrors an EntityCollection: array-like with a total
+        search: () => Promise.resolve(Object.assign([], { total: 1 })),
     };
 
     const numberRangeTypeRepository = repositories.numberRangeTypeRepository ?? {
@@ -226,7 +224,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
             create: jest.fn((context, id) => createNumberRange(id)),
             get: jest.fn((id) => Promise.resolve(createNumberRange(id))),
             save: jest.fn(() => Promise.resolve()),
-            search: jest.fn(() => Promise.resolve({ total: 1 })),
+            search: jest.fn(() => Promise.resolve(Object.assign([], { total: 1 }))),
         };
 
         const wrapper = await createWrapper(undefined, { numberRangeRepository });

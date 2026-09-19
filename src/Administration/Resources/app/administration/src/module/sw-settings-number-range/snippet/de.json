@@ -46,7 +46,9 @@
       "placeholderSimpleModeImpossible": "Erweiterter Modus aktiv",
       "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>{'{prefix}_{n}_{suffix}'}<br/><li>'n' entspricht der definierten Startnummer</li><li>('_' ist ein beliebiges Trennzeichen)</li><br/>Verwendung von 'date' (PHP-Parameter): <br/><li>{'{date}'}: Internationales Datums-Format (YYYY-MM-DD)</li><li>{'{date_dmy}'}: Benutzerdefiniertes Datums-Format (DD-MM-YY)</li>",
       "errorPatternNeededMessage": "Kein Pattern angegeben. Bitte gib mindestens eine Startnummer an.",
-      "infoStartDecrementMessage": "Änderungen der Startnummer werden nur wirksam, wenn die Startnummer größer als die aktuelle Nummer ist."
+      "infoStartDecrementMessage": "Änderungen der Startnummer werden nur wirksam, wenn die Startnummer größer als die aktuelle Nummer ist.",
+      "patternCollisionWarningTitle": "Pattern wird bereits von einem anderen Nummernkreis verwendet",
+      "patternCollisionWarning": "Das Pattern \"{pattern}\" wird bereits von \"{names}\" verwendet, einem Nummernkreis desselben Dokumenttyps. Dokumentnummern sind pro Installation und Dokumenttyp eindeutig. Sobald beide Nummernkreise dieselbe Nummer erreichen, schlägt die Dokumenterzeugung aus beiden fehl. Vergib für jeden Nummernkreis ein eigenes Präfix oder Suffix."
     }
   },
   "sw-privileges": {

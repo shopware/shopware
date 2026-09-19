@@ -11,6 +11,12 @@ const {
 } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * Document number range types are seeded with this technical name prefix, e.g. `document_invoice`.
+ * Document numbers are unique per installation and type, so only those types can collide.
+ */
+const DOCUMENT_NUMBER_RANGE_TYPE_PREFIX = 'document_';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -46,6 +52,7 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            collidingNumberRangeNames: [],
         };
     },
 
@@ -176,6 +183,21 @@ export default {
             return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
+        hasPatternCollision() {
+            return this.collidingNumberRangeNames.length > 0;
+        },
+
+        patternCollisionCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.equals('typeId', this.numberRange.typeId));
+            criteria.addFilter(Criteria.equals('pattern', this.numberRange.pattern));
+            criteria.addFilter(Criteria.prefix('type.technicalName', DOCUMENT_NUMBER_RANGE_TYPE_PREFIX));
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('id', this.numberRange.id)]));
+
+            return criteria;
+        },
+
         ...mapPropertyErrors('numberRange', [
             'name',
             'typeId',
@@ -208,6 +230,9 @@ export default {
         },
         'numberRange.start'() {
             this.getPreview();
+        },
+        patternCollisionCriteria() {
+            this.checkPatternCollision();
         },
     },
 
@@ -279,6 +304,22 @@ export default {
                 .previewPatternByNumberRangeId(this.numberRange.id, this.numberRange.pattern, this.numberRange.start)
                 .then((response) => {
                     this.preview = response.number;
+                });
+        },
+
+        checkPatternCollision() {
+            this.collidingNumberRangeNames = [];
+
+            if (!this.numberRange.typeId || !this.numberRange.pattern) {
+                return Promise.resolve();
+            }
+
+            return this.numberRangeRepository
+                .search(this.patternCollisionCriteria, Shopware.Context.api)
+                .then((collidingNumberRanges) => {
+                    this.collidingNumberRangeNames = collidingNumberRanges.map((numberRange) => {
+                        return this.placeholder(numberRange, 'name');
+                    });
                 });
         },
 

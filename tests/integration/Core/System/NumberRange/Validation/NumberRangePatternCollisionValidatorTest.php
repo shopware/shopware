@@ -8,6 +8,7 @@ use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,66 +47,93 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
 
     public function testRepositoryCreateLogsWarningForCollidingPatternButSucceeds(): void
     {
-        $typeId = $this->createDocumentNumberRangeType('document_test_invoice');
-        $this->createNumberRange($typeId, 'INV{n}');
+        $typeId = $this->createNumberRangeType('document_test_invoice');
+        $firstId = $this->createNumberRange($typeId, 'INV{n}');
+        $secondId = Uuid::randomHex();
 
-        // create() itself would throw if the write were rejected, so reaching
-        // the warning assertion below already proves the write went through.
-        $this->expectPatternCollisionWarning(fn () => $this->createNumberRange($typeId, 'INV{n}'));
+        $warnings = $this->collectCollisionWarnings(fn () => $this->numberRangeRepository->create(
+            [$this->numberRangePayload($secondId, $typeId, 'INV{n}')],
+            $this->context
+        ));
+
+        static::assertSame([[
+            'numberRangeId' => $secondId,
+            'pattern' => 'INV{n}',
+            'documentType' => 'test_invoice',
+        ]], $warnings);
+
+        static::assertSame('INV{n}', $this->fetchPersistedPattern($firstId));
+        static::assertSame('INV{n}', $this->fetchPersistedPattern($secondId));
     }
 
-    public function testRepositoryCreateAllowsDistinctPatternForSameDocumentType(): void
+    public function testRepositoryCreateLogsNoWarningForDistinctPatternOfSameDocumentType(): void
     {
-        $typeId = $this->createDocumentNumberRangeType('document_test_delivery_note');
+        $typeId = $this->createNumberRangeType('document_test_delivery_note');
         $this->createNumberRange($typeId, 'DEL{n}');
+        $secondId = Uuid::randomHex();
 
-        $this->createNumberRange($typeId, 'DEL-B-{n}');
+        $warnings = $this->collectCollisionWarnings(fn () => $this->numberRangeRepository->create(
+            [$this->numberRangePayload($secondId, $typeId, 'DEL-B-{n}')],
+            $this->context
+        ));
 
-        static::addToAssertionCount(1);
+        static::assertSame([], $warnings);
+        static::assertSame('DEL-B-{n}', $this->fetchPersistedPattern($secondId));
     }
 
     public function testRepositoryUpdateLogsWarningForCollidingPattern(): void
     {
-        $typeId = $this->createDocumentNumberRangeType('document_test_credit_note');
+        $typeId = $this->createNumberRangeType('document_test_credit_note');
         $this->createNumberRange($typeId, 'CN{n}');
         $secondId = $this->createNumberRange($typeId, 'CN-B-{n}');
 
-        $this->expectPatternCollisionWarning(fn () => $this->numberRangeRepository->update([[
+        $warnings = $this->collectCollisionWarnings(fn () => $this->numberRangeRepository->update([[
             'id' => $secondId,
             'pattern' => 'CN{n}',
         ]], $this->context));
+
+        static::assertSame([[
+            'numberRangeId' => $secondId,
+            'pattern' => 'CN{n}',
+            'documentType' => 'test_credit_note',
+        ]], $warnings);
+
+        static::assertSame('CN{n}', $this->fetchPersistedPattern($secondId));
     }
 
     public function testRepositoryCreateLogsWarningForCollidingPatternInSameWriteBatch(): void
     {
-        $typeId = $this->createDocumentNumberRangeType('document_test_storno');
+        $typeId = $this->createNumberRangeType('document_test_storno');
+        $firstId = Uuid::randomHex();
+        $secondId = Uuid::randomHex();
 
-        $this->expectPatternCollisionWarning(fn () => $this->numberRangeRepository->create([
-            $this->numberRangePayload($typeId, 'STO{n}'),
-            $this->numberRangePayload($typeId, 'STO{n}'),
+        $warnings = $this->collectCollisionWarnings(fn () => $this->numberRangeRepository->create([
+            $this->numberRangePayload($firstId, $typeId, 'STO{n}'),
+            $this->numberRangePayload($secondId, $typeId, 'STO{n}'),
         ], $this->context));
+
+        static::assertCount(2, $warnings);
+        static::assertEqualsCanonicalizing([$firstId, $secondId], \array_column($warnings, 'numberRangeId'));
+        static::assertSame(['STO{n}', 'STO{n}'], \array_column($warnings, 'pattern'));
+        static::assertSame(['test_storno', 'test_storno'], \array_column($warnings, 'documentType'));
+
+        static::assertSame('STO{n}', $this->fetchPersistedPattern($firstId));
+        static::assertSame('STO{n}', $this->fetchPersistedPattern($secondId));
     }
 
-    public function testRepositoryCreateAllowsCollidingPatternForNonDocumentType(): void
+    public function testRepositoryCreateLogsNoWarningForCollidingPatternOfNonDocumentType(): void
     {
         $typeId = $this->createNumberRangeType('test_non_document_type');
         $this->createNumberRange($typeId, 'X{n}');
+        $secondId = Uuid::randomHex();
 
-        $handler = new TestHandler(Level::Warning);
-        $this->logger->pushHandler($handler);
+        $warnings = $this->collectCollisionWarnings(fn () => $this->numberRangeRepository->create(
+            [$this->numberRangePayload($secondId, $typeId, 'X{n}')],
+            $this->context
+        ));
 
-        try {
-            $this->createNumberRange($typeId, 'X{n}');
-
-            static::assertEmpty($handler->getRecords());
-        } finally {
-            $this->logger->popHandler();
-        }
-    }
-
-    private function createDocumentNumberRangeType(string $technicalName): string
-    {
-        return $this->createNumberRangeType($technicalName);
+        static::assertSame([], $warnings);
+        static::assertSame('X{n}', $this->fetchPersistedPattern($secondId));
     }
 
     private function createNumberRangeType(string $technicalName): string
@@ -124,20 +152,20 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
 
     private function createNumberRange(string $typeId, string $pattern): string
     {
-        $payload = $this->numberRangePayload($typeId, $pattern);
+        $id = Uuid::randomHex();
 
-        $this->numberRangeRepository->create([$payload], $this->context);
+        $this->numberRangeRepository->create([$this->numberRangePayload($id, $typeId, $pattern)], $this->context);
 
-        return $payload['id'];
+        return $id;
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function numberRangePayload(string $typeId, string $pattern): array
+    private function numberRangePayload(string $id, string $typeId, string $pattern): array
     {
         return [
-            'id' => Uuid::randomHex(),
+            'id' => $id,
             'typeId' => $typeId,
             'global' => false,
             'pattern' => $pattern,
@@ -146,22 +174,48 @@ class NumberRangePatternCollisionValidatorTest extends TestCase
         ];
     }
 
+    private function fetchPersistedPattern(string $numberRangeId): ?string
+    {
+        $numberRange = $this->numberRangeRepository
+            ->search(new Criteria([$numberRangeId]), $this->context)
+            ->getEntities()
+            ->get($numberRangeId);
+
+        static::assertNotNull($numberRange);
+
+        return $numberRange->getPattern();
+    }
+
     /**
-     * Runs the callback and asserts it logged a pattern-collision warning
-     * instead of throwing — the write is expected to succeed regardless.
+     * Runs the callback and returns the context of every pattern-collision warning it logged,
+     * so callers can assert on the resolved number range, pattern and document type.
+     *
+     * @return list<array<string, mixed>>
      */
-    private function expectPatternCollisionWarning(\Closure $callback): void
+    private function collectCollisionWarnings(\Closure $callback): array
     {
         $handler = new TestHandler(Level::Warning);
         $this->logger->pushHandler($handler);
 
         try {
             $callback();
-
-            static::assertNotEmpty($handler->getRecords());
-            static::assertStringContainsString('already used by another', $handler->getRecords()[0]->message);
         } finally {
             $this->logger->popHandler();
         }
+
+        $warnings = [];
+        foreach ($handler->getRecords() as $record) {
+            if (!\str_contains($record->message, 'Generated documents may collide')) {
+                continue;
+            }
+
+            $warnings[] = [
+                'numberRangeId' => $record->context['numberRangeId'] ?? null,
+                'pattern' => $record->context['pattern'] ?? null,
+                'documentType' => $record->context['documentType'] ?? null,
+            ];
+        }
+
+        return $warnings;
     }
 }

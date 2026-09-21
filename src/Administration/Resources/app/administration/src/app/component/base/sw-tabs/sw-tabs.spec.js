@@ -17,45 +17,6 @@ async function createWrapper(additionalOptions = {}) {
     });
 }
 
-// Keep the real component name so the fragment branch recognizes the items.
-const swTabsItemStub = {
-    name: 'sw-tabs-item',
-    props: [
-        'name',
-        'title',
-        'route',
-    ],
-    template: '<div class="sw-tabs-item"><slot /></div>',
-};
-
-/**
- * Mounts the `mt-tabs` branch with two `v-for` items, each wrapping `slotContent` in its default slot.
- * Use it to pin down how a slot shape resolves to a tab label.
- */
-async function createWrapperWithFragmentItems(slotContent) {
-    return createWrapper({
-        props: {
-            useMeteorComponent: true,
-        },
-        global: {
-            stubs: {
-                'sw-tabs-deprecated': true,
-                'mt-tabs': true,
-                'sw-tabs-item': swTabsItemStub,
-            },
-        },
-        slots: {
-            default: `
-                <sw-tabs-item
-                    v-for="locale in ['en-GB', 'de-DE']"
-                    :key="locale"
-                    :name="locale"
-                >${slotContent}</sw-tabs-item>
-            `,
-        },
-    });
-}
-
 describe('src/app/component/base/sw-tabs', () => {
     it('should render the deprecated tabs by default', async () => {
         const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
@@ -147,7 +108,36 @@ describe('src/app/component/base/sw-tabs', () => {
             'de-DE',
         ],
     ])('should resolve the labels of v-for tab items whose slot holds %s', async (_, slotContent, first, second) => {
-        const wrapper = await createWrapperWithFragmentItems(slotContent);
+        const wrapper = await createWrapper({
+            props: {
+                useMeteorComponent: true,
+            },
+            global: {
+                stubs: {
+                    'sw-tabs-deprecated': true,
+                    'mt-tabs': true,
+                    // Keep the real component name so the fragment branch recognizes the items.
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        props: [
+                            'name',
+                            'title',
+                            'route',
+                        ],
+                        template: '<div class="sw-tabs-item"><slot /></div>',
+                    },
+                },
+            },
+            slots: {
+                default: `
+                    <sw-tabs-item
+                        v-for="locale in ['en-GB', 'de-DE']"
+                        :key="locale"
+                        :name="locale"
+                    >${slotContent}</sw-tabs-item>
+                `,
+            },
+        });
 
         // Only plain slot text yields a label of its own; anything else falls back to the name, so the
         // tab never renders unlabeled.

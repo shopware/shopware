@@ -33,6 +33,7 @@
       "placeholderSymbol": "Enter currency symbol...",
       "placeholderFactor": "Enter conversion factor...",
       "notificationErrorMessage": "An error occurred while saving your currency.",
+      "notificationIsoCodeAlreadyExists": "The ISO code \"{isoCode}\" is already in use.",
       "titleRoundingCard": "Price rounding",
       "titleCountryRoundingCard": "Countries",
       "searchbarPlaceholder": "Search countries...",

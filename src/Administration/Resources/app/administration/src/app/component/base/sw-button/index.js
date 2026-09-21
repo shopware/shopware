@@ -14,10 +14,7 @@ export default {
 
     props: {
         routerLink: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             default: null,
             required: false,
         },

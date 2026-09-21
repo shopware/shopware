@@ -142,10 +142,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         const wrapper = await createWrapper({
             propsData: {
                 value: [],
-                inheritedValue: [
-                    'parent-a',
-                    'parent-b',
-                ],
+                inheritedValue: ['parent-a', 'parent-b'],
                 hasParent: true,
             },
             global: createWrapperGlobalValue,
@@ -156,10 +153,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         // unlink from the parent
         wrapper.vm.removeInheritance();
         await wrapper.setProps({
-            value: [
-                'parent-a',
-                'parent-b',
-            ],
+            value: ['parent-a', 'parent-b'],
         });
         expect(wrapper.vm.isInherited).toBe(false);
 

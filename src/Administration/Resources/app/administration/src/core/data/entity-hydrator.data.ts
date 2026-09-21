@@ -163,41 +163,36 @@ export default class EntityHydrator {
         data.id = id;
 
         // hydrate empty json fields
-        Object.entries(data).forEach(
-            ([
-                attributeKey,
-                attributeValue,
-            ]) => {
-                const field = schema.getField(attributeKey);
+        Object.entries(data).forEach(([attributeKey, attributeValue]) => {
+            const field = schema.getField(attributeKey);
 
-                if (!field) {
-                    return;
-                }
+            if (!field) {
+                return;
+            }
 
-                if (!schema.isJsonField(field)) {
-                    return;
-                }
+            if (!schema.isJsonField(field)) {
+                return;
+            }
 
-                if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
-                    data[attributeKey] = {};
-                    return;
-                }
+            if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
+                data[attributeKey] = {};
+                return;
+            }
 
-                const isEmptyObject =
-                    !Array.isArray(attributeValue) &&
-                    typeof attributeValue === 'object' &&
-                    attributeValue !== null &&
-                    Object.keys(attributeValue).length <= 0;
+            const isEmptyObject =
+                !Array.isArray(attributeValue) &&
+                typeof attributeValue === 'object' &&
+                attributeValue !== null &&
+                Object.keys(attributeValue).length <= 0;
 
-                // Inherited fields use null as the inheritance marker.
-                if (
-                    schema.isJsonListField(field) &&
-                    (isEmptyObject || (attributeValue === null && field.flags?.inherited !== true))
-                ) {
-                    data[attributeKey] = [];
-                }
-            },
-        );
+            // Inherited fields use null as the inheritance marker.
+            if (
+                schema.isJsonListField(field) &&
+                (isEmptyObject || (attributeValue === null && field.flags?.inherited !== true))
+            ) {
+                data[attributeKey] = [];
+            }
+        });
 
         Object.keys(row.relationships).forEach((property) => {
             const value = row.relationships[property] as data;

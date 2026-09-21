@@ -34,10 +34,7 @@ async function createWrapper(props = {}) {
                 ],
             },
             storno: {
-                formats: [
-                    'pdf',
-                    'html',
-                ],
+                formats: ['pdf', 'html'],
             },
         },
     } = props;
@@ -146,10 +143,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             },
         );
 
-        expect(documentFormatCancellationInvoiceListElementsText).toEqual([
-            'pdf--snippet',
-            'html--snippet',
-        ]);
+        expect(documentFormatCancellationInvoiceListElementsText).toEqual(['pdf--snippet', 'html--snippet']);
     });
 
     it('does not preselect file formats after selecting a document type', async () => {
@@ -332,10 +326,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
     });
 
@@ -421,10 +412,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
@@ -463,10 +451,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
@@ -530,10 +515,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             supportedDocumentTypes: {
                 invoice: { formats: ['pdf'] },
                 swag_warranty: {
-                    formats: [
-                        'pdf',
-                        'html',
-                    ],
+                    formats: ['pdf', 'html'],
                 },
             },
         });

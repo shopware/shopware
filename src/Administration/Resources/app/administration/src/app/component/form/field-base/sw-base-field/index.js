@@ -15,11 +15,7 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'base-field-mounted',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['base-field-mounted', 'inheritance-restore', 'inheritance-remove'],
 
     props: {
         name: {

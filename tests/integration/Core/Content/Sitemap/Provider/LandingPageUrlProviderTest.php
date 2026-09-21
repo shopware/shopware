@@ -94,12 +94,12 @@ class LandingPageUrlProviderTest extends TestCase
             ->method('get')
             ->with(ConfigHandler::EXCLUDED_URLS_KEY)
             ->willReturn([
-            [
-                'resource' => LandingPageEntity::class,
-                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
-                'identifier' => $excludedId,
-            ],
-        ]);
+                [
+                    'resource' => LandingPageEntity::class,
+                    'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
+                    'identifier' => $excludedId,
+                ],
+            ]);
 
         $this->landingPageRepository->upsert([
             [

@@ -623,7 +623,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Success response indicating the review was saved successfully."
                     },
                     "400": {

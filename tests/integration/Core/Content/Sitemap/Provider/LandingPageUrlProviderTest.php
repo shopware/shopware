@@ -88,8 +88,12 @@ class LandingPageUrlProviderTest extends TestCase
     {
         $excludedId = Uuid::randomHex();
 
-        $configHandler = static::createStub(ConfigHandler::class);
-        $configHandler->method('get')->willReturn([
+        $configHandler = $this->createMock(ConfigHandler::class);
+        $configHandler
+            ->expects($this->once())
+            ->method('get')
+            ->with(ConfigHandler::EXCLUDED_URLS_KEY)
+            ->willReturn([
             [
                 'resource' => LandingPageEntity::class,
                 'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),

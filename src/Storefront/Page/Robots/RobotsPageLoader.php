@@ -169,6 +169,13 @@ class RobotsPageLoader
         $selectedDomains = [];
         \assert($hostname !== '');
 
+        // `$hostname` comes straight from the `Host` header (HTTP_HOST), which includes
+        // a non-default port (e.g. `localhost:8000`) — but parse_url()'s PHP_URL_HOST
+        // component never does, even when the stored domain URL has one. Comparing the
+        // two directly would reject every domain whenever the request carries a port,
+        // so parse the incoming host the same way before comparing.
+        $requestHost = parse_url('http://' . $hostname, \PHP_URL_HOST) ?: $hostname;
+
         foreach ($domains as $domain) {
             $domainUrl = $domain->getUrl();
 
@@ -179,7 +186,7 @@ class RobotsPageLoader
             // splitting on the raw substring, rejects those false matches while still
             // keeping the same host's different path-based domain variants (e.g. `/en`,
             // `/de`) as distinct entries below.
-            if (parse_url($domainUrl, \PHP_URL_HOST) !== $hostname) {
+            if (parse_url($domainUrl, \PHP_URL_HOST) !== $requestHost) {
                 continue;
             }
 

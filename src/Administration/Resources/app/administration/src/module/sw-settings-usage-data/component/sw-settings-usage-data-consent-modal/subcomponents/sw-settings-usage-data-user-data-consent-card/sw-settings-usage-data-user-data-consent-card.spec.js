@@ -16,10 +16,7 @@ describe('module/sw-settings-usage-data/component/sw-settings-usage-data-consent
         await consentSwitch.vm.$emit('update:modelValue', true);
         await consentSwitch.vm.$emit('update:modelValue', false);
 
-        expect(wrapper.emitted('update:consent')).toEqual([
-            [true],
-            [false],
-        ]);
+        expect(wrapper.emitted('update:consent')).toEqual([[true], [false]]);
     });
 
     it('is disabled while loading', async () => {

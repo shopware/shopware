@@ -65,10 +65,7 @@ async function createWrapper() {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
                     'sw-select-result': {
-                        props: [
-                            'item',
-                            'index',
-                        ],
+                        props: ['item', 'index'],
                         template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -207,10 +204,7 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
 
         expect(wrapper.vm.entityOptions).toHaveLength(2);
         wrapper.vm.entityOptions.forEach((option) => {
-            expect([
-                'Order',
-                'Customer',
-            ]).toContain(option.label);
+            expect(['Order', 'Customer']).toContain(option.label);
         });
     });
 });

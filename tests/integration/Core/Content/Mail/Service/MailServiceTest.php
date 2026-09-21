@@ -11,7 +11,10 @@ use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -78,6 +81,7 @@ class MailServiceTest extends TestCase
             $this->createMock(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
+            static::createStub(AbstractTranslator::class),
         );
         $data = [
             'senderName' => 'Foo & Bar',
@@ -153,6 +157,7 @@ class MailServiceTest extends TestCase
             $languageLocaleProvider,
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -208,6 +213,7 @@ class MailServiceTest extends TestCase
             $this->createMock(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -250,6 +256,7 @@ class MailServiceTest extends TestCase
             $this->createMock(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -311,6 +318,7 @@ class MailServiceTest extends TestCase
             $this->createMock(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
+            static::createStub(AbstractTranslator::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -333,6 +341,52 @@ class MailServiceTest extends TestCase
         static::assertInstanceOf(Email::class, $mail);
         static::assertSame('<a href="http://example.com/?foo&amp;bar=baz">&lt;foobar&gt;</a>', $mail->getHtmlBody());
         static::assertSame('<foobar> http://example.com/?foo&bar=baz', $mail->getTextBody());
+    }
+
+    public function testTranslatorIsConfiguredForTheSalesChannelOnlyWhileRendering(): void
+    {
+        $translator = static::getContainer()->get(Translator::class);
+
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $mailSender->expects($this->once())->method('send');
+
+        $mailService = new MailService(
+            static::getContainer()->get(DataValidator::class),
+            static::getContainer()->get(StringTemplateRenderer::class),
+            static::getContainer()->get(MailFactory::class),
+            $mailSender,
+            $this->createMock(EntityRepository::class),
+            static::getContainer()->get('sales_channel.repository'),
+            static::getContainer()->get(SystemConfigService::class),
+            static::getContainer()->get('event_dispatcher'),
+            $this->createMock(LoggerInterface::class),
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(MailTemplateContentBuilder::class),
+            static::getContainer()->get(MailMetricsInstrumentor::class),
+            $translator,
+        );
+
+        $snippetSetIdWhileRendering = null;
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            MailTemplateRenderContextEvent::class,
+            static function () use ($translator, &$snippetSetIdWhileRendering): void {
+                $snippetSetIdWhileRendering = $translator->getSnippetSetId();
+            }
+        );
+
+        $mailService->send([
+            'senderName' => 'Shopware',
+            'senderEmail' => 'test@example.com',
+            'recipients' => ['baz@example.com' => 'Baz'],
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'contentHtml' => '<h1>Test</h1>',
+            'contentPlain' => 'Test',
+            'subject' => 'Test',
+        ], Context::createDefaultContext());
+
+        static::assertNotNull($snippetSetIdWhileRendering);
+        static::assertEmpty($translator->getSnippetSetId());
     }
 }
 

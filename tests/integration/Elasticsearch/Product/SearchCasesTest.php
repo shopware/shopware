@@ -239,8 +239,8 @@ class SearchCasesTest extends TestCase
         // Second pass: query-time min_score now drops the weak hit, keeps the exact one.
         $scores = $this->scoresByKey($ids, 'Heckenschere');
 
-        static::assertArrayHasKey('strong', $scores, \sprintf('Exact hit should survive cutoff %.4f but was dropped. Scores: %s', $cutoff, print_r($scores, true)));
-        static::assertArrayNotHasKey('weak', $scores, \sprintf('Weak fuzzy hit should be cut by minScore %.4f but survived. Scores: %s', $cutoff, print_r($scores, true)));
+        static::assertArrayHasKey('strong', $scores, \sprintf('Exact hit should survive cutoff %.4F but was dropped. Scores: %s', $cutoff, print_r($scores, true)));
+        static::assertArrayNotHasKey('weak', $scores, \sprintf('Weak fuzzy hit should be cut by minScore %.4F but survived. Scores: %s', $cutoff, print_r($scores, true)));
     }
 
     public static function searchScenariosProvider(): \Generator

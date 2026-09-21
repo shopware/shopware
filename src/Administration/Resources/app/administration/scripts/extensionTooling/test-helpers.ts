@@ -132,10 +132,7 @@ export function createVendorAdmin(projectRoot: string, options: { entitySchema: 
 
     // Copied (not symlinked) so their relative '../src/…' imports resolve
     // inside the fake admin, where the entity schema is controlled by tests.
-    const copiedSources = [
-        'global.types.ts',
-        'html-shim.d.ts',
-    ];
+    const copiedSources = ['global.types.ts', 'html-shim.d.ts'];
 
     for (const copiedSource of copiedSources) {
         fs.copyFileSync(path.join(realAdministrationRoot, 'src', copiedSource), path.join(sourceRoot, copiedSource));

@@ -29,30 +29,12 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-subscriber',
         // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-decorator',
-        // Command methods are still called from symfony, the execute method should throw a deprecation though.
-        'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
         // Only the route on controller will be removed
         'reason:remove-route',
-        // Interface methods that will be removed should trigger deprecations instead.
-        'reason:remove-interface',
-        // Throwing deprecations in PHPStan rules would cause problems while executed
-        'reason:remove-phpstan-rule',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
-        'reason:remove-getter-setter',
-        // The replacement is still experimental, so the deprecation is announced but stays silent for now.
-        'reason:experimental-replacement',
-        // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
-        'reason:blue-green-deployment',
-        // The class is a decorating class and will be removed. Third party code should never rely on explicit decorators
-        'reason:decoration-will-be-removed',
-        // The constraint can still be used, just not via an annotation
-        'reason:remove-constraint-annotation',
-        // Container factory for deprecated service
-        'reason:factory-for-deprecation',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
     ];

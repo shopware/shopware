@@ -71,9 +71,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-product', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
@@ -253,10 +251,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
                             if (entity === 'custom_field_set') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve([
-                                            { id: 'field-set-id-1' },
-                                        ]),
+                                    search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
                                     get: () => Promise.resolve({ id: '' }),
                                 };
                             }
@@ -449,9 +444,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ],
             },
         });
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = [Shopware.Utils.createId()];
     });
 
     afterEach(() => {
@@ -1071,14 +1064,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         ]);
 
         expect(wrapper.vm.product.prices).toHaveLength(2);
-        expect([...wrapper.vm.product.prices].map((p) => p.ruleId).sort()).toEqual([
-            '1',
-            '2',
-        ]);
-        expect([...wrapper.vm.selectedPriceRules].map((r) => r.id).sort()).toEqual([
-            '1',
-            '2',
-        ]);
+        expect([...wrapper.vm.product.prices].map((p) => p.ruleId).sort()).toEqual(['1', '2']);
+        expect([...wrapper.vm.selectedPriceRules].map((r) => r.id).sort()).toEqual(['1', '2']);
 
         wrapper.vm.onRuleChange([{ id: '2', name: 'Customer from USA' }]);
 
@@ -1253,16 +1240,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 },
             ],
         ],
-        [
-            true,
-            'price',
-            true,
-        ],
-        [
-            true,
-            'price',
-            null,
-        ],
+        [true, 'price', true],
+        [true, 'price', null],
     ];
 
     it.each(dataProvider)('should have set price to product when value is not boolean', async (isChanged, item, value) => {
@@ -1407,9 +1386,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             field: 'visibilities',
             type: 'remove',
             mappingReferenceField: 'salesChannelId',
-            value: [
-                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
-            ],
+            value: [{ id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 }],
         };
 
         wrapper.vm.transformVariantVisibilityChange(change);
@@ -1456,10 +1433,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.transformVariantVisibilityChange(change);
 
-        expect(change.removedSalesChannelIds).toEqual([
-            'scn_1',
-            'scn_3',
-        ]);
+        expect(change.removedSalesChannelIds).toEqual(['scn_1', 'scn_3']);
         expect(change.inheritedVisibilities).toEqual([
             { salesChannelId: 'scn_1', visibility: 30 },
             { salesChannelId: 'scn_2', visibility: 30 },
@@ -1486,9 +1460,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         wrapper.vm.bulkEditProduct.visibilities = {
             isChanged: true,
             type: 'remove',
-            value: [
-                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
-            ],
+            value: [{ id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 }],
             isInherited: false,
         };
         wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
@@ -1518,9 +1490,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         wrapper.vm.bulkEditProduct.visibilities = {
             isChanged: true,
             type: 'remove',
-            value: [
-                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
-            ],
+            value: [{ id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 }],
         };
         wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
 
@@ -1544,9 +1514,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.parentProductFrozen = JSON.stringify({
             id: 'parent_id',
-            visibilities: [
-                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
-            ],
+            visibilities: [{ id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 }],
         });
 
         // Field left inherited → value is null, nothing is selected for removal.
@@ -1586,9 +1554,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             field: 'visibilities',
             type: 'add',
             mappingReferenceField: 'salesChannelId',
-            value: [
-                { id: 'vis_x', salesChannelId: 'scn_3', visibility: 20 },
-            ],
+            value: [{ id: 'vis_x', salesChannelId: 'scn_3', visibility: 20 }],
         };
 
         wrapper.vm.transformVariantVisibilityChange(change);
@@ -1622,9 +1588,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         wrapper.vm.bulkEditProduct.visibilities = {
             isChanged: true,
             type: 'add',
-            value: [
-                { id: 'vis_x', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 },
-            ],
+            value: [{ id: 'vis_x', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 }],
             isInherited: false,
         };
         wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;

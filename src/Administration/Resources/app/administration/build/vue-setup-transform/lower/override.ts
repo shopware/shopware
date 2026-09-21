@@ -33,10 +33,7 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
         return 'return {};';
     }
 
-    const lines = [
-        'return {',
-        ...analysis.overrideEntries.map((property) => `    ${property},`),
-    ];
+    const lines = ['return {', ...analysis.overrideEntries.map((property) => `    ${property},`)];
 
     if (privateBindings.length > 0) {
         lines.push(

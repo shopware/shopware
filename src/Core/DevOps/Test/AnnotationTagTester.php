@@ -11,24 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 class AnnotationTagTester
 {
     /**
-     * captures any shopware version like 6.4.0.0 but also old version with 3 digits like 6.2.0
-     */
-    private const PLATFORM_VERSION_SCHEMA = '(\d+\.?){2,3}\d+';
-
-    /**
-     * captures a deprecation tag version like 6.5.0
-     */
-    private const PLATFORM_DEPRECATION_SCHEMA = 'v((\d+\.?){2}\d+)';
-
-    /**
-     * captures a manifest schema version like 1.0
-     */
-    private const MANIFEST_VERSION_SCHEMA = '(\d+\.\d+)';
-
-    /**
      * short names of all BC-change attributes, see Shopware\Core\Framework\Deprecation\BCChange
      */
-    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|PropertyTypeNarrowing|PropertyTypeWidening|ExceptionChange|NewOptionalParameter|NewRequiredParameter|ParameterDefaultValueChange|ParameterNameChange|ParameterRemoval|BecomesAbstract|BecomesInternal|BecomesFinal|BecomesReadonly|ClassHierarchyChange|VisibilityChange';
+    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|PropertyTypeNarrowing|PropertyTypeWidening|ExceptionChange|ExperimentalReplacement|NewOptionalParameter|NewRequiredParameter|ParameterDefaultValueChange|ParameterNameChange|ParameterRemoval|BecomesAbstract|BecomesInternal|BecomesFinal|BecomesReadonly|ClassHierarchyChange|VisibilityChange';
 
     public function __construct(
         private readonly string $shopwareVersion,
@@ -51,8 +36,7 @@ class AnnotationTagTester
     public static function getPlatformVersionFromGitTag(string $gitTag): ?string
     {
         $matches = [];
-        $pattern = \sprintf('/^v(%s)$/', self::PLATFORM_VERSION_SCHEMA);
-        preg_match($pattern, $gitTag, $matches);
+        preg_match(AnnotationTagVersionSchema::PLATFORM_VERSION_SCHEMA->pattern(), $gitTag, $matches);
 
         return $matches[1] ?? null;
     }
@@ -60,7 +44,7 @@ class AnnotationTagTester
     public static function getVersionFromManifestFileName(string $fileName): ?string
     {
         $matches = [];
-        $pattern = \sprintf('/^manifest-%s.xsd/', self::MANIFEST_VERSION_SCHEMA);
+        $pattern = \sprintf('/^manifest-%s.xsd/', AnnotationTagVersionSchema::MANIFEST_VERSION_SCHEMA->value);
         preg_match($pattern, $fileName, $matches);
 
         return $matches[1] ?? null;
@@ -101,7 +85,24 @@ class AnnotationTagTester
         $matches = [];
         if (preg_match_all($pattern, $content, $matches, \PREG_SET_ORDER)) {
             foreach ($matches as $match) {
-                $this->validateAgainstPlatformVersion($match[1]);
+                $this->validateVersion($match[1], AnnotationTagVersionSchema::PLATFORM_DEPRECATION_SCHEMA);
+            }
+        }
+    }
+
+    /**
+     * Validates the `silentUntil` markers of `Feature::triggerDeprecationOrThrow()` calls, e.g.
+     * `silentUntil: 'v6.8.0.0'`. Fails when the marker is malformed or its major is already
+     * released, so silenced deprecations are made audible at the right major.
+     */
+    public function validateSilentUntilMarkers(string $content): void
+    {
+        $pattern = '/silentUntil:\s*\'([^\']*)\'/';
+        $matches = [];
+
+        if (preg_match_all($pattern, $content, $matches, \PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $this->validateVersion($match[1], AnnotationTagVersionSchema::PLATFORM_MAJOR_SCHEMA);
             }
         }
     }
@@ -145,13 +146,13 @@ class AnnotationTagTester
         $version = $match[2] ?? '';
 
         if ($tag === 'tag') {
-            $this->validateAgainstPlatformVersion($version);
+            $this->validateVersion($version, AnnotationTagVersionSchema::PLATFORM_DEPRECATION_SCHEMA);
 
             return;
         }
 
         if ($tag === 'manifest') {
-            $this->validateAgainstManifestVersion($version);
+            $this->validateVersion($version, AnnotationTagVersionSchema::MANIFEST_VERSION_SCHEMA);
 
             return;
         }
@@ -187,30 +188,23 @@ class AnnotationTagTester
         match (true) {
             !isset($properties['stableVersion']) => throw new \InvalidArgumentException('Could not find property stableVersion in experimental annotation.'),
             isset($properties['feature']) && !preg_match('/^(?:[A-Z]+(_[A-Z]+)*)+$/', $properties['feature']) => throw new \InvalidArgumentException('The value of feature-property can not be empty, contain white spaces and must be in ALL_CAPS format.'),
-            default => $this->validateAgainstPlatformVersion($properties['stableVersion']),
+            default => $this->validateVersion($properties['stableVersion'], AnnotationTagVersionSchema::PLATFORM_DEPRECATION_SCHEMA),
         };
     }
 
-    private function validateAgainstPlatformVersion(string $version): void
+    private function validateVersion(string $version, AnnotationTagVersionSchema $schema): void
     {
-        $pattern = \sprintf('/^%s$/', self::PLATFORM_DEPRECATION_SCHEMA);
         $matches = [];
-        if (!preg_match($pattern, $version, $matches)) {
-            throw new \InvalidArgumentException('The tag version should start with `v` and comprise 3 digits separated by periods.');
+
+        if (!preg_match($schema->pattern(), $version, $matches)) {
+            throw new \InvalidArgumentException($schema->invalidMessage());
         }
 
-        $this->compareVersion($this->shopwareVersion, $matches[1]);
-    }
+        $highestVersion = $schema === AnnotationTagVersionSchema::MANIFEST_VERSION_SCHEMA
+            ? $this->manifestVersion
+            : $this->shopwareVersion;
 
-    private function validateAgainstManifestVersion(string $version): void
-    {
-        $pattern = \sprintf('/^v%s$/', self::MANIFEST_VERSION_SCHEMA);
-        $matches = [];
-        if (!preg_match($pattern, $version, $matches)) {
-            throw new \InvalidArgumentException('Manifest version must have 2 digits.');
-        }
-
-        $this->compareVersion($this->manifestVersion, $matches[1]);
+        $this->compareVersion($highestVersion, $matches[1]);
     }
 
     private function compareVersion(string $highestVersion, string $deprecatedVersion): void

@@ -234,19 +234,14 @@ class LayoutDiagnostics
         foreach ($element->properties() as $key => $value) {
             $specification = $declared[$key] ?? null;
 
-            if ($specification === null || $value->isNull()) {
+            if ($specification === null) {
                 continue;
             }
 
-            $types = $this->enforceablePrimitiveTypes($specification->type());
-
-            if ($types === null) {
-                continue;
-            }
-
+            $types = $specification->type()->enforceableTypes();
             $raw = $value->jsonSerialize();
 
-            if ($this->matchesAnyPrimitiveType($raw, $types)) {
+            if ($types === null || $specification->type()->admits($raw)) {
                 continue;
             }
 
@@ -259,57 +254,6 @@ class LayoutDiagnostics
         }
 
         return $violations;
-    }
-
-    /**
-     * The primitive types a stored value must satisfy at least one of, or `null` when the declaration constrains
-     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
-     * either. A union's declared type is an array, for which {@see PropertyType::isPrimitive()} always answers
-     * false, so the members are tested against {@see PropertyType::PRIMITIVE_TYPES} directly.
-     *
-     * @return list<string>|null
-     */
-    private function enforceablePrimitiveTypes(PropertyType $type): ?array
-    {
-        $declared = $type->type();
-
-        if (\is_string($declared)) {
-            return \in_array($declared, PropertyType::PRIMITIVE_TYPES, true) ? [$declared] : null;
-        }
-
-        if ($declared === []) {
-            return null;
-        }
-
-        foreach ($declared as $member) {
-            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
-                return null;
-            }
-        }
-
-        return $declared;
-    }
-
-    /**
-     * @param list<string> $types
-     */
-    private function matchesAnyPrimitiveType(mixed $value, array $types): bool
-    {
-        foreach ($types as $type) {
-            $matches = match ($type) {
-                'string' => \is_string($value),
-                'integer' => \is_int($value),
-                'number' => \is_int($value) || \is_float($value),
-                'boolean' => \is_bool($value),
-                default => false,
-            };
-
-            if ($matches) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

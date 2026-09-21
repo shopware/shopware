@@ -1,4 +1,4 @@
-import { Text, type VNode } from 'vue';
+import { Fragment, Text, type VNode } from 'vue';
 import type { RouteLocationRaw, Router } from 'vue-router';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-tabs.html.twig';
@@ -23,7 +23,7 @@ function isTabItemVNode(vnode: VNode): boolean {
 
 function isFragmentVNode(vnode: VNode): boolean {
     // A `v-for` of `sw-tabs-item` is wrapped in a fragment vnode.
-    return typeof vnode.type === 'symbol' && vnode.type.toString() === 'Symbol(v-fgt)';
+    return vnode.type === Fragment;
 }
 
 /**

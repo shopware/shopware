@@ -228,6 +228,10 @@
         <testsuite name="migration">
             <directory>tests/migration</directory>
         </testsuite>
+        <!-- Property-based tests (see .agents/skills/shopware-fuzz-tests); slow/noisy by nature, run nightly only -->
+        <testsuite name="fuzz">
+            <directory>tests/fuzz</directory>
+        </testsuite>
     </testsuites>
     <extensions>
         <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>

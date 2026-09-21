@@ -135,10 +135,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
      * longer exists and report a duplicate until the dev server restarts.
      */
     function forgetBaseComponentFile(fileName: string): void {
-        for (const [
-            componentName,
-            claimedBy,
-        ] of baseComponentFiles) {
+        for (const [componentName, claimedBy] of baseComponentFiles) {
             if (claimedBy === fileName) {
                 baseComponentFiles.delete(componentName);
                 break;
@@ -275,10 +272,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 return undefined;
             }
 
-            return [
-                ...modules,
-                virtualModule,
-            ];
+            return [...modules, virtualModule];
         },
 
         watchChange(id, change) {

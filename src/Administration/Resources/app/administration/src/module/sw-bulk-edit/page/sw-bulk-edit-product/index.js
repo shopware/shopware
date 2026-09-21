@@ -16,11 +16,7 @@ const { convert } = Shopware.Utils.unitConversion;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'bulkEditApiFactory',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'bulkEditApiFactory', 'repositoryFactory'],
 
     data() {
         return {
@@ -806,10 +802,7 @@ export default {
             }
 
             return this.product?.prices.reduce((r, a) => {
-                r[a.ruleId] = [
-                    ...(r[a.ruleId] || []),
-                    a,
-                ];
+                r[a.ruleId] = [...(r[a.ruleId] || []), a];
                 return r;
             }, {});
         },
@@ -1211,12 +1204,7 @@ export default {
                     return;
                 }
 
-                if (
-                    [
-                        'price',
-                        'purchasePrices',
-                    ].includes(key)
-                ) {
+                if (['price', 'purchasePrices'].includes(key)) {
                     hasPriceChange = true;
                 }
 
@@ -1263,14 +1251,7 @@ export default {
                 // each variant's effective set (its own rows when it overrides, otherwise the
                 // inherited parent set) with the removed channels dropped and the added ones
                 // merged in.
-                if (
-                    this.isChild &&
-                    key === 'visibilities' &&
-                    [
-                        'add',
-                        'remove',
-                    ].includes(bulkEditField.type)
-                ) {
+                if (this.isChild && key === 'visibilities' && ['add', 'remove'].includes(bulkEditField.type)) {
                     this.transformVariantVisibilityChange(change);
                 }
 
@@ -1615,12 +1596,7 @@ export default {
         },
 
         onInheritanceRemove(item) {
-            if (
-                [
-                    'properties',
-                    'prices',
-                ].includes(item.name)
-            ) {
+            if (['properties', 'prices'].includes(item.name)) {
                 this.setProductAssociation(item.name);
             }
 

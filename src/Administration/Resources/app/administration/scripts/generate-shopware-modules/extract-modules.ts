@@ -247,6 +247,70 @@ function interfaceKeys(sourceFile: ts.SourceFile, interfaceName: string): string
     return keys;
 }
 
+/** The directory whose mixins register as one block, via the eager glob in its index. */
+const CENTRAL_MIXIN_DIR = './app/mixin/';
+
+/**
+ * The mixins the central registry owns, which are the only ones a subpath can resolve safely.
+ *
+ * `shopware:mixins/<name>` looks the mixin up when the importing module is evaluated, so the mixin has
+ * to be registered by then. `src/app/mixin/index.js` registers its whole directory in one eager glob,
+ * and a generated module imports that index, so those are guaranteed. A mixin a feature module
+ * registers as it loads — `cms-element`, say — has no such moment and keeps `Mixin.getByName()`.
+ *
+ * Membership is read from where `MixinContainer` imports each mixin's type, so moving a mixin file
+ * moves it between the two groups on its own.
+ */
+function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
+    const fromCentralDir = new Set<string>();
+
+    sourceFile.statements.forEach((statement) => {
+        if (
+            !ts.isImportDeclaration(statement) ||
+            !ts.isStringLiteral(statement.moduleSpecifier) ||
+            !statement.moduleSpecifier.text.startsWith(CENTRAL_MIXIN_DIR)
+        ) {
+            return;
+        }
+
+        const name = statement.importClause?.name?.text;
+
+        if (name !== undefined) {
+            fromCentralDir.add(name);
+        }
+    });
+
+    const central: string[] = [];
+
+    const visit = (node: ts.Node): void => {
+        if (ts.isInterfaceDeclaration(node) && node.name.text === 'MixinContainer') {
+            node.members.forEach((member) => {
+                const key = ts.isPropertySignature(member) ? memberName(member.name) : undefined;
+                const type = ts.isPropertySignature(member) ? member.type : undefined;
+
+                // `notification: typeof NotificationMixin` — the query names the imported type.
+                if (key === undefined || !type || !ts.isTypeQueryNode(type) || !ts.isIdentifier(type.exprName)) {
+                    return;
+                }
+
+                if (fromCentralDir.has(type.exprName.text)) {
+                    central.push(key);
+                }
+            });
+        }
+
+        ts.forEachChild(node, visit);
+    };
+
+    visit(sourceFile);
+
+    if (central.length === 0) {
+        throw new Error(`Found no MixinContainer member imported from "${CENTRAL_MIXIN_DIR}".`);
+    }
+
+    return central;
+}
+
 function defaultOnlySubpaths(keys: string[]): Record<string, string[]> {
     return Object.fromEntries(
         keys.map((key) => [
@@ -299,7 +363,7 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
         },
         'shopware:mixins': {
             exports: [],
-            subpaths: defaultOnlySubpaths(interfaceKeys(globalTypes, 'MixinContainer')),
+            subpaths: defaultOnlySubpaths(centralMixinKeys(globalTypes)),
         },
         'shopware:stores': {
             exports: [],

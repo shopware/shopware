@@ -487,34 +487,6 @@ declare module 'shopware:mixins/listing' {
 }
 
 /** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/cart-notification' {
-    const mixin: MixinContainer['cart-notification'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/sw-extension-error' {
-    const mixin: MixinContainer['sw-extension-error'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/cms-element' {
-    const mixin: MixinContainer['cms-element'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
-declare module 'shopware:mixins/cms-state' {
-    const mixin: MixinContainer['cms-state'];
-
-    export default mixin;
-}
-
-/** @experimental stableVersion:v6.8.0 */
 declare module 'shopware:mixins/generic-condition' {
     const mixin: MixinContainer['generic-condition'];
 

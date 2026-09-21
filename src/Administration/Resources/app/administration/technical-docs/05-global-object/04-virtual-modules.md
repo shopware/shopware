@@ -46,7 +46,7 @@ import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 | `shopware:utils/<member>` | The member as default, plus declared namespace exports       |
 | `shopware:data`           | `Shopware.Data` as default and its classes as named exports  |
 | `shopware:data/<Class>`   | The class as default                                         |
-| `shopware:mixins/<name>`  | The registered mixin as default                              |
+| `shopware:mixins/<name>`  | The registered mixin as default, for mixins in `src/app/mixin` |
 | `shopware:stores/<id>`    | A store composable as default                                |
 
 A store subpath returns a composable that defers the registry lookup until the composable runs. Store
@@ -61,14 +61,23 @@ Production imports of utilities, data classes, and mixins capture their initial 
 evaluates. A store module captures the global object but defers its registry lookup until its exported
 function runs.
 
-A mixin must exist before its subpath module evaluates. Import mixins from components that load after
-the Administration boot process. Early module initialization must continue to use
-`Shopware.Mixin.getByName()` or import the mixin implementation first.
+A generated module does not read a global in the Administration build. It imports the instance from
+`src/core/shopware`, so evaluation order guarantees the object exists, and a `shopware:*` import is safe
+at any point in the boot sequence. A mixin subpath additionally imports `src/app/mixin`, whose eager glob
+registers every mixin in that directory, so the lookup cannot run before registration.
 
-The global object must also exist before a `shopware:*` module evaluates. `src/index.ts` creates it
-before it imports `src/app/main`, so application and extension code can use these modules. Bootstrap code
-must keep its existing access paths and defer global access until the object exists. This includes
-`src/core/**` and eager `import.meta.glob` targets reached by static imports from `src/index.ts`.
+An extension bundle has no Administration source to import and reads the global instead. Extension code
+runs after the Administration has booted, so the object is always there; the generated module throws with
+that explanation if it ever is not.
+
+`src/core` keeps using the global as a matter of layering. It is the Vue-independent framework code, it
+boots first, and part of it is bundled into the admin worker, where there is no `window.Shopware` at all.
+Files under `src/app/mixin` keep it too, because a generated mixin module imports that directory and the
+reverse would be a cycle.
+
+A mixin a feature module registers as it loads — `cms-element` and `cms-state` from `sw-cms`, for
+instance — has no subpath, because nothing can guarantee it is registered when an importer evaluates.
+Those keep `Shopware.Mixin.getByName()`.
 
 The checked-in registry only contains Administration registrations. An extension cannot import a store
 or mixin that the extension registers at runtime. Use the extension's own composable,

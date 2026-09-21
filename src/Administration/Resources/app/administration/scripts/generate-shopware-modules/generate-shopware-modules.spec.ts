@@ -50,9 +50,9 @@ describe('scripts/generate-shopware-modules', () => {
             expect(registry['shopware:utils'].subpaths.createId).toEqual([]);
         });
 
-        it('publishes the mixins and stores the global interfaces declare', () => {
+        it('publishes only the mixins the central registry owns', () => {
             expect(Object.keys(registry['shopware:mixins'].subpaths)).toContain('sw-form-field');
-            expect(Object.keys(registry['shopware:mixins'].subpaths)).toContain('cms-element');
+            expect(Object.keys(registry['shopware:mixins'].subpaths)).not.toContain('cms-element');
             expect(Object.keys(registry['shopware:stores'].subpaths)).toContain('notification');
         });
     });

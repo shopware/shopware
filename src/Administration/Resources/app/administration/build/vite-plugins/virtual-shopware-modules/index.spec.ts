@@ -181,9 +181,9 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
         });
 
         it('gives a mixin subpath a single pure lookup, so an unused import resolves nothing', () => {
-            const source = generateModuleSource('shopware:mixins/cms-element', registry) as string;
+            const source = generateModuleSource('shopware:mixins/sw-form-field', registry) as string;
 
-            expect(source).toContain('export default /*@__PURE__*/ shopware.Mixin.getByName("cms-element");');
+            expect(source).toContain('export default /*@__PURE__*/ shopware.Mixin.getByName("sw-form-field");');
             expect(source.match(/getByName/g)).toHaveLength(1);
         });
 
@@ -193,11 +193,25 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(source).toContain('export default () => shopware.Store.get("notification");');
         });
 
-        it('fails loudly when the global Shopware object does not exist yet', () => {
-            const source = generateModuleSource('shopware:data/Criteria', registry) as string;
+        it('imports the instance for the host, so evaluation order settles when it exists', () => {
+            const source = generateModuleSource('shopware:data/Criteria', registry, 'host') as string;
+
+            expect(source).toContain("import { ShopwareInstance as shopware } from 'src/core/shopware';");
+            expect(source).not.toContain('globalThis.Shopware');
+        });
+
+        it('imports the mixin registry too, so the lookup cannot run before registration', () => {
+            const source = generateModuleSource('shopware:mixins/sw-form-field', registry, 'host') as string;
+
+            expect(source).toContain("import 'src/app/mixin';");
+        });
+
+        it('reads the global for an extension, which has no Administration source to import', () => {
+            const source = generateModuleSource('shopware:data/Criteria', registry, 'extension') as string;
 
             expect(source).toContain('const shopware = globalThis.Shopware;');
-            expect(source).toContain('was imported before the global Shopware object existed');
+            expect(source).not.toContain("from 'src/core/shopware'");
+            expect(source).toContain('should be unreachable');
         });
 
         it('returns nothing for a specifier the registry does not list', () => {

@@ -84,6 +84,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             }),
             VirtualShopwareModulesPlugin({
                 administrationRoot: path.dirname(__dirname),
+                consumer: 'extension',
             }),
             vue({
                 template: {

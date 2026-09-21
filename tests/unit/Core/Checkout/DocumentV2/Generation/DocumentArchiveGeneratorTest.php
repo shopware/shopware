@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -29,6 +31,8 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(DocumentArchiveGenerator::class)]
 class DocumentArchiveGeneratorTest extends TestCase
 {
+    private const DOWNLOAD_DATE = '2026-01-15';
+
     public function testArchiveContainsAllDocumentFiles(): void
     {
         $pdfMediaId = Uuid::randomHex();
@@ -286,7 +290,7 @@ class DocumentArchiveGeneratorTest extends TestCase
             ->archive(new DocumentCollection([$firstInvoice, $secondInvoice]), Context::createDefaultContext());
 
         static::assertNotNull($archive);
-        static::assertSame('documents.zip', $archive->getName());
+        static::assertSame('documents_' . self::DOWNLOAD_DATE . '.zip', $archive->getName());
 
         $this->assertArchiveContains($archive, [
             '10000_invoice_1000.pdf' => 'first invoice content',
@@ -451,6 +455,7 @@ class DocumentArchiveGeneratorTest extends TestCase
                 new StaticDocumentRenderer(DocumentFormat::HTML),
                 new StaticDocumentRenderer('custom_format', fileExtension: 'custom'),
             ]),
+            new DocumentFileNameBuilder(new MockClock(self::DOWNLOAD_DATE . ' 10:00:00')),
         );
     }
 

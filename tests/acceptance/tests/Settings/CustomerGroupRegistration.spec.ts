@@ -7,7 +7,7 @@ test(
         const customerGroup = await TestDataService.createCustomerGroup();
 
         await test.step('Verify the created customer group in the admin', async () => {
-            await ShopAdmin.goesTo(AdminCustomerGroupListing.url());
+            await ShopAdmin.goesTo(AdminCustomerGroupListing.url([customerGroup.name]));
             const customerGroupLineItem = await AdminCustomerGroupListing.getCustomerGroupByName(customerGroup.name);
             await ShopAdmin.expects(customerGroupLineItem.customerGroupName).toBeVisible({ timeout: 10000 });
 

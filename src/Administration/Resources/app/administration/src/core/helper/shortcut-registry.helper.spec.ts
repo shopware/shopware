@@ -151,10 +151,7 @@ describe('src/core/helper/shortcut-registry.helper', () => {
 
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
 
-        expect(order).toEqual([
-            'blur',
-            'handler',
-        ]);
+        expect(order).toEqual(['blur', 'handler']);
         document.body.removeChild(input);
     });
 

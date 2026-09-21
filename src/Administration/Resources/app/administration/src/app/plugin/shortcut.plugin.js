@@ -25,26 +25,21 @@ export default {
 
                 unregisterFunctions.set(
                     this,
-                    Object.entries(shortcuts).map(
-                        ([
-                            key,
-                            value,
-                        ]) => {
-                            const functionName = typeof value === 'string' ? value : value.method;
-                            const activeOption = typeof value === 'string' ? true : (value.active ?? true);
-                            const active = typeof activeOption === 'boolean' ? () => activeOption : activeOption.bind(this);
+                    Object.entries(shortcuts).map(([key, value]) => {
+                        const functionName = typeof value === 'string' ? value : value.method;
+                        const activeOption = typeof value === 'string' ? true : (value.active ?? true);
+                        const active = typeof activeOption === 'boolean' ? () => activeOption : activeOption.bind(this);
 
-                            return registerShortcut({
-                                key,
-                                active,
-                                handler: () => {
-                                    if (typeof this[functionName] === 'function') {
-                                        this[functionName]();
-                                    }
-                                },
-                            });
-                        },
-                    ),
+                        return registerShortcut({
+                            key,
+                            active,
+                            handler: () => {
+                                if (typeof this[functionName] === 'function') {
+                                    this[functionName]();
+                                }
+                            },
+                        });
+                    }),
                 );
             },
 

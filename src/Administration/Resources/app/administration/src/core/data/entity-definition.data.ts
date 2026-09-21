@@ -5,6 +5,7 @@
 /* @private */
 export interface Property {
     flags?: {
+        inherited?: boolean;
         primary_key?: boolean;
         required?: boolean;
         translatable?: boolean;

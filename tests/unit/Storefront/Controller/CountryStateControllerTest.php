@@ -5,8 +5,10 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\CountryStateController;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPagelet;
@@ -43,9 +45,10 @@ class CountryStateControllerTest extends TestCase
         $this->controller->getCountryData($request, $context);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetCountryDataFallsBackToCountryIdFromPost(): void
     {
-        $request = new Request([], ['countryId' => 'post-country-id']);
+        $request = Request::create('/country/country-state-data', Request::METHOD_POST, ['countryId' => 'post-country-id']);
         $context = Generator::generateSalesChannelContext();
 
         $this->pageletLoader->expects($this->once())
@@ -54,6 +57,21 @@ class CountryStateControllerTest extends TestCase
             ->willReturn(new CountryStateDataPagelet());
 
         $this->controller->getCountryData($request, $context);
+    }
+
+    public function testGetCountryDataThrowsForPostRequestsWhenV6800IsActive(): void
+    {
+        $this->pageletLoader->expects($this->never())
+            ->method('load');
+
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: The POST request to /country/country-state-data is deprecated and will be removed in v6.8.0.0. Use a GET request instead.'
+        ));
+
+        $this->controller->getCountryData(
+            Request::create('/country/country-state-data', Request::METHOD_POST, ['countryId' => 'post-country-id']),
+            Generator::generateSalesChannelContext()
+        );
     }
 
     public function testGetCountryDataThrowsExceptionWithoutCountryId(): void

@@ -1,6 +1,5 @@
 import template from './sw-cms-el-category-navigation.html.twig';
 import './sw-cms-el-category-navigation.scss';
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import placeholderMixin from 'shopware:mixins/placeholder';
 
 /**
@@ -11,7 +10,7 @@ export default {
     template,
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
         placeholderMixin,
     ],
 

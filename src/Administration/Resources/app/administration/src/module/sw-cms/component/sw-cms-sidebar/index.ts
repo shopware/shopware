@@ -1,4 +1,3 @@
-import cmsStateMixin from 'shopware:mixins/cms-state';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
@@ -75,7 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        cmsStateMixin,
+        Shopware.Mixin.getByName('cms-state'),
         placeholderMixin,
     ],
 
@@ -451,8 +450,8 @@ export default Shopware.Component.wrapComponentConfig({
                 oldSection.blocks!.remove(dragData.block.id);
                 oldSection._origin.blocks!.remove(dragData.block.id);
 
-                this.refreshPosition(oldSection.blocks!);
-                this.refreshPosition(dropSection.blocks!);
+                this.refreshPosition(oldSection.blocks);
+                this.refreshPosition(dropSection.blocks);
                 this.currentDragSectionIndex = dropSectionIndex;
                 return;
             }
@@ -463,7 +462,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             // move item inside the section
             this.page.sections![dropSectionIndex].blocks!.moveItem(dragData.block.position, dropData.block.position);
-            this.refreshPosition(dropSection.blocks!);
+            this.refreshPosition(dropSection.blocks);
         },
 
         refreshPosition(blocks: EntityCollection<'cms_block'>) {

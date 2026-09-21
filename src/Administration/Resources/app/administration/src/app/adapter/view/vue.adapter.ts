@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { string } from 'shopware:utils';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
@@ -506,7 +507,7 @@ export default class VueAdapter extends ViewAdapter {
                 componentName,
                 component,
             ]) => {
-                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                const componentNameAsKebabCase = string.kebabCase(componentName);
                 this.app.component(componentNameAsKebabCase, component as VueComponent);
             },
         );
@@ -516,7 +517,7 @@ export default class VueAdapter extends ViewAdapter {
                 componentName,
                 importMethod,
             ]) => {
-                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                const componentNameAsKebabCase = string.kebabCase(componentName);
                 this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
             },
         );

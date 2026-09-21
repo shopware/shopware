@@ -41,7 +41,7 @@ export function mapSystemConfigErrors(
     saleChannelId: EntityKey<'sales_channel'> | null,
     key: string = '',
 ): $TSFixMe {
-    return useErrorStore().getSystemConfigApiError(entityName, saleChannelId!, key);
+    return useErrorStore().getSystemConfigApiError(entityName, saleChannelId, key);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

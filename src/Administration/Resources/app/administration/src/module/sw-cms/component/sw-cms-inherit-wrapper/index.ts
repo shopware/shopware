@@ -3,7 +3,6 @@ import './sw-cms-inherit-wrapper.scss';
 import type { CmsSlotConfig, RuntimeSlot } from '../../service/cms.service';
 import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
 import { isEmpty, isUndefined } from 'shopware:utils/types';
-import cmsStateMixin from 'shopware:mixins/cms-state';
 import useContextStore from 'shopware:stores/context';
 
 const EVENTS = {
@@ -47,7 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
     inject: ['cmsService'],
     mixins: [
-        cmsStateMixin,
+        Shopware.Mixin.getByName('cms-state'),
     ],
     emits: [
         EVENTS.RESTORE,
@@ -173,10 +172,10 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (!has(this.childConfig, this.field)) {
-                set(this.childConfig!, this.field, inheritedField);
+                set(this.childConfig, this.field, inheritedField);
             }
 
-            set(this.childConfig!, this.fullPath, get(inheritedField, this.fieldPath));
+            set(this.childConfig, this.fullPath, get(inheritedField, this.fieldPath));
             set(this.runtimeConfig, this.fullPath, get(inheritedField, this.fieldPath));
 
             this.$emit(EVENTS.REMOVE);

@@ -1,5 +1,4 @@
 import notificationMixin from 'shopware:mixins/notification';
-import cartNotificationMixin from 'shopware:mixins/cart-notification';
 import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
@@ -29,7 +28,7 @@ export default Component.wrapComponentConfig({
 
     mixins: [
         notificationMixin,
-        cartNotificationMixin,
+        Shopware.Mixin.getByName('cart-notification'),
     ],
 
     data(): {

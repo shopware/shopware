@@ -1,4 +1,3 @@
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-config-buy-box.html.twig';
 import './sw-cms-el-config-buy-box.scss';
 import { Criteria } from 'shopware:data';
@@ -18,7 +17,7 @@ export default {
     emits: ['element-update'],
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

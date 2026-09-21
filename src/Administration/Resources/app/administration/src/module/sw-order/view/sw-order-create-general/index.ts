@@ -1,6 +1,5 @@
 import { get, format, array } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
-import cartNotificationMixin from 'shopware:mixins/cart-notification';
 import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-general.html.twig';
 import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
@@ -17,7 +16,7 @@ export default Component.wrapComponentConfig({
 
     mixins: [
         notificationMixin,
-        cartNotificationMixin,
+        Shopware.Mixin.getByName('cart-notification'),
     ],
 
     data(): {

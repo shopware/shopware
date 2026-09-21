@@ -1,3 +1,4 @@
+import useSessionStore from 'shopware:stores/session';
 import type DocumentV2ApiService from 'src/core/service/api/documentV2.api.service';
 import type { DocumentTypeFormats } from 'src/core/service/api/documentV2.api.service';
 
@@ -219,7 +220,7 @@ export default class DocumentV2Service {
 
     public getDocumentTypeLabel(technicalName: string, label?: Record<string, string> | null): string {
         if (label && Object.keys(label).length > 0) {
-            const locale = Shopware.Store.get('session')?.currentLocale ?? 'en-GB';
+            const locale = useSessionStore()?.currentLocale ?? 'en-GB';
 
             return label[locale] ?? label['en-GB'] ?? Object.values(label)[0] ?? technicalName;
         }

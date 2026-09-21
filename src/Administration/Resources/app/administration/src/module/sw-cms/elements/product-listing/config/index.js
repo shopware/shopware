@@ -1,4 +1,3 @@
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-config-product-listing.html.twig';
 import './sw-cms-el-config-product-listing.scss';
 import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
@@ -18,7 +17,7 @@ export default {
     ],
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

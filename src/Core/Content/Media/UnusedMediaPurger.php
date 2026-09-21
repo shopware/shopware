@@ -278,15 +278,22 @@ class UnusedMediaPurger
 
         $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
 
-        $criteria->addFilter(new EqualsAnyFilter('media.mediaFolder.id', $ids));
+        // filters on the foreign key that media already carries, traversing the association instead
+        // would join media_folder onto every candidate row for no gain
+        $criteria->addFilter(new EqualsAnyFilter('media.mediaFolderId', $ids));
 
         return $criteria;
     }
 
     /**
      * Keeps the media that nothing references. Every media association is checked, folder membership says
-     * where a media file is placed and never whether something still points at it. The check is pinned to
-     * the given ids so the joins are evaluated for one batch instead of the whole media table.
+     * where a media file is placed and never whether something still points at it.
+     *
+     * Each association is checked by its own query rather than as one criteria carrying every join.
+     * `max_join_size` is enforced against the optimizer's estimate for the whole plan, which is the product
+     * of the per-table estimates, so pinning the driving set to one batch of ids caps the first factor only:
+     * a single query joining all ~25 media associations exceeds the limit however few ids drive it. One
+     * association per query keeps every plan to two or three tables, resolved by the foreign key index.
      *
      * @param list<string> $mediaIds
      *
@@ -294,12 +301,31 @@ class UnusedMediaPurger
      */
     private function filterOutUsedMedia(array $mediaIds, Context $context): array
     {
-        if ($mediaIds === []) {
-            return [];
+        foreach ($this->getUsageFilters() as $filter) {
+            // every association narrows the input of the next one, and media referenced anywhere is out
+            // for good, so there is nothing left to ask about once the batch is empty
+            if ($mediaIds === []) {
+                break;
+            }
+
+            $criteria = new Criteria($mediaIds);
+            $criteria->addFilter($filter);
+
+            $mediaIds = $this->mediaRepo->searchIds($criteria, $context)->getIds();
         }
 
-        $criteria = new Criteria($mediaIds);
+        return $mediaIds;
+    }
 
+    /**
+     * One filter per association that can reference media, in definition order. Staying definition-driven
+     * is what keeps associations added through an `EntityExtension` covered and keeps
+     * `IgnoreInUnusedMediaSearch` the single explicit way to exclude one.
+     *
+     * @return \Generator<EqualsFilter>
+     */
+    private function getUsageFilters(): \Generator
+    {
         foreach ($this->mediaRepo->getDefinition()->getFields() as $field) {
             if (!$field instanceof AssociationField) {
                 continue;
@@ -329,12 +355,8 @@ class UnusedMediaPurger
                 continue;
             }
 
-            $criteria->addFilter(
-                new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null)
-            );
+            yield new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null);
         }
-
-        return $this->mediaRepo->searchIds($criteria, $context)->getIds();
     }
 
     /**

@@ -71,9 +71,7 @@ describe('src/app/composables/use-theme.ts', () => {
         await useTheme().loadUserTheme();
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([
-            USER_THEME_CONFIG_KEY,
-        ]);
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([USER_THEME_CONFIG_KEY]);
         expect(useTheme().theme.value).toBe('dark');
     });
 

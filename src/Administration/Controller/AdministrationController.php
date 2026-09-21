@@ -69,6 +69,8 @@ class AdministrationController extends AbstractController
 
     private readonly bool $productStreamIndexingEnabled;
 
+    private readonly bool $hideUpdateModule;
+
     /**
      * @internal
      *
@@ -109,6 +111,9 @@ class AdministrationController extends AbstractController
         $this->productStreamIndexingEnabled = $params->has('shopware.product_stream.indexing')
             ? $params->get('shopware.product_stream.indexing')
             : true;
+        $this->hideUpdateModule = $params->has('shopware.auto_update.hide_module')
+            ? (bool) $params->get('shopware.auto_update.hide_module')
+            : false;
     }
 
     #[Route(
@@ -141,6 +146,7 @@ class AdministrationController extends AbstractController
             'refreshTokenTtl' => $refreshTokenTtl * 1000,
             'serviceRegistryUrl' => $this->serviceRegistryUrl,
             'productStreamIndexingEnabled' => $this->productStreamIndexingEnabled,
+            'hideUpdateModule' => $this->hideUpdateModule,
             'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
         ]);
 

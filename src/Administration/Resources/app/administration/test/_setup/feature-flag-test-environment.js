@@ -49,12 +49,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
             }
 
             const defaultActiveFeatureFlags = this.global[defaultActiveFeatureFlagsSymbol] ?? [];
-            const activeFeatureFlags = [
-                ...new Set([
-                    ...defaultActiveFeatureFlags,
-                    ...featureFlags,
-                ]),
-            ];
+            const activeFeatureFlags = [...new Set([...defaultActiveFeatureFlags, ...featureFlags])];
 
             // `activeFeatureFlags` is what the feature service mock reads. The extra
             // `activeFeatureFlagsForCurrentTest` marker exists because prepare_environment.js resets
@@ -68,13 +63,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
             return;
         }
 
-        if (
-            ![
-                'test_done',
-                'test_skip',
-                'test_todo',
-            ].includes(event.name)
-        ) {
+        if (!['test_done', 'test_skip', 'test_todo'].includes(event.name)) {
             return;
         }
 

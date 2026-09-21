@@ -44,10 +44,7 @@ export default {
         },
 
         focusEl: {
-            type: [
-                HTMLDocument,
-                HTMLElement,
-            ],
+            type: [HTMLDocument, HTMLElement],
             required: false,
             default() {
                 return document;
@@ -87,10 +84,7 @@ export default {
         },
 
         popoverClass() {
-            return [
-                ...this.popoverClasses,
-                'sw-select-result-list-popover-wrapper',
-            ];
+            return [...this.popoverClasses, 'sw-select-result-list-popover-wrapper'];
         },
     },
 

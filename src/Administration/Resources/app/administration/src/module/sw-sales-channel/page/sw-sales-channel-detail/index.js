@@ -22,9 +22,7 @@ const REQUIRED_BASE_FIELDS = [
     'navigationCategoryId',
 ];
 
-const REQUIRED_PRODUCT_EXPORT_FIELDS = [
-    'name',
-];
+const REQUIRED_PRODUCT_EXPORT_FIELDS = ['name'];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -45,10 +43,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -167,9 +162,7 @@ export default {
                 };
             };
 
-            const tabs = [
-                createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base'),
-            ];
+            const tabs = [createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base')];
 
             if (this.isAgenticCommerce && !this.isLoading) {
                 tabs.push(
@@ -244,10 +237,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(
-                Criteria.equalsAny('typeId', [
-                    Defaults.storefrontSalesChannelTypeId,
-                    Defaults.apiSalesChannelTypeId,
-                ]),
+                Criteria.equalsAny('typeId', [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId]),
             );
         },
 
@@ -611,10 +601,7 @@ export default {
                     configEntry.isLoading = true;
 
                     try {
-                        const [
-                            config,
-                            values,
-                        ] = await Promise.all([
+                        const [config, values] = await Promise.all([
                             this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
                             this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
                         ]);

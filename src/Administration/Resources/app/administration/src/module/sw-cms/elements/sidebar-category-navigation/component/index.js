@@ -8,10 +8,7 @@ import './sw-cms-el-category-navigation.scss';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-        Shopware.Mixin.getByName('placeholder'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-element'), Shopware.Mixin.getByName('placeholder')],
 
     created() {
         this.createdComponent();

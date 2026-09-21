@@ -1,14 +1,14 @@
 # 6.7.15.0
 
-## Document generation v1 deprecated for removal in Shopware 6.9
+## Document generation v1 marked for replacement
 
-The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
+The legacy document generation implementation is superseded by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). Because v2 is still `@experimental`, the legacy classes are not deprecated yet. They carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]`, which is silent for static analysis. With Shopware 6.8 the attribute becomes a `@deprecated tag:v6.9.0` annotation. The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
 
-### Deprecated classes
+### Superseded classes
 
-All classes below live under `Shopware\Core\Checkout\Document`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally.
+All classes below live under `Shopware\Core\Checkout\Document` and carry `#[ExperimentalReplacement]`. Replacements live under `Shopware\Core\Checkout\DocumentV2`. A replacement is only named when it is part of the public v2 surface. Where the column says none, v2 handles the concern internally and the attribute's `description` explains the shift.
 
-| Deprecated | Replacement |
+| Legacy class | Replacement |
 |---|---|
 | `Controller\DocumentController` | `Controller\DocumentV2Controller` |
 | `DocumentGeneratorController` | `Controller\DocumentV2Controller` |
@@ -76,7 +76,7 @@ The `document_type` and `document_type_translation` entities are deprecated with
 
 ### Relocated classes
 
-The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names (annotated with `#[NamespaceChange]`):
+The following classes survive v1 and move into the `Shopware\Core\Checkout\DocumentV2` namespace with Shopware 6.9, keeping their class names.
 
 | Current location | Location from 6.9 |
 |---|---|
@@ -169,6 +169,10 @@ The following components are fully deprecated including their registration, temp
 - the v1-only branches inside the surviving download and creation methods
 
 `sw-bulk-edit-save-modal-process` (order bulk edit): the methods `createDocument()`, `getDocumentGenerationResult()`, `getFailedDocumentGenerationItems()`
+
+## `Feature` becomes final
+
+`Shopware\Core\Framework\Feature` carries `#[BecomesFinal(version: 'v6.8.0')]` and cannot be extended from Shopware 6.8. It is a static utility class, call it directly instead of subclassing it.
 
 # 6.7.14.0
 
@@ -1928,96 +1932,6 @@ After:
 <mt-floating-ui :isOpened="myVisibility" />
 ```
 
-## Removal of "sw-tabs":
-The old "sw-tabs" component will be removed in the next major version. Please use the new "mt-tabs" component instead.
-
-We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-tabs" component. In this specific component it cannot convert anything correctly, because the new "mt-tabs" component has a different API. You have to manually check and solve every "TODO" comment created by the codemod.
-
-If you don't want to use the codemod, you can manually replace all occurrences of "sw-tabs" with "mt-tabs".
-
-Following changes are necessary:
-
-### "sw-tabs" is removed
-Replace all component names from "sw-tabs" with "mt-tabs"
-
-Before:
-```html
-<sw-tabs />
-```
-After:
-```html
-<mt-tabs />
-```
-
-### "sw-tabs" wrong "default" slot usage will be replaced with "items" property
-You need to replace the "default" slot with the "items" property. The "items" property is an array of objects which are used to render the tabs. Using the "sw-tabs-item" component is not needed anymore.
-
-Before:
-```html
-<sw-tabs>
-    <template #default="{ active }">
-        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
-        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
-    </template>
-</sw-tabs>
-```
-
-After:
-```html
-<mt-tabs :items="[
-    {
-        'label': 'Tab 1',
-        'name': 'tab1'
-    },
-    {
-        'label': 'Tab 2',
-        'name': 'tab2'
-    }
-]">
-</mt-tabs>
-```
-
-### "sw-tabs" wrong "content" slot usage - content should be set manually outside the component
-The content slot is not supported anymore. You need to set the content manually outside the component. You can use the "new-item-active" event to get the active item and set it to a variable. Then you can use this variable anywere in your template.
-
-Before:
-```html
-<sw-tabs>
-    <template #content="{ active }">
-        The current active item is {{ active }}
-    </template>
-</sw-tabs>
-```
-
-After:
-```html
-<!-- setActiveItem need to be defined -->
-<mt-tabs @new-item-active="setActiveItem"></mt-tabs>
-
-The current active item is {{ activeItem }}
-```
-
-### "sw-tabs" property "isVertical" was renamed to "vertical"
-Before:
-```html
-<sw-tabs is-vertical />
-```
-
-After:
-```html
-<mt-tabs vertical />
-```
-
-### "sw-tabs" property "alignRight" was removed
-Before:
-```html
-<sw-tabs align-right />
-```
-
-After:
-```html
-<mt-tabs />
-```
 ## Removal of "sw-select-field":
 The old "sw-select-field" component will be removed in the next major version. Please use the new "mt-select" component instead.
 

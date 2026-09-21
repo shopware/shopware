@@ -28,6 +28,14 @@ class AuthMiddleware
     final public const SHOPWARE_USER_LANGUAGE = 'sw-user-language';
 
     /**
+     * Redirect policy for every app-system HTTP client. Without `strict`, Guzzle downgrades the
+     * signed POST to a bodyless GET on a 301/302, so the forwarded request goes out unsigned.
+     *
+     * @see RequestSigner::signRequest()
+     */
+    final public const ALLOW_REDIRECTS = ['max' => 5, 'strict' => true];
+
+    /**
      * @internal
      */
     public function __construct(

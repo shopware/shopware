@@ -95,6 +95,9 @@ class ContentSystemException extends HttpException
     public const UNKNOWN_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH';
     public const MAPPING_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH';
     public const INVALID_MAPPING_CANDIDATE_PATH = 'CONTENT_SYSTEM__INVALID_MAPPING_CANDIDATE_PATH';
+    public const UNKNOWN_PROPERTY_PROJECTION = 'CONTENT_SYSTEM__UNKNOWN_PROPERTY_PROJECTION';
+    public const MAPPING_PROJECTION_MISMATCH = 'CONTENT_SYSTEM__MAPPING_PROJECTION_MISMATCH';
+    public const PROJECTION_ON_NON_MAPPING_CONSUMER = 'CONTENT_SYSTEM__PROJECTION_ON_NON_MAPPING_CONSUMER';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
@@ -950,8 +953,8 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The three client-facing 400s of the data-mapping write gate. A mapping is a root-scoped context consumer
-    // whose propertyAlias names a declared property of the element's type, so all three name a defect in a
+    // The four client-facing 400s of the data-mapping write gate. A mapping is a root-scoped context consumer
+    // whose propertyAlias names a declared property of the element's type, so all four name a defect in a
     // stored mapping rather than in context wiring at large.
 
     // The declared property exists but its type did not opt in with `mappable: true`.
@@ -986,6 +989,47 @@ class ContentSystemException extends HttpException
             self::MAPPING_TYPE_MISMATCH,
             'Mapping onto property "{{ propertyKey }}" yields "{{ valueType }}", which does not satisfy its declared type "{{ declaredType }}".',
             ['propertyKey' => $propertyKey, 'declaredType' => $declaredType, 'valueType' => $valueType]
+        );
+    }
+
+    // The catalogue offers the path, but the stored mapping pairs it with a different projection than the one
+    // the candidate vouched for. The candidate is the whole warrant that the reshaping is safe and lands on the
+    // advertised type, so a projection the author substituted has nothing behind it.
+    public static function mappingProjectionMismatch(string $path, ?string $projection, ?string $expected): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAPPING_PROJECTION_MISMATCH,
+            'Mapping path "{{ path }}" must be used with projection "{{ expected }}", got "{{ projection }}".',
+            ['path' => $path, 'projection' => $projection ?? 'none', 'expected' => $expected ?? 'none']
+        );
+    }
+
+    // A consumer declaring a projection outside the one shape ContextDeliveryResolver applies one to. Rejected
+    // rather than ignored, because a projection that silently does nothing shows up as the untransformed value
+    // reaching the property, which is a much harder thing to read back to its cause.
+    public static function projectionOnNonMappingConsumer(string $consumerKey, string $projection): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROJECTION_ON_NON_MAPPING_CONSUMER,
+            'Consumer "{{ consumerKey }}" declares the projection "{{ projection }}", which only a root-scoped consumer keyed by a dotted path may do.',
+            ['consumerKey' => $consumerKey, 'projection' => $projection]
+        );
+    }
+
+    /**
+     * A candidate naming a projection no service is registered under, which would make the write gate admit a
+     * mapping the render path then cannot transform. Unreachable from client input: the gate has already held
+     * the stored mapping to the candidate's projection by the time it asks, so the name is the provider's.
+     */
+    public static function unknownPropertyProjection(string $projection, string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNKNOWN_PROPERTY_PROJECTION,
+            'Mapping candidate "{{ path }}" declares the projection "{{ projection }}", which is not registered.',
+            ['projection' => $projection, 'path' => $path]
         );
     }
 

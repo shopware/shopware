@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
@@ -18,7 +20,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * The data-mapping half of the content_layout write gate: every stored mapping names a mappable property, a
- * catalogued path, and a value the property can actually hold.
+ * catalogued path, the projection the catalogue pairs that path with, and a value the property can hold.
  *
  * It lives at the write boundary rather than in `Diagnostics/LayoutDiagnostics` because the rules need the
  * layout's root source, and `LayoutDiagnostics::analyze()` is handed the resolved root CONTEXT instead — it
@@ -48,6 +50,7 @@ final class StoredMappingValidator
         private readonly AbstractContentSystemMappingCandidateRegistry $candidateRegistry,
         private readonly MappingTypeCompatibility $compatibility,
         private readonly MappingConsumers $mappingConsumers,
+        private readonly AbstractContentSystemPropertyProjectionRegistry $projections,
     ) {
     }
 
@@ -94,7 +97,7 @@ final class StoredMappingValidator
                 continue;
             }
 
-            $violation = $this->mappingViolation($element, $consumerKey, $consumer->propertyAlias, $property, $rootSource, $candidates);
+            $violation = $this->mappingViolation($element, (string) $consumerKey, $consumer, $property, $rootSource, $candidates);
 
             if ($violation !== null) {
                 $violations->add($violation);
@@ -108,11 +111,14 @@ final class StoredMappingValidator
     private function mappingViolation(
         StoredElement $element,
         string $consumerKey,
-        string $propertyKey,
+        ContextConsumer $consumer,
         PropertySpecification $property,
         string $rootSource,
         array $candidates,
     ): ?ConstraintViolation {
+        // Non-null by MappingConsumers::isMapping(), checked at the call site.
+        $propertyKey = (string) $consumer->propertyAlias;
+
         if (!$property->mappable()) {
             return $this->toViolation(
                 ContentSystemException::propertyNotMappable($element->component, $propertyKey),
@@ -127,6 +133,34 @@ final class StoredMappingValidator
         if ($candidate === null) {
             return $this->toViolation(
                 ContentSystemException::unknownMappingPath($consumerKey, $rootSource),
+                $element->id,
+                $propertyKey,
+                $consumerKey,
+            );
+        }
+
+        // The candidate owns the pairing of path and projection, so the stored mapping has to carry the
+        // projection the catalogue offered it with — including carrying none where the candidate has none.
+        // Otherwise an author could keep a catalogued path and swap the transform, and the type check below
+        // would then be checking a type nothing produces: valueType describes the path AFTER the candidate's
+        // own projection, and says nothing about what a substituted one would yield.
+        $projection = $consumer->projection;
+
+        if ($projection !== $candidate->projection) {
+            return $this->toViolation(
+                ContentSystemException::mappingProjectionMismatch($consumerKey, $projection, $candidate->projection),
+                $element->id,
+                $propertyKey,
+                $consumerKey,
+            );
+        }
+
+        if ($projection !== null && $this->projections->get($projection) === null) {
+            // A 500: the name came from the candidate, so a provider is offering a transform the container
+            // does not have. Reported as a violation rather than thrown so one broken provider fails the
+            // writes that use it instead of every write of every layout.
+            return $this->toViolation(
+                ContentSystemException::unknownPropertyProjection($projection, $consumerKey),
                 $element->id,
                 $propertyKey,
                 $consumerKey,

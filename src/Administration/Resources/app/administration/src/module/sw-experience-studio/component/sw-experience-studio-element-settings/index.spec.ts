@@ -173,16 +173,18 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                 },
                 {
                     key: 'media',
-                    path: 'category.media',
+                    path: 'product.cover',
                     contextType: 'single',
+                    projection: 'product_media_to_media',
                 },
             );
 
             expect($emit).toHaveBeenCalledWith('update-mapping', {
                 elementId: 'image-element',
                 propertyKey: 'media',
-                path: 'category.media',
+                path: 'product.cover',
                 contextType: 'single',
+                projection: 'product_media_to_media',
             });
         });
 
@@ -202,6 +204,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                     key: 'text',
                     path: 'category.name',
                     contextType: 'single',
+                    projection: null,
                 },
             );
 

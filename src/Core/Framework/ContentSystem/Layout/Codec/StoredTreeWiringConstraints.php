@@ -89,6 +89,7 @@ final class StoredTreeWiringConstraints
                             // NotNull beside the Choice, because Choice skips a null value: without it a
                             // present null would pass the write and then fail every decode.
                             'scope' => new Optional($this->nonNull(new Choice(choices: ConsumerScope::values()))),
+                            'projection' => new Optional([new Type('string')]),
                         ],
                         allowExtraFields: false,
                         allowMissingFields: false
@@ -97,10 +98,11 @@ final class StoredTreeWiringConstraints
                     new Callback($this->validateConsumerScope(...)),
                 )
             ),
-            // Map-level, because both rules are judged per entry against the entry's own map key, which a
+            // Map-level, because all three rules are judged per entry against the entry's own map key, which a
             // constraint inside the `All()` above never sees.
             new Callback($this->validateConsumerBaseKeys(...)),
             new Callback($this->validateRedistributeKeyShape(...)),
+            new Callback($this->validateProjectionKeyShape(...)),
         ];
     }
 
@@ -303,6 +305,36 @@ final class StoredTreeWiringConstraints
 
             $context->buildViolation('This context key uses dot notation and cannot be redistributed.')
                 ->atPath('[' . $contextKey . '][redistribute]')
+                ->addViolation();
+        }
+    }
+
+    /**
+     * A projection reshapes a mapped value, and `Rendering/ContextDeliveryResolver::ambientValueFor()` applies
+     * one only to a root-scoped consumer keyed by a dotted path. Declared on anything else it would be stored
+     * and then silently never run, so it is rejected instead. Like the rule above, this needs the map key.
+     */
+    private function validateProjectionKeyShape(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (!\is_array($value)) {
+            return;
+        }
+
+        foreach ($value as $contextKey => $consumer) {
+            if (!\is_string($contextKey) || !\is_array($consumer)) {
+                continue;
+            }
+
+            if (($consumer['projection'] ?? null) === null) {
+                continue;
+            }
+
+            if (($consumer['scope'] ?? null) === ConsumerScope::Root->value && str_contains($contextKey, '.')) {
+                continue;
+            }
+
+            $context->buildViolation('Only a root-scoped consumer keyed by a dotted path may declare a projection.')
+                ->atPath('[' . $contextKey . '][projection]')
                 ->addViolation();
         }
     }

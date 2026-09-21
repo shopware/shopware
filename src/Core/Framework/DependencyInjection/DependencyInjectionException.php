@@ -28,6 +28,8 @@ class DependencyInjectionException extends HttpException
     public const DATA_LOADER_CONFIG_KEY_INVALID_MERGE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_MERGE';
     public const DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER = 'FRAMEWORK__DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER';
     public const DATA_LOADER_CLASS_IS_ABSTRACT = 'FRAMEWORK__DATA_LOADER_CLASS_IS_ABSTRACT';
+    public const PROPERTY_PROJECTION_DUPLICATE_NAME = 'FRAMEWORK__PROPERTY_PROJECTION_DUPLICATE_NAME';
+    public const PROPERTY_PROJECTION_INVALID_TYPE = 'FRAMEWORK__PROPERTY_PROJECTION_INVALID_TYPE';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -234,6 +236,38 @@ class DependencyInjectionException extends HttpException
                 'Service "%s" is tagged as "content_system.data_loader" but its class "%s" is abstract. Tag a concrete loader: an abstract class cannot answer the introspection contract.',
                 $service,
                 $loaderClass
+            )
+        );
+    }
+
+    public static function propertyProjectionDuplicateName(string $projectionClass, string $existingProjectionClass, string $name): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PROPERTY_PROJECTION_DUPLICATE_NAME,
+            \sprintf(
+                'Property projection "%s" uses the name "%s", which projection "%s" already uses. The name is stored on every layout that maps through it, so a second claimant would change what those layouts render; decorate the registered projection instead of registering a second one under the same name.',
+                $projectionClass,
+                $name,
+                $existingProjectionClass
+            )
+        );
+    }
+
+    /**
+     * @param list<string> $primitiveTypes
+     */
+    public static function propertyProjectionInvalidType(string $projectionClass, string $side, string $type, array $primitiveTypes): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PROPERTY_PROJECTION_INVALID_TYPE,
+            \sprintf(
+                'Property projection "%s" declares the %s type "%s", which is neither an existing class nor one of the primitive types %s.',
+                $projectionClass,
+                $side,
+                $type,
+                implode(', ', $primitiveTypes)
             )
         );
     }

@@ -14,6 +14,12 @@ export interface ContentElementContextConsumer {
     consumerAlias?: string | null;
     propertyAlias?: string | null;
     scope?: 'parent' | 'root';
+    /**
+     * A registered transform the server applies to the resolved value before it fills the property, copied
+     * verbatim from the catalogue candidate. The server rejects a mapping pairing a path with any projection
+     * but the one that candidate declares, so this is never the Administration's to choose.
+     */
+    projection?: string | null;
 }
 
 /**

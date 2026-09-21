@@ -11,6 +11,7 @@ import {
 function property(overrides: Partial<ContentSystemElementTypeProperty> = {}): ContentSystemElementTypeProperty {
     return {
         type: 'string',
+        contextTypes: ['single'],
         translatable: false,
         enum: null,
         default: null,
@@ -174,9 +175,70 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 candidate({ path: 'category.media', valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity' }),
             ];
 
-            expect(getCandidatesForProperty(candidates, property({ type: 'object' })).map((entry) => entry.path)).toEqual(
-                ['category.media'],
+            expect(
+                getCandidatesForProperty(
+                    candidates,
+                    property({
+                        type: 'object',
+                        contextTypes: [
+                            'single',
+                            'collection',
+                        ],
+                    }),
+                ).map((entry) => entry.path),
+            ).toEqual(['category.media']);
+        });
+
+        // The gallery's mediaItems against a category image. Both are non-primitive class types, so the
+        // class check alone admits it, and picking it produced an element that silently rendered nothing.
+        it('rejects a single-media candidate for a collection property', () => {
+            const candidates = [
+                candidate({
+                    path: 'category.media',
+                    valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                    contextType: 'single',
+                }),
+                candidate({
+                    path: 'product.media',
+                    valueType: 'Shopware\\Core\\Content\\Media\\MediaCollection',
+                    contextType: 'collection',
+                }),
+            ];
+
+            const matching = getCandidatesForProperty(
+                candidates,
+                property({
+                    type: 'Shopware\\Core\\Content\\Media\\MediaCollection',
+                    contextTypes: ['collection'],
+                }),
             );
+
+            expect(matching.map((entry) => entry.path)).toEqual(['product.media']);
+        });
+
+        it('rejects a collection candidate for a single-reference property', () => {
+            const candidates = [
+                candidate({
+                    path: 'product.cover',
+                    valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                    contextType: 'single',
+                }),
+                candidate({
+                    path: 'product.media',
+                    valueType: 'Shopware\\Core\\Content\\Media\\MediaCollection',
+                    contextType: 'collection',
+                }),
+            ];
+
+            const matching = getCandidatesForProperty(
+                candidates,
+                property({
+                    type: 'Shopware\\Core\\Content\\Media\\MediaEntity',
+                    contextTypes: ['single'],
+                }),
+            );
+
+            expect(matching.map((entry) => entry.path)).toEqual(['product.cover']);
         });
     });
 

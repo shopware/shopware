@@ -11,6 +11,7 @@ import {
 describe('module/sw-experience-studio/util/element-settings.util', () => {
     const stringProperty: ContentSystemElementTypeProperty = {
         type: 'string',
+        contextTypes: ['single'],
         translatable: false,
         enum: null,
         default: null,

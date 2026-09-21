@@ -53,6 +53,27 @@ final class MappingTypeCompatibility
             && is_a($candidateValueType, $declaredType, true);
     }
 
+    /**
+     * Whether a RUNTIME VALUE is of `$type`, in the same type vocabulary {@see permits()} speaks.
+     *
+     * The render path's counterpart to permits(): a projection declares the type it accepts, and this is what
+     * holds a resolved value to that declaration before `project()` is handed it.
+     *
+     * @param string $type a `PropertyType::PRIMITIVE_TYPES` member, bare `object`, or an FQCN
+     */
+    public function admits(string $type, mixed $value): bool
+    {
+        return match ($type) {
+            'string' => \is_string($value),
+            'integer' => \is_int($value),
+            // As in the property specification, `number` covers both, since JSON has one numeric type.
+            'number' => \is_int($value) || \is_float($value),
+            'boolean' => \is_bool($value),
+            self::UNCONSTRAINED_OBJECT_TYPE => \is_object($value),
+            default => $value instanceof $type,
+        };
+    }
+
     private function isPrimitive(string $type): bool
     {
         return \in_array($type, PropertyType::PRIMITIVE_TYPES, true);

@@ -286,6 +286,7 @@ export default Shopware.Component.wrapComponentConfig({
             key: string;
             path: string | null;
             contextType: 'single' | 'collection' | null;
+            projection: string | null;
         }): void {
             const selectedElement = this.selectedElement;
 
@@ -298,6 +299,7 @@ export default Shopware.Component.wrapComponentConfig({
                 propertyKey: payload.key,
                 path: payload.path,
                 contextType: payload.contextType,
+                projection: payload.projection,
             });
         },
 

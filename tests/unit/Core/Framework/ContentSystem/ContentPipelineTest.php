@@ -33,6 +33,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
@@ -1451,7 +1453,9 @@ class ContentPipelineTest extends TestCase
             ),
             new ContextDeliveryResolver(
                 new ContextDistributor(new ContextPathResolver()),
-                new ContextPathResolver()
+                new ContextPathResolver(),
+                new ContentSystemPropertyProjectionRegistry([]),
+                new MappingTypeCompatibility()
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
         );

@@ -83,6 +83,10 @@ If you do mark a property both mappable and self-filled, a mapping **wins**: `Ou
 
 Note what that means for a **required** reference with a `resolvedBy` storage key. Mapping it and filling the storage key are alternatives, so an author who maps leaves the key empty, and the diagnostics rule that would normally call an empty required loader input a defect (`UnfilledRequiredInput`) stands down for a mapped property. You get that for free; it is not something a type file opts into.
 
+You do not declare which candidates fit, either. The introspection payload derives a `contextTypes` entry from your `type` — `single`, `collection`, or both for a union or a bare `object` — and the Administration filters the catalogue by it before anything else, so a `MediaCollection` property is never offered a single image. Declare the type accurately and that follows; there is no flag to set.
+
+What a mappable property can be mapped TO is not yours to declare either, and you should not shape a property around the entity data you hope to see in it. The offer set comes from the mapping catalogue of whichever root source the layout is bound to, and the write gate admits a path only when the value it yields satisfies your declared type. Where the data exists but is shaped wrong — the gallery declares `MediaCollection`, and a product's `media` is a collection of image ASSIGNMENT records rather than of images — the catalogue entry carries a **projection** that reshapes it, and advertises the type your property ends up holding. So you declare the type your template needs and nothing else: bridging to it is the catalogue's problem, and an author never sees that it happened. See [Mapping/Projection](../../../Mapping/Projection/AbstractContentPropertyProjection.php) if you are the one writing the bridge.
+
 **`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`.
 
 **`bindings`** (optional): Inline binding specifications for this type. See [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md).

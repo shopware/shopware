@@ -65,4 +65,45 @@ class MappingTypeCompatibilityTest extends TestCase
 
         yield 'bare object rejects a primitive, which is not an object' => ['object', 'string', false];
     }
+
+    /**
+     * The render-path counterpart, which holds a resolved value to the input type a projection declares.
+     */
+    #[DataProvider('admissionProvider')]
+    public function testAdmits(string $type, mixed $value, bool $expected): void
+    {
+        static::assertSame($expected, (new MappingTypeCompatibility())->admits($type, $value));
+    }
+
+    public static function admissionProvider(): iterable
+    {
+        yield 'string takes a string' => ['string', 'a value', true];
+
+        yield 'string rejects an integer, with no coercion' => ['string', 42, false];
+
+        yield 'integer takes an integer' => ['integer', 42, true];
+
+        yield 'integer rejects a float' => ['integer', 4.2, false];
+
+        // As in the property specification: JSON has one numeric type, so `number` covers both.
+        yield 'number takes a float' => ['number', 4.2, true];
+
+        yield 'number takes an integer' => ['number', 42, true];
+
+        yield 'boolean takes false, which is a value rather than an absence' => ['boolean', false, true];
+
+        yield 'boolean rejects a falsy non-boolean' => ['boolean', 0, false];
+
+        yield 'an FQCN takes an instance' => [MediaEntity::class, new MediaEntity(), true];
+
+        yield 'an FQCN takes a subclass instance' => [ProductEntity::class, new SalesChannelProductEntity(), true];
+
+        yield 'an FQCN rejects an unrelated instance' => [MediaEntity::class, new MediaCollection(), false];
+
+        yield 'an FQCN rejects a primitive' => [MediaEntity::class, 'a value', false];
+
+        yield 'bare object takes any instance' => ['object', new MediaCollection(), true];
+
+        yield 'bare object rejects a primitive' => ['object', 'a value', false];
+    }
 }

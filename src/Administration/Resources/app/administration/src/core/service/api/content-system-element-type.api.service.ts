@@ -46,6 +46,12 @@ export interface ContentSystemElementTypePropertyAdminUi {
  */
 export interface ContentSystemElementTypeProperty {
     type: string | string[];
+    /**
+     * Which kinds of mapping candidate can fill this property: `single`, `collection`, or both for a union
+     * or a bare `object`. Derived from `type` on the server, because telling a collection class from an
+     * entity class is a PHP class-hierarchy question.
+     */
+    contextTypes: Array<'single' | 'collection'>;
     translatable: boolean;
     enum: Array<string | number | boolean> | null;
     default: string | number | boolean | null;

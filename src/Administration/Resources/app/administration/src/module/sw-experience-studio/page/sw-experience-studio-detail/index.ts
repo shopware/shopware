@@ -968,6 +968,7 @@ export default Shopware.Component.wrapComponentConfig({
             propertyKey: string;
             path: string | null;
             contextType: 'single' | 'collection' | null;
+            projection?: string | null;
         }): void {
             const mapping =
                 payload.path === null
@@ -975,6 +976,7 @@ export default Shopware.Component.wrapComponentConfig({
                     : {
                           path: payload.path,
                           contextType: payload.contextType ?? 'single',
+                          projection: payload.projection ?? null,
                       };
 
             this.applyLayoutMutation((layout) => {

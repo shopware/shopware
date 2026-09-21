@@ -114,6 +114,10 @@ export function updateElementStyleInLayout(
  * The authored value in `properties` is deliberately left untouched: the server treats a mapping as a higher
  * tier that shadows it, so unmapping restores whatever the author last typed.
  *
+ * `projection` is carried through from the chosen candidate rather than decided here, and omitted entirely
+ * when the candidate has none: the server's write gate rejects a consumer whose projection differs from its
+ * candidate's, and a present null is not the same as an absent key to the codec that closes the shape.
+ *
  * @private
  * @sw-package discovery
  */
@@ -121,7 +125,7 @@ export function setElementMappingInLayout(
     layout: ContentElementNode[],
     elementId: string,
     propertyKey: string,
-    mapping: { path: string; contextType: 'single' | 'collection' } | null,
+    mapping: { path: string; contextType: 'single' | 'collection'; projection?: string | null } | null,
 ): boolean {
     const location = findElementLocation(layout, elementId);
 
@@ -152,6 +156,7 @@ export function setElementMappingInLayout(
             required: false,
             propertyAlias: propertyKey,
             scope: 'root',
+            ...(mapping.projection ? { projection: mapping.projection } : {}),
         };
     }
 

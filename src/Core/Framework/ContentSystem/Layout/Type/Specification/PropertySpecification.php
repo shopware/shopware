@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-type PropertySchema = array{
  *     type: string|list<string>,
+ *     contextTypes: list<string>,
  *     translatable: bool,
  *     enum: list<string|int|float|bool>|null,
  *     default: string|int|float|bool|null,

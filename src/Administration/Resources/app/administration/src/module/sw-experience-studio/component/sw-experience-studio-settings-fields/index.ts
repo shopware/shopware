@@ -292,6 +292,7 @@ export default Shopware.Component.wrapComponentConfig({
                 key: field.key,
                 path: candidate.path,
                 contextType: candidate.contextType,
+                projection: candidate.projection,
             });
         },
 
@@ -304,6 +305,7 @@ export default Shopware.Component.wrapComponentConfig({
                 key: field.key,
                 path: null,
                 contextType: null,
+                projection: null,
             });
         },
 

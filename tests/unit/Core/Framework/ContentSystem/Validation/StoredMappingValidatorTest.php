@@ -14,12 +14,15 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubUppercaseProjection;
 
 /**
  * @internal
@@ -31,6 +34,8 @@ class StoredMappingValidatorTest extends TestCase
     private const CATEGORY_NAME_PATH = 'category.name';
 
     private const CATEGORY_MEDIA_PATH = 'category.media';
+
+    private const CATEGORY_SHOUT_PATH = 'category.shoutedName';
 
     public function testAdmitsAMappingOntoAMappablePropertyFromACataloguedPath(): void
     {
@@ -76,6 +81,62 @@ class StoredMappingValidatorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame(
             ContentSystemException::mappingTypeMismatch('text', 'string', MediaEntity::class)->getMessage(),
+            $violations->get(0)->getMessage()
+        );
+    }
+
+    public function testAdmitsAMappingCarryingTheProjectionItsCandidateDeclares(): void
+    {
+        $element = $this->elementMapping(self::CATEGORY_SHOUT_PATH, onto: 'text', projection: StubUppercaseProjection::NAME);
+
+        $violations = $this->validator($this->textElementType(mappable: true))->validate([$element], 'category');
+
+        static::assertCount(0, $violations);
+    }
+
+    /**
+     * The candidate's `valueType` describes the value AFTER its own projection, so a mapping that drops the
+     * projection would be type-checked against a type nothing produces.
+     */
+    public function testRejectsAMappingThatDropsItsCandidatesProjection(): void
+    {
+        $element = $this->elementMapping(self::CATEGORY_SHOUT_PATH, onto: 'text');
+
+        $violations = $this->validator($this->textElementType(mappable: true))->validate([$element], 'category');
+
+        static::assertCount(1, $violations);
+        static::assertSame(
+            ContentSystemException::mappingProjectionMismatch(self::CATEGORY_SHOUT_PATH, null, StubUppercaseProjection::NAME)->getMessage(),
+            $violations->get(0)->getMessage()
+        );
+    }
+
+    public function testRejectsAProjectionOnACandidateThatDeclaresNone(): void
+    {
+        $element = $this->elementMapping(self::CATEGORY_NAME_PATH, onto: 'text', projection: StubUppercaseProjection::NAME);
+
+        $violations = $this->validator($this->textElementType(mappable: true))->validate([$element], 'category');
+
+        static::assertCount(1, $violations);
+        static::assertSame(
+            ContentSystemException::mappingProjectionMismatch(self::CATEGORY_NAME_PATH, StubUppercaseProjection::NAME, null)->getMessage(),
+            $violations->get(0)->getMessage()
+        );
+    }
+
+    /**
+     * A provider bug rather than client input, reported as a violation so one broken provider fails only the
+     * writes that use it.
+     */
+    public function testRejectsACandidateWhoseProjectionIsNotRegistered(): void
+    {
+        $element = $this->elementMapping(self::CATEGORY_SHOUT_PATH, onto: 'text', projection: StubUppercaseProjection::NAME);
+
+        $violations = $this->validator($this->textElementType(mappable: true), projections: [])->validate([$element], 'category');
+
+        static::assertCount(1, $violations);
+        static::assertSame(
+            ContentSystemException::unknownPropertyProjection(StubUppercaseProjection::NAME, self::CATEGORY_SHOUT_PATH)->getMessage(),
             $violations->get(0)->getMessage()
         );
     }
@@ -172,6 +233,7 @@ class StoredMappingValidatorTest extends TestCase
         string $onto,
         string $id = 'element-1',
         string $component = 'Sw:Content:Text',
+        ?string $projection = null,
     ): StoredElement {
         return new StoredElement(
             id: $id,
@@ -182,6 +244,7 @@ class StoredMappingValidatorTest extends TestCase
                     required: false,
                     propertyAlias: $onto,
                     scope: ConsumerScope::Root,
+                    projection: $projection,
                 ),
             ]),
         );
@@ -194,7 +257,12 @@ class StoredMappingValidatorTest extends TestCase
             ->build();
     }
 
-    private function validator(ContentSystemElementTypeSpecification $textType): StoredMappingValidator
+    /**
+     * @param list<AbstractContentPropertyProjection>|null $projections null registers the stub the catalogue
+     *                                                                  below refers to; pass `[]` for an empty
+     *                                                                  container
+     */
+    private function validator(ContentSystemElementTypeSpecification $textType, ?array $projections = null): StoredMappingValidator
     {
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $typeRegistry->method('has')->willReturnCallback(
@@ -218,8 +286,22 @@ class StoredMappingValidatorTest extends TestCase
                 group: 'media',
                 valueType: MediaEntity::class,
             ),
+            self::CATEGORY_SHOUT_PATH => new MappingCandidate(
+                path: self::CATEGORY_SHOUT_PATH,
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: 'string',
+                projection: StubUppercaseProjection::NAME,
+            ),
         ]);
 
-        return new StoredMappingValidator($typeRegistry, $candidateRegistry, new MappingTypeCompatibility(), new MappingConsumers());
+        return new StoredMappingValidator(
+            $typeRegistry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new ContentSystemPropertyProjectionRegistry($projections ?? [new StubUppercaseProjection()]),
+        );
     }
 }

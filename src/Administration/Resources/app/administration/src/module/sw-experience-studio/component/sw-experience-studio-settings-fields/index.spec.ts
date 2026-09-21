@@ -511,6 +511,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             key: 'text',
             property: {
                 type: 'string',
+                contextTypes: ['single'],
                 mappable: true,
                 title: 'Text',
                 adminUI: null,
@@ -521,8 +522,20 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             key: 'headline',
             property: {
                 type: 'string',
+                contextTypes: ['single'],
                 mappable: false,
                 title: 'Headline',
+                adminUI: null,
+            },
+        };
+
+        const mappableGalleryField = {
+            key: 'mediaItems',
+            property: {
+                type: 'Shopware\\Core\\Content\\Media\\MediaCollection',
+                contextTypes: ['collection'],
+                mappable: true,
+                title: 'Media',
                 adminUI: null,
             },
         };
@@ -559,6 +572,27 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             ) as Array<{ path: string }>;
 
             expect(candidates.map((candidate) => candidate.path)).toEqual(['category.name']);
+        });
+
+        // Both are class types, so the class check admits the single image for the gallery; only the
+        // context type tells them apart, and picking the image rendered an empty gallery.
+        it('offers no single-media candidate for a collection property', () => {
+            const candidates = methods.getMappingCandidatesForField.call(
+                {
+                    mappingCandidates: [
+                        mediaCandidate,
+                        {
+                            ...mediaCandidate,
+                            path: 'product.media',
+                            valueType: 'Shopware\\Core\\Content\\Media\\MediaCollection',
+                            contextType: 'collection',
+                        },
+                    ],
+                },
+                mappableGalleryField,
+            ) as Array<{ path: string }>;
+
+            expect(candidates.map((candidate) => candidate.path)).toEqual(['product.media']);
         });
 
         it('offers nothing for a property that did not opt in', () => {
@@ -633,6 +667,40 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
                         key: 'text',
                         path: 'category.name',
                         contextType: 'single',
+                        projection: null,
+                    },
+                ],
+            ]);
+        });
+
+        // The server rejects a mapping whose projection differs from its candidate's, so the pick has to
+        // carry the candidate's verbatim rather than the Administration deciding anything about it.
+        it('passes the chosen candidate projection on unchanged', () => {
+            const emitted: unknown[] = [];
+            const context = {
+                allowEdit: true,
+                mappingModalFieldKey: 'text' as string | null,
+                mappingModalField: mappableTextField,
+                $emit: (event: string, payload: unknown) => emitted.push([
+                    event,
+                    payload,
+                ]),
+            };
+
+            methods.onSelectMapping.call(context, {
+                ...categoryNameCandidate,
+                path: 'product.cover',
+                projection: 'product_media_to_media',
+            });
+
+            expect(emitted).toEqual([
+                [
+                    'update-mapping',
+                    {
+                        key: 'text',
+                        path: 'product.cover',
+                        contextType: 'single',
+                        projection: 'product_media_to_media',
                     },
                 ],
             ]);
@@ -659,6 +727,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
                         key: 'text',
                         path: null,
                         contextType: null,
+                        projection: null,
                     },
                 ],
             ]);

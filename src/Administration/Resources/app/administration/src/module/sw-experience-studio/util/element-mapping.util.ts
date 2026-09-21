@@ -74,9 +74,15 @@ export function findPropertyMapping(element: ContentElementNode | null, property
 /**
  * Narrows the catalogue to the candidates whose value can fill `property`.
  *
- * The Administration cannot resolve PHP class hierarchies, so a property declaring a class type admits every
- * non-primitive candidate rather than only assignable ones. That over-offers instead of hiding a valid choice;
- * the server's write gate stays authoritative and rejects a pick it cannot satisfy.
+ * Two filters, because neither alone is enough. `contextTypes` comes from the server and separates a
+ * collection property from a single one — the Administration cannot derive that itself, since telling
+ * `MediaCollection` from `MediaEntity` means resolving a PHP class hierarchy in the browser. Skipping it
+ * offers a category's single image for the gallery, and picking that yields an element that renders nothing.
+ *
+ * Past that the class check stays deliberately loose: any non-primitive candidate fits any class-typed
+ * property, which over-offers rather than hiding a valid choice. The server's write gate is authoritative
+ * and rejects what it cannot satisfy — but note it runs on the layout write, not on the studio's draft
+ * path, so an over-offer here is a pick that goes quiet until save rather than one that is refused.
  *
  * @private
  * @sw-package discovery
@@ -86,9 +92,12 @@ export function getCandidatesForProperty(
     property: ContentSystemElementTypeProperty,
 ): ContentSystemMappingCandidate[] {
     const declaredTypes = Array.isArray(property.type) ? property.type : [property.type];
+    const contextTypes = property.contextTypes ?? [];
 
-    return candidates.filter((candidate) =>
-        declaredTypes.some((declaredType) => permitsCandidate(declaredType, candidate.valueType)),
+    return candidates.filter(
+        (candidate) =>
+            contextTypes.includes(candidate.contextType) &&
+            declaredTypes.some((declaredType) => permitsCandidate(declaredType, candidate.valueType)),
     );
 }
 

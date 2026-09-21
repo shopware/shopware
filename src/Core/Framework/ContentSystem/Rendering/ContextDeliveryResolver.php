@@ -8,6 +8,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -37,6 +39,8 @@ final readonly class ContextDeliveryResolver
     public function __construct(
         private ContextDistributor $distributor,
         private ContextPathResolver $pathResolver,
+        private AbstractContentSystemPropertyProjectionRegistry $projections,
+        private MappingTypeCompatibility $compatibility,
     ) {
     }
 
@@ -176,6 +180,9 @@ final readonly class ContextDeliveryResolver
      * a root delivery onto the ambient loader value's ref. A dot path resolves through the value, which needs
      * a {@see Struct} to traverse: a required consumer that cannot get one fails naming this element, an
      * optional one yields null — which the caller reads as "deliver nothing" rather than writing through.
+     *
+     * A declared projection runs last, on the resolved value, so the property receives the reshaped one. It is
+     * reached only on the dot-path branch, which is the shape the codec admits a projection on.
      */
     private function ambientValueFor(
         StoredElement $element,
@@ -200,13 +207,65 @@ final readonly class ContextDeliveryResolver
             return null;
         }
 
-        return $this->pathResolver->resolvePath(
+        $resolved = $this->pathResolver->resolvePath(
             $data,
             $this->pathResolver->parseContextKey($consumerKey),
             $consumer->required,
             $consumerKey,
             $element->id
         );
+
+        if ($consumer->projection === null || $resolved === null) {
+            return $resolved;
+        }
+
+        return $this->project($element, $consumerKey, $consumer, $consumer->projection, $resolved);
+    }
+
+    /**
+     * Runs the declared projection over a resolved value.
+     *
+     * Two things can be wrong here, and both are the ground giving way under stored data the write gate did
+     * admit: the projection is gone (the plugin that registered it was removed) or the value is not the type
+     * it declared (a provider's candidate names the wrong input type, or the path's own shape changed). Either
+     * way this follows the same rule as the path resolution above — a required consumer fails naming the
+     * element, an optional one yields null, which the caller turns into delivering nothing.
+     *
+     * Every mapping an author makes is written optional, so in practice a storefront keeps rendering and falls
+     * back to the authored value rather than going down over a missing plugin.
+     */
+    private function project(
+        StoredElement $element,
+        string $consumerKey,
+        ContextConsumer $consumer,
+        string $name,
+        mixed $resolved,
+    ): mixed {
+        $projection = $this->projections->get($name);
+
+        if ($projection === null) {
+            return $this->projectionFailed($element, $consumerKey, $consumer, \sprintf('Projection "%s" is not registered', $name));
+        }
+
+        if (!$this->compatibility->admits($projection->inputType(), $resolved)) {
+            return $this->projectionFailed($element, $consumerKey, $consumer, \sprintf(
+                'Projection "%s" expects "%s", got "%s"',
+                $name,
+                $projection->inputType(),
+                get_debug_type($resolved)
+            ));
+        }
+
+        return $projection->project($resolved);
+    }
+
+    private function projectionFailed(StoredElement $element, string $consumerKey, ContextConsumer $consumer, string $reason): mixed
+    {
+        if ($consumer->required) {
+            throw ContentSystemException::contextPathNotResolvable($consumerKey, $element->id, $reason);
+        }
+
+        return null;
     }
 
     /**

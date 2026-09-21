@@ -25,8 +25,9 @@ use Shopware\Core\Framework\Log\Package;
  * keeps everything else about the element wire shape.
  *
  * Wiring is judged in two tiers and first hit throws. Per consumer, inside {@see decodeConsumers()}: a
- * `consumerAlias` without `redistribute`, a `propertyAlias` carrying dot notation, and a `scope` of
- * {@see ConsumerScope::Root} combined with `redistribute`. Then, once that map is
+ * `consumerAlias` without `redistribute`, a `propertyAlias` carrying dot notation, a `scope` of
+ * {@see ConsumerScope::Root} combined with `redistribute`, and a `projection` on a consumer that is not a
+ * root-scoped dotted one — the only shape the render path applies one to. Then, once that map is
  * complete, the element-local tier in {@see rejectInvalidElementWiring()}: base-key uniqueness across the
  * consumer map, a `redistribute` consumer keyed by a dotted path, and a `redistribute` consumer whose derived
  * provider key an authored provider already holds. The tiers are ordered, not interleaved, so a per-consumer
@@ -63,6 +64,7 @@ final class StoredElementWiringDecoder
         'consumerAlias',
         'propertyAlias',
         'scope',
+        'projection',
     ];
 
     /**
@@ -168,6 +170,11 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::invalidFieldValueType($path . '.propertyAlias', 'string', get_debug_type($propertyAlias));
             }
 
+            $projection = $config['projection'] ?? null;
+            if ($projection !== null && !\is_string($projection)) {
+                throw ContentSystemException::invalidFieldValueType($path . '.projection', 'string', get_debug_type($projection));
+            }
+
             $scope = $this->consumerScope($config, $path);
 
             if ($consumerAlias !== null && !$redistribute) {
@@ -182,6 +189,10 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::rootScopeWithRedistribute($key);
             }
 
+            if ($projection !== null && ($scope !== ConsumerScope::Root || !str_contains($key, '.'))) {
+                throw ContentSystemException::projectionOnNonMappingConsumer($key, $projection);
+            }
+
             $consumers[$key] = new ContextConsumer(
                 type: $contextType,
                 required: $required,
@@ -189,6 +200,7 @@ final class StoredElementWiringDecoder
                 consumerAlias: $consumerAlias,
                 propertyAlias: $propertyAlias,
                 scope: $scope,
+                projection: $projection,
             );
         }
 

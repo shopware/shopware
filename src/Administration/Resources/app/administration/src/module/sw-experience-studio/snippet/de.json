@@ -33,6 +33,40 @@
           "label": "Kategoriebild",
           "description": "Das der Kategorie zugewiesene Bild."
         }
+      },
+      "product": {
+        "name": {
+          "label": "Produktname",
+          "description": "Der Name des Produkts, das die Seite zeigt."
+        },
+        "description": {
+          "label": "Produktbeschreibung",
+          "description": "Der Beschreibungstext des Produkts."
+        },
+        "productNumber": {
+          "label": "Produktnummer",
+          "description": "Die Bestellnummer des Produkts."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel des Produkts."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung des Produkts."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter des Produkts."
+        },
+        "cover": {
+          "label": "Titelbild",
+          "description": "Das Hauptbild des Produkts."
+        },
+        "media": {
+          "label": "Produktbilder",
+          "description": "Alle Bilder des Produkts, in der am Produkt festgelegten Reihenfolge."
+        }
       }
     },
     "elements": {

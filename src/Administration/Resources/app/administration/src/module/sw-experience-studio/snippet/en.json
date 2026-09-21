@@ -33,6 +33,40 @@
           "label": "Category image",
           "description": "The image assigned to the category."
         }
+      },
+      "product": {
+        "name": {
+          "label": "Product name",
+          "description": "The name of the product the page shows."
+        },
+        "description": {
+          "label": "Product description",
+          "description": "The description text of the product."
+        },
+        "productNumber": {
+          "label": "Product number",
+          "description": "The order number of the product."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the product."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the product."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the product."
+        },
+        "cover": {
+          "label": "Cover image",
+          "description": "The main image of the product."
+        },
+        "media": {
+          "label": "Product images",
+          "description": "All images of the product, in the order set on the product."
+        }
       }
     },
     "elements": {

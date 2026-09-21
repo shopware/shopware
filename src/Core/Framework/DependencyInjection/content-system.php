@@ -119,6 +119,7 @@ use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGe
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
@@ -323,6 +324,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContextDistributor::class),
             service(ContextPathResolver::class),
+            service(ContentSystemPropertyProjectionRegistry::class),
+            service(MappingTypeCompatibility::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -726,12 +729,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('content_system.mapping_candidate_provider'),
         ]);
 
+    // Value reshaping between a mapped path and the property it fills; read by the write gate, by
+    // ContextDeliveryResolver above, and by the introspection endpoint
+    $services->set(ContentSystemPropertyProjectionRegistry::class)
+        ->args([
+            tagged_iterator('content_system.property_projection'),
+        ]);
+
     $services->set(StoredMappingValidator::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
             service(ContentSystemMappingCandidateRegistry::class),
             service(MappingTypeCompatibility::class),
             service(MappingConsumers::class),
+            service(ContentSystemPropertyProjectionRegistry::class),
         ]);
 
     // Resolvability gate (DAL PreWriteValidationEvent)

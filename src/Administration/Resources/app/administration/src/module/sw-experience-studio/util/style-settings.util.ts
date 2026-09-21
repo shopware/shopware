@@ -138,6 +138,9 @@ export function styleOptionToElementProperty(
                   'object',
               ]
             : option.type,
+        // Unused while mappable stays false, but the field is not optional and a style option is a single
+        // value either way.
+        contextTypes: ['single'],
         translatable: false,
         enum: option.enum,
         default: option.default,

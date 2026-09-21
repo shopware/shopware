@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryT
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductMappingCandidateProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductSpecificationSource;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
@@ -73,6 +74,8 @@ use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoad
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaCollectionToMediaCollectionProjection;
+use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaToMediaProjection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceQuantitySelector;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
@@ -931,4 +934,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityLayoutContextFactory::class),
         ])
         ->tag('content_system.entity_specification_source', ['priority' => 100]);
+
+    $services->set(ProductMappingCandidateProvider::class)
+        ->args([
+            service(ProductContentLayoutDefinition::class),
+        ])
+        ->tag('content_system.mapping_candidate_provider', ['priority' => 100]);
+
+    // The two hops the product's media candidates above depend on, from an assignment record to the picture
+    $services->set(ProductMediaToMediaProjection::class)
+        ->tag('content_system.property_projection');
+
+    $services->set(ProductMediaCollectionToMediaCollectionProjection::class)
+        ->tag('content_system.property_projection');
 };

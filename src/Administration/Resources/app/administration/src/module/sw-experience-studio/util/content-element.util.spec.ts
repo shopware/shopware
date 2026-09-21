@@ -135,6 +135,39 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
         });
     });
 
+    it('carries the candidate projection onto the stored consumer', () => {
+        const testLayout = cloneDeep(layout);
+
+        setElementMappingInLayout(testLayout, 'child-1', 'text', {
+            path: 'product.cover',
+            contextType: 'single',
+            projection: 'product_media_to_media',
+        });
+
+        expect(testLayout[0].slots!.content[0].acceptsContext).toEqual({
+            'product.cover': {
+                type: 'single',
+                required: false,
+                propertyAlias: 'text',
+                scope: 'root',
+                projection: 'product_media_to_media',
+            },
+        });
+    });
+
+    // A present null is not an absent key to the server codec, which closes the consumer key set.
+    it('omits the projection key entirely for a candidate that declares none', () => {
+        const testLayout = cloneDeep(layout);
+
+        setElementMappingInLayout(testLayout, 'child-1', 'text', {
+            path: 'category.name',
+            contextType: 'single',
+            projection: null,
+        });
+
+        expect(testLayout[0].slots!.content[0].acceptsContext!['category.name']).not.toHaveProperty('projection');
+    });
+
     it('replaces an existing mapping rather than accumulating consumers for one property', () => {
         const testLayout = cloneDeep(layout);
 

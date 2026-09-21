@@ -397,6 +397,44 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        yield 'a root-scoped dotted consumer declaring a projection' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => [
+                    'type' => 'single',
+                    'required' => false,
+                    'propertyAlias' => 'media',
+                    'scope' => 'root',
+                    'projection' => 'product_media_to_media',
+                ],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a parent-scoped consumer declaring a projection' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => ['type' => 'single', 'required' => false, 'projection' => 'product_media_to_media'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a root-scoped consumer keyed by a bare name declaring a projection' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 'product_media_to_media'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a non-string consumer projection' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 42],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
         yield 'a consumer scope outside the enum' => [
             self::forest(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true, 'scope' => 'ancestor'],

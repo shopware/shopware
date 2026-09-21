@@ -13,11 +13,18 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
+use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
+use Shopware\Core\Test\Stub\ContentSystem\StubUppercaseProjection;
 
 /**
  * @internal
@@ -529,6 +536,120 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame('child-1', $delivery->elementId);
     }
 
+    #[TestDox('runs a declared projection over the resolved value before delivering it')]
+    public function testADeclaredProjectionReshapesTheDeliveredValue(): void
+    {
+        $index = $this->resolve(
+            $this->mappedChild(projection: StubUppercaseProjection::NAME),
+            new StubContextStruct('page-cover'),
+            [new StubUppercaseProjection()]
+        );
+
+        static::assertSame(['cover' => 'PAGE-COVER'], $index->all()['child-1']->context);
+    }
+
+    /**
+     * A projection is not applied for its own sake — the value it produced has to be what the property is
+     * fed, so this pins that the reshaped value and not the raw one reaches the delivery.
+     */
+    #[TestDox('does not run a projection the consumer did not declare')]
+    public function testAnUndeclaredProjectionLeavesTheResolvedValueAlone(): void
+    {
+        $index = $this->resolve(
+            $this->mappedChild(projection: null),
+            new StubContextStruct('page-cover'),
+            [new StubUppercaseProjection()]
+        );
+
+        static::assertSame(['cover' => 'page-cover'], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The path resolved to nothing, so there is nothing to reshape. Getting here at all would hand `project()`
+     * a null it is documented never to receive.
+     */
+    #[TestDox('skips the projection when the mapped path resolved to nothing')]
+    public function testAProjectionIsNotReachedForAPathThatResolvedToNull(): void
+    {
+        $index = $this->resolve(
+            $this->mappedChild(projection: StubUppercaseProjection::NAME),
+            new StubContextStruct(),
+            [new StubUppercaseProjection()]
+        );
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The plugin that registered the projection was uninstalled under a layout still mapping through it. The
+     * storefront keeps rendering and falls back to the authored value, which is the same outcome the null
+     * fallback rule produces — going down over a missing optional transform would be the worse answer.
+     */
+    #[TestDox('delivers nothing when the declared projection is no longer registered')]
+    public function testAnUnregisteredProjectionDeliversNothingForAnOptionalConsumer(): void
+    {
+        $index = $this->resolve(
+            $this->mappedChild(projection: StubUppercaseProjection::NAME),
+            new StubContextStruct('page-cover'),
+            []
+        );
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The input-type gate. `StubUppercaseProjection` accepts a string and `product.child` resolves to a
+     * Struct, which is the shape a candidate declaring the wrong input type produces. Reaching `project()`
+     * with it would raise a TypeError mid-render instead.
+     */
+    #[TestDox('delivers nothing when the resolved value is not the type the projection accepts')]
+    public function testAValueOutsideTheProjectionsInputTypeDeliversNothing(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer(
+                'product.child',
+                ContextType::Single,
+                required: false,
+                scope: ConsumerScope::Root,
+                projection: StubUppercaseProjection::NAME,
+            )
+            ->build();
+
+        $index = $this->resolve(
+            $child,
+            new StubPathStruct('outer', new StubPathStruct('inner')),
+            [new StubUppercaseProjection()]
+        );
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    /**
+     * A required consumer fails naming the element, exactly as an unresolvable path does. No mapping is ever
+     * written required, so this is the element-YAML case rather than the authoring one.
+     */
+    #[TestDox('fails naming the element when a required consumer declares a projection that is not registered')]
+    public function testAnUnregisteredProjectionOnARequiredConsumerThrows(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer(
+                'product.cover',
+                ContextType::Single,
+                required: true,
+                scope: ConsumerScope::Root,
+                projection: StubUppercaseProjection::NAME,
+            )
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+            'product.cover',
+            'child-1',
+            'Projection "stub_uppercase" is not registered',
+        ));
+
+        $this->resolve($child, new StubContextStruct('page-cover'), []);
+    }
+
     #[TestDox('hands an exact-key root delivery the same instance the ambient map holds')]
     public function testExactKeyRootDeliveryHandsOnTheSameInstance(): void
     {
@@ -544,10 +665,49 @@ class ContextDeliveryResolverTest extends TestCase
 
     private function resolver(): ContextDeliveryResolver
     {
+        return $this->resolverWith([]);
+    }
+
+    /**
+     * @param list<AbstractContentPropertyProjection> $projections
+     */
+    private function resolverWith(array $projections): ContextDeliveryResolver
+    {
         return new ContextDeliveryResolver(
             new ContextDistributor(new ContextPathResolver()),
-            new ContextPathResolver()
+            new ContextPathResolver(),
+            new ContentSystemPropertyProjectionRegistry($projections),
+            new MappingTypeCompatibility()
         );
+    }
+
+    /**
+     * The shared shape of the projection cases: one child mapping `product.<member>` under a root, rendered
+     * against a single ambient `product`.
+     *
+     * @param list<AbstractContentPropertyProjection> $projections
+     */
+    private function resolve(StoredElement $child, Struct $ambient, array $projections): ContextDeliveryIndex
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        return $this->resolverWith($projections)->resolve([$root], [], ['product' => $ambient]);
+    }
+
+    private function mappedChild(?string $projection): StoredElement
+    {
+        return StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer(
+                'product.cover',
+                ContextType::Single,
+                required: false,
+                propertyAlias: 'cover',
+                scope: ConsumerScope::Root,
+                projection: $projection,
+            )
+            ->build();
     }
 
     private function rootScopedConsumer(string $id, string $contextKey): StoredElement

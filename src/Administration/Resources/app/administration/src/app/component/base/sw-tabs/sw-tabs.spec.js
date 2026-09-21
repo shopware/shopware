@@ -17,6 +17,45 @@ async function createWrapper(additionalOptions = {}) {
     });
 }
 
+// Keep the real component name so the fragment branch recognizes the items.
+const swTabsItemStub = {
+    name: 'sw-tabs-item',
+    props: [
+        'name',
+        'title',
+        'route',
+    ],
+    template: '<div class="sw-tabs-item"><slot /></div>',
+};
+
+/**
+ * Mounts the `mt-tabs` branch with two `v-for` items, each wrapping `slotContent` in its default slot.
+ * Use it to pin down how a slot shape resolves to a tab label.
+ */
+async function createWrapperWithFragmentItems(slotContent) {
+    return createWrapper({
+        props: {
+            useMeteorComponent: true,
+        },
+        global: {
+            stubs: {
+                'sw-tabs-deprecated': true,
+                'mt-tabs': true,
+                'sw-tabs-item': swTabsItemStub,
+            },
+        },
+        slots: {
+            default: `
+                <sw-tabs-item
+                    v-for="locale in ['en-GB', 'de-DE']"
+                    :key="locale"
+                    :name="locale"
+                >${slotContent}</sw-tabs-item>
+            `,
+        },
+    });
+}
+
 describe('src/app/component/base/sw-tabs', () => {
     it('should render the deprecated tabs by default', async () => {
         const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
@@ -88,81 +127,33 @@ describe('src/app/component/base/sw-tabs', () => {
         expect(wrapper.vm.activeItem).toBeNull();
     });
 
-    it('should resolve labels from slot text for v-for / fragment tab items', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                useMeteorComponent: true,
-            },
-            global: {
-                stubs: {
-                    'sw-tabs-deprecated': true,
-                    'mt-tabs': true,
-                    // Keep the real component name so the fragment branch recognizes the items.
-                    'sw-tabs-item': {
-                        name: 'sw-tabs-item',
-                        props: [
-                            'name',
-                            'title',
-                            'route',
-                        ],
-                        template: '<div class="sw-tabs-item"><slot /></div>',
-                    },
-                },
-            },
-            slots: {
-                default: `
-                        <sw-tabs-item
-                            v-for="locale in ['en-GB', 'de-DE']"
-                            :key="locale"
-                            :name="locale"
-                        >Label {{ locale }}</sw-tabs-item>
-                    `,
-            },
-        });
+    it.each([
+        [
+            'plain text',
+            'Label {{ locale }}',
+            'Label en-GB',
+            'Label de-DE',
+        ],
+        [
+            'an element',
+            '<span>Label {{ locale }}</span>',
+            'en-GB',
+            'de-DE',
+        ],
+        [
+            'nothing',
+            '',
+            'en-GB',
+            'de-DE',
+        ],
+    ])('should resolve the labels of v-for tab items whose slot holds %s', async (_, slotContent, first, second) => {
+        const wrapper = await createWrapperWithFragmentItems(slotContent);
 
-        // Label comes from the slot text, name from the :name prop - not name for both.
+        // Only plain slot text yields a label of its own; anything else falls back to the name, so the
+        // tab never renders unlabeled.
         expect(wrapper.vm.itemsBackwardCompatible).toEqual([
-            expect.objectContaining({ name: 'en-GB', label: 'Label en-GB' }),
-            expect.objectContaining({ name: 'de-DE', label: 'Label de-DE' }),
-        ]);
-    });
-
-    it('should fall back to the name for fragment tab items without plain text slot content', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                useMeteorComponent: true,
-            },
-            global: {
-                stubs: {
-                    'sw-tabs-deprecated': true,
-                    'mt-tabs': true,
-                    // Keep the real component name so the fragment branch recognizes the items.
-                    'sw-tabs-item': {
-                        name: 'sw-tabs-item',
-                        props: [
-                            'name',
-                            'title',
-                            'route',
-                        ],
-                        template: '<div class="sw-tabs-item"><slot /></div>',
-                    },
-                },
-            },
-            slots: {
-                default: `
-                        <sw-tabs-item
-                            v-for="locale in ['en-GB', 'de-DE']"
-                            :key="locale"
-                            :name="locale"
-                        ><span>Label {{ locale }}</span></sw-tabs-item>
-                    `,
-            },
-        });
-
-        // A wrapped slot child yields no slot text, so the name keeps the tab from rendering unlabeled.
-        expect(wrapper.vm.itemsBackwardCompatible).toEqual([
-            expect.objectContaining({ name: 'en-GB', label: 'en-GB' }),
-            expect.objectContaining({ name: 'de-DE', label: 'de-DE' }),
+            expect.objectContaining({ name: 'en-GB', label: first }),
+            expect.objectContaining({ name: 'de-DE', label: second }),
         ]);
     });
 });

@@ -1,11 +1,11 @@
-import { markRaw } from 'vue';
+import { markRaw, type Raw } from 'vue';
 import type Repository from 'src/core/data/repository.data';
 import type MediaService from 'src/core/service/api/media.api.service';
-import { type DIVEModel, DIVEMath } from '@shopware-ag/dive';
+import { DIVEMath, ModelComponent, type DIVENode } from '@shopware-ag/dive';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import { Toolbox } from '@shopware-ag/dive/toolbox';
 import { AssetExporter } from '@shopware-ag/dive/assetexporter';
-import { Euler, type Vector3 } from 'three';
+import { Euler, Object3D, Vector3 } from 'three';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
 
@@ -17,6 +17,8 @@ type MEModelProperties = {
     rotation: Euler;
     scale: Vector3;
 };
+
+const SHOPWARE_MODEL_EDITOR_ROOT_MARKER = 'isShopwareModelEditorRoot';
 
 /**
  * @status ready
@@ -75,9 +77,9 @@ export default Shopware.Component.wrapComponentConfig({
             mediaService: MediaService;
             modelEntity: Entity<'media'> | null;
             objectChangeHandler: ((event: { object: unknown }) => void) | null;
-            diveModel: DIVEModel | null;
-            quickView: QuickView | null;
-            toolbox: Toolbox | null;
+            diveModel: (DIVENode & Object3D) | null;
+            quickView: Raw<QuickView> | null;
+            toolbox: Raw<Toolbox> | null;
             currentEditMode: 'translate' | 'rotate' | 'scale';
             isTranslatable: boolean;
             isRotatable: boolean;
@@ -176,9 +178,31 @@ export default Shopware.Component.wrapComponentConfig({
             this.objectChangeHandler = this.onObjectChange.bind(this);
             this.toolbox.getTool('transform').addEventListener('object-change', this.objectChangeHandler);
 
-            this.diveModel = this.quickView.scene.root.children.find((child) => 'isDIVEModel' in child) as DIVEModel;
-            this.saveInitialProperties(this.diveModel as DIVEModel);
-            this.syncProperties(this.diveModel as DIVEModel);
+            this.diveModel = this.quickView.model as DIVENode & Object3D;
+
+            const findEditorRoot = (node: Object3D): Object3D | undefined => {
+                let found: Object3D | undefined;
+                node.traverse((child) => {
+                    if (!found && child.userData[SHOPWARE_MODEL_EDITOR_ROOT_MARKER]) found = child;
+                });
+                return found;
+            }
+
+            const root = findEditorRoot(this.diveModel);
+            if (root) {
+                this.diveModel.position.copy(root.position);
+                this.diveModel.quaternion.copy(root.quaternion);
+                this.diveModel.scale.copy(root.scale);
+
+                // remove additional layer of exported model (due to auto-generated AuxScene GLTF root)
+                this.diveModel.add(...root.children);
+                root.removeFromParent();
+            }
+
+            this.quickView.orbitController.focusObject(this.diveModel);
+
+            this.saveInitialProperties(this.diveModel as DIVENode);
+            this.syncProperties(this.diveModel as DIVENode);
             this.toolbox.selectionState.select(this.diveModel);
 
             return Promise.resolve();
@@ -190,7 +214,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
             this.objectChangeHandler = null;
             this.toolbox?.dispose();
-            await this.quickView?.dispose();
+            await this.quickView?.disposeAsync();
         },
 
         onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void {
@@ -218,7 +242,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onObjectChange(event: { object: unknown }): void {
-            this.syncProperties(event.object as DIVEModel);
+            this.syncProperties(event.object as DIVENode);
         },
 
         /**
@@ -229,7 +253,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.diveModel) return;
 
             this.diveModel.setPosition({ x: position.x, y: position.y, z: position.z });
-            this.syncProperties(this.diveModel as DIVEModel);
+            this.syncProperties(this.diveModel as DIVENode);
         },
 
         /**
@@ -242,9 +266,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.diveModel.setRotation({
                 x: DIVEMath.degToRad(rotation.x),
                 y: DIVEMath.degToRad(rotation.y),
-                z: DIVEMath.degToRad(rotation.z),
+                z: DIVEMath.degToRad(rotation.z)
             });
-            this.syncProperties(this.diveModel as DIVEModel);
+            this.syncProperties(this.diveModel as DIVENode);
         },
 
         /**
@@ -255,7 +279,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.diveModel) return;
 
             this.diveModel.setScale({ x: scale.x, y: scale.y, z: scale.z });
-            this.syncProperties(this.diveModel as DIVEModel);
+            this.syncProperties(this.diveModel as DIVENode);
         },
 
         /**
@@ -275,14 +299,29 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.modelEntity) return;
             if (!this.diveModel) return;
 
-            const isEqual = this.compareInitialProperties(this.diveModel as DIVEModel);
+            const isEqual = this.compareInitialProperties(this.diveModel as DIVENode);
             if (isEqual) return;
 
             const targetId = this.modelEntity.id;
             const fileName = this.modelEntity.fileName ?? 'model';
             const fileExtension = this.modelEntity.fileExtension ?? 'glb';
 
-            const buffer = await new AssetExporter().export(this.diveModel, 'glb');
+            const component = this.diveModel.requireComponent(ModelComponent) as ModelComponent;
+
+            // the transform root: what a later load reads back off the file
+            const exportRoot = new Object3D();
+            exportRoot.name = this.diveModel.name;
+            exportRoot.userData[SHOPWARE_MODEL_EDITOR_ROOT_MARKER] = true;
+            exportRoot.position.copy(this.diveModel.position);
+            exportRoot.quaternion.copy(this.diveModel.quaternion);
+            exportRoot.scale.copy(this.diveModel.scale);
+            exportRoot.animations = component.animations;
+
+            // push, not add: `add` calls removeFromParent and would tear the meshes
+            // out of the live scene
+            exportRoot.children = [...this.diveModel.children];
+
+            const buffer = await new AssetExporter().export(exportRoot, 'glb');
             const file = new File([buffer], `${fileName}`, { type: 'model/gltf-binary' });
 
             const uploadData = {
@@ -305,7 +344,7 @@ export default Shopware.Component.wrapComponentConfig({
          * Saves all initial values to compare it on save.
          * @param model - the model to save the initial properties of
          */
-        saveInitialProperties(model: DIVEModel): void {
+        saveInitialProperties(model: DIVENode): void {
             this.initialProperties = {
                 position: model.position.clone(),
                 rotation: model.rotation.clone(),
@@ -319,7 +358,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @param model - the current model
          * @returns true if the initial properties are equal to the current properties, false otherwise
          */
-        compareInitialProperties(model: DIVEModel): boolean {
+        compareInitialProperties(model: DIVENode): boolean {
             // compare position
             const equalPosition = this.initialProperties.position.equals(model.position);
 
@@ -335,7 +374,7 @@ export default Shopware.Component.wrapComponentConfig({
         /**
          * Transforms Euler rotation into reasonable degree values for the UI.
          */
-        syncProperties(model: DIVEModel): void {
+        syncProperties(model: DIVENode): void {
             if (!model) return;
 
             // handle position

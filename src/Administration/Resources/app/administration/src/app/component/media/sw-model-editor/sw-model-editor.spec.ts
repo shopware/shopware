@@ -5,6 +5,8 @@
  */
 import { mount } from '@vue/test-utils';
 
+const SHOPWARE_MODEL_EDITOR_ROOT_MARKER = 'isShopwareModelEditorRoot';
+
 // Mock QuickView from @shopware-ag/dive/quickview
 const mockQuickView = jest.fn();
 const mockQuickViewDispose = jest.fn();
@@ -141,7 +143,7 @@ describe('src/app/component/media/sw-model-editor', () => {
         root: {
             children: [
                 {
-                    isDIVEModel: true,
+                    [SHOPWARE_MODEL_EDITOR_ROOT_MARKER]: true,
                     name: 'TestModel',
                     position: createMockVector3(),
                     rotation: createMockEuler(),
@@ -377,7 +379,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            expect(mockSelect).toHaveBeenCalledWith(expect.objectContaining({ isDIVEModel: true }));
+            expect(mockSelect).toHaveBeenCalledWith(expect.objectContaining({ [SHOPWARE_MODEL_EDITOR_ROOT_MARKER]: true }));
         });
 
         it('should dispose toolbox on unmount', async () => {

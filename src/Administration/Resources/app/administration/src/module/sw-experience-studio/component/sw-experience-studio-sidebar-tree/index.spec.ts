@@ -44,4 +44,20 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             newIndex: null,
         });
     });
+
+    it('emits the add-element trigger as the picker anchor', () => {
+        const $emit = jest.fn();
+        const trigger = document.createElement('button');
+        const vm = {
+            $emit,
+        };
+
+        methods.onAddRootElement.call(vm, { currentTarget: trigger } as MouseEvent);
+
+        expect($emit).toHaveBeenCalledWith('add-element', {
+            parentElementId: null,
+            slotName: null,
+            anchorElement: trigger,
+        });
+    });
 });

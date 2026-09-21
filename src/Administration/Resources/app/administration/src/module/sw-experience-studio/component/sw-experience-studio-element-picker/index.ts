@@ -44,15 +44,10 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: () => [],
         },
-        top: {
-            type: Number,
+        anchorElement: {
+            type: Object as PropType<HTMLElement | null>,
             required: false,
-            default: 0,
-        },
-        left: {
-            type: Number,
-            required: false,
-            default: 0,
+            default: null,
         },
     },
 
@@ -63,6 +58,12 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        floatingUiOptions(): { placement: 'right-start' } {
+            return {
+                placement: 'right-start',
+            };
+        },
+
         groupedElements(): Array<{
             key: string;
             headlineSnippetKey: string;
@@ -118,13 +119,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        flyoutStyle(): { top: string; left: string } {
-            return {
-                top: `${this.top}px`,
-                left: `${this.left}px`,
-            };
-        },
-
         normalizeCategoryKey(category: string | null): string {
             if (!category) {
                 return this.fallbackCategoryKey;
@@ -152,14 +146,18 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('select', item.name);
         },
 
-        itemTooltip(item: PickerItem): { message: string } {
-            if (item.kind !== 'preset') {
-                return { message: item.label };
+        itemTooltip(item: PickerItem): { message: string; disabled: boolean } {
+            if (item.kind !== 'preset' || !item.description) {
+                return {
+                    message: '',
+                    disabled: true,
+                };
             }
 
-            const description = item.description ? `<br>${item.description}` : '';
-
-            return { message: `<strong>${item.label}</strong>${description}` };
+            return {
+                message: item.description,
+                disabled: false,
+            };
         },
     },
 });

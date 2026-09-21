@@ -4,11 +4,15 @@ namespace Shopware\Core\Framework\ContentSystem\Cache;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -24,27 +28,42 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 #[AsEventListener(event: EntityWrittenContainerEvent::class)]
 class CacheInvalidationSubscriber
 {
+    /**
+     * @var array<string, ContentSection>
+     */
+    private readonly array $sectionAssignments;
+
+    /**
+     * Header and footer live in the Storefront bundle, so their table names arrive as a container parameter
+     * instead of an import; a Core-only installation passes an empty map.
+     *
+     * @param array<string, string> $sectionAssignmentEntities assignment table name => ContentSection value
+     */
     public function __construct(
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly EntityCacheTagResolver $cacheTagResolver,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
+        array $sectionAssignmentEntities,
     ) {
+        $this->sectionAssignments = array_map(ContentSection::from(...), $sectionAssignmentEntities);
     }
 
     public function __invoke(EntityWrittenContainerEvent $event): void
     {
         $this->invalidateContentLayout($event);
-        $this->invalidateEntityContentLayout($event, 'product_content_layout', 'product_id', ProductDefinition::class);
-        $this->invalidateEntityContentLayout($event, 'category_content_layout', 'category_id', CategoryDefinition::class);
-        $this->invalidateEntityContentLayout($event, 'landing_page_content_layout', 'landing_page_id', LandingPageDefinition::class);
-        $this->invalidateSectionContentLayout($event, 'header_content_layout', ContentSection::HEADER);
-        $this->invalidateSectionContentLayout($event, 'footer_content_layout', ContentSection::FOOTER);
+        $this->invalidateEntityContentLayout($event, ProductContentLayoutDefinition::ENTITY_NAME, 'product_id', ProductDefinition::class);
+        $this->invalidateEntityContentLayout($event, CategoryContentLayoutDefinition::ENTITY_NAME, 'category_id', CategoryDefinition::class);
+        $this->invalidateEntityContentLayout($event, LandingPageContentLayoutDefinition::ENTITY_NAME, 'landing_page_id', LandingPageDefinition::class);
+
+        foreach ($this->sectionAssignments as $entityName => $section) {
+            $this->invalidateSectionContentLayout($event, $entityName, $section);
+        }
     }
 
     private function invalidateContentLayout(EntityWrittenContainerEvent $event): void
     {
-        $ids = $event->getPrimaryKeys('content_layout');
+        $ids = $event->getPrimaryKeys(ContentLayoutDefinition::ENTITY_NAME);
 
         if ($ids === []) {
             return;

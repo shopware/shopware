@@ -21,7 +21,7 @@
                         "description": "Whether the error blocks the order from being placed."
                     }
                 },
-                "required": ["key", "level", "message", "messageKey"]
+                "required": ["key", "level", "message", "messageKey", "block"]
             }
         }
     }

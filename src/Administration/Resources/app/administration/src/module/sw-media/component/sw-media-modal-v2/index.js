@@ -1,7 +1,8 @@
+import { createId } from 'shopware:utils';
 import template from './sw-media-modal-v2.html.twig';
 import './sw-media-modal-v2.scss';
 
-const { Context, Utils } = Shopware;
+const { Context } = Shopware;
 
 /**
  * @event media-modal-selection-change EntityProxy[]
@@ -79,7 +80,7 @@ export default {
             currentFolder: null,
             compact: false,
             term: '',
-            id: Utils.createId(),
+            id: createId(),
             selectedMediaItem: {},
             activeTab: this.defaultTab,
         };

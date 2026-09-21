@@ -1,10 +1,13 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
+import { EventBus, dom, format } from 'shopware:utils';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
-const { Mixin, Context, Utils } = Shopware;
-const { dom, format } = Utils;
+const { Mixin, Context } = Shopware;
 
 /**
  * @sw-package discovery
@@ -28,10 +31,10 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
         Mixin.getByName('media-sidebar-modal-mixin'),
         Mixin.getByName('video-cover'),
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {
@@ -100,7 +103,7 @@ export default {
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
                     return false;
                 }
@@ -240,7 +243,7 @@ export default {
                 });
             } finally {
                 this.isLoading = false;
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                EventBus.emit('sw-media-library-item-updated', this.item.id);
             }
         },
 

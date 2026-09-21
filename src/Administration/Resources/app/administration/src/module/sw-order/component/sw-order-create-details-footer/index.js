@@ -1,12 +1,12 @@
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-details-footer.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
-const { Store, Service } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Service } = Shopware;
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */
@@ -88,15 +88,15 @@ export default {
         },
 
         currentCurrencyId() {
-            return Store.get('swOrder').currencyId;
+            return useSwOrderStore().currencyId;
         },
 
         defaultSalesChannel() {
-            return Store.get('swOrder').defaultSalesChannel;
+            return useSwOrderStore().defaultSalesChannel;
         },
 
         isCartTokenAvailable() {
-            return Store.get('swOrder').isCartTokenAvailable;
+            return useSwOrderStore().isCartTokenAvailable;
         },
     },
 
@@ -138,7 +138,7 @@ export default {
         },
 
         updateOrderContext() {
-            Store.get('swOrder')
+            useSwOrderStore()
                 .updateOrderContext({
                     context: this.context,
                     salesChannelId: this.customer.salesChannelId,
@@ -156,7 +156,7 @@ export default {
 
         updateCustomerContext() {
             // We do getCart() only when user just changes the order context items. Otherwise, we do updateCustomerContext()
-            Store.get('swOrder')
+            useSwOrderStore()
                 .updateCustomerContext({
                     customerId: this.customer.id,
                     salesChannelId: this.customer.salesChannelId,
@@ -176,7 +176,7 @@ export default {
 
             this.$emit('loading-change', true);
 
-            Store.get('swOrder')
+            useSwOrderStore()
                 .getCart({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -192,7 +192,7 @@ export default {
 
         getCurrency() {
             return this.currencyRepository.get(this.context.currencyId).then((currency) => {
-                Store.get('swOrder').setCurrency(currency);
+                useSwOrderStore().setCurrency(currency);
             });
         },
     },

@@ -1,13 +1,13 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search-search-index.html.twig';
 import './sw-settings-search-search-index.scss';
+import { Criteria } from 'shopware:data';
 
 const PRODUCT_INDEXER_INTERVAL = 3000;
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Context } = Shopware;
 /**
  * @private
  */
@@ -22,7 +22,7 @@ export default {
 
     emits: ['edit-change'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

@@ -1,9 +1,10 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
+import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -20,8 +21,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     shortcuts: {

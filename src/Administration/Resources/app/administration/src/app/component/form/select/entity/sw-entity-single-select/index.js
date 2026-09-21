@@ -2,13 +2,14 @@
  * @sw-package framework
  */
 
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
+import { debounce, debug, get, string } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
-const { Component, Mixin, Utils } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { debounce, get } = Shopware.Utils;
-
+const { Component } = Shopware;
 /**
  * @private
  */
@@ -29,8 +30,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('notification'),
+        removeApiErrorMixin,
+        notificationMixin,
     ],
 
     props: {
@@ -559,7 +560,7 @@ export default {
             this.lastSelection = item;
             this.$emit('update:value', item.id, item);
 
-            this.$emit('option-select', Utils.string.camelCase(this.entity), item);
+            this.$emit('option-select', string.camelCase(this.entity), item);
             return null;
         },
 
@@ -580,7 +581,7 @@ export default {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
             this.$emit('update:value', null);
 
-            this.$emit('option-select', Utils.string.camelCase(this.entity), null);
+            this.$emit('option-select', string.camelCase(this.entity), null);
         },
 
         clearInput() {
@@ -637,7 +638,7 @@ export default {
                     this.lastSelection = entity;
                     this.$emit('update:value', entity.id, entity);
 
-                    this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
+                    this.$emit('option-select', string.camelCase(this.entity), entity);
                     this.createNotificationSuccess({
                         message: this.$t(
                             'global.sw-single-select.labelEntityAddedSuccess',
@@ -659,7 +660,7 @@ export default {
                             0,
                         ),
                     });
-                    Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
+                    debug.error('Only Entities with "name" as the only required field are creatable.');
                     this.isLoading = false;
                 });
         },

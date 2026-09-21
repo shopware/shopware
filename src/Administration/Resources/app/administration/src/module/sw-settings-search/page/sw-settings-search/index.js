@@ -1,10 +1,9 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search.html.twig';
-
-const { Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +15,7 @@ export default {
         'feature',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

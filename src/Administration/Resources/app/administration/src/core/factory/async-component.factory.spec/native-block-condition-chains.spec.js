@@ -39,7 +39,6 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(wrapper.find('.false-case').exists()).toBe(true);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders condition chains across more than two nested Twig component extensions', async () => {
         ComponentFactory.register('native-block-nested-twig-chain-base', {
             data() {
@@ -176,7 +175,6 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(greenWrapper.find('.fallback-case').exists()).toBe(false);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('continues a restarted native condition chain in a later block extension', async () => {
         ComponentFactory.register('native-block-legacy-restarted-chain', {
             data() {

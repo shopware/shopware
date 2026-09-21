@@ -1,10 +1,10 @@
 /**
  * @sw-package fundamentals@framework
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-users-permissions-role-detail.html.twig';
 import './sw-users-permissions-role-detail.scss';
-
-const { Mixin } = Shopware;
+import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     shortcuts: {
@@ -64,7 +64,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.Store.get('session').languageId;
+            return useSessionStore().languageId;
         },
 
         roleRepository() {
@@ -229,7 +229,7 @@ export default {
 
             delete data.password;
 
-            Shopware.Store.get('session').setCurrentUser(data);
+            useSessionStore().setCurrentUser(data);
         },
 
         onCloseConfirmPasswordModal() {

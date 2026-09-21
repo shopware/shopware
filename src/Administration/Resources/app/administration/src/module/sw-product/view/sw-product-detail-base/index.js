@@ -2,12 +2,14 @@
  * @sw-package inventory
  */
 
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Context, Utils, Mixin } = Shopware;
-const { isEmpty } = Utils.types;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,7 +21,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -39,38 +41,38 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         customFieldSets() {
-            return Shopware.Store.get('swProductDetail').customFieldSets;
+            return useSwProductDetailStore().customFieldSets;
         },
 
         loading() {
-            return Shopware.Store.get('swProductDetail').loading;
+            return useSwProductDetailStore().loading;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         showModeSetting() {
-            return Shopware.Store.get('swProductDetail').showModeSetting;
+            return useSwProductDetailStore().showModeSetting;
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
          */
         productStates() {
-            return Shopware.Store.get('swProductDetail').productStates;
+            return useSwProductDetailStore().productStates;
         },
 
         productType() {
-            return Shopware.Store.get('swProductDetail').productType;
+            return useSwProductDetailStore().productType;
         },
 
         isDownloadCardVisible() {
@@ -117,7 +119,7 @@ export default {
         },
 
         showProductCard(key) {
-            return Shopware.Store.get('swProductDetail').showProductCard(key);
+            return useSwProductDetailStore().showProductCard(key);
         },
 
         getMediaDefaultFolderId() {

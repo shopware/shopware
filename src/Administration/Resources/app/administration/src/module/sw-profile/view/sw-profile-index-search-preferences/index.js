@@ -1,10 +1,13 @@
 /**
  * @sw-package fundamentals@framework
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
+import { EventBus } from 'shopware:utils';
+import useSwProfileStore from 'shopware:stores/swProfile';
 
-const { Module, Store, Mixin } = Shopware;
+const { Module, Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +19,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {
@@ -127,7 +130,7 @@ export default {
 
             try {
                 const minSearchTermLength = await this.searchRankingService.getMinSearchTermLength();
-                Shopware.Store.get('swProfile').setMinSearchTermLength(minSearchTermLength);
+                useSwProfileStore().setMinSearchTermLength(minSearchTermLength);
             } catch (error) {
                 this.createNotificationError({ message: error.message });
             } finally {
@@ -153,11 +156,11 @@ export default {
         },
 
         addEventListeners() {
-            Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
+            EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         removeEventListeners() {
-            Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
+            EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         updateDataSource() {

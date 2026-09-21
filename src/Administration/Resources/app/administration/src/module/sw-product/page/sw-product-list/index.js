@@ -2,14 +2,17 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
-
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -22,9 +25,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        listingMixin,
+        placeholderMixin,
     ],
 
     data() {
@@ -433,12 +436,12 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.getList();
         },
 
         updateCriteria(criteria) {
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
+            return listingMixin.methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
         },
 
         normalizeCategoryFilters(filters) {

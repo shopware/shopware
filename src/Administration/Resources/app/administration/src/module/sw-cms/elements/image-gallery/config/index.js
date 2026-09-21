@@ -1,7 +1,6 @@
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
-const { Mixin } = Shopware;
 const {
     moveItem,
     object: { cloneDeep },
@@ -23,7 +22,7 @@ export default {
     emits: ['element-update'],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

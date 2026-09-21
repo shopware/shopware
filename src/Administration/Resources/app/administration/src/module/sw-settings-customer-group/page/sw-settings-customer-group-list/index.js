@@ -1,11 +1,12 @@
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-customer-group-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package discovery
  */
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,9 +18,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        placeholderMixin,
+        notificationMixin,
     ],
 
     data() {

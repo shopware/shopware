@@ -1,7 +1,8 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
-
-const { Mixin } = Shopware;
+import { createId, fileReader } from 'shopware:utils';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @status ready
@@ -29,7 +30,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -50,7 +51,7 @@ export default {
 
     computed: {
         presignedSupported() {
-            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+            return useContextStore().app.config?.settings?.presignedUploadSupported ?? false;
         },
     },
 
@@ -60,7 +61,7 @@ export default {
 
             // overwrite file name randomly to avoid conflicts on upload before renaming
             // e.g. you want to replace image.png with shopware.png but shopware.png already exists
-            data[0].fileName = Shopware.Utils.createId();
+            data[0].fileName = createId();
 
             const newFileExtension = data[0].extension;
             const oldFileExtension = this.itemToReplace.fileExtension;
@@ -102,7 +103,6 @@ export default {
         },
 
         async runPresignedReplace(fileHandle) {
-            const { fileReader } = Shopware.Utils;
             const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
             const mimeType = fileHandle.type || 'application/octet-stream';
 

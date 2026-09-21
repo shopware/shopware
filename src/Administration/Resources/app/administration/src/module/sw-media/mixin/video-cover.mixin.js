@@ -1,3 +1,5 @@
+import { EventBus } from 'shopware:utils';
+
 /**
  * @sw-package discovery
  *
@@ -71,7 +73,7 @@ Shopware.Mixin.register('video-cover', {
                     message: this.$t(snippetKey),
                 });
 
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                EventBus.emit('sw-media-library-item-updated', this.item.id);
             } catch {
                 this.createNotificationError({
                     message: this.$t('global.sw-media-media-item.notification.coverSaveError.message'),

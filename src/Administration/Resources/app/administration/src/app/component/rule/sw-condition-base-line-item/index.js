@@ -1,7 +1,7 @@
 import template from './sw-condition-base-line-item.html.twig';
 import './sw-condition-base-line-item.scss';
-
-const { EntityCollection } = Shopware.Data;
+import { EntityCollection } from 'shopware:data';
+import useRuleConditionsConfigStore from 'shopware:stores/ruleConditionsConfig';
 
 const NON_GENERIC_MATCH_ANY_CONDITIONS = [
     'cartLineItem',
@@ -55,7 +55,7 @@ export default {
                 return true;
             }
 
-            const config = Shopware.Store.get('ruleConditionsConfig').getConfigForType(this.condition.type);
+            const config = useRuleConditionsConfigStore().getConfigForType(this.condition.type);
 
             const operatorMatchAny = !!config?.operatorSet?.isMatchAny;
             const configMatchAny = Object.values(config?.fields ?? {}).some((field) => field?.config?.isMatchAny);

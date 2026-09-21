@@ -1,11 +1,12 @@
 /**
  * @sw-package inventory
  */
+import notificationMixin from 'shopware:mixins/notification';
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-number-range-list.html.twig';
 import './sw-settings-number-range-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,9 +18,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        listingMixin,
+        placeholderMixin,
     ],
 
     data() {

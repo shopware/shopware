@@ -1,8 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
-const { Component, Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -369,8 +372,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     shortcuts: {
@@ -776,7 +779,7 @@ export default {
                 return null;
             }
 
-            const error = Shopware.Store.get('error').getApiErrorFromPath('document_base_config', this.documentConfig.id, [
+            const error = useErrorStore().getApiErrorFromPath('document_base_config', this.documentConfig.id, [
                 'filenameInfixes',
                 format,
             ]);

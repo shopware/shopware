@@ -1,3 +1,6 @@
+import { types } from 'shopware:utils';
+import useSessionStore from 'shopware:stores/session';
+
 /**
  * @sw-package framework
  *
@@ -19,11 +22,11 @@ export default function useInlineSnippet(): {
     getInlineSnippet: (value: { [key: string]: string }) => string | { [key: string]: string };
 } {
     function getInlineSnippet(value: { [key: string]: string }): string | { [key: string]: string } {
-        if (Shopware.Utils.types.isEmpty(value)) {
+        if (types.isEmpty(value)) {
             return '';
         }
 
-        const currentLocale = Shopware.Store.get('session').currentLocale as unknown as string;
+        const currentLocale = useSessionStore().currentLocale as unknown as string;
 
         if (value[currentLocale]) {
             return value[currentLocale];
@@ -35,7 +38,7 @@ export default function useInlineSnippet(): {
             return value[fallbackLocale];
         }
 
-        if (Shopware.Utils.types.isObject(value)) {
+        if (types.isObject(value)) {
             const locale = Object.keys(value).find((key) => {
                 return value[key] !== '';
             });

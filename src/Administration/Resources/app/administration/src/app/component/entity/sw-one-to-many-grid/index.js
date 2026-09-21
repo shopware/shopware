@@ -3,8 +3,7 @@
  */
 
 import template from './sw-one-to-many-grid.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

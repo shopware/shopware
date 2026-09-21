@@ -4,8 +4,7 @@
 
 import template from './sw-product-variants-delivery-listing.html.twig';
 import './sw-product-variants-delivery-listing.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

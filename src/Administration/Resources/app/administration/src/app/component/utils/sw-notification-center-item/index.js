@@ -4,6 +4,9 @@
 
 import './sw-notification-center-item.scss';
 import template from './sw-notification-center-item.html.twig';
+import { string } from 'shopware:utils';
+import notificationTranslationMixin from 'shopware:mixins/notification-translation';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -11,7 +14,7 @@ import template from './sw-notification-center-item.html.twig';
 export default {
     template,
 
-    mixins: [Shopware.Mixin.getByName('notification-translation')],
+    mixins: [notificationTranslationMixin],
 
     emits: ['center-close'],
 
@@ -48,12 +51,12 @@ export default {
         },
 
         onDelete() {
-            Shopware.Store.get('notification').removeNotification(this.notification);
+            useNotificationStore().removeNotification(this.notification);
         },
 
         handleAction(action) {
             // Allow external links for example to the shopware account or store
-            if (Shopware.Utils.string.isUrl(action.route)) {
+            if (string.isUrl(action.route)) {
                 window.open(action.route);
                 return;
             }

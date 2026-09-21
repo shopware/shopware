@@ -2,12 +2,13 @@
  * @sw-package discovery
  */
 
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-sales-channel-list.html.twig';
 import './sw-sales-channel-list.scss';
+import { EventBus } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
 
-const { Mixin, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Defaults } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -19,7 +20,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     data() {
@@ -112,7 +113,7 @@ export default {
 
     methods: {
         onAddSalesChannel() {
-            Shopware.Utils.EventBus.emit('sw-sales-channel-list-add-new-channel');
+            EventBus.emit('sw-sales-channel-list-add-new-channel');
         },
 
         async getList() {

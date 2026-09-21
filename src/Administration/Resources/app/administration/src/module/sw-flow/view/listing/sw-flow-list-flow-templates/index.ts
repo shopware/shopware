@@ -1,3 +1,4 @@
+import listingMixin from 'shopware:mixins/listing';
 import type Repository from '../../../../../core/data/repository.data';
 import type CriteriaType from '../../../../../core/data/criteria.data';
 import template from './sw-flow-list-flow-templates.html.twig';
@@ -13,7 +14,6 @@ interface GridColumn {
 }
 
 const {
-    Mixin,
     Data: { Criteria },
 } = Shopware;
 
@@ -31,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     props: {

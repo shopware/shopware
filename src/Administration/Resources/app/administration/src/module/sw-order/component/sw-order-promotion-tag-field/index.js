@@ -1,12 +1,10 @@
+import { format } from 'shopware:utils';
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
 /**
  * @sw-package checkout
  */
-
-const { Utils } = Shopware;
-const { format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

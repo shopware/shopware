@@ -1,8 +1,13 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
+import useSessionStore from 'shopware:stores/session';
 
-const { Component, Mixin, Context, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
@@ -25,8 +30,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        placeholderMixin,
+        notificationMixin,
     ],
 
     props: {
@@ -124,7 +129,7 @@ export default {
             return this.ruleConditionDataProviderService.getDeprecationsInTree(this.conditions);
         },
 
-        ...mapState(() => Store.get('swFlow'), ['flow']),
+        ...mapState(() => useSwFlowStore(), ['flow']),
 
         ...mapPropertyErrors('rule', [
             'name',
@@ -158,7 +163,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria(1, 500);
 
@@ -266,7 +271,7 @@ export default {
 
                 this.saveRule()
                     .then(() => {
-                        Shopware.Store.get('error').resetApiErrors();
+                        useErrorStore().resetApiErrors();
                         this.getRuleDetail();
 
                         this.isSaveSuccessful = true;
@@ -284,7 +289,7 @@ export default {
             this.saveRule()
                 .then(this.syncConditions)
                 .then(() => {
-                    Shopware.Store.get('error').resetApiErrors();
+                    useErrorStore().resetApiErrors();
                     this.getRuleDetail();
 
                     this.isSaveSuccessful = true;

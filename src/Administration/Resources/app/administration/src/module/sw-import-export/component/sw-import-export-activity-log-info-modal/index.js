@@ -1,11 +1,10 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-activity-log-info-modal.html.twig';
 import './sw-import-export-activity-log-info-modal.scss';
-
-const { Mixin } = Shopware;
-const { format } = Shopware.Utils;
+import { format } from 'shopware:utils';
 
 /**
  * @private
@@ -18,7 +17,7 @@ export default {
     emits: ['log-close'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

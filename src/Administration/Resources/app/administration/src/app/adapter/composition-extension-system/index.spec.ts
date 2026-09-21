@@ -3296,7 +3296,6 @@ describe('src/app/adapter/composition-extension-system', () => {
     });
 
     describe('TS Types', () => {
-        /* eslint-disable jest/expect-expect */
         /**
          * These are just type checks without any runtime assertions
          */
@@ -3569,7 +3568,6 @@ describe('src/app/adapter/composition-extension-system', () => {
                 return {};
             });
         });
-        /* eslint-enable jest/expect-expect */
     });
 
     describe('Effect disposal:', () => {

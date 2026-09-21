@@ -35,7 +35,10 @@
                         @inheritance-restore="props.restoreInheritance"
                         @inheritance-remove="props.removeInheritance"
                     >
-                        <template v-if="allowInput && currentSalesChannelIsHeadless" #prefix>
+                        <template
+                            v-if="allowInput && currentSalesChannelIsHeadless"
+                            #prefix
+                        >
                             {{ headlessExternalStorefrontUrl }}
                         </template>
                     </mt-text-field>

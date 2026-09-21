@@ -2,12 +2,12 @@
  * @sw-package framework
  */
 
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import template from './sw-entity-multi-id-select.html.twig';
+import { get, types } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
-const { Context, Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-const { get } = Shopware.Utils;
-
+const { Context } = Shopware;
 /**
  * @private
  */
@@ -21,7 +21,7 @@ export default {
     emits: ['update:value'],
 
     mixins: [
-        Mixin.getByName('remove-api-error'),
+        removeApiErrorMixin,
     ],
 
     props: {
@@ -75,7 +75,7 @@ export default {
                 return;
             }
 
-            if (Shopware.Utils.types.isEqual(this.collection.getIds(), value)) {
+            if (types.isEqual(this.collection.getIds(), value)) {
                 return;
             }
 

@@ -6,6 +6,9 @@ import type { Theme } from '@shopware-ag/meteor-component-library';
 import useTheme from 'src/app/composables/use-theme';
 import template from './sw-ui-shell-update-2026-modal.html.twig';
 import './sw-ui-shell-update-2026-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
+import useContextStore from 'shopware:stores/context';
+import useSessionStore from 'shopware:stores/session';
 
 type UiShellUpdate2026Page = {
     id: string;
@@ -65,7 +68,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data(): {
@@ -207,7 +210,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            if (Shopware.Store.get('context').app.firstRunWizard === true) {
+            if (useContextStore().app.firstRunWizard === true) {
                 return false;
             }
 
@@ -220,14 +223,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         // The date of its very first migration identifies a shop that ran the old navigation.
         isExistingShop(): boolean {
-            const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
+            const settings = useContextStore().app.config.settings as ContextSettings | undefined;
 
             return this.isBeforeRelease(settings?.firstMigrationDate);
         },
 
         // An old shop can still have brand new admin users, and those never saw it either.
         isExistingUser(): boolean {
-            const currentUser = Shopware.Store.get('session').currentUser as Record<string, unknown> | null;
+            const currentUser = useSessionStore().currentUser as Record<string, unknown> | null;
 
             return this.isBeforeRelease(currentUser?.createdAt);
         },

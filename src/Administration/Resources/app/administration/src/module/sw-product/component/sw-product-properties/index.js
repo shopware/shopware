@@ -4,10 +4,10 @@
 
 import template from './sw-product-properties.html.twig';
 import './sw-product-properties.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -109,19 +109,19 @@ export default {
         },
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         isChild() {
-            return Shopware.Store.get('swProductDetail').isChild;
+            return useSwProductDetailStore().isChild;
         },
 
         productProperties() {

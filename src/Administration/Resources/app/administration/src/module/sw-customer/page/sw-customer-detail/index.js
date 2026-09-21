@@ -1,13 +1,18 @@
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
+import { Criteria } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const { CUSTOMER } = Shopware.Constants;
@@ -25,9 +30,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-        Mixin.getByName('discard-detail-page-changes')('customer'),
+        notificationMixin,
+        salutationMixin,
+        discardDetailPageChangesMixin('customer'),
     ],
 
     shortcuts: {
@@ -205,7 +210,7 @@ export default {
     },
 
     beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
     },
 
     created() {
@@ -261,7 +266,7 @@ export default {
         },
 
         async createdComponent() {
-            Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
+            useShopwareAppsStore().selectedIds = this.customerId ? [this.customerId] : [];
 
             await this.loadCustomer();
         },
@@ -284,7 +289,7 @@ export default {
                 })
                 .then((emailIsValid) => {
                     if (this.errorEmailCustomer) {
-                        Shopware.Store.get('error').addApiError({
+                        useErrorStore().addApiError({
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
                         });
@@ -294,7 +299,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.emailIsValid = false;
-                    Shopware.Store.get('error').addApiError({
+                    useErrorStore().addApiError({
                         expression: `customer.${this.customer.id}.email`,
                         error: new ShopwareError(exception.response.data.errors[0]),
                     });
@@ -390,7 +395,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.createdComponent();
         },
 
@@ -400,7 +405,7 @@ export default {
             const passwordNotEquals = passwordNew !== passwordConfirm;
 
             if (passwordSet && passwordNotEquals) {
-                Shopware.Store.get('error').addApiError({
+                useErrorStore().addApiError({
                     expression: `customer.${this.customer.id}.passwordConfirm`,
                     error: new ShopwareError({
                         detail: this.$t('sw-customer.error.passwordDoNotMatch'),
@@ -452,7 +457,7 @@ export default {
 
         createErrorMessageForCompanyField() {
             this.isLoading = false;
-            Shopware.Store.get('error').addApiError({
+            useErrorStore().addApiError({
                 expression: `customer.${this.customer.id}.company`,
                 error: new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',

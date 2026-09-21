@@ -1,6 +1,7 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-landing-page-view.html.twig';
-
-const { Mixin } = Shopware;
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 
 /**
  * @sw-package discovery
@@ -15,7 +16,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {
@@ -28,11 +29,11 @@ export default {
 
     computed: {
         landingPage() {
-            return Shopware.Store.get('swCategoryDetail').landingPage;
+            return useSwCategoryDetailStore().landingPage;
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         landingPageViewTabs() {

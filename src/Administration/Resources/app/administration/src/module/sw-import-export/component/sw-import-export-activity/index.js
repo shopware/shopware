@@ -1,12 +1,11 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
-
-const { Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { format } = Shopware.Utils;
+import { format } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @private
@@ -21,7 +20,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -80,7 +79,7 @@ export default {
         },
 
         activityCriteria() {
-            const criteria = new Shopware.Data.Criteria();
+            const criteria = new Criteria();
 
             if (this.type === 'import') {
                 criteria.addFilter(

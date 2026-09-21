@@ -1,7 +1,6 @@
+import positionMixin from 'shopware:mixins/position';
 import template from './sw-data-grid-column-position.html.twig';
 import './sw-data-grid-column-position.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -31,7 +30,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('position'),
+        positionMixin,
     ],
 
     props: {

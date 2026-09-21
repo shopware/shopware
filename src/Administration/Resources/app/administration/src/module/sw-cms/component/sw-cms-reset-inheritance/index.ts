@@ -1,7 +1,8 @@
 import template from './sw-cms-reset-inheritance.html.twig';
 import './sw-cms-reset-inheritance.scss';
-
-const { set, merge } = Shopware.Utils.object;
+import { types } from 'shopware:utils';
+import { merge, set } from 'shopware:utils/object';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private
@@ -19,10 +20,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
     computed: {
         cmsPageStore() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
         hasOverrides() {
-            return !Shopware.Utils.types.isEmpty(this.contentEntity?.slotConfig);
+            return !types.isEmpty(this.contentEntity?.slotConfig);
         },
     },
     methods: {

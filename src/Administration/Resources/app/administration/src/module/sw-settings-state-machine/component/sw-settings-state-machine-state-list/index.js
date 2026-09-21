@@ -1,8 +1,8 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-state-machine-state-list.html.twig';
+import { Criteria } from 'shopware:data';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Component } = Shopware;
 /**
  * @sw-package checkout
  */
@@ -18,7 +18,7 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

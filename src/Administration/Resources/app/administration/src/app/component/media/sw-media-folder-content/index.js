@@ -1,9 +1,8 @@
 import template from './sw-media-folder-content.html.twig';
 import './sw-media-folder-content.scss';
+import { Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package discovery
  */

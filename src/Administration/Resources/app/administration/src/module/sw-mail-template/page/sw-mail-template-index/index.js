@@ -2,9 +2,11 @@
  * @sw-package after-sales
  */
 
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-mail-template-index.html.twig';
+import useContextStore from 'shopware:stores/context';
 
-const { Mixin, Feature } = Shopware;
+const { Feature } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,7 +21,7 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Will be removed.
          */
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     data() {
@@ -69,7 +71,7 @@ export default {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
 
             if (Feature.isActive('V6_8_0_0')) {
                 this.$refs.tabContent?.getList();

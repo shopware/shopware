@@ -1,14 +1,16 @@
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
+import { Criteria } from 'shopware:data';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
  */
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
 
 interface StateMachineHistoryData {
     order: Entity<'state_machine_state'>;
@@ -44,7 +46,7 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -165,10 +167,10 @@ export default Component.wrapComponentConfig({
 
         statesLoading: {
             get(): boolean {
-                return Shopware.Store.get('swOrderDetail').loading.states;
+                return useSwOrderDetailStore().loading.states;
             },
             set(value: boolean): void {
-                Shopware.Store.get('swOrderDetail').setLoading([
+                useSwOrderDetailStore().setLoading([
                     'states',
                     value,
                 ]);

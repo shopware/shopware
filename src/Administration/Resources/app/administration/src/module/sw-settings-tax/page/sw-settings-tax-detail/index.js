@@ -1,11 +1,12 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -20,7 +21,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     shortcuts: {
@@ -225,7 +226,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.createdComponent();
         },
 

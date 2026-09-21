@@ -2,11 +2,14 @@
  * @sw-package inventory
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
+import useContextStore from 'shopware:stores/context';
 
 const {
-    Mixin,
     Data: { Criteria },
 } = Shopware;
 
@@ -24,9 +27,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('manufacturer'),
+        placeholderMixin,
+        notificationMixin,
+        discardDetailPageChangesMixin('manufacturer'),
     ],
 
     shortcuts: {
@@ -146,7 +149,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.manufacturer = this.manufacturerRepository.create();
         },
 

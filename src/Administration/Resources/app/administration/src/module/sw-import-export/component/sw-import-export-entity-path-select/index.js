@@ -1,11 +1,10 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import './sw-import-export-entity-path-select.scss';
 import template from './sw-import-export-entity-path-select.html.twig';
-
-const { Mixin } = Shopware;
-const { debounce, get, flow } = Shopware.Utils;
+import { debounce, flow, get } from 'shopware:utils';
 
 /**
  * @private
@@ -23,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('remove-api-error'),
+        removeApiErrorMixin,
     ],
 
     props: {

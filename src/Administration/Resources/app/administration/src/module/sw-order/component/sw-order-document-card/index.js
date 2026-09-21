@@ -2,6 +2,10 @@
  * @sw-package after-sales
  */
 // @deprecated tag:v6.9.0 - DocumentEvents is deprecated and will be removed.
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
@@ -9,9 +13,7 @@ import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import EntityCollection from '../../../../core/data/entity-collection.data';
 import { DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
-
-const { Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private
@@ -47,9 +49,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        placeholderMixin,
+        notificationMixin,
     ],
 
     props: {
@@ -94,7 +96,7 @@ export default {
     },
 
     computed: {
-        isEditing: () => Store.get('swOrderDetail').isEditing,
+        isEditing: () => useSwOrderDetailStore().isEditing,
 
         creditItems() {
             const items = [];

@@ -1,17 +1,19 @@
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import { required } from 'src/core/service/validation.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;
-const { EntityDefinition, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
-
+const { EntityDefinition } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -24,7 +26,7 @@ export default {
     emits: ['change-address'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -70,9 +72,9 @@ export default {
     },
 
     computed: {
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
         orderCustomer() {
             return this.order.orderCustomer;
@@ -255,7 +257,7 @@ export default {
             const ignoreFields = ['createdAt'];
             const entityName = address.getEntityName();
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields(entityName));
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
@@ -287,7 +289,7 @@ export default {
             }
 
             const entityName = address.getEntityName();
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const addressErrors = errorStore.getErrorsForEntity(entityName, address.id);
 
             if (!addressErrors) {
@@ -303,7 +305,7 @@ export default {
 
         removeRequiredFieldError(address, field) {
             const entityName = address.getEntityName();
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const error = errorStore.getApiErrorFromPath(entityName, address.id, [field]);
 
             if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {

@@ -1,7 +1,7 @@
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import template from './sw-radio-field.html.twig';
 import './sw-radio-field.scss';
-
-const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -32,8 +32,8 @@ export default {
     emits: ['update:value'],
 
     mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
+        swFormFieldMixin,
+        removeApiErrorMixin,
     ],
 
     props: {

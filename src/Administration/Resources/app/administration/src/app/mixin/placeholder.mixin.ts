@@ -6,6 +6,7 @@
 
 /* @private */
 import { defineComponent } from 'vue';
+import { types } from 'shopware:utils';
 
 /**
  * @private
@@ -25,7 +26,7 @@ export default Shopware.Mixin.register(
                     return fallbackSnippet;
                 }
 
-                if (Shopware.Utils.types.isString(entity[field]) && entity[field].length > 0) {
+                if (types.isString(entity[field]) && entity[field].length > 0) {
                     return entity[field];
                 }
 

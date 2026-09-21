@@ -1,8 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
+import { dom } from 'shopware:utils';
 
-const { Mixin } = Shopware;
-const domUtils = Shopware.Utils.dom;
+const domUtils = dom;
 
 /**
  * @sw-package framework
@@ -13,7 +14,7 @@ export default {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

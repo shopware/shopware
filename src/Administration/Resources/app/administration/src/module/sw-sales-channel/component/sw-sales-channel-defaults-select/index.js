@@ -2,11 +2,12 @@
  * @sw-package discovery
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
-
-const { Mixin } = Shopware;
-const { EntityCollection } = Shopware.Data;
+import { string } from 'shopware:utils';
+import { EntityCollection } from 'shopware:data';
+import useErrorStore from 'shopware:stores/error';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,7 +16,7 @@ export default {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -119,7 +120,7 @@ export default {
         },
 
         propertyNameKebabCase() {
-            return Shopware.Utils.string.kebabCase(this.propertyName);
+            return string.kebabCase(this.propertyName);
         },
 
         multiSelectClass() {
@@ -131,7 +132,7 @@ export default {
         },
 
         defaultsValueError() {
-            return Shopware.Store.get('error').getApiError(this.salesChannel, this.defaultPropertyName);
+            return useErrorStore().getApiError(this.salesChannel, this.defaultPropertyName);
         },
 
         labelProperty() {

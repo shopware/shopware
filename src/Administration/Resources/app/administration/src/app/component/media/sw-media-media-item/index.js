@@ -1,10 +1,11 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
+import { dom } from 'shopware:utils';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const { Mixin } = Shopware;
-const { dom } = Shopware.Utils;
-
 /**
  * @status ready
  * @description The <u>sw-media-media-item</u> component is used to store the media item and manage it through the
@@ -53,7 +54,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
         Mixin.getByName('video-cover'),
     ],
 
@@ -93,7 +94,7 @@ export default {
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
                     return false;
                 }

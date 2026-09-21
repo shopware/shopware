@@ -2,11 +2,13 @@
  * @sw-package framework
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-search-preferences-modal.html.twig';
 import './sw-search-preferences-modal.scss';
+import { EventBus } from 'shopware:utils';
 
-const { Mixin, Module } = Shopware;
+const { Module } = Shopware;
 
 /**
  * @private
@@ -22,7 +24,7 @@ export default {
     emits: ['modal-close'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {
@@ -177,7 +179,7 @@ export default {
                 .then(() => {
                     this.isLoading = false;
                     this.$emit('modal-close');
-                    Shopware.Utils.EventBus.emit('sw-search-preferences-modal-close');
+                    EventBus.emit('sw-search-preferences-modal-close');
                 })
                 .catch((error) => {
                     this.isLoading = false;

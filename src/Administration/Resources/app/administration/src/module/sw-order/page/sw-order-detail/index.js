@@ -1,15 +1,19 @@
+import { array } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
 import { getCartErrorMessage } from '../../cart-error.helper';
+import { Criteria } from 'shopware:data';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
  */
 
-const { Store, Mixin, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
-const { array } = Utils;
+const { Store } = Shopware;
+
 const ApiService = Shopware.Classes.ApiService;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -43,7 +47,7 @@ export default {
     },
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -262,7 +266,7 @@ export default {
 
         // Deselecting happens here and not in `beforeRouteLeave`, because leaving while editing
         // is confirmed through the leave page warning, which resumes the navigation on its own.
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
 
         this.beforeDestroyComponent();
     },
@@ -292,14 +296,14 @@ export default {
 
             window.addEventListener('pagehide', this.onPageHide);
 
-            Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
+            useShopwareAppsStore().selectedIds = this.orderId ? [this.orderId] : [];
 
-            Shopware.Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'order',
                 true,
             ]);
             this.createNewVersionId().finally(() => {
-                Shopware.Store.get('swOrderDetail').setLoading([
+                useSwOrderDetailStore().setLoading([
                     'order',
                     false,
                 ]);

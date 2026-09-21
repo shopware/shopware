@@ -1,4 +1,5 @@
 import template from './sw-settings-payment-create.html.twig';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -9,8 +10,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.paymentMethod = this.paymentMethodRepository.create();

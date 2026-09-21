@@ -103,7 +103,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         });
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders legacy Twig shim condition chains across multiple template overrides', async () => {
         ComponentFactory.register('native-block-legacy-twig-shim-override-chain', {
             data() {
@@ -223,7 +222,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expect(wrapper.find('.native-fallback-condition').exists()).toBe(true);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('continues adjacent named block condition chains for legacy Twig shim v-else-if cases', async () => {
         ComponentFactory.register('native-block-legacy-twig-adjacent-named-chain', {
             data() {
@@ -288,7 +286,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expectOnlyBranch(wrapper, branches, null);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders a later legacy Twig fallback after an earlier legacy Twig v-if misses', async () => {
         ComponentFactory.register('native-block-legacy-twig-started-chain', {
             data() {

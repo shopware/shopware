@@ -1,4 +1,5 @@
 import type { NotificationVariant } from 'src/app/store/notification.store';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @sw-package framework
@@ -38,7 +39,7 @@ export default function initializeNotifications(): void {
             }
         }
 
-        Shopware.Store.get('notification').createNotification({
+        useNotificationStore().createNotification({
             variant: variant,
             title: title,
             message: message,

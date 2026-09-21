@@ -2,12 +2,12 @@
  * @sw-package framework
  */
 
+import placeholderMixin from 'shopware:mixins/placeholder';
 import './sw-settings-logging-list.scss';
 import template from './sw-settings-logging-list.html.twig';
+import { Criteria } from 'shopware:data';
 
 const { Mixin, Component } = Shopware;
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -16,7 +16,7 @@ export default {
 
     mixins: [
         Mixin.getByName('sw-settings-list'),
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     data() {

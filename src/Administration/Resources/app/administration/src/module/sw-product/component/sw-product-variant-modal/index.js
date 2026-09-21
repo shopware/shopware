@@ -2,12 +2,12 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
+import { Criteria } from 'shopware:data';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -20,7 +20,7 @@ export default {
     emits: ['modal-close'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

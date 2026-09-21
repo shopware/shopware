@@ -2,11 +2,13 @@
  * @sw-package inventory
  */
 
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-category-form.html.twig';
 import './sw-product-category-form.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Context, Mixin } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
+const { Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -20,7 +22,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -42,23 +44,23 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         loading() {
-            return Shopware.Store.get('swProductDetail').loading;
+            return useSwProductDetailStore().loading;
         },
 
         isChild() {
-            return Shopware.Store.get('swProductDetail').isChild;
+            return useSwProductDetailStore().isChild;
         },
 
         showModeSetting() {
-            return Shopware.Store.get('swProductDetail').showModeSetting;
+            return useSwProductDetailStore().showModeSetting;
         },
 
         ...mapPropertyErrors('product', [

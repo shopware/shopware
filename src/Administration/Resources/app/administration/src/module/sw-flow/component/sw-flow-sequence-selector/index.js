@@ -1,7 +1,6 @@
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-sequence-selector.html.twig';
 import './sw-flow-sequence-selector.scss';
-
-const { Store } = Shopware;
 
 /**
  * @private
@@ -52,14 +51,14 @@ export default {
 
     methods: {
         addIfCondition() {
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: this.sequence.id,
                 ruleId: '',
             });
         },
 
         addThenAction() {
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: this.sequence.id,
                 actionName: '',
             });

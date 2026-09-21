@@ -1,8 +1,6 @@
 import template from './sw-cms-el-config-vimeo-video.html.twig';
 import './sw-cms-el-config-vimeo-video.scss';
 
-const { Mixin } = Shopware;
-
 /**
  * @private
  * @sw-package discovery
@@ -13,7 +11,7 @@ export default {
     emits: ['element-update'],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

@@ -1,13 +1,14 @@
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
+import { cloneDeep } from 'shopware:utils/object';
+import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
 const {
-    Mixin,
     Data: { Criteria },
     Context,
 } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
-
 /**
  * @sw-package checkout
  */
@@ -21,8 +22,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
+        notificationMixin,
+        placeholderMixin,
     ],
 
     props: {
@@ -35,23 +36,23 @@ export default {
 
     computed: {
         shippingMethod() {
-            return Shopware.Store.get('swShippingDetail').shippingMethod;
+            return useSwShippingDetailStore().shippingMethod;
         },
 
         shippingPriceGroups() {
-            return Shopware.Store.get('swShippingDetail').shippingPriceGroups;
+            return useSwShippingDetailStore().shippingPriceGroups;
         },
 
         usedRules() {
-            return Shopware.Store.get('swShippingDetail').usedRules;
+            return useSwShippingDetailStore().usedRules;
         },
 
         unrestrictedPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').unrestrictedPriceMatrixExists;
+            return useSwShippingDetailStore().unrestrictedPriceMatrixExists;
         },
 
         newPriceMatrixExists() {
-            return Shopware.Store.get('swShippingDetail').newPriceMatrixExists;
+            return useSwShippingDetailStore().newPriceMatrixExists;
         },
 
         ruleRepository() {

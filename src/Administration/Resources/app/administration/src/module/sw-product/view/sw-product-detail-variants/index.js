@@ -4,9 +4,10 @@
 
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
-
-const { Criteria, EntityCollection } = Shopware.Data;
-const { uniqBy } = Shopware.Utils.array;
+import { uniqBy } from 'shopware:utils/array';
+import { Criteria, EntityCollection } from 'shopware:data';
+import useContextStore from 'shopware:stores/context';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -37,19 +38,19 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         variants() {
-            return Shopware.Store.get('swProductDetail').variants;
+            return useSwProductDetailStore().variants;
         },
 
         isStoreLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         contextLanguageId() {
-            return Shopware.Store.get('context').api.languageId;
+            return useContextStore().api.languageId;
         },
 
         productRepository() {

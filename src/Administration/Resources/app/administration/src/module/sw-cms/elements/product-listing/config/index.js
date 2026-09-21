@@ -1,10 +1,8 @@
 import template from './sw-cms-el-config-product-listing.html.twig';
 import './sw-cms-el-config-product-listing.scss';
-
-const { Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
-const { isEmpty } = Shopware.Utils.types;
+import { cloneDeep, get, has, set, unset } from 'shopware:utils/object';
+import { isEmpty } from 'shopware:utils/types';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @private
@@ -19,7 +17,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

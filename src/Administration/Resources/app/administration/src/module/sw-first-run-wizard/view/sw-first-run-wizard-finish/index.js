@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-finish.html.twig';
 import './sw-first-run-wizard-finish.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -48,8 +49,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement =
-                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            const disabledExtensionManagement = useContextStore().app.config.settings?.disableExtensionManagement;
             const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
 
             return [

@@ -3,8 +3,8 @@
  */
 
 import template from './sw-product-visibility-select.html.twig';
-
-const { EntityCollection, Criteria } = Shopware.Data;
+import { Criteria, EntityCollection } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -32,7 +32,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         repository() {

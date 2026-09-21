@@ -1,8 +1,10 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-app-action-modal.html.twig';
 import './sw-flow-app-action-modal.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const {
-    Mixin,
     Classes: { ShopwareError },
 } = Shopware;
 
@@ -21,8 +23,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        placeholderMixin,
+        notificationMixin,
     ],
 
     props: {
@@ -50,7 +52,7 @@ export default {
         },
 
         currentLocale() {
-            return Shopware.Store.get('session').currentLocale;
+            return useSessionStore().currentLocale;
         },
 
         headline() {

@@ -4,8 +4,9 @@
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
-
-const { chunk: chunkArray } = Shopware.Utils.array;
+import { chunk as chunkArray } from 'shopware:utils/array';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -23,7 +24,7 @@ export default {
     },
 
     mixins: [
-        Shopware.Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     emits: [
@@ -56,23 +57,21 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         documentTypes() {
-            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+            return useSwBulkEditStore()?.orderDocuments?.download?.value;
         },
 
         deleteDocumentTypes() {
             return (
-                Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value?.filter(
-                    (documentType) => documentType.selected,
-                ) ?? []
+                useSwBulkEditStore()?.orderDocuments?.delete?.value?.filter((documentType) => documentType.selected) ?? []
             );
         },
 
         documentTypeConfigs() {
-            return Shopware.Store.get('swBulkEdit').documentTypeConfigs;
+            return useSwBulkEditStore().documentTypeConfigs;
         },
 
         selectedDocumentTypes() {
@@ -125,7 +124,7 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
-            Shopware.Store.get('swBulkEdit').resetDocumentGenerationResult();
+            useSwBulkEditStore().resetDocumentGenerationResult();
             try {
                 await this.createDocuments();
                 await this.deleteDocuments();
@@ -215,12 +214,7 @@ export default {
                 failedItems.push(...(documentFailedItems ?? []));
             }
 
-            Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(
-                totalRequested,
-                totalErrors,
-                totalSkipped,
-                failedItems,
-            );
+            useSwBulkEditStore().setDocumentGenerationResult(totalRequested, totalErrors, totalSkipped, failedItems);
         },
 
         /**

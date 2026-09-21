@@ -2,12 +2,14 @@
  * @sw-package inventory
  */
 
+import { get } from 'shopware:utils/object';
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
+import { Criteria } from 'shopware:data';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Context, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
-const { get } = Utils.object;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -41,11 +43,11 @@ export default {
         },
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         cmsPageCriteria() {
@@ -65,11 +67,11 @@ export default {
         },
 
         currentPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
     },
 
@@ -142,7 +144,7 @@ export default {
 
             this.product.cmsPageId = cmsPageId;
             this.resetSlotConfig();
-            Shopware.Store.get('swProductDetail').product = this.product;
+            useSwProductDetailStore().product = this.product;
         },
 
         handleGetCmsPage() {

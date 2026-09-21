@@ -4,6 +4,7 @@
 
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
+import useTabsStore from 'shopware:stores/tabs';
 
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
@@ -170,7 +171,7 @@ export default {
         },
 
         tabExtensions() {
-            return (Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? []).filter(
+            return (useTabsStore().tabItems[this.positionIdentifier] ?? []).filter(
                 (tabExtension) => tabExtension.visible !== false,
             );
         },

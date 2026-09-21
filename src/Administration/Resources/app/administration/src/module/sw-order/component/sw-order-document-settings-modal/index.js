@@ -1,8 +1,7 @@
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
-
-const { Mixin, Utils } = Shopware;
-const { isEmpty } = Utils.types;
 
 /**
  * @sw-package after-sales
@@ -26,7 +25,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

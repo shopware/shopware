@@ -5,6 +5,7 @@
 import { initializeUserNotifications } from 'src/app/store/notification.store';
 import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import useSessionStore from 'shopware:stores/session';
 
 function loadUserPreferences(): Promise<unknown> {
     return Promise.allSettled([
@@ -41,7 +42,7 @@ export default function initializeUserContext() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 delete data.password;
 
-                Shopware.Store.get('session').setCurrentUser(data as Entity<'user'>);
+                useSessionStore().setCurrentUser(data as Entity<'user'>);
                 initializeUserNotifications();
 
                 // Resolving after the preferences guarantees that everything waiting for

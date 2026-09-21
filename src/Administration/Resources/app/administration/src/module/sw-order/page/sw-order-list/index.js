@@ -1,13 +1,13 @@
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -21,7 +21,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     data() {
@@ -526,7 +526,7 @@ export default {
          */
         updateCriteria(criteria) {
             // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
+            return listingMixin.methods.updateCriteria.call(this, criteria);
         },
 
         getStatusCriteria(value) {

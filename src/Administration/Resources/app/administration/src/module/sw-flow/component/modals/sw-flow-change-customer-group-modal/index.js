@@ -1,7 +1,8 @@
 import template from './sw-flow-change-customer-group-modal.html.twig';
+import { Criteria } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -66,7 +67,7 @@ export default {
 
             if (!this.customerGroups.length) {
                 this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                    Shopware.Store.get('swFlow').customerGroups = data;
+                    useSwFlowStore().customerGroups = data;
                 });
             }
         },

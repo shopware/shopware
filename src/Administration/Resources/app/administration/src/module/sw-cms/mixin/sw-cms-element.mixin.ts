@@ -1,11 +1,11 @@
 import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
+import { types } from 'shopware:utils';
+import { cloneDeep, get, has, merge, set } from 'shopware:utils/object';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Mixin } = Shopware;
-const { types } = Shopware.Utils;
-const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
-
 /**
  * @private
  * @sw-package discovery
@@ -18,7 +18,7 @@ export default Mixin.register(
         inject: ['cmsService'],
 
         mixins: [
-            Mixin.getByName('cms-state'),
+            Shopware.Mixin.getByName('cms-state'),
         ],
 
         props: {
@@ -42,7 +42,7 @@ export default Mixin.register(
 
         computed: {
             cmsPageState() {
-                return Shopware.Store.get('cmsPage');
+                return useCmsPageStore();
             },
 
             cmsElements() {

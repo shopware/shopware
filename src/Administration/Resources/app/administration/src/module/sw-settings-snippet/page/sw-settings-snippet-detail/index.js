@@ -1,11 +1,12 @@
 /**
  * @sw-package discovery
  */
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-snippet-detail.html.twig';
 import './sw-settings-snippet-detail.scss';
+import useSessionStore from 'shopware:stores/session';
 
 const {
-    Mixin,
     Data: { Criteria },
 } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
@@ -22,7 +23,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     data() {
@@ -99,7 +100,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${useSessionStore().currentUser.username}`;
             },
         },
 

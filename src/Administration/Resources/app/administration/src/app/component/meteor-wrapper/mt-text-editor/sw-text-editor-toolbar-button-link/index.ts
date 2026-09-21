@@ -5,11 +5,9 @@ import './sw-text-editor-toolbar-button-link.scss';
 import type EntityCollectionType from '../../../../../core/data/entity-collection.data';
 import type RepositoryType from '../../../../../core/data/repository.data';
 import type CriteriaType from '../../../../../core/data/criteria.data';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
-
-const { Criteria, EntityCollection } = Shopware.Data;
-
 /**
  * @sw-package framework
  *

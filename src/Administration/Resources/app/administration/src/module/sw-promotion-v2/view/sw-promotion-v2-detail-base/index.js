@@ -1,9 +1,9 @@
 /**
  * @sw-package checkout
  */
+import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-promotion-v2-detail-base.html.twig';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -23,7 +23,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {

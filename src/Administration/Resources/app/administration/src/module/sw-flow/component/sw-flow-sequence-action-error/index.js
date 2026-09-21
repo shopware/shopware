@@ -1,7 +1,8 @@
+import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-sequence-action-error.html.twig';
 import './sw-flow-sequence-action-error.scss';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -19,7 +20,7 @@ export default {
     },
 
     computed: {
-        ...mapState(() => Store.get('swFlow'), ['sequences']),
+        ...mapState(() => useSwFlowStore(), ['sequences']),
     },
 
     methods: {
@@ -31,14 +32,14 @@ export default {
                 );
 
                 sequencesInGroup.forEach((item, index) => {
-                    Store.get('swFlow').updateSequence({
+                    useSwFlowStore().updateSequence({
                         id: item.id,
                         position: index + 1,
                     });
                 });
             }
 
-            Store.get('swFlow').removeSequences([id]);
+            useSwFlowStore().removeSequences([id]);
         },
     },
 };

@@ -1,5 +1,6 @@
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
+import useAdminHelpCenterStore from 'shopware:stores/adminHelpCenter';
 
 const utils = Shopware.Utils;
 
@@ -135,7 +136,7 @@ export default {
         },
 
         showHelpSidebar() {
-            return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
+            return useAdminHelpCenterStore().showHelpSidebar;
         },
     },
 

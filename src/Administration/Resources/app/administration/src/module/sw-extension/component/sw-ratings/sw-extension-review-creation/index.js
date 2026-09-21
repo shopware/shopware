@@ -1,5 +1,7 @@
 import template from './sw-extension-review-creation.html.twig';
 import './sw-extension-review-creation.scss';
+import useSessionStore from 'shopware:stores/session';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
 const { ShopwareError } = Shopware.Classes;
 
@@ -40,7 +42,7 @@ export default {
 
     computed: {
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         userName() {
@@ -52,7 +54,7 @@ export default {
         },
 
         installedVersion() {
-            const installedExtension = Shopware.Store.get('shopwareExtensions').myExtensions.data.find(
+            const installedExtension = useShopwareExtensionsStore().myExtensions.data.find(
                 (extension) => extension.name === this.extension.name,
             );
 

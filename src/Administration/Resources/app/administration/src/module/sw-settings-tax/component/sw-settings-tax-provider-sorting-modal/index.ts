@@ -1,8 +1,9 @@
+import notificationMixin from 'shopware:mixins/notification';
 import type Repository from 'src/core/data/repository.data';
 import template from './sw-settings-tax-provider-sorting-modal.html.twig';
 import './sw-settings-tax-provider-sorting-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 /**
  * @sw-package checkout
@@ -18,7 +19,7 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

@@ -1,12 +1,13 @@
 /**
  * @sw-package checkout
  */
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
+import { Criteria } from 'shopware:data';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Context } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -17,8 +18,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
+        listingMixin,
+        notificationMixin,
     ],
 
     data() {

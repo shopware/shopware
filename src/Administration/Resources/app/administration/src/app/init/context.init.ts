@@ -7,6 +7,11 @@ import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
 import useTheme from '../composables/use-theme';
+import { createId } from 'shopware:utils';
+import useContextStore from 'shopware:stores/context';
+import useExtensionsStore from 'shopware:stores/extensions';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
+import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -32,7 +37,7 @@ export default function initializeContext(): void {
     Shopware.ExtensionAPI.handle('contextLocale', () => {
         return {
             fallbackLocale: Shopware.Context.app.fallbackLocale ?? '',
-            locale: Shopware.Store.get('session').currentLocale ?? '',
+            locale: useSessionStore().currentLocale ?? '',
         };
     });
 
@@ -45,11 +50,11 @@ export default function initializeContext(): void {
     });
 
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
-        return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+        return useSessionStore().currentUser?.timeZone ?? 'UTC';
     });
 
     Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(additionalInformation._event_.origin),
         );
 
@@ -59,9 +64,7 @@ export default function initializeContext(): void {
             };
         }
 
-        const modules = Shopware.Store.get('extensionSdkModules').getRegisteredModuleInformation(
-            extension.baseUrl,
-        ) as Array<{
+        const modules = useExtensionSdkModulesStore().getRegisteredModuleInformation(extension.baseUrl) as Array<{
             displaySearchBar: boolean;
             heading: string;
             id: string;
@@ -74,7 +77,7 @@ export default function initializeContext(): void {
     });
 
     Shopware.ExtensionAPI.handle('contextIsService', (_, { _event_ }) => {
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+        const extension = Object.values(useExtensionsStore().extensionsState).find((ext) =>
             ext.baseUrl.startsWith(_event_.origin),
         );
 
@@ -83,7 +86,7 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
-        const extension = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
+        const extension = Object.entries(useExtensionsStore().extensionsState).find((ext) => {
             return ext[1].baseUrl.startsWith(appOrigin);
         });
 
@@ -95,7 +98,7 @@ export default function initializeContext(): void {
             return Promise.reject(new Error(`Extension "${extension[0]}" does not have the permission to read users`));
         }
 
-        const currentUser = Shopware.Store.get('session').currentUser;
+        const currentUser = useSessionStore().currentUser;
 
         return Promise.resolve({
             aclRoles: currentUser?.aclRoles as unknown as Array<{
@@ -121,7 +124,7 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
-        const extensionEntry = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
+        const extensionEntry = Object.entries(useExtensionsStore().extensionsState).find((ext) => {
             return ext[1].baseUrl.startsWith(appOrigin);
         });
 
@@ -149,7 +152,7 @@ export default function initializeContext(): void {
         };
     });
 
-    const contextStore = Shopware.Store.get('context');
+    const contextStore = useContextStore();
 
     watch(
         () => {
@@ -182,7 +185,7 @@ export default function initializeContext(): void {
             }
 
             void publish('contextLocale', {
-                locale: Shopware.Store.get('session').currentLocale ?? '',
+                locale: useSessionStore().currentLocale ?? '',
                 fallbackLocale: fallbackLocale ?? '',
             });
         },
@@ -201,7 +204,7 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('windowGetId', () => {
         if (!contextStore.app.windowId) {
-            contextStore.app.windowId = Shopware.Utils.createId();
+            contextStore.app.windowId = createId();
         }
 
         return contextStore.app.windowId;

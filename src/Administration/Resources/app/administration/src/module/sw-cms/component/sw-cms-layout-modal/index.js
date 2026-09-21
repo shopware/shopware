@@ -1,8 +1,7 @@
+import listingMixin from 'shopware:mixins/listing';
 import template from './sw-cms-layout-modal.html.twig';
 import './sw-cms-layout-modal.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private
@@ -24,7 +23,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('listing'),
+        listingMixin,
     ],
 
     props: {

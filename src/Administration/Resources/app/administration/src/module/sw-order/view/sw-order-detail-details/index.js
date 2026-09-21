@@ -1,12 +1,14 @@
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
+import { debounce } from 'shopware:utils';
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
-const { Component, Store, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -84,13 +86,13 @@ export default {
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => useSwOrderDetailStore().isLoading,
 
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
-        orderAddressIds: () => Store.get('swOrderDetail').orderAddressIds,
+        orderAddressIds: () => useSwOrderDetailStore().orderAddressIds,
 
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
@@ -201,7 +203,7 @@ export default {
         },
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
-        onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
+        onShippingChargeEdited: debounce(function onShippingChargeEdited(amount) {
             if (amount >= 0) {
                 this.delivery.shippingCosts.unitPrice = amount;
                 this.delivery.shippingCosts.totalPrice = amount;
@@ -262,7 +264,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
+            useSwOrderDetailStore().setLoading([
                 'order',
                 loadingValue,
             ]);
@@ -280,7 +282,7 @@ export default {
         },
 
         onChangeOrderAddress(value) {
-            Store.get('swOrderDetail').setOrderAddressIds(value);
+            useSwOrderDetailStore().setOrderAddressIds(value);
         },
     },
 };

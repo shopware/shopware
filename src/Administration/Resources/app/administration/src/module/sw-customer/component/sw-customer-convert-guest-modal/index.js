@@ -1,12 +1,13 @@
+import notificationMixin from 'shopware:mixins/notification';
 import './sw-customer-convert-guest-modal.scss';
 import template from './sw-customer-convert-guest-modal.html.twig';
 import errorConfig from '../../error-config.json';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -22,7 +23,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {
@@ -63,7 +64,7 @@ export default {
         },
 
         onCancel() {
-            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.convert`);
+            useErrorStore().removeApiError(`customer.${this.customer.id}.convert`);
 
             this.$emit('modal-close');
         },
@@ -87,7 +88,7 @@ export default {
 
         handleConvertErrors(error) {
             const errors = error?.response?.data?.errors ?? [];
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const expression = `customer.${this.customer.id}.convert`;
 
             const errorMap = {

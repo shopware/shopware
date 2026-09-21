@@ -1,3 +1,5 @@
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
@@ -6,7 +8,7 @@ import type { Cart, LineItem, SalesChannelContext, ContextSwitchParameters, Cart
 
 import { LineItemType } from '../../order.types';
 
-const { Component, Store, Mixin, Service } = Shopware;
+const { Component, Service } = Shopware;
 
 interface PromotionCodeItem {
     type: string;
@@ -25,8 +27,8 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
+        notificationMixin,
+        Shopware.Mixin.getByName('cart-notification'),
     ],
 
     data(): {
@@ -66,7 +68,7 @@ export default Component.wrapComponentConfig({
         },
 
         salesChannelContext(): SalesChannelContext {
-            return Store.get('swOrder').context;
+            return useSwOrderStore().context;
         },
 
         currency(): Entity<'currency'> {
@@ -74,15 +76,15 @@ export default Component.wrapComponentConfig({
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         customer(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         isCustomerActive(): boolean {
-            return Store.get('swOrder').isCustomerActive;
+            return useSwOrderStore().isCustomerActive;
         },
 
         promotionCodeItems(): PromotionCodeItem[] {
@@ -149,7 +151,7 @@ export default Component.wrapComponentConfig({
             const promises = [];
 
             this.isLoading = true;
-            Store.get('swOrder').setSendOrderConfirmationMail(this.sendOrderConfirmationMail);
+            useSwOrderStore().setSendOrderConfirmationMail(this.sendOrderConfirmationMail);
 
             promises.push(this.updateOrderContext());
 
@@ -179,7 +181,7 @@ export default Component.wrapComponentConfig({
             this.isProductGridLoading = true;
 
             try {
-                await Store.get('swOrder').saveLineItem({
+                await useSwOrderStore().saveLineItem({
                     salesChannelId: this.salesChannelId,
                     contextToken: this.cart.token,
                     item,
@@ -192,7 +194,7 @@ export default Component.wrapComponentConfig({
         async addPromotionCodes(): Promise<void> {
             if (!this.customer) return;
 
-            await Store.get('swOrder').saveMultipleLineItems({
+            await useSwOrderStore().saveMultipleLineItems({
                 salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
                 items: this.promotionCodeItems as unknown as LineItem[],
@@ -207,7 +209,7 @@ export default Component.wrapComponentConfig({
             this.isProductGridLoading = true;
 
             try {
-                await Store.get('swOrder').removeLineItems({
+                await useSwOrderStore().removeLineItems({
                     salesChannelId: this.salesChannelId,
                     contextToken: this.cart.token,
                     lineItemKeys: lineItemKeys,
@@ -230,7 +232,7 @@ export default Component.wrapComponentConfig({
         },
 
         async updateOrderContext(): Promise<void> {
-            await Store.get('swOrder').updateOrderContext({
+            await useSwOrderStore().updateOrderContext({
                 context: this.context,
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
@@ -243,7 +245,7 @@ export default Component.wrapComponentConfig({
             return Service('cartStoreService')
                 .disableAutomaticPromotions(this.cart.token, additionalParams)
                 .then(() => {
-                    Store.get('swOrder').setDisabledAutoPromotion(true);
+                    useSwOrderStore().setDisabledAutoPromotion(true);
                 });
         },
 
@@ -258,7 +260,7 @@ export default Component.wrapComponentConfig({
 
             if (!this.customer) return;
 
-            await Store.get('swOrder').modifyShippingCosts({
+            await useSwOrderStore().modifyShippingCosts({
                 salesChannelId: this.customer?.salesChannelId,
                 contextToken: this.cart.token,
                 shippingCosts: this.cartDelivery?.shippingCosts,
@@ -266,7 +268,7 @@ export default Component.wrapComponentConfig({
         },
 
         cancelCart(): Promise<void> {
-            return Store.get('swOrder').cancelCart({
+            return useSwOrderStore().cancelCart({
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
             });

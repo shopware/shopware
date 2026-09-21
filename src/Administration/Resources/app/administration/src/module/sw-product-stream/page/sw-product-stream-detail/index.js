@@ -1,12 +1,15 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import { computed } from 'vue';
 
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
+import { Criteria } from 'shopware:data';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
-
 /**
  * @sw-package inventory
  * @private
@@ -40,10 +43,10 @@ export default {
     },
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('productStream'),
-        Mixin.getByName('sw-inline-snippet'),
+        placeholderMixin,
+        notificationMixin,
+        discardDetailPageChangesMixin('productStream'),
+        swInlineSnippetMixin,
     ],
 
     shortcuts: {

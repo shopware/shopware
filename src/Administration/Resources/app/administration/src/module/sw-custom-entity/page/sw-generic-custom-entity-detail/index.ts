@@ -1,3 +1,5 @@
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type {
     AdminTabsDefinition,
@@ -9,8 +11,7 @@ import type Repository from 'src/core/data/repository.data';
 
 import template from './sw-generic-custom-entity-detail.html.twig';
 import './sw-generic-custom-entity-detail.scss';
-
-const { Mixin } = Shopware;
+import useContextStore from 'shopware:stores/context';
 
 type GenericCustomEntityDetailData = {
     isLoading: boolean;
@@ -35,8 +36,8 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
+        placeholderMixin,
+        notificationMixin,
     ],
 
     data(): GenericCustomEntityDetailData {
@@ -213,7 +214,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             void this.loadData();
         },
 

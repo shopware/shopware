@@ -1,7 +1,6 @@
+import { debounce } from 'shopware:utils';
 import template from './sw-simple-search-field.html.twig';
 import './sw-simple-search-field.scss';
-
-const { Utils } = Shopware;
 
 /**
  * @sw-package framework
@@ -76,7 +75,7 @@ export default {
 
     data() {
         return {
-            onSearchTermChanged: Utils.debounce(function debounceInput(input) {
+            onSearchTermChanged: debounce(function debounceInput(input) {
                 this.$emit('search-term-change', input);
             }, this.delay),
         };

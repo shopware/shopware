@@ -2,7 +2,7 @@ import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-cms-el-video.html.twig';
 import './sw-cms-el-video.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Component, Filter } = Shopware;
 
 /**
  * @private
@@ -17,7 +17,7 @@ export default Component.wrapComponentConfig({
     ],
 
     mixins: [
-        Mixin.getByName('cms-element'),
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data(): { mappedDemoMedia: Entity<'media'> | null; mappedDemoMediaFetchId: number } {
@@ -178,7 +178,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            const demoMedia = this.getDemoValue(elementConfig.value) as EntityKey<'media'> | null;
+            const demoMedia = this.getDemoValue(elementConfig.value);
 
             if (demoMedia && typeof demoMedia === 'object' && 'url' in demoMedia) {
                 this.mappedDemoMedia = demoMedia as Entity<'media'>;

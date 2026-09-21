@@ -1,8 +1,12 @@
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-set-entity-custom-field-modal.html.twig';
 import './sw-flow-set-entity-custom-field-modal.scss';
+import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Store } = Shopware;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -24,8 +28,8 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification'),
+        swInlineSnippetMixin,
+        notificationMixin,
     ],
 
     props: {
@@ -121,7 +125,7 @@ export default {
         },
 
         labelProperty() {
-            return `config.label.${Shopware.Store.get('session').currentLocale}`;
+            return `config.label.${useSessionStore().currentLocale}`;
         },
 
         ...mapState(
@@ -211,7 +215,7 @@ export default {
             if (!customFieldSet) {
                 return;
             }
-            Shopware.Store.get('swFlow').customFieldSets = [
+            useSwFlowStore().customFieldSets = [
                 ...this.customFieldSets,
                 customFieldSet,
             ];
@@ -226,7 +230,7 @@ export default {
             }
             this.customField = customField;
 
-            Shopware.Store.get('swFlow').customFields = [
+            useSwFlowStore().customFields = [
                 ...this.customFields,
                 customField,
             ];

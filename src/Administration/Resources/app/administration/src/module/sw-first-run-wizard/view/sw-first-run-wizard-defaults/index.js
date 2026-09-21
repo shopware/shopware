@@ -1,5 +1,6 @@
 import template from './sw-first-run-wizard-defaults.html.twig';
 import './sw-first-run-wizard-defaults.scss';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -49,7 +50,7 @@ export default {
                 },
             ];
 
-            if (!Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
+            if (!useContextStore().app.config.settings?.disableExtensionManagement) {
                 buttons.unshift({
                     key: 'back',
                     label: this.$t('global.default.back'),

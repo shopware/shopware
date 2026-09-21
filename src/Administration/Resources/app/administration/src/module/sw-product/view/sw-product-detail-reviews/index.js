@@ -2,11 +2,12 @@
  * @sw-package inventory
  */
 
+import { Criteria } from 'shopware:data';
 import template from './sw-product-detail-reviews.html.twig';
 import './sw-product-detail-reviews.scss';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Data, Context } = Shopware;
-const { Criteria } = Data;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -30,11 +31,11 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         cardTitle() {

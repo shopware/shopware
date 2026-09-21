@@ -1,8 +1,8 @@
+import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
 
 const {
-    Mixin,
     Context,
     Data: { Criteria },
 } = Shopware;
@@ -33,7 +33,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
     ],
 
     props: {

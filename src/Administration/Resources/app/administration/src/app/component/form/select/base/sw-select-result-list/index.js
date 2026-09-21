@@ -1,5 +1,6 @@
 import template from './sw-select-result-list.html.twig';
 import './sw-select-result-list.scss';
+import { EventBus } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -120,14 +121,14 @@ export default {
             document.addEventListener('keydown', this.navigate);
             document.addEventListener('click', this.checkOutsideClick);
 
-            Shopware.Utils.EventBus.on('item-select', this.onItemSelect);
+            EventBus.on('item-select', this.onItemSelect);
         },
 
         removeEventListeners() {
             document.removeEventListener('keydown', this.navigate);
             document.removeEventListener('click', this.checkOutsideClick);
 
-            Shopware.Utils.EventBus.off('item-select', this.onItemSelect);
+            EventBus.off('item-select', this.onItemSelect);
         },
 
         onItemSelect(item) {
@@ -138,7 +139,7 @@ export default {
             this.$emit('active-item-change', this.activeItemIndex, {
                 shouldFocus,
             });
-            Shopware.Utils.EventBus.emit('active-item-change', this.activeItemIndex, {
+            EventBus.emit('active-item-change', this.activeItemIndex, {
                 shouldFocus,
             });
         },
@@ -231,7 +232,7 @@ export default {
             // This emit is subscribed in the sw-result component. They can for example be disabled and need
             // choose on their own if they are selected
             this.$emit('item-select-by-keyboard', this.activeItemIndex);
-            Shopware.Utils.EventBus.emit('item-select-by-keyboard', this.activeItemIndex);
+            EventBus.emit('item-select-by-keyboard', this.activeItemIndex);
         },
 
         onScroll(event) {

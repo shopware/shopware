@@ -1,6 +1,6 @@
 import Storage from 'src/helper/storage/storage.helper';
 import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage.plugin';
-import CookieStorageHelper from '../../helper/storage/cookie-storage.helper';
+import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
 /**
  * @package checkout

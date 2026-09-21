@@ -174,4 +174,23 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             ),
         ).toBe(false);
     });
+
+    it('emits the add-element trigger as the picker anchor', () => {
+        const $emit = jest.fn();
+        const trigger = document.createElement('button');
+        const vm = {
+            $emit,
+            contentElement: {
+                id: 'element-id',
+            },
+        };
+
+        methods.onAddElement.call(vm, 'content', { currentTarget: trigger } as MouseEvent);
+
+        expect($emit).toHaveBeenCalledWith('add-element', {
+            parentElementId: 'element-id',
+            slotName: 'content',
+            anchorElement: trigger,
+        });
+    });
 });

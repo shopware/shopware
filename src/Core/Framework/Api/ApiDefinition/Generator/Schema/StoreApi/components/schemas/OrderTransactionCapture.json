@@ -60,15 +60,11 @@
                             },
                             "calculatedTaxes": {
                                 "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/CalculatedPrice/properties/calculatedTaxes/items"
-                                }
+                                "$ref": "#/components/schemas/CalculatedPrice/properties/calculatedTaxes"
                             },
                             "taxRules": {
                                 "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/CalculatedPrice/properties/taxRules/items"
-                                }
+                                "$ref": "#/components/schemas/CalculatedPrice/properties/taxRules"
                             },
                             "referencePrice": {
                                 "type": "object"

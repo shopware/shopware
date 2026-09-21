@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
@@ -171,14 +173,13 @@ class WebhookManagerTest extends TestCase
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('Max', $data['data']['payload']['customer']['firstName']);
         static::assertSame('Mustermann', $data['data']['payload']['customer']['lastName']);
+        static::assertArrayNotHasKey('hash', $data['data']['payload']['customer']);
         static::assertArrayHasKey('timestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
         unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
         static::assertSame([
             'data' => [
-                'payload' => [
-                    'contextToken' => 'testToken',
-                ],
+                'payload' => [],
                 'event' => CustomerLoginEvent::EVENT_NAME,
             ],
             'source' => [
@@ -197,6 +198,37 @@ class WebhookManagerTest extends TestCase
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+    }
+
+    public function testDispatchesMailSentWithoutTheContents(): void
+    {
+        $this->createApp(webhooks: [
+            [
+                'name' => 'hook1',
+                'event_name' => MailSentEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+            ],
+        ]);
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new MailSentEvent(
+            'Your order',
+            ['max@example.com' => 'Max Mustermann'],
+            ['text/html' => '<p>Reset your password: https://shop.example/reset/token</p>'],
+            Context::createDefaultContext()
+        );
+
+        $this->getManager()->dispatch($event);
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request);
+
+        $data = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'subject' => 'Your order',
+            'recipients' => ['Max Mustermann'],
+        ], $data['data']['payload']);
     }
 
     public function testDoesNotDispatchBusinessEventIfAppUrlChangeWasDetected(): void
@@ -1047,6 +1079,7 @@ class WebhookManagerTest extends TestCase
             'customerNumber' => '12345',
             'vatIds' => ['DE123456789'],
             'company' => 'Test',
+            'hash' => 'customer-confirmation-hash',
         ];
 
         if (!Feature::isActive('v6.7.0.0')) {
@@ -1072,7 +1105,8 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $adminWorkerEnabled
+            $adminWorkerEnabled,
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 

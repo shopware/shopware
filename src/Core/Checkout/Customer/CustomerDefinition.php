@@ -123,7 +123,7 @@ class CustomerDefinition extends EntityDefinition
             (new BoolField('double_opt_in_registration', 'doubleOptInRegistration'))->addFlags(new ApiAware()),
             (new DateTimeField('double_opt_in_email_sent_date', 'doubleOptInEmailSentDate'))->addFlags(new ApiAware()),
             (new DateTimeField('double_opt_in_confirm_date', 'doubleOptInConfirmDate'))->addFlags(new ApiAware()),
-            (new StringField('hash', 'hash'))->addFlags(new ApiAware()),
+            new StringField('hash', 'hash'),
             (new BoolField('guest', 'guest'))->addFlags(new ApiAware()),
             (new DateTimeField('first_login', 'firstLogin'))->addFlags(new ApiAware()),
             (new DateTimeField('last_login', 'lastLogin'))->addFlags(new ApiAware()),

@@ -38,11 +38,26 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (mb_strpos($string, '`') !== false) {
-            throw new \InvalidArgumentException('Backtick not allowed in identifier');
+        if (!self::isValidIdentifier($string)) {
+            throw new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
         }
 
         return '`' . $string . '`';
+    }
+
+    /**
+     * Rejects the characters that break out of the backtick quoting escape() applies: the backtick,
+     * plus question marks and colons (parsed as placeholders by PDO MySQL emulated prepares even
+     * inside backtick-quoted identifiers on PHP < 8.4) and control characters.
+     *
+     * @see https://www.php.net/manual/en/regexp.reference.unicode.php \p{Cc} matches control characters
+     */
+    public static function isValidIdentifier(string $identifier): bool
+    {
+        return !str_contains($identifier, '`')
+            && !str_contains($identifier, '?')
+            && !str_contains($identifier, ':')
+            && preg_match('/\p{Cc}/u', $identifier) !== 1;
     }
 
     public static function columnExists(Connection $connection, string $table, string $column): bool

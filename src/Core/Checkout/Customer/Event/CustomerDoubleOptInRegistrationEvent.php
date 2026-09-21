@@ -37,7 +37,7 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
     }
 
     public function getName(): string

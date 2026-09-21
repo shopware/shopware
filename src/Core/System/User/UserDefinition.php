@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -74,7 +75,10 @@ class UserDefinition extends EntityDefinition
 
     protected function defineProtections(): EntityProtectionCollection
     {
-        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE)]);
+        return new EntityProtectionCollection([
+            new CloneProtection(Context::SYSTEM_SCOPE),
+            new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE),
+        ]);
     }
 
     protected function defineFields(): FieldCollection

@@ -1,4 +1,5 @@
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
+import { isFilelessMediaType } from 'src/core/service/utils/media-type.utils';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
@@ -171,6 +172,13 @@ export default {
 
             this.loadCustomFieldSets();
             this.fetchSpatialItemConfig();
+        },
+
+        /**
+         * Distinguishes a media type that never carries a file from an upload that is actually broken.
+         */
+        isFilelessMedia(item) {
+            return isFilelessMediaType(item);
         },
 
         /**

@@ -56,7 +56,7 @@ export default class SpatialProductSliderRenderUtil {
     /**
      * Initializes the rendering.
      */
-    public initRender() {
+    public async initRender() {
         // Start rendering when slider is active
         const sliderInfo = this.tnsSlider?.getInfo();
         const singleImageGallery = !!this.plugin.el?.closest(
@@ -64,7 +64,7 @@ export default class SpatialProductSliderRenderUtil {
         )?.querySelector(SpatialProductSliderRenderUtil.options.singleImageGallerySelector);
 
         if (singleImageGallery || sliderInfo?.slideItems[sliderInfo.index] === this.sliderElement ) {
-            this.plugin.startRendering();
+            await this.plugin.startRendering();
         }
     }
 
@@ -108,16 +108,16 @@ export default class SpatialProductSliderRenderUtil {
      * @param a
      * @private
      */
-    private indexChangedEvent(a: { index: number }) {
+    private  indexChangedEvent(a: { index: number }) {
         const active = this.plugin.sliderIndex == a.index;
 
         // Start or stop rendering when the slide is active or not
         if (active) {
             // We should only start rendering after the slider has finished sliding
-            setTimeout(() => {
+            setTimeout(async () => {
                 // recheck if the slide is still active
                 if (this.plugin.sliderIndex == this.tnsSlider.getInfo().index) {
-                    this.plugin.startRendering();
+                    await this.plugin.startRendering();
                 }
             }, 500);
         } else {

@@ -59,14 +59,14 @@ export default class SpatialZoomGallerySliderRenderUtil {
     /**
      * Initializes the util.
      */
-    public initViewer() {
+    public async initViewer() {
         this.sliderPlugin = this.zoomModalPlugin.gallerySliderPlugin;
         this.tnsSlider = this.sliderPlugin?._slider;
 
         const currentPage = this.tnsSlider?.getInfo().index ?? 0;
         if (currentPage == this.plugin.sliderIndex) {
             this.changeZoomActionsVisibility(false);
-            this.plugin.startRendering();
+            await this.plugin.startRendering();
         }
         this.initEventListeners();
     }
@@ -114,11 +114,11 @@ export default class SpatialZoomGallerySliderRenderUtil {
         // Start or stop rendering when the slide is active or not
         if (active) {
             // We should only start rendering after the slider has finished sliding
-            setTimeout(() => {
+            setTimeout(async () => {
                 // recheck if the slide is still active
                 if (this.plugin.sliderIndex == this.tnsSlider.getInfo().index) {
                     this.changeZoomActionsVisibility(false);
-                    this.plugin.startRendering();
+                    await this.plugin.startRendering();
                 }
             }, 500);
         } else {

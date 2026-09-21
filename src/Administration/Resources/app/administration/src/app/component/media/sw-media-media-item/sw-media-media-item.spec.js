@@ -274,4 +274,30 @@ describe('components/media/sw-media-media-item', () => {
             fileSize: 12345,
         });
     });
+
+    it('should build the item name from the file name when a file is present', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.mediaItemName({ hasFile: true, fileName: 'demo', fileExtension: 'jpg' }),
+        ).toBe('demo.jpg');
+    });
+
+    it('should fall back to the title for media that never carries a file', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.mediaItemName({
+                hasFile: false,
+                mediaType: { name: 'SPATIAL_SCENE' },
+                translated: { title: 'Living room' },
+            }),
+        ).toBe('Living room');
+    });
+
+    it('should stay empty for media whose file is actually missing', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.mediaItemName({ hasFile: false, translated: { title: 'Broken' } })).toBe('');
+    });
 });

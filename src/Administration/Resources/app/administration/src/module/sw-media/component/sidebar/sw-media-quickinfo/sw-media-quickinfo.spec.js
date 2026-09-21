@@ -786,4 +786,21 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         expect(wrapper.vm.showModelEditorModal).toBe(false);
     });
+
+    it('should show the missing file banner for media whose upload is broken', async () => {
+        const wrapper = await createWrapper({ hasFile: false });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-quickinfo__alert-file-missing').exists()).toBe(true);
+    });
+
+    it('should not show the missing file banner for a media type that never carries a file', async () => {
+        const wrapper = await createWrapper({
+            hasFile: false,
+            mediaType: { name: 'SPATIAL_SCENE' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-quickinfo__alert-file-missing').exists()).toBe(false);
+    });
 });

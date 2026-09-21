@@ -47,4 +47,30 @@ describe('src/app/filter/media-name.filter.js', () => {
             ),
         ).toBe('my-fallback');
     });
+
+    it('names a media that represents an entity after itself, without the extension of its file', () => {
+        expect(
+            mediaNameFilter({
+                fileName: 'Living room',
+                fileExtension: 'png',
+                mediaType: { name: 'SPATIAL_SCENE' },
+            }),
+        ).toBe('Living room');
+    });
+
+    it('still names every other media after its file', () => {
+        expect(
+            mediaNameFilter({
+                fileName: 'bicycle',
+                fileExtension: 'png',
+                mediaType: { name: 'IMAGE' },
+            }),
+        ).toBe('bicycle.png');
+    });
+
+    it('falls back when a representing media has no name at all', () => {
+        expect(
+            mediaNameFilter({ mediaType: { name: 'SPATIAL_SCENE' } }, 'fallback'),
+        ).toBe('fallback');
+    });
 });

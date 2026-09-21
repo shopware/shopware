@@ -393,4 +393,15 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         expect(reloadSpy).toHaveBeenCalled();
         expect(HTMLMediaElement.prototype.load).toHaveBeenCalled();
     });
+
+    it('should render the 3D icon instead of the broken icon for media that never carries a file', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            imagePreviewFailed: true,
+            trueSource: { mimeType: null, mediaType: { name: 'SPATIAL_SCENE' }, thumbnails: [] },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.placeholderIcon).toBe('icons-multicolor-file-thumbnail-glb');
+    });
 });

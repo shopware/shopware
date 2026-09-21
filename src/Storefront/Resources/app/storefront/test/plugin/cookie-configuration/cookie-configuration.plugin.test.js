@@ -86,6 +86,8 @@ describe('CookieConfiguration plugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         window.PluginManager.initializePlugins = () => jest.fn();

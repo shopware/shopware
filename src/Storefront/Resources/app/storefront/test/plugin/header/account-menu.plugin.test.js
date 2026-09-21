@@ -53,6 +53,8 @@ describe('OffCanvasAccountMenuPlugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         plugin = new OffCanvasAccountMenu(el);

@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-const { warn } = Shopware.Utils.debug;
+import { warn } from 'shopware:utils/debug';
+
 const Sanitizer = Shopware.Helper.SanitizerHelper;
 
 let pluginInstalled = false;

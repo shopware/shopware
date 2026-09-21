@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { debug } from 'shopware:utils';
 import { computed, ref } from 'vue';
 import useSystem from './use-system';
 
@@ -53,7 +54,7 @@ function setAdminLocaleState({
     languageId: string;
 }) {
     if (!locales.find((l) => l === locale)) {
-        Shopware.Utils.debug.warn('SessionStore', `Locale ${locale} not registered at store`);
+        debug.warn('SessionStore', `Locale ${locale} not registered at store`);
         return;
     }
 

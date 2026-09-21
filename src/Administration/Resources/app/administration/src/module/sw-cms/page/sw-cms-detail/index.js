@@ -1,4 +1,3 @@
-import cmsStateMixin from 'shopware:mixins/cms-state';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-detail.html.twig';
@@ -39,7 +38,7 @@ export default {
     ],
 
     mixins: [
-        cmsStateMixin,
+        Shopware.Mixin.getByName('cms-state'),
         notificationMixin,
         placeholderMixin,
     ],

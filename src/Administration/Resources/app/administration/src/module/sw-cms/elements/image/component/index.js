@@ -1,4 +1,3 @@
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
@@ -15,7 +14,7 @@ export default {
     inject: ['feature', 'repositoryFactory'],
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

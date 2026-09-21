@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { string } from 'shopware:utils';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
@@ -483,15 +484,25 @@ export default class VueAdapter extends ViewAdapter {
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
         };
 
-        Object.entries(meteorComponents).forEach(([componentName, component]) => {
-            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.app.component(componentNameAsKebabCase, component as VueComponent);
-        });
+        Object.entries(meteorComponents).forEach(
+            ([
+                componentName,
+                component,
+            ]) => {
+                const componentNameAsKebabCase = string.kebabCase(componentName);
+                this.app.component(componentNameAsKebabCase, component as VueComponent);
+            },
+        );
 
-        Object.entries(lazyMeteorComponents).forEach(([componentName, importMethod]) => {
-            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
-        });
+        Object.entries(lazyMeteorComponents).forEach(
+            ([
+                componentName,
+                importMethod,
+            ]) => {
+                const componentNameAsKebabCase = string.kebabCase(componentName);
+                this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+            },
+        );
 
         return this.vueComponents;
     }

@@ -1,4 +1,3 @@
-import cmsStateMixin from 'shopware:mixins/cms-state';
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
@@ -41,7 +40,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['page-config-open', 'block-duplicate'],
 
     mixins: [
-        cmsStateMixin,
+        Shopware.Mixin.getByName('cms-state'),
     ],
 
     props: {

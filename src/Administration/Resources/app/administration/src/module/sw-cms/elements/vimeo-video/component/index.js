@@ -1,4 +1,3 @@
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-vimeo-video.html.twig';
 import './sw-cms-el-vimeo-video.scss';
 
@@ -10,7 +9,7 @@ export default {
     template,
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     computed: {

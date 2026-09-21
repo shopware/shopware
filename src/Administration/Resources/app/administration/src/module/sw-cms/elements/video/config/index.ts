@@ -1,4 +1,3 @@
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import type RepositoryType from 'src/core/data/repository.data';
 import type { RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
 import template from './sw-cms-el-config-video.html.twig';
@@ -19,7 +18,7 @@ export default Component.wrapComponentConfig({
     emits: ['element-update'],
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data(): { showMediaModal: boolean; initialFolderId: EntityKey<'media_folder'> | null } {

@@ -11,7 +11,6 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bootstrapClosure } from './scripts/generate-shopware-modules/bootstrap-closure';
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import { fixupPluginRules } from '@eslint/compat';
@@ -778,10 +777,10 @@ export default [
     // the only consumer: `extension-tooling/eslint.mjs` names the `sw-core-rules` extensions get, and
     // omits this one until the modules are stable.
     //
-    // The exemptions match the codemod that did the one-time sweep. `src/core` is excluded as a layer —
-    // it is the Vue-independent framework code, part of it runs in the admin worker where no
-    // `window.Shopware` exists. Specs read the global deliberately. The rest is computed: every module
-    // the Administration evaluates before `src/index.ts` assigns the global cannot import one of these.
+    // Two directories are exempt, and neither is about timing: a generated module imports
+    // `src/core/shopware` and, for a mixin, `src/app/mixin`, so those two cannot import one back without
+    // a cycle. `src/core` is also excluded as a layer — part of it runs in the admin worker, where there
+    // is no `window.Shopware`. Specs read the global deliberately.
     {
         files: [
             'src/**/*.js',
@@ -797,7 +796,7 @@ export default [
             '**/*.spec.vue2.ts',
             '**/*.spec.vue2.js',
             '**/*.spec/**',
-            ...[...bootstrapClosure(path.join(__dirname, 'src'))].map((file) => path.relative(__dirname, file)),
+            'src/app/mixin/**',
         ],
         rules: {
             'sw-core-rules/prefer-shopware-modules': 'warn',

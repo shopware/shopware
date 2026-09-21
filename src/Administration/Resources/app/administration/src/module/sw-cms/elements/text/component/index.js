@@ -1,4 +1,3 @@
-import cmsElementMixin from 'shopware:mixins/cms-element';
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
 import SwTextEditorToolbarButtonCmsDataMappingButton from '../../../../../app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
@@ -16,7 +15,7 @@ export default {
     inject: ['feature'],
 
     mixins: [
-        cmsElementMixin,
+        Shopware.Mixin.getByName('cms-element'),
     ],
 
     data() {

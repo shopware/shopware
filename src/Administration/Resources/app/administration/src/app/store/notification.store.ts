@@ -1,3 +1,6 @@
+import { debug } from 'shopware:utils';
+import useNotificationStore from 'shopware:stores/notification';
+import useSessionStore from 'shopware:stores/session';
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 /**
@@ -35,7 +38,6 @@ export interface NotificationType {
     [key: string]: string | boolean | object | number | undefined;
 }
 
-const { debug } = Shopware.Utils;
 const utils = Shopware.Utils;
 const NOTIFICATION_LOAD_LIMIT = 50;
 const notificationDefaults: NotificationType = {
@@ -54,7 +56,7 @@ const growlNotificationDefaults: NotificationType = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function initializeUserNotifications() {
     if (Shopware.Store) {
-        Shopware.Store.get('notification').notifications = getNotificationsForUser();
+        useNotificationStore().notifications = getNotificationsForUser();
     }
 }
 
@@ -81,7 +83,7 @@ function _mergeNotificationUpdate(originalNotification: NotificationType, notifi
 }
 
 function _getStorageKey() {
-    const user = Shopware.Store.get('session').currentUser;
+    const user = useSessionStore().currentUser;
 
     if (!user) {
         return null;

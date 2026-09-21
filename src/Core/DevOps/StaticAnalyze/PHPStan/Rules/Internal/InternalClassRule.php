@@ -116,6 +116,11 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\BindingSpecification',
         'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\LoaderBinding',
         'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\BindingInput',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\MappingCandidate',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Projection\\AbstractContentPropertyProjection',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Projection\\AbstractContentSystemPropertyProjectionRegistry',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Provider\\AbstractMappingCandidateProvider',
+        'Shopware\\Core\\Framework\\ContentSystem\\Mapping\\Registry\\AbstractContentSystemMappingCandidateRegistry',
         'Shopware\\Core\\Framework\\ContentSystem\\ContentSystemException',
     ];
 

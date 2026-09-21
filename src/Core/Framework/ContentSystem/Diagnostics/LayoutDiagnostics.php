@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
@@ -26,11 +27,19 @@ use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
  * root context.
+ *
+ * The root SOURCE is a third, separate input, and it is not derivable from the other two. Data-mapping
+ * admissibility is decided against the bound source's candidate catalogue, and a resolved root context
+ * cannot be turned back into a source id, so a caller that has the id passes it and a caller that does not
+ * gets no mapping checks. The diagnose route, both mutation routes and the persisted mutator all have it;
+ * `Validation/LayoutGate` deliberately does not, because the write path reports mapping problems through
+ * `Validation/StoredMappingValidator` instead, with per-rule error codes rather than one violation code.
  *
  * @internal
  *
@@ -49,14 +58,16 @@ class LayoutDiagnostics
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly ContextPathResolver $contextPathResolver,
         private readonly MappingConsumers $mappingConsumers,
+        private readonly StoredMappingInspector $mappingInspector,
     ) {
     }
 
     /**
      * @param list<StoredElement> $tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
+     * @param string|null $rootSource the id of the bound source, or null to skip the data-mapping checks
      */
-    public function analyze(array $tree, ?array $rootContext): LayoutAnalysis
+    public function analyze(array $tree, ?array $rootContext, ?string $rootSource = null): LayoutAnalysis
     {
         $elements = $this->flatten($tree);
 
@@ -140,7 +151,44 @@ class LayoutDiagnostics
             }
         }
 
+        // Runs over the whole tree rather than per element, because the catalogue is fetched once per root
+        // source. Outside the per-element loop for the same reason the loop skips it: a mapping is judged
+        // against the source id, which the loop above never sees.
+        if ($rootSource !== null) {
+            foreach ($this->mappingViolations($tree, $rootSource) as $violation) {
+                $violations[] = $violation;
+            }
+        }
+
         return new LayoutAnalysis(new DiagnosticsReport($violations), $resolutions);
+    }
+
+    /**
+     * Mapping problems as diagnostics. The same {@see StoredMappingInspector} findings the write gate
+     * refuses a save over, reported here in a 200 body so the Experience Studio can mark the offending
+     * control while the author is still editing rather than at save time.
+     *
+     * Keyed on the mapped PROPERTY, not the mapped path, so the entry lands on the control the author acted
+     * on — the same choice {@see StoredMappingValidator} makes for its constraint violations.
+     *
+     * @param list<StoredElement> $tree
+     *
+     * @return list<Violation>
+     */
+    private function mappingViolations(array $tree, string $rootSource): array
+    {
+        $violations = [];
+
+        foreach ($this->mappingInspector->inspect($tree, $rootSource) as $problem) {
+            $violations[] = new Violation(
+                ViolationCode::InvalidMapping,
+                $problem->elementId,
+                $problem->propertyKey,
+                $problem->exception->getMessage(),
+            );
+        }
+
+        return $violations;
     }
 
     /**
@@ -544,7 +592,7 @@ class LayoutDiagnostics
         // make every mapped resolvedBy reference unresolvable: a type default like Sw:Media:Image's
         // `resolvedBy: mediaId` keeps a Stored resolution even when the author mapped the property instead of
         // picking media, and an author who maps has no reason to also fill the storage key.
-        if (isset($this->mappingConsumers->mappedPropertyKeys($element)[$resolution->key])) {
+        if (isset($this->mappingConsumers->mappedPaths($element)[$resolution->key])) {
             return [];
         }
 

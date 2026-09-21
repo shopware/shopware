@@ -249,6 +249,94 @@ class ContentDiagnoseControllerTest extends TestCase
     }
 
     /**
+     * The gap this closes end-to-end: `Sw:Media:Gallery.mediaItems` declares a `MediaCollection`, and
+     * `category.media` is a single `MediaEntity`, so the catalogue can prove the mapping wrong. Before, the
+     * write gate proved it and the diagnose route said nothing — the author saw no error and an element that
+     * rendered nothing, and only found out on save.
+     */
+    #[TestDox('reports a type-incompatible mapping as an invalid_mapping violation keyed on the mapped property')]
+    public function testDiagnoseReportsAnInadmissibleMapping(): void
+    {
+        $body = $this->diagnose([
+            'rootSource' => 'category',
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => 'Sw:Media:Gallery',
+                'properties' => [],
+                'acceptsContext' => [
+                    'category.media' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'mediaItems', 'scope' => 'root'],
+                ],
+            ]],
+        ]);
+
+        $violations = $this->violationsWithCode($body, 'invalid_mapping');
+
+        static::assertCount(1, $violations);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame('error', $violations[0]['severity']);
+        static::assertSame($this->ids->get('element'), $violations[0]['elementId']);
+        static::assertSame('mediaItems', $violations[0]['key']);
+        // Binding-scope, so the layout is still well-formed and only resolvability fails: the tree is fine in
+        // isolation and wrong only against this particular bound source's catalogue.
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    /**
+     * The reason the source is a separate input rather than something the analysis derives: without it there is
+     * no catalogue to judge against, and guessing one would report a legal mapping as broken.
+     */
+    #[TestDox('leaves the same mapping unjudged when the request names no root source')]
+    public function testDiagnoseLeavesAMappingUnjudgedWithoutARootSource(): void
+    {
+        $body = $this->diagnose([
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => 'Sw:Media:Gallery',
+                'properties' => [],
+                'acceptsContext' => [
+                    'category.media' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'mediaItems', 'scope' => 'root'],
+                ],
+            ]],
+        ]);
+
+        static::assertSame([], $this->violationsWithCode($body, 'invalid_mapping'));
+    }
+
+    #[TestDox('admits a mapping the bound root source catalogues')]
+    public function testDiagnoseAdmitsACataloguedMapping(): void
+    {
+        $body = $this->diagnose([
+            'rootSource' => 'category',
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => 'Sw:Content:Text',
+                'properties' => [],
+                'acceptsContext' => [
+                    'category.name' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'text', 'scope' => 'root'],
+                ],
+            ]],
+        ]);
+
+        static::assertSame([], $this->violationsWithCode($body, 'invalid_mapping'));
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function violationsWithCode(array $body, string $code): array
+    {
+        static::assertIsArray($body['diagnostics']['violations']);
+
+        return array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === $code,
+        ));
+    }
+
+    /**
      * The `product` property resolution of one element, off the diagnose body's resolutions map.
      *
      * @param array<string, mixed> $body

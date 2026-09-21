@@ -58,8 +58,8 @@ class MappingConsumersTest extends TestCase
         static::assertFalse((new MappingConsumers())->isMapping($consumer, 'product.name'));
     }
 
-    #[TestDox('collects only the property keys a mapping fills, ignoring mirrored wiring onto another property')]
-    public function testCollectsTheMappedPropertyKeysAlone(): void
+    #[TestDox('collects only the properties a mapping fills, against their paths, ignoring mirrored wiring onto another property')]
+    public function testCollectsTheMappedPathsAlone(): void
     {
         $element = new StoredElement(
             'el-1',
@@ -73,7 +73,7 @@ class MappingConsumersTest extends TestCase
             ]),
         );
 
-        static::assertSame(['media' => true], (new MappingConsumers())->mappedPropertyKeys($element));
+        static::assertSame(['media' => 'category.media'], (new MappingConsumers())->mappedPaths($element));
     }
 
     private function rootConsumer(string $propertyAlias): ContextConsumer

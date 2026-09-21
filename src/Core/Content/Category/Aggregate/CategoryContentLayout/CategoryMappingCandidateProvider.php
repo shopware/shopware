@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('content')]
+#[Package('discovery')]
 class CategoryMappingCandidateProvider extends AbstractMappingCandidateProvider
 {
     private const SNIPPET_ROOT = 'sw-experience-studio.mapping.category';

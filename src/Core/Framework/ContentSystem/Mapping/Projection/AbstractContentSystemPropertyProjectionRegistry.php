@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Lookup only. Deciding what to do about a name nothing answers to is the caller's call, and the two callers
  * answer it differently on purpose: the write boundary rejects, the render path falls back.
- *
- * @internal
  */
 #[Package('framework')]
 abstract class AbstractContentSystemPropertyProjectionRegistry

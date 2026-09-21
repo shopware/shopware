@@ -8,7 +8,7 @@ import type { ContentSystemMappingCandidate } from 'src/core/service/api/content
 const MAPPING_SCOPE = 'root';
 
 /**
- * Decides whether a stored consumer is a data mapping, mirroring the server's `StoredMappingValidator`.
+ * Decides whether a stored consumer is a data mapping, mirroring the server's `Mapping/MappingConsumers`.
  *
  * Scope and `propertyAlias` alone are not enough: the mutation layer writes that same shape for a reference
  * property it resolved against the layout's root-ambient context — a product listing receives the page's

@@ -38,7 +38,6 @@ class ProductMediaCollectionToMediaCollectionProjectionTest extends TestCase
         $media = (new ProductMediaCollectionToMediaCollectionProjection())
             ->project(new ProductMediaCollection([$second, $first]));
 
-        static::assertInstanceOf(MediaCollection::class, $media);
         static::assertSame(
             [$first->getMedia(), $second->getMedia()],
             array_values($media->getElements())

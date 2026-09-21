@@ -172,7 +172,7 @@ class LayoutMutationController
     {
         $tree = new StoredTree($this->decoder->decode($layout));
         $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
-        $result = $this->pipeline->run($mutation, $tree, $rootContext);
+        $result = $this->pipeline->run($mutation, $tree, $rootContext, $rootSource);
 
         return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
     }

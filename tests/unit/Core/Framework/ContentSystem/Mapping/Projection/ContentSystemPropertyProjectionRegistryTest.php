@@ -59,7 +59,7 @@ class ContentSystemPropertyProjectionRegistryTest extends TestCase
 
     public function testRefusesDecoration(): void
     {
-        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionObject(new DecorationPatternException(ContentSystemPropertyProjectionRegistry::class));
 
         (new ContentSystemPropertyProjectionRegistry([]))->getDecorated();
     }

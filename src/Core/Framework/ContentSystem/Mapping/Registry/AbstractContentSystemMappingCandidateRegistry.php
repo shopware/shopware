@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
  * Single authority over the data-mapping catalogue, read by both the introspection endpoint the Administration
  * builds its selection modal from and the write boundary that admits a stored mapping. One registry for both
  * is what keeps an offered candidate acceptable and an acceptable one offered.
- *
- * @internal
  */
 #[Package('framework')]
 abstract class AbstractContentSystemMappingCandidateRegistry

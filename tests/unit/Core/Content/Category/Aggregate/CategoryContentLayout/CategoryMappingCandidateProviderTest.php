@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('discovery')]
 #[CoversClass(CategoryMappingCandidateProvider::class)]
 class CategoryMappingCandidateProviderTest extends TestCase
 {

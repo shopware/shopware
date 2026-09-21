@@ -85,8 +85,11 @@ class ContentSystemPropertyProjectionCompilerPassTest extends TestCase
     {
         $container = $this->containerWith(\stdClass::class);
 
-        $this->expectException(DependencyInjectionException::class);
-        $this->expectExceptionMessage(AbstractContentPropertyProjection::class);
+        $this->expectExceptionObject(DependencyInjectionException::taggedServiceHasWrongType(
+            \stdClass::class,
+            'content_system.property_projection',
+            AbstractContentPropertyProjection::class,
+        ));
 
         (new ContentSystemPropertyProjectionCompilerPass())->process($container);
     }

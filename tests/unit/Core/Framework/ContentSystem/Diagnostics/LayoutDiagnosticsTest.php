@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
@@ -38,8 +39,13 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -1039,6 +1045,72 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
+     * The gap Workstream D closes: the write gate could already prove this mapping inadmissible, but the
+     * editor's routes said nothing, so an author saw no error and a blank element and only found out on save.
+     */
+    #[TestDox('reports an inadmissible mapping as a binding error when handed a root source')]
+    public function testMappingViolationIsReportedForABoundRootSource(): void
+    {
+        $report = $this->diagnoseMapping('category.name', rootSource: 'category')->report;
+
+        static::assertCount(1, $report->bindingErrors());
+        static::assertSame(ViolationCode::InvalidMapping, $report->bindingErrors()[0]->code);
+        static::assertSame('el-1', $report->bindingErrors()[0]->elementId);
+        // Keyed on the property rather than on the mapped path, so the entry names the control the author
+        // acted on and the Administration can mark it.
+        static::assertSame('text', $report->bindingErrors()[0]->key);
+    }
+
+    #[TestDox('admits a mapping the catalogue offers for the bound root source')]
+    public function testCataloguedMappingIsAdmitted(): void
+    {
+        $catalogued = [
+            'category.name' => new MappingCandidate(
+                path: 'category.name',
+                label: 'a label',
+                description: 'a description',
+                group: 'basic',
+                valueType: 'string',
+            ),
+        ];
+
+        $report = $this->diagnoseMapping('category.name', rootSource: 'category', candidates: $catalogued)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    /**
+     * The one reason the source is a separate argument rather than something the analysis derives: a mapping
+     * is admissible only against a particular catalogue, and a caller without a source id — the write gate's
+     * well-formedness pass, `DraftLayoutChecker` — has nothing to judge it against and must not guess.
+     */
+    #[TestDox('reports no mapping violation when no root source is given')]
+    public function testMappingIsUnjudgedWithoutARootSource(): void
+    {
+        $report = $this->diagnoseMapping('category.name', rootSource: null)->report;
+
+        static::assertSame([], $report->bindingErrors());
+        static::assertTrue($report->isWellFormed());
+    }
+
+    /**
+     * @param array<string, MappingCandidate> $candidates defaults to an empty catalogue, so the path below is uncatalogued
+     */
+    private function diagnoseMapping(string $path, ?string $rootSource, array $candidates = []): LayoutAnalysis
+    {
+        $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
+            ->withConsumer($path, ContextType::Single, propertyAlias: 'text', scope: ConsumerScope::Root)
+            ->build();
+
+        return $this->diagnostics(
+            ['Sw:Content:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+                ->primitive('text', 'string', mappable: true)
+                ->build()],
+            candidates: $candidates,
+        )->analyze([$element], [], $rootSource);
+    }
+
+    /**
      * The shape the root-source registry mints: marked root-ambient and carrying no provider element id.
      *
      * @return list<ProvidedContext>
@@ -1098,6 +1170,7 @@ class LayoutDiagnosticsTest extends TestCase
 
     /**
      * @param array<string, ContentSystemElementTypeSpecification> $specs
+     * @param array<string, MappingCandidate>|null $candidates the mapping catalogue, read only by an analyze() call that passes a root source
      */
     private function diagnostics(
         array $specs,
@@ -1105,6 +1178,7 @@ class LayoutDiagnosticsTest extends TestCase
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
+        ?array $candidates = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
@@ -1121,6 +1195,7 @@ class LayoutDiagnosticsTest extends TestCase
             $typeResolver,
             $serializers,
             $loaderProvider,
+            new MappingConsumers(),
         );
 
         return new LayoutDiagnostics(
@@ -1133,6 +1208,27 @@ class LayoutDiagnosticsTest extends TestCase
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
             new ContextPathResolver(),
             new MappingConsumers(),
+            $this->mappingInspector($registry, $candidates ?? []),
+        );
+    }
+
+    /**
+     * Reached only by an analyze() call that passes a root source; every other test here passes two
+     * arguments and never touches it.
+     *
+     * @param array<string, MappingCandidate> $candidates
+     */
+    private function mappingInspector(AbstractContentSystemElementTypeRegistry $registry, array $candidates): StoredMappingInspector
+    {
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidateRegistry->method('forRootSource')->willReturn($candidates);
+
+        return new StoredMappingInspector(
+            $registry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new ContentSystemPropertyProjectionRegistry([]),
         );
     }
 

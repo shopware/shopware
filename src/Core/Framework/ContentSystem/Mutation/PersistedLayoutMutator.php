@@ -114,6 +114,6 @@ class PersistedLayoutMutator
     {
         $rootContext = $this->rootSourceRegistry->resolve($rootSource, $context);
 
-        return $this->diagnostics->analyze($tree->roots, $rootContext);
+        return $this->diagnostics->analyze($tree->roots, $rootContext, $rootSource);
     }
 }

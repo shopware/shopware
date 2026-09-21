@@ -24,18 +24,19 @@ class MutationPipeline
     /**
      * @param StoredTree $tree the decoded draft tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
+     * @param string|null $rootSource the id of the bound source, or null to skip the data-mapping checks
      */
-    public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult
+    public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext, ?string $rootSource = null): MutationResult
     {
         $mutated = $mutation->apply($tree);
 
-        $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext);
+        $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext, $rootSource);
 
         $wired = $this->contextMirror->apply($mutated, $analysis->resolutions, $mutation->created());
 
         // Re-analyze only when the wiring changed the tree, so the returned diagnostics and resolutions describe the returned tree.
         if ($wired !== $mutated) {
-            $analysis = $this->diagnostics->analyze($wired->roots, $rootContext);
+            $analysis = $this->diagnostics->analyze($wired->roots, $rootContext, $rootSource);
         }
 
         return MutationResult::fromAnalyzedMutation($wired, $analysis, $mutation);

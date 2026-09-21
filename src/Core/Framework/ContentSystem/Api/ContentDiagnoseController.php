@@ -47,7 +47,10 @@ class ContentDiagnoseController
 
         $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
 
-        $analysis = $this->diagnostics->analyze($tree, $rootContext);
+        // resolveGated() has already rejected a non-empty source that is not a member, so anything still
+        // here is either a registered id or absent — and an absent one means the mapping checks are skipped
+        // along with every other binding-scope check.
+        $analysis = $this->diagnostics->analyze($tree, $rootContext, $payload->rootSource);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 

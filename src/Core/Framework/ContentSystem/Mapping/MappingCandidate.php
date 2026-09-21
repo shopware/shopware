@@ -29,8 +29,9 @@ use Shopware\Core\Framework\Log\Package;
  * `$path` MUST be dotted, and the constructor enforces it. An undotted path would name a root-ambient context
  * value outright rather than a member of one, which is the exact shape
  * {@see \Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror} writes for resolved reference
- * wiring — so {@see \Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator} could no longer
- * tell a mapping onto it from that wiring, and would skip validating it.
+ * wiring — so {@see MappingConsumers} could no longer tell a mapping onto it from that wiring, and every
+ * reader of that test would go wrong at once: unvalidated on write, unreported in the editor, and unlisted as
+ * the property's source.
  */
 #[Package('framework')]
 final readonly class MappingCandidate

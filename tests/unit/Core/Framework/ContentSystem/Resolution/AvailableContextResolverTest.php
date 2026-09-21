@@ -27,6 +27,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -623,7 +624,7 @@ class AvailableContextResolverTest extends TestCase
         $configSerializers = static::createStub(DataLoaderConfigSerializerProvider::class);
         $configSerializers->method('decode')->willReturn(static::createStub(AbstractContentDataLoaderConfig::class));
 
-        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class));
+        $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class), new MappingConsumers());
 
         return new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver());
     }

@@ -15,9 +15,16 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
+use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -274,6 +281,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
             new ViolationConstraintMapper(),
             $registry ?? $this->registryKnowing(['product', 'category', 'none']),
             $reader ?? static::createStub(LayoutRootSourceReader::class),
+            $this->cleanMappingValidator(),
         );
     }
 
@@ -301,6 +309,23 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
 
         return $gate;
+    }
+
+    private function cleanMappingValidator(): StoredMappingValidator
+    {
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willReturn(false);
+
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidateRegistry->method('forRootSource')->willReturn([]);
+
+        return new StoredMappingValidator(new StoredMappingInspector(
+            $typeRegistry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new ContentSystemPropertyProjectionRegistry([]),
+        ));
     }
 
     /**

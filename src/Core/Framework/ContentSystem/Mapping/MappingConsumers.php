@@ -21,10 +21,12 @@ use Shopware\Core\Framework\Log\Package;
  * contains one. {@see MappingCandidate} holds the other half of the invariant by refusing an undotted path,
  * so the catalogue can never offer one that would read as wiring here.
  *
- * This lives in one place because two layers ask the question and must answer it identically:
- * `Validation/StoredMappingValidator` gates the write, and `Diagnostics/LayoutDiagnostics` has to know a
- * mapped property needs no loader input. A disagreement is silently wrong in both directions — a mapping the
- * gate skips goes unvalidated, and wiring diagnostics reads as a mapping stops demanding the input it needs.
+ * This lives in one place because three layers ask the question and must answer it identically:
+ * {@see StoredMappingInspector} decides admissibility for the write gate and the diagnose routes,
+ * `Diagnostics/LayoutDiagnostics` has to know a mapped property needs no loader input, and
+ * `Resolution/ElementResolver` reports a mapped property as filled from root context. A disagreement is
+ * silently wrong in every direction — a mapping a reader skips goes unvalidated, and wiring a reader takes
+ * for a mapping stops demanding the input it needs or claims to fill a property nothing fills.
  * The Administration keeps its own copy of the rule in `util/element-mapping.util.ts`.
  *
  * @internal
@@ -40,13 +42,17 @@ final class MappingConsumers
     }
 
     /**
-     * The declared property keys this element fills by mapping rather than from its own stored value.
+     * The mapped path behind each declared property this element fills by mapping rather than from its own
+     * stored value.
      *
-     * @return array<string, true> keyed by property key, so a caller can test membership directly
+     * Keyed by property so a caller can test membership with `isset()` alone, and valued with the path
+     * because the resolution layer reports it as the context key a mapped property resolves against.
+     *
+     * @return array<string, string> property key => mapped path, e.g. `['text' => 'category.name']`
      */
-    public function mappedPropertyKeys(StoredElement $element): array
+    public function mappedPaths(StoredElement $element): array
     {
-        $keys = [];
+        $paths = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
             if (!$this->isMapping($consumer, (string) $consumerKey)) {
@@ -54,9 +60,9 @@ final class MappingConsumers
             }
 
             // Non-null by isMapping().
-            $keys[(string) $consumer->propertyAlias] = true;
+            $paths[(string) $consumer->propertyAlias] = (string) $consumerKey;
         }
 
-        return $keys;
+        return $paths;
     }
 }

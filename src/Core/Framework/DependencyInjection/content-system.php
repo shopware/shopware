@@ -86,6 +86,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
@@ -117,10 +122,6 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoade
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
-use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
-use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
-use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
@@ -685,6 +686,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemDataLoaderMapResolver::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(DataLoaderProvider::class),
+            service(MappingConsumers::class),
         ]);
 
     $services->set(RootContextMapper::class)
@@ -703,6 +705,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemStyleOptionRegistry::class),
             service(ContextPathResolver::class),
             service(MappingConsumers::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(LayoutGate::class)
@@ -721,7 +724,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Data-mapping catalogue: one authority behind both the introspection endpoint and the write gate below
     $services->set(MappingTypeCompatibility::class);
 
-    // Shared mapping-vs-mirrored-wiring test, read by the write gate and by LayoutDiagnostics above
+    // Shared mapping-vs-mirrored-wiring test, read by the mapping rules below and by ElementResolver and
+    // LayoutDiagnostics above
     $services->set(MappingConsumers::class);
 
     $services->set(ContentSystemMappingCandidateRegistry::class)
@@ -736,13 +740,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('content_system.property_projection'),
         ]);
 
-    $services->set(StoredMappingValidator::class)
+    // The mapping admissibility rules themselves, shared by the two surfaces that report them: the write
+    // gate below (per-rule error codes) and LayoutDiagnostics above (one invalid_mapping violation)
+    $services->set(StoredMappingInspector::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
             service(ContentSystemMappingCandidateRegistry::class),
             service(MappingTypeCompatibility::class),
             service(MappingConsumers::class),
             service(ContentSystemPropertyProjectionRegistry::class),
+        ]);
+
+    $services->set(StoredMappingValidator::class)
+        ->args([
+            service(StoredMappingInspector::class),
         ]);
 
     // Resolvability gate (DAL PreWriteValidationEvent)

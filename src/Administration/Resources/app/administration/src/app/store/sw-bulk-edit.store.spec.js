@@ -36,17 +36,11 @@ describe('src/app/store/sw-bulk-edit.store', () => {
             type: 'invoice',
             value: {
                 ...store.orderDocuments.invoice.value,
-                fileFormats: [
-                    'pdf',
-                    'html',
-                ],
+                fileFormats: ['pdf', 'html'],
             },
         });
 
-        expect(store.orderDocuments.invoice.value.fileFormats).toEqual([
-            'pdf',
-            'html',
-        ]);
+        expect(store.orderDocuments.invoice.value.fileFormats).toEqual(['pdf', 'html']);
     });
 
     it('should be able to resetOrderDocumentsIsChanged', async () => {

@@ -107,9 +107,7 @@ async function createWrapper(extension) {
             mocks: {
                 $t: translateSnippet,
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-extension-error'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-extension-error')],
             stubs: {
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
 

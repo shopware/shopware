@@ -23,10 +23,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: [
-                    'customerAware',
-                    'orderAware',
-                ],
+                requirements: ['customerAware', 'orderAware'],
                 config: [
                     {
                         name: 'password',
@@ -37,10 +34,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                         name: 'singleSelect',
                         label: {},
                         type: 'single-select',
-                        options: [
-                            '2',
-                            '3',
-                        ],
+                        options: ['2', '3'],
                     },
                     {
                         name: 'datetime',
@@ -199,16 +193,12 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             },
             {
                 name: 'action.add.customer.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
                 name: 'action.remove.customer.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
@@ -321,11 +311,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
                 datetime: '2023-03-23T12:00:00.000Z',
                 float: 5,
                 int: 1000,
-                multiSelect: [
-                    '2',
-                    '3',
-                    '5',
-                ],
+                multiSelect: ['2', '3', '5'],
                 password: 'shopware',
                 singleSelect: '3',
                 textEditor: 'editor',
@@ -463,10 +449,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             actionName: 'action.generate.document',
             config: {
                 documentType: 'mail',
-                fileFormats: [
-                    'pdf',
-                    'zugferd_xml',
-                ],
+                fileFormats: ['pdf', 'zugferd_xml'],
             },
         };
 
@@ -480,10 +463,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         );
         expect(sequence.config).toEqual({
             documentType: 'mail',
-            fileFormats: [
-                'pdf',
-                'zugferd_xml',
-            ],
+            fileFormats: ['pdf', 'zugferd_xml'],
         });
         expect(() => JSON.stringify(sequence)).not.toThrow();
     });

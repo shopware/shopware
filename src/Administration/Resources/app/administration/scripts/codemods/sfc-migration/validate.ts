@@ -62,11 +62,7 @@ function componentTag(name: string): string {
 /** The binding Vue's `resolveSetupReference()` selects for a template asset, in lookup order. */
 function setupBinding(name: string, bindings: Readonly<Record<string, unknown>>): string | null {
     const camelName = camelize(name);
-    const candidates = [
-        name,
-        camelName,
-        capitalize(camelName),
-    ];
+    const candidates = [name, camelName, capitalize(camelName)];
     const dotIndex = name.indexOf('.');
 
     if (dotIndex > 0) {

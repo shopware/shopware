@@ -15,9 +15,7 @@ export default {
 
     emits: ['option-select'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         product: {

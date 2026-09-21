@@ -468,10 +468,17 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
     base: defaultBaseClasses,
 }) %}
 {% set rootCVA = cva(rootVariants) %}
-<div {{ attributes.defaults({ role: 'article' }) }} class="{{ rootCVA.apply({}, attributes.render('class')) }}">
+{% set attributeDefaults = {
+    class: rootCVA.apply({}),
+    role: 'article',
+} %}
+<div {{ attributes.defaults(attributeDefaults) }}>
     ...
 </div>
 ```
+
+`attributes.defaults()` automatically merges passed classes with the defaults, so the
+class does not need to be rendered separately when using CVA.
 
 ❌ Don't
 ```twig

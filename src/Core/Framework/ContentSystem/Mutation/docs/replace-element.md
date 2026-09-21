@@ -10,7 +10,7 @@ rules rather than a placement. The other eight are in [operations.md](operations
 Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
 exist (`mutationTargetNotFound`); carries over primitive properties whose key and type match, wiring (data
 requirements, providers, consumers) keyed to a non-primitive new-type property, and children of slots present in the
-new type, then seeds the new type's primitive defaults for any key it does not carry (a carried or authored value
+new type, then seeds the new type's stored defaults for any key it does not carry (a carried or authored value
 wins). The element's `style` carries over unconditionally, being universal and type-independent, and
 `attributedSpecifications` survives only for keys whose carried data requirement survives.
 

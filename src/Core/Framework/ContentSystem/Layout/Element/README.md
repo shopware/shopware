@@ -11,6 +11,7 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 - `StoredElement` - The storage-side node, rebuilt rather than mutated: every edit returns a new instance through a `with*()` method.
 - `StoredValue` - Wraps each property value by variant, so a hydrated entity can never sit in the stored tree by type rather than by convention.
 - `RenderedTreeEditor` - Applies one per-element transformation across a whole rendered forest.
+- `ElementIdRule` - The element-id value domain, stated once for the decode gate, the write descriptor and the published `ContentElementId` schema.
 
 `RenderedElement`, the render-side counterpart, lives in [Rendering/](../../Rendering/README.md) with the classes that mint it. What each of the two models carries, and which one a name is about, is set out in [../../docs/stored-and-rendered.md](../../docs/stored-and-rendered.md).
 

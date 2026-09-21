@@ -65,6 +65,8 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfigSerializer;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
@@ -100,6 +102,7 @@ use Shopware\Core\Content\Product\ProductVariationBuilder;
 use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\PartialProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
@@ -886,6 +889,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('content_system.data_loader');
 
     $services->set(ProductListingLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ProductConfiguratorDataLoader::class)
+        ->args([
+            service(PartialProductConfiguratorLoader::class),
+            service('sales_channel.product.repository'),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(PartialProductConfiguratorLoader::class)
+        ->args([
+            service(ProductConfiguratorLoader::class),
+        ]);
+
+    $services->set(ProductConfiguratorLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');
 
     $services->set(CrossSellingDataLoader::class)

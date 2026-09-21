@@ -1,0 +1,66 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    value = '1',
+    id = "#{name}-#{value}-#{random()}",
+    label = null,
+    validationRules = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    isInvalid = false,
+%}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set controlAttributes = attributes.without('class', 'style').defaults(attributes.nested('control')) %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-radio form-check',
+}) %}
+
+{% set radioCVA = cva({
+    base: 'sw-form-radio__control sw-form-field__control form-check-input',
+    variants: {
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}),
+} %}
+
+{% set radioAttributeDefaults = {
+    class: radioCVA.apply({ isInvalid }),
+    type: 'radio',
+    id: id,
+    name: name,
+    value: value,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+} %}
+
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
+    {% block control %}
+        <input {{ controlAttributes.defaults(radioAttributeDefaults) }}>
+    {% endblock %}
+
+    {% block label %}
+        <twig:Sw:Form:Field:Label
+            :fieldId="id"
+            :label="label"
+            variant="check"
+        />
+    {% endblock %}
+</div>

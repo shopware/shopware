@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
@@ -198,6 +199,44 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         ]);
 
         static::assertGreaterThanOrEqual(1, $violations->count());
+    }
+
+    /**
+     * The message, not just the fact of a violation: the DAL wraps these into a
+     * `WriteConstraintViolationException`, so the text reaches the client verbatim. One id per clause —
+     * which id falls into which is `ElementIdRuleTest`'s table.
+     */
+    #[DataProvider('rejectsElementIdProvider')]
+    #[TestDox('reports $expectedMessage for $_dataName')]
+    public function testRejectsAnIdOutsideTheValueDomain(string $id, string $expectedMessage): void
+    {
+        $violations = $this->validate([$this->element(['id' => $id])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
+
+        // A sentence assembled at runtime would render identically here, so the template is asserted too:
+        // it is the translation key.
+        static::assertSame($expectedMessage, $violations->get(0)->getMessageTemplate());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function rejectsElementIdProvider(): iterable
+    {
+        yield 'the reserved virtual-root literal' => [
+            VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            'This value is the reserved virtual-root id.',
+        ];
+
+        yield 'an integer-reading id' => ['12', 'This value reads as an integer.'];
+
+        yield 'a negative zero' => ['-0', 'This value reads as an integer.'];
+
+        yield 'an id carrying a line feed' => ["hero\nfoot", 'This value contains a line terminator.'];
+
+        yield 'an id carrying a paragraph separator' => ["hero\u{2029}foot", 'This value contains a line terminator.'];
     }
 
     #[TestDox('reports a violation naming the offending key for a numeric key in a wiring map')]

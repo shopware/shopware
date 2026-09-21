@@ -1,0 +1,23 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    id = null,
+    description = null,
+%}
+
+{% set descriptionCVA = cva({
+    base: 'sw-form-description form-text',
+}) %}
+
+{% set attributeDefaults = {
+    class: descriptionCVA.apply({}),
+    id: id is not null ? id : false,
+} %}
+
+{% if description is not empty %}
+    <small {{ attributes.defaults(attributeDefaults) }}>
+        {% block content %}{{ description|sw_sanitize|raw }}{% endblock %}
+    </small>
+{% endif %}

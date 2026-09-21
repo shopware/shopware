@@ -67,16 +67,23 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -187,13 +194,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('validator.constraint_validator');
 
-    // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
-    $services->set(PrimitiveDefaultProvider::class);
+    // Write-boundary default seeding (seeds type stored defaults into every DAL write of the layout field)
+    $services->set(StoredDefaultProvider::class);
 
     $services->set(LayoutDefaultSeeder::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
-            service(PrimitiveDefaultProvider::class),
+            service(StoredDefaultProvider::class),
         ]);
 
     // The forest-wide style pass, shared by the write boundary and the draft decode so the two cannot drift
@@ -458,7 +465,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.type_loader');
 
@@ -471,6 +477,49 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(ContentSystemElementTypeRegistry::class)
         ->args([
             service(CachedContentSystemElementTypeRegistry::class . '.inner'),
+            service('cache.system'),
+        ]);
+
+    $services->set(LayoutPresetPayloadCompiler::class)
+        ->args([
+            service(DraftLayoutDecoder::class),
+            service(StoredElementCodec::class),
+        ]);
+
+    $services->set(LayoutPresetSpecificationSerializer::class);
+
+    $services->set(LayoutPresetNameResolver::class);
+
+    $services->set(YamlLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
+            service(LayoutPresetNameResolver::class),
+        ])
+        ->arg('$directories', [])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(DatabaseLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
+            service(Connection::class),
+            param('kernel.environment'),
+            service('logger'),
+        ])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            tagged_iterator('content_system.layout_preset_loader'),
+        ]);
+
+    $services->set(CachedContentSystemLayoutPresetRegistry::class)
+        ->decorate(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            service(CachedContentSystemLayoutPresetRegistry::class . '.inner'),
             service('cache.system'),
         ]);
 
@@ -498,7 +547,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.style_option_loader');
 
@@ -550,7 +598,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('kernel.environment'),
             service(Connection::class),
-            service('logger'),
             service(BindingSpecificationSerializer::class),
             service('validator'),
         ])
@@ -750,6 +797,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+            service(ContentSystemLayoutPresetRegistry::class),
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)

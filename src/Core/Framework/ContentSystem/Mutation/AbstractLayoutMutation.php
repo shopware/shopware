@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
@@ -131,20 +132,20 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      */
     protected function scaffoldElement(AbstractContentSystemElementTypeRegistry $registry, string $type, array $slots = []): StoredElement
     {
-        return new StoredElement(Uuid::randomHex(), $type, [], $this->primitiveDefaults($registry, $type), $slots);
+        return new StoredElement(Uuid::randomHex(), $type, [], $this->storedDefaults($registry, $type), $slots);
     }
 
     /**
-     * The type's primitive property defaults to seed into a stored element, keyed by property key and wrapped
-     * for storage. The single rule lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary
-     * seeder so a type's defaults are defined once; the wrapping is applied here, at the one place a mutation
-     * puts a raw default into a stored element.
+     * The type's property defaults to seed into a stored element, keyed by property key and wrapped for storage.
+     * The single rule lives in {@see StoredDefaultProvider}, shared with the write-boundary seeder so a type's
+     * defaults are defined once; the wrapping is applied here, at the one place a mutation puts a raw default into
+     * a stored element.
      *
      * @return array<string, StoredValue>
      */
-    protected function primitiveDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array
+    protected function storedDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array
     {
-        $defaults = (new PrimitiveDefaultProvider())->forType($registry, $type);
+        $defaults = (new StoredDefaultProvider())->forType($registry, $type);
 
         return array_map(StoredValue::fromDecoded(...), $defaults);
     }
@@ -184,6 +185,38 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             $type,
             array_map(static fn (BindingSpecification $specification): string => $specification->qualifiedId(), $defaults),
         );
+    }
+
+    protected function applyDefaultBinding(
+        AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        BindingApplicator $bindingApplicator,
+        StoredElement $element,
+    ): StoredElement {
+        $default = $this->resolveDefaultSpecification($bindingRegistry, $element->component);
+
+        if ($default === null) {
+            return $element;
+        }
+
+        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId());
+    }
+
+    protected function applyDefaultBindingToSubtree(
+        AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        BindingApplicator $bindingApplicator,
+        StoredElement $element,
+    ): StoredElement {
+        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element);
+
+        $slots = [];
+        foreach ($bound->slots as $name => $children) {
+            $slots[$name] = array_values(array_map(
+                fn (StoredElement $child): StoredElement => $this->applyDefaultBindingToSubtree($bindingRegistry, $bindingApplicator, $child),
+                $children,
+            ));
+        }
+
+        return $bound->withSlots($slots);
     }
 
     /**

@@ -1,6 +1,7 @@
 export default class ProductListing extends ShopwareComponent {
 
     static options = {
+        contentUrl: null,
         pageParamName: 'p',
         layoutParamName: 'listingLayout',
         sortingParamName: 'order',
@@ -12,43 +13,47 @@ export default class ProductListing extends ShopwareComponent {
 
     init() {
         this.activeParams = {};
-        this.activeListingId = window.activeNavigationId;
-        this.elementId = this.el.getAttribute('data-element-id') || null;
 
         this.domParser = new DOMParser();
 
         // Create the debounced load function.
         this.debouncedLoad = this.debounce(async () => {
-            const productGrid = this.el.querySelector('.sw-product-listing__grid');
-            const pagination = this.el.querySelector('.sw-product-listing__pagination');
-            productGrid.classList.add('is--loading');
+            this.el.classList.add('is--loading');
 
-            const location = new URL(window.location);
-            const params = { ...this.activeParams };
-            const query = new URLSearchParams(params).toString();
-            const url = `${location.protocol}//${location.host}/content/category/${this.activeListingId}?${query}`;
+            // contentUrl (Twig path()) already carries the base path and elementId; add the runtime params.
+            const url = new URL(this.options.contentUrl, window.location.origin);
+            Object.entries(this.activeParams).forEach(([key, value]) => url.searchParams.set(key, value));
 
             const response = await fetch(url);
             const html = await response.text();
-            const doc = this.domParser.parseFromString(html, 'text/html');
-            const grid = doc.querySelector('.sw-product-listing__grid');
-            const pagi = doc.querySelector('.sw-product-listing__pagination');
+            const fresh = this.domParser
+                .parseFromString(html, 'text/html')
+                .querySelector(`[data-element-id="${this.el.dataset.elementId}"]`);
 
-            productGrid.replaceWith(grid);
-            pagination.replaceWith(pagi);
-            productGrid.classList.remove('is--loading');
+            // Replacing the element re-initializes it; the component system rebinds on the fresh node.
+            if (fresh) {
+                this.el.replaceWith(fresh);
+            } else {
+                this.el.classList.remove('is--loading');
+            }
         }, 200);
+
+        this.onFilterChange = this.handleFilterChange.bind(this);
+        this.onPageChange = this.handlePageChange.bind(this);
+        this.onLayoutChange = this.handleLayoutChange.bind(this);
+        this.onSortingChange = this.handleSortingChange.bind(this);
+        this.onFilterRemove = this.handleFilterRemove.bind(this);
 
         this.getStateFromUrl();
         this.registerEvents();
     }
 
     registerEvents() {
-        Shopware.on('Filter:Change', this.handleFilterChange.bind(this));
-        Shopware.on('Pagination:Change', this.handlePageChange.bind(this));
-        Shopware.on('LayoutSwitch:Change', this.handleLayoutChange.bind(this));
-        Shopware.on('FilterSorting:Change', this.handleSortingChange.bind(this));
-        Shopware.on('Filter:Remove', this.handleFilterRemove.bind(this));
+        Shopware.on('Filter:Change', this.onFilterChange);
+        Shopware.on('Pagination:Change', this.onPageChange);
+        Shopware.on('LayoutSwitch:Change', this.onLayoutChange);
+        Shopware.on('FilterSorting:Change', this.onSortingChange);
+        Shopware.on('Filter:Remove', this.onFilterRemove);
     }
 
     handleFilterChange({ paramName, value, activeOptions, removedOptions }) {
@@ -154,7 +159,8 @@ export default class ProductListing extends ShopwareComponent {
     }
 
     changeLayout(layout) {
-        const grid = this.el.querySelector('.sw-product-listing__grid');
+        const gridContainer = this.el.querySelector('.sw-product-listing__grid');
+        const grid = gridContainer.querySelector('.sw-grid-container__inner');
         const productCards = grid.querySelectorAll('.sw-product-card');
         const gridClasses = this.options.layoutGridClasses;
         const layoutClasses = Object.keys(this.options.layoutGridClasses).map(layout => `is--layout-${layout}`);
@@ -183,10 +189,10 @@ export default class ProductListing extends ShopwareComponent {
     }
 
     destroy() {
-        Shopware.off('Filter:Change', this.handleFilterChange.bind(this));
-        Shopware.off('Pagination:Change', this.handlePageChange.bind(this));
-        Shopware.off('LayoutSwitch:Change', this.handleLayoutChange.bind(this));
-        Shopware.off('FilterSorting:Change', this.handleSortingChange.bind(this));
-        Shopware.off('Filter:Remove', this.handleFilterRemove.bind(this));
+        Shopware.off('Filter:Change', this.onFilterChange);
+        Shopware.off('Pagination:Change', this.onPageChange);
+        Shopware.off('LayoutSwitch:Change', this.onLayoutChange);
+        Shopware.off('FilterSorting:Change', this.onSortingChange);
+        Shopware.off('Filter:Remove', this.onFilterRemove);
     }
 }

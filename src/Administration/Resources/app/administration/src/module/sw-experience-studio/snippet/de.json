@@ -18,6 +18,18 @@
           "shadow": "Schatten",
           "background": "Hintergrund"
         }
+      },
+      "sw-media-gallery": {
+        "panels": {
+          "general": "Allgemein",
+          "thumbnails": "Vorschaunavigation",
+          "behaviour": "Verhalten"
+        }
+      },
+      "sw-product-listing": {
+        "panels": {
+          "sorting": "Sortierung"
+        }
       }
     },
     "list": {
@@ -107,6 +119,7 @@
           "content": "Inhalt",
           "commerce": "Commerce",
           "layout": "Layout",
+          "presets": "Vorlagen",
           "other": "Sonstige"
         }
       },

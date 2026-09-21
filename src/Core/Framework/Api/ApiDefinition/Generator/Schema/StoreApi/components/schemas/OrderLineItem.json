@@ -79,10 +79,12 @@
                         "type": "string"
                     },
                     "payload": {
-                        "type": "object",
+                        "description": "Snapshot data of the referenced item. Product line items contain the product data listed below; other line item types may carry different keys or an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0,
                         "properties": {
                             "categoryIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -91,7 +93,8 @@
                             },
                             "createdAt": {
                                 "type": ["string", "null"],
-                                "format": "date-time",
+                                "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$",
                                 "readOnly": true
                             },
                             "customFields": {
@@ -122,7 +125,7 @@
                                 "type": "boolean"
                             },
                             "optionIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -153,7 +156,7 @@
                                 "type": "string"
                             },
                             "propertyIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -162,14 +165,15 @@
                             },
                             "releaseDate": {
                                 "type": ["string", "null"],
-                                "format": "date-time"
+                                "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$"
                             },
                             "stock": {
                                 "type": "integer",
                                 "format": "int64"
                             },
                             "streamIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -177,7 +181,7 @@
                                 "readOnly": true
                             },
                             "tagIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"

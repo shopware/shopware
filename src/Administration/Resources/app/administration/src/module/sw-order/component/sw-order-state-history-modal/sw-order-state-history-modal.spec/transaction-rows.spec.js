@@ -175,9 +175,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: transactio
         const wrapper = await createWrapper({}, orderWithSecondTransaction, history);
         await flushPromises();
 
-        const [
-            initialState,
-        ] = wrapper.vm.dataSource.filter((entry) => entry.referencedId === '3');
+        const [initialState] = wrapper.vm.dataSource.filter((entry) => entry.referencedId === '3');
 
         expect(initialState.transaction.technicalName).toBe('open');
         expect(initialState.createdAt).toBe('2022-10-12T09:39:12.000+00:00');
@@ -224,9 +222,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: transactio
         const wrapper = await createWrapper({}, orderProp, history);
         await flushPromises();
 
-        const [
-            initialState,
-        ] = wrapper.vm.dataSource.filter((entry) => entry.referencedId === 'unknown-transaction');
+        const [initialState] = wrapper.vm.dataSource.filter((entry) => entry.referencedId === 'unknown-transaction');
 
         expect(initialState.transaction.technicalName).toBe('open');
         expect(initialState.createdAt).toBe('2022-10-12T10:39:00.000+00:00');

@@ -172,29 +172,29 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(customComponent.attributes().disabled).toBeUndefined();
     });
 
-    it.each([
-        'buy-box',
-        'product-description-reviews',
-    ])('should lock %s on product detail pages without changing the slot', async (type) => {
-        Shopware.Store.get('cmsPage').currentPage = { type: 'product_detail' };
+    it.each(['buy-box', 'product-description-reviews'])(
+        'should lock %s on product detail pages without changing the slot',
+        async (type) => {
+            Shopware.Store.get('cmsPage').currentPage = { type: 'product_detail' };
 
-        const wrapper = await createWrapper({
-            element: {
-                type,
-                locked: false,
-            },
-            active: true,
-        });
+            const wrapper = await createWrapper({
+                element: {
+                    type,
+                    locked: false,
+                },
+                active: true,
+            });
 
-        expect(wrapper.vm.isElementLocked).toBe(true);
-        expect(wrapper.props('element').locked).toBe(false);
+            expect(wrapper.vm.isElementLocked).toBe(true);
+            expect(wrapper.props('element').locked).toBe(false);
 
-        expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
+            expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
 
-        wrapper.vm.onSettingsButtonClick();
+            wrapper.vm.onSettingsButtonClick();
 
-        expect(wrapper.vm.showElementSettings).toBe(false);
-    });
+            expect(wrapper.vm.showElementSettings).toBe(false);
+        },
+    );
 
     it('should show a tooltip when the element is not disabled', async () => {
         const wrapper = await createWrapper();
@@ -374,9 +374,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     it('should filter slots based on pageType compatibility', async () => {
         const wrapper = await createWrapper();
 
-        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual([
-            'product_list_slot',
-        ]);
+        expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_slot']);
     });
 
     it('should show an error state after 10s when element is not existing', async () => {
@@ -402,14 +400,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     });
 
     const toggleElementSelectionModalDataProvider = [
-        [
-            'onElementButtonClick',
-            true,
-        ],
-        [
-            'onCloseElementModal',
-            false,
-        ],
+        ['onElementButtonClick', true],
+        ['onCloseElementModal', false],
     ];
     it.each(toggleElementSelectionModalDataProvider)(
         'should toggle the element selection modal according to %s',
@@ -421,10 +413,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should not toggle the element settings modal without defaultConfig and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -444,10 +433,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should not toggle the element settings modal with a locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
@@ -467,10 +453,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
-    it.each([
-        true,
-        false,
-    ])(
+    it.each([true, false])(
         'should show the element settings modal with a defaultConfig, no locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();

@@ -13,14 +13,9 @@ export default {
         'SYSTEMKEY+c': 'openModal',
     },
 
-    inject: [
-        'cacheApiService',
-        'acl',
-    ],
+    inject: ['cacheApiService', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

@@ -81,9 +81,7 @@ describe('module/sw-cms/elements/product-box/component', () => {
                         description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
                           sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                           sed diam voluptua.`.trim(),
-                        price: [
-                            { gross: 19.9 },
-                        ],
+                        price: [{ gross: 19.9 }],
                         cover: {
                             media: {
                                 url: '/administration/administration/static/img/cms/preview_glasses_large.webp',

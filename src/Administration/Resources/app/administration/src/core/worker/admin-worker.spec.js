@@ -88,10 +88,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should restart the consume call after 20 seconds when handledMessages dont exist', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -126,10 +123,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should restart the consume call directly when handledMessages exist', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 50 },
-            ];
+            return [200, { handledMessages: 50 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -163,10 +157,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should reset timeout to send request before 20 seconds (no messages)', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -213,10 +204,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should cancel current consume request', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -251,9 +239,7 @@ describe('core/worker/admin-worker.worker.js', () => {
 
     it('should set the onMessage method to the first port on connect', async () => {
         const mockEvent = {
-            ports: [
-                { postMessage: jest.fn() },
-            ],
+            ports: [{ postMessage: jest.fn() }],
         };
 
         expect(mockEvent.ports[0].onmessage).toBeUndefined();

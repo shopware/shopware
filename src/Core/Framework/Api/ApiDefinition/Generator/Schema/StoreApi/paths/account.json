@@ -525,25 +525,17 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "isExpired": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "required": [
-                                                    "isExpired"
-                                                ]
-                                            }
+                                        "isExpired": {
+                                            "type": "boolean"
                                         },
                                         "apiAlias": {
                                             "type": "string",
                                             "const": "array_struct"
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "isExpired"
+                                    ]
                                 }
                             }
                         }

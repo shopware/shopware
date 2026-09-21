@@ -119,7 +119,7 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.2",
+        "shopware/conflicts": "0.6.3",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
@@ -183,7 +183,7 @@
         "symfony/yaml": "~7.4.12",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.26.0",
+        "twig/twig": "^3.29.0",
         "zircote/swagger-php": "^6.4"
     },
     "require-dev": {

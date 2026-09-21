@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -204,14 +202,10 @@ class UserController extends AbstractController
             $data['id'] = $roleId ?? null;
         }
 
-        /** @var EntityWrittenContainerEvent $events */
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));
-
-        /** @var EntityWrittenEvent $event */
-        $event = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME);
-
-        $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $events = $this->roleRepository->upsert([$data], $context);
+        $eventIds = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME)?->getIds() ?? [];
+        $entityId = array_last($eventIds);
+        \assert($entityId !== null);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -239,9 +233,7 @@ class UserController extends AbstractController
     {
         $this->validateScope($request);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId): void {
-            $this->roleRepository->delete([['id' => $roleId]], $context);
-        });
+        $this->roleRepository->delete([['id' => $roleId]], $context);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $roleId, $request, $context);
     }

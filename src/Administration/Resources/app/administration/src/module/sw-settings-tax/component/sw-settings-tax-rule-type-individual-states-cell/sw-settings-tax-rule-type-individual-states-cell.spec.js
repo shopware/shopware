@@ -60,10 +60,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     });
 
     it('fetches country states at creation', async () => {
-        const states = [
-            Shopware.Utils.createId(),
-            Shopware.Utils.createId(),
-        ];
+        const states = [Shopware.Utils.createId(), Shopware.Utils.createId()];
 
         const wrapper = await createWrapper({
             data: {
@@ -73,12 +70,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
 
         const individualStates = wrapper.vm.individualStates;
         expect(individualStates).toHaveLength(2);
-        expect(individualStates).toEqual(
-            expect.arrayContaining([
-                `state ${states[0]}`,
-                `state ${states[1]}`,
-            ]),
-        );
+        expect(individualStates).toEqual(expect.arrayContaining([`state ${states[0]}`, `state ${states[1]}`]));
     });
 
     it('watches for changes in its props', async () => {
@@ -101,10 +93,6 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             },
         });
 
-        expect(wrapper.vm.individualStates).toEqual(
-            expect.arrayContaining([
-                `state ${stateId}`,
-            ]),
-        );
+        expect(wrapper.vm.individualStates).toEqual(expect.arrayContaining([`state ${stateId}`]));
     });
 });

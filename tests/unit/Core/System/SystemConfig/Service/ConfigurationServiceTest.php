@@ -55,9 +55,28 @@ class ConfigurationServiceTest extends TestCase
             $configDefinitionService
         );
 
-        static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
-
         $configService->getConfiguration('invalid!', Context::createDefaultContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCheckConfigurationWithInvalidDomain(): void
+    {
+        $appRepository = new StaticEntityRepository([]);
+        $systemConfigService = new StaticSystemConfigService([]);
+        $configDefinitionService = new SystemConfigDefinitionService(
+            [],
+            new ConfigReader(),
+            static::createStub(AppConfigReader::class),
+            $appRepository,
+            $systemConfigService,
+            new NullLogger()
+        );
+        $configService = new ConfigurationService(
+            $systemConfigService,
+            $configDefinitionService
+        );
+
+        static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

@@ -203,10 +203,7 @@ export function convertOptionsApiOverrideToCompositionApi<
  */
 function flattenMixins(mixin: ComponentConfig): ComponentConfig[] {
     const nested = mixin.mixins ? mixin.mixins.flatMap((m) => flattenMixins(m as ComponentConfig)) : [];
-    return [
-        ...nested,
-        mixin,
-    ];
+    return [...nested, mixin];
 }
 
 /**
@@ -228,28 +225,23 @@ function resolveInject(injectConfig: InjectConfig): ComponentState {
         });
     } else {
         const objectConfig = injectConfig;
-        Object.entries(objectConfig).forEach(
-            ([
-                localKey,
-                spec,
-            ]) => {
-                if (typeof spec === 'string') {
-                    // { localKey: 'provideKey' }
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    resolved[localKey] = vueInject(spec);
-                } else if (spec && typeof spec === 'object') {
-                    // { localKey: { from: 'provideKey', default: fallback } }
-                    const specOptions = spec as { from?: string; default?: unknown };
-                    const from = specOptions.from ?? localKey;
-                    const hasDefault = Object.hasOwn(specOptions, 'default');
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    resolved[localKey] = hasDefault ? vueInject(from, specOptions.default) : vueInject(from);
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    resolved[localKey] = vueInject(localKey);
-                }
-            },
-        );
+        Object.entries(objectConfig).forEach(([localKey, spec]) => {
+            if (typeof spec === 'string') {
+                // { localKey: 'provideKey' }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                resolved[localKey] = vueInject(spec);
+            } else if (spec && typeof spec === 'object') {
+                // { localKey: { from: 'provideKey', default: fallback } }
+                const specOptions = spec as { from?: string; default?: unknown };
+                const from = specOptions.from ?? localKey;
+                const hasDefault = Object.hasOwn(specOptions, 'default');
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                resolved[localKey] = hasDefault ? vueInject(from, specOptions.default) : vueInject(from);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                resolved[localKey] = vueInject(localKey);
+            }
+        });
     }
 
     return resolved;
@@ -278,16 +270,11 @@ function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): Inj
         });
     } else if (incoming && typeof incoming === 'object') {
         const incomingObj = incoming as Record<string, unknown>;
-        Object.entries(incomingObj).forEach(
-            ([
-                key,
-                val,
-            ]) => {
-                if (!Object.hasOwn(normalized, key)) {
-                    normalized[key] = val;
-                }
-            },
-        );
+        Object.entries(incomingObj).forEach(([key, val]) => {
+            if (!Object.hasOwn(normalized, key)) {
+                normalized[key] = val;
+            }
+        });
     }
 
     return normalized as InjectConfig;
@@ -396,16 +383,11 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
 function convertMethods(methods: Record<string, AnyFn>, thisProxy: object): ComponentState {
     const converted: ComponentState = {};
 
-    Object.entries(methods).forEach(
-        ([
-            name,
-            method,
-        ]) => {
-            converted[name] = function (...args: unknown[]) {
-                return method.apply(thisProxy, args);
-            };
-        },
-    );
+    Object.entries(methods).forEach(([name, method]) => {
+        converted[name] = function (...args: unknown[]) {
+            return method.apply(thisProxy, args);
+        };
+    });
 
     return converted;
 }
@@ -529,35 +511,30 @@ function createThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiMapping 
 function convertComputed(computedDefs: Record<string, ComputedDefinition>, thisProxy: object): Record<string, ComputedRef> {
     const converted: Record<string, ComputedRef> = {};
 
-    Object.entries(computedDefs).forEach(
-        ([
-            name,
-            computedDef,
-        ]) => {
-            if (typeof computedDef === 'function') {
-                // Simple getter
-                converted[name] = computed(() => computedDef.call(thisProxy));
-            } else if (computedDef && typeof computedDef === 'object' && (computedDef.get || computedDef.set)) {
-                // Getter/setter
-                const getter = computedDef.get ? () => computedDef.get!.call(thisProxy) : undefined;
-                const setter = computedDef.set ? (val: unknown) => computedDef.set!.call(thisProxy, val) : undefined;
+    Object.entries(computedDefs).forEach(([name, computedDef]) => {
+        if (typeof computedDef === 'function') {
+            // Simple getter
+            converted[name] = computed(() => computedDef.call(thisProxy));
+        } else if (computedDef && typeof computedDef === 'object' && (computedDef.get || computedDef.set)) {
+            // Getter/setter
+            const getter = computedDef.get ? () => computedDef.get!.call(thisProxy) : undefined;
+            const setter = computedDef.set ? (val: unknown) => computedDef.set!.call(thisProxy, val) : undefined;
 
-                if (getter && setter) {
-                    converted[name] = computed({
-                        get: getter,
-                        set: setter,
-                    });
-                } else if (getter) {
-                    converted[name] = computed(getter);
-                } else {
-                    console.error(
-                        `[Options-Composition-Shim] Computed property "${name}" has a setter but no getter. ` +
-                            'A computed property must have at least a getter. The property will be skipped.',
-                    );
-                }
+            if (getter && setter) {
+                converted[name] = computed({
+                    get: getter,
+                    set: setter,
+                });
+            } else if (getter) {
+                converted[name] = computed(getter);
+            } else {
+                console.error(
+                    `[Options-Composition-Shim] Computed property "${name}" has a setter but no getter. ` +
+                        'A computed property must have at least a getter. The property will be skipped.',
+                );
             }
-        },
-    );
+        }
+    });
 
     return converted;
 }
@@ -573,14 +550,9 @@ function convertData(dataFn: (() => Record<string, unknown>) | Record<string, un
         return converted;
     }
 
-    Object.entries(data).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            converted[key] = ref(value);
-        },
-    );
+    Object.entries(data).forEach(([key, value]) => {
+        converted[key] = ref(value);
+    });
 
     return converted;
 }
@@ -626,28 +598,23 @@ function registerSingleWatcher(source: () => unknown, handler: SingleWatchDefini
  * Sets up watchers for Options API watch configuration
  */
 function setupWatchers(watchConfig: Record<string, WatchDefinition>, thisProxy: object): void {
-    Object.entries(watchConfig).forEach(
-        ([
-            key,
-            handler,
-        ]) => {
-            if (key.includes('.')) {
-                console.warn(
-                    `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
-                        `Please migrate your watcher to Composition API.`,
-                );
-                return;
-            }
+    Object.entries(watchConfig).forEach(([key, handler]) => {
+        if (key.includes('.')) {
+            console.warn(
+                `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
+                    `Please migrate your watcher to Composition API.`,
+            );
+            return;
+        }
 
-            const source = (): unknown => (thisProxy as ComponentState)[key];
+        const source = (): unknown => (thisProxy as ComponentState)[key];
 
-            if (Array.isArray(handler)) {
-                handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
-            } else {
-                registerSingleWatcher(source, handler, thisProxy);
-            }
-        },
-    );
+        if (Array.isArray(handler)) {
+            handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
+        } else {
+            registerSingleWatcher(source, handler, thisProxy);
+        }
+    });
 }
 
 /**
@@ -677,39 +644,34 @@ const ALREADY_PASSED_WHEN_MOUNTED = new Set([
 function setupLifecycleHooks(hooks: Partial<Record<LifecycleHookName, LifecycleHookFn[]>>, thisProxy: object): void {
     const instance = getCurrentInstance();
 
-    (Object.entries(hooks) as Array<[LifecycleHookName, LifecycleHookFn[] | undefined]>).forEach(
-        ([
-            hookName,
-            handlers,
-        ]) => {
-            if (!handlers) {
+    (Object.entries(hooks) as Array<[LifecycleHookName, LifecycleHookFn[] | undefined]>).forEach(([hookName, handlers]) => {
+        if (!handlers) {
+            return;
+        }
+
+        const compositionHook = LIFECYCLE_HOOK_MAP[hookName];
+
+        handlers.forEach((handler) => {
+            if (compositionHook === null) {
+                handler.call(thisProxy);
                 return;
             }
 
-            const compositionHook = LIFECYCLE_HOOK_MAP[hookName];
-
-            handlers.forEach((handler) => {
-                if (compositionHook === null) {
+            if (instance) {
+                compositionHook(() => {
                     handler.call(thisProxy);
-                    return;
-                }
-
-                if (instance) {
-                    compositionHook(() => {
-                        handler.call(thisProxy);
-                    });
-                } else if (ALREADY_PASSED_WHEN_MOUNTED.has(hookName)) {
-                    handler.call(thisProxy);
-                } else {
-                    console.warn(
-                        `[Options API Shim] Lifecycle hook "${hookName}" could not be registered because ` +
-                            `the override was applied after setup(). Only beforeCreate, created, beforeMount, ` +
-                            `and mounted are supported for late-applied overrides.`,
-                    );
-                }
-            });
-        },
-    );
+                });
+            } else if (ALREADY_PASSED_WHEN_MOUNTED.has(hookName)) {
+                handler.call(thisProxy);
+            } else {
+                console.warn(
+                    `[Options API Shim] Lifecycle hook "${hookName}" could not be registered because ` +
+                        `the override was applied after setup(). Only beforeCreate, created, beforeMount, ` +
+                        `and mounted are supported for late-applied overrides.`,
+                );
+            }
+        });
+    });
 }
 
 const UNSUPPORTED_OPTIONS = [

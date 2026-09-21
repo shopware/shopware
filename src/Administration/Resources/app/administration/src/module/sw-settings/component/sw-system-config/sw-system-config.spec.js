@@ -40,7 +40,7 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
         systemConfigApiService.getConfig = jest.fn(() => Promise.resolve(legacyConfig));
     }
 
-    return mount(await wrapTestComponent('sw-system-config'), {
+    const wrapper = mount(await wrapTestComponent('sw-system-config'), {
         slots,
         props: {
             salesChannelSwitchable: true,
@@ -261,6 +261,10 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
             },
         },
     });
+
+    wrapper.systemConfigApiService = systemConfigApiService;
+
+    return wrapper;
 }
 
 function createConfig() {
@@ -630,14 +634,8 @@ function createConfig() {
                         expect(field.find(`.mt-select-selection-list__item-holder--${index}`).text()).toBe(value);
                     });
                 },
-                afterValue: [
-                    'blue',
-                    'green',
-                ],
-                childValue: [
-                    'blue',
-                    'green',
-                ],
+                afterValue: ['blue', 'green'],
+                childValue: ['blue', 'green'],
                 fallbackValue: [],
                 changeValueFunction: async (field) => {
                     // open select field
@@ -1170,6 +1168,25 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // check if value in actualConfigData is null to inherit value from parent
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(type) ||
+                config.componentName === 'sw-entity-single-select'
+            ) {
+                await wrapper.vm.saveAll();
+
+                expect(wrapper.systemConfigApiService.batchSave).toHaveBeenCalledWith(
+                    {
+                        [uuid.get('headless')]: {
+                            [name]: null,
+                        },
+                    },
+                    {},
+                );
+            }
         });
 
         it(`should render field with type "${type || name}" with the his value and should be able to restore parent value (when parent has no value)`, async () => {

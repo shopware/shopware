@@ -98,12 +98,7 @@ describe('scripts/extensionTooling/setup root projections', () => {
 
         expect(sourcePath).toContain("O'Brien");
         expect(fs.readFileSync(eslintConfigPath, 'utf8')).toContain(JSON.stringify(sourcePath));
-        expect(() =>
-            execFileSync('node', [
-                '--check',
-                eslintConfigPath,
-            ]),
-        ).not.toThrow();
+        expect(() => execFileSync('node', ['--check', eslintConfigPath])).not.toThrow();
     });
 
     it('skips the root eslint config when no extensions are discovered', () => {

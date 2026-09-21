@@ -39,13 +39,14 @@ function getTabItemSlotText(vnode: VNode): string | undefined {
 /**
  * Maps a legacy `sw-tabs-item` vnode to the `mt-tabs` item format.
  *
- * The label is resolved from the `title` prop, then the default slot text, so an item whose label is
- * only provided as slot text (`<sw-tabs-item :name="id">{{ label }}</sw-tabs-item>`) still renders it.
+ * The label is resolved from the `title` prop, then the default slot text, then the `name` prop, so an
+ * item whose label is only provided as slot text (`<sw-tabs-item :name="id">{{ label }}</sw-tabs-item>`)
+ * renders it, while an item whose slot holds markup instead of plain text still falls back to its name.
  */
 function resolveTabItem(vnode: VNode, router: Router): TabItem {
     const props = (vnode.props ?? {}) as SwTabsItemProps;
 
-    const label = props.title ?? getTabItemSlotText(vnode) ?? '';
+    const label = props.title ?? getTabItemSlotText(vnode) ?? props.name ?? '';
     const name = props.name ?? props.title ?? label;
 
     const tabItem: TabItem = {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -40,14 +41,15 @@ use Shopware\Core\Framework\Struct\Struct;
  * Reads consume: an entry is removed as it is handed out, so a write that reaches the validator leaves
  * nothing behind by construction rather than by a cleanup pass.
  *
- * One residual leak is accepted: a write that fails before the validation event fires — a constraint
- * violation on another row of the same batch, say — leaves this batch's entries on the caller-owned
- * `Context`. Nothing bounds that accumulation other than the caller's `Context` lifetime: every remembered
- * tree is its own entry, so the ceiling is the number of layout rows written by writes that fail before the
- * validation event on one reused `Context`, and growth needs a long-running process that keeps failing
- * layout writes without ever recycling it. The leak cannot travel beyond that process:
- * `Context::__serialize()` enumerates its fields explicitly and omits extensions, so a memo never rides a
- * serialized `Context` into a queued message.
+ * A memo belongs to the one write that opened it, which is what keeps the positional pairing from spanning
+ * writes. The `Context` is the caller's and outlives any single write, while the `WriteContext` is minted per
+ * repository call, so that instance identifies the write: {@see ownedBy()}. A write that fails before the
+ * validation event fires leaves its entries behind, and without the ownership check the next write to the
+ * same row would read them — it appends its own tree behind the stale one and `consume()` hands out the
+ * oldest. With it, the next write replaces the memo instead, so a stale entry is unreachable and the
+ * accumulation ceiling is one write's rows rather than the `Context`'s whole lifetime. Nothing leaves the
+ * process either way: `Context::__serialize()` enumerates its fields explicitly and omits extensions, so a
+ * memo never rides a serialized `Context` into a queued message.
  *
  * @internal
  */
@@ -60,6 +62,19 @@ final class LayoutWriteContext extends Struct
      * @var array<string, list<StoredTree>>
      */
     private array $trees = [];
+
+    public function __construct(private readonly WriteContext $owner)
+    {
+    }
+
+    /**
+     * Whether this memo was opened by the write now asking for it. A `Context` reused across writes carries at
+     * most one memo, so the answer decides between reading it and replacing it.
+     */
+    public function ownedBy(WriteContext $writeContext): bool
+    {
+        return $this->owner === $writeContext;
+    }
 
     public function remember(string $entityName, string $primaryKey, StoredTree $tree): void
     {

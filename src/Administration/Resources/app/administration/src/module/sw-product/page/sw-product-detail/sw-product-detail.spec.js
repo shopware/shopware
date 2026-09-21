@@ -261,14 +261,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
-    it('should not allow saving and duplicating a product that has not been saved yet', async () => {
+    it('should allow saving and duplicating a product that has not been saved yet', async () => {
         await wrapper.setProps({
             productId: null,
         });
 
         wrapper.vm.onDuplicate();
 
-        expect(wrapper.vm.cloning).toBe(false);
+        expect(wrapper.vm.cloning).toBe(true);
     });
 
     it('should flag the product as loading before awaiting the measurement units', async () => {

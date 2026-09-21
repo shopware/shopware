@@ -1341,10 +1341,6 @@ export default {
         },
 
         onDuplicate() {
-            if (!this.productId) {
-                return;
-            }
-
             this.cloning = true;
         },
 

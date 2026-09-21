@@ -57,14 +57,14 @@ class AuthMiddleware
             }
 
             if (!\is_array($options[self::APP_REQUEST_TYPE])) {
-                /** @phpstan-ignore-next-line shopware.domainException -- guzzle maintained exception */
+                /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                 throw new InvalidArgumentException('request_type must be array');
             }
 
             $optionsRequestType = $options[self::APP_REQUEST_TYPE];
 
             if (!isset($optionsRequestType[self::APP_SECRET])) {
-                /** @phpstan-ignore-next-line shopware.domainException -- guzzle maintained exception */
+                /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                 throw new InvalidArgumentException('app_secret is required');
             }
 
@@ -74,14 +74,16 @@ class AuthMiddleware
 
             $request = $signature->signRequest($request, $secret);
 
-            if (!$optionsRequestType[AuthMiddleware::VALIDATED_RESPONSE]) {
+            $requiredAuthentic = $optionsRequestType[AuthMiddleware::VALIDATED_RESPONSE] ?? false;
+
+            if (!$requiredAuthentic) {
                 return $handler($request, $options);
             }
 
             $successCallback = static function (ResponseInterface $response) use ($secret, $signature, $request) {
                 if ($response->getStatusCode() !== 401) {
                     if (!$signature->isResponseAuthentic($response, $secret)) {
-                        /** @phpstan-ignore-next-line shopware.domainException -- guzzle maintained exception */
+                        /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                         throw new ServerException(
                             'Could not verify the authenticity of the response',
                             $request,
@@ -107,7 +109,7 @@ class AuthMiddleware
         if (isset($options[self::APP_REQUEST_CONTEXT])) {
             $context = $options[self::APP_REQUEST_CONTEXT];
             if (!$context instanceof Context) {
-                /** @phpstan-ignore-next-line shopware.domainException -- guzzle maintained exception */
+                /** @phpstan-ignore shopware.domainException (guzzle maintained exception) */
                 throw new InvalidArgumentException('app_request_context must be instance of Context');
             }
             $request = $this->getLanguageHeaderRequest($request, $context);

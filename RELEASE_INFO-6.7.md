@@ -1,4 +1,6 @@
-# 6.7.15.0 (upcoming)
+# 6.7.16.0 (upcoming)
+
+# 6.7.15.0
 
 ## Features
 
@@ -127,6 +129,13 @@ Neither should be introduced as a new extension dependency.
 ### New `#[ExperimentalReplacement]` BC-change attribute
 
 Core classes that are superseded by a feature which is still `@experimental` are no longer deprecated ahead of time. A `@deprecated` annotation asks you to migrate now, but an experimental replacement has no backwards-compatibility promise yet. Such classes now carry `#[ExperimentalReplacement]` from `Shopware\Core\Framework\Deprecation\BCChange` instead.
+
+### Configurator groups can be built from a supplied combination result
+
+`ProductConfiguratorLoader::load()` loads the variant combinations itself, so a caller that has to narrow which variants may be offered had no way in: it either constructed the loader with its own `AbstractAvailableCombinationLoader` or rebuilt the group assembly.
+
+`ProductConfiguratorLoader::loadFromCombinations(SalesChannelProductEntity $product, AvailableCombinationResult $combinations, SalesChannelContext $context)` takes the result as an argument and builds the groups from it. `load()` is unchanged and now delegates to it after loading the combinations, so existing callers behave exactly as before.
+
 ### Store API responses vary on `sw-include-seo-urls`
 
 The `sw-include-seo-urls` request header adds `seoUrls` to Store API responses, but it was not part of `Vary` or of the built-in HTTP cache key. A cached response without `seoUrls` could be served to a request that asked for them. The header is now listed in `HttpCacheVariantHeaders::HEADERS`, so it is emitted in `Vary` and folded into the cache key. Reverse proxies that honor `Vary` need no change. Setups with a custom cache key should add the header. An empty header value now counts as absent, matching the cache key.
@@ -417,6 +426,11 @@ preserves the previous unlimited behavior.
 
 ## Administration
 
+### An empty string can be saved on fields that allow one
+
+The changeset generator turned an empty string into `null` for every field. Fields flagged `Required` and `AllowEmptyString` reject `null` but accept an empty string, so clearing such a field in the Administration always failed with "This value should not be null." The generator now keeps the empty string for exactly those fields; every other field is unchanged.
+
+The entity validation service follows the same rule and no longer reports an empty string on such a field as missing. This affects `snippet.value` and `app_administration_snippet.value`, where clearing the field now saves an empty value instead of returning an error.
 ### Update wizard recommends Shopware CLI
 
 The administration update wizard now asks you to choose an update method before starting the web installer. `shopware-cli project upgrade` is the recommended path for developers and managed deployments. The existing web installer flow remains available.

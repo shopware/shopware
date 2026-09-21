@@ -204,10 +204,7 @@ describe('SFC migration runtime equivalence', () => {
         const generated = await trace(mountGenerated(SHORTCUT_FIXTURE, result));
 
         // `active()` gates ESCAPE until it flips, and nothing fires after unmount.
-        expect(original).toEqual([
-            'focus',
-            'esc',
-        ]);
+        expect(original).toEqual(['focus', 'esc']);
         expect(generated).toEqual(original);
     });
 

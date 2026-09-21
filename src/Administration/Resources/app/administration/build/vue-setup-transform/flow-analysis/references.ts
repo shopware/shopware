@@ -20,24 +20,53 @@
  * - **`scopes`** (internal): a stack of name Sets, innermost first, that are in scope at the current
  *   node. A name present in any of them is declared, so it is not a reference. Entering a
  *   function/block/catch pushes a new Set of the names it declares.
- * - **`references` / `targets`** (internal): the *output* Set the walk accumulates into - it is mutated
- *   in place (an out-parameter), not returned, so a single Set collects across the whole subtree.
+ * - **`visit`** (internal): the callback the walk hands every outer-scope read, together with its parent
+ *   node. Name collection and occurrence collection are the same walk with two different callbacks.
+ * - **occurrence**: one reference *site* - the name plus its `start`/`end` offsets within the parsed
+ *   source, and the syntax a replacement has to reproduce there. Callers that rewrite references need
+ *   the sites; callers that only decide forwarding need the names.
  * - **`parent`**: the parent AST node, which is what distinguishes a read from a declaration or a name -
  *   e.g. the `x` in `obj.x` is the MemberExpression's `property`, so it is not a read. That judgement
  *   lives in `isValueReadPosition` (`./identifier-position`), shared with the setup-script pass.
  */
 
 import { parse, parseExpression, type ParserPlugin } from '@babel/parser';
-import type { Node as BabelNode, PatternLike } from '@babel/types';
+import type { Identifier, Node as BabelNode, PatternLike } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
-import { isValueReadPosition } from './identifier-position';
+import { isShorthandPropertyValue, isValueReadPosition } from './identifier-position';
 
 type BindingPatternResult = {
     pattern: PatternLike;
     offset: number;
 };
+
+/**
+ * How much of the surrounding syntax an occurrence's replacement text has to reproduce.
+ *
+ * A plain occurrence can be swapped for the replacement; a shorthand object property (`{ info }`) shares
+ * one source range with its key, so the replacement has to spell the key out as well.
+ */
+type OccurrenceExpansion = 'plain' | 'shorthand-property';
+
+/**
+ * One reference site inside a parsed expression or binding pattern.
+ *
+ * `start`/`end` are offsets within the source that was handed to the collector, so a caller that knows
+ * where that source sits in the SFC can translate them without re-parsing.
+ */
+type ExpressionOccurrence = {
+    name: string;
+    start: number;
+    end: number;
+    expansion: OccurrenceExpansion;
+};
+
+/**
+ * Receives every outer-scope read the walk finds, with the parent node that gives it its syntax.
+ */
+type ReferenceVisitor = (identifier: Identifier, parent: BabelNode | null) => void;
 
 const EXPRESSION_PLUGINS: ParserPlugin[] = [
     'typescript',
@@ -103,7 +132,7 @@ function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<strin
 }
 
 /**
- * Collects the outer-scope references a **binding pattern** reads, into `references` (out-parameter).
+ * Hands `visit` every outer-scope reference a **binding pattern** reads.
  *
  * A pattern only reads through its destructuring defaults (`{ a = fallback }` reads `fallback`) and
  * computed keys (`{ [key]: v }` reads `key`); the names it declares go into `patternScope` and are not
@@ -112,10 +141,10 @@ function addPatternNames(pattern: BabelNode | null | undefined, scope: Set<strin
  * @param outerScopes enclosing scope stack (see the file header); `patternScope` is layered on top of
  *   it when evaluating defaults/computed keys, so a name declared earlier in the pattern shadows them.
  */
-function collectPatternReferences(
+function forEachPatternReference(
     pattern: BabelNode | null | undefined,
     outerScopes: Set<string>[],
-    references: Set<string>,
+    visit: ReferenceVisitor,
     patternScope: Set<string> = new Set(),
 ): void {
     if (!pattern) {
@@ -128,51 +157,65 @@ function collectPatternReferences(
     }
 
     if (pattern.type === 'RestElement') {
-        collectPatternReferences(pattern.argument, outerScopes, references, patternScope);
+        forEachPatternReference(pattern.argument, outerScopes, visit, patternScope);
         return;
     }
 
     if (pattern.type === 'AssignmentPattern') {
-        collectBabelReferences(
+        forEachBabelReference(
             pattern.right,
             [
                 patternScope,
                 ...outerScopes,
             ],
-            references,
+            visit,
             pattern,
         );
-        collectPatternReferences(pattern.left, outerScopes, references, patternScope);
+        forEachPatternReference(pattern.left, outerScopes, visit, patternScope);
         return;
     }
 
     if (pattern.type === 'ArrayPattern') {
-        pattern.elements.forEach((element) => collectPatternReferences(element, outerScopes, references, patternScope));
+        pattern.elements.forEach((element) => forEachPatternReference(element, outerScopes, visit, patternScope));
         return;
     }
 
     if (pattern.type === 'ObjectPattern') {
         pattern.properties.forEach((property) => {
             if (property.type === 'RestElement') {
-                collectPatternReferences(property.argument, outerScopes, references, patternScope);
+                forEachPatternReference(property.argument, outerScopes, visit, patternScope);
                 return;
             }
 
             if (property.computed) {
-                collectBabelReferences(
+                forEachBabelReference(
                     property.key,
                     [
                         patternScope,
                         ...outerScopes,
                     ],
-                    references,
+                    visit,
                     property,
                 );
             }
 
-            collectPatternReferences(property.value, outerScopes, references, patternScope);
+            forEachPatternReference(property.value, outerScopes, visit, patternScope);
         });
     }
+}
+
+/**
+ * Collects the outer-scope references a **binding pattern** reads, into `references` (out-parameter).
+ *
+ * Thin name-only wrapper over {@link forEachPatternReference} for callers that just need the names.
+ */
+function collectPatternReferences(
+    pattern: BabelNode | null | undefined,
+    outerScopes: Set<string>[],
+    references: Set<string>,
+    patternScope: Set<string> = new Set(),
+): void {
+    forEachPatternReference(pattern, outerScopes, (identifier) => references.add(identifier.name), patternScope);
 }
 
 /**
@@ -183,17 +226,18 @@ function isDeclared(name: string, scopes: Set<string>[]): boolean {
 }
 
 /**
- * Walks a Babel expression/statement tree and adds every outer-scope read into `references`.
+ * Walks a Babel expression/statement tree and hands every outer-scope read to `visit`.
  *
- * `references` is the output Set (mutated in place). `scopes` is the scope stack (innermost first):
- * each function, block, and catch clause pushes a new Set of the names it declares, so an identifier
- * is a reference only if `isValueReadPosition` says it is a read *and* it is not `isDeclared` in any
- * scope. `parent` is threaded so read-vs-declaration can be decided (see the file header).
+ * `scopes` is the scope stack (innermost first): each function, block, and catch clause pushes a new
+ * Set of the names it declares, so an identifier is a reference only if `isValueReadPosition` says it
+ * is a read *and* it is not `isDeclared` in any scope. `parent` is threaded so read-vs-declaration can
+ * be decided (see the file header), and passed on to `visit` so a rewriting caller can tell which
+ * syntax the occurrence sits in.
  */
-function collectBabelReferences(
+function forEachBabelReference(
     node: BabelNode | null | undefined,
     scopes: Set<string>[],
-    references: Set<string>,
+    visit: ReferenceVisitor,
     parent: BabelNode | null = null,
 ): void {
     if (!node || typeof node.type !== 'string') {
@@ -202,14 +246,14 @@ function collectBabelReferences(
 
     if (node.type === 'Identifier') {
         if (isValueReadPosition(node, parent) && !isDeclared(node.name, scopes)) {
-            references.add(node.name);
+            visit(node, parent);
         }
 
         return;
     }
 
     if (node.type === 'Program') {
-        node.body.forEach((statement) => collectBabelReferences(statement, scopes, references, node));
+        node.body.forEach((statement) => forEachBabelReference(statement, scopes, visit, node));
         return;
     }
 
@@ -220,13 +264,13 @@ function collectBabelReferences(
             ...scopes,
         ];
 
-        node.body.forEach((statement) => collectBabelReferences(statement, nextScopes, references, node));
+        node.body.forEach((statement) => forEachBabelReference(statement, nextScopes, visit, node));
         return;
     }
 
     if (node.type === 'VariableDeclaration') {
         node.declarations.forEach((declaration) => {
-            collectBabelReferences(declaration.init, scopes, references, declaration);
+            forEachBabelReference(declaration.init, scopes, visit, declaration);
             addPatternNames(declaration.id, scopes[0]);
         });
         return;
@@ -245,19 +289,19 @@ function collectBabelReferences(
         // Parameter defaults and computed keys are reads, e.g. `({ label = fallbackLabel }) => label`
         // reads `fallbackLabel` from setup scope. Parameters are scanned left to right so earlier
         // parameter names shadow reads in later defaults (`(a, { b = a }) => b` reads nothing).
-        node.params.forEach((parameter) => collectPatternReferences(parameter, scopes, references, functionScope));
+        node.params.forEach((parameter) => forEachPatternReference(parameter, scopes, visit, functionScope));
 
         if (node.type === 'ObjectMethod' && node.computed) {
-            collectBabelReferences(node.key, scopes, references, node);
+            forEachBabelReference(node.key, scopes, visit, node);
         }
 
-        collectBabelReferences(
+        forEachBabelReference(
             node.body,
             [
                 functionScope,
                 ...scopes,
             ],
-            references,
+            visit,
             node,
         );
         return;
@@ -273,14 +317,14 @@ function collectBabelReferences(
             (node.type === 'ClassExpression' ? classScope : scopes[0]).add(node.id.name);
         }
 
-        collectBabelReferences(node.superClass, scopes, references, node);
-        collectBabelReferences(
+        forEachBabelReference(node.superClass, scopes, visit, node);
+        forEachBabelReference(
             node.body,
             [
                 classScope,
                 ...scopes,
             ],
-            references,
+            visit,
             node,
         );
         return;
@@ -288,18 +332,18 @@ function collectBabelReferences(
 
     if (node.type === 'ObjectProperty') {
         if (node.computed) {
-            collectBabelReferences(node.key, scopes, references, node);
+            forEachBabelReference(node.key, scopes, visit, node);
         }
 
-        collectBabelReferences(node.value, scopes, references, node);
+        forEachBabelReference(node.value, scopes, visit, node);
         return;
     }
 
     if (node.type === 'MemberExpression' || node.type === 'OptionalMemberExpression') {
-        collectBabelReferences(node.object, scopes, references, node);
+        forEachBabelReference(node.object, scopes, visit, node);
 
         if (node.computed) {
-            collectBabelReferences(node.property, scopes, references, node);
+            forEachBabelReference(node.property, scopes, visit, node);
         }
 
         return;
@@ -308,101 +352,111 @@ function collectBabelReferences(
     if (node.type === 'CatchClause') {
         const catchScope = new Set<string>();
         addPatternNames(node.param, catchScope);
-        collectBabelReferences(
+        forEachBabelReference(
             node.body,
             [
                 catchScope,
                 ...scopes,
             ],
-            references,
+            visit,
             node,
         );
         return;
     }
 
-    childBabelNodes(node, isTypeKey).forEach((child) => collectBabelReferences(child, scopes, references, node));
+    childBabelNodes(node, isTypeKey).forEach((child) => forEachBabelReference(child, scopes, visit, node));
 }
 
 /**
- * Collects identifiers written by one expression: assignment targets and update (`x++`) operands.
+ * Returns the setup-scope references one Vue expression reads, as occurrence *sites*.
  *
- * Only direct identifier targets are collected (`count = 1`, `count++`) - the case where a template
- * write to a forwarded override binding silently no-ops. Member writes (`count.value = 1`) and nested
- * shadowing are out of scope; template-local names are filtered by the caller's scope.
- */
-function collectBabelWriteTargets(root: BabelNode | null | undefined): Set<string> {
-    const targets = new Set<string>();
-
-    function visit(node: BabelNode | null | undefined): void {
-        if (!node || typeof node.type !== 'string') {
-            return;
-        }
-
-        if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
-            targets.add(node.left.name);
-        }
-
-        if (node.type === 'UpdateExpression' && node.argument.type === 'Identifier') {
-            targets.add(node.argument.name);
-        }
-
-        childBabelNodes(node).forEach(visit);
-    }
-
-    visit(root);
-
-    return targets;
-}
-
-/**
- * Returns the outer-scope identifiers one Vue expression writes to (assignment/update targets).
+ * Offsets are relative to `expression` itself, so the caller - which knows where that expression sits in
+ * the template - can translate them without parsing twice.
  *
- * @param templateScope names already bound by the surrounding template (v-for aliases, slot props);
- *   a write to one of those is template-local, so it is filtered out of the result.
+ * @param templateScope names already bound by the surrounding template (v-for aliases, slot-scope
+ *   props). They are seeded as the outermost scope, so they count as declared and never produce an
+ *   occurrence.
  */
-function collectExpressionWriteTargets(expression: string | undefined, templateScope: Set<string>): Set<string> {
+function collectExpressionOccurrences(expression: string | undefined, templateScope: Set<string>): ExpressionOccurrence[] {
     if (!expression || expression.trim() === '') {
-        return new Set<string>();
+        return [];
     }
 
-    const targets = collectBabelWriteTargets(parseTemplateExpression(expression));
+    const occurrences: ExpressionOccurrence[] = [];
 
-    return new Set([...targets].filter((name) => !templateScope.has(name)));
+    forEachBabelReference(
+        parseTemplateExpression(expression),
+        [
+            new Set(templateScope),
+        ],
+        (identifier, parent) => occurrences.push(toOccurrence(identifier, parent, 0)),
+    );
+
+    return occurrences;
+}
+
+/**
+ * Returns the setup-scope references a Vue **binding pattern** reads, as occurrence sites.
+ *
+ * A pattern reads only through destructuring defaults and computed keys; the names it declares are the
+ * slot's or loop's own bindings. Offsets are relative to `patternSource` - the wrapping the parser needs
+ * is subtracted here, so callers never see it.
+ */
+function collectPatternOccurrences(patternSource: string, templateScope: Set<string>): ExpressionOccurrence[] {
+    const occurrences: ExpressionOccurrence[] = [];
+
+    try {
+        const { pattern, offset } = parseBindingPattern(patternSource);
+
+        forEachPatternReference(
+            pattern,
+            [
+                new Set(templateScope),
+            ],
+            (identifier, parent) => occurrences.push(toOccurrence(identifier, parent, offset)),
+        );
+    } catch {
+        // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.
+    }
+
+    return occurrences;
+}
+
+/**
+ * Builds one occurrence record from a visited identifier.
+ *
+ * `parseOffset` is what the parser added in front of the caller's source (the `const ` a binding pattern
+ * is wrapped in), so the reported range addresses the caller's own text.
+ */
+function toOccurrence(identifier: Identifier, parent: BabelNode | null, parseOffset: number): ExpressionOccurrence {
+    return {
+        name: identifier.name,
+        start: (identifier.start ?? 0) - parseOffset,
+        end: (identifier.end ?? 0) - parseOffset,
+        expansion: isShorthandPropertyValue(identifier, parent) ? 'shorthand-property' : 'plain',
+    };
 }
 
 /**
  * Returns the setup-scope identifiers one Vue expression reads.
  *
- * @param templateScope names already bound by the surrounding template (v-for aliases, slot-scope
- *   props). They are seeded as the outermost scope, so they count as declared and are excluded from
- *   the result - only genuine reads of setup state come back. e.g. for `info + label` with
- *   `templateScope = {info}`, the result is `{label}`.
+ * Name-only wrapper over {@link collectExpressionOccurrences} for callers that only decide *whether* a
+ * binding is read. e.g. for `info + label` with `templateScope = {info}`, the result is `{label}`.
  */
 function collectExpressionReferences(expression: string | undefined, templateScope: Set<string>): Set<string> {
-    const references = new Set<string>();
-
-    if (!expression || expression.trim() === '') {
-        return references;
-    }
-
-    collectBabelReferences(
-        parseTemplateExpression(expression),
-        [
-            new Set(templateScope),
-        ],
-        references,
-    );
-
-    return references;
+    return new Set(collectExpressionOccurrences(expression, templateScope).map((occurrence) => occurrence.name));
 }
 
 /**
  * @private
  */
 export {
+    type ExpressionOccurrence,
+    type OccurrenceExpansion,
     addPatternNames,
+    collectExpressionOccurrences,
     collectExpressionReferences,
-    collectExpressionWriteTargets,
+    collectPatternOccurrences,
     collectPatternReferences,
     parseBindingPattern,
 };

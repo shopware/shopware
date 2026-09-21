@@ -27,6 +27,11 @@ const SHOPWARE_SETUP_INTERNAL_PREFIX = '__swSetup';
 // value, not the name, is what makes it unique across overrides.
 const OVERRIDE_NAMESPACE_BINDING = '__swSetupNamespace';
 
+// Slot-scope binding an override's `<sw-block extends>` content receives: the base component's data
+// scope, which every forwarded reference in that content is rewritten to read through. One name for the
+// whole object rather than a destructure, so a template write reaches the real ref instead of a local.
+const OVERRIDE_SCOPE_BINDING = '__swSetupScope';
+
 /**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
  */
@@ -126,6 +131,7 @@ export {
     type ShopwareSetupEntryType,
     type ShopwareSetupMacroName,
     OVERRIDE_NAMESPACE_BINDING,
+    OVERRIDE_SCOPE_BINDING,
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     extractStaticObjectMarker,

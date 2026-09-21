@@ -1,7 +1,8 @@
 /**
  * @sw-package framework
  *
- * Covers which override-local setup bindings reach a `<sw-block extends>` slot scope.
+ * Covers which override-local setup bindings reach a `<sw-block extends>` slot scope, and how the
+ * references that read them are rewritten into it.
  *
  * These are the positive cases: reference detection across Vue expression positions, input-alias
  * forwarding, and the scope rules that decide a binding is *not* forwarded (v-for aliases, slot
@@ -35,9 +36,11 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         const result = transformOrFail(source, 'src/plugin/sw-example-component.override.vue').code;
 
-        expect(result).toContain(
-            `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info } }, body }">`,
-        );
+        // The whole data scope arrives under one name and every reference reads through it: a declared
+        // override binding directly, an override-local one under this file's namespace.
+        expect(result).toContain(`<sw-block extends="sw_example_component_body" #default="__swSetupScope">`);
+        expect(result).toContain('<p>{{ __swSetupScope.body }}</p>');
+        expect(result).toContain('<small>{{ __swSetupScope.__swOverride[__swSetupNamespace].info }}</small>');
         expect(stripWhitespace(result)).toContain(stripWhitespace`
             return {
                 body,
@@ -69,11 +72,12 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         const result = transformOrFail(source, 'override-sw-block-data.override.vue').code;
 
-        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="{ headline }">');
+        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="__swSetupScope">');
+        expect(result).toContain('<h2>{{ __swSetupScope.headline }}</h2>');
         expect(result).not.toContain(':data="$dataScope"');
     });
 
-    it('detects override-local template references in Vue expression positions', () => {
+    it('rewrites override-local template references in every Vue expression position', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -102,15 +106,29 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'template-references.override.vue').code;
+        const info = '__swSetupScope.__swOverride[__swSetupNamespace].info';
 
+        expect(result).toContain(`<p v-if="__swSetupScope.__swOverride[__swSetupNamespace].visible">{{ ${info} }}</p>`);
         expect(result).toContain(
-            `#default="{ __swOverride: { [__swSetupNamespace]: { visible, info, eventName, track, dynamicProp, infoLabel, items } } }"`,
+            `@[__swSetupScope.__swOverride[__swSetupNamespace].eventName]=` +
+                `"__swSetupScope.__swOverride[__swSetupNamespace].track(${info})"`,
+        );
+        expect(result).toContain(`:title="${info}"`);
+        expect(result).toContain(`:[__swSetupScope.__swOverride[__swSetupNamespace].dynamicProp]="${info}"`);
+        // Vue's same-name shorthand has no value to rewrite, so the rewrite is the value it stood for.
+        expect(result).toContain(`:info="${info}"`);
+        // A shorthand object property shares its range with the key, which has to survive the rewrite.
+        expect(result).toContain(
+            `v-bind="{ info: ${info}, label: __swSetupScope.__swOverride[__swSetupNamespace].infoLabel }"`,
+        );
+        expect(result).toContain(
+            `<span v-for="item in __swSetupScope.__swOverride[__swSetupNamespace].items">{{ item }}{{ ${info} }}</span>`,
         );
         // The v-for alias `item` is a template-local binding, not a setup reference.
         expect(result).not.toMatch(/\bitem,/);
     });
 
-    it('detects override-local references in TypeScript and optional-chain template expressions', () => {
+    it('rewrites override-local references in TypeScript and optional-chain template expressions', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
@@ -130,8 +148,10 @@ describe('build/vue-setup-transform override template forwarding', () => {
         `;
 
         const result = transformOrFail(source, 'typescript-template-references.override.vue').code;
+        const namespaced = (name: string) => `__swSetupScope.__swOverride[__swSetupNamespace].${name}`;
 
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { maybeInfo, source, dynamicKey } } }"`);
+        expect(result).toContain(`{{ (${namespaced('maybeInfo')} as string | undefined)?.toUpperCase() }}`);
+        expect(result).toContain(`{{ ${namespaced('source')}?.[${namespaced('dynamicKey')}] }}`);
     });
 
     it('forwards override input-alias references used in the template', () => {
@@ -152,7 +172,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         // useSwPreviousState()/useSwProps()/useSwContext() are not returned as independent state, but an
         // override template may still read them, so a referenced alias is forwarded like any setup local.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { previousState } } }"`);
+        expect(result).toContain('{{ __swSetupScope.__swOverride[__swSetupNamespace].previousState.body }}');
     });
 
     it('ignores template identifiers that are not override-local setup references', () => {
@@ -210,8 +230,15 @@ describe('build/vue-setup-transform override template forwarding', () => {
         const result = transformOrFail(source, 'template-shadowing-patterns.override.vue').code;
 
         // Only `rows` and `items` are genuine setup references; every other name is shadowed by a
-        // v-for alias, slot scope, or nested callback parameter and must not be forwarded.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, items } } }"`);
+        // v-for alias, slot scope, or nested callback parameter and must neither be forwarded nor
+        // rewritten - a rewritten `info` would read the override's setup state instead of the alias.
+        expect(result).toContain(`#default="__swSetupScope"`);
+        expect(result).toContain('{{ info }}{{ localLabel }}{{ index }}');
+        expect(result).toContain('{{ info }}{{ localInfo }}{{ firstItem }}');
+        expect(result).toContain('__swSetupScope.__swOverride[__swSetupNamespace].rows.length');
+        expect(result).toContain(
+            "{{ __swSetupScope.__swOverride[__swSetupNamespace].items.map(({ info, label: localLabel }) => info + localLabel).join(',') }}",
+        );
     });
 
     it.each([
@@ -281,7 +308,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
         // useSwProps() is both a setup input and a runtime input alias; like useSwPreviousState() its
         // referenced name must reach the generated slot scope, or `props` resolves against the hidden
         // boot component and `props.title` throws during the base component's render.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { props } } }"`);
+        expect(result).toContain('{{ __swSetupScope.__swOverride[__swSetupNamespace].props.title }}');
     });
 
     it('forwards references inside named slot binding-pattern defaults', () => {
@@ -304,7 +331,9 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         // The default expression of the named slot `#item` must be scanned like a default slot's, or
         // `fallbackLabel` resolves against the hidden component and `label` silently becomes undefined.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { fallbackLabel } } }"`);
+        expect(result).toContain(
+            '<template #item="{ label = __swSetupScope.__swOverride[__swSetupNamespace].fallbackLabel }">',
+        );
     });
 
     it('does not forward a setup binding shadowed by a named slot scope', () => {

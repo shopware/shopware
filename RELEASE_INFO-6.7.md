@@ -350,6 +350,12 @@ On cluster setups (`shopware.deployment.cluster_setup: true`) the web installer 
 Operators who manage updates through Shopware CLI or their deployment pipeline can now remove the update module from the Administration entirely. Set `shopware.auto_update.hide_module: true` or the environment variable `SHOPWARE_AUTO_UPDATE_HIDE_MODULE=1` and the module is no longer registered: the "Shopware updates" settings item and its wizard route do not exist, and the update-available notification is suppressed. The flag is also exposed to API consumers as `settings.hideUpdateModule` in `GET /api/_info/config`.
 
 The update API endpoints enforce both flags server-side: all `GET /api/_action/update/*` endpoints respond with `403` (`FRAMEWORK__UPDATE_MODULE_HIDDEN`) while the module is hidden, and the mutating `download-recovery` and `deactivate-plugins` actions respond with `403` (`FRAMEWORK__AUTO_UPDATE_DISABLED`) while `shopware.auto_update.enabled` is `false`.
+### State in `<sw-block extends>` content is mutable
+
+Setup bindings an override SFC forwards into `<sw-block extends>` content can now be written from that content. `@click="count++"`, `count = 1` and `v-model="count"` reach the real ref, exactly as in a base component; previously such a write was rejected at build time, and `v-model` silently did nothing. No change is needed in existing overrides.
+
+One expression form is newly rejected: an expression inside `<sw-block extends>` content that reads a forwarded binding must not contain HTML entities, for example `v-if="count &lt; max"`. Write the character itself (`v-if="count < max"`), which is valid in a Vue expression.
+
 ### Consent page for OAuth clients
 
 The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.

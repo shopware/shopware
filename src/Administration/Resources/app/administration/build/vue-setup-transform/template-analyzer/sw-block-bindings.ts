@@ -13,7 +13,13 @@
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { type DirectiveNode, type ElementNode, getDefaultSlotDirective, isSwBlockExtends } from './template-references';
+import {
+    type DirectiveNode,
+    type ElementNode,
+    type UnmappableExpression,
+    getDefaultSlotDirective,
+    isSwBlockExtends,
+} from './template-references';
 
 function getDirectNamedSlot(node: ElementNode): ElementNode | undefined {
     for (const child of node.children) {
@@ -124,28 +130,33 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
 }
 
 /**
- * Rejects writing to a forwarded override binding from `<sw-block extends>` content.
+ * Rejects a `<sw-block extends>` expression whose forwarded references cannot be rewritten.
  *
- * A forwarded binding arrives in the block's slot scope ref-unwrapped, as a slot-scope local, so a
- * template write (`@click="count = count + 1"`, `count++`) assigns to that local and silently no-ops -
- * the identical line works in a base component, which makes it a nasty trap. Reject it and point the
- * author at mutating the value from a method in the override setup instead.
+ * Every forwarded binding is reached through the generated slot scope, which means lowering has to
+ * rewrite each reference in place. Vue hands expressions back with HTML entities already decoded, so an
+ * expression written as `@click="count &lt; max && count++"` no longer lines up with its source and any
+ * offset inside it would corrupt the template. That is rare and trivially avoidable - the character
+ * itself is legal in a Vue expression - so it is reported rather than guessed at.
  */
-function assertNoWritesToForwardedBindings(
-    writeTargets: Map<string, number>,
-    forwardableNames: Set<string>,
+function assertMappableForwardedReferences(
+    unmappableExpressions: UnmappableExpression[],
+    forwardedNames: Set<string>,
     templateOffset: number,
 ): void {
-    writeTargets.forEach((offset, name) => {
-        if (!forwardableNames.has(name)) {
+    unmappableExpressions.forEach((expression) => {
+        const blocked = Array.from(expression.names).filter((name) => forwardedNames.has(name));
+
+        if (blocked.length === 0) {
             return;
         }
 
         throw new ShopwareSetupTransformError(
-            `Cannot assign to "${name}" inside <sw-block extends> content: forwarded override bindings are read-only ` +
-                'there (the write targets a slot-scope local and has no effect). Mutate the value from a method defined ' +
-                'in the override setup and call that instead.',
-            templateOffset + offset,
+            `An expression inside <sw-block extends> content cannot contain HTML entities while it reads the ` +
+                `forwarded override ${blocked.length === 1 ? 'binding' : 'bindings'} ${blocked
+                    .map((name) => `"${name}"`)
+                    .join(', ')}: the reference is rewritten into the generated slot scope, and the decoded text no ` +
+                'longer matches the source. Write the character itself instead.',
+            templateOffset + expression.offset,
         );
     });
 }
@@ -235,7 +246,7 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
  * @private
  */
 export {
-    assertNoWritesToForwardedBindings,
+    assertMappableForwardedReferences,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     findOpeningTagAttributeEnd,

@@ -6,9 +6,10 @@
  * Analyzes Shopware setup templates for data-scope and override-private state wiring.
  *
  * Base templates need a data scope on each `<sw-block>`, and override templates must forward the setup
- * bindings their block content actually reads. This module reports *where* those additions go and
- * *which* bindings they carry; the lowerers turn that into attribute text, so no generated syntax is
- * decided here.
+ * bindings their block content actually reads - plus rewrite every reference that reads one into the
+ * generated slot scope. This module reports *where* those additions go, *which* bindings they carry,
+ * and *which* ranges the rewrite replaces; the lowerers turn that into attribute and expression text,
+ * so no generated syntax is decided here.
  */
 
 import { NodeTypes, parse as parseTemplate, type TemplateChildNode } from '@vue/compiler-dom';
@@ -16,6 +17,7 @@ import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import {
     type ElementNode,
+    type TemplateOccurrence,
     collectTemplateReferences,
     getStaticSwBlockExtends,
     getStaticSwBlockName,
@@ -23,7 +25,7 @@ import {
     isSwBlockName,
 } from './template-references';
 import {
-    assertNoWritesToForwardedBindings,
+    assertMappableForwardedReferences,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     findOpeningTagAttributeEnd,
@@ -31,16 +33,32 @@ import {
 } from './sw-block-bindings';
 
 /**
- * One `<sw-block extends>` whose content reads override-local bindings, and which therefore needs a
- * generated slot scope.
+ * One reference inside `<sw-block extends>` content that lowering rewrites to its slot-scope path.
  *
- * `publicNames` are declared override bindings, which keep their own name in the scope; `privateNames`
- * are everything else the content reads, which the lowerer files under the override namespace.
+ * Offsets are absolute SFC coordinates. `visibility` decides *which* path the binding is reachable
+ * under - a declared override binding replaces base state and is read off the scope directly, while
+ * everything else lives under this override file's namespace - and `expansion` how much surrounding
+ * syntax the replacement has to reproduce. What those paths look like is the lowerer's business.
+ */
+type OverrideReferenceRewrite = {
+    start: number;
+    end: number;
+    name: string;
+    visibility: 'public' | 'private';
+    expansion: TemplateOccurrence['expansion'];
+};
+
+/**
+ * One `<sw-block extends>` whose content reads override-local bindings, and which therefore needs a
+ * generated slot scope plus a rewrite of every reference into it.
+ *
+ * References are rewritten rather than destructured because a destructured slot prop is a plain local:
+ * reads would work, but `count++` would assign to that local and never reach the real ref. Going through
+ * the scope object keeps both directions live.
  */
 type OverrideSlotScope = {
     at: number;
-    publicNames: string[];
-    privateNames: string[];
+    rewrites: OverrideReferenceRewrite[];
 };
 
 /**
@@ -129,54 +147,66 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
                 extendedBlockNames.push(extendedName);
             }
 
-            const { references, writeTargets } = collectTemplateReferences(element.children, new Set());
-
-            // Forwarded bindings are read-only in the slot; reject template writes to them.
-            assertNoWritesToForwardedBindings(
-                writeTargets,
-                new Set([
-                    ...analysis.runtimeBindingNames,
-                    ...analysis.runtimeInputAliasNames,
-                ]),
-                templateOffset,
+            const { references, occurrences, unmappableExpressions } = collectTemplateReferences(
+                element.children,
+                new Set(),
             );
-
-            const publicNames: string[] = [];
-            const privateNames: string[] = [];
+            const forwarded = new Map<string, OverrideReferenceRewrite['visibility']>();
 
             analysis.runtimeBindings.forEach((binding) => {
                 if (!references.has(binding.name)) {
                     return;
                 }
 
-                // Public override bindings keep their own name in the slot scope; only private
-                // ones need the deterministic override namespace.
+                // Public override bindings replace base state and are read off the scope under their own
+                // name; only private ones need the deterministic override namespace.
                 if (overrideLocalNames.has(binding.name)) {
-                    publicNames.push(binding.name);
+                    forwarded.set(binding.name, 'public');
                     return;
                 }
 
+                forwarded.set(binding.name, 'private');
                 privateBindings.add(binding.name);
-                privateNames.push(binding.name);
             });
 
             // Runtime input aliases (useSwPreviousState/useSwProps/useSwContext) are never public
             // override bindings, but the override template can still reference them, so forward them
             // through the private namespace like any other referenced setup local.
             analysis.runtimeInputAliasNames.forEach((name) => {
-                if (!references.has(name) || privateBindings.has(name)) {
+                if (!references.has(name) || forwarded.has(name)) {
                     return;
                 }
 
+                forwarded.set(name, 'private');
                 privateBindings.add(name);
-                privateNames.push(name);
             });
 
-            if (publicNames.length > 0 || privateNames.length > 0) {
+            // Every forwarded reference has to be rewritten, so one that cannot be addressed is a hard
+            // stop rather than a silently skipped edit.
+            assertMappableForwardedReferences(unmappableExpressions, new Set(forwarded.keys()), templateOffset);
+
+            const rewrites = occurrences.flatMap<OverrideReferenceRewrite>((occurrence) => {
+                const visibility = forwarded.get(occurrence.name);
+
+                if (!visibility) {
+                    return [];
+                }
+
+                return [
+                    {
+                        start: templateOffset + occurrence.start,
+                        end: templateOffset + occurrence.end,
+                        name: occurrence.name,
+                        visibility,
+                        expansion: occurrence.expansion,
+                    },
+                ];
+            });
+
+            if (rewrites.length > 0) {
                 slotScopes.push({
                     at: template.contentStart + findOpeningTagAttributeEnd(template.content, element.loc.start.offset),
-                    publicNames,
-                    privateNames,
+                    rewrites,
                 });
             }
         }
@@ -236,6 +266,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
  * @private
  */
 export {
+    type OverrideReferenceRewrite,
     type OverrideSlotScope,
     type TemplateAnalysis,
     analyzeBaseTemplate,

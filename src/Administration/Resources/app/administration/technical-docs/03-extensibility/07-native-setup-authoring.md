@@ -48,7 +48,9 @@ The base transform also adds `:data="$dataScope"` to every `<sw-block name="..."
 
 **Override.** Overrides stay `<script setup>` components whose body registers an `overrideComponentSetup(...)` callback. Each override component is rendered once in a hidden container at boot; that mount runs the registration and lets `<sw-block extends>` template content register its block overrides. A template-less override receives a generated comment-only template so the hidden component can mount without a missing-render warning. Override mode requires exactly one top-level `swDefineOverride({...})`; only the bindings listed there replace base state.
 
-Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` content, forwarded through the reserved `__swOverride` slot-scope channel. Those forwarded template bindings are **read-only**: they arrive through the generated slot scope, so a template write (`@click="count = count + 1"`, `count++`) would assign to a slot-scope local and take no effect — a silent trap, since the same line works in a base component. The transform rejects such assignment and update expressions at build time. Mutate override state from a handler defined in the override setup and call that handler instead.
+Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` content, forwarded through the reserved `__swOverride` slot-scope channel. The generated `#default` binds the base component's whole data scope under one name, and the transform rewrites every reference in the block content to read through it — a declared override binding directly, an override-local one under the file's namespace. Write to them exactly as you would in a base component: `@click="count++"` and `v-model="count"` reach the real ref. References are rewritten rather than destructured for that reason — a destructured slot prop is a plain local, so reads would work while writes silently went nowhere.
+
+One limitation follows from the rewrite: an expression inside `<sw-block extends>` content that reads a forwarded binding must not contain HTML entities (`&lt;`, `&amp;&amp;`). Vue decodes them before the transform sees the expression, so its offsets no longer line up with the source and the rewrite would corrupt the template. The transform rejects that at build time; write the character itself, which is legal in a Vue expression.
 
 **Runtime inputs** are explicit:
 
@@ -134,7 +136,7 @@ Reaching in through Vue internals — `vnode.component.proxy`, or walking `subTr
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
 - **Base mode does not touch the Vue macros at all.** `defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, and `defineOptions` stay where you wrote them and are compiled by Vue with their normal semantics — including Vue's own rules on how many times each may appear, and Vue's own diagnostics for macro arguments it cannot hoist. The transform only renames top-level bindings and appends the footer.
 - **Override mode moves the author body into a callback**, so imports and type-only declarations (`interface`, `type`, ambient `declare`) are lifted back to the generated script root — matching how Vue keeps them at the module root. Ambient `declare` statements describe values provided elsewhere and are never returned as setup state.
-- **Forwarded override bindings are read-only in the template.** Inside `<sw-block extends>` content a forwarded binding arrives ref-unwrapped as a slot-scope local, so Vue's compiler applies none of the ref handling it gives a setup binding — no `.value` write-through. A template write (`@click="count = count + 1"`, `count++`) reassigns the slot-scope local and silently no-ops, where the identical line mutates state in a base component. The transform rejects such writes at build time; mutate from a method defined in the override setup instead.
+- **Forwarded override bindings are rewritten, not destructured.** Inside `<sw-block extends>` content a destructured binding would arrive ref-unwrapped as a slot-scope local, so Vue's compiler applies none of the ref handling it gives a setup binding — a write would reassign the local and silently no-op. Every reference is therefore rewritten to read through the generated slot scope, which keeps reads reactive and writes flowing back to the real ref.
 - Vue macros other than the base-mode set above are unsupported in either mode.
 - Top-level `await` is unsupported.
 
@@ -152,7 +154,7 @@ The transform rejects these at build time:
 - Non-top-level, duplicate, spread, renamed/string/computed-key, or non-object-literal `swDefinePublic()` / `swDefineOverride()` usage
 - A missing marker: no `swDefinePublic()` in a base component, or no `swDefineOverride()` in an override
 - Authored `#default`, `data`, or `v-bind` bindings on `<sw-block>`
-- Template writes to a forwarded override binding inside `<sw-block extends>` content
+- HTML entities in a `<sw-block extends>` expression that reads a forwarded override binding
 - Reserved top-level binding names:
   - the `__swSetup` prefix, used for the transform's generated bindings
   - `__swOverride`, the reserved override-private slot-scope token

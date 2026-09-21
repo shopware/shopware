@@ -216,11 +216,12 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
 
         const result = transformOrFail(source, 'template-slot-merge.override.vue');
 
-        // The transform generates the #default slot scope (forwarding headline + the private info).
+        // The transform generates the #default slot scope and rewrites both references into it, so the
+        // surviving original text around each rewrite still has to map to the line it was written on.
         expect(result.code).toContain('__swOverride');
         expectOriginalLine(result, source, 'extends="sw_example_card"', 'extends="sw_example_card"');
-        expectOriginalLine(result, source, '{{ headline }}', '{{ headline }}');
-        expectOriginalLine(result, source, '{{ info }}', '{{ info }}');
+        expectOriginalLine(result, source, '{{ __swSetupScope.headline }}', '{{ headline }}');
+        expectOriginalLine(result, source, '{{ __swSetupScope.__swOverride[__swSetupNamespace].info }}', '{{ info }}');
     });
 
     it('keeps mappings stable when macros, template edits, and script lowering happen together', () => {

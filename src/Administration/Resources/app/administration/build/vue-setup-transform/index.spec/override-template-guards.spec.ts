@@ -5,7 +5,7 @@
  *
  * Two families: bindings the transform owns on `<sw-block>` (`data`, `#default`, `v-bind` objects,
  * a bound `:extends`), and structural rules for override templates (only `<sw-block extends>` at the
- * top level, no writes to forwarded bindings). Forwarding behaviour lives in
+ * top level, no expression the reference rewrite cannot address). Forwarding behaviour lives in
  * `override-template.spec.ts`.
  */
 
@@ -92,48 +92,48 @@ describe('build/vue-setup-transform override template guards', () => {
         expect(() => transformOrFail(source, 'authored-v-bind.override.vue')).toThrow('"v-bind" is not supported');
     });
 
-    it('rejects writing to a forwarded binding from sw-block extends content', () => {
+    it('rejects an HTML entity in an expression that reads a forwarded binding', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
-                <button @click="count = count + 1">inc</button>
+                <p v-if="count &lt; max">low</p>
             </sw-block>
             </template>
             <script setup>
             import { ref } from 'vue';
 
             const count = ref(0);
+            const max = 10;
 
             swDefineOverride({ count });
             </script>
         `;
 
-        // The forwarded `count` arrives ref-unwrapped as a slot-scope local, so the assignment silently
-        // no-ops (the identical line works in a base component). Reject it loudly.
-        expect(() => transformOrFail(source, 'forwarded-write.override.vue')).toThrow(
-            'Cannot assign to "count" inside <sw-block extends> content',
+        // Vue decodes the entity before the transform sees the expression, so its offsets no longer
+        // line up with the source and the rewrite would land on the wrong characters. The character
+        // itself is legal in a Vue expression, so the fix is to write it.
+        expect(() => transformOrFail(source, 'entity-expression.override.vue')).toThrow(
+            'cannot contain HTML entities while it reads the forwarded override bindings "count", "max"',
         );
     });
 
-    it('rejects an update expression (count++) on a forwarded binding', () => {
+    it('leaves an HTML entity alone when the expression reads no forwarded binding', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
-                <button @click="count++">inc</button>
+                <p v-if="1 &lt; 2">{{ info }}</p>
             </sw-block>
             </template>
             <script setup>
-            import { ref } from 'vue';
+            const info = 'local';
 
-            const count = ref(0);
-
-            swDefineOverride({ count });
+            swDefineOverride({});
             </script>
         `;
 
-        expect(() => transformOrFail(source, 'forwarded-update.override.vue')).toThrow(
-            'Cannot assign to "count" inside <sw-block extends> content',
-        );
+        const result = transformOrFail(source, 'entity-without-reference.override.vue').code;
+
+        expect(result).toContain('<p v-if="1 &lt; 2">');
     });
 
     it('rejects a bound :extends on sw-block (only a static extends is allowed)', () => {

@@ -17,10 +17,10 @@
 import { fromSource, generated, type SourceChunk } from '../source-edits/chunks';
 import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
-import type { OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
+import type { OverrideReferenceRewrite, OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
-import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
+import { OVERRIDE_NAMESPACE_BINDING, OVERRIDE_SCOPE_BINDING, RESERVED_OVERRIDE_STATE_NAME } from '../script-analyzer/macros';
 import { transformRanges } from '../source-edits/transform-ranges';
 
 /**
@@ -40,7 +40,7 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
 
     if (privateBindings.length > 0) {
         lines.push(
-            '    __swOverride: {',
+            `    ${RESERVED_OVERRIDE_STATE_NAME}: {`,
             `        [${OVERRIDE_NAMESPACE_BINDING}]: {`,
             ...privateBindings.map((localName) => `            ${localName},`),
             '        },',
@@ -54,36 +54,73 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
 }
 
 /**
- * The generated `#default` slot scope that carries override-local bindings into `<sw-block extends>`
- * content.
+ * The path a forwarded binding is read through inside `<sw-block extends>` content.
  *
- * Declared override bindings destructure under their own name; everything else the content reads goes
- * through the module's namespace symbol, emitted as a **computed** key so the pattern destructures by
- * that Symbol rather than by a literal name. Authoring `#default` on `<sw-block>` is rejected, so there
- * is never a user pattern to merge with.
+ * The slot scope is the base component's data scope, so a declared override binding - which replaces
+ * base state - is a property of it; everything else this override forwards sits under the reserved
+ * `__swOverride` channel, keyed by the module's namespace symbol.
  */
-function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
-    const mappings = [
-        ...(scope.privateNames.length > 0
-            ? [`__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${scope.privateNames.join(', ')} } }`]
-            : []),
-        ...scope.publicNames,
-    ];
+function toReferencePath(rewrite: OverrideReferenceRewrite): string {
+    if (rewrite.visibility === 'public') {
+        return `${OVERRIDE_SCOPE_BINDING}.${rewrite.name}`;
+    }
+
+    return `${OVERRIDE_SCOPE_BINDING}.${RESERVED_OVERRIDE_STATE_NAME}[${OVERRIDE_NAMESPACE_BINDING}].${rewrite.name}`;
+}
+
+/**
+ * The edit that replaces one reference with its slot-scope path.
+ *
+ * A plain occurrence is swapped for the path. A shorthand object property (`{ info }`) shares its range
+ * with the property key, so the key is written out. Vue's same-name binding shorthand (`:info`) has no
+ * value at all and the occurrence is the empty span behind it, so the edit is the value it was standing
+ * in for.
+ */
+function toReferenceRewriteEdit(rewrite: OverrideReferenceRewrite): SourceEdit {
+    const path = toReferencePath(rewrite);
+    const replacement = (() => {
+        if (rewrite.expansion === 'shorthand-property') {
+            return `${rewrite.name}: ${path}`;
+        }
+
+        return rewrite.expansion === 'same-name-shorthand' ? `="${path}"` : path;
+    })();
 
     return {
-        start: scope.at,
-        end: scope.at,
-        replacement: ` #default="{ ${mappings.join(', ')} }"`,
+        start: rewrite.start,
+        end: rewrite.end,
+        replacement,
     };
+}
+
+/**
+ * The generated `#default` slot scope that carries the base component's data scope into `<sw-block
+ * extends>` content, plus the rewrite of every reference that reads through it.
+ *
+ * The whole scope is bound under one name instead of destructured: a destructured slot prop is a plain
+ * local, so `{{ count }}` would read correctly but `count++` would assign to that local and never reach
+ * the ref behind it. Authoring `#default` on `<sw-block>` is rejected, so there is never a user pattern
+ * to merge with.
+ */
+function toSlotScopeEdits(scope: OverrideSlotScope): SourceEdit[] {
+    return [
+        {
+            start: scope.at,
+            end: scope.at,
+            replacement: ` #default="${OVERRIDE_SCOPE_BINDING}"`,
+        },
+        ...scope.rewrites.map(toReferenceRewriteEdit),
+    ];
 }
 
 /**
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
  *
- * Emits the script content, one slot scope per `<sw-block extends>` that forwards bindings, and a
- * generated `<template>` when the override has none - the hidden component only registers its callback
- * once it mounts, and Vue warns about a component with neither template nor render function.
+ * Emits the script content, one slot scope plus its reference rewrites per `<sw-block extends>` that
+ * forwards bindings, and a generated `<template>` when the override has none - the hidden component
+ * only registers its callback once it mounts, and Vue warns about a component with neither template
+ * nor render function.
  */
 function buildOverrideScript(
     block: ShopwareSetupBlock,
@@ -167,7 +204,7 @@ function buildOverrideScript(
 
     return [
         ...registrationTemplate,
-        ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
+        ...templateAnalysis.slotScopes.flatMap(toSlotScopeEdits),
         {
             start: block.contentStart,
             end: block.contentEnd,

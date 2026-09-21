@@ -2,14 +2,19 @@
  * @sw-package framework
  */
 
-import { collectExpressionReferences, collectExpressionWriteTargets } from './references';
+import { collectExpressionOccurrences, collectExpressionReferences, collectPatternOccurrences } from './references';
 
 function getReferences(expression: string, templateScope: string[] = []): string[] {
     return Array.from(collectExpressionReferences(expression, new Set(templateScope))).sort();
 }
 
-function getWriteTargets(expression: string, templateScope: string[] = []): string[] {
-    return Array.from(collectExpressionWriteTargets(expression, new Set(templateScope))).sort();
+/** Every occurrence as `name@start-end[:expansion]`, so a spec can pin the exact rewrite sites. */
+function getOccurrences(expression: string, templateScope: string[] = []): string[] {
+    return collectExpressionOccurrences(expression, new Set(templateScope)).map(
+        (occurrence) =>
+            `${occurrence.name}@${occurrence.start}-${occurrence.end}` +
+            (occurrence.expansion === 'plain' ? '' : `:${occurrence.expansion}`),
+    );
 }
 
 describe('build/vue-setup-transform/flow-analysis references', () => {
@@ -100,37 +105,49 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
         expect(getReferences('[1].map(function helper(value) { return value * factor; })')).toEqual(['factor']);
     });
 
-    describe('write targets', () => {
-        it('collects an assignment target', () => {
-            expect(getWriteTargets('count = count + 1')).toEqual(['count']);
-        });
-
-        it('collects an update-expression operand', () => {
-            expect(getWriteTargets('count++')).toEqual(['count']);
-        });
-
-        it('collects nothing for a read-only expression', () => {
-            expect(getWriteTargets('count + 1')).toEqual([]);
-        });
-
-        it('collects several targets across statements', () => {
-            expect(getWriteTargets('first = 1; second++')).toEqual([
-                'first',
-                'second',
+    describe('occurrences', () => {
+        it('reports the range of every read, in source order', () => {
+            expect(getOccurrences('count + count * factor')).toEqual([
+                'count@0-5',
+                'count@8-13',
+                'factor@16-22',
             ]);
         });
 
-        it('excludes template-scope names', () => {
-            expect(
-                getWriteTargets('local = 1', [
-                    'local',
-                ]),
-            ).toEqual([]);
+        it('reports a write target like any other read, so a rewrite covers it', () => {
+            // `count++` has to be rewritten as much as `{{ count }}` does - it is the write that made the
+            // destructured slot prop a trap in the first place.
+            expect(getOccurrences('count++')).toEqual(['count@0-5']);
         });
 
-        it('does not treat a member write as a direct identifier write', () => {
-            // `count.value = 1` writes a property; `count` itself is only read (out of scope here).
-            expect(getWriteTargets('count.value = 1')).toEqual([]);
+        it('marks a shorthand object property so the key survives the rewrite', () => {
+            expect(getOccurrences('({ info, label: caption })')).toEqual([
+                'info@3-7:shorthand-property',
+                'caption@16-23',
+            ]);
+        });
+
+        it('reports no occurrence for a shadowed or template-scoped name', () => {
+            expect(
+                getOccurrences('items.map((info) => info + label)', [
+                    'items',
+                ]),
+            ).toEqual(['label@27-32']);
+        });
+
+        it('reports binding-pattern reads relative to the pattern text', () => {
+            expect(
+                collectPatternOccurrences('{ label = fallbackLabel, [key]: value }', new Set()).map(
+                    (occurrence) => `${occurrence.name}@${occurrence.start}-${occurrence.end}`,
+                ),
+            ).toEqual([
+                'fallbackLabel@10-23',
+                'key@26-29',
+            ]);
+        });
+
+        it('reports nothing for an unparseable binding pattern', () => {
+            expect(collectPatternOccurrences('{ not a pattern', new Set())).toEqual([]);
         });
     });
 });

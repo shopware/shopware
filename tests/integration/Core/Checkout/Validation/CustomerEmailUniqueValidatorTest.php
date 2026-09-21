@@ -166,7 +166,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
 
     private function createConstraint(string $salesChannelId): CustomerEmailUnique
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')
             ->willReturn($salesChannelId);
 

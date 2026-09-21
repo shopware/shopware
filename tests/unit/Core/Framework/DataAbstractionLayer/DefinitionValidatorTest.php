@@ -549,7 +549,7 @@ class DefinitionValidatorTest extends TestCase
 
         $columnLookup = array_fill_keys($columnNames, true);
 
-        $table = $this->createStub(Table::class);
+        $table = static::createStub(Table::class);
         $table->method('getName')->willReturn($definition->getEntityName());
         $table->method('getColumns')->willReturn($columns);
         $table->method('getPrimaryKeyConstraint')->willReturn($pkConstraint);

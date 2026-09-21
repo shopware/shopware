@@ -19,6 +19,7 @@ Update imports, type declarations, static references, and service IDs to the can
 The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses.
 `NotificationController` remains internal, and `AssetService` becomes internal with 6.8.
 Neither should be introduced as a new extension dependency.
+
 ### Merged document downloads have a speaking file name
 
 Downloading several order documents at once from the order bulk edit delivered one merged PDF named with a 32 character random string, so merchants could not tell their downloads apart in the download folder.

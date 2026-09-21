@@ -106,6 +106,8 @@ Server-side app SDKs should provide verification helpers for this token contract
 
 JWTs have no protocol-level size limit, but HTTP headers and URLs have practical size limits. The token includes the full effective permission intersection because that is the simplest and least surprising behavior.
 
+Assume that roughly 250 effective permissions can be safely transported in a request header. If an app requests enough permissions that its effective intersection exceeds this practical limit and encounters header-size failures, send the token in the request body instead.
+
 Token revocation is time-based. A permission change or deactivated user can remain valid until the short token TTL expires. Do not add server-side token storage unless that becomes a measured requirement.
 
 Do not deliver this token as an iframe query parameter. It can become too large for practical URL limits. App backends should receive it as the `x-shopware-auth` header on app-initiated requests after the iframe has loaded.

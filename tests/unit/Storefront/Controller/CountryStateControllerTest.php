@@ -59,6 +59,9 @@ class CountryStateControllerTest extends TestCase
         $this->controller->getCountryData($request, $context);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove when the v6.8.0.0 feature flag is removed
+     */
     public function testGetCountryDataThrowsForPostRequestsWhenV6800IsActive(): void
     {
         $this->pageletLoader->expects($this->never())

@@ -127,42 +127,42 @@ describe('src/app/component/base/sw-tabs', () => {
         ]);
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should fall back to the name for fragment tab items without plain text slot content',
-        async () => {
-            const wrapper = await createWrapper({
-                global: {
-                    stubs: {
-                        'sw-tabs-deprecated': true,
-                        'mt-tabs': true,
-                        // Keep the real component name so the fragment branch recognizes the items.
-                        'sw-tabs-item': {
-                            name: 'sw-tabs-item',
-                            props: [
-                                'name',
-                                'title',
-                                'route',
-                            ],
-                            template: '<div class="sw-tabs-item"><slot /></div>',
-                        },
+    it('should fall back to the name for fragment tab items without plain text slot content', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                useMeteorComponent: true,
+            },
+            global: {
+                stubs: {
+                    'sw-tabs-deprecated': true,
+                    'mt-tabs': true,
+                    // Keep the real component name so the fragment branch recognizes the items.
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        props: [
+                            'name',
+                            'title',
+                            'route',
+                        ],
+                        template: '<div class="sw-tabs-item"><slot /></div>',
                     },
                 },
-                slots: {
-                    default: `
+            },
+            slots: {
+                default: `
                         <sw-tabs-item
                             v-for="locale in ['en-GB', 'de-DE']"
                             :key="locale"
                             :name="locale"
                         ><span>Label {{ locale }}</span></sw-tabs-item>
                     `,
-                },
-            });
+            },
+        });
 
-            // A wrapped slot child yields no slot text, so the name keeps the tab from rendering unlabeled.
-            expect(wrapper.vm.itemsBackwardCompatible).toEqual([
-                expect.objectContaining({ name: 'en-GB', label: 'en-GB' }),
-                expect.objectContaining({ name: 'de-DE', label: 'de-DE' }),
-            ]);
-        },
-    );
+        // A wrapped slot child yields no slot text, so the name keeps the tab from rendering unlabeled.
+        expect(wrapper.vm.itemsBackwardCompatible).toEqual([
+            expect.objectContaining({ name: 'en-GB', label: 'en-GB' }),
+            expect.objectContaining({ name: 'de-DE', label: 'de-DE' }),
+        ]);
+    });
 });

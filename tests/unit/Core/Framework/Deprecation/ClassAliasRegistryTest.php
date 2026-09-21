@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Process\Process;
 
 /**
  * @internal
@@ -16,7 +17,7 @@ class ClassAliasRegistryTest extends TestCase
 {
     public function testAllRegisteredAliasesAreLoaded(): void
     {
-        require_once \dirname(__DIR__, 5) . '/src/Core/Framework/Deprecation/class_aliases.php';
+        require \dirname(__DIR__, 5) . '/src/Core/Framework/Deprecation/class_aliases.php';
 
         foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
             // @phpstan-ignore function.impossibleType (The test verifies the aliases registered dynamically above.)
@@ -24,5 +25,41 @@ class ClassAliasRegistryTest extends TestCase
             // @phpstan-ignore argument.unresolvableType, method.unresolvableReturnType (PHPStan cannot resolve dynamic aliases.)
             static::assertTrue($currentClassName === (new \ReflectionClass($previousClassName))->getName());
         }
+    }
+
+    public function testAliasRegistrationFailsForConflictingClass(): void
+    {
+        $projectRoot = \dirname(__DIR__, 5);
+        $script = <<<'PHP'
+namespace Shopware\Administration\Controller {
+    class NotificationController {}
+}
+
+namespace {
+    try {
+        require $argv[1];
+        require $argv[2];
+    } catch (\LogicException $exception) {
+        fwrite(STDERR, $exception->getMessage());
+
+        throw $exception;
+    }
+}
+PHP;
+
+        $process = new Process([
+            \PHP_BINARY,
+            '-r',
+            $script,
+            $projectRoot . '/vendor/autoload.php',
+            $projectRoot . '/src/Core/Framework/Deprecation/class_aliases.php',
+        ]);
+        $process->run();
+
+        static::assertFalse($process->isSuccessful());
+        static::assertStringContainsString(
+            'Cannot register class alias "Shopware\\Administration\\Controller\\NotificationController" to "Shopware\\Core\\Framework\\Notification\\Api\\NotificationController": the name already refers to "Shopware\\Administration\\Controller\\NotificationController".',
+            $process->getErrorOutput(),
+        );
     }
 }

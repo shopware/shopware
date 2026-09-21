@@ -25,26 +25,11 @@ import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConf
  * Characters that Axios 0.x decoded again after `encodeURIComponent`.
  */
 const LEGACY_LITERAL_CHARACTERS: [RegExp, string][] = [
-    [
-        /%5B/gi,
-        '[',
-    ],
-    [
-        /%5D/gi,
-        ']',
-    ],
-    [
-        /%3A/gi,
-        ':',
-    ],
-    [
-        /%24/g,
-        '$',
-    ],
-    [
-        /%2C/gi,
-        ',',
-    ],
+    [/%5B/gi, '['],
+    [/%5D/gi, ']'],
+    [/%3A/gi, ':'],
+    [/%24/g, '$'],
+    [/%2C/gi, ','],
 ];
 
 type LegacyParamsSerializerOptions = {
@@ -60,13 +45,7 @@ type LegacyParamsSerializerOptions = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function toLegacyQueryString(serializedParams: string): string {
     return LEGACY_LITERAL_CHARACTERS.reduce(
-        (
-            params,
-            [
-                pattern,
-                replacement,
-            ],
-        ) => params.replace(pattern, replacement),
+        (params, [pattern, replacement]) => params.replace(pattern, replacement),
         serializedParams,
     );
 }

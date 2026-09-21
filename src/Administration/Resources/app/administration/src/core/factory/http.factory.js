@@ -286,10 +286,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
     if (
         status === 403 &&
-        [
-            'FRAMEWORK__STORE_SESSION_EXPIRED',
-            'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
-        ].includes(errors[0]?.code)
+        ['FRAMEWORK__STORE_SESSION_EXPIRED', 'FRAMEWORK__STORE_SHOP_SECRET_INVALID'].includes(errors[0]?.code)
     ) {
         Shopware.Store.get('notification').createNotification({
             variant: 'warning',
@@ -454,10 +451,7 @@ function storeSessionExpiredInterceptor(client) {
                 return Promise.reject(error);
             }
 
-            const errorCodes = [
-                'FRAMEWORK__STORE_SESSION_EXPIRED',
-                'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
-            ];
+            const errorCodes = ['FRAMEWORK__STORE_SESSION_EXPIRED', 'FRAMEWORK__STORE_SHOP_SECRET_INVALID'];
 
             if (response?.status === 403 && errorCodes.includes(code)) {
                 if (typeof config.storeSessionRequestRetries === 'number') {

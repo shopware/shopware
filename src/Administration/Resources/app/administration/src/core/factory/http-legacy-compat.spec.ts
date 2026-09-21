@@ -9,50 +9,13 @@ import { isLegacyCompatRequest, legacyParamsSerializer, toLegacyQueryString } fr
 describe('core/factory/http-legacy-compat.ts', () => {
     describe('legacyParamsSerializer', () => {
         it.each([
-            [
-                'array values',
-                {
-                    ids: [
-                        1,
-                        2,
-                    ],
-                },
-                'ids[]=1&ids[]=2',
-            ],
-            [
-                'nested objects',
-                { filter: { a: 'b' } },
-                'filter[a]=b',
-            ],
-            [
-                'deeply nested objects',
-                { a: { b: { c: 1 } } },
-                'a[b][c]=1',
-            ],
-            [
-                'arrays of objects',
-                {
-                    f: [
-                        { t: 'eq' },
-                    ],
-                },
-                'f[0][t]=eq',
-            ],
-            [
-                'the characters Axios 0.x left literal',
-                { q: 'a,b:c$d[e]f' },
-                'q=a,b:c$d[e]f',
-            ],
-            [
-                'characters that stay encoded',
-                { q: 'a b&c=d' },
-                'q=a+b%26c%3Dd',
-            ],
-            [
-                'skipped null and undefined values',
-                { a: null, b: undefined, c: '' },
-                'c=',
-            ],
+            ['array values', { ids: [1, 2] }, 'ids[]=1&ids[]=2'],
+            ['nested objects', { filter: { a: 'b' } }, 'filter[a]=b'],
+            ['deeply nested objects', { a: { b: { c: 1 } } }, 'a[b][c]=1'],
+            ['arrays of objects', { f: [{ t: 'eq' }] }, 'f[0][t]=eq'],
+            ['the characters Axios 0.x left literal', { q: 'a,b:c$d[e]f' }, 'q=a,b:c$d[e]f'],
+            ['characters that stay encoded', { q: 'a b&c=d' }, 'q=a+b%26c%3Dd'],
+            ['skipped null and undefined values', { a: null, b: undefined, c: '' }, 'c='],
         ])('should serialize %s the way Axios 0.x did', (_name, params, expected) => {
             expect(legacyParamsSerializer(params)).toBe(expected);
         });
@@ -94,14 +57,14 @@ describe('core/factory/http-legacy-compat.ts', () => {
             expect(isLegacyCompatRequest({})).toBe(false);
         });
 
-        it.each([
-            false,
-            true,
-        ])('should let an explicit useAxiosV1 win over the V6_8_0_0 flag (flag active: %s)', (active) => {
-            withV68(active);
+        it.each([false, true])(
+            'should let an explicit useAxiosV1 win over the V6_8_0_0 flag (flag active: %s)',
+            (active) => {
+                withV68(active);
 
-            expect(isLegacyCompatRequest({ useAxiosV1: true })).toBe(false);
-            expect(isLegacyCompatRequest({ useAxiosV1: false })).toBe(true);
-        });
+                expect(isLegacyCompatRequest({ useAxiosV1: true })).toBe(false);
+                expect(isLegacyCompatRequest({ useAxiosV1: false })).toBe(true);
+            },
+        );
     });
 });

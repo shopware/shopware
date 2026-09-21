@@ -404,6 +404,15 @@ Installations can configure `shopware.media.url_upload_timeout` and
 uploads and external-media link checks. Both values default to `0.0`, which
 preserves the previous unlimited behavior.
 
+### Store API OpenAPI schema matches the actual responses
+
+The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:
+
+- `aggregations`, `Cart.errors`, `paymentChangeable`, `validationData` and `OrderLineItem.translated` allow an empty array; order price `calculatedTaxes`/`taxRules` and `CmsSlot.fieldConfig` are arrays.
+- `LineItem.payload` uses the product snapshot schema of `OrderLineItem.payload`, and `PropertyGroupOption` no longer declares `option` or requires `group`.
+- `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
+- `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
 ## Administration
 
 ### An empty string can be saved on fields that allow one

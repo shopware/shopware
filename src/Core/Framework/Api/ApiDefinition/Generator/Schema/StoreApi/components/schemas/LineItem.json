@@ -42,7 +42,8 @@
                         "type": "boolean"
                     },
                     "payload": {
-                        "$ref": "#/components/schemas/ProductJsonApi"
+                        "description": "Snapshot data of the referenced item. For product line items it contains the product data listed below; other line item types may carry different keys.",
+                        "$ref": "#/components/schemas/OrderLineItem/properties/payload"
                     },
                     "price": {
                         "type": "object",

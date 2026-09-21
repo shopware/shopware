@@ -90,12 +90,20 @@
                                 "readOnly": true
                             },
                             "createdAt": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "format": "date-time",
                                 "readOnly": true
                             },
                             "customFields": {
-                                "type": "object"
+                                "anyOf": [
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "maxItems": 0
+                                    }
+                                ]
                             },
                             "features": {
                                 "type": "array"
@@ -107,7 +115,7 @@
                                 "type": "boolean"
                             },
                             "manufacturerId": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "pattern": "^[0-9a-f]{32}$"
                             },
                             "markAsTopseller": {
@@ -122,13 +130,23 @@
                                 "readOnly": true
                             },
                             "options": {
+                                "description": "Variant options of the product as group and option name pairs.",
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/PropertyGroupOption"
+                                    "type": "object",
+                                    "properties": {
+                                        "group": {
+                                            "type": "string"
+                                        },
+                                        "option": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["group", "option"]
                                 }
                             },
                             "parentId": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "pattern": "^[0-9a-f]{32}$"
                             },
                             "productNumber": {
@@ -143,7 +161,7 @@
                                 "readOnly": true
                             },
                             "releaseDate": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "format": "date-time"
                             },
                             "stock": {
@@ -282,7 +300,9 @@
                         "type": "object"
                     },
                     "translated": {
-                        "type": "object"
+                        "description": "Order line items have no translatable fields, so this is an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0
                     }
                 },
                 "type": "object"

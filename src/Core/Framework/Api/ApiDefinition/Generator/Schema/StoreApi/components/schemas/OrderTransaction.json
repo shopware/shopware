@@ -56,10 +56,16 @@
                                 "format": "int64"
                             },
                             "calculatedTaxes": {
-                                "type": "object"
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/CalculatedPrice/properties/calculatedTaxes/items"
+                                }
                             },
                             "taxRules": {
-                                "type": "object"
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/CalculatedPrice/properties/taxRules/items"
+                                }
                             },
                             "referencePrice": {
                                 "type": "object"
@@ -94,7 +100,9 @@
                         "type": "object"
                     },
                     "validationData": {
-                        "type": "object"
+                        "description": "An empty array is returned when there is no validation data.",
+                        "type": ["object", "array"],
+                        "maxItems": 0
                     },
                     "stateId": {
                         "description": "Unique identity of state.",

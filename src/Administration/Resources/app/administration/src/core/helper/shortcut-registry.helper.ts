@@ -99,7 +99,8 @@ function hasLongerSequenceThan(sequence: string): boolean {
  * to hold the buffer open, or a sequence like `MP` would fire `M`'s single-key match on the first key.
  */
 function isNavigationSequence(sequence: string): boolean {
-    const shortcutFactory = Shopware.Application.getContainer('factory').shortcut as ShortcutFactory | undefined;
+    const factoryContainer = Shopware.Application.getContainer('factory') as { shortcut?: ShortcutFactory } | undefined;
+    const shortcutFactory = factoryContainer?.shortcut;
     const registry = shortcutFactory?.getShortcutRegistry?.();
 
     if (!registry) {

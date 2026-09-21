@@ -8,18 +8,6 @@ import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 // systemKey() reads the platform, and SYSTEMKEY maps to CTRL only on macOS.
 Object.defineProperty(window.navigator, 'platform', { value: 'MacIntel', configurable: true });
 
-Shopware.Utils.debounce = function debounce(callback, delay) {
-    let timeout = null;
-
-    const execFunction = jest.fn(() => {
-        clearTimeout(timeout);
-        timeout = setTimeout(callback, delay);
-    });
-    execFunction.cancel = jest.fn(() => clearTimeout(timeout));
-
-    return execFunction;
-};
-
 /**
  * Mounts a component with the shortcut plugin installed, attached to the document so a keydown
  * triggered on the wrapper bubbles to the registry's listener.

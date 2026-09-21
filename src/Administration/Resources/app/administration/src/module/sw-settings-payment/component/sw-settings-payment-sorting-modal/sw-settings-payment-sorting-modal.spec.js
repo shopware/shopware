@@ -64,10 +64,7 @@ describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.sortedPaymentMethods = [
-            wrapper.vm.sortedPaymentMethods[1],
-            wrapper.vm.sortedPaymentMethods[0],
-        ];
+        wrapper.vm.sortedPaymentMethods = [wrapper.vm.sortedPaymentMethods[1], wrapper.vm.sortedPaymentMethods[0]];
 
         wrapper.vm.paymentMethodRepository.saveAll = jest.fn(() => Promise.resolve());
 

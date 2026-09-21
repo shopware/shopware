@@ -13,10 +13,7 @@ const { get, format } = Utils;
 export default {
     template,
 
-    emits: [
-        'on-save-item',
-        'on-remove-items',
-    ],
+    emits: ['on-save-item', 'on-remove-items'],
 
     props: {
         salesChannelId: {

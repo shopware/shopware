@@ -5,22 +5,31 @@ namespace Shopware\Core\Checkout\Document\Service;
 use setasign\Fpdi\FpdiException;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'Merging is no longer a separate step. DocumentV2 renders combined documents through DocumentGenerator.',
+)]
 final class DocumentMerger
 {
     /**
@@ -92,8 +101,10 @@ final class DocumentMerger
     private function createRenderedDocument(DocumentEntity $document, string $fileBlob): RenderedDocument
     {
         $fileExtension = $this->resolveFileType($document);
-        $fileName = $document->getDocumentMediaFile()?->getFileName() ?? Random::getAlphanumericString(32);
-        $contentType = $document->getDocumentMediaFile()?->getMimeType() ?? $this->getContentType($fileExtension);
+
+        $mediaFile = Feature::silent('v6.9.0.0', static fn (): ?MediaEntity => $document->getDocumentMediaFile());
+        $fileName = $mediaFile?->getFileName() ?? Random::getAlphanumericString(32);
+        $contentType = $mediaFile?->getMimeType() ?? $this->getContentType($fileExtension);
 
         $renderedDocument = new RenderedDocument(
             name: $fileName . '.' . $fileExtension,
@@ -160,7 +171,7 @@ final class DocumentMerger
 
     private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?DocumentEntity
     {
-        $documentMediaId = $document->getDocumentMediaFileId();
+        $documentMediaId = Feature::silent('v6.9.0.0', static fn (): ?string => $document->getDocumentMediaFileId());
         if ($documentMediaId !== null || $document->isStatic()) {
             return $document;
         }
@@ -174,7 +185,7 @@ final class DocumentMerger
 
         $operation->setDocumentId($document->getId());
 
-        $documentType = $document->getDocumentType();
+        $documentType = Feature::silent('v6.9.0.0', static fn (): ?DocumentTypeEntity => $document->getDocumentType());
         if ($documentType === null) {
             return null;
         }
@@ -219,7 +230,7 @@ final class DocumentMerger
 
             $preparedDocuments[] = $preparedDocument;
 
-            $mediaId = $preparedDocument->getDocumentMediaFileId();
+            $mediaId = Feature::silent('v6.9.0.0', static fn (): ?string => $preparedDocument->getDocumentMediaFileId());
             if ($mediaId !== null) {
                 $mediaCache[$preparedDocument->getId()] = $mediaId;
             }
@@ -251,10 +262,9 @@ final class DocumentMerger
                 return $this->mediaService->loadFile($documentMediaId, $context);
             });
 
-            $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
             $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
             $documentNumber = $document->getDocumentNumber() ?? $document->getId();
-            $name = $orderNumber . '_' . $technicalName . '_' . $documentNumber . '.' . $this->resolveFileType($document);
+            $name = $orderNumber . '_' . $document->getTypeName() . '_' . $documentNumber . '.' . $this->resolveFileType($document);
 
             $zip->addFromString($name, $fileContent);
 
@@ -293,7 +303,8 @@ final class DocumentMerger
 
     private function resolveFileType(DocumentEntity $document): string
     {
-        $fileExtension = $document->getDocumentMediaFile()?->getFileExtension();
+        $fileExtension = Feature::silent('v6.9.0.0', static fn (): ?string => $document->getDocumentMediaFile()?->getFileExtension());
+
         if (\is_string($fileExtension) && $fileExtension !== '') {
             return $fileExtension;
         }

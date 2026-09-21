@@ -64,18 +64,9 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility
     });
 
     it.each([
-        [
-            'the shop was migrated after the navigation was released',
-            AFTER_RELEASE,
-        ],
-        [
-            'the shop has never been migrated',
-            null,
-        ],
-        [
-            'the migration date cannot be read',
-            'not-a-date',
-        ],
+        ['the shop was migrated after the navigation was released', AFTER_RELEASE],
+        ['the shop has never been migrated', null],
+        ['the migration date cannot be read', 'not-a-date'],
     ])('does not show the modal when %s', async (_case, firstMigrationDate) => {
         setShopContext({ firstMigrationDate });
 
@@ -86,18 +77,9 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility
     });
 
     it.each([
-        [
-            'the account was created after the navigation was released',
-            AFTER_RELEASE,
-        ],
-        [
-            'the creation date cannot be read',
-            'not-a-date',
-        ],
-        [
-            'the creation date is missing',
-            null,
-        ],
+        ['the account was created after the navigation was released', AFTER_RELEASE],
+        ['the creation date cannot be read', 'not-a-date'],
+        ['the creation date is missing', null],
     ])('does not show the modal to a brand new user of an old shop when %s', async (_case, createdAt) => {
         setCurrentUser(createdAt);
 

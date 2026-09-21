@@ -52,36 +52,12 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
     let wrapper;
 
     it.each([
-        [
-            'file name',
-            '.sw-import-export-activity-log-info-modal__item-file-name dd',
-            'star-lord.csv',
-        ],
-        [
-            'technical name',
-            '.sw-import-export-activity-log-info-modal__item-profile dd',
-            'default_product',
-        ],
-        [
-            'updated records',
-            '.sw-import-export-activity-log-info-modal__item-records dd',
-            '1',
-        ],
-        [
-            'file size',
-            '.sw-import-export-activity-log-info-modal__item-size dd',
-            '458.00B',
-        ],
-        [
-            'date',
-            '.sw-import-export-activity-log-info-modal__item-date dd',
-            '05/11/2021, 09:08',
-        ],
-        [
-            'user',
-            '.sw-import-export-activity-log-info-modal__item-user dd',
-            'admin',
-        ],
+        ['file name', '.sw-import-export-activity-log-info-modal__item-file-name dd', 'star-lord.csv'],
+        ['technical name', '.sw-import-export-activity-log-info-modal__item-profile dd', 'default_product'],
+        ['updated records', '.sw-import-export-activity-log-info-modal__item-records dd', '1'],
+        ['file size', '.sw-import-export-activity-log-info-modal__item-size dd', '458.00B'],
+        ['date', '.sw-import-export-activity-log-info-modal__item-date dd', '05/11/2021, 09:08'],
+        ['user', '.sw-import-export-activity-log-info-modal__item-user dd', 'admin'],
     ])('should display the %s', async (_, selector, expectedText) => {
         wrapper = await createWrapper();
 
@@ -90,18 +66,9 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
     });
 
     it.each([
-        [
-            'error',
-            'failed',
-        ],
-        [
-            'success',
-            'succeeded',
-        ],
-        [
-            undefined,
-            'pending',
-        ],
+        ['error', 'failed'],
+        ['success', 'succeeded'],
+        [undefined, 'pending'],
     ])('should display badge as %s', async (expectedVariant, logEntityState) => {
         const logEntity = getLogEntityMock();
         logEntity.state = logEntityState;

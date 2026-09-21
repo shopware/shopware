@@ -102,9 +102,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should be able to edit a review', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        const wrapper = await createWrapper(['product.editor']);
 
         await wrapper.setData({ dataSource, total: 2 });
 
@@ -122,9 +120,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should be able to delete a review', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        const wrapper = await createWrapper(['product.editor']);
 
         await wrapper.setData({ dataSource, total: 2 });
 

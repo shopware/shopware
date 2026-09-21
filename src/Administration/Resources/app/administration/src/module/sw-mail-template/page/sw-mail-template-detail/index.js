@@ -24,10 +24,7 @@ export default {
         'businessEventService',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -770,14 +767,7 @@ export default {
             variables.splice(1, 0, 'properties');
             const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
 
-            return (
-                field &&
-                field.type === 'association' &&
-                [
-                    'one_to_many',
-                    'many_to_many',
-                ].includes(field.relation)
-            );
+            return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
         },
 
         onGetTreeItems(parent) {

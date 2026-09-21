@@ -30,9 +30,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         S: {
@@ -197,12 +195,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         userActionsAriaLabel() {
             // The collapsed sidebar hides the visible user name, leaving the avatar button unnamed
-            return [
-                this.userName,
-                this.userTitle,
-            ]
-                .filter(Boolean)
-                .join(', ');
+            return [this.userName, this.userTitle].filter(Boolean).join(', ');
         },
 
         avatarUrl() {

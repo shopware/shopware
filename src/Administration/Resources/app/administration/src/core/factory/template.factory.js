@@ -310,6 +310,85 @@ function firstRawText(output) {
     return nestedOutput ? firstRawText(nestedOutput) : '';
 }
 
+const SLOT_TEMPLATE_ATTRIBUTE = /\s(#|v-slot)/;
+
+/** HTML elements that never have a closing tag, so they must not open a nesting level. */
+const VOID_ELEMENTS = new Set([
+    'area',
+    'base',
+    'br',
+    'col',
+    'embed',
+    'hr',
+    'img',
+    'input',
+    'link',
+    'meta',
+    'source',
+    'track',
+    'wbr',
+]);
+
+/**
+ * Markup of a block as one string. Nested blocks and other logic tokens (if/for) are flattened into it,
+ * Twig output tokens carry no tags and are left out.
+ */
+function flattenRawText(output) {
+    return output.reduce((text, token) => {
+        if (token.type === 'raw') {
+            return text + token.value;
+        }
+
+        if (token.type === 'logic' && token.token && Array.isArray(token.token.output)) {
+            return text + flattenRawText(token.token.output);
+        }
+
+        return text;
+    }, '');
+}
+
+/**
+ * Whether the markup has a named slot template as a direct child, at any position.
+ *
+ * Such a template fills a slot of the component surrounding the block. A wrapper around the whole block
+ * would take that slot over, and `sw-block` only renders its default slot, so the content would silently
+ * disappear. Slot templates inside a child element belong to that child and are not affected.
+ */
+function hasTopLevelSlotTemplate(text) {
+    const tagPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w-]*)/g;
+    let depth = 0;
+
+    for (let match = tagPattern.exec(text); match; match = tagPattern.exec(text)) {
+        if (match[0].startsWith('<!--')) {
+            continue;
+        }
+
+        const tagEnd = findTagEnd(text, match.index);
+
+        if (tagEnd === -1) {
+            return false;
+        }
+
+        const tag = text.slice(match.index, tagEnd);
+        const tagName = match[2].toLowerCase();
+        const isClosing = match[1] === '/';
+
+        if (!isClosing && depth === 0 && tagName === 'template' && SLOT_TEMPLATE_ATTRIBUTE.test(tag)) {
+            return true;
+        }
+
+        if (isClosing) {
+            depth -= 1;
+        } else if (!tag.endsWith('/>') && !VOID_ELEMENTS.has(tagName)) {
+            depth += 1;
+        }
+
+        tagPattern.lastIndex = tagEnd;
+    }
+
+    return false;
+}
+
 /** Index just past the `>` closing the tag that starts at `from`, ignoring quoted attribute values. */
 function findTagEnd(text, from) {
     let quote = null;
@@ -475,24 +554,34 @@ function wrapNativeBlockTargets(tokens) {
         const openTag = `<sw-block name="${blockName}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
         const closeTag = '</sw-block>';
 
+        const warnMixedContent = () => {
+            Shopware.Utils.debug.warn(
+                'TemplateFactory',
+                `The block "${blockName}" cannot host a native extension point: its content mixes a named slot ` +
+                    'template with other content. The native override for this block is ignored.',
+            );
+            acc.push(current);
+
+            return acc;
+        };
+
         if (SLOT_TEMPLATE_START.test(firstRawText(current.token.output))) {
             const insideOutput = wrapInsideSlotTemplate(current.token.output, openTag, closeTag);
 
             if (!insideOutput) {
-                Shopware.Utils.debug.warn(
-                    'TemplateFactory',
-                    `The block "${blockName}" cannot host a native extension point: its content mixes a named slot ` +
-                        'template with other content. The native override for this block is ignored.',
-                );
-                acc.push(current);
-
-                return acc;
+                return warnMixedContent();
             }
 
             changed = true;
             acc.push({ ...current, token: { ...current.token, output: insideOutput } });
 
             return acc;
+        }
+
+        // A slot template that follows other content is not caught by the check above, but wrapping it
+        // from the outside would still hand the slot to `sw-block` and lose it.
+        if (hasTopLevelSlotTemplate(flattenRawText(current.token.output))) {
+            return warnMixedContent();
         }
 
         changed = true;

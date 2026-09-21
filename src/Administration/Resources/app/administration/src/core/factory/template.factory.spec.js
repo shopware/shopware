@@ -153,6 +153,52 @@ describe('core/factory/template.factory.js - native block extension points', () 
         warnSpy.mockRestore();
     });
 
+    it('leaves a block whose slot template follows other content unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-trailing', blocks: ['tf_trailing_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-trailing',
+            '<sw-modal>{% block tf_trailing_block %}<p>Hello world</p><template #modal-footer><b>f</b></template>{% endblock %}</sw-modal>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The slot template is not the first child, so the starts-with check does not see it. Wrapping
+        // from the outside would hand the footer slot to sw-block, which never renders it.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-trailing').html).toBe(
+            '<sw-modal><p>Hello world</p><template #modal-footer><b>f</b></template></sw-modal>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_trailing_block'));
+
+        warnSpy.mockRestore();
+    });
+
+    it('wraps a block whose slot templates all belong to a child element', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-child-slots', blocks: ['tf_child_slots_block'] });
+
+        // Void and self-closing elements must not open a nesting level, or the card's slot would look nested
+        // one level too deep and the template's own slot would go unnoticed - or the reverse.
+        TemplateFactory.registerComponentTemplate(
+            'tf-child-slots',
+            '<div>{% block tf_child_slots_block %}<input type="text"><mt-icon name="x" /><!-- <template #ghost> --><sw-card><template #header><b>h</b></template>body</sw-card>{% endblock %}</div>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-child-slots').html).toBe(
+            '<div><sw-block name="tf_child_slots_block" :data="$dataScope" :sw-internal-legacy-shim="false">' +
+                '<input type="text"><mt-icon name="x" /><!-- <template #ghost> --><sw-card><template #header><b>h</b></template>body</sw-card>' +
+                '</sw-block></div>',
+        );
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
+    });
+
     it('leaves a block with two sibling slot templates unwrapped', () => {
         const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
 

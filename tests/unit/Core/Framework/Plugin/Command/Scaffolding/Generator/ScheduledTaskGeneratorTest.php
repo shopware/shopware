@@ -112,6 +112,7 @@ class ScheduledTaskGeneratorTest extends TestCase
             'expected' => [
                 'src/Resources/config/services.php',
                 'src/ScheduledTask/ExampleTask.php',
+                'src/ScheduledTask/ExampleTaskHandler.php',
             ],
         ];
     }

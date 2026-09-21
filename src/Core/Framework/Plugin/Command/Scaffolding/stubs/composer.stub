@@ -3,6 +3,7 @@
     "description": "{{ composerName }}",
     "type": "shopware-platform-plugin",
     "version": "0.1.0",
+    "license": "proprietary",
     "require": {
         "shopware/core": "~6.7.0"
     },

@@ -244,11 +244,15 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('id', 'string', get_debug_type($id));
         }
 
-        $context = $parameters->getContext()->getContext();
+        $writeContext = $parameters->getContext();
+        $context = $writeContext->getContext();
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
 
-        if (!$memo instanceof LayoutWriteContext) {
-            $memo = new LayoutWriteContext();
+        // A memo left by an earlier write on this reused Context is replaced, never appended to: its entries
+        // belong to that write and consume() hands out the oldest, so appending would gate this write's row
+        // against the stale tree.
+        if (!$memo instanceof LayoutWriteContext || !$memo->ownedBy($writeContext)) {
+            $memo = new LayoutWriteContext($writeContext);
             $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
         }
 

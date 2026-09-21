@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
@@ -124,6 +125,54 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
         $this->repository()->create([$this->layout('layout')], $context);
 
         static::assertTrue($this->memoOf($context)->isEmpty());
+    }
+
+    /**
+     * A write that dies during normalize never reaches the validation event, so its memoized trees stay on the
+     * caller's `Context`. The memo belongs to that write, so the next one on the same `Context` opens its own
+     * instead of reading the leftovers: without that, the second write's row would be gated against the first
+     * write's tree and an unresolvable layout would be stored.
+     */
+    #[TestDox('judges a write against its own tree even when an earlier write on the same context died before the gate')]
+    public function testWriteAfterAFailedWriteIsJudgedAgainstItsOwnTree(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $resolvable = $this->layout('layout');
+
+        $aborted = false;
+
+        try {
+            // The second row's layout is not a list of elements, so normalize throws after the first row's
+            // resolvable tree is already memoized and before any command reaches the gate.
+            $this->repository()->create([$resolvable, ['id' => $this->ids->get('broken'), 'name' => 'memo-test-broken', 'version' => '1.0.0', 'rootSource' => 'none', 'layout' => 'not-a-tree']], $context);
+        } catch (\Throwable) {
+            // The abort is the fixture; which exception carries it is the serializer's business, not this test's.
+            $aborted = true;
+        }
+
+        static::assertTrue($aborted, 'Expected the malformed layout payload to abort the write during normalize.');
+
+        static::assertFalse($this->memoOf($context)->isEmpty(), 'The failed write is expected to leave its memo behind; that is the condition under test.');
+
+        $unresolvable = $resolvable;
+        $unresolvable['layout'] = [[
+            'id' => $this->ids->get('layout-unresolvable-element'),
+            'component' => TestElementTypeLoader::UNRESOLVABLE,
+            'properties' => [],
+        ]];
+
+        try {
+            $this->repository()->upsert([$unresolvable], $context);
+            static::fail('The second write carries an unresolvable tree and must be rejected on its own merits.');
+        } catch (WriteException) {
+            // Judged against the tree it carries, not against the resolvable one the failed write left behind.
+        }
+
+        static::assertNull(
+            $this->repository()->searchIds(new Criteria([$this->ids->get('layout')]), $context)->firstId(),
+            'The rejected write must not have stored the layout.'
+        );
     }
 
     private function memoOf(Context $context): LayoutWriteContext

@@ -162,6 +162,23 @@ class StructEncoderTest extends TestCase
         static::assertSame($expectedCustomFields, $encoded['customFields']);
     }
 
+    public function testCustomFieldsWithPriceValueBeforeScalarValueAreEncoded(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setCustomFields([
+            'custom_price_field' => new PriceCollection(),
+            'custom_text_field' => 'Example text',
+        ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields());
+
+        static::assertSame('Example text', $encoded['customFields']['custom_text_field']);
+    }
+
     public function testCustomFieldsFieldIsBlocked(): void
     {
         $product = new ProductEntity();

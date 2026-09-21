@@ -204,7 +204,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     it('should hide advanced mode controls while the product type is still loading', async () => {
         await Shopware.State.commit('swProductDetail/setProduct', {});
-        await Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
+        await Shopware.State.commit('swProductDetail/setLoading', [
+            'product',
+            true,
+        ]);
 
         await wrapper.vm.$nextTick();
 
@@ -269,7 +272,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await Shopware.State.commit('swProductDetail/setProduct', {
             parentId: 'parent-id',
         });
-        await Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
+        await Shopware.State.commit('swProductDetail/setLoading', [
+            'product',
+            false,
+        ]);
         await wrapper.vm.$nextTick();
 
         const contextButton = wrapper.find('.sw-product-settings-mode');
@@ -390,7 +396,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
             },
         ];
 
-        wrapper.vm.productRepository.get = jest.fn()
+        wrapper.vm.productRepository.get = jest
+            .fn()
             .mockResolvedValueOnce({
                 id: 'child-id',
                 parentId: 'parent-id',
@@ -516,5 +523,31 @@ describe('module/sw-product/page/sw-product-detail', () => {
         // save shouldn't finish successfully (nothing should be sent to the server - no saveProduct call)
         expect(wrapper.vm.saveProduct.mock.calls).toHaveLength(0);
         await flushPromises();
+    });
+
+    it.each([
+        'success',
+        'empty',
+    ])('should announce a save that finished with "%s"', async (response) => {
+        wrapper.vm.loadProduct = jest.fn();
+        const emit = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.onSaveFinished(response);
+        await flushPromises();
+
+        expect(emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+        emit.mockRestore();
+    });
+
+    it('should not announce a save that failed', async () => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        const emit = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
+        await flushPromises();
+
+        expect(emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+        emit.mockRestore();
     });
 });

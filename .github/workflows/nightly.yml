@@ -105,13 +105,14 @@ jobs:
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
 
-  # Gated on all four so a partial upload never reports a wrong total; trunk-only by design, one point per day.
+  # needs only the Codecov coverage uploaders (php, admin, storefront) — integration only
+  # uploads test results for flaky-test tracking, no coverage. Gated on all three so a
+  # partial upload never reports a wrong total; trunk-only by design, one point per day.
   push-coverage-to-getdx:
     name: Push coverage to getDX
-    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk' && needs.php.result == 'success' && needs.integration.result == 'success' && needs.admin.result == 'success' && needs.storefront.result == 'success'
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk' && needs.php.result == 'success' && needs.admin.result == 'success' && needs.storefront.result == 'success'
     needs:
       - php
-      - integration
       - admin
       - storefront
     runs-on: ubuntu-24.04

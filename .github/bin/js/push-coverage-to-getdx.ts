@@ -1,7 +1,7 @@
 /**
  * Codecov keeps aggregating a commit's flags for a while after the last shard's upload lands,
  * so its `state` is polled until `complete` before reading totals and pushing them to getDX's
- * custom_data endpoint, keyed by commit SHA.
+ * customData.set endpoint, keyed by commit SHA.
  */
 
 export interface CodecovCommitTotals {
@@ -113,17 +113,18 @@ export async function pushCoverageToGetDx(
     token: string,
     fetchImpl: typeof fetch = fetch,
 ): Promise<void> {
-    const response = await fetchImpl('https://app.getdx.com/api/custom_data', {
+    const response = await fetchImpl('https://app.getdx.com/api/customData.set', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
+            Accept: 'application/json',
         },
         body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-        throw new Error(`getDX custom_data POST failed with ${response.status}: ${await response.text()}`);
+        throw new Error(`getDX customData.set POST failed with ${response.status}: ${await response.text()}`);
     }
 }
 

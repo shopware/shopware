@@ -43,6 +43,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 )]
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
+    use CustomerVatIdNormalizerTrait;
+
     /**
      * @internal
      *
@@ -94,7 +96,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $vatIds = $data->get('vatIds');
         if ($vatIds instanceof RequestDataBag) {
-            $vatIds = \array_filter($vatIds->all());
+            $vatIds = \array_filter($this->normalizeVatIds($vatIds->all()));
             $data->set('vatIds', $vatIds === [] ? null : $vatIds);
         }
 

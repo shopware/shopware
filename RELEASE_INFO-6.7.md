@@ -11,7 +11,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
-# 6.7.15.0 (upcoming)
+# 6.7.15.0
 
 ## Features
 

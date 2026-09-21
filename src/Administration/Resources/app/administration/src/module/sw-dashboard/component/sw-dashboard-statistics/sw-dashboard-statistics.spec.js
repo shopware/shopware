@@ -1,9 +1,7 @@
 import { mount } from '@vue/test-utils';
 import dictionary from 'src/module/sw-dashboard/snippet/en.json';
 
-const hasOrderTodayMock = [
-    {},
-];
+const hasOrderTodayMock = [{}];
 
 async function createWrapper(privileges = [], repository = {}) {
     const repositoryMock = {

@@ -149,18 +149,8 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.get('.sw-select-option--0').trigger('click');
         await wrapper.get('.sw-select-option--1').trigger('click');
 
-        expect(wrapper.vm.condition.value.customerGroupIds).toEqual(
-            expect.arrayContaining([
-                'g.a',
-                'g.b',
-            ]),
-        );
-        expect(wrapper.vm.values.customerGroupIds).toEqual(
-            expect.arrayContaining([
-                'g.a',
-                'g.b',
-            ]),
-        );
+        expect(wrapper.vm.condition.value.customerGroupIds).toEqual(expect.arrayContaining(['g.a', 'g.b']));
+        expect(wrapper.vm.values.customerGroupIds).toEqual(expect.arrayContaining(['g.a', 'g.b']));
     });
 
     it('should render condition with null operator', async () => {
@@ -237,10 +227,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
                         name: 'testValues',
                         type: 'multi-select',
                         config: {
-                            options: [
-                                'some_value',
-                                'some_other_value',
-                            ],
+                            options: ['some_value', 'some_other_value'],
                         },
                     },
                 ],
@@ -263,12 +250,7 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await wrapper.get('.mt-select-option--some_other_value').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.condition.value.testValues).toEqual(
-            expect.arrayContaining([
-                'some_value',
-                'some_other_value',
-            ]),
-        );
+        expect(wrapper.vm.condition.value.testValues).toEqual(expect.arrayContaining(['some_value', 'some_other_value']));
     });
 
     it('should render condition with tagged field', async () => {
@@ -314,43 +296,37 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(menu.props('type')).toBe('weight');
     });
 
-    it.each([
-        { type: 'date' },
-        { type: 'datetime' },
-    ])('should render between-date for $type field when operator is between', async ({ type }) => {
-        Shopware.Store.get('ruleConditionsConfig').config = {
-            ...ruleConditionsConfig,
-            orderCreatedDate: {
-                operatorSet: {
-                    operators: [
-                        '=',
-                        'between',
-                    ],
-                    isMatchAny: false,
+    it.each([{ type: 'date' }, { type: 'datetime' }])(
+        'should render between-date for $type field when operator is between',
+        async ({ type }) => {
+            Shopware.Store.get('ruleConditionsConfig').config = {
+                ...ruleConditionsConfig,
+                orderCreatedDate: {
+                    operatorSet: {
+                        operators: ['=', 'between'],
+                        isMatchAny: false,
+                    },
+                    fields: [{ name: 'createdAt', type, config: {} }],
                 },
-                fields: [{ name: 'createdAt', type, config: {} }],
-            },
-        };
+            };
 
-        const wrapper = await createWrapper({
-            type: 'orderCreatedDate',
-            value: { operator: 'between' },
-        });
-        await flushPromises();
+            const wrapper = await createWrapper({
+                type: 'orderCreatedDate',
+                value: { operator: 'between' },
+            });
+            await flushPromises();
 
-        expect(wrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
-        expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(false);
-    });
+            expect(wrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
+            expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(false);
+        },
+    );
 
     it('should render form-field-renderer for date field when operator is not between', async () => {
         Shopware.Store.get('ruleConditionsConfig').config = {
             ...ruleConditionsConfig,
             orderCreatedDate: {
                 operatorSet: {
-                    operators: [
-                        '=',
-                        'between',
-                    ],
+                    operators: ['=', 'between'],
                     isMatchAny: false,
                 },
                 fields: [{ name: 'createdAt', type: 'date', config: {} }],

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -117,18 +118,30 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentTypeId(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentTypeId;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentTypeId(?string $documentTypeId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentTypeId = $documentTypeId;
     }
 
@@ -163,18 +176,30 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentType(): ?DocumentTypeEntity
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentType;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentType = $documentType;
     }
 

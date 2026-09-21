@@ -23,9 +23,7 @@ export default {
         'companyAccountNameFieldsService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -39,9 +37,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('address', [
-            'company',
-        ]),
+        ...mapPropertyErrors('address', ['company']),
 
         customerRepository() {
             return this.repositoryFactory.create('customer');

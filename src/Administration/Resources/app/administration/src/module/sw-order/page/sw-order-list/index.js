@@ -20,9 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     data() {
         return {
@@ -579,12 +577,7 @@ export default {
 
                 const transactions = order.transactions ?? [];
                 for (let i = 0; i < transactions.length; i += 1) {
-                    if (
-                        ![
-                            'cancelled',
-                            'failed',
-                        ].includes(transactions[i].stateMachineState?.technicalName)
-                    ) {
+                    if (!['cancelled', 'failed'].includes(transactions[i].stateMachineState?.technicalName)) {
                         return transactions[i];
                     }
                 }

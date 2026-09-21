@@ -73,10 +73,7 @@ async function createWrapper(search = () => Promise.resolve([{ id: '1a' }])) {
 describe('src/module/sw-category/component/sw-landing-page-tree', () => {
     let oldSystemLanguageId = null;
     beforeEach(async () => {
-        global.activeAclRoles = [
-            'landing_page.creator',
-            'landing_page.editor',
-        ];
+        global.activeAclRoles = ['landing_page.creator', 'landing_page.editor'];
 
         Shopware.Store.get('swCategoryDetail').$reset();
 
@@ -464,10 +461,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
 
         await wrapper.vm.reloadLandingPages();
 
-        expect(search.mock.calls.map(([criteria]) => criteria.page)).toEqual([
-            1,
-            2,
-        ]);
+        expect(search.mock.calls.map(([criteria]) => criteria.page)).toEqual([1, 2]);
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.landingPages).toHaveLength(1000);
     });

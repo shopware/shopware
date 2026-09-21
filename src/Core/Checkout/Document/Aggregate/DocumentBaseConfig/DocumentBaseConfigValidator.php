@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,6 +24,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @phpstan-type Collision array{infix: string, extension: string, formats: list<string>, configs: list<string>}
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'Part of the legacy document generation pipeline. DocumentV2 handles this concern internally and exposes no counterpart.',
+)]
 class DocumentBaseConfigValidator implements EventSubscriberInterface
 {
     final public const INVALID_PAYMENT_DUE_DATE = 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE';

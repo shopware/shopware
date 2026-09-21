@@ -20,7 +20,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 |---|---|
 | `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
-| `integration-major.yml` | the same with `FEATURE_ALL: major` |
+| `integration-major.yml` | the same, plus Jest, once per in-flight major (`FEATURE_ALL: v6.8.0.0`) |
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
 | `acceptance.yml` | Playwright acceptance runs |
@@ -47,9 +47,20 @@ Three mechanisms decide how much runs:
 - **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
   `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
   applies the relevant PHP and Administration JS labels automatically when the diff
-  touches major feature flags. Nightly and manual runs ignore the labels.
+  touches major feature flags. Nightly and manual runs ignore the labels. Each arm
+  runs one leg per major that has not shipped yet, so no lane mixes two majors; the
+  lanes come from `feature.yaml` via `.github/bin/lib/feature-flags.php` and need no
+  upkeep in the workflows.
 - **`markdown-only-changes`** — a first job in each heavy workflow that
   short-circuits docs-only PRs.
+
+The `major/<version>` and `major/<version>-cleanup` labels are bookkeeping, not a
+fourth mechanism: they record which unreleased major a PR affects and gate nothing.
+`major-label.yml` applies them from the same registry the lanes come from, so a major
+gets its labels and its lane together. Do not confuse them with the hyphenated
+`major-php` / `major-js` test-lane labels above, and never fold them into
+`milestone/*` — a change for 6.8 ships in a 6.7.x minor, so the two answer different
+questions.
 
 PHPUnit runs through three composite actions rather than one, so each phase gets
 its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test

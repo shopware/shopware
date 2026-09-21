@@ -637,6 +637,7 @@ class RegisterRouteTest extends TestCase
         $country = new CountryEntity();
         $country->setId($countryId);
         $country->setVatIdRequired(true);
+        $country->setCheckVatIdPattern(false);
 
         $countryRepository = static::createStub(SalesChannelRepository::class);
         $countryRepository
@@ -1031,6 +1032,60 @@ class RegisterRouteTest extends TestCase
             static::assertSame('billingAddress', $violation->getPropertyPath());
             static::assertNotEmpty($violation->getMessage());
         }
+    }
+
+    public function testRegisterNormalizesVatIdsBeforeValidation(): void
+    {
+        $countryId = Uuid::randomHex();
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(false);
+        $country->setCheckVatIdPattern(true);
+
+        $countryRepository = static::createStub(SalesChannelRepository::class);
+        $countryRepository
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
+                    1,
+                    new CountryCollection([$country]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            );
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->with(
+                static::callback(static function (array $data): bool {
+                    static::assertSame(['DE123456789', 123456789], $data['vatIds']);
+
+                    return true;
+                }),
+                static::isInstanceOf(DataValidationDefinition::class)
+            )
+            ->willReturn(new ConstraintViolationList());
+
+        $register = $this->createRegisterRoute(
+            countryRepository: $countryRepository,
+            dataValidator: $dataValidator,
+        );
+
+        $data = $this->createRegistrationData();
+        $data['accountType'] = CustomerEntity::ACCOUNT_TYPE_BUSINESS;
+        $data['billingAddress']['countryId'] = $countryId;
+        $data['company'] = 'Test Company';
+        $data['vatIds'] = ['de 123456789', 123456789];
+
+        $register->register(
+            new RequestDataBag($data),
+            Generator::generateSalesChannelContext(),
+            false
+        );
     }
 
     #[TestDox('Accepts customer names with the maximum allowed length of 255 characters')]
@@ -1497,6 +1552,7 @@ class RegisterRouteTest extends TestCase
     /**
      * @param EntityRepository<SalutationCollection>|null $salutationRepository
      * @param EntityRepository<CustomerCollection>|StaticEntityRepository<CustomerCollection>|null $customerRepository
+     * @param SalesChannelRepository<CountryCollection>|null $countryRepository
      */
     private function createRegisterRoute(
         ?DataValidator $dataValidator = null,
@@ -1509,7 +1565,8 @@ class RegisterRouteTest extends TestCase
         ?DataValidationFactoryInterface $accountValidationFactory = null,
         ?DataValidationFactoryInterface $passwordValidationFactory = null,
         ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null,
-        ?DoubleOptInService $doubleOptInService = null
+        ?DoubleOptInService $doubleOptInService = null,
+        ?SalesChannelRepository $countryRepository = null,
     ): RegisterRoute {
         $dataValidator ??= static::createStub(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
@@ -1526,6 +1583,7 @@ class RegisterRouteTest extends TestCase
         ]);
         $customerRepository ??= $this->createCustomerRepository();
         $customerNewsletterSalesChannelsUpdater ??= static::createStub(CustomerNewsletterSalesChannelsUpdater::class);
+        $countryRepository ??= static::createStub(SalesChannelRepository::class);
 
         if ($doubleOptInService === null) {
             $doubleOptInService = static::createStub(DoubleOptInService::class);
@@ -1541,7 +1599,7 @@ class RegisterRouteTest extends TestCase
             $systemConfigService,
             $customerRepository,
             static::createStub(SalesChannelContextPersister::class),
-            static::createStub(SalesChannelRepository::class),
+            $countryRepository,
             static::createStub(Connection::class),
             static::createStub(SalesChannelContextService::class),
             $customFieldMapper,

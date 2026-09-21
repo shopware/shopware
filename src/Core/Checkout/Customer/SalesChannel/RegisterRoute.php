@@ -68,6 +68,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class RegisterRoute extends AbstractRegisterRoute
 {
     use CustomerAddressDataNormalizerTrait;
+    use CustomerVatIdNormalizerTrait;
 
     /**
      * @internal
@@ -362,6 +363,15 @@ class RegisterRoute extends AbstractRegisterRoute
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
                     countryId: $countryId
                 ));
+
+                $vatIds = $data->get('vatIds');
+                if ($vatIds instanceof DataBag) {
+                    $vatIds = $vatIds->all();
+                }
+
+                if (\is_array($vatIds) && $vatIds !== []) {
+                    $data->set('vatIds', $this->normalizeVatIds($vatIds));
+                }
             }
         }
 

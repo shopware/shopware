@@ -1141,7 +1141,6 @@
     "customer.doubleOptInRegistration",
     "customer.doubleOptInEmailSentDate",
     "customer.doubleOptInConfirmDate",
-    "customer.hash",
     "customer.guest",
     "customer.firstLogin",
     "customer.lastLogin",

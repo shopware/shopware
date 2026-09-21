@@ -39,6 +39,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -1131,6 +1132,7 @@ class LayoutDiagnosticsTest extends TestCase
             $serializers,
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
             new ContextPathResolver(),
+            new MappingConsumers(),
         );
     }
 

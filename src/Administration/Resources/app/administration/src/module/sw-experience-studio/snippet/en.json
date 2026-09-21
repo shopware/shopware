@@ -140,7 +140,7 @@
         "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
         "inlineTextEditingActive": "Inline editing is currently active in the preview.",
         "mapping": {
-          "mapAction": "Use dynamic data",
+          "mapAction": "Dynamic data",
           "unmapAction": "Remove dynamic data",
           "modalTitle": "Select dynamic data",
           "modalIntro": "Choose the data that fills \"{property}\" when the page is shown.",

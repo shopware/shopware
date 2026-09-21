@@ -37,9 +37,13 @@ use Shopware\Core\Framework\Log\Package;
  * property means a resolution ran and found nothing, and it has exactly two producers: a loader's
  * {@see ContentDataLoaderResult::notFound()},
  * and a context delivery that resolved to nothing (an under-supplied distribution strategy handing an
- * unmatched consumer null, or an optional dotted consumer key whose value cannot be traversed). Neither
- * authoring nor non-delivery is among them — an authored null and an undelivered consumer key are both
- * absent. Keeping present-null and key-absent apart is the point of the distinction.
+ * unmatched consumer null). Neither authoring nor non-delivery is among them — an authored null and an
+ * undelivered consumer key are both absent. Keeping present-null and key-absent apart is the point of the
+ * distinction.
+ *
+ * A dotted root consumer — a data mapping — resolving to nothing is deliberately NOT a producer:
+ * {@see ContextDeliveryResolver::overlayRootContext()} writes no key for it, so the authored value beneath
+ * survives as the mapping's fallback instead of being blanked by a delivered null.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored

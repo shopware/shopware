@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
@@ -47,6 +48,7 @@ class LayoutDiagnostics
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly ContextPathResolver $contextPathResolver,
+        private readonly MappingConsumers $mappingConsumers,
     ) {
     }
 
@@ -533,6 +535,16 @@ class LayoutDiagnostics
         $resolved = $resolution->resolved;
 
         if ($resolved === null || $resolved->origin !== CandidateOrigin::Stored) {
+            return [];
+        }
+
+        // A mapped property is filled from delivered root context, which RenderedElementFactory writes over the
+        // loader's value (Output/Index/ValueOrigin ranks DeliveredContext above LoaderResolved). The loader's
+        // input being empty therefore serves nothing empty, so it is not a defect. This gate would otherwise
+        // make every mapped resolvedBy reference unresolvable: a type default like Sw:Media:Image's
+        // `resolvedBy: mediaId` keeps a Stored resolution even when the author mapped the property instead of
+        // picking media, and an author who maps has no reason to also fill the storage key.
+        if (isset($this->mappingConsumers->mappedPropertyKeys($element)[$resolution->key])) {
             return [];
         }
 

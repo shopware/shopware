@@ -29,6 +29,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNorma
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
@@ -295,6 +296,7 @@ class ContentDiagnoseControllerTest extends TestCase
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             new ContextPathResolver(),
+            new MappingConsumers(),
         );
     }
 

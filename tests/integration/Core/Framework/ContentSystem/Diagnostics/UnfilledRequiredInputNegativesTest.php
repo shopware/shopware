@@ -4,11 +4,17 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Diagnostics;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -33,6 +39,9 @@ use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfig;
  *   demands no input, because no config key is a required `propertyReference`. This is the shipped `navigation`
  *   loader's shape, exercised here through the tagged test loader because no shipped core element type references
  *   the navigation `Tree`.
+ * - Data mapping: the reference resolves Stored through the shipped `resolvedBy: mediaId` default binding, but an
+ *   author mapped it to `category.media`, and delivered context outranks the loader at mint time. Without this
+ *   negative every mapped image would be unresolvable, since mapping and picking a media are alternatives.
  *
  * @internal
  */
@@ -78,6 +87,42 @@ class UnfilledRequiredInputNegativesTest extends TestCase
 
         static::assertTrue($report->isResolvable(), 'The navigation-shaped wiring resolves the reference and demands no input.');
         static::assertSame([], $this->unfilledRequiredInputs($report->bindingErrors()), 'A loader whose only propertyReference key is defaulted must never gate.');
+    }
+
+    #[TestDox('does not raise unfilled_required_input for a mapped media reference whose resolvedBy default binding has an empty mediaId')]
+    public function testAMappedReferenceDoesNotGateOnTheStorageKeyItsMappingReplaces(): void
+    {
+        // What an author leaves behind after mapping the image: the `resolvedBy: mediaId` default binding the
+        // insert attached is still there and still resolves Stored, but `mediaId` was never picked because the
+        // media now comes from the category. Delivered context outranks the loader at mint time, so the empty
+        // storage key serves nothing empty and must not be reported.
+        $element = new StoredElement(
+            'el-1',
+            'Sw:Media:Image',
+            ['media' => new DataRequirement('media', EntityLoader::SOURCE, new EntityLoaderConfig('media', 'mediaId', []))],
+            [],
+            [],
+            new ContextDefinitions([], ['category.media' => new ContextConsumer(
+                type: ContextType::Single,
+                required: false,
+                propertyAlias: 'media',
+                scope: ConsumerScope::Root,
+            )]),
+        );
+
+        $rootContext = [new ProvidedContext(
+            contextKey: 'category',
+            fqcn: SalesChannelCategoryEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: null,
+            distribution: DistributionStrategy::Broadcast,
+            root: true,
+        )];
+
+        $report = $this->diagnostics()->analyze([$element], $rootContext)->report;
+
+        static::assertSame([], $this->unfilledRequiredInputs($report->bindingErrors()), 'A mapped reference must not gate on the storage key its mapping replaces.');
+        static::assertTrue($report->isResolvable(), 'A mapped image with no picked media is servable.');
     }
 
     /**

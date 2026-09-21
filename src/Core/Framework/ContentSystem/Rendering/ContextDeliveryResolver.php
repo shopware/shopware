@@ -116,6 +116,8 @@ final readonly class ContextDeliveryResolver
      * An ambient `null` delivers nothing and writes no key, matching the provider null gate in
      * {@see ContextDistributor::distribute()}: a key absent from a delivery is one nothing delivered, and an
      * ambient null must not be turned into the present null that means a resolution ran and found nothing.
+     * A DOTTED consumer whose path resolves to null writes no key either, for a different reason — see the
+     * fallback rule at the write below.
      *
      * Root-scoped writes run after the parent's, so they win a shared property key. Nothing can produce that
      * collision today (`WiringPlanner::validatePropertyAliases()` makes the base keys an element's consumers
@@ -145,13 +147,23 @@ final readonly class ContextDeliveryResolver
                     continue;
                 }
 
-                $context[$consumer->propertyAlias ?? $consumerKey] = $this->ambientValueFor(
-                    $element,
-                    $consumerKey,
-                    $consumer,
-                    $ambientKey,
-                    $value
-                );
+                $resolved = $this->ambientValueFor($element, $consumerKey, $consumer, $ambientKey, $value);
+
+                // A dotted consumer that resolved to nothing writes NO key, so the authored value underneath
+                // survives. This is the data-mapping fallback rule: an author who maps a property keeps the
+                // value they typed as the placeholder for entities where the mapped field is empty, and a
+                // present null here would instead blank the element, because the delivered tier outranks the
+                // authored one in RenderedElementFactory. Delivering nothing only yields to the tiers below;
+                // what those hold is their business, so a property whose own loader reported not-found still
+                // renders that loader's null.
+                //
+                // Only the dotted case. An exact ambient key match keeps the present-null contract, and so
+                // does every parent-scoped delivery, so nothing outside mapping changes behaviour.
+                if ($resolved === null && $consumerKey !== $ambientKey) {
+                    continue;
+                }
+
+                $context[$consumer->propertyAlias ?? $consumerKey] = $resolved;
                 $overlaid = true;
             }
         }
@@ -163,7 +175,7 @@ final readonly class ContextDeliveryResolver
      * An exact match hands on the SAME PHP instance, which is what makes the value-index instance map collapse
      * a root delivery onto the ambient loader value's ref. A dot path resolves through the value, which needs
      * a {@see Struct} to traverse: a required consumer that cannot get one fails naming this element, an
-     * optional one takes an explicit null.
+     * optional one yields null — which the caller reads as "deliver nothing" rather than writing through.
      */
     private function ambientValueFor(
         StoredElement $element,

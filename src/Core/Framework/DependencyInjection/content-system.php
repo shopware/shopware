@@ -117,6 +117,7 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoade
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
@@ -698,6 +699,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
             service(ContextPathResolver::class),
+            service(MappingConsumers::class),
         ]);
 
     $services->set(LayoutGate::class)
@@ -716,6 +718,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Data-mapping catalogue: one authority behind both the introspection endpoint and the write gate below
     $services->set(MappingTypeCompatibility::class);
 
+    // Shared mapping-vs-mirrored-wiring test, read by the write gate and by LayoutDiagnostics above
+    $services->set(MappingConsumers::class);
+
     $services->set(ContentSystemMappingCandidateRegistry::class)
         ->args([
             tagged_iterator('content_system.mapping_candidate_provider'),
@@ -726,6 +731,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemElementTypeRegistry::class),
             service(ContentSystemMappingCandidateRegistry::class),
             service(MappingTypeCompatibility::class),
+            service(MappingConsumers::class),
         ]);
 
     // Resolvability gate (DAL PreWriteValidationEvent)

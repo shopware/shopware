@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -32,9 +31,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * keyed `productListing` aliased onto its declared `listing` property. That is wiring the mutation layer
  * proved, not something an author mapped, and demanding `mappable: true` for it rejects every listing page.
  *
- * The dot separates them. A mapping reads a PATH INTO an ambient value (`category.name`), while a mirrored
- * consumer keys off the ambient value itself, and an ambient key is a bare data-requirement name that never
- * contains a dot. {@see MappingCandidate} holds the other half of that invariant by refusing an undotted path.
+ * That test lives in {@see MappingConsumers}, shared with the diagnostics layer so the two cannot drift.
  *
  * Two further shapes are deliberately left alone. A dotted root-scoped consumer whose alias does NOT name a
  * declared property stays unjudged: the content system has always let such a consumer deliver onto an
@@ -50,6 +47,7 @@ final class StoredMappingValidator
         private readonly AbstractContentSystemElementTypeRegistry $typeRegistry,
         private readonly AbstractContentSystemMappingCandidateRegistry $candidateRegistry,
         private readonly MappingTypeCompatibility $compatibility,
+        private readonly MappingConsumers $mappingConsumers,
     ) {
     }
 
@@ -86,7 +84,7 @@ final class StoredMappingValidator
         $declared = $this->typeRegistry->get($element->component)->properties();
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$this->isMapping($consumer, (string) $consumerKey)) {
+            if (!$this->mappingConsumers->isMapping($consumer, (string) $consumerKey)) {
                 continue;
             }
 
@@ -102,17 +100,6 @@ final class StoredMappingValidator
                 $violations->add($violation);
             }
         }
-    }
-
-    /**
-     * A consumer this gate owns, as opposed to one the mutation layer mirrored. See the class docblock for why
-     * the dot is the discriminator.
-     */
-    private function isMapping(ContextConsumer $consumer, string $consumerKey): bool
-    {
-        return $consumer->scope === ConsumerScope::Root
-            && $consumer->propertyAlias !== null
-            && str_contains($consumerKey, '.');
     }
 
     /**

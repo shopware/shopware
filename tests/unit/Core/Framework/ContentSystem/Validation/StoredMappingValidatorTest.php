@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\Log\Package;
@@ -219,6 +220,6 @@ class StoredMappingValidatorTest extends TestCase
             ),
         ]);
 
-        return new StoredMappingValidator($typeRegistry, $candidateRegistry, new MappingTypeCompatibility());
+        return new StoredMappingValidator($typeRegistry, $candidateRegistry, new MappingTypeCompatibility(), new MappingConsumers());
     }
 }

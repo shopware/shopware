@@ -140,7 +140,7 @@
         "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
         "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv.",
         "mapping": {
-          "mapAction": "Dynamische Daten verwenden",
+          "mapAction": "Dynamische Daten",
           "unmapAction": "Dynamische Daten entfernen",
           "modalTitle": "Dynamische Daten auswählen",
           "modalIntro": "Wähle die Daten, die „{property}“ beim Anzeigen der Seite füllen.",

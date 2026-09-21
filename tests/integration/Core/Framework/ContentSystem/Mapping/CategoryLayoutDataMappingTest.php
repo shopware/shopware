@@ -24,7 +24,13 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Proves data mapping end-to-end on a listing page layout: an author maps the `text` property of a shipped
  * `Sw:Content:Text` element to `category.name`, and the Store API serves the bound category's own name in
- * place of the authored copy.
+ * place of the authored copy. The same holds for a REFERENCE property, `Sw:Media:Image.media` mapped to
+ * `category.media`, which differs in one way that matters — the property is required and the element type
+ * fills it itself from a picked `mediaId`, so mapping competes with an existing source rather than with a
+ * plain authored value.
+ *
+ * The fallback cases pin the other half of that competition: a mapped path that resolves to nothing yields
+ * to whatever the author left behind, rather than blanking the element with a delivered null.
  *
  * Nothing in the rendering pipeline is mapping-aware. A mapping IS a root-scoped context consumer whose key
  * is a dotted path into the page-level data and whose `propertyAlias` names the property it fills, and the
@@ -153,6 +159,101 @@ class CategoryLayoutDataMappingTest extends TestCase
     }
 
     /**
+     * The first reference property to become mappable. Unlike `text`, `Sw:Media:Image.media` is filled by the
+     * element type's own `resolvedBy: mediaId` binding, so mapping it is the author choosing the category's
+     * image over one they pick by hand — two sources for one property, settled at mint time by the delivered
+     * tier outranking the loader.
+     */
+    #[TestDox('serves the bound category media in place of the picked one when the media property is mapped')]
+    public function testAMappedReferenceServesTheEntityValue(): void
+    {
+        $this->createMedia('category-media');
+        $this->createMedia('picked-media');
+        $this->createCategory($this->ids->get('category-media'));
+        $this->persistLayout($this->imageElement(mappedTo: 'category.media', mediaId: $this->ids->get('picked-media')));
+
+        static::assertSame($this->ids->get('category-media'), $this->servedMediaId());
+    }
+
+    /**
+     * The control for the case above: the same element, same picked media, no mapping.
+     */
+    #[TestDox('serves the picked media when the media property carries no mapping')]
+    public function testAnUnmappedReferenceServesItsPickedValue(): void
+    {
+        $this->createMedia('category-media');
+        $this->createMedia('picked-media');
+        $this->createCategory($this->ids->get('category-media'));
+        $this->persistLayout($this->imageElement(mappedTo: null, mediaId: $this->ids->get('picked-media')));
+
+        static::assertSame($this->ids->get('picked-media'), $this->servedMediaId());
+    }
+
+    /**
+     * An author who maps the image has no reason to also pick a media, but `media` is a required reference and
+     * its shipped `resolvedBy: mediaId` binding still resolves Stored, so the resolvability gate would read the
+     * empty `mediaId` as an unfilled required input and refuse the save. It must not: the mapping fills the
+     * property. This is the one case where making a reference mappable took more than the declaration.
+     */
+    #[TestDox('saves a mapped image that picks no media of its own')]
+    public function testAMappedReferenceNeedsNoPickedValueToSave(): void
+    {
+        $this->createMedia('category-media');
+        $this->createCategory($this->ids->get('category-media'));
+        $this->persistLayout($this->imageElement(mappedTo: 'category.media', mediaId: null));
+
+        static::assertSame($this->ids->get('category-media'), $this->servedMediaId());
+    }
+
+    /**
+     * The fallback rule, on a primitive. The fixture category has no description, so the mapped path
+     * resolves to nothing — and the value the author typed is what they meant to show when it does.
+     */
+    #[TestDox('serves the authored copy when the mapped path resolves to nothing')]
+    public function testAMappedPathResolvingToNullFallsBackToTheAuthoredValue(): void
+    {
+        $this->createCategory();
+        $this->persistLayout($this->textElement(mappedTo: 'category.description'));
+
+        static::assertSame(self::AUTHORED_TEXT, $this->servedText());
+    }
+
+    /**
+     * The same rule on a reference, which is where it stops being a nicety: an image whose mapped category
+     * has none would otherwise render blank even though the author picked a media for exactly this case.
+     */
+    #[TestDox('serves the picked media when the mapped category has none')]
+    public function testAMappedReferenceResolvingToNullFallsBackToThePickedValue(): void
+    {
+        $this->createMedia('picked-media');
+        $this->createCategory();
+        $this->persistLayout($this->imageElement(mappedTo: 'category.media', mediaId: $this->ids->get('picked-media')));
+
+        static::assertSame($this->ids->get('picked-media'), $this->servedMediaId());
+    }
+
+    /**
+     * The third branch: nothing mapped resolves and nothing was picked, so the property serves null.
+     *
+     * Worth being exact about where that null comes from, because it is NOT the mapping. The mapping wrote
+     * no key; the null is the element's own `resolvedBy` loader reporting not-found for an empty `mediaId`,
+     * which is a present value in the loader tier. So this asserts the outcome the author sees, while the
+     * delivery unit test is what pins that the mapping itself stayed out of the way — without that one,
+     * this case would pass just as well if the mapping had written the null.
+     */
+    #[TestDox('serves null when neither the mapped category nor a picked media supplies an image')]
+    public function testAMappedReferenceWithNothingBehindItServesNull(): void
+    {
+        $this->createCategory();
+        $this->persistLayout($this->imageElement(mappedTo: 'category.media', mediaId: null));
+
+        $properties = $this->servedProperties();
+
+        static::assertArrayHasKey('media', $properties);
+        static::assertNull($properties['media']);
+    }
+
+    /**
      * The `text` property of the shipped text element, optionally carrying a mapping.
      *
      * @return array<string, mixed>
@@ -180,9 +281,44 @@ class CategoryLayoutDataMappingTest extends TestCase
     }
 
     /**
-     * The served `properties.text` of the fixture's text element.
+     * The shipped image element, optionally carrying a mapping and optionally picking a media of its own. The
+     * `dataRequirements` entry is the type default the mutation layer attaches on insert, written out here
+     * because this fixture goes through the DAL rather than the mutation pipeline.
+     *
+     * @return array<string, mixed>
      */
-    private function servedText(): string
+    private function imageElement(?string $mappedTo, ?string $mediaId): array
+    {
+        $element = [
+            'id' => $this->ids->create('image'),
+            'component' => 'Sw:Media:Image',
+            'properties' => $mediaId === null ? [] : ['mediaId' => $mediaId],
+            'dataRequirements' => [
+                'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+            ],
+        ];
+
+        if ($mappedTo !== null) {
+            $element['acceptsContext'] = [
+                $mappedTo => [
+                    'type' => 'single',
+                    'required' => false,
+                    'propertyAlias' => 'media',
+                    'scope' => 'root',
+                ],
+            ];
+        }
+
+        return $element;
+    }
+
+    /**
+     * The served `properties` map of the fixture's single content element. Returned whole rather than as one
+     * value, because the fallback cases below assert that a key is ABSENT, which a per-key reader cannot say.
+     *
+     * @return array<string, mixed>
+     */
+    private function servedProperties(): array
     {
         $this->browser->request('GET', '/store-api/content/category/' . $this->ids->get('category'));
 
@@ -193,10 +329,33 @@ class CategoryLayoutDataMappingTest extends TestCase
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($body);
 
-        $text = $body['elements'][0]['slots']['content'][0]['properties']['text'] ?? null;
+        $properties = $body['elements'][0]['slots']['content'][0]['properties'] ?? null;
+        static::assertIsArray($properties, 'The fixture element must be served with a properties map.');
+
+        return $properties;
+    }
+
+    /**
+     * The served `properties.text` of the fixture's text element.
+     */
+    private function servedText(): string
+    {
+        $text = $this->servedProperties()['text'] ?? null;
         static::assertIsString($text, 'The fixture text element must be served with a text property.');
 
         return $text;
+    }
+
+    /**
+     * The id of the served `properties.media` of the fixture's image element.
+     */
+    private function servedMediaId(): string
+    {
+        $media = $this->servedProperties()['media'] ?? null;
+        static::assertIsArray($media, 'The fixture image element must be served with a media property.');
+        static::assertIsString($media['id'] ?? null);
+
+        return $media['id'];
     }
 
     /**
@@ -229,12 +388,30 @@ class CategoryLayoutDataMappingTest extends TestCase
         static::fail('Expected the content layout write gate to reject the mapping.');
     }
 
-    private function createCategory(): void
+    private function createCategory(?string $mediaId = null): void
     {
-        $this->repository('category.repository')->create([[
+        $payload = [
             'id' => $this->ids->create('category'),
             'name' => self::CATEGORY_NAME,
             'active' => true,
+        ];
+
+        if ($mediaId !== null) {
+            $payload['mediaId'] = $mediaId;
+        }
+
+        $this->repository('category.repository')->create([$payload], Context::createDefaultContext());
+    }
+
+    private function createMedia(string $key): void
+    {
+        $this->repository('media.repository')->create([[
+            'id' => $this->ids->create($key),
+            'fileName' => $key,
+            'fileExtension' => 'png',
+            'mimeType' => 'image/png',
+            'path' => 'media/' . $key . '.png',
+            'private' => false,
         ]], Context::createDefaultContext());
     }
 

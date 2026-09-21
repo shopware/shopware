@@ -349,17 +349,34 @@
         cursor: default;
     }
 
+    // Controls carry their own 22px bottom margin, which lands between the input and the mapping action
+    // belonging to it — the action reads as introducing the next field rather than describing this one. The
+    // reset hands that gap to the field wrapper so it falls after the action instead. Matching the controls'
+    // own value keeps a mappable field spaced exactly like its neighbours.
+    //
+    // Keyed on `:has()` rather than a template modifier so the rule cannot drift from `canMapField()`, and
+    // because the resulting three-class specificity clears every control's own margin, including the
+    // `.mt-field.mt-field--small` rule that out-specifies a single class.
+    &__field:has(> .sw-experience-studio-settings-fields__mapping-trigger) {
+        margin-bottom: var(--scale-size-22);
+
+        > :not(.sw-experience-studio-settings-fields__mapping-trigger) {
+            margin-bottom: 0;
+        }
+    }
+
     &__mapping-trigger {
         display: flex;
         gap: var(--scale-size-4);
         align-items: center;
+        width: fit-content;
         padding: 0;
         margin-top: var(--scale-size-4);
+        margin-left: auto;
         border: 0;
         background: transparent;
         color: var(--color-interaction-primary-default);
         font-size: var(--font-size-xs);
-        text-align: left;
         cursor: pointer;
     }
 

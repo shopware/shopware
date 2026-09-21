@@ -79,7 +79,9 @@ properties:
 
 The flag is what makes the two look different to the write gate, because on the wire they nearly coincide: a mapping and the root-scoped consumer the mutation layer mirrors for resolved wiring are both root-scoped entries carrying a `propertyAlias`. They are told apart by the key — a mapping reads a dotted path into an ambient value (`category.name`), mirrored wiring keys off the bare ambient name (`productListing`).
 
-If you do mark a property both mappable and self-filled, a mapping **wins**: `Output/Index/ValueOrigin` ranks `DeliveredContext` above `LoaderResolved`, and nothing warns you. That combination is only meaningful when overriding your loader is a feature you intend to offer.
+If you do mark a property both mappable and self-filled, a mapping **wins**: `Output/Index/ValueOrigin` ranks `DeliveredContext` above `LoaderResolved`, and nothing warns you. That combination is only meaningful when overriding your loader is a feature you intend to offer — which is how `Sw:Media:Image.media` works, where mapping the category's image and picking one by hand are two ways to say the same thing.
+
+Note what that means for a **required** reference with a `resolvedBy` storage key. Mapping it and filling the storage key are alternatives, so an author who maps leaves the key empty, and the diagnostics rule that would normally call an empty required loader input a defect (`UnfilledRequiredInput`) stands down for a mapped property. You get that for free; it is not something a type file opts into.
 
 **`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`.
 

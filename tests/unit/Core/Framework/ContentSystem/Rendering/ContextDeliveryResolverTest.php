@@ -371,12 +371,12 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
-     * The optional twin of the rejection above: a dotted path needs a Struct to traverse, and an optional
-     * consumer that cannot get one takes a PRESENT null (a resolution ran and found nothing), unlike the
-     * ambient null below, which writes no key.
+     * The optional twin of the rejection above. A dotted path needs a Struct to traverse, and an optional
+     * consumer that cannot get one delivers nothing — it does NOT write the present null that every other
+     * resolution-found-nothing writes. See the fallback rule on the sibling case below for why.
      */
-    #[TestDox('delivers a present null to an optional dotted root-scoped consumer over a non-Struct ambient value')]
-    public function testOptionalDottedRootScopedConsumerTakesANullOverANonStructAmbientValue(): void
+    #[TestDox('writes no key for an optional dotted root-scoped consumer over a non-Struct ambient value')]
+    public function testOptionalDottedRootScopedConsumerWritesNoKeyOverANonStructAmbientValue(): void
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
@@ -387,7 +387,52 @@ class ContextDeliveryResolverTest extends TestCase
 
         $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
 
-        static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The data-mapping fallback rule, at the delivery seam. A dotted root-scoped consumer IS a mapping, and
+     * the entity it reads may simply have nothing at that member — a category with no image, a product with
+     * no cover. Writing a present null there would blank the element, because the delivered tier outranks
+     * the authored one in `RenderedElementFactory`; writing no key leaves the author's value standing as the
+     * placeholder they intended it to be.
+     *
+     * Asserted as the WHOLE map rather than as the key holding null, because present-null and key-absent are
+     * exactly the two states this rule distinguishes.
+     */
+    #[TestDox('writes no key when a dotted root-scoped consumer resolves to null, so the authored value survives')]
+    public function testADottedRootScopedConsumerResolvingToNullWritesNoKey(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        // The ambient value is a perfectly good Struct; it just holds nothing at `cover`, which is the
+        // ordinary case this rule exists for rather than a malformed one.
+        $index = $this->resolver()->resolve([$root], [], ['product' => new StubContextStruct()]);
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The scoping guard. The fallback rule is keyed on the consumer key being dotted, so an EXACT ambient
+     * key match must keep delivering whatever the ambient map holds — including a value that is itself
+     * falsy. Without this, a narrowing of the rule to "any null-ish delivered value" would pass every test
+     * above while quietly dropping legitimate exact-key deliveries.
+     */
+    #[TestDox('still delivers an exact-key root-scoped value that is falsy rather than treating it as unresolved')]
+    public function testAnExactKeyRootDeliveryOfAFalsyValueIsStillWritten(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$this->rootScopedConsumer('child-1', 'language')])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => '']);
+
+        static::assertSame(['language' => ''], $index->all()['child-1']->context);
     }
 
     /**

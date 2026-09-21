@@ -20,9 +20,7 @@ class ClassAliasRegistryTest extends TestCase
         require \dirname(__DIR__, 5) . '/src/Core/Framework/Deprecation/class_aliases.php';
 
         foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
-            // @phpstan-ignore function.impossibleType (The test verifies the aliases registered dynamically above.)
             static::assertTrue(class_exists($previousClassName, autoload: false));
-            // @phpstan-ignore argument.unresolvableType, method.unresolvableReturnType (PHPStan cannot resolve dynamic aliases.)
             static::assertTrue($currentClassName === (new \ReflectionClass($previousClassName))->getName());
         }
     }

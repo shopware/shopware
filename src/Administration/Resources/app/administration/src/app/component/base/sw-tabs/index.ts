@@ -119,12 +119,14 @@ export default Shopware.Component.wrapComponentConfig({
             // Convert the slotted `sw-tabs-item` vnodes into `mt-tabs` items. A `v-for` of items is
             // wrapped in a fragment vnode, so its children are unwrapped and mapped individually.
             return defaultSlotContent.flatMap((item) => {
+                // v-for
                 if (item.type === Fragment) {
                     const children = Array.isArray(item.children) ? (item.children as VNode[]) : [];
 
                     return children.filter(isTabItemVNode).map((child) => resolveTabItem(child, this.$router));
                 }
 
+                // normal cases
                 if (isTabItemVNode(item)) {
                     return [resolveTabItem(item, this.$router)];
                 }

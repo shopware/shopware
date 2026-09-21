@@ -176,11 +176,16 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            // simple array of structs case
-            if ($this->isStructArray($object)) {
+            if ($this->containsAnyStruct($object)) {
                 $array = [];
                 foreach ($object as $key => $item) {
-                    $array[$key] = $this->encodeStruct($item, $fields, $value[$key]);
+                    if ($item instanceof Struct) {
+                        $array[$key] = $this->encodeStruct($item, $fields, $value[$key] ?? []);
+
+                        continue;
+                    }
+
+                    $array[$key] = $item;
                 }
 
                 $data[$property] = $array;
@@ -356,18 +361,19 @@ class StructEncoder implements ResetInterface
         return $value;
     }
 
-    private function isStructArray(mixed $object): bool
+    private function containsAnyStruct(mixed $object): bool
     {
         if (!\is_array($object)) {
             return false;
         }
 
-        $values = array_values($object);
-        if (!isset($values[0])) {
-            return false;
+        foreach ($object as $item) {
+            if ($item instanceof Struct) {
+                return true;
+            }
         }
 
-        return $values[0] instanceof Struct;
+        return false;
     }
 
     private function fetchBlockedCustomFields(): void

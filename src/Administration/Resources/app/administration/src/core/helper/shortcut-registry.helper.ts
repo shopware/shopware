@@ -18,10 +18,13 @@ export type ShortcutRegistration = {
     key: string;
     handler: () => void;
     /** Whether the shortcut may fire right now — evaluated on every keystroke, never cached. */
-    active: () => boolean;
+    active: (event: KeyboardEvent) => boolean;
 };
 
 type DeviceHelper = { getSystemKey: () => string };
+
+/** Shape of the `shortcut` factory slot, which the DI container types as `$TSFixMe`. */
+type ShortcutFactory = { getShortcutRegistry?: () => Map<string, string> };
 
 let activeShortcuts: ShortcutRegistration[] = [];
 let listenerAttached = false;
@@ -91,17 +94,29 @@ function hasLongerSequenceThan(sequence: string): boolean {
     });
 }
 
-function getMatchedShortcut(shortcutKey: string): ShortcutRegistration | undefined {
-    if (isSystemShortcut(shortcutKey)) {
+/**
+ * Global navigation shortcuts live in their own registry, outside this one. Their prefixes still have
+ * to hold the buffer open, or a sequence like `MP` would fire `M`'s single-key match on the first key.
+ */
+function isNavigationSequence(sequence: string): boolean {
+    const shortcutFactory = Shopware.Application.getContainer('factory').shortcut as ShortcutFactory | undefined;
+    const registry = shortcutFactory?.getShortcutRegistry?.();
+
+    if (!registry) {
+        return false;
+    }
+
+    return [...registry.keys()].some((combination) => combination.toUpperCase().startsWith(sequence));
+}
+
+function getMatchedShortcut(shortcutKey: string, allowSequence: boolean): ShortcutRegistration | undefined {
+    if (isSystemShortcut(shortcutKey) || !allowSequence) {
         resetSequenceNow();
 
         return findShortcut(shortcutKey);
     }
 
-    sequenceBuffer = [
-        ...sequenceBuffer,
-        shortcutKey,
-    ];
+    sequenceBuffer = [...sequenceBuffer, shortcutKey];
 
     const sequence = sequenceBuffer.join('');
     const matchedShortcut = findShortcut(sequence);
@@ -116,7 +131,7 @@ function getMatchedShortcut(shortcutKey: string): ShortcutRegistration | undefin
 
     // Prefix of a longer sequence: keep the buffer and wait for the next key instead of falling
     // through to a single-key match.
-    if (hasLongerSequenceThan(sequence)) {
+    if (hasLongerSequenceThan(sequence) || isNavigationSequence(sequence)) {
         return undefined;
     }
 
@@ -126,6 +141,10 @@ function getMatchedShortcut(shortcutKey: string): ShortcutRegistration | undefin
 }
 
 function handleKeyDown(event: KeyboardEvent): void {
+    if (event.repeat) {
+        return;
+    }
+
     if (areShortcutsDisabled()) {
         resetSequence();
 
@@ -134,13 +153,13 @@ function handleKeyDown(event: KeyboardEvent): void {
 
     const eventTarget = event.target instanceof Element ? event.target : null;
 
-    if (eventTarget?.closest('.sw-modal') || eventTarget?.closest('.sw-modal__dialog')) {
+    if (eventTarget?.closest('.sw-modal, .sw-modal__dialog, .mt-modal')) {
         resetSequence();
 
         return;
     }
 
-    const { key, altKey, ctrlKey } = event;
+    const { key, altKey, ctrlKey, metaKey } = event;
     const systemKeyPressed = systemKey() === 'CTRL' ? ctrlKey : altKey;
     const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
 
@@ -150,9 +169,11 @@ function handleKeyDown(event: KeyboardEvent): void {
         return;
     }
 
-    const matchedShortcut = getMatchedShortcut(combinedKey);
+    // Browser shortcuts like Ctrl+C keep matching single keys, but never start or continue a key sequence
+    const isModifiedKey = altKey || ctrlKey || metaKey;
+    const matchedShortcut = getMatchedShortcut(combinedKey, !isModifiedKey);
 
-    if (!matchedShortcut || !matchedShortcut.active()) {
+    if (!matchedShortcut || !matchedShortcut.active(event)) {
         return;
     }
 

@@ -8,10 +8,11 @@ import { registerShortcut } from 'src/core/helper/shortcut-registry.helper';
 /** @private */
 export interface UseShortcutOptions {
     /**
-     * Whether the shortcut may fire, re-evaluated on every keystroke. The Options API equivalent was
-     * `{ active, method }`, where `active` could also be a constant.
+     * Whether the shortcut may fire, re-evaluated on every keystroke and passed the keydown event so
+     * a shortcut can rule itself out by modifier. The Options API equivalent was `{ active, method }`,
+     * where `active` could also be a constant.
      */
-    active?: (() => boolean) | boolean;
+    active?: ((event: KeyboardEvent) => boolean) | boolean;
 }
 
 /**

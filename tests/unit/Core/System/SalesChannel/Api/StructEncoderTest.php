@@ -179,6 +179,35 @@ class StructEncoderTest extends TestCase
         static::assertSame('Example text', $encoded['customFields']['custom_text_field']);
     }
 
+    public function testCustomFieldsWithPriceValueAreFiltered(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setCustomFields([
+            'custom_price_field' => new PriceCollection(),
+            'visible_field' => 'Visible text',
+            'blocked_field' => 'Blocked text',
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'blocked_field',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $encoded = $structEncoder->encode($product, new ResponseFields());
+
+        static::assertSame('Visible text', $encoded['customFields']['visible_field']);
+        static::assertArrayNotHasKey('blocked_field', $encoded['customFields']);
+    }
+
     public function testCustomFieldsFieldIsBlocked(): void
     {
         $product = new ProductEntity();

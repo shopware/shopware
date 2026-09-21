@@ -176,24 +176,7 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            if ($this->containsAnyStruct($object)) {
-                $array = [];
-                foreach ($object as $key => $item) {
-                    if ($item instanceof Struct) {
-                        $array[$key] = $this->encodeStruct($item, $fields, $value[$key] ?? []);
-
-                        continue;
-                    }
-
-                    $array[$key] = $item;
-                }
-
-                $data[$property] = $array;
-
-                continue;
-            }
-
-            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields);
+            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields, \is_array($object) ? $object : null);
         }
 
         $data['apiAlias'] = $struct->getApiAlias();
@@ -203,10 +186,11 @@ class StructEncoder implements ResetInterface
 
     /**
      * @param array<string, mixed> $data
+     * @param array<int|string, mixed>|null $objects
      *
      * @return array<string, mixed>
      */
-    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
+    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields, ?array $objects = null): array
     {
         if ($prefix === 'customFields' && $data) {
             if ($this->blockedCustomFields === null) {
@@ -224,11 +208,20 @@ class StructEncoder implements ResetInterface
             }
         }
 
-        if ($prefix !== 'translated' && !$fields->hasNested($alias, $prefix)) {
-            return $data;
-        }
+        $hasNestedFields = $prefix === 'translated' || $fields->hasNested($alias, $prefix);
 
         foreach ($data as $property => &$value) {
+            $object = $objects[$property] ?? null;
+            if ($object instanceof Struct) {
+                $value = $this->encodeStruct($object, $fields, $value);
+
+                continue;
+            }
+
+            if (!$hasNestedFields) {
+                continue;
+            }
+
             if ($property === 'customFields' && $value === []) {
                 $value = new \stdClass();
             }
@@ -248,7 +241,7 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields);
+            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields, \is_array($object) ? $object : null);
         }
 
         unset($value);
@@ -359,21 +352,6 @@ class StructEncoder implements ResetInterface
         }
 
         return $value;
-    }
-
-    private function containsAnyStruct(mixed $object): bool
-    {
-        if (!\is_array($object)) {
-            return false;
-        }
-
-        foreach ($object as $item) {
-            if ($item instanceof Struct) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function fetchBlockedCustomFields(): void

@@ -109,6 +109,7 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 ### New `#[ExperimentalReplacement]` BC-change attribute
 
 Core classes that are superseded by a feature which is still `@experimental` are no longer deprecated ahead of time. A `@deprecated` annotation asks you to migrate now, but an experimental replacement has no backwards-compatibility promise yet. Such classes now carry `#[ExperimentalReplacement]` from `Shopware\Core\Framework\Deprecation\BCChange` instead.
+
 ### Configurator groups can be built from a supplied combination result
 
 `ProductConfiguratorLoader::load()` loads the variant combinations itself, so a caller that has to narrow which variants may be offered had no way in: it either constructed the loader with its own `AbstractAvailableCombinationLoader` or rebuilt the group assembly.

@@ -48,11 +48,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
-                        props: [
-                            'value',
-                            'hasParent',
-                            'inheritedValue',
-                        ],
+                        props: ['value', 'hasParent', 'inheritedValue'],
                     },
                     ...(stubNumberField
                         ? {
@@ -121,18 +117,11 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                                     @change="$emit('update:model-value', $event.target.checked)"
                                 />
                             </div>`,
-                        props: [
-                            'modelValue',
-                            'label',
-                            'disabled',
-                        ],
+                        props: ['modelValue', 'label', 'disabled'],
                     },
                     'mt-banner': {
                         template: '<div class="mt-banner"><slot></slot></div>',
-                        props: [
-                            'variant',
-                            'closable',
-                        ],
+                        props: ['variant', 'closable'],
                     },
                 },
                 provide: {
@@ -183,22 +172,10 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         }
 
         it.each([
-            [
-                44,
-                48,
-            ],
-            [
-                38,
-                42,
-            ],
-            [
-                31,
-                36,
-            ],
-            [
-                36,
-                42,
-            ],
+            [44, 48],
+            [38, 42],
+            [31, 36],
+            [36, 42],
         ])('should step up from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
             store.product.guaranteeMonths = guaranteeMonths;
             await flushPromises();
@@ -209,22 +186,10 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         });
 
         it.each([
-            [
-                44,
-                42,
-            ],
-            [
-                38,
-                36,
-            ],
-            [
-                31,
-                30,
-            ],
-            [
-                36,
-                30,
-            ],
+            [44, 42],
+            [38, 36],
+            [31, 30],
+            [36, 30],
         ])('should step down from %s to the next valid duration %s', async (guaranteeMonths, expected) => {
             store.product.guaranteeMonths = guaranteeMonths;
             await flushPromises();
@@ -247,14 +212,8 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         });
 
         it.each([
-            [
-                'increase',
-                600,
-            ],
-            [
-                'decrease',
-                30,
-            ],
+            ['increase', 600],
+            ['decrease', 30],
         ])('should keep the %s stepper inside the allowed range', async (direction, guaranteeMonths) => {
             store.product.guaranteeMonths = guaranteeMonths;
             await flushPromises();
@@ -350,10 +309,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(wrapper.find('.mt-number-field__error').exists()).toBe(false);
     });
 
-    it.each([
-        25,
-        31,
-    ])('should show the validation error for %s guarantee months', async (guaranteeMonths) => {
+    it.each([25, 31])('should show the validation error for %s guarantee months', async (guaranteeMonths) => {
         store.product.guaranteeMonths = guaranteeMonths;
 
         Shopware.Store.get('error').addApiError({
@@ -429,16 +385,8 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         });
 
         it.each([
-            [
-                'guarantee duration',
-                { guaranteeMonths: 12 },
-                'sw-product.settingsForm.noticeGuaranteeRequirementMonths',
-            ],
-            [
-                'manufacturer',
-                { manufacturer: null },
-                'sw-product.settingsForm.noticeGuaranteeRequirementManufacturer',
-            ],
+            ['guarantee duration', { guaranteeMonths: 12 }, 'sw-product.settingsForm.noticeGuaranteeRequirementMonths'],
+            ['manufacturer', { manufacturer: null }, 'sw-product.settingsForm.noticeGuaranteeRequirementManufacturer'],
             [
                 'manufacturer number',
                 { manufacturerNumber: '  ' },

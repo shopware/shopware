@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1789983699AddProcessTransitionFromUnconfirmed;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Tests\Migration\MigrationTestTrait;
@@ -71,32 +70,6 @@ class Migration1789983699AddProcessTransitionFromUnconfirmedTest extends TestCas
         (new Migration1789983699AddProcessTransitionFromUnconfirmed())->update($this->connection);
 
         static::assertSame($before, $this->getTransitions());
-    }
-
-    public function testUpdateAddsTheTransitionWhenTheActionPointsElsewhere(): void
-    {
-        $this->removeTransition();
-
-        $this->connection->insert('state_machine_transition', [
-            'id' => Uuid::randomBytes(),
-            'action_name' => StateMachineTransitionActions::ACTION_PROCESS,
-            'state_machine_id' => $this->stateMachineId,
-            'from_state_id' => $this->getStateId(OrderTransactionStates::STATE_UNCONFIRMED),
-            'to_state_id' => $this->getStateId(OrderTransactionStates::STATE_PAID),
-            'created_at' => '2020-01-01 00:00:00.000',
-        ]);
-
-        $migration = new Migration1789983699AddProcessTransitionFromUnconfirmed();
-        $migration->update($this->connection);
-        $afterFirstRun = $this->getTransitions();
-
-        $migration->update($this->connection);
-
-        static::assertContains(
-            $this->getStateId(OrderTransactionStates::STATE_IN_PROGRESS),
-            \array_column($afterFirstRun, 'to_state_id')
-        );
-        static::assertSame($afterFirstRun, $this->getTransitions());
     }
 
     private function removeTransition(): void

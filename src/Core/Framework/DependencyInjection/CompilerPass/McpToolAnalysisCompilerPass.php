@@ -25,7 +25,7 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition('mcp.server.builder')) {
+        if (!$container->hasDefinition('mcp.server.admin.builder')) {
             return;
         }
 

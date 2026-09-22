@@ -4,6 +4,7 @@ namespace Shopware\Core\Service\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
@@ -39,6 +40,7 @@ use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
 use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
+use Shopware\Core\Service\ServiceWebhookPolicy;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 use Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber;
 use Shopware\Core\Service\Subscriber\LicenseProviderSubscriber;
@@ -114,6 +116,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequirementsValidator::class),
             service(Client::class),
             service(ServiceClientFactory::class),
+            service(Privileges::class),
         ]);
 
     $services->set(ServiceStorage::class)
@@ -216,6 +219,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ServiceHookableEventDescriber::class)
         ->tag('shopware.hookable_event.describer');
 
+    $services->set(ServiceWebhookPolicy::class)
+        ->args([service(ActiveAppsLoader::class)])
+        ->tag('shopware.webhook.policy');
+
     $services->set(PermissionsService::class)
         ->args([
             service(SystemConfigService::class),
@@ -251,32 +258,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             env('ENABLE_SERVICES'),
             param('kernel.environment'),
-            service(Privileges::class),
             service(SystemConfigService::class),
             service(ServiceStorage::class),
             service(ServiceLifecycle::class),
             service(AllServiceInstaller::class),
             service(PermissionsService::class),
             service(Client::class),
-            service(RequirementsValidator::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
             service(Notification::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(PermissionsSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
+            service(ServiceLifecycle::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ShopwareAccountSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
+            service(ServiceLifecycle::class),
         ])
         ->tag('kernel.event_subscriber');
 

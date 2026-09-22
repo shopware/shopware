@@ -17,15 +17,9 @@ const USER_PROVIDED_CONTENT_OVERRIDE_KEY = 'user_provided_content';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'salesChannelFileApiService',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'salesChannelFileApiService', 'repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {

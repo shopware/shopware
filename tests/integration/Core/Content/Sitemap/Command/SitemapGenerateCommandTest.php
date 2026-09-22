@@ -40,7 +40,7 @@ class SitemapGenerateCommandTest extends TestCase
         $this->command = new SitemapGenerateCommand(
             new SitemapSalesChannelLoader(
                 static::getContainer()->get('sales_channel.repository'),
-                $this->createMock(EventDispatcher::class)
+                static::createStub(EventDispatcher::class)
             ),
             $this->exporter,
             static::getContainer()->get(SalesChannelContextFactory::class)
@@ -102,6 +102,9 @@ class SitemapGenerateCommandTest extends TestCase
 
     public function testContinuesWhenSitemapGenerationIsLocked(): void
     {
+        // this test runs its own command against the real exporter, the shared double stays untouched
+        $this->exporter->expects($this->never())->method(static::anything());
+
         $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM sales_channel');
 
@@ -128,7 +131,7 @@ class SitemapGenerateCommandTest extends TestCase
         $command = new SitemapGenerateCommand(
             new SitemapSalesChannelLoader(
                 static::getContainer()->get('sales_channel.repository'),
-                $this->createMock(EventDispatcher::class)
+                static::createStub(EventDispatcher::class)
             ),
             static::getContainer()->get(SitemapExporter::class),
             static::getContainer()->get(SalesChannelContextFactory::class)

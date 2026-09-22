@@ -43,26 +43,15 @@ Shopware.Service('privileges')
                     'category_tag:delete',
                     'seo_url:update',
                 ],
-                dependencies: [
-                    'category.viewer',
-                ],
+                dependencies: ['category.viewer'],
             },
             creator: {
-                privileges: [
-                    'category:create',
-                ],
-                dependencies: [
-                    'category.viewer',
-                    'category.editor',
-                ],
+                privileges: ['category:create'],
+                dependencies: ['category.viewer', 'category.editor'],
             },
             deleter: {
-                privileges: [
-                    'category:delete',
-                ],
-                dependencies: [
-                    'category.viewer',
-                ],
+                privileges: ['category:delete'],
+                dependencies: ['category.viewer'],
             },
         },
     })
@@ -102,26 +91,15 @@ Shopware.Service('privileges')
                     'landing_page_sales_channel:delete',
                     'seo_url:update',
                 ],
-                dependencies: [
-                    'category.viewer',
-                ],
+                dependencies: ['category.viewer'],
             },
             creator: {
-                privileges: [
-                    'landing_page:create',
-                ],
-                dependencies: [
-                    'landing_page.viewer',
-                    'landing_page.editor',
-                ],
+                privileges: ['landing_page:create'],
+                dependencies: ['landing_page.viewer', 'landing_page.editor'],
             },
             deleter: {
-                privileges: [
-                    'landing_page:delete',
-                ],
-                dependencies: [
-                    'landing_page.viewer',
-                ],
+                privileges: ['landing_page:delete'],
+                dependencies: ['landing_page.viewer'],
             },
         },
     });

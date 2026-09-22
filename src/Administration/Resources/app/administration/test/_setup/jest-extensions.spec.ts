@@ -82,15 +82,7 @@ describe('Jest feature flag extensions', () => {
         // The tagged-template form calls each(strings, ...values); every interpolated value must survive.
         createDeprecatedTest(testFunction)('v99.0.0.0').each`col ${1} ${2}`('handles it', jest.fn());
 
-        expect(testFunction.each).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                'col ',
-                ' ',
-                '',
-            ]),
-            1,
-            2,
-        );
+        expect(testFunction.each).toHaveBeenCalledWith(expect.arrayContaining(['col ', ' ', '']), 1, 2);
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('forwards each() to skip when the major feature flag is active', () => {
@@ -111,11 +103,7 @@ describe('Jest feature flag extensions', () => {
 
         afterEach(() => {
             // eslint-disable-next-line jest/no-standalone-expect -- Verifies the flags remain active after the test callback.
-            expect(globalThis.activeFeatureFlags).toEqual([
-                ...defaultActiveFeatureFlags,
-                'EXISTING_FEATURE',
-                'NEW_FEATURE',
-            ]);
+            expect(globalThis.activeFeatureFlags).toEqual([...defaultActiveFeatureFlags, 'EXISTING_FEATURE', 'NEW_FEATURE']);
         });
 
         afterAll(() => {
@@ -123,22 +111,18 @@ describe('Jest feature flag extensions', () => {
             expect(globalThis.activeFeatureFlags).toEqual(defaultActiveFeatureFlags);
         });
 
-        it.activeFeatureFlags([
-            'EXISTING_FEATURE',
-            'NEW_FEATURE',
-        ])('activates feature flags during setup, the test, and teardown', () => {
-            expect(globalThis.activeFeatureFlags).toEqual([
-                ...defaultActiveFeatureFlags,
-                'EXISTING_FEATURE',
-                'NEW_FEATURE',
-            ]);
+        it.activeFeatureFlags(['EXISTING_FEATURE', 'NEW_FEATURE'])(
+            'activates feature flags during setup, the test, and teardown',
+            () => {
+                expect(globalThis.activeFeatureFlags).toEqual([
+                    ...defaultActiveFeatureFlags,
+                    'EXISTING_FEATURE',
+                    'NEW_FEATURE',
+                ]);
 
-            expect(featureFlagsInSetup).toEqual([
-                ...defaultActiveFeatureFlags,
-                'EXISTING_FEATURE',
-                'NEW_FEATURE',
-            ]);
-        });
+                expect(featureFlagsInSetup).toEqual([...defaultActiveFeatureFlags, 'EXISTING_FEATURE', 'NEW_FEATURE']);
+            },
+        );
     });
 
     it('publishes feature flags while the test registers', () => {
@@ -177,15 +161,9 @@ describe('Jest feature flag extensions', () => {
             each: jest.fn(() => eachRegister),
         }) as unknown as jest.It;
 
-        createActiveFeatureFlagsTest(testFunction)(['v6.8.0.0']).each([
-            ['first'],
-            ['second'],
-        ])('handles %s', jest.fn());
+        createActiveFeatureFlagsTest(testFunction)(['v6.8.0.0']).each([['first'], ['second']])('handles %s', jest.fn());
 
-        expect(testFunction.each).toHaveBeenCalledWith([
-            ['first'],
-            ['second'],
-        ]);
+        expect(testFunction.each).toHaveBeenCalledWith([['first'], ['second']]);
         expect(registeredFeatureFlags).toEqual(['V6_8_0_0']);
         expect(Reflect.has(globalThis, pendingFeatureFlagsSymbol)).toBeFalsy();
     });
@@ -217,10 +195,7 @@ describe('Jest feature flag extensions', () => {
             expect(wrapper.text()).toBe('true');
         });
 
-        it.activeFeatureFlags(['v6.8.0.0']).each([
-            ['first'],
-            ['second'],
-        ])('stays active for table row %s', () => {
+        it.activeFeatureFlags(['v6.8.0.0']).each([['first'], ['second']])('stays active for table row %s', () => {
             expect(Shopware.Feature.isActive('v6.8.0.0')).toBe(true);
         });
 

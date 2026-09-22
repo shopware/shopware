@@ -53,9 +53,7 @@ const MEDIA_GRID_LISTENER_DESCRIPTOR: ComposableDescriptor = {
     },
     // The mixin's own `selectableItems` computed returned an empty list; a range selection only
     // works against the host's.
-    callbackArgs: [
-        { name: 'selectableItems', kind: 'getter' },
-    ],
+    callbackArgs: [{ name: 'selectableItems', kind: 'getter' }],
 };
 
 export default MEDIA_GRID_LISTENER_DESCRIPTOR;

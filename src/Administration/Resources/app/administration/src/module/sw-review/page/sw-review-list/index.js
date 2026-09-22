@@ -20,15 +20,9 @@ const DEFAULT_FILTERS = Object.freeze([
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'filterFactory',
-    ],
+    inject: ['repositoryFactory', 'acl', 'filterFactory'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     data() {
         return {

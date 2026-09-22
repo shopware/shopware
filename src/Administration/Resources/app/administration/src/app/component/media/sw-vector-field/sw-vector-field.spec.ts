@@ -22,11 +22,7 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                             <slot name="sw-field-input" />
                         </div>
                     `,
-                    props: [
-                        'label',
-                        'description',
-                        'disabled',
-                    ],
+                    props: ['label', 'description', 'disabled'],
                 },
                 'mt-number-field': {
                     template: '<input class="mt-number-field" :value="modelValue" @input="onInput" @change="onChange" />',
@@ -36,10 +32,7 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                         'step',
                         'size',
                     ],
-                    emits: [
-                        'update:model-value',
-                        'input-change',
-                    ],
+                    emits: ['update:model-value', 'input-change'],
                     methods: {
                         onInput(e: Event) {
                             const val = Number((e.target as HTMLInputElement).value);
@@ -53,10 +46,7 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                 },
                 'mt-icon': {
                     template: '<span class="mt-icon" @click="$emit(\'click\')" />',
-                    props: [
-                        'name',
-                        'size',
-                    ],
+                    props: ['name', 'size'],
                 },
             },
             directives: {

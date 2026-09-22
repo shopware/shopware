@@ -45,10 +45,7 @@ const MEDIA_SIDEBAR_MODAL_DESCRIPTOR: ComposableDescriptor = {
         'closeModalMove',
     ],
     // The mixin injected both for its own permission checks; the composable resolves them itself.
-    unmappedMembers: [
-        'acl',
-        'mediaService',
-    ],
+    unmappedMembers: ['acl', 'mediaService'],
     emits: {
         onItemsDelete: 'media-sidebar-items-delete',
         onFolderItemsDissolve: 'media-sidebar-folder-items-dissolve',

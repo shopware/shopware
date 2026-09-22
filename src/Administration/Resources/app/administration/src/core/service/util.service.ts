@@ -186,11 +186,9 @@ export default {
 
 /**
  * Returns an uuid string in hex format.
- *
- * @returns { String }
  */
-function createId(): string {
-    return uuidv7().replace(/-/g, '');
+function createId<UUID extends string>(): UUID {
+    return uuidv7().replace(/-/g, '') as UUID;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -210,11 +208,7 @@ export function moveItem(entity: MutationObserver[], oldIndex: number, newIndex:
 
     const remainingItems = entity.filter((_, index) => index !== oldIndex);
 
-    const orderedItems = [
-        ...remainingItems.slice(0, newIndex),
-        movedItem,
-        ...remainingItems.slice(newIndex),
-    ];
+    const orderedItems = [...remainingItems.slice(0, newIndex), movedItem, ...remainingItems.slice(newIndex)];
 
     entity.splice(0, entity.length, ...orderedItems);
 }

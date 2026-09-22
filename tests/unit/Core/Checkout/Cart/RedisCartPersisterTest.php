@@ -224,6 +224,30 @@ class RedisCartPersisterTest extends TestCase
         static::assertFalse($redis->exists(RedisCartPersister::PREFIX . $token));
     }
 
+    public function testExistsReflectsStoredCart(): void
+    {
+        $token = Uuid::randomHex();
+
+        $dispatcher = static::createStub(EventDispatcher::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+
+        $redis = new RedisStub();
+
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+
+        $context = static::createStub(SalesChannelContext::class);
+
+        static::assertFalse($persister->exists($token, $context));
+
+        $redis->set(RedisCartPersister::PREFIX . $token, 'test');
+
+        static::assertTrue($persister->exists($token, $context));
+
+        $persister->delete($token, $context);
+
+        static::assertFalse($persister->exists($token, $context));
+    }
+
     public function testLoadWithDifferentCompression(): void
     {
         $token = Uuid::randomHex();

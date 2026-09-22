@@ -42,9 +42,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         orderId: {
@@ -94,10 +92,7 @@ export default {
                 return this.loading.order;
             },
             set(value) {
-                Store.get('swOrderDetail').setLoading([
-                    'order',
-                    value,
-                ]);
+                Store.get('swOrderDetail').setLoading(['order', value]);
             },
         },
 
@@ -258,6 +253,8 @@ export default {
     },
 
     beforeUnmount() {
+        window.removeEventListener('pagehide', this.onPageHide);
+
         // Deselecting happens here and not in `beforeRouteLeave`, because leaving while editing
         // is confirmed through the leave page warning, which resumes the navigation on its own.
         Shopware.Store.get('shopwareApps').selectedIds = [];
@@ -288,23 +285,25 @@ export default {
                 scope: this,
             });
 
-            window.addEventListener('beforeunload', this.beforeDestroyComponent);
+            window.addEventListener('pagehide', this.onPageHide);
 
             Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
-            Shopware.Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Shopware.Store.get('swOrderDetail').setLoading(['order', true]);
             this.createNewVersionId().finally(() => {
-                Shopware.Store.get('swOrderDetail').setLoading([
-                    'order',
-                    false,
-                ]);
+                Shopware.Store.get('swOrderDetail').setLoading(['order', false]);
             });
         },
 
-        async beforeDestroyComponent() {
+        onPageHide(event) {
+            if (event.persisted) {
+                return;
+            }
+
+            this.beforeDestroyComponent(true);
+        },
+
+        beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
 
             if (this.hasNewVersionId) {
@@ -313,10 +312,14 @@ export default {
                 this.hasNewVersionId = false;
 
                 // clean up recently created version
-                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
-            }
+                if (useKeepalive) {
+                    this.orderRepository.deleteVersionWithKeepalive(this.orderId, oldVersionContext.versionId);
 
-            window.removeEventListener('beforeunload', this.beforeDestroyComponent);
+                    return;
+                }
+
+                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
+            }
         },
 
         /**
@@ -342,10 +345,7 @@ export default {
         onStartEditing() {},
 
         async onSaveEdits() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             await this.handleOrderAddressUpdate(this.orderAddressIds);
 
@@ -361,10 +361,7 @@ export default {
                 });
 
                 this.createNewVersionId().then(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
 
                 return;
@@ -389,13 +386,10 @@ export default {
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    this.onError('error', error);
+                    this.onError(error);
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'order',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['order', false]);
                 });
         },
 
@@ -436,10 +430,7 @@ export default {
         },
 
         onCancelEditing() {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', true]);
 
             const oldVersionContext = this.versionContext;
             Store.get('swOrderDetail').versionContext = Shopware.Context.api;
@@ -451,16 +442,13 @@ export default {
                     this.hasOrderDeepEdit = false;
                 })
                 .catch((error) => {
-                    this.onError('error', error);
+                    this.onError(error);
                 })
                 .finally(() => {
                     this.missingProductLineItems = [];
 
                     return this.createNewVersionId().then(() => {
-                        Store.get('swOrderDetail').setLoading([
-                            'order',
-                            false,
-                        ]);
+                        Store.get('swOrderDetail').setLoading(['order', false]);
                     });
                 });
         },
@@ -474,10 +462,7 @@ export default {
         },
 
         async onRecalculateAndReload() {
-            Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             try {
                 await this.orderService
@@ -485,12 +470,9 @@ export default {
                     .then(this.handleCartErrors.bind(this));
                 await this.reloadEntityData();
             } catch (error) {
-                this.onError('error', error);
+                this.onError(error);
             } finally {
-                Store.get('swOrderDetail').setLoading([
-                    'recalculation',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['recalculation', false]);
             }
         },
 
@@ -502,10 +484,7 @@ export default {
         },
 
         async saveAndReload(afterSaveFn = null) {
-            Store.get('swOrderDetail').setLoading([
-                'recalculation',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['recalculation', true]);
 
             try {
                 await this.orderRepository.save(this.order, this.versionContext);
@@ -514,12 +493,9 @@ export default {
                 }
                 await this.reloadEntityData();
             } catch (error) {
-                this.onError('error', error);
+                this.onError(error);
             } finally {
-                Store.get('swOrderDetail').setLoading([
-                    'recalculation',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['recalculation', false]);
             }
         },
 

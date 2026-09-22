@@ -13,10 +13,7 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     provide() {
         return {
@@ -26,10 +23,7 @@ export default {
 
     emits: ['loading-changed'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('notification')],
 
     props: {
         set: {
@@ -166,12 +160,7 @@ export default {
 
         removeEmptyProperties(config) {
             Object.keys(config).forEach((property) => {
-                if (
-                    [
-                        'number',
-                        'boolean',
-                    ].includes(typeof config[property])
-                ) {
+                if (['number', 'boolean'].includes(typeof config[property])) {
                     return;
                 }
 

@@ -823,6 +823,60 @@ class VersioningTest extends TestCase
         }
     }
 
+    public function testICanVersionOrderTags(): void
+    {
+        $ids = new IdsCollection();
+        $orderId = $this->createOrder();
+
+        $this->orderRepository->update([[
+            'id' => $orderId,
+            'tags' => [
+                ['id' => $ids->create('keep'), 'name' => 'keep'],
+                ['id' => $ids->create('remove'), 'name' => 'remove'],
+            ],
+        ]], $this->context);
+
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context);
+        $version = $this->context->createWithVersionId($versionId);
+
+        static::assertEqualsCanonicalizing(
+            [$ids->get('keep'), $ids->get('remove')],
+            $this->getOrderTagIds($orderId, $version)
+        );
+
+        static::getContainer()->get('order_tag.repository')->delete([[
+            'orderId' => $orderId,
+            'orderVersionId' => $versionId,
+            'tagId' => $ids->get('remove'),
+        ]], $version);
+
+        static::assertSame([$ids->get('keep')], $this->getOrderTagIds($orderId, $version));
+        static::assertEqualsCanonicalizing(
+            [$ids->get('keep'), $ids->get('remove')],
+            $this->getOrderTagIds($orderId, $this->context)
+        );
+    }
+
+    public function testICanVersionCategoryTags(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->categoryRepository->create([[
+            'id' => $ids->create('category'),
+            'name' => 'test',
+            'tags' => [['id' => $ids->create('tag'), 'name' => 'test']],
+        ]], $this->context);
+
+        $versionId = $this->categoryRepository->createVersion($ids->get('category'), $this->context);
+
+        $tagIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(tag_id)) FROM category_tag WHERE category_id = :id AND category_version_id = :version',
+            ['id' => $ids->getBytes('category'), 'version' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        static::assertSame([$ids->get('tag')], $tagIds);
+    }
+
     public function testICanReadASpecifyVersion(): void
     {
         $id = Uuid::randomHex();
@@ -1894,30 +1948,7 @@ class VersioningTest extends TestCase
 
     public function testCreateOrderVersion(): void
     {
-        $ruleId = Uuid::randomHex();
-        $customerId = $this->createCustomer();
-        $paymentMethodId = $this->createPaymentMethod($ruleId);
-        $this->addCountriesToSalesChannel();
-
-        $context = $this->salesChannelContextFactory->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [
-                SalesChannelContextService::CUSTOMER_ID => $customerId,
-                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
-            ]
-        );
-        $context->setRuleIds(
-            [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId() ?? Uuid::randomHex()]
-        );
-
-        $cart = $this->createDemoCart($context);
-
-        $cart = $this->processor->process($cart, $context, new CartBehavior());
-
-        $id = $this->orderPersister->persist($cart, $context);
-
-        $versionId = $this->orderRepository->createVersion($id, $this->context);
+        $versionId = $this->orderRepository->createVersion($this->createOrder(), $this->context);
 
         static::assertTrue(Uuid::isValid($versionId));
     }
@@ -2047,6 +2078,46 @@ class VersioningTest extends TestCase
             $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
         }
         static::assertNull($error, $message);
+    }
+
+    private function createOrder(): string
+    {
+        $ruleId = Uuid::randomHex();
+        $customerId = $this->createCustomer();
+        $paymentMethodId = $this->createPaymentMethod($ruleId);
+        $this->addCountriesToSalesChannel();
+
+        $salesChannelContext = $this->salesChannelContextFactory->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+            ]
+        );
+        $salesChannelContext->setRuleIds(
+            [$ruleId, $salesChannelContext->getShippingMethod()->getAvailabilityRuleId() ?? Uuid::randomHex()]
+        );
+
+        $cart = $this->processor->process($this->createDemoCart($salesChannelContext), $salesChannelContext, new CartBehavior());
+
+        return $this->orderPersister->persist($cart, $salesChannelContext);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getOrderTagIds(string $orderId, Context $context): array
+    {
+        $order = $this->orderRepository
+            ->search((new Criteria([$orderId]))->addAssociation('tags'), $context)
+            ->getEntities()
+            ->first();
+
+        static::assertNotNull($order);
+        static::assertNotNull($order->getTags());
+
+        return array_values($order->getTags()->getIds());
     }
 
     private function getReviewCount(string $productId, string $versionId): int

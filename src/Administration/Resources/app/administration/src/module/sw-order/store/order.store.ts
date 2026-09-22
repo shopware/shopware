@@ -27,10 +27,7 @@ function mergeEmptyAndExistingLineItems(emptyLineItems: LineItem[], lineItems: L
     // Reverse the lineItems so the newly added are at the top for better UX
     reverseLineItems(lineItems);
 
-    return [
-        ...emptyLineItems,
-        ...lineItems,
-    ];
+    return [...emptyLineItems, ...lineItems];
 }
 
 interface SwOrderState {
@@ -81,7 +78,7 @@ const swOrderStore = Shopware.Store.register({
                 id: '',
             } as Entity<'sales_channel'>,
             context: {
-                currencyId: '',
+                currencyId: '' as EntityKey<'currency'>,
                 languageIdChain: [],
             },
         },
@@ -169,7 +166,7 @@ const swOrderStore = Shopware.Store.register({
             this.setDefaultSalesChannel(customer?.salesChannel ?? null);
         },
 
-        createCart({ salesChannelId }: { salesChannelId: string }) {
+        createCart({ salesChannelId }: { salesChannelId: EntityKey<'sales_channel'> }) {
             return Service('cartStoreService')
                 .createCart(salesChannelId)
                 .then((response: AxiosResponse): string => {
@@ -185,7 +182,7 @@ const swOrderStore = Shopware.Store.register({
                 });
         },
 
-        getCart({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+        getCart({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
             if (`${contextToken}`.length !== 32) {
                 throw new Error('Invalid context token');
             }
@@ -200,7 +197,7 @@ const swOrderStore = Shopware.Store.register({
             ]);
         },
 
-        cancelCart({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+        cancelCart({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
             if (`${contextToken}`.length !== 32) {
                 throw new Error('Invalid context token');
             }
@@ -215,8 +212,8 @@ const swOrderStore = Shopware.Store.register({
             salesChannelId,
             contextToken,
         }: {
-            customerId: string;
-            salesChannelId: string;
+            customerId: EntityKey<'customer'>;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
         }) {
             return Service('contextStoreService').updateCustomerContext(customerId, salesChannelId, contextToken);
@@ -228,13 +225,13 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
         }: {
             context: ContextSwitchParameters;
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
         }) {
             return Service('contextStoreService').updateContext(context, salesChannelId, contextToken);
         },
 
-        getContext({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+        getContext({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
             return Service('contextStoreService').getSalesChannelContext(salesChannelId, contextToken);
         },
 
@@ -243,7 +240,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             sendMail,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             sendMail?: boolean;
         }) {
@@ -263,7 +260,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             lineItemKeys,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             lineItemKeys: string[];
         }) {
@@ -277,7 +274,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             item,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             item: LineItem;
         }) {
@@ -291,7 +288,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             items,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             items: LineItem[];
         }) {
@@ -305,7 +302,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             code,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             code: string;
         }): Promise<void> {
@@ -319,7 +316,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             shippingCosts,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             shippingCosts: CalculatedPrice;
         }) {
@@ -331,7 +328,7 @@ const swOrderStore = Shopware.Store.register({
             );
         },
 
-        remindPayment({ orderTransactionId }: { orderTransactionId: string }) {
+        remindPayment({ orderTransactionId }: { orderTransactionId: EntityKey<'order_transaction'> }) {
             return Service('orderStateMachineService').transitionOrderTransactionState(orderTransactionId, 'remind');
         },
     },

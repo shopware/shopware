@@ -20,14 +20,9 @@ interface PromotionCodeItem {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;
@@ -50,19 +45,19 @@ export default Component.wrapComponentConfig({
             shippingCosts: null,
             activeTab: 'customer',
             context: {
-                currencyId: '',
-                paymentMethodId: '',
-                shippingMethodId: '',
-                languageId: '',
-                billingAddressId: '',
-                shippingAddressId: '',
+                currencyId: '' as EntityKey<'currency'>,
+                paymentMethodId: '' as EntityKey<'payment_method'>,
+                shippingMethodId: '' as EntityKey<'shipping_method'>,
+                languageId: '' as EntityKey<'language'>,
+                billingAddressId: '' as EntityKey<'customer_address'>,
+                shippingAddressId: '' as EntityKey<'customer_address'>,
             },
         };
     },
 
     computed: {
-        salesChannelId(): string {
-            return this.customer?.salesChannelId ?? '';
+        salesChannelId(): EntityKey<'sales_channel'> {
+            return this.customer?.salesChannelId ?? ('' as EntityKey<'sales_channel'>);
         },
 
         salesChannelContext(): SalesChannelContext {
@@ -127,8 +122,8 @@ export default Component.wrapComponentConfig({
                 languageId: value.context.languageIdChain[0],
                 shippingMethodId: value.shippingMethod.id,
                 paymentMethodId: value.paymentMethod.id,
-                billingAddressId: value.customer?.activeBillingAddress?.id ?? '',
-                shippingAddressId: value.customer?.activeShippingAddress?.id ?? '',
+                billingAddressId: value.customer?.activeBillingAddress?.id ?? ('' as EntityKey<'customer_address'>),
+                shippingAddressId: value.customer?.activeShippingAddress?.id ?? ('' as EntityKey<'customer_address'>),
             };
         },
     },

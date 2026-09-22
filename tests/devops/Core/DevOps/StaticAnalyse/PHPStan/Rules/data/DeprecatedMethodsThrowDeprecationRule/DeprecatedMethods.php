@@ -21,7 +21,7 @@ class DeprecatedMethods
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-command reason:remove-interface reason:remove-phpstan-rule reason:remove-getter-setter reason:blue-green-deployment reason:decoration-will-be-removed reason:remove-constraint-annotation reason:factory-for-deprecation
+     * @deprecated tag:v6.8.0 - reason:remove-command reason:remove-interface reason:remove-phpstan-rule reason:remove-getter-setter reason:blue-green-deployment reason:decoration-will-be-removed reason:remove-constraint-annotation reason:factory-for-deprecation reason:remove-route
      */
     public function deprecatedWithRemovedReasons(): void
     {

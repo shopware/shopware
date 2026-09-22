@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Database;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Adapter\Database\WriteAwareReplicaConnection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
@@ -45,7 +45,7 @@ class MySQLFactoryTest extends TestCase
 
         // If we get here, the connection was successful and we can test the parameters
         static::assertArrayHasKey('wrapperClass', $params);
-        static::assertSame(PrimaryReadReplicaConnection::class, $params['wrapperClass']);
+        static::assertSame(WriteAwareReplicaConnection::class, $params['wrapperClass']);
         static::assertArrayHasKey('primary', $params);
         static::assertArrayHasKey('replica', $params);
         static::assertCount(2, $params['replica']);

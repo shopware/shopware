@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Database;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
@@ -93,7 +92,8 @@ class MySQLFactory
         $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
         if ($replicaUrl !== '') {
             if (!isset($parameters['wrapperClass'])) {
-                $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
+                // Shopware's wrapper moves write statements sent through executeQuery() to the primary
+                $parameters['wrapperClass'] = WriteAwareReplicaConnection::class;
             }
 
             // Keep the replica connection distinct from the primary one, so

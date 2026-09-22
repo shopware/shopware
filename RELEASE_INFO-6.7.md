@@ -78,6 +78,12 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+## Hosting & Configuration
+
+### Write statements sent through `executeQuery()` reach the primary in replica setups
+
+With `DATABASE_REPLICA_0_URL` configured, a write statement issued through `Connection::executeQuery()` used to run on the replica whenever the request had not touched the primary yet, and drifted the two databases silently if the replica was writable. The connection now inspects the statement and switches to the primary for data changes, schema changes, `WITH` statements that change data, and locking reads, exactly as `executeStatement()` already did. Reads keep using the replica, and no configuration change is needed.
+
 # 6.7.15.0
 
 ## Features

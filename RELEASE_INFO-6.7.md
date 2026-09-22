@@ -2,6 +2,10 @@
 
 ## Core
 
+### Dompdf page count placeholder replaced for core and fallback fonts
+
+In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
+
 ### Moved PHP classes retain backwards-compatible aliases
 
 The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:

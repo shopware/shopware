@@ -69,7 +69,7 @@ The container `.hidden-line-items-information` no longer carries `data-value`. T
 
 Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
 
-`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
+`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 

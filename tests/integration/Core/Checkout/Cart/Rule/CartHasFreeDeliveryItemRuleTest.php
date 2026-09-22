@@ -59,7 +59,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
@@ -76,7 +76,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = (new CartHasDeliveryFreeItemRule())
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
@@ -90,7 +90,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }
@@ -100,12 +100,12 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = $this->createCart(new LineItemCollection());
 
         $match = (new CartHasDeliveryFreeItemRule())
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
@@ -119,7 +119,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertTrue($match);
     }
@@ -134,7 +134,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
-            ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
+            ->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }
@@ -166,7 +166,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         $lineItem = $this->createLineItemWithDeliveryInfo($isFreeDelivery);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => $ruleActive])
-            ->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));
+            ->match(new LineItemScope($lineItem, static::createStub(SalesChannelContext::class)));
 
         static::assertSame($expected, $match);
     }

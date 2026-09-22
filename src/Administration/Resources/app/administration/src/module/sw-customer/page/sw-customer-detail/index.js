@@ -21,6 +21,7 @@ export default {
         'customerGroupRegistrationService',
         'acl',
         'customerValidationService',
+        'customerVatIdService',
         'feature',
     ],
 
@@ -94,6 +95,7 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria
                 .addAssociation('addresses')
+                .addAssociation('addresses.country')
                 .addAssociation('group')
                 .addAssociation('salutation')
                 .addAssociation('salesChannel.domains')
@@ -322,6 +324,10 @@ export default {
                 hasError = true;
             }
 
+            if (!(await this.validVatIdField())) {
+                hasError = true;
+            }
+
             if (!(await this.validPassword(this.customer))) {
                 hasError = true;
             }
@@ -346,6 +352,8 @@ export default {
 
             if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
                 this.customer.vatIds = [];
+            } else if (this.customer.vatIds) {
+                this.customer.vatIds = this.customerVatIdService.normalizeVatIds(this.customer.vatIds);
             }
 
             return this.customerRepository
@@ -448,6 +456,13 @@ export default {
                 .finally(() => {
                     this.createdComponent();
                 });
+        },
+
+        async validVatIdField() {
+            return this.customerVatIdService.validateVatIds(
+                this.customer,
+                this.customerVatIdService.getBillingCountry(this.customer),
+            );
         },
 
         createErrorMessageForCompanyField() {

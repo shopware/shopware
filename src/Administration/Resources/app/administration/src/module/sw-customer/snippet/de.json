@@ -57,7 +57,10 @@
       "labelTags": "Tags",
       "labelGuest": "Gastbesteller",
       "labelVatId": "USt-IdNr.",
-      "placeholderVatId": "Gib die USt-IdNr. ein ..."
+      "placeholderVatId": "Gib die USt-IdNr. ein ...",
+      "warningVatIdRequired": "Das Rechnungsland erfordert eine USt-IdNr., für diesen Kunden ist aber keine hinterlegt.",
+      "warningVatIdFormatNotCorrect": "Die USt-IdNr. entspricht nicht dem vom Rechnungsland geforderten Format. Du kannst den Kunden erst speichern, wenn sie korrigiert ist.",
+      "warningVatIdFormatUnusual": "Die USt-IdNr. entspricht nicht dem üblichen Format des Rechnungslands. Bitte überprüfe sie."
     },
     "list": {
       "textCustomers": "Kunden",

@@ -106,6 +106,8 @@ function buildBaseScript(
 
     // attachOverrides() reads props from the current instance, so the footer never threads a props
     // binding through — which also lets destructured defineProps() work (there is no props binding).
+    // Model binding names are the exception metadata the runtime needs: they name both a prop and a
+    // setup binding on purpose, so it must not treat them as accidentally returned props.
     const footer = [
         'const {',
         ...destructureEntries.map((entry) => `    ${entry},`),
@@ -113,6 +115,9 @@ function buildBaseScript(
         `    name: '${escapeSingleQuoted(block.componentName)}',`,
         `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
         `    private: ${formatStateMap(privateNames, 8)},`,
+        ...(analysis.modelBindings.length > 0
+            ? [`    modelBindings: [${analysis.modelBindings.map((name) => `'${escapeSingleQuoted(name)}'`).join(', ')}],`]
+            : []),
         '});',
         '',
         // swDefinePublic() is the parent-facing surface too, so the call is generated here and authoring

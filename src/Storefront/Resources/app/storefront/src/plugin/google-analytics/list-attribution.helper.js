@@ -58,6 +58,19 @@ export default class ListAttributionHelper
     }
 
     /**
+     * The position of the first product the list rendered. A paginated listing renders one page of
+     * a longer list, so an index counted from zero within the page would restart on every page.
+     *
+     * @param {HTMLElement|null} list
+     * @returns {number}
+     */
+    static getListStart(list) {
+        const start = Number(list?.getAttribute('data-list-start'));
+
+        return Number.isInteger(start) && start > 0 ? start : 0;
+    }
+
+    /**
      * @param {string} itemId
      * @param {Object} list
      */

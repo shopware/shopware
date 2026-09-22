@@ -132,4 +132,27 @@ describe('plugin/google-analytics/events/select-item.event', () => {
             'items': [expect.objectContaining({ 'item_id': 'SW10001' })],
         }));
     });
+
+    test('does not fire for a click inside the card that follows no link', () => {
+        renderListing([shirt]);
+        document.querySelector('.product-box').insertAdjacentHTML(
+            'beforeend',
+            '<div class="product-variant-characteristics">Red, L</div>',
+        );
+
+        document.querySelector('.product-variant-characteristics').click();
+        document.querySelector('.product-box').click();
+
+        expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('counts the index across the pages of a paginated listing', () => {
+        renderListing([shirt, mug], 'data-list-id="category-1" data-list-name="Shirts" data-list-start="24"');
+
+        document.querySelectorAll('.product-name')[1].click();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'select_item', expect.objectContaining({
+            'items': [expect.objectContaining({ 'index': 25 })],
+        }));
+    });
 });

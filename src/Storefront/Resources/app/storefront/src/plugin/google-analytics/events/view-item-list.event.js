@@ -69,6 +69,9 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         // Get category from breadcrumbs (same for all items on this page)
         const categories = ProductPageHelper.getCategories();
 
+        // a paginated listing renders one page of a longer list, so the index counts across pages
+        const listStart = ListAttributionHelper.getListStart(listing);
+
         productBoxes.forEach(item => {
             if (!item.dataset.productInformation) {
                 return;
@@ -90,7 +93,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_brand: productData.brand,
                 item_variant: productData.variant,
                 price: productData.price,
-                index: lineItems.length,
+                index: listStart + lineItems.length,
                 ...categories,
             });
         });

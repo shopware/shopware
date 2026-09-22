@@ -186,6 +186,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
                 'item_brand': 'Test Brand',
                 'item_variant': 'Red, L',
                 'price': 19.99,
+                'index': 0,
             }],
         }));
     });
@@ -205,6 +206,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
                 'item_id': 'SW10000',
                 'item_name': 'Test Product',
                 'price': 19.99,
+                'index': 0,
             }],
         }));
     });

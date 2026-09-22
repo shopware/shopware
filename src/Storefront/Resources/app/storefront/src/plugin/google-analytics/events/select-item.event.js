@@ -26,12 +26,15 @@ export default class SelectItemEvent extends AnalyticsEvent
             return;
         }
 
-        // adding to the cart or to the wishlist is not a selection
-        if (event.target.closest('form, button')) {
+        // GA4 reports a selection, which is following a link to the product. A click on the padding
+        // of a card, on its variant characteristics or on a badge selects nothing, and adding to the
+        // cart or to the wishlist is not a selection either.
+        const link = event.target.closest('a');
+        if (!link || link.closest('form, button')) {
             return;
         }
 
-        const productBox = event.target.closest('.product-box');
+        const productBox = link.closest('.product-box');
         if (!productBox?.dataset.productInformation) {
             return;
         }
@@ -67,7 +70,9 @@ export default class SelectItemEvent extends AnalyticsEvent
     }
 
     /**
-     * The position of the product within its own list, counted from zero.
+     * The position of the product within its own list, counted from zero. A paginated listing
+     * reports the position within the whole list rather than within the rendered page, so the
+     * second page continues where the first ended.
      *
      * @param {HTMLElement} productBox
      * @returns {number|undefined}
@@ -80,7 +85,10 @@ export default class SelectItemEvent extends AnalyticsEvent
         }
 
         const index = [...list.querySelectorAll('.product-box')].indexOf(productBox);
+        if (index === -1) {
+            return undefined;
+        }
 
-        return index === -1 ? undefined : index;
+        return index + ListAttributionHelper.getListStart(list);
     }
 }

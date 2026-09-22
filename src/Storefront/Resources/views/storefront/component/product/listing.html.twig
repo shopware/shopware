@@ -20,9 +20,12 @@
 
 {% block product_listing %}
     {# identifies the list for analytics, reported as the GA4 `item_list_id` and `item_list_name` #}
+    {# the position of the first product of the page, so the reported item index counts across pages #}
+    {% set listStart = searchResult.limit ? (searchResult.page - 1) * searchResult.limit : 0 %}
     <div class="cms-element-product-listing-wrapper"
          {% if listId|default(null) %}data-list-id="{{ listId }}"{% endif %}
          {% if listName|default(null) %}data-list-name="{{ listName }}"{% endif %}
+         data-list-start="{{ listStart }}"
          data-listing-pagination="true"
          data-listing-pagination-options="{{ paginationConfig|json_encode }}"
          data-listing="true"

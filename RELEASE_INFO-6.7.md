@@ -75,7 +75,7 @@ Variant products report their selected options as `item_variant`, for example `R
 
 ### Google Analytics reports `select_item` and the list a product was presented in
 
-Clicking a product in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Adding a product to the cart or to the wishlist from the same card is not a selection and is not reported.
+Following a product link in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Only a link counts as a selection: adding a product to the cart or to the wishlist from the same card is not reported, and neither is a click that lands on the card without following a link.
 
 `view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it, so the detail page view is attributed to the list the customer came from. The attribution is stored for the session and consumed once, so opening a product directly is not attributed.
 
@@ -86,7 +86,7 @@ The list identifiers are a stable contract that Google Tag Manager triggers and 
 - The wishlist reports `wishlist` and `Wishlist`.
 - A cross selling tab reports the id and the name of the cross selling group.
 
-Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes.
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes. The `index` counts across the pages of a paginated listing, which the listing wrapper reports as `data-list-start`; a list without that attribute counts from zero.
 
 `view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 

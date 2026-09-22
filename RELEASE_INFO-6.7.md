@@ -68,6 +68,12 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+## Storefront
+
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
+
 # 6.7.15.0
 
 ## Features
@@ -689,10 +695,6 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
-
-### New line item reference price block
-
-A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Static theme compilation without a database
 

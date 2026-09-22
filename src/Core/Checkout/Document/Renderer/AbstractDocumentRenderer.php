@@ -8,8 +8,10 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer as DocumentV2Renderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,6 +19,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Renderer::class,
+    description: 'Document types are registered as type classes with data providers in DocumentV2, renderers only produce output formats.',
+)]
 abstract class AbstractDocumentRenderer
 {
     abstract public function supports(): string;

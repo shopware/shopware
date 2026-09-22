@@ -179,7 +179,7 @@ class LineItemRuleTest extends TestCase
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
                 $this->createLineItem(),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -191,7 +191,7 @@ class LineItemRuleTest extends TestCase
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
                 $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -203,7 +203,7 @@ class LineItemRuleTest extends TestCase
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
                 $this->createLineItem()->setPayloadValue('parentId', 'A'),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -215,7 +215,7 @@ class LineItemRuleTest extends TestCase
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
                 $this->createLineItem()->setPayloadValue('parentId', 'C'),
-                $this->createMock(SalesChannelContext::class)
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -233,7 +233,7 @@ class LineItemRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
@@ -251,7 +251,7 @@ class LineItemRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);

@@ -35,19 +35,11 @@ export const DOCUMENT_MAIL_TEMPLATE_MAPPING = {
 export default {
     template,
 
-    inject: [
-        'mailService',
-        'repositoryFactory',
-    ],
+    inject: ['mailService', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'document-sent',
-    ],
+    emits: ['modal-close', 'document-sent'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         document: {

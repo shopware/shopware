@@ -10,10 +10,7 @@ import './sw-promotion-detail-discounts.scss';
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {

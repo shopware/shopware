@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Plugin\Util;
+namespace Shopware\Core\Framework\Adapter\Asset;
 
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -34,7 +35,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
-#[BecomesInternal(version: 'v6.8.0', description: 'Will move to the Shopware\Core\Framework\Adapter\Asset namespace.')]
+#[ClassMoved(version: 'v6.8.0', previousClassName: 'Shopware\Core\Framework\Plugin\Util\AssetService')]
+#[BecomesInternal(version: 'v6.8.0')]
 class AssetService
 {
     private const EXTENSION_RESOURCES_DIRECTORY = 'Resources/public';
@@ -304,7 +306,7 @@ class AssetService
         }
 
         if ($bundle === null) {
-            throw PluginException::notFound($bundleName);
+            throw PluginException::notFound($bundleName); // @phpstan-ignore shopware.domainException (Keep the existing exception until AssetService becomes internal in v6.8.0.)
         }
 
         return $bundle;

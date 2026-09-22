@@ -46,8 +46,8 @@ class MediaSerializerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->createMock(EntityRepository::class);
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaFolderRepository = static::createStub(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -99,8 +99,8 @@ class MediaSerializerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->createMock(EntityRepository::class);
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaFolderRepository = static::createStub(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -161,7 +161,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -212,7 +212,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -255,11 +255,11 @@ class MediaSerializerTest extends TestCase
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
-        $mediaService = $this->createMock(MediaService::class);
-        $fileSaver = $this->createMock(FileSaver::class);
+        $mediaService = static::createStub(MediaService::class);
+        $fileSaver = static::createStub(FileSaver::class);
 
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -277,11 +277,11 @@ class MediaSerializerTest extends TestCase
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
-        $mediaService = $this->createMock(MediaService::class);
-        $fileSaver = $this->createMock(FileSaver::class);
+        $mediaService = static::createStub(MediaService::class);
+        $fileSaver = static::createStub(FileSaver::class);
 
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -297,11 +297,11 @@ class MediaSerializerTest extends TestCase
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $mediaDefinition = static::getContainer()->get(MediaDefinition::class);
 
-        $mediaService = $this->createMock(MediaService::class);
-        $fileSaver = $this->createMock(FileSaver::class);
+        $mediaService = static::createStub(MediaService::class);
+        $fileSaver = static::createStub(FileSaver::class);
 
         $mediaFolderRepository = static::getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = static::createStub(EntityRepository::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -318,8 +318,8 @@ class MediaSerializerTest extends TestCase
     public function testSupportsOnlyMedia(): void
     {
         $serializer = new MediaSerializer(
-            $this->createMock(MediaService::class),
-            $this->createMock(FileSaver::class),
+            static::createStub(MediaService::class),
+            static::createStub(FileSaver::class),
             static::getContainer()->get('media_folder.repository'),
             static::getContainer()->get('media.repository')
         );

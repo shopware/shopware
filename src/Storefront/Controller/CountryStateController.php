@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
@@ -30,7 +31,7 @@ class CountryStateController extends StorefrontController
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-route - Remove POST request and use GET instead only
+     * @deprecated tag:v6.8.0 - Remove POST request and use GET instead only
      */
     #[Route(
         path: '/country/country-state-data',
@@ -43,6 +44,13 @@ class CountryStateController extends StorefrontController
     )]
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
+        if ($request->isMethod(Request::METHOD_POST)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The POST request to /country/country-state-data is deprecated and will be removed in v6.8.0.0. Use a GET request instead.'
+            );
+        }
+
         $countryId = $request->query->getString('countryId', $request->request->getString('countryId'));
 
         if (!$countryId) {

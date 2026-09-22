@@ -13,14 +13,9 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         productId: {
@@ -123,10 +118,7 @@ export default {
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderRepository
                 .search(this.mediaDefaultFolderCriteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        'product',
-                    ],
+                    cacheKey: ['media-default-folder', 'product'],
                 })
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();

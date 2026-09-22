@@ -21,10 +21,7 @@ export default {
         'importExportUpdateByMapping',
     ],
 
-    emits: [
-        'profile-close',
-        'profile-save',
-    ],
+    emits: ['profile-close', 'profile-save'],
 
     mixins: [Mixin.getByName('notification')],
 

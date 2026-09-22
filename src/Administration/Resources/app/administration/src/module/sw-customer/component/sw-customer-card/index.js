@@ -23,10 +23,7 @@ export default {
         'customerVatIdService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     props: {
         customer: {
@@ -92,18 +89,12 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('or', [
-                    Criteria.equals('id', Defaults.defaultSalutationId),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('id', Defaults.defaultSalutationId)]));
 
             return criteria;
         },
 
-        ...mapPropertyErrors('customer', [
-            ...errorConfig['sw.customer.detail.base'].customer,
-        ]),
+        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer]),
 
         accountTypeOptions() {
             return [

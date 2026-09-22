@@ -558,6 +558,103 @@ describe('Form country state select plugin', () => {
         expect(vatIdField.hasAttribute('pattern')).toBe(false);
     });
 
+    it('should normalize vatIds input after selecting a country when no country was initially selected', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="NL" data-vat-id-required="0" data-state-required="0"
+                            data-vat-id-pattern="NL[0-9]{9}B[0-9]{2}" data-check-vat-id-pattern="1">Netherlands</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+        const countrySelect = document.querySelector('.country-select');
+
+        countrySelect.value = 'NL';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(vatIdField.getAttribute('pattern')).toBe('NL[0-9]{9}B[0-9]{2}');
+
+        vatIdField.value = 'nl 123456789 b 12';
+        vatIdField.dispatchEvent(new Event('input'));
+
+        expect(vatIdField.value).toBe('NL123456789B12');
+    });
+
+    it('should normalize vatIds input to upper case and strip whitespace while a pattern constraint is active', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="NL">
+                    <option selected="selected" value="NL" data-vat-id-required="0" data-state-required="0"
+                            data-vat-id-pattern="NL[0-9]{9}B[0-9]{2}" data-check-vat-id-pattern="1">Netherlands</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+
+        vatIdField.value = 'nl 123456789 b12';
+        vatIdField.dispatchEvent(new Event('input'));
+
+        expect(vatIdField.value).toBe('NL123456789B12');
+    });
+
+    it('should not normalize vatIds input when no pattern constraint is active', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <select class="country-select" data-initial-country-id="US">
+                    <option selected="selected" value="US" data-vat-id-required="0" data-state-required="0"
+                            data-vat-id-pattern="US[0-9]{9}" data-check-vat-id-pattern="0">USA</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const vatIdField = document.querySelector('#vatIds');
+
+        vatIdField.value = 'some free text';
+        vatIdField.dispatchEvent(new Event('input'));
+
+        expect(vatIdField.value).toBe('some free text');
+    });
+
     it('should re-validate existing vatIds value when pattern changes on country switch', () => {
         template = `
             <form id="registerForm" action="/register" method="post">

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
@@ -28,6 +29,7 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
@@ -225,6 +227,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
             service(Filesystem::class),
             service(DocumentRendererRegistry::class),
+            service(DocumentFileNameBuilder::class),
+        ]);
+
+    $services->set(DocumentFileNameBuilder::class)
+        ->args([
+            service(ClockInterface::class),
         ]);
 
     $services->set(DocumentPersister::class)

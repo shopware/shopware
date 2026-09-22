@@ -185,11 +185,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/NoneFieldsCriteria"
                             }
                         }
                     }
@@ -337,11 +333,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -440,11 +432,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }

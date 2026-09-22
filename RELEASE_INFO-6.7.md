@@ -80,6 +80,10 @@ The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confir
 
 The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `data-checkout-customer-storage-reset`. It sits on the emptied cart, as both a page and an off-canvas, on the order confirmation page, and on the login page a logout lands on. Themes that replace those templates should keep the attribute, and can add it to any further place that ends a checkout.
 
+### Separate legal guarantee notice
+
+The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
+
 # 6.7.15.0
 
 ## Features

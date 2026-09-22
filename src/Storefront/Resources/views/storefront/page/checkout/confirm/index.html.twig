@@ -62,6 +62,17 @@
                             </p>
                         {% endblock %}
 
+                        {% block page_checkout_confirm_legal_guarantee_paragraph %}
+                            {% if showLegalGuaranteeNotice %}
+                                <p class="legal-guarantee-notice">
+                                    {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                                        '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                        '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                                    })|raw }}
+                                </p>
+                            {% endif %}
+                        {% endblock %}
+
                         {% block page_checkout_confirm_tos_control %}
                             {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                             {% set tosModalTagClose = '</button>' %}
@@ -79,11 +90,9 @@
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                         class="checkout-confirm-tos-label custom-control-label">
-                                        {{ (showLegalGuaranteeNotice ? 'checkout.confirmTermsTextModalWithGuarantee' : 'checkout.confirmTermsTextModal')|trans({
+                                        {{ 'checkout.confirmTermsTextModal'|trans({
                                             '%tosModalTagOpen%': tosModalTagOpen,
                                             '%tosModalTagClose%': tosModalTagClose,
-                                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
-                                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -252,6 +261,17 @@
                             </p>
                     {% endblock %}
 
+                    {% block page_checkout_confirm_tos_auto_confirmed_legal_guarantee_paragraph_bottom %}
+                        {% if showLegalGuaranteeNotice %}
+                            <p class="legal-guarantee-notice mb-0 mt-2">
+                                {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                                    '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                    '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                                })|raw }}
+                            </p>
+                        {% endif %}
+                    {% endblock %}
+
                     {% block page_checkout_confirm_tos_auto_confirmed_bottom %}
                         {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                         {% set tosModalTagClose = '</button>' %}
@@ -269,11 +289,9 @@
                             {% block page_checkout_confirm_tos_auto_confirmed_label_bottom %}
                                 <label for="tos"
                                        class="checkout-confirm-tos-label custom-control-label">
-                                    {{ (showLegalGuaranteeNotice ? 'checkout.confirmTermsTextModalWithGuarantee' : 'checkout.confirmTermsTextModal')|trans({
+                                    {{ 'checkout.confirmTermsTextModal'|trans({
                                         '%tosModalTagOpen%': tosModalTagOpen,
                                         '%tosModalTagClose%': tosModalTagClose,
-                                        '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
-                                        '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                     })|raw }}
                                 </label>
                             {% endblock %}

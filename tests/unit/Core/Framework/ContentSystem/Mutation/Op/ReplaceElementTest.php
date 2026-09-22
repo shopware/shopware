@@ -410,8 +410,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('carries a null stored under a key the new type declares as a primitive')]
     public function testReplaceCarriesANullUnderADeclaredPrimitive(): void
     {
-        // The write gate and the diagnostics both admit a null under every primitive — whether the key may be
-        // null is the required-input rule's business. The swap now agrees instead of dropping it.
+        // The write gate admits a null under every primitive; the swap now agrees instead of dropping it.
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
@@ -424,8 +423,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('carries a value matching one member of an all-primitive union')]
     public function testReplaceCarriesAValueMatchingAnAllPrimitiveUnion(): void
     {
-        // A union's declared type is an array, so isPrimitive() answered false and the old rule dropped every
-        // union value regardless of its type. enforceableTypes() tests the members instead.
+        // isPrimitive() answers false for a union's array type, so the old rule dropped every union value.
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', 42)->build()]);
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());

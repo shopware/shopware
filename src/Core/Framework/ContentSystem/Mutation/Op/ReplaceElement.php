@@ -19,9 +19,9 @@ use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Swaps $elementId's component to $newType, keeping the same id. Carries over matching primitive
- * properties, wiring, and slot children; surfaces anything the new type cannot hold via
- * {@see orphaned()}, {@see droppedWiring()}, and {@see droppedProperties()}.
+ * Swaps $elementId's component to $newType, keeping the same id. Carries over properties the new type's
+ * declaration admits ({@see PropertyType::admits()}), wiring, and slot children; surfaces anything the new type
+ * cannot hold via {@see orphaned()}, {@see droppedWiring()}, and {@see droppedProperties()}.
  *
  * The new type's default binding specification, when it has exactly one, is fill-applied after wiring carryover
  * (zero defaults is a no-op; more than one throws): fill-only semantics guarantee carried wiring is never
@@ -99,8 +99,8 @@ final class ReplaceElement extends AbstractLayoutMutation
     }
 
     /**
-     * A stored property key survives the type swap two ways: it matches a new-type primitive property (the
-     * pre-existing rule), or it is one of the new type's default specification's `resolvedBy` storage keys and the
+     * A stored property key survives the type swap two ways: the new type declares it with an enforceable type
+     * that admits the value, or it is one of the new type's default specification's `resolvedBy` storage keys and the
      * stored value's shape matches that key's loader branch (a string for `entity`, a list of strings for
      * `entity_collection`) — deliberately stricter than the serve path's tolerant list filtering, so a partially
      * valid stored list is dropped-and-reported here rather than silently shrunk downstream. Neither rule reuses
@@ -135,9 +135,7 @@ final class ReplaceElement extends AbstractLayoutMutation
 
             $type = $newTypeProperties[$key]->type();
 
-            // Only an enforceable declaration can vouch for a carried value. Under `object` or an FQCN nothing
-            // checks the shape, and the new type's members may be unrelated to the old one's, so the value goes
-            // to droppedProperties rather than across unexamined.
+            // Under `object` or an FQCN nothing can check the value's shape, so it drops rather than cross unexamined.
             if ($type->enforceableTypes() === null || !$type->admits($value->jsonSerialize())) {
                 $this->droppedProperties[$key] = $value;
 

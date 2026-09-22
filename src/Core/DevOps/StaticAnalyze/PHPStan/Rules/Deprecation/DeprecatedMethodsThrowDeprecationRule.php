@@ -29,8 +29,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-subscriber',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
-        // Only the route on controller will be removed
-        'reason:remove-route',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.

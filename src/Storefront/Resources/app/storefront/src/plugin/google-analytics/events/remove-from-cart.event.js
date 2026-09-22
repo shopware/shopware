@@ -34,19 +34,16 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
-        const additionalProperties = LineItemHelper.getAdditionalProperties();
-
-        // Find the product data from the hidden line items container
+        // Find the product data from the hidden line items container. Only product line items are
+        // rendered there, so a remove button without a match belongs to a discount or another non
+        // product line item, which GA4 does not report as an item. Reporting it anyway would put the
+        // line item id into `item_id`, where every other event reports a product number.
         const hiddenLineItem = document.querySelector(`.hidden-line-item[data-id="${productId}"]`);
         if (!hiddenLineItem) {
-            // Fallback: send event with just the product ID
-            this.pushEvent('remove_from_cart', {
-                'currency': additionalProperties.currency,
-                'items': [{ 'item_id': productId }],
-            });
             return;
         }
 
+        const additionalProperties = LineItemHelper.getAdditionalProperties();
         const categories = LineItemHelper.getCategoriesFromElement(hiddenLineItem);
         const price = hiddenLineItem.getAttribute('data-price');
         const quantity = hiddenLineItem.getAttribute('data-quantity');

@@ -67,9 +67,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     final public const KEEP_INACTIVE_PRODUCT = CheckoutPermissions::KEEP_INACTIVE_PRODUCT;
 
     /**
-     * Not a constructor argument, because the resolver is stateless and has no dependencies of its
-     * own, while adding an argument would break every service definition that instantiates this
-     * processor, including those outside this repository.
+     * Not a constructor argument, although the constructor is `@internal`: a downstream service
+     * definition that instantiates this processor with the documented arguments still fails with an
+     * `ArgumentCountError`, which is how `quote.product.processor` in SwagCommercial broke. The
+     * resolver is stateless and has no dependencies of its own, so injecting it buys nothing that
+     * would justify that.
      */
     private readonly ProductCategoryPathResolver $categoryPathResolver;
 

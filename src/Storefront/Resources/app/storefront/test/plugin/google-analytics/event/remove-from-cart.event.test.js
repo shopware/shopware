@@ -50,9 +50,11 @@ describe('plugin/google-analytics/events/remove-from-cart.event', () => {
         });
     });
 
-    test('fires event with currency and just product ID when hidden line item is not found', () => {
+    test('does not fire an event for a line item that is not a product', () => {
+        // only product line items are rendered into the hidden container, so a discount that is
+        // removed has no match there and is not an item GA4 reports
         document.body.innerHTML = `
-            <button class="line-item-remove-button" data-product-id="product-123"></button>
+            <button class="line-item-remove-button" data-product-id="promotion-123"></button>
             <div class="hidden-line-items-information" data-currency="EUR"></div>
         `;
 
@@ -62,10 +64,7 @@ describe('plugin/google-analytics/events/remove-from-cart.event', () => {
         const button = document.querySelector('.line-item-remove-button');
         button.click();
 
-        expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_cart', {
-            'currency': 'EUR',
-            'items': [{ 'item_id': 'product-123' }],
-        });
+        expect(window.gtag).not.toHaveBeenCalled();
     });
 
     test('does not fire event when clicking non-remove button', () => {

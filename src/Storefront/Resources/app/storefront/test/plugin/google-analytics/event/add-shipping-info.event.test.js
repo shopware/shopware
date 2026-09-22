@@ -40,6 +40,44 @@ describe('plugin/google-analytics/events/add-shipping-info.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(1);
     });
 
+    test('fires again when the customer selects a different shipping method', () => {
+        const markup = (tier) => `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="49.99">
+                </span>
+            </div>
+            <div class="shipping-method-radio">
+                <input type="radio" class="shipping-method-input" checked>
+                <div class="shipping-method-description">
+                    <strong>${tier}</strong>
+                </div>
+            </div>
+        `;
+
+        document.body.innerHTML = markup('Standard Shipping');
+        new AddShippingInfoEvent().execute();
+
+        // the auto-submit reload renders the confirm page with the newly selected method
+        document.body.innerHTML = markup('Express Shipping');
+        new AddShippingInfoEvent().execute();
+
+        // reloading again without changing anything stays silent
+        new AddShippingInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(2);
+        expect(window.gtag).toHaveBeenNthCalledWith(1, 'event', 'add_shipping_info', expect.objectContaining({
+            'shipping_tier': 'Standard Shipping',
+        }));
+        expect(window.gtag).toHaveBeenNthCalledWith(2, 'event', 'add_shipping_info', expect.objectContaining({
+            'shipping_tier': 'Express Shipping',
+        }));
+    });
+
     test('supports returns true on checkout confirm page', () => {
         expect(new AddShippingInfoEvent().supports('', '', 'frontend.checkout.confirm.page')).toBe(true);
     });

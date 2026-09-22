@@ -1,4 +1,4 @@
-# 6.7.15.0
+# 6.7.16.0
 
 ## Existing MCP integrations and non-admin users need an explicit MCP allowlist
 
@@ -25,7 +25,8 @@ An empty array blocks a type. There is no value meaning "everything" for a princ
 
 Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
 
-## Document generation v1 deprecated for removal in Shopware 6.9
+# 6.7.15.0
+
 ## Document generation v1 marked for replacement
 
 The legacy document generation implementation is superseded by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). Because v2 is still `@experimental`, the legacy classes are not deprecated yet. They carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]`, which is silent for static analysis. With Shopware 6.8 the attribute becomes a `@deprecated tag:v6.9.0` annotation. The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.

@@ -270,7 +270,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertSame(
             $shouldMatch,

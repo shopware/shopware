@@ -36,8 +36,10 @@ const bags = new WeakMap<ComponentInternalInstance, AnyRecord>();
  */
 export function attachSetupOverrideShim(componentName: string, config: ComponentConfig): void {
     // A string template means the component came out of the Twig pipeline; migrated SFCs run their
-    // overrides through createExtendableSetup() instead.
-    if (typeof config.template !== 'string' || !_overridesMap[componentName]?.length) {
+    // overrides through createExtendableSetup() instead. Whether overrides exist is checked per
+    // instance below: sync components are built before the override SFCs mount and register, so at
+    // this point the map is still empty for them.
+    if (typeof config.template !== 'string') {
         return;
     }
 
@@ -49,6 +51,10 @@ export function attachSetupOverrideShim(componentName: string, config: Component
     // content instead of being replaced.
     config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
         const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
+
+        if (!_overridesMap[componentName]?.length) {
+            return originalResult;
+        }
 
         const bag: AnyRecord = originalResult ?? {};
 

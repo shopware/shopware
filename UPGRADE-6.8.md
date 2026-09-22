@@ -2107,6 +2107,16 @@ The old classes are removed:
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
 The HTTP route is still the same. The old class has been removed.
 
+## Removed Elasticsearch search configuration loader alias
+
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
+
 ## Removal of snippets
 
 The following snippet keys have been removed:

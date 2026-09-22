@@ -3041,6 +3041,7 @@
  "sw_integration_mcp_allowlist_coverage_warning",
  "sw_integration_mcp_allowlist_denied_types",
  "sw_integration_mcp_allowlist_empty",
+ "sw_integration_mcp_allowlist_no_selection_banner",
  "sw_integration_mcp_allowlist_stale",
  "sw_integration_mcp_allowlist_sticky",
  "sw_integration_mcp_allowlist_types",

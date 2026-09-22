@@ -7,10 +7,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -169,6 +171,86 @@ class ApiControllerTest extends TestCase
             'delete-commits',
             'delete-version',
         ], $calls, 'the change set must be dropped before the version row');
+    }
+
+    public function testDeleteVersionWithoutChangeSetLeavesTheCommitRepositoryAlone(): void
+    {
+        $entityId = Uuid::randomHex();
+        $versionId = Uuid::randomHex();
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())->method('delete')
+            ->willReturn(static::createStub(EntityWrittenContainerEvent::class));
+
+        $commitRepository = $this->createMock(EntityRepository::class);
+        $commitRepository->expects($this->once())->method('searchIds')
+            ->willReturnCallback(static fn (Criteria $criteria, Context $context): IdSearchResult => IdSearchResult::fromIds([], $criteria, $context));
+        $commitRepository->expects($this->never())->method('delete');
+
+        $versionRepository = $this->createMock(EntityRepository::class);
+        $versionRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids) use ($versionId): EntityWrittenContainerEvent {
+                static::assertSame([['id' => $versionId]], $ids);
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+        $container->set(VersionCommitDefinition::ENTITY_NAME . '.repository', $commitRepository);
+        $container->set(VersionDefinition::ENTITY_NAME . '.repository', $versionRepository);
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class, VersionDefinition::class, VersionCommitDefinition::class]);
+
+        $controller->deleteVersion(Context::createDefaultContext(), 'parent-entity', $entityId, $versionId);
+    }
+
+    public function testCreateWithAnIdInThePathIsNotAllowed(): void
+    {
+        $entityId = Uuid::randomHex();
+        $path = '/api/parent-entity/' . $entityId;
+
+        $request = new Request(
+            [],
+            ['name' => 'created'],
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'REQUEST_METHOD' => 'POST', 'REQUEST_URI' => $path],
+        );
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', static::createStub(EntityRepository::class));
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class]);
+
+        $this->expectExceptionObject(ApiException::methodNotAllowed(
+            ['GET', 'PATCH', 'DELETE'],
+            'No route found for "POST ' . $path . '": Method Not Allowed (Allow: GET, PATCH, DELETE)',
+        ));
+
+        $controller->create($request, Context::createDefaultContext(), static::createStub(ResponseFactoryInterface::class), 'parent-entity', '/' . $entityId);
+    }
+
+    /**
+     * @param list<class-string<EntityDefinition>> $definitions
+     */
+    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions): ApiController
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            $definitions,
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+            $container
+        );
+
+        return new ApiController(
+            $registry,
+            static::createStub(DecoderInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(EntityProtectionValidator::class),
+            static::createStub(AclCriteriaValidator::class)
+        );
     }
 
     private function createApiController(

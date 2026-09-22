@@ -7,6 +7,9 @@
 Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no visible category. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
 
 Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
+### Dompdf page count placeholder replaced for core and fallback fonts
+
+In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
 
 ### Moved PHP classes retain backwards-compatible aliases
 

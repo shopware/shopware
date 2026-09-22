@@ -125,6 +125,61 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         expect(event.getEvents()).toHaveProperty('Listing/afterRenderResponse');
     });
 
+    test('prefers the category path of the product over the breadcrumb of the listing', () => {
+        const information = {
+            sku: 'SW10000',
+            name: 'Test Product',
+            price: '19.99',
+            categories: ['Damen', 'Schuhe'],
+        };
+
+        document.body.innerHTML = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Sale</span>
+            </nav>
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='${JSON.stringify(information)}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [{
+                'item_id': 'SW10000',
+                'item_name': 'Test Product',
+                'price': 19.99,
+                'item_category': 'Damen',
+                'item_category2': 'Schuhe',
+            }],
+        }));
+    });
+
+    test('falls back to the breadcrumb when the product box carries no category path', () => {
+        // a listing does not load the category associations, so its product boxes report no path
+        const information = {
+            sku: 'SW10000',
+            name: 'Test Product',
+            price: '19.99',
+            categories: [],
+        };
+
+        document.body.innerHTML = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Sale</span>
+            </nav>
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='${JSON.stringify(information)}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [expect.objectContaining({ 'item_category': 'Sale' })],
+        }));
+    });
+
     test('reports only documented item properties, whatever else the product box carries', () => {
         const information = {
             id: 'product-123',

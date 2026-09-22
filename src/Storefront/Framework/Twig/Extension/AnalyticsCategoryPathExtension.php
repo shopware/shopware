@@ -26,15 +26,8 @@ use Twig\TwigFunction;
 #[Package('discovery')]
 class AnalyticsCategoryPathExtension extends AbstractExtension
 {
-    /**
-     * The resolver is stateless and has no dependencies, so it is instantiated instead of injected,
-     * the same way {@see \Shopware\Core\Content\Product\Cart\ProductCartProcessor} does it.
-     */
-    private readonly ProductCategoryPathResolver $categoryPathResolver;
-
-    public function __construct()
+    public function __construct(private readonly ProductCategoryPathResolver $categoryPathResolver)
     {
-        $this->categoryPathResolver = new ProductCategoryPathResolver();
     }
 
     /**

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -29,7 +30,8 @@ class AnalyticsCategoryPathExtensionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->extension = new AnalyticsCategoryPathExtension();
+        // resolving a path needs no dependencies, so the real resolver is passed rather than a double
+        $this->extension = new AnalyticsCategoryPathExtension(new ProductCategoryPathResolver());
         $this->navigationId = Uuid::randomHex();
 
         $this->context = Generator::generateSalesChannelContext();

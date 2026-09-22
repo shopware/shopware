@@ -134,10 +134,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
             // Forwarded bindings are read-only in the slot; reject template writes to them.
             assertNoWritesToForwardedBindings(
                 writeTargets,
-                new Set([
-                    ...analysis.runtimeBindingNames,
-                    ...analysis.runtimeInputAliasNames,
-                ]),
+                new Set([...analysis.runtimeBindingNames, ...analysis.runtimeInputAliasNames]),
                 templateOffset,
             );
 

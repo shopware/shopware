@@ -14,10 +14,7 @@ import './sw-password-field.scss';
 export default {
     template,
 
-    emits: [
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['inheritance-restore', 'inheritance-remove'],
 
     props: {
         passwordToggleAble: {

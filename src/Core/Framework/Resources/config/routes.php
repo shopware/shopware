@@ -11,6 +11,7 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Store/**/*Controller.php', 'attribute');
     $routes->import('../../Update/**/*Controller.php', 'attribute');
     $routes->import('../../MessageQueue/**/*Controller.php', 'attribute');
+    $routes->import('../../Notification/Api/*Controller.php', 'attribute');
     $routes->import('../../Increment/Controller/*Controller.php', 'attribute');
     $routes->import('../../Migration/**/*Controller.php', 'attribute');
     $routes->import('../../App/**/*Controller.php', 'attribute');

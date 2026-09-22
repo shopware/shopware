@@ -15,11 +15,19 @@
                         "description": "The total number of found entities"
                     },
                     "aggregations": {
-                        "type": "array",
-                        "description": "Contains aggregated data. A simple example is the determination of the average price from a product search query.",
-                        "items": {
-                            "type": "object"
-                        }
+                        "description": "Contains aggregated data keyed by the aggregation name. A simple example is the determination of the average price from a product search query. An empty array is returned when no aggregations were requested.",
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            }
+                        ]
                     },
                     "page": {
                         "type": "integer",

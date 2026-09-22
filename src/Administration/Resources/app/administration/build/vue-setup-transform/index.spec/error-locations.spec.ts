@@ -64,7 +64,7 @@ describe('build/vue-setup-transform error locations', () => {
         expect(error.frame).toContain(`1004|  ${script}`);
     });
 
-    it('underlines a multiline range through its exclusive end', () => {
+    it('underlines only the ends of a multiline range, through its exclusive end', () => {
         const source = stripIndent`
             <template><div /></template>
             <script setup>
@@ -80,8 +80,31 @@ describe('build/vue-setup-transform error locations', () => {
         expect(error.index).toBe(source.indexOf('await'));
         expect(error.endIndex).toBe(source.indexOf(');') + 1);
         expect(error.frame).toContain(
-            "3  |  const value = await load(\n   |                ^^^^^^^^^^^\n4  |      'value'\n   |  ^^^^^^^^^^^\n5  |  );\n   |  ^",
+            "3  |  const value = await load(\n   |                ^^^^^^^^^^^\n4  |      'value'\n5  |  );\n   |  ^",
         );
+    });
+
+    it('keeps a short range middle but collapses a long one', () => {
+        const build = (bodyLines: number) =>
+            [
+                '<template><div /></template>',
+                '<script setup>',
+                'export function long() {',
+                ...Array.from({ length: bodyLines }, () => '    call();'),
+                '}',
+                'swDefinePublic({});',
+                '</script>',
+            ].join('\n');
+        const short = captureTransformError(build(2), 'sw-short-range.vue');
+        const long = captureTransformError(build(20), 'sw-long-range.vue');
+
+        expect(long.message).toContain('ES module exports');
+        expect(short.frame).toContain('3  |  export function long() {\n   |  ^^^^^^^^^^^^^^^^^^^^^^^^\n4  |      call();');
+        expect(long.frame).toContain(
+            '3  |  export function long() {\n   |  ^^^^^^^^^^^^^^^^^^^^^^^^\n...\n24 |  }\n   |  ^',
+        );
+        // Two context lines, both range ends with their caret, and one ellipsis - independent of the body length.
+        expect(long.frame?.split('\n')).toHaveLength(9);
     });
 
     it.each([

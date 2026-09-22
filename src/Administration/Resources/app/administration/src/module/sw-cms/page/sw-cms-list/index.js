@@ -19,11 +19,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('user-settings'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('user-settings')],
 
     data() {
         return {
@@ -48,11 +44,7 @@ export default {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: [
-                'categories',
-                'products',
-                'landingPages',
-            ],
+            assignablePageTypes: ['categories', 'products', 'landingPages'],
             searchConfigEntity: 'cms_page',
             showLayoutSetAsDefaultModal: false,
             defaultCategoryId: '',
@@ -168,9 +160,7 @@ export default {
                     type: 'multi',
                     operator: 'OR',
                     queries: this.assignablePageTypes.map((name) =>
-                        Criteria.not('OR', [
-                            Criteria.equals(`${name}.id`, null),
-                        ]),
+                        Criteria.not('OR', [Criteria.equals(`${name}.id`, null)]),
                     ),
                 },
             ];
@@ -379,10 +369,7 @@ export default {
 
             return this.defaultFolderRepository
                 .search(criteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        'cms_page',
-                    ],
+                    cacheKey: ['media-default-folder', 'cms_page'],
                 })
                 .then((searchResult) => {
                     const defaultFolder = searchResult.first();
@@ -407,10 +394,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.sortBy,
-                this.sortDirection,
-            ] = value.split(':');
+            [this.sortBy, this.sortDirection] = value.split(':');
             this.resetList();
             this.saveGridUserSettings();
         },

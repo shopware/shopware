@@ -30,6 +30,18 @@ GROUP BY t.state_machine_id, t.from_state_id, t.action_name
 HAVING COUNT(*) > 1;
 ```
 
+## Password recovery and mail events can no longer be received by webhooks
+
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` were removed from the events an app may subscribe to with a webhook. They have not been delivered since 6.7; a manifest with a `<webhook>` for any of them is now rejected on install and update with a `WebhookNotPermittedError`.
+
+Remove the webhook from your manifest. The events remain available in Flow Builder.
+
+Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
+
+## `EventDataCollection` is final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` is now `final` and `add()` takes `array $options = []` as third parameter.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
@@ -2090,6 +2102,16 @@ The old classes are removed:
 
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
 The HTTP route is still the same. The old class has been removed.
+
+## Removed Elasticsearch search configuration loader alias
+
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
 
 ## Removal of snippets
 

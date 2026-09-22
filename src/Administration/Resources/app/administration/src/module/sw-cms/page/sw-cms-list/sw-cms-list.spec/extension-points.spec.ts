@@ -68,7 +68,15 @@ function renderWithOverrides(overrides: BlockOverride[]): string {
     });
     registeredTemplates.push(name);
 
-    return TemplateFactory.getRenderedTemplate(name);
+    const html = TemplateFactory.getRenderedTemplate(name);
+
+    // `getRenderedTemplate()` returns null for a template it cannot resolve, which would turn every
+    // `toContain()` below into the same unhelpful failure.
+    if (html === null) {
+        throw new Error(`The template "${name}" could not be rendered.`);
+    }
+
+    return html;
 }
 
 function overrideBlock(name: string, blockName: string, markup: string): BlockOverride {

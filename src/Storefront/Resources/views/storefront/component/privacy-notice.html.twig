@@ -10,9 +10,21 @@
         {% block component_privacy_dpi %}
             {% set cmsPath = 'frontend.cms.page' %}
             {% set requiresTermsOfService = requiresTermsOfService ?? true %}
+            {% set showLegalGuaranteeNotice = requiresTermsOfService and config('core.cart.showLegalGuaranteeNotice') %}
             {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
             {% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
             {% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+
+            {% block component_privacy_legal_guarantee_notice_paragraph %}
+                {% if showLegalGuaranteeNotice %}
+                    <p class="legal-guarantee-notice">
+                        {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                        })|raw }}
+                    </p>
+                {% endif %}
+            {% endblock %}
 
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
                 {% set privacyNoticeSnippet = requiresTermsOfService ? 'general.privacyNoticeTextModal' : 'contact.privacyNoticeTextModal' %}
@@ -20,8 +32,6 @@
                 {% set dataProtectionLabel = privacyNoticeSnippet|trans({
                     '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
                     '%privacyModalTagClose%': '</button>',
-                    '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
-                    '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                     '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
                     '%tosModalTagClose%': '</button>',
                 })|raw %}
@@ -41,8 +51,6 @@
                             {{ privacyNoticeSnippet|trans({
                                 '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.privacyPage') }) ~ '">',
                                 '%privacyModalTagClose%': '</button>',
-                                '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
-                                '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                 '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
                                 '%tosModalTagClose%': '</button>',
                             })|raw }}
@@ -52,7 +60,7 @@
             {% endif %}
 
             {% block component_privacy_legal_guarantee_notice_modal %}
-                {% if requiresTermsOfService %}
+                {% if showLegalGuaranteeNotice %}
                     <div class="modal modal-lg fade"
                          id="{{ legalGuaranteeNoticeModalId }}"
                          tabindex="-1"

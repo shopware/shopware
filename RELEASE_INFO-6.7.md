@@ -78,6 +78,10 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Legal guarantee notice on the registration and other privacy notices
+
+`component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
 # 6.7.15.0
 
 ## Features
@@ -717,10 +721,6 @@ The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` along
 Storefront privacy notices now use passive wording when `core.loginRegistration.requireDataProtectionCheckbox` is disabled. Contact and newsletter forms use the privacy-only snippet keys `contact.privacyNoticeTextModal` and `contact.privacyNoticeInformation`, while forms that include the terms of service use `general.privacyNoticeTextModal` and `general.privacyNoticeInformation`. Themes and custom snippet sets can override the new `*.privacyNoticeInformation` keys to adjust the non-blocking notice.
 
 The regular registration action now uses `account.registerSubmit`, while the checkout registration and guest-order authentication use `checkout.registerSubmit`.
-
-### Privacy notices requiring terms of service also link the legal guarantee notice
-
-The `general.privacyNoticeTextModal` and `general.privacyNoticeInformation` snippets, shown by `component/privacy-notice.html.twig` for forms that require acceptance of the terms of service (for example the registration form), now also reference the legal guarantee notice introduced with GARAN — regardless of whether `core.loginRegistration.requireDataProtectionCheckbox` is enabled. Both snippets gained the placeholders `%legalGuaranteeNoticeModalTagOpen%`/`%legalGuaranteeNoticeModalTagClose%`, which the template resolves to a button opening a new modal rendered in the `component_privacy_legal_guarantee_notice_modal` block. Themes and translation providers that override either snippet should add these placeholders to keep the link functional. The privacy-only `contact.privacyNoticeTextModal`/`contact.privacyNoticeInformation` variants are unaffected.
 
 ### Semantic footer markup
 

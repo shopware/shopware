@@ -618,7 +618,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async loadMappingCandidates(): Promise<void> {
-            await this.mappingCandidateStore.loadMappingCandidates();
+            // Custom-field candidates are runtime configuration and may have changed since the store was first
+            // populated elsewhere in the Administration.
+            await this.mappingCandidateStore.loadMappingCandidates(true);
         },
 
         entityTypeService(): ContentSystemEntityTypeService {

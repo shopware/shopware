@@ -41,6 +41,28 @@ export function isMappableProperty(property: ContentSystemElementTypeProperty): 
 }
 
 /**
+ * Resolves literal translations carried by dynamic catalogue entries such as custom fields.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function getMappingCandidateTranslation(
+    translations: Record<string, string> | undefined,
+    currentLocale: string,
+    fallbackLocale: string,
+): string {
+    if (!translations) {
+        return '';
+    }
+
+    return [
+        translations[currentLocale],
+        translations[fallbackLocale],
+        ...Object.values(translations),
+    ].find((translation) => typeof translation === 'string' && translation !== '') ?? '';
+}
+
+/**
  * Finds the mapping that currently feeds `propertyKey`, or null when the property carries a static value.
  *
  * @private

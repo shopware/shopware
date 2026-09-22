@@ -155,17 +155,10 @@ final readonly class ContextDeliveryResolver
 
                 $resolved = $this->ambientValueFor($element, $sourcePath, $consumer, $ambientKey, $value);
 
-                // A mapping that resolved to nothing writes NO key, so the authored value underneath
-                // survives. This is the data-mapping fallback rule: an author who maps a property keeps the
-                // value they typed as the placeholder for entities where the mapped field is empty, and a
-                // present null here would instead blank the element, because the delivered tier outranks the
-                // authored one in RenderedElementFactory. Delivering nothing only yields to the tiers below;
-                // what those hold is their business, so a property whose own loader reported not-found still
-                // renders that loader's null.
-                //
-                // Only the mapping case. An exact ambient key match keeps the present-null contract, and so
-                // does every parent-scoped delivery, so nothing outside mapping changes behaviour.
-                if ($resolved === null && $consumer->sourcePath !== null) {
+                // A dotted root path that resolved to nothing writes NO key. For a mapping this preserves the
+                // authored fallback; for ordinary context wiring it preserves the established optional-path
+                // contract. Exact ambient matches and parent-scoped delivery remain unchanged.
+                if ($resolved === null && $sourcePath !== $ambientKey) {
                     continue;
                 }
 
@@ -209,13 +202,10 @@ final readonly class ContextDeliveryResolver
             return null;
         }
 
-        $resolved = $this->pathResolver->resolvePath(
-            $data,
-            $this->pathResolver->parseContextKey($consumerKey),
-            $consumer->required,
-            $consumerKey,
-            $element->id
-        );
+        $path = $this->pathResolver->parseContextKey($consumerKey);
+        $resolved = $consumer->sourcePath !== null
+            ? $this->pathResolver->resolveMappingPath($data, $path, $consumer->required, $consumerKey, $element->id)
+            : $this->pathResolver->resolvePath($data, $path, $consumer->required, $consumerKey, $element->id);
 
         if ($consumer->projection === null || $resolved === null) {
             return $resolved;

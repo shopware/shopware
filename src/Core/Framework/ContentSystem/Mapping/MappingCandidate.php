@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Log\Package;
  * The catalogue is curated rather than derived from the entity definitions, and that is a correctness and a
  * security decision rather than a convenience. Two constraints a derived catalogue could not honour:
  *
- * - {@see ContextPathResolver} traverses `Struct::getVars()` and needs a `Struct` at every INTERMEDIATE
- *   step, so a path through an array-valued member (`customFields`) cannot resolve at all. Only a path a
- *   provider has vouched for is offered.
+ * - {@see ContextPathResolver} traverses `Struct::getVars()` and normally needs a `Struct` at every
+ *   intermediate step. Catalogued mappings have one narrow exception for a terminal lookup in the root
+ *   entity's array-backed `customFields` member. Only a path a provider has vouched for is offered.
  * - The framework's protection gate (ApiAware, `isProtected`, the customFields blocklist) is applied by
  *   `StructEncoder` to `Struct` leaves only, so a mapped SCALAR leaf is served unfiltered. The catalogue is
  *   the allowlist that keeps an author from reaching one.
@@ -42,6 +42,8 @@ final readonly class MappingCandidate
      * @param string $valueType the effective type: a `PropertyType::PRIMITIVE_TYPES` member, or an FQCN
      * @param string|null $projection name of the projection applied to the resolved value, or null when the
      *                                value at `$path` is already of `$valueType`
+     * @param array<string, string> $labelTranslations literal localized labels, preferred over the snippet key
+     * @param array<string, string> $descriptionTranslations literal localized descriptions, preferred over the snippet key
      */
     public function __construct(
         public string $path,
@@ -51,6 +53,8 @@ final readonly class MappingCandidate
         public string $valueType,
         public ContextType $contextType = ContextType::Single,
         public ?string $projection = null,
+        public array $labelTranslations = [],
+        public array $descriptionTranslations = [],
     ) {
         if (!str_contains($path, '.')) {
             throw ContentSystemException::invalidMappingCandidatePath($path);
@@ -58,7 +62,7 @@ final readonly class MappingCandidate
     }
 
     /**
-     * @return array{path: string, label: string, description: string, group: string, valueType: string, contextType: string, projection: string|null}
+     * @return array{path: string, label: string, description: string, group: string, valueType: string, contextType: string, projection: string|null, labelTranslations: object, descriptionTranslations: object}
      */
     public function toSchema(): array
     {
@@ -70,6 +74,8 @@ final readonly class MappingCandidate
             'valueType' => $this->valueType,
             'contextType' => $this->contextType->value,
             'projection' => $this->projection,
+            'labelTranslations' => (object) $this->labelTranslations,
+            'descriptionTranslations' => (object) $this->descriptionTranslations,
         ];
     }
 }

@@ -9,7 +9,8 @@ import ApiService from '../api.service';
 /**
  * One entry of the curated catalogue of entity data an author may bind a mappable property to.
  *
- * `label` and `description` are snippet keys, not display strings.
+ * `label` and `description` are snippet keys. Dynamic candidates may additionally carry literal translations
+ * sourced from their own configuration.
  *
  * @private
  */
@@ -21,6 +22,8 @@ export interface ContentSystemMappingCandidate {
     valueType: string;
     contextType: 'single' | 'collection';
     projection: string | null;
+    labelTranslations?: Record<string, string>;
+    descriptionTranslations?: Record<string, string>;
 }
 
 /**

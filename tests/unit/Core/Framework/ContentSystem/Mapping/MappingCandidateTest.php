@@ -29,6 +29,11 @@ class MappingCandidateTest extends TestCase
             projection: 'media_from_category',
         );
 
+        $schema = $candidate->toSchema();
+        $labelTranslations = $schema['labelTranslations'];
+        $descriptionTranslations = $schema['descriptionTranslations'];
+        unset($schema['labelTranslations'], $schema['descriptionTranslations']);
+
         static::assertSame([
             'path' => 'category.media',
             'label' => 'sw-experience-studio.mapping.category.media.label',
@@ -37,7 +42,11 @@ class MappingCandidateTest extends TestCase
             'valueType' => MediaEntity::class,
             'contextType' => 'single',
             'projection' => 'media_from_category',
-        ], $candidate->toSchema());
+        ], $schema);
+        static::assertIsObject($labelTranslations);
+        static::assertIsObject($descriptionTranslations);
+        static::assertSame([], get_object_vars($labelTranslations));
+        static::assertSame([], get_object_vars($descriptionTranslations));
     }
 
     public function testAnUnprojectedCandidateReportsANullProjectionRatherThanOmittingTheKey(): void

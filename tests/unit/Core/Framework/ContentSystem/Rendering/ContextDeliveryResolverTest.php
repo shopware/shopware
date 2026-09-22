@@ -398,14 +398,8 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
-     * The data-mapping fallback rule, at the delivery seam. A dotted root-scoped consumer IS a mapping, and
-     * the entity it reads may simply have nothing at that member — a category with no image, a product with
-     * no cover. Writing a present null there would blank the element, because the delivered tier outranks
-     * the authored one in `RenderedElementFactory`; writing no key leaves the author's value standing as the
-     * placeholder they intended it to be.
-     *
-     * Asserted as the WHOLE map rather than as the key holding null, because present-null and key-absent are
-     * exactly the two states this rule distinguishes.
+     * The established optional dotted-path rule: resolving no leaf writes no key. Mappings use an explicit
+     * sourcePath now, but retain this same delivery behavior so authored fallback values survive.
      */
     #[TestDox('writes no key when a dotted root-scoped consumer resolves to null, so the authored value survives')]
     public function testADottedRootScopedConsumerResolvingToNullWritesNoKey(): void
@@ -577,6 +571,28 @@ class ContextDeliveryResolverTest extends TestCase
             'title' => 'page-cover',
             'subtitle' => 'page-cover',
         ], $index->all()['child-1']->context);
+    }
+
+    public function testMappingCanReadACataloguedCustomField(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.customFields.material')
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), []);
+
+        static::assertSame(['text' => 'Leather'], $index->all()['child-1']->context);
+    }
+
+    public function testMissingCustomFieldPreservesTheAuthoredFallback(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.customFields.material')
+            ->build();
+
+        $index = $this->resolve($child, new StubPathStruct(customFields: []), []);
+
+        static::assertSame([], $index->all()['child-1']->context);
     }
 
     /**

@@ -1,5 +1,5 @@
 import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
-import { groupCandidates } from '../../util/element-mapping.util';
+import { getMappingCandidateTranslation, groupCandidates } from '../../util/element-mapping.util';
 import template from './sw-experience-studio-mapping-modal.html.twig';
 import './sw-experience-studio-mapping-modal.scss';
 
@@ -73,14 +73,34 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         /**
-         * Catalogue labels are snippet keys, but an app or plugin may ship a candidate whose snippet is missing.
-         * Falling back to the key keeps the entry pickable instead of rendering an empty row.
+         * Static catalogue labels are snippet keys. Dynamic candidates such as custom fields carry their own
+         * localized configuration and prefer it over snippets.
          */
         getCandidateLabel(candidate: ContentSystemMappingCandidate): string {
+            const configured = getMappingCandidateTranslation(
+                candidate.labelTranslations,
+                Shopware.Store.get('session').currentLocale,
+                Shopware.Context.app.fallbackLocale,
+            );
+
+            if (configured !== '') {
+                return configured;
+            }
+
             return this.$te(candidate.label) ? this.$t(candidate.label) : candidate.label;
         },
 
         getCandidateDescription(candidate: ContentSystemMappingCandidate): string {
+            const configured = getMappingCandidateTranslation(
+                candidate.descriptionTranslations,
+                Shopware.Store.get('session').currentLocale,
+                Shopware.Context.app.fallbackLocale,
+            );
+
+            if (configured !== '') {
+                return configured;
+            }
+
             return this.$te(candidate.description) ? this.$t(candidate.description) : '';
         },
 

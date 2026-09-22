@@ -171,6 +171,8 @@ class InfoControllerTest extends TestCase
                     'valueType' => 'string',
                     'contextType' => 'single',
                     'projection' => null,
+                    'labelTranslations' => [],
+                    'descriptionTranslations' => [],
                 ]],
                 // Present but empty, so a client never has to tell "offers nothing" apart from "unknown".
                 'none' => [],

@@ -207,7 +207,8 @@
           "groups": {
             "basic": "Basic information",
             "seo": "SEO",
-            "media": "Media"
+            "media": "Media",
+            "customFields": "Custom Fields"
           }
         }
       },

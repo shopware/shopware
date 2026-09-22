@@ -671,6 +671,27 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             expect(methods.getFieldMappingLabel.call(context, staticTextField)).toBe('product.name');
         });
 
+        it('labels a custom-field mapping from its configured translations', () => {
+            const customFieldCandidate = {
+                ...categoryNameCandidate,
+                path: 'product.customFields.material',
+                label: 'material',
+                labelTranslations: { custom: 'Material' },
+                group: 'customFields',
+            };
+            const context = {
+                mappingCandidates: [customFieldCandidate],
+                mappings: {
+                    text: 'product.customFields.material',
+                },
+                getFieldMappingPath: methods.getFieldMappingPath,
+                $te: () => false,
+                $t: (key: string) => key,
+            };
+
+            expect(methods.getFieldMappingLabel.call(context, mappableTextField)).toBe('Material');
+        });
+
         it('emits the chosen path together with its context type and closes the modal', () => {
             const emitted: unknown[] = [];
             const context = {

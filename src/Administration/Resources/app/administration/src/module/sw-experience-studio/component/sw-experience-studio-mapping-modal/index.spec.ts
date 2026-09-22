@@ -30,11 +30,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         'sw-experience-studio.mapping.category.name.label': 'Category name',
         'sw-experience-studio.mapping.category.name.description': 'The name of the category the page shows.',
         'sw-experience-studio.detail.elementSettings.mapping.groups.basic': 'Basic information',
+        'sw-experience-studio.detail.elementSettings.mapping.groups.customFields': 'Custom Fields',
     };
 
     const i18n = {
         $te: (key: string): boolean => Object.prototype.hasOwnProperty.call(translations, key),
         $t: (key: string): string => translations[key] ?? key,
+        getCandidateTranslation: (): string => '',
     };
 
     it('renders a snippet label, falling back to the key when no snippet is shipped', () => {
@@ -51,8 +53,29 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         expect(methods.getCandidateDescription.call(i18n, candidate({ description: 'app.custom.description' }))).toBe('');
     });
 
+    it('prefers labels and descriptions supplied by dynamic candidate configuration', () => {
+        const configuredCandidate = candidate({
+            labelTranslations: { 'en-GB': 'Material' },
+            descriptionTranslations: { 'en-GB': 'The product material' },
+        });
+
+        expect(
+            methods.getCandidateLabel.call({
+                ...i18n,
+                getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
+            }, configuredCandidate),
+        ).toBe('Material');
+        expect(
+            methods.getCandidateDescription.call({
+                ...i18n,
+                getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
+            }, configuredCandidate),
+        ).toBe('The product material');
+    });
+
     it('falls back to the raw group name when the group has no snippet', () => {
         expect(methods.getGroupLabel.call(i18n, 'basic')).toBe('Basic information');
+        expect(methods.getGroupLabel.call(i18n, 'customFields')).toBe('Custom Fields');
         expect(methods.getGroupLabel.call(i18n, 'custom')).toBe('custom');
     });
 
@@ -98,6 +121,24 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         }) as ContentSystemMappingCandidate[];
 
         expect(matching).toHaveLength(2);
+    });
+
+    it('matches custom fields by their configured label', () => {
+        const configuredCandidate = candidate({
+            path: 'product.customFields.material',
+            label: 'material',
+            labelTranslations: { 'en-GB': 'Material' },
+            group: 'customFields',
+        });
+
+        const matching = computed.matchingCandidates.call({
+            ...i18n,
+            candidates: [configuredCandidate],
+            searchTerm: 'material',
+            getCandidateLabel: methods.getCandidateLabel,
+        }) as ContentSystemMappingCandidate[];
+
+        expect(matching).toEqual([configuredCandidate]);
     });
 
     it('distinguishes an empty catalogue from an empty search result', () => {

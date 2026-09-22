@@ -145,7 +145,18 @@ class StoredMappingInspectorTest extends TestCase
      */
     public function testIgnoresARootScopedConsumerWhoseAliasNamesNoDeclaredProperty(): void
     {
-        $element = $this->elementMapping('category.id', onto: 'pageCategoryId');
+        $element = new StoredElement(
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            contextDefinitions: new ContextDefinitions(consumers: [
+                'category.id' => new ContextConsumer(
+                    type: ContextType::Single,
+                    required: false,
+                    propertyAlias: 'pageCategoryId',
+                    scope: ConsumerScope::Root,
+                ),
+            ]),
+        );
 
         static::assertSame([], $this->inspector($this->textElementType(mappable: false))->inspect([$element], 'category'));
     }
@@ -158,7 +169,18 @@ class StoredMappingInspectorTest extends TestCase
      */
     public function testIgnoresTheUndottedConsumerTheMutationLayerMirrorsForResolvedWiring(): void
     {
-        $element = $this->elementMapping('productListing', onto: 'text');
+        $element = new StoredElement(
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            contextDefinitions: new ContextDefinitions(consumers: [
+                'productListing' => new ContextConsumer(
+                    type: ContextType::Single,
+                    required: false,
+                    propertyAlias: 'text',
+                    scope: ConsumerScope::Root,
+                ),
+            ]),
+        );
 
         static::assertSame([], $this->inspector($this->textElementType(mappable: false))->inspect([$element], 'category'));
     }

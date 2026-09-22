@@ -29,11 +29,11 @@
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
-                                                    "required": ["path", "label", "description", "group", "valueType", "contextType", "projection"],
+                                                    "required": ["path", "label", "description", "group", "valueType", "contextType", "projection", "labelTranslations", "descriptionTranslations"],
                                                     "properties": {
                                                         "path": {
                                                             "type": "string",
-                                                            "description": "The dotted path into the layout's root-ambient data, including its leading context key (\"category.name\"). This is the value stored as the consumer key of the mapping."
+                                                            "description": "The dotted path into the layout's root-ambient data, including its leading context key (\"category.name\"). This is stored as the mapping consumer's sourcePath."
                                                         },
                                                         "label": {
                                                             "type": "string",
@@ -59,6 +59,20 @@
                                                         "projection": {
                                                             "type": ["string", "null"],
                                                             "description": "Name of the projection adapting the resolved value to valueType, or null when the value at the path already has that type. Informational: the server applies it, the client only echoes it back when storing the mapping."
+                                                        },
+                                                        "labelTranslations": {
+                                                            "type": "object",
+                                                            "description": "Literal localized labels supplied by a dynamic candidate's configuration. The Administration prefers these over label when present.",
+                                                            "additionalProperties": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "descriptionTranslations": {
+                                                            "type": "object",
+                                                            "description": "Literal localized descriptions supplied by a dynamic candidate's configuration. The Administration prefers these over description when present.",
+                                                            "additionalProperties": {
+                                                                "type": "string"
+                                                            }
                                                         }
                                                     }
                                                 }

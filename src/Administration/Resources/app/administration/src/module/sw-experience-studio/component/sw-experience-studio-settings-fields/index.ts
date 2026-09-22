@@ -12,7 +12,11 @@ import {
     getPropertyControlType,
 } from '../../util/element-settings.util';
 import { normalizeBoxSpacingCSSValue } from '../../util/box-spacing.util';
-import { getCandidatesForProperty, isMappableProperty } from '../../util/element-mapping.util';
+import {
+    getCandidatesForProperty,
+    getMappingCandidateTranslation,
+    isMappableProperty,
+} from '../../util/element-mapping.util';
 import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
 import template from './sw-experience-studio-settings-fields.html.twig';
 import './sw-experience-studio-settings-fields.scss';
@@ -264,6 +268,16 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (!candidate) {
                 return path;
+            }
+
+            const configuredLabel = getMappingCandidateTranslation(
+                candidate.labelTranslations,
+                Shopware.Store.get('session').currentLocale,
+                Shopware.Context.app.fallbackLocale,
+            );
+
+            if (configuredLabel !== '') {
+                return configuredLabel;
             }
 
             return this.$te(candidate.label) ? this.$t(candidate.label) : candidate.path;

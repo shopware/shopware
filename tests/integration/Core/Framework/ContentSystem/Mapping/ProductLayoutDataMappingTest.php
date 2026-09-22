@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -74,6 +75,17 @@ class ProductLayoutDataMappingTest extends TestCase
         $this->persistLayout($this->textElement(mappedTo: 'product.name'));
 
         static::assertSame(self::PRODUCT_NAME, $this->servedProperties()['text'] ?? null);
+    }
+
+    #[TestDox('serves a catalogued product custom field using its configured mapping path')]
+    public function testAMappedTextPropertyServesTheProductCustomField(): void
+    {
+        $customFieldName = 'content_system_material_' . Uuid::randomHex();
+        $this->createProductCustomField($customFieldName);
+        $this->createProduct(customFields: [$customFieldName => 'Leather']);
+        $this->persistLayout($this->textElement(mappedTo: 'product.customFields.' . $customFieldName));
+
+        static::assertSame('Leather', $this->servedProperties()['text'] ?? null);
     }
 
     /**
@@ -304,8 +316,9 @@ class ProductLayoutDataMappingTest extends TestCase
      * the browser's channel or the layout renders against nothing.
      *
      * @param array<string, int> $galleryMedia keyed by media fixture key, valued by authored position
+     * @param array<string, mixed> $customFields
      */
-    private function createProduct(?string $coverMedia = null, array $galleryMedia = []): void
+    private function createProduct(?string $coverMedia = null, array $galleryMedia = [], array $customFields = []): void
     {
         $payload = [
             'id' => $this->ids->create('product'),
@@ -320,6 +333,10 @@ class ProductLayoutDataMappingTest extends TestCase
                 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
             ]],
         ];
+
+        if ($customFields !== []) {
+            $payload['customFields'] = $customFields;
+        }
 
         $assignments = [];
 
@@ -342,6 +359,31 @@ class ProductLayoutDataMappingTest extends TestCase
         }
 
         $this->repository('product.repository')->create([$payload], Context::createDefaultContext());
+    }
+
+    private function createProductCustomField(string $name): void
+    {
+        $this->repository('custom_field_set.repository')->create([[
+            'id' => Uuid::randomHex(),
+            'name' => 'content_system_mapping_' . Uuid::randomHex(),
+            'active' => true,
+            'global' => false,
+            'relations' => [[
+                'id' => Uuid::randomHex(),
+                'entityName' => 'product',
+            ]],
+            'customFields' => [[
+                'id' => Uuid::randomHex(),
+                'name' => $name,
+                'type' => 'text',
+                'active' => true,
+                'storeApiAware' => true,
+                'config' => [
+                    'label' => ['en-GB' => 'Material'],
+                    'helpText' => ['en-GB' => 'The product material'],
+                ],
+            ]],
+        ]], Context::createDefaultContext());
     }
 
     private function createMedia(string $key): void

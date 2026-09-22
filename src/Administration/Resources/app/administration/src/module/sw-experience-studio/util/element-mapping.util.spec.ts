@@ -4,9 +4,25 @@ import type { ContentSystemMappingCandidate } from 'src/core/service/api/content
 import {
     findPropertyMapping,
     getCandidatesForProperty,
+    getMappingCandidateTranslation,
     groupCandidates,
     isMappableProperty,
 } from './element-mapping.util';
+
+describe('getMappingCandidateTranslation', () => {
+    it('uses current locale, fallback locale, and then the first configured translation', () => {
+        const translations = {
+            'de-DE': 'Material',
+            'en-GB': 'Material',
+        };
+
+        expect(getMappingCandidateTranslation(translations, 'de-DE', 'en-GB')).toBe('Material');
+        expect(getMappingCandidateTranslation(translations, 'fr-FR', 'en-GB')).toBe('Material');
+        expect(getMappingCandidateTranslation({ 'de-DE': '', 'en-GB': 'Material' }, 'de-DE', 'en-GB')).toBe('Material');
+        expect(getMappingCandidateTranslation({ 'it-IT': 'Materiale' }, 'fr-FR', 'en-GB')).toBe('Materiale');
+        expect(getMappingCandidateTranslation(undefined, 'de-DE', 'en-GB')).toBe('');
+    });
+});
 
 function property(overrides: Partial<ContentSystemElementTypeProperty> = {}): ContentSystemElementTypeProperty {
     return {

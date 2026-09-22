@@ -124,6 +124,13 @@ class ContentLayoutMutationControllerTest extends TestCase
                 return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
         );
+        $mutator->method('mutateSourceAware')->willReturnCallback(
+            function (string $layoutId, ?string $expectedVersion, \Closure $mutationFactory) use (&$captured): MutationResult {
+                $captured = $mutationFactory('product');
+
+                return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
+            }
+        );
 
         $invoke($this->controller($mutator));
 

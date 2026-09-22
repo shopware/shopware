@@ -15,12 +15,10 @@ use Shopware\Administration\Controller\AdminProductStreamController;
 use Shopware\Administration\Controller\AdminSearchController;
 use Shopware\Administration\Controller\AdminTagController;
 use Shopware\Administration\Controller\DashboardController;
-use Shopware\Administration\Controller\NotificationController;
 use Shopware\Administration\Controller\UserConfigController;
 use Shopware\Administration\Dashboard\OrderAmountService;
 use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
-use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Administration\Service\AdminSearcher;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
@@ -43,7 +41,8 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Notification\NotificationService;
+use Shopware\Core\Framework\Notification\Api\NotificationController;
+use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -166,13 +165,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->call('setContainer', [service('service_container')]);
 
-    $services->set(NotificationController::class)
+    $services->alias(
+        'Shopware\Administration\Controller\NotificationController',
+        NotificationController::class,
+    )
         ->public()
-        ->args([
-            service('shopware.rate_limiter'),
-            service(NotificationService::class),
-        ])
-        ->call('setContainer', [service('service_container')]);
+        ->deprecate('shopware/administration', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Notification\Api\NotificationController instead.');
 
     $services->set(AdminSearcher::class)
         ->args([
@@ -216,9 +214,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    // @deprecated tag:v6.8.0 Will be removed
-    $services->set(NotificationDefinition::class)
-        ->deprecate('shopware/administration', '6.8.0', '');
+    $services->alias(
+        'Shopware\Administration\Notification\NotificationDefinition',
+        NotificationDefinition::class,
+    )->deprecate('shopware/administration', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Notification\NotificationDefinition instead.');
 
     $services->set(SalesChannelUserConfigSubscriber::class)
         ->args([

@@ -37,6 +37,17 @@ class DeprecatedDecorator
     public function explicitlyDeprecatedMethod(): void
     {
     }
+
+    /**
+     * @deprecated tag:v6.8.0 - Use another method instead
+     */
+    public function decoratorOnlyMethodWithTrigger(): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+    }
 }
 
 class DecoratedService

@@ -168,7 +168,7 @@ When a state machine contains multiple transitions with the same action name and
 
 ### Order transaction state machine gained a transition
 
-The order transaction state machine now allowed transitions from the state "unconfirmed" to "in_progress".
+The order transaction state machine now allows transitions from the state "unconfirmed" to "in_progress".
 This will allow async payment methods to leave the order transaction in "unconfirmed" after the pay step and transition to "in_progress" in the finalize step.
 
 ### `translation:install --all` no longer installs pseudo-locales

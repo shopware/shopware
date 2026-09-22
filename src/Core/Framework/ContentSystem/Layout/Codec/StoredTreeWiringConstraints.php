@@ -90,12 +90,14 @@ final class StoredTreeWiringConstraints
                             // present null would pass the write and then fail every decode.
                             'scope' => new Optional($this->nonNull(new Choice(choices: ConsumerScope::values()))),
                             'projection' => new Optional([new Type('string')]),
+                            'sourcePath' => new Optional([new NotBlank(), new Type('string')]),
                         ],
                         allowExtraFields: false,
                         allowMissingFields: false
                     ),
                     new Callback($this->validateConsumerAliases(...)),
                     new Callback($this->validateConsumerScope(...)),
+                    new Callback($this->validateMappingConsumer(...)),
                 )
             ),
             // Map-level, because all three rules are judged per entry against the entry's own map key, which a
@@ -237,6 +239,31 @@ final class StoredTreeWiringConstraints
             ->addViolation();
     }
 
+    private function validateMappingConsumer(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (!\is_array($value) || !isset($value['sourcePath']) || !\is_string($value['sourcePath'])) {
+            return;
+        }
+
+        if (!str_contains($value['sourcePath'], '.')) {
+            $context->buildViolation('This value should be a dotted mapping path.')
+                ->atPath('[sourcePath]')
+                ->addViolation();
+        }
+
+        if (
+            ($value['scope'] ?? null) !== ConsumerScope::Root->value
+            || ($value['required'] ?? null) !== false
+            || ($value['redistribute'] ?? false) === true
+            || ($value['consumerAlias'] ?? null) !== null
+            || ($value['propertyAlias'] ?? null) !== null
+        ) {
+            $context->buildViolation('A mapping must be optional, root-scoped, unaliased and non-redistributing.')
+                ->atPath('[sourcePath]')
+                ->addViolation();
+        }
+    }
+
     /**
      * The base key a consumer writes its delivered value to is the base segment of
      * `propertyAlias ?? contextKey`, and two consumers of one element writing the same one would each
@@ -329,11 +356,11 @@ final class StoredTreeWiringConstraints
                 continue;
             }
 
-            if (($consumer['scope'] ?? null) === ConsumerScope::Root->value && str_contains($contextKey, '.')) {
+            if (\is_string($consumer['sourcePath'] ?? null)) {
                 continue;
             }
 
-            $context->buildViolation('Only a root-scoped consumer keyed by a dotted path may declare a projection.')
+            $context->buildViolation('Only a mapping consumer may declare a projection.')
                 ->atPath('[' . $contextKey . '][projection]')
                 ->addViolation();
         }

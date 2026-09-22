@@ -114,13 +114,13 @@ final readonly class ContextDeliveryResolver
     /**
      * Fills this element's root-scoped consumers from the ambient map, on top of what its parent delivered.
      *
-     * Matching, dot-path resolution, and the delivered-under key (`propertyAlias ?? consumerKey`) follow the
-     * parent-delivery rules ({@see ContextDistributor}), against ambient keys instead of provider keys.
+     * Ordinary consumers match on their map key; mappings match on their explicit `sourcePath`. Delivery lands
+     * under `propertyAlias ?? consumerKey`, so a mapping lands on the property that keys its map entry.
      *
      * An ambient `null` delivers nothing and writes no key, matching the provider null gate in
      * {@see ContextDistributor::distribute()}: a key absent from a delivery is one nothing delivered, and an
      * ambient null must not be turned into the present null that means a resolution ran and found nothing.
-     * A DOTTED consumer whose path resolves to null writes no key either, for a different reason — see the
+     * A mapping whose path resolves to null writes no key either, for a different reason — see the
      * fallback rule at the write below.
      *
      * Root-scoped writes run after the parent's, so they win a shared property key. Nothing can produce that
@@ -146,14 +146,16 @@ final readonly class ContextDeliveryResolver
                 continue;
             }
 
+            $sourcePath = $consumer->sourcePath ?? (string) $consumerKey;
+
             foreach ($ambientContext as $ambientKey => $value) {
-                if ($value === null || !$this->pathResolver->matches($ambientKey, $consumerKey)) {
+                if ($value === null || !$this->pathResolver->matches($ambientKey, $sourcePath)) {
                     continue;
                 }
 
-                $resolved = $this->ambientValueFor($element, $consumerKey, $consumer, $ambientKey, $value);
+                $resolved = $this->ambientValueFor($element, $sourcePath, $consumer, $ambientKey, $value);
 
-                // A dotted consumer that resolved to nothing writes NO key, so the authored value underneath
+                // A mapping that resolved to nothing writes NO key, so the authored value underneath
                 // survives. This is the data-mapping fallback rule: an author who maps a property keeps the
                 // value they typed as the placeholder for entities where the mapped field is empty, and a
                 // present null here would instead blank the element, because the delivered tier outranks the
@@ -161,9 +163,9 @@ final readonly class ContextDeliveryResolver
                 // what those hold is their business, so a property whose own loader reported not-found still
                 // renders that loader's null.
                 //
-                // Only the dotted case. An exact ambient key match keeps the present-null contract, and so
+                // Only the mapping case. An exact ambient key match keeps the present-null contract, and so
                 // does every parent-scoped delivery, so nothing outside mapping changes behaviour.
-                if ($resolved === null && $consumerKey !== $ambientKey) {
+                if ($resolved === null && $consumer->sourcePath !== null) {
                     continue;
                 }
 
@@ -182,7 +184,7 @@ final readonly class ContextDeliveryResolver
      * optional one yields null — which the caller reads as "deliver nothing" rather than writing through.
      *
      * A declared projection runs last, on the resolved value, so the property receives the reshaped one. It is
-     * reached only on the dot-path branch, which is the shape the codec admits a projection on.
+     * reached only for a mapping, which is the shape the codec admits a projection on.
      */
     private function ambientValueFor(
         StoredElement $element,

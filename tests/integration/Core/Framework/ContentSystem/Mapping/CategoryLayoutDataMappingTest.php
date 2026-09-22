@@ -32,8 +32,8 @@ use Symfony\Component\HttpFoundation\Response;
  * The fallback cases pin the other half of that competition: a mapped path that resolves to nothing yields
  * to whatever the author left behind, rather than blanking the element with a delivered null.
  *
- * Nothing in the rendering pipeline is mapping-aware. A mapping IS a root-scoped context consumer whose key
- * is a dotted path into the page-level data and whose `propertyAlias` names the property it fills, and the
+ * A mapping is a root-scoped context consumer keyed by the property it fills and carrying its dotted
+ * `sourcePath` into the page-level data, and the
  * delivered-context tier already outranks the authored tier at `RenderedElementFactory`. What the feature adds
  * on top is the declaration (`mappable: true` in the element type), the curated catalogue of offerable paths,
  * and the write gate that admits only a mapping satisfying both — so those are what the write-rejection cases
@@ -99,7 +99,7 @@ class CategoryLayoutDataMappingTest extends TestCase
         $stored = $this->rawStoredRoots()[0]['slots']['content'][0];
 
         static::assertSame(self::AUTHORED_TEXT, $stored['properties']['text']);
-        static::assertSame('text', $stored['acceptsContext']['category.name']['propertyAlias']);
+        static::assertSame('category.name', $stored['acceptsContext']['text']['sourcePath']);
     }
 
     #[TestDox('rejects a mapping onto a path the category catalogue does not offer')]
@@ -268,11 +268,11 @@ class CategoryLayoutDataMappingTest extends TestCase
 
         if ($mappedTo !== null) {
             $element['acceptsContext'] = [
-                $mappedTo => [
+                'text' => [
                     'type' => 'single',
                     'required' => false,
-                    'propertyAlias' => 'text',
                     'scope' => 'root',
+                    'sourcePath' => $mappedTo,
                 ],
             ];
         }
@@ -300,11 +300,11 @@ class CategoryLayoutDataMappingTest extends TestCase
 
         if ($mappedTo !== null) {
             $element['acceptsContext'] = [
-                $mappedTo => [
+                'media' => [
                     'type' => 'single',
                     'required' => false,
-                    'propertyAlias' => 'media',
                     'scope' => 'root',
+                    'sourcePath' => $mappedTo,
                 ],
             ];
         }

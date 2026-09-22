@@ -120,11 +120,11 @@ class DuplicateElementTest extends TestCase
      * defect turns a duplicated element from one that receives the page's root context into one that
      * receives nothing, with no error anywhere.
      */
-    #[TestDox('carries the root consumer scope over to the reconstructed clone')]
-    public function testDuplicatePreservesTheRootConsumerScopeOnClone(): void
+    #[TestDox('carries a property mapping over to the reconstructed clone')]
+    public function testDuplicatePreservesPropertyMappingOnClone(): void
     {
         $original = StoredElementBuilder::create('Sw:Card', 'original')
-            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.name')
             ->build();
         $tree = new StoredTree([$original]);
 
@@ -132,9 +132,10 @@ class DuplicateElementTest extends TestCase
 
         $clone = $result->roots[1];
         static::assertNotSame('original', $clone->id);
-        $consumer = $clone->contextDefinitions->getAllConsumers()['product'] ?? null;
+        $consumer = $clone->contextDefinitions->getAllConsumers()['text'] ?? null;
         static::assertInstanceOf(ContextConsumer::class, $consumer);
         static::assertSame(ConsumerScope::Root, $consumer->scope);
+        static::assertSame('product.name', $consumer->sourcePath);
     }
 
     #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]

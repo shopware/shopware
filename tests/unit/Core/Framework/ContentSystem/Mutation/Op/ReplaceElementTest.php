@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -29,6 +30,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -459,6 +466,49 @@ class ReplaceElementTest extends TestCase
         $replace->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
     }
 
+    #[DataProvider('mappingReplacementProvider')]
+    public function testReplaceRetainsOnlyMappingsValidForTheNewType(bool $mappable, bool $retained): void
+    {
+        $registry = $this->mappingReplacementRegistry($mappable);
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidateRegistry->method('forRootSource')->willReturn([
+            'product.name' => new MappingCandidate('product.name', 'label', 'description', 'basic', 'string'),
+        ]);
+        $inspector = new StoredMappingInspector(
+            $registry,
+            $candidateRegistry,
+            new MappingTypeCompatibility(),
+            new MappingConsumers(),
+            new ContentSystemPropertyProjectionRegistry([]),
+        );
+        $old = StoredElementBuilder::create('Sw:Old', 'el')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.name')
+            ->build();
+        $replace = new ReplaceElement(
+            $registry,
+            'el',
+            'Sw:New',
+            $this->bindingRegistry([]),
+            $this->unboundApplicator(),
+            $inspector,
+            'product',
+        );
+
+        $result = $replace->apply(new StoredTree([$old]));
+
+        static::assertSame($retained, isset($result->roots[0]->contextDefinitions->getAllConsumers()['text']));
+        static::assertSame($retained ? [] : ['text'], $replace->droppedWiring());
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool}>
+     */
+    public static function mappingReplacementProvider(): iterable
+    {
+        yield 'compatible mappable property' => [true, true];
+        yield 'property no longer mappable' => [false, false];
+    }
+
     /**
      * @return iterable<string, array{array<string, mixed>, array<string, mixed>}>
      */
@@ -483,6 +533,20 @@ class ReplaceElementTest extends TestCase
     {
         yield 'entity shape' => ['mediaId', 'media-1', 'entity', 'media-1'];
         yield 'entity collection shape' => ['galleryIds', ['media-1', 'media-2'], 'entity_collection', ['media-1', 'media-2']];
+    }
+
+    private function mappingReplacementRegistry(bool $mappable): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = [
+            'Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+                ->primitive('text', 'string', mappable: $mappable)
+                ->build(),
+        ];
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
     }
 
     /**

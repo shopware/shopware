@@ -65,6 +65,7 @@ final class StoredElementWiringDecoder
         'propertyAlias',
         'scope',
         'projection',
+        'sourcePath',
     ];
 
     /**
@@ -175,6 +176,11 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::invalidFieldValueType($path . '.projection', 'string', get_debug_type($projection));
             }
 
+            $sourcePath = $config['sourcePath'] ?? null;
+            if ($sourcePath !== null && (!\is_string($sourcePath) || !str_contains($sourcePath, '.'))) {
+                throw ContentSystemException::invalidFieldValueType($path . '.sourcePath', 'dotted string', get_debug_type($sourcePath));
+            }
+
             $scope = $this->consumerScope($config, $path);
 
             if ($consumerAlias !== null && !$redistribute) {
@@ -189,7 +195,21 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::rootScopeWithRedistribute($key);
             }
 
-            if ($projection !== null && ($scope !== ConsumerScope::Root || !str_contains($key, '.'))) {
+            if ($sourcePath !== null && (
+                $scope !== ConsumerScope::Root
+                || $required
+                || $redistribute
+                || $consumerAlias !== null
+                || $propertyAlias !== null
+            )) {
+                throw ContentSystemException::invalidFieldValueType(
+                    $path . '.sourcePath',
+                    'an optional, root-scoped, unaliased, non-redistributing mapping',
+                    'incompatible consumer shape'
+                );
+            }
+
+            if ($projection !== null && $sourcePath === null) {
                 throw ContentSystemException::projectionOnNonMappingConsumer($key, $projection);
             }
 
@@ -201,6 +221,7 @@ final class StoredElementWiringDecoder
                 propertyAlias: $propertyAlias,
                 scope: $scope,
                 projection: $projection,
+                sourcePath: $sourcePath,
             );
         }
 

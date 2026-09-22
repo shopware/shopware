@@ -125,11 +125,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                 selectedElement: {
                     id: 'text-element',
                     acceptsContext: {
-                        'category.name': {
+                        text: {
                             type: 'single',
                             required: false,
-                            propertyAlias: 'text',
                             scope: 'root',
+                            sourcePath: 'category.name',
                         },
                     },
                 },

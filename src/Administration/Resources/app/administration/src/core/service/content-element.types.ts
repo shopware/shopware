@@ -1,8 +1,8 @@
 /**
- * A context entry an element consumes, keyed in `acceptsContext` by the path it reads.
+ * A context entry an element consumes.
  *
- * A root-scoped entry carrying a `propertyAlias` is how a data mapping is stored: the value found at
- * the key path replaces the element's authored value for the aliased property at render time.
+ * A data mapping is keyed in `acceptsContext` by its destination property and carries the catalogued root
+ * path in `sourcePath`. Ordinary context consumers continue to read from their map key.
  *
  * @private
  * @sw-package discovery
@@ -20,6 +20,7 @@ export interface ContentElementContextConsumer {
      * but the one that candidate declares, so this is never the Administration's to choose.
      */
     projection?: string | null;
+    sourcePath?: string | null;
 }
 
 /**

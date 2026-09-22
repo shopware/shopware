@@ -1099,7 +1099,7 @@ class LayoutDiagnosticsTest extends TestCase
     private function diagnoseMapping(string $path, ?string $rootSource, array $candidates = []): LayoutAnalysis
     {
         $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
-            ->withConsumer($path, ContextType::Single, propertyAlias: 'text', scope: ConsumerScope::Root)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: $path)
             ->build();
 
         return $this->diagnostics(

@@ -11,10 +11,12 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class ContextConsumer implements \JsonSerializable
 {
     /**
-     * `$projection` names a registered {@see AbstractContentPropertyProjection} applied to the resolved value
-     * before it lands on the property, and it is a DATA-MAPPING field despite living on the general consumer
-     * shape: a stored mapping is a consumer, so this is where one can be recorded. Both the decoder and the
-     * write-path constraints refuse it on any consumer that is not a root-scoped dotted one, because
+     * `$sourcePath` marks this as a data mapping. The consumer map key is then the destination property and the
+     * source path is the catalogued dotted path read from root context. This separation lets several properties
+     * consume the same source path without colliding in the map.
+     *
+     * `$projection` names a registered {@see AbstractContentPropertyProjection} applied to the mapped value.
+     * Both the decoder and the write-path constraints refuse it on a consumer without `$sourcePath`, because
      * {@see ContextDeliveryResolver::ambientValueFor()} applies it only there and a projection anywhere else
      * would quietly do nothing.
      */
@@ -26,6 +28,7 @@ final readonly class ContextConsumer implements \JsonSerializable
         public ?string $propertyAlias = null,
         public ConsumerScope $scope = ConsumerScope::Parent,
         public ?string $projection = null,
+        public ?string $sourcePath = null,
     ) {
     }
 
@@ -57,6 +60,10 @@ final readonly class ContextConsumer implements \JsonSerializable
 
         if ($this->projection !== null) {
             $data['projection'] = $this->projection;
+        }
+
+        if ($this->sourcePath !== null) {
+            $data['sourcePath'] = $this->sourcePath;
         }
 
         return $data;

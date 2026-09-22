@@ -39,6 +39,23 @@ class PersistedLayoutMutator
 
     public function mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult
     {
+        return $this->mutateSourceAware(
+            $layoutId,
+            $expectedVersion,
+            static fn (string $rootSource): LayoutMutation => $mutation,
+            $context,
+        );
+    }
+
+    /**
+     * @param \Closure(string): LayoutMutation $mutationFactory
+     */
+    public function mutateSourceAware(
+        string $layoutId,
+        ?string $expectedVersion,
+        \Closure $mutationFactory,
+        Context $context,
+    ): MutationResult {
         // Serialize concurrent writers for this layout id so the load → versionMatches → update span is atomic:
         // a second writer blocks here, then re-reads the now-bumped updatedAt and fails versionMatches with a 409
         // instead of silently clobbering the first edit (the lost-update window the optimistic token alone leaves open).
@@ -55,6 +72,8 @@ class PersistedLayoutMutator
             if (!$this->versionMatches($expectedVersion, $layout->getUpdatedAt())) {
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
+
+            $mutation = $mutationFactory($layout->getRootSource());
 
             // The entity holds the storage model the operations speak, so the loaded tree goes in as it is and the
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored

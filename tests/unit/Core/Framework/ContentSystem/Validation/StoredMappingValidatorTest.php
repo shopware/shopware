@@ -80,11 +80,11 @@ class StoredMappingValidatorTest extends TestCase
             id: 'element-1',
             component: 'Sw:Content:Text',
             contextDefinitions: new ContextDefinitions(consumers: [
-                self::CATEGORY_NAME_PATH => new ContextConsumer(
+                'text' => new ContextConsumer(
                     type: ContextType::Single,
                     required: false,
-                    propertyAlias: 'text',
                     scope: ConsumerScope::Root,
+                    sourcePath: self::CATEGORY_NAME_PATH,
                 ),
             ]),
         );

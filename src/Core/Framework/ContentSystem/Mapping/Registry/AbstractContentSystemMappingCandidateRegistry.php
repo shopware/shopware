@@ -16,8 +16,7 @@ abstract class AbstractContentSystemMappingCandidateRegistry
     abstract public function getDecorated(): self;
 
     /**
-     * Keyed by path, which is also the mapping's identity on a stored element, so the write boundary can
-     * resolve a stored consumer key to its candidate with a single lookup.
+     * Keyed by path, so the write boundary can resolve a mapping consumer's `sourcePath` with one lookup.
      *
      * An unknown root source yields an empty catalogue rather than throwing: a layout bound to a source that
      * offers nothing mappable is a layout with no mappings, not an error.

@@ -72,7 +72,7 @@ class ElementResolverTest extends TestCase
     public function testResolvesMappedPrimitiveToRootCandidate(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withConsumer('category.name', ContextType::Single, propertyAlias: 'headline', scope: ConsumerScope::Root)
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'category.name')
             ->build();
 
         $resolutions = $this->resolveElement(

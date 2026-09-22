@@ -62,7 +62,7 @@ final class StoredMappingValidator
             [],
             null,
             \sprintf('/%s/%s', $problem->elementId, $problem->propertyKey),
-            $problem->consumerKey,
+            $problem->sourcePath,
             null,
             $problem->exception->getErrorCode(),
         );

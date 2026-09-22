@@ -564,6 +564,21 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame(['cover' => 'page-cover'], $index->all()['child-1']->context);
     }
 
+    public function testOneMappedSourceCanFillSeveralProperties(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Card', 'child-1')
+            ->withConsumer('title', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.cover')
+            ->withConsumer('subtitle', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.cover')
+            ->build();
+
+        $index = $this->resolve($child, new StubContextStruct('page-cover'), []);
+
+        static::assertSame([
+            'title' => 'page-cover',
+            'subtitle' => 'page-cover',
+        ], $index->all()['child-1']->context);
+    }
+
     /**
      * The path resolved to nothing, so there is nothing to reshape. Getting here at all would hand `project()`
      * a null it is documented never to receive.
@@ -607,11 +622,12 @@ class ContextDeliveryResolverTest extends TestCase
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer(
-                'product.child',
+                'child',
                 ContextType::Single,
                 required: false,
                 scope: ConsumerScope::Root,
                 projection: StubUppercaseProjection::NAME,
+                sourcePath: 'product.child',
             )
             ->build();
 
@@ -633,11 +649,12 @@ class ContextDeliveryResolverTest extends TestCase
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer(
-                'product.cover',
+                'cover',
                 ContextType::Single,
                 required: true,
                 scope: ConsumerScope::Root,
                 projection: StubUppercaseProjection::NAME,
+                sourcePath: 'product.cover',
             )
             ->build();
 
@@ -700,12 +717,12 @@ class ContextDeliveryResolverTest extends TestCase
     {
         return StoredElementBuilder::create('Sw:Box', 'child-1')
             ->withConsumer(
-                'product.cover',
+                'cover',
                 ContextType::Single,
                 required: false,
-                propertyAlias: 'cover',
                 scope: ConsumerScope::Root,
                 projection: $projection,
+                sourcePath: 'product.cover',
             )
             ->build();
     }

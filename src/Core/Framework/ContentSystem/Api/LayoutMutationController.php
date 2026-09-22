@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
+use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -55,6 +57,8 @@ class LayoutMutationController
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
         private readonly AbstractContentSystemLayoutPresetRegistry $presetRegistry,
+        private readonly PropertyMappingMutationFactory $propertyMappingMutations,
+        private readonly StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -95,7 +99,15 @@ class LayoutMutationController
         ReplaceElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType, $this->bindingRegistry, $this->bindingApplicator);
+        $mutation = new ReplaceElement(
+            $this->registry,
+            $payload->elementId,
+            $payload->newType,
+            $this->bindingRegistry,
+            $this->bindingApplicator,
+            $this->mappingInspector,
+            $payload->rootSource,
+        );
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
@@ -161,6 +173,28 @@ class LayoutMutationController
         Context $context,
     ): Response {
         $mutation = new BindElement($this->bindingRegistry, $payload->bindingSpecificationId, $payload->elementId, $this->bindingApplicator);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/map-property', name: 'api.action.content_system.layout.map_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function mapProperty(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        MapPropertyRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = $this->propertyMappingMutations->map($payload->rootSource, $payload->elementId, $payload->propertyKey, $payload->sourcePath);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/unmap-property', name: 'api.action.content_system.layout.unmap_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function unmapProperty(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        UnmapPropertyRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = $this->propertyMappingMutations->unmap($payload->elementId, $payload->propertyKey);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

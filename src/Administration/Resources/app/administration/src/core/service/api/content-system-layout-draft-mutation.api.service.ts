@@ -59,6 +59,24 @@ export type ContentLayoutDraftInsertPresetPayload = ContentLayoutDraftMutationEn
 /**
  * @private
  */
+export type ContentLayoutDraftMapPropertyPayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    propertyKey: string;
+    sourcePath: string;
+    rootSource: string;
+};
+
+/**
+ * @private
+ */
+export type ContentLayoutDraftUnmapPropertyPayload = ContentLayoutDraftMutationEnvelope & {
+    elementId: string;
+    propertyKey: string;
+};
+
+/**
+ * @private
+ */
 export type ContentSystemViolation = {
     code: string;
     scope: 'intrinsic' | 'binding';
@@ -165,6 +183,14 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
 
     insertPreset(payload: ContentLayoutDraftInsertPresetPayload): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('insert-preset', payload);
+    }
+
+    mapProperty(payload: ContentLayoutDraftMapPropertyPayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('map-property', payload);
+    }
+
+    unmapProperty(payload: ContentLayoutDraftUnmapPropertyPayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('unmap-property', payload);
     }
 
     diagnose(payload: ContentLayoutDiagnosePayload): Promise<ContentLayoutDiagnoseResponse> {

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
-use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,18 +29,12 @@ use Shopware\Core\Framework\Log\Package;
  * source id, and a resolved context cannot supply one. That is the reason this is not simply another check
  * inside the analysis, and the reason both callers have to be handed the source explicitly.
  *
- * WHAT COUNTS AS A MAPPING is the load-bearing decision here, and scope plus `propertyAlias` are not enough
- * to decide it. {@see ContextConsumerMirror} writes exactly that shape for a reference property it resolved
- * against the root-ambient set: `Sw:Product:Listing` receives the page's listing as a root-scoped consumer
- * keyed `productListing` aliased onto its declared `listing` property. That is wiring the mutation layer
- * proved, not something an author mapped, and demanding `mappable: true` for it rejects every listing page.
+ * WHAT COUNTS AS A MAPPING is the load-bearing decision here. A mapping carries an explicit `sourcePath`;
+ * {@see ContextConsumerMirror} never writes one for the root-scoped reference wiring it derives.
  *
  * That test lives in {@see MappingConsumers}, shared with the diagnostics layer so the two cannot drift.
  *
- * Two further shapes are deliberately left alone. A dotted root-scoped consumer whose alias does NOT name a
- * declared property stays unjudged: the content system has always let such a consumer deliver onto an
- * arbitrary undeclared key — {@see ContextDeliveryResolver::overlayRootContext()} writes the alias verbatim —
- * and that predates mapping. So does a parent-scoped consumer, which wires an ancestor rather than entity data.
+ * Ordinary root- and parent-scoped consumers remain outside these rules.
  *
  * @internal
  */
@@ -93,25 +86,27 @@ final class StoredMappingInspector
         $problems = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$this->mappingConsumers->isMapping($consumer, (string) $consumerKey)) {
+            if (!$this->mappingConsumers->isMapping($consumer)) {
                 continue;
             }
 
-            // Non-null by MappingConsumers::isMapping(), checked above.
-            $propertyKey = (string) $consumer->propertyAlias;
+            $propertyKey = (string) $consumerKey;
             $property = $declared[$propertyKey] ?? null;
 
             if ($property === null) {
+                $exception = ContentSystemException::propertyNotMappable($element->component, $propertyKey);
+                $problems[] = new MappingProblem($element->id, $propertyKey, (string) $consumer->sourcePath, $exception);
+
                 continue;
             }
 
-            $exception = $this->mappingFault((string) $consumerKey, $consumer, $property, $element->component, $rootSource, $candidates);
+            $exception = $this->mappingFault($propertyKey, $consumer, $property, $element->component, $rootSource, $candidates);
 
             if ($exception === null) {
                 continue;
             }
 
-            $problems[] = new MappingProblem($element->id, $propertyKey, (string) $consumerKey, $exception);
+            $problems[] = new MappingProblem($element->id, $propertyKey, (string) $consumer->sourcePath, $exception);
         }
 
         return $problems;
@@ -121,24 +116,23 @@ final class StoredMappingInspector
      * @param array<string, MappingCandidate> $candidates
      */
     private function mappingFault(
-        string $consumerKey,
+        string $propertyKey,
         ContextConsumer $consumer,
         PropertySpecification $property,
         string $component,
         string $rootSource,
         array $candidates,
     ): ?ContentSystemException {
-        // Non-null by MappingConsumers::isMapping(), checked at the call site.
-        $propertyKey = (string) $consumer->propertyAlias;
-
         if (!$property->mappable()) {
             return ContentSystemException::propertyNotMappable($component, $propertyKey);
         }
 
-        $candidate = $candidates[$consumerKey] ?? null;
+        // Non-null by MappingConsumers::isMapping(), checked at the call site.
+        $sourcePath = (string) $consumer->sourcePath;
+        $candidate = $candidates[$sourcePath] ?? null;
 
         if ($candidate === null) {
-            return ContentSystemException::unknownMappingPath($consumerKey, $rootSource);
+            return ContentSystemException::unknownMappingPath($sourcePath, $rootSource);
         }
 
         // The candidate owns the pairing of path and projection, so the stored mapping has to carry the
@@ -149,19 +143,22 @@ final class StoredMappingInspector
         $projection = $consumer->projection;
 
         if ($projection !== $candidate->projection) {
-            return ContentSystemException::mappingProjectionMismatch($consumerKey, $projection, $candidate->projection);
+            return ContentSystemException::mappingProjectionMismatch($sourcePath, $projection, $candidate->projection);
         }
 
         if ($projection !== null && $this->projections->get($projection) === null) {
             // The name came from the candidate, so a provider is offering a transform the container does not
             // have. Reported rather than thrown so one broken provider fails the layouts that use it instead
             // of every layout.
-            return ContentSystemException::unknownPropertyProjection($projection, $consumerKey);
+            return ContentSystemException::unknownPropertyProjection($projection, $sourcePath);
         }
 
         $declaredType = $property->type()->type();
 
-        if (!$this->compatibility->permits($declaredType, $candidate->valueType)) {
+        if (
+            !$this->compatibility->permits($declaredType, $candidate->valueType)
+            || !\in_array($candidate->contextType->value, $property->type()->contextTypes(), true)
+        ) {
             return ContentSystemException::mappingTypeMismatch(
                 $propertyKey,
                 \is_array($declaredType) ? implode('|', $declaredType) : $declaredType,

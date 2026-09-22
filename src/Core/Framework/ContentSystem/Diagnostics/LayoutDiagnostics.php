@@ -742,13 +742,15 @@ class LayoutDiagnostics
         $violations = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$consumer->required || $this->isSatisfied($available, (string) $consumerKey, $consumer->scope)) {
+            $sourceKey = $consumer->sourcePath ?? (string) $consumerKey;
+
+            if (!$consumer->required || $this->isSatisfied($available, $sourceKey, $consumer->scope)) {
                 continue;
             }
 
             $message = $consumer->scope === ConsumerScope::Root
-                ? \sprintf('Required root-scoped context "%s" is supplied by no bound source.', $consumerKey)
-                : \sprintf('Required context "%s" is provided by no ancestor.', $consumerKey);
+                ? \sprintf('Required root-scoped context "%s" is supplied by no bound source.', $sourceKey)
+                : \sprintf('Required context "%s" is provided by no ancestor.', $sourceKey);
 
             $violations[] = new Violation(
                 ViolationCode::BrokenRequiredChain,

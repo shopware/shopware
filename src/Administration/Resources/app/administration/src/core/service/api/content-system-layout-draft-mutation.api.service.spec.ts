@@ -49,4 +49,25 @@ describe('contentSystemLayoutDraftMutationService', () => {
 
         await expect(service.diagnose(payload)).resolves.toEqual(response);
     });
+
+    it.each([
+        ['mapProperty', 'map-property', { elementId: 'element-1', propertyKey: 'text', sourcePath: 'product.name' }],
+        ['unmapProperty', 'unmap-property', { elementId: 'element-1', propertyKey: 'text' }],
+    ] as const)('posts %s to the dedicated endpoint', async (method, endpoint, operationPayload) => {
+        const { service, clientMock } = createService();
+        const payload = { layout: [], rootSource: 'product', ...operationPayload };
+        const response = {
+            layout: [],
+            resolutions: {},
+            diagnostics: { wellFormed: true, resolvable: true, violations: [] },
+            affectedElementIds: ['element-1'],
+            orphaned: [],
+            droppedWiring: [],
+            droppedProperties: {},
+        };
+
+        clientMock.onPost(`/_action/content-system/layout/${endpoint}`, payload).reply(200, response);
+
+        await expect(service[method](payload)).resolves.toEqual(response);
+    });
 });

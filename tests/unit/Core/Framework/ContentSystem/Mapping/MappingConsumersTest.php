@@ -25,16 +25,16 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MappingConsumers::class)]
 class MappingConsumersTest extends TestCase
 {
-    #[TestDox('reads a dotted root-scoped aliased consumer as a mapping')]
-    public function testADottedRootScopedAliasedConsumerIsAMapping(): void
+    #[TestDox('reads a consumer carrying a source path as a mapping')]
+    public function testAConsumerWithASourcePathIsAMapping(): void
     {
-        static::assertTrue((new MappingConsumers())->isMapping($this->rootConsumer('text'), 'category.name'));
+        static::assertTrue((new MappingConsumers())->isMapping($this->mapping('category.name')));
     }
 
     #[TestDox('does not read the undotted consumer the mutation layer mirrors for resolved wiring as a mapping')]
     public function testAnUndottedConsumerIsMirroredWiringRatherThanAMapping(): void
     {
-        static::assertFalse((new MappingConsumers())->isMapping($this->rootConsumer('listing'), 'productListing'));
+        static::assertFalse((new MappingConsumers())->isMapping($this->rootConsumer('listing')));
     }
 
     #[TestDox('does not read a consumer with no property alias as a mapping')]
@@ -42,7 +42,7 @@ class MappingConsumersTest extends TestCase
     {
         $consumer = new ContextConsumer(type: ContextType::Single, required: false, scope: ConsumerScope::Root);
 
-        static::assertFalse((new MappingConsumers())->isMapping($consumer, 'category.name'));
+        static::assertFalse((new MappingConsumers())->isMapping($consumer));
     }
 
     #[TestDox('does not read a parent-scoped consumer as a mapping')]
@@ -55,7 +55,7 @@ class MappingConsumersTest extends TestCase
             scope: ConsumerScope::Parent,
         );
 
-        static::assertFalse((new MappingConsumers())->isMapping($consumer, 'product.name'));
+        static::assertFalse((new MappingConsumers())->isMapping($consumer));
     }
 
     #[TestDox('collects only the properties a mapping fills, against their paths, ignoring mirrored wiring onto another property')]
@@ -68,7 +68,7 @@ class MappingConsumersTest extends TestCase
             [],
             [],
             new ContextDefinitions([], [
-                'category.media' => $this->rootConsumer('media'),
+                'media' => $this->mapping('category.media'),
                 'productListing' => $this->rootConsumer('listing'),
             ]),
         );
@@ -83,6 +83,16 @@ class MappingConsumersTest extends TestCase
             required: false,
             propertyAlias: $propertyAlias,
             scope: ConsumerScope::Root,
+        );
+    }
+
+    private function mapping(string $sourcePath): ContextConsumer
+    {
+        return new ContextConsumer(
+            type: ContextType::Single,
+            required: false,
+            scope: ConsumerScope::Root,
+            sourcePath: $sourcePath,
         );
     }
 }

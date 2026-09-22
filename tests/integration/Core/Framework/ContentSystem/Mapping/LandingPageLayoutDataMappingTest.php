@@ -82,11 +82,11 @@ class LandingPageLayoutDataMappingTest extends TestCase
                     'component' => 'Sw:Content:Text',
                     'properties' => ['text' => 'Authored fallback'],
                     'acceptsContext' => [
-                        'landing_page.name' => [
+                        'text' => [
                             'type' => 'single',
                             'required' => false,
-                            'propertyAlias' => 'text',
                             'scope' => 'root',
+                            'sourcePath' => 'landing_page.name',
                         ],
                     ],
                 ]]],

@@ -285,8 +285,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * A mapping keys off the declared property name, not the binding storage key, because `propertyAlias`
-         * names the property the resolved value fills.
+         * A mapping keys off the declared destination property, not the binding storage key.
          */
         onUpdateElementMapping(payload: {
             key: string;

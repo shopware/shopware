@@ -51,11 +51,11 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 id: 'element-id',
                 component: 'Sw:Content:Text',
                 acceptsContext: {
-                    'category.name': {
+                    text: {
                         type: 'single' as const,
                         required: false,
-                        propertyAlias: 'text',
                         scope: 'root' as const,
+                        sourcePath: 'category.name',
                     },
                 },
             } satisfies ContentElementNode;
@@ -68,11 +68,11 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 id: 'element-id',
                 component: 'Sw:Content:Text',
                 acceptsContext: {
-                    'category.name': {
+                    headline: {
                         type: 'single' as const,
                         required: false,
-                        propertyAlias: 'headline',
                         scope: 'root' as const,
+                        sourcePath: 'category.name',
                     },
                 },
             } satisfies ContentElementNode;

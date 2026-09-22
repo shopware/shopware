@@ -70,11 +70,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
                             id: 'text',
                             component: 'Sw:Content:Text',
                             acceptsContext: {
-                                'category.name': {
+                                text: {
                                     type: 'single',
                                     required: false,
                                     scope: 'root',
-                                    propertyAlias: 'text',
+                                    sourcePath: 'category.name',
                                 },
                             },
                         },

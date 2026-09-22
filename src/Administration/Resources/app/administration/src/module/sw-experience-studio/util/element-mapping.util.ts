@@ -3,24 +3,15 @@ import type { ContentSystemElementTypeProperty } from 'src/core/service/api/cont
 import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
 
 /**
- * A mapping is always read off the layout's root entity, never off an ancestor element.
- */
-const MAPPING_SCOPE = 'root';
-
-/**
  * Decides whether a stored consumer is a data mapping, mirroring the server's `Mapping/MappingConsumers`.
  *
- * Scope and `propertyAlias` alone are not enough: the mutation layer writes that same shape for a reference
- * property it resolved against the layout's root-ambient context — a product listing receives the page's
- * listing as a root-scoped consumer aliased onto its `listing` property. Treating that as a mapping would
- * offer the author an unmap button that destroys wiring they never created. A mapping reads a PATH INTO an
- * ambient value and so always carries a dot; an ambient context key never does.
+ * Only data mappings carry an explicit source path; ordinary and server-mirrored context wiring do not.
  *
  * @private
  * @sw-package discovery
  */
-export function isMappingConsumer(path: string, consumer: ContentElementContextConsumer | undefined): boolean {
-    return consumer?.scope === MAPPING_SCOPE && typeof consumer?.propertyAlias === 'string' && path.includes('.');
+export function isMappingConsumer(consumer: ContentElementContextConsumer | undefined): boolean {
+    return typeof consumer?.sourcePath === 'string';
 }
 
 const PRIMITIVE_TYPES = [
@@ -57,12 +48,12 @@ export function isMappableProperty(property: ContentSystemElementTypeProperty): 
  */
 export function findPropertyMapping(element: ContentElementNode | null, propertyKey: string): PropertyMapping | null {
     for (const [
-        path,
+        targetProperty,
         consumer,
     ] of Object.entries(element?.acceptsContext ?? {})) {
-        if (isMappingConsumer(path, consumer) && consumer.propertyAlias === propertyKey) {
+        if (targetProperty === propertyKey && isMappingConsumer(consumer)) {
             return {
-                path,
+                path: consumer.sourcePath as string,
                 consumer,
             };
         }

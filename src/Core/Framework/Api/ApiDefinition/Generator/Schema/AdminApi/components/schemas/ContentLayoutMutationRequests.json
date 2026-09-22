@@ -602,6 +602,69 @@
                     }
                 ]
             },
+            "ContentLayoutMapPropertyRequest": {
+                "title": "Map property request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey", "sourcePath", "rootSource"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 },
+                            "sourcePath": { "type": "string", "minLength": 3, "example": "product.name" },
+                            "rootSource": { "type": "string", "minLength": 1, "example": "product" }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutUnmapPropertyRequest": {
+                "title": "Unmap property request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedMapPropertyRequest": {
+                "title": "Map property request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey", "sourcePath"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 },
+                            "sourcePath": { "type": "string", "minLength": 3, "example": "product.name" }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedUnmapPropertyRequest": {
+                "title": "Unmap property request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "propertyKey"],
+                        "properties": {
+                            "elementId": { "$ref": "#/components/schemas/ContentElementId" },
+                            "propertyKey": { "type": "string", "minLength": 1 }
+                        }
+                    }
+                ]
+            },
             "ContentPreviewEntityRequest": {
                 "title": "Content preview request",
                 "type": "object",

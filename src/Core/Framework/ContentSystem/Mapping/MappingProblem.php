@@ -32,7 +32,7 @@ final readonly class MappingProblem
          * The mapped path, e.g. `category.name`. Carried separately because it is the value the author
          * chose and the one a message has to name to be actionable.
          */
-        public string $consumerKey,
+        public string $sourcePath,
         public ContentSystemException $exception,
     ) {
     }

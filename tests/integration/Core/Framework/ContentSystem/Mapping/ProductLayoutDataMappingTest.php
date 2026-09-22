@@ -187,7 +187,7 @@ class ProductLayoutDataMappingTest extends TestCase
         ];
 
         if ($mappedTo !== null) {
-            $element['acceptsContext'] = [$mappedTo => $this->consumer('text')];
+            $element['acceptsContext'] = ['text' => $this->consumer($mappedTo)];
         }
 
         return $element;
@@ -205,7 +205,7 @@ class ProductLayoutDataMappingTest extends TestCase
             'dataRequirements' => [
                 'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
             ],
-            'acceptsContext' => [$mappedTo => $this->consumer('media', $projection)],
+            'acceptsContext' => ['media' => $this->consumer($mappedTo, $projection)],
         ];
     }
 
@@ -221,23 +221,23 @@ class ProductLayoutDataMappingTest extends TestCase
             'dataRequirements' => [
                 'mediaItems' => ['source' => 'entity_collection', 'config' => ['entity' => 'media', 'property' => 'mediaIds']],
             ],
-            'acceptsContext' => [$mappedTo => $this->consumer('mediaItems', $projection, 'collection')],
+            'acceptsContext' => ['mediaItems' => $this->consumer($mappedTo, $projection, 'collection')],
         ];
     }
 
     /**
-     * A mapping on the wire: root-scoped, keyed by the dotted path, aliased onto the property it fills, and
+     * A mapping on the wire: root-scoped, keyed by the property it fills, carrying its dotted source path, and
      * optional, which is what lets an unresolvable path fall back rather than fail the page.
      *
      * @return array<string, mixed>
      */
-    private function consumer(string $propertyAlias, ?string $projection = null, string $type = 'single'): array
+    private function consumer(string $sourcePath, ?string $projection = null, string $type = 'single'): array
     {
         $consumer = [
             'type' => $type,
             'required' => false,
-            'propertyAlias' => $propertyAlias,
             'scope' => 'root',
+            'sourcePath' => $sourcePath,
         ];
 
         if ($projection !== null) {

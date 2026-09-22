@@ -397,14 +397,14 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
-        yield 'a root-scoped dotted consumer declaring a projection' => [
+        yield 'a mapping consumer declaring a projection' => [
             self::forest(['acceptsContext' => [
-                'product.cover' => [
+                'media' => [
                     'type' => 'single',
                     'required' => false,
-                    'propertyAlias' => 'media',
                     'scope' => 'root',
                     'projection' => 'product_media_to_media',
+                    'sourcePath' => 'product.cover',
                 ],
             ]]),
             self::ACCEPTED,
@@ -430,6 +430,22 @@ class StoredTreeShapeConformanceTest extends TestCase
         yield 'a non-string consumer projection' => [
             self::forest(['acceptsContext' => [
                 'product.cover' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'projection' => 42],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a mapping source without dot notation' => [
+            self::forest(['acceptsContext' => [
+                'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'product'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a required mapping consumer' => [
+            self::forest(['acceptsContext' => [
+                'text' => ['type' => 'single', 'required' => true, 'scope' => 'root', 'sourcePath' => 'product.name'],
             ]]),
             self::REJECTED,
             '',

@@ -221,7 +221,7 @@ class StoredMappingInspectorTest extends TestCase
         static::assertCount(1, $problems);
         static::assertSame('element-1', $problems[0]->elementId);
         static::assertSame('text', $problems[0]->propertyKey);
-        static::assertSame(self::CATEGORY_NAME_PATH, $problems[0]->consumerKey);
+        static::assertSame(self::CATEGORY_NAME_PATH, $problems[0]->sourcePath);
     }
 
     private function elementMapping(
@@ -235,12 +235,12 @@ class StoredMappingInspectorTest extends TestCase
             id: $id,
             component: $component,
             contextDefinitions: new ContextDefinitions(consumers: [
-                $path => new ContextConsumer(
+                $onto => new ContextConsumer(
                     type: ContextType::Single,
                     required: false,
-                    propertyAlias: $onto,
                     scope: ConsumerScope::Root,
                     projection: $projection,
+                    sourcePath: $path,
                 ),
             ]),
         );

@@ -264,7 +264,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Media:Gallery',
                 'properties' => [],
                 'acceptsContext' => [
-                    'category.media' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'mediaItems', 'scope' => 'root'],
+                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'category.media'],
                 ],
             ]],
         ]);
@@ -295,7 +295,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Media:Gallery',
                 'properties' => [],
                 'acceptsContext' => [
-                    'category.media' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'mediaItems', 'scope' => 'root'],
+                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'category.media'],
                 ],
             ]],
         ]);
@@ -313,7 +313,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Content:Text',
                 'properties' => [],
                 'acceptsContext' => [
-                    'category.name' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'text', 'scope' => 'root'],
+                    'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'category.name'],
                 ],
             ]],
         ]);

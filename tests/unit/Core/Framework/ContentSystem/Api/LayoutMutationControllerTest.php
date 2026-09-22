@@ -13,9 +13,11 @@ use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\DuplicateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\InsertElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
+use Shopware\Core\Framework\ContentSystem\Api\MapPropertyRequest;
 use Shopware\Core\Framework\ContentSystem\Api\MoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\RemoveElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ReplaceElementRequest;
+use Shopware\Core\Framework\ContentSystem\Api\UnmapPropertyRequest;
 use Shopware\Core\Framework\ContentSystem\Api\UnwrapElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\WrapElementsRequest;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -35,6 +37,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContent
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
@@ -42,11 +49,14 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\MapProperty;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnmapProperty;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
+use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
@@ -197,6 +207,8 @@ class LayoutMutationControllerTest extends TestCase
         yield 'wrap' => [static fn (LayoutMutationController $c): Response => $c->wrap(new WrapElementsRequest(['a'], 'Sw:Container'), $context), WrapElements::class];
         yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
         yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
+        yield 'map property' => [static fn (LayoutMutationController $c): Response => $c->mapProperty(new MapPropertyRequest('el', 'text', 'product.name', 'product'), $context), MapProperty::class];
+        yield 'unmap property' => [static fn (LayoutMutationController $c): Response => $c->unmapProperty(new UnmapPropertyRequest('el', 'text'), $context), UnmapProperty::class];
         yield 'bind' => [static fn (LayoutMutationController $c): Response => $c->bind(new BindElementRequest('el', 'source:spec'), $context), BindElement::class];
     }
 
@@ -231,16 +243,28 @@ class LayoutMutationControllerTest extends TestCase
         ?MutationPipeline $pipeline = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
     ): LayoutMutationController {
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $compatibility = new MappingTypeCompatibility();
+
         return new LayoutMutationController(
             $this->decoder(),
             $pipeline ?? $this->pipelineReturning(MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), [])),
-            static::createStub(AbstractContentSystemElementTypeRegistry::class),
+            $typeRegistry,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementCodec(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
             static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
+            new PropertyMappingMutationFactory($typeRegistry, $candidateRegistry, $compatibility),
+            new StoredMappingInspector(
+                $typeRegistry,
+                $candidateRegistry,
+                $compatibility,
+                new MappingConsumers(),
+                new ContentSystemPropertyProjectionRegistry([]),
+            ),
         );
     }
 

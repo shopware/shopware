@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -16,10 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * against the root-ambient set — `Sw:Product:Listing` receives the page's listing as a root-scoped consumer
  * keyed `productListing` aliased onto its declared `listing` property.
  *
- * The dot separates them. A mapping reads a PATH INTO an ambient value (`category.name`), while mirrored
- * wiring keys off the ambient value itself, and an ambient key is a bare data-requirement name that never
- * contains one. {@see MappingCandidate} holds the other half of the invariant by refusing an undotted path,
- * so the catalogue can never offer one that would read as wiring here.
+ * A mapping carries its catalogued path explicitly in {@see ContextConsumer::$sourcePath}; ordinary wiring
+ * never does. Its consumer-map key names the destination property, so one path may feed several properties.
  *
  * This lives in one place because three layers ask the question and must answer it identically:
  * {@see StoredMappingInspector} decides admissibility for the write gate and the diagnose routes,
@@ -34,11 +31,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class MappingConsumers
 {
-    public function isMapping(ContextConsumer $consumer, string $consumerKey): bool
+    public function isMapping(ContextConsumer $consumer): bool
     {
-        return $consumer->scope === ConsumerScope::Root
-            && $consumer->propertyAlias !== null
-            && str_contains($consumerKey, '.');
+        return $consumer->sourcePath !== null;
     }
 
     /**
@@ -55,12 +50,12 @@ final class MappingConsumers
         $paths = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$this->isMapping($consumer, (string) $consumerKey)) {
+            if (!$this->isMapping($consumer)) {
                 continue;
             }
 
             // Non-null by isMapping().
-            $paths[(string) $consumer->propertyAlias] = (string) $consumerKey;
+            $paths[(string) $consumerKey] = (string) $consumer->sourcePath;
         }
 
         return $paths;

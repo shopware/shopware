@@ -94,6 +94,7 @@ use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
+use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEncoder;
@@ -728,6 +729,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // LayoutDiagnostics above
     $services->set(MappingConsumers::class);
 
+    $services->set(PropertyMappingMutationFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemMappingCandidateRegistry::class),
+            service(MappingTypeCompatibility::class),
+        ]);
+
     $services->set(ContentSystemMappingCandidateRegistry::class)
         ->args([
             tagged_iterator('content_system.mapping_candidate_provider'),
@@ -845,6 +853,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
             service(ContentSystemLayoutPresetRegistry::class),
+            service(PropertyMappingMutationFactory::class),
+            service(StoredMappingInspector::class),
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)
@@ -866,5 +876,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DraftLayoutDecoder::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+            service(PropertyMappingMutationFactory::class),
+            service(StoredMappingInspector::class),
         ]);
 };

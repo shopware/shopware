@@ -1,5 +1,4 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import { isMappingConsumer } from './element-mapping.util';
 
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -104,69 +103,6 @@ export function updateElementStyleInLayout(
     if (Object.keys(element.style).length === 0) {
         delete element.style;
     }
-
-    return true;
-}
-
-/**
- * Points a mappable property at entity data, or returns it to its authored value when `mapping` is null.
- *
- * The authored value in `properties` is deliberately left untouched: the server treats a mapping as a higher
- * tier that shadows it, so unmapping restores whatever the author last typed.
- *
- * `projection` is carried through from the chosen candidate rather than decided here, and omitted entirely
- * when the candidate has none: the server's write gate rejects a consumer whose projection differs from its
- * candidate's, and a present null is not the same as an absent key to the codec that closes the shape.
- *
- * @private
- * @sw-package discovery
- */
-export function setElementMappingInLayout(
-    layout: ContentElementNode[],
-    elementId: string,
-    propertyKey: string,
-    mapping: { path: string; contextType: 'single' | 'collection'; projection?: string | null } | null,
-): boolean {
-    const location = findElementLocation(layout, elementId);
-
-    if (location === null) {
-        return false;
-    }
-
-    const element = location.elements[location.index];
-
-    if (!element) {
-        return false;
-    }
-
-    const consumers = { ...(element.acceptsContext ?? {}) };
-
-    for (const [
-        path,
-        consumer,
-    ] of Object.entries(consumers)) {
-        if (isMappingConsumer(path, consumer) && consumer.propertyAlias === propertyKey) {
-            delete consumers[path];
-        }
-    }
-
-    if (mapping !== null) {
-        consumers[mapping.path] = {
-            type: mapping.contextType,
-            required: false,
-            propertyAlias: propertyKey,
-            scope: 'root',
-            ...(mapping.projection ? { projection: mapping.projection } : {}),
-        };
-    }
-
-    if (Object.keys(consumers).length === 0) {
-        delete element.acceptsContext;
-
-        return true;
-    }
-
-    element.acceptsContext = consumers;
 
     return true;
 }

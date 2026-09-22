@@ -37,11 +37,11 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             component: 'content:text',
             properties: { text: '<p>Fallback</p>' },
             acceptsContext: {
-                'category.name': {
+                text: {
                     type: 'single' as const,
                     required: false,
                     scope: 'root' as const,
-                    propertyAlias: 'text',
+                    sourcePath: 'category.name',
                 },
             },
         };
@@ -281,6 +281,38 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                 newParentId: 'parent-1',
                 newSlot: 'main',
                 index: 1,
+            },
+            expect.any(Function),
+        );
+    });
+
+    it.each([
+        ['map-property', 'category.name'],
+        ['unmap-property', null],
+    ] as const)('changes an element mapping via the %s draft mutation', async (operation, path) => {
+        const executeStructuralDraftMutation = jest.fn().mockResolvedValue(undefined);
+        const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];
+        const vm = {
+            layout: { layout },
+            executeStructuralDraftMutation,
+            resolveMutationRootSource: jest.fn().mockReturnValue('category'),
+            notifyMutationError: jest.fn(),
+        };
+
+        await methods.onElementMappingChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            path,
+            contextType: 'single',
+        });
+
+        expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
+            operation,
+            layout,
+            {
+                elementId: 'element-1',
+                propertyKey: 'text',
+                ...(path === null ? {} : { sourcePath: path }),
             },
             expect.any(Function),
         );
@@ -548,6 +580,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             $t: jest.fn().mockReturnValue('saved'),
             isCreateMode: false,
             isLoading: false,
+            showDiagnostics: true,
         };
 
         await methods.onSave.call(vm);
@@ -578,5 +611,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 },
         });
         expect(vm.layout.layout[0].properties).toEqual({ visibleFilterCount: 5, showLayoutSwitch: true });
+        expect(vm.showDiagnostics).toBe(false);
+        expect(vm.isLoading).toBe(false);
     });
 });

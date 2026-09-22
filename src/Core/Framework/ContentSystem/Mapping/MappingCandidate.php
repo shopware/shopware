@@ -26,12 +26,8 @@ use Shopware\Core\Framework\Log\Package;
  * it there to itself, which is what lets the Administration filter candidates by a plain type check and keeps
  * projections out of the authoring UI entirely.
  *
- * `$path` MUST be dotted, and the constructor enforces it. An undotted path would name a root-ambient context
- * value outright rather than a member of one, which is the exact shape
- * {@see \Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror} writes for resolved reference
- * wiring — so {@see MappingConsumers} could no longer tell a mapping onto it from that wiring, and every
- * reader of that test would go wrong at once: unvalidated on write, unreported in the editor, and unlisted as
- * the property's source.
+ * `$path` MUST be dotted, and the constructor enforces it: mapping exposes selected members of root-ambient
+ * data, while consuming an ambient value itself remains ordinary context wiring.
  */
 #[Package('framework')]
 final readonly class MappingCandidate

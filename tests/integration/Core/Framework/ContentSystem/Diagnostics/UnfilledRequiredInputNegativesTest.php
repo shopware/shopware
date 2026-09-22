@@ -102,11 +102,11 @@ class UnfilledRequiredInputNegativesTest extends TestCase
             ['media' => new DataRequirement('media', EntityLoader::SOURCE, new EntityLoaderConfig('media', 'mediaId', []))],
             [],
             [],
-            new ContextDefinitions([], ['category.media' => new ContextConsumer(
+            new ContextDefinitions([], ['media' => new ContextConsumer(
                 type: ContextType::Single,
                 required: false,
-                propertyAlias: 'media',
                 scope: ConsumerScope::Root,
+                sourcePath: 'category.media',
             )]),
         );
 

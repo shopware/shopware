@@ -170,28 +170,28 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
         }
     }
 
-    #[TestDox('decodes and writes back the projection of a root-scoped dotted consumer')]
+    #[TestDox('decodes and writes back a mapped consumer')]
     public function testDecodeReadsAProjectionOnAMappingConsumer(): void
     {
         $element = $this->codec()->decode(self::baseWire(['acceptsContext' => [
-            'product.cover' => [
+            'media' => [
                 'type' => 'single',
                 'required' => false,
-                'propertyAlias' => 'media',
                 'scope' => 'root',
                 'projection' => 'product_media_to_media',
+                'sourcePath' => 'product.cover',
             ],
         ]]));
 
-        $consumer = $element->contextDefinitions->getAllConsumers()['product.cover'];
+        $consumer = $element->contextDefinitions->getAllConsumers()['media'];
 
         static::assertSame('product_media_to_media', $consumer->projection);
         static::assertSame([
             'type' => 'single',
             'required' => false,
-            'propertyAlias' => 'media',
             'scope' => 'root',
             'projection' => 'product_media_to_media',
+            'sourcePath' => 'product.cover',
         ], $consumer->jsonSerialize());
     }
 

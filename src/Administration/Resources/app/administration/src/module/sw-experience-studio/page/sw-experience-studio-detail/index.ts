@@ -7,8 +7,10 @@ import type {
     ContentLayoutDraftInsertPayload,
     ContentLayoutDraftInsertPresetPayload,
     ContentLayoutDraftMovePayload,
+    ContentLayoutDraftMapPropertyPayload,
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
+    ContentLayoutDraftUnmapPropertyPayload,
     ContentSystemViolation,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-system-layout-preset.api.service';
@@ -27,7 +29,6 @@ import type {
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
     findElementLocation,
-    setElementMappingInLayout,
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
@@ -95,7 +96,7 @@ type InlineEditSession = {
     isEditing: boolean;
 } | null;
 
-type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'insert-preset';
+type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'insert-preset' | 'map-property' | 'unmap-property';
 
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
@@ -103,6 +104,8 @@ type ContentSystemLayoutDraftMutationService = {
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
     moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     insertPreset: (payload: ContentLayoutDraftInsertPresetPayload) => Promise<ContentLayoutDraftMutationResponse>;
+    mapProperty: (payload: ContentLayoutDraftMapPropertyPayload) => Promise<ContentLayoutDraftMutationResponse>;
+    unmapProperty: (payload: ContentLayoutDraftUnmapPropertyPayload) => Promise<ContentLayoutDraftMutationResponse>;
     diagnose: (payload: ContentLayoutDiagnosePayload) => Promise<ContentLayoutDiagnoseResponse>;
 };
 
@@ -144,6 +147,7 @@ export default Shopware.Component.wrapComponentConfig({
         mutationRequestSequence: number;
         latestMutationRequestId: number;
         diagnostics: ContentSystemViolation[];
+        showDiagnostics: boolean;
         diagnoseRequestSequence: number;
         latestDiagnoseRequestId: number;
         availableLayoutTypes: string[];
@@ -169,6 +173,7 @@ export default Shopware.Component.wrapComponentConfig({
             mutationRequestSequence: 0,
             latestMutationRequestId: 0,
             diagnostics: [],
+            showDiagnostics: false,
             diagnoseRequestSequence: 0,
             latestDiagnoseRequestId: 0,
             availableLayoutTypes: [],
@@ -348,7 +353,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         selectedElementViolations(): ContentSystemViolation[] {
-            if (this.selectedElementId === null) {
+            if (!this.showDiagnostics || this.selectedElementId === null) {
                 return [];
             }
 
@@ -387,6 +392,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async loadLayout(): Promise<void> {
             this.isLoading = true;
+            this.showDiagnostics = false;
 
             if (this.isCreateMode) {
                 this.layout = this.layoutRepository.create(Shopware.Context.api);
@@ -810,6 +816,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.editorStore.pushToHistory(layoutElements, this.selectedElementId);
             this.layout.layout = workingLayout;
+            this.showDiagnostics = false;
 
             if (result.selectedElementId !== undefined) {
                 this.selectedElementId = result.selectedElementId;
@@ -985,25 +992,34 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        onElementMappingChange(payload: {
+        async onElementMappingChange(payload: {
             elementId: string;
             propertyKey: string;
             path: string | null;
             contextType: 'single' | 'collection' | null;
             projection?: string | null;
-        }): void {
-            const mapping =
-                payload.path === null
-                    ? null
-                    : {
-                          path: payload.path,
-                          contextType: payload.contextType ?? 'single',
-                          projection: payload.projection ?? null,
-                      };
+        }): Promise<void> {
+            if (!this.layout) {
+                return;
+            }
 
-            this.applyLayoutMutation((layout) => {
-                return setElementMappingInLayout(layout, payload.elementId, payload.propertyKey, mapping) ? {} : false;
-            });
+            const rootSource = this.resolveMutationRootSource();
+            if (payload.path !== null && rootSource === null) {
+                this.notifyMutationError(['CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE']);
+
+                return;
+            }
+
+            await this.executeStructuralDraftMutation(
+                payload.path === null ? 'unmap-property' : 'map-property',
+                this.layout.layout,
+                {
+                    elementId: payload.elementId,
+                    propertyKey: payload.propertyKey,
+                    ...(payload.path === null ? {} : { sourcePath: payload.path }),
+                },
+                () => payload.elementId,
+            );
         },
 
         draftMutationService(): ContentSystemLayoutDraftMutationService {
@@ -1122,6 +1138,14 @@ export default Shopware.Component.wrapComponentConfig({
                 return service.insertPreset(payload as ContentLayoutDraftInsertPresetPayload);
             }
 
+            if (operation === 'map-property') {
+                return service.mapProperty(payload as ContentLayoutDraftMapPropertyPayload);
+            }
+
+            if (operation === 'unmap-property') {
+                return service.unmapProperty(payload as ContentLayoutDraftUnmapPropertyPayload);
+            }
+
             return service.duplicateElement(payload as ContentLayoutDraftDuplicatePayload);
         },
 
@@ -1152,6 +1176,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
                 this.layout.layout = response.layout;
                 this.selectedElementId = resolveSelectedElementId(response);
+                this.showDiagnostics = false;
                 this.diagnoseRequestSequence += 1;
                 this.latestDiagnoseRequestId = this.diagnoseRequestSequence;
                 this.diagnostics = response.diagnostics.violations;
@@ -1327,6 +1352,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.layout.layout = previousEntry.layout;
             this.selectedElementId = previousEntry.selectedElementId;
+            this.showDiagnostics = false;
             void this.diagnoseLayout();
         },
 
@@ -1344,6 +1370,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.layout.layout = nextEntry.layout;
             this.selectedElementId = nextEntry.selectedElementId;
+            this.showDiagnostics = false;
             void this.diagnoseLayout();
         },
 
@@ -1399,22 +1426,30 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isLoading = true;
 
-            await this.layoutRepository.save(layout, Shopware.Context.api);
-            this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
-            this.applyPreviewContextDefaults();
+            try {
+                await this.layoutRepository.save(layout, Shopware.Context.api);
+                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+                this.applyPreviewContextDefaults();
+                this.showDiagnostics = false;
 
-            this.createNotificationSuccess({
-                message: this.$t('sw-experience-studio.detail.messageSaved'),
-            });
-
-            if (this.isCreateMode) {
-                void this.$router.push({
-                    name: 'sw.experience.studio.detail',
-                    params: { id: layout.id },
+                this.createNotificationSuccess({
+                    message: this.$t('sw-experience-studio.detail.messageSaved'),
                 });
-            }
 
-            this.isLoading = false;
+                if (this.isCreateMode) {
+                    void this.$router.push({
+                        name: 'sw.experience.studio.detail',
+                        params: { id: layout.id },
+                    });
+                }
+            } catch (error) {
+                await this.diagnoseLayout();
+                this.showDiagnostics = true;
+
+                throw error;
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 });

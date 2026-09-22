@@ -18,7 +18,7 @@ test(
         Login,
         AddProductToCart,
         ProceedFromProductToCheckout,
-        ConfirmTermsAndConditionsWithLegalGuaranteeRights,
+        ConfirmTermsAndConditions,
         SelectPaymentMethod,
         SelectShippingMethod,
         SubmitOrder,
@@ -77,12 +77,19 @@ test(
             );
         });
 
+        await test.step('Legal guarantee notice is displayed separately from the terms checkbox.', async () => {
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.legal-guarantee-notice')).toBeVisible();
+            await ShopCustomer.expects(
+                StorefrontCheckoutConfirm.termsAndConditionsWithLegalGuaranteeRightsLabel,
+            ).not.toBeVisible();
+        });
+
         let orderNumber: string;
 
         await test.step('Customer can complete checkout.', async () => {
             await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
             await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
-            await ShopCustomer.attemptsTo(ConfirmTermsAndConditionsWithLegalGuaranteeRights());
+            await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
             await ShopCustomer.attemptsTo(SubmitOrder());
 
             const orderId = StorefrontCheckoutFinish.getOrderId();
@@ -149,6 +156,7 @@ test(
 
             await ShopCustomer.expects(StorefrontCheckoutConfirm.lineItemGaranLabel).not.toBeVisible();
             await ShopCustomer.expects(StorefrontCheckoutConfirm.legalGuaranteeNoticeLink).not.toBeVisible();
+            await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.legal-guarantee-notice')).not.toBeVisible();
             await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeVisible();
         });
 

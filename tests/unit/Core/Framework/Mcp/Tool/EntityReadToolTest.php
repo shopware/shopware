@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
-use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
@@ -32,7 +31,6 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  */
 #[Package('framework')]
 #[CoversClass(EntityReadTool::class)]
-#[CoversClass(McpEntityIncludes::class)]
 class EntityReadToolTest extends TestCase
 {
     public function testReturnsDataWhenEntityFound(): void

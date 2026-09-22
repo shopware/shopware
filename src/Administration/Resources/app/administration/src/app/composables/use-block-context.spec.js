@@ -41,11 +41,7 @@ describe('use-block-context', () => {
         addBlock('test', testSlot3);
 
         expect(blockContext).toStrictEqual({
-            test: [
-                testSlot1,
-                testSlot2,
-                testSlot3,
-            ],
+            test: [testSlot1, testSlot2, testSlot3],
         });
     });
 
@@ -112,10 +108,7 @@ describe('use-block-context', () => {
         removeBlock('test', testSlot2);
 
         expect(blockContext).toStrictEqual({
-            test: [
-                testSlot1,
-                testSlot3,
-            ],
+            test: [testSlot1, testSlot3],
         });
     });
 });

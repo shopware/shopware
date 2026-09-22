@@ -71,10 +71,7 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
         return { outcome: 'skipped', reasons: [`validation: ${validationError}`], sfc: null };
     }
 
-    const reasons = [
-        ...(template.warnings ?? []),
-        ...script.reasons,
-    ];
+    const reasons = [...(template.warnings ?? []), ...script.reasons];
 
     return {
         outcome: reasons.length > 0 ? 'partial' : 'full',

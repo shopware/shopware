@@ -176,10 +176,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const check = await checkExtensions({
             projectRoot,
             administrationRoot,
-            only: [
-                'Nope',
-                'Nada',
-            ],
+            only: ['Nope', 'Nada'],
         });
 
         expect(check.exitCode).toBe(1);
@@ -202,10 +199,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         const check = await checkExtensions({
             projectRoot,
             administrationRoot,
-            only: [
-                'Known',
-                'Typo',
-            ],
+            only: ['Known', 'Typo'],
         });
 
         // A single typo fails and names the unknown subset; the valid target is
@@ -216,11 +210,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
     });
 
     it('filters to multiple extensions from a comma-separated selection', async () => {
-        for (const name of [
-            'Alpha',
-            'Bravo',
-            'Charlie',
-        ]) {
+        for (const name of ['Alpha', 'Bravo', 'Charlie']) {
             writeFile(path.join(projectRoot, `custom/plugins/${name}/composer.json`), '{}\n');
             writeFile(path.join(projectRoot, `custom/plugins/${name}/src/Resources/app/administration/src/main.ts`), [
                 'export {};',
@@ -229,11 +219,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
 
         writePluginsConfig(
             projectRoot,
-            [
-                'Alpha',
-                'Bravo',
-                'Charlie',
-            ].map((name) => ({
+            ['Alpha', 'Bravo', 'Charlie'].map((name) => ({
                 technicalName: name,
                 basePath: `custom/plugins/${name}/src`,
                 administrationPath: 'Resources/app/administration/src',
@@ -242,10 +228,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
 
         const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Alpha,Charlie' });
 
-        expect(check.results.map((result) => result.project.name).sort()).toEqual([
-            'Alpha',
-            'Charlie',
-        ]);
+        expect(check.results.map((result) => result.project.name).sort()).toEqual(['Alpha', 'Charlie']);
     });
 
     it('scopes setup warnings to the selection but keeps the project-global ones', async () => {
@@ -253,10 +236,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         // a --only run would report extensions it never checks.
         fs.rmSync(path.join(administrationRoot, 'src', 'entity-schema-definition.d.ts'));
 
-        for (const name of [
-            'Selected',
-            'Unwired',
-        ]) {
+        for (const name of ['Selected', 'Unwired']) {
             writeFile(path.join(projectRoot, `custom/plugins/${name}/composer.json`), '{}\n');
             writeFile(path.join(projectRoot, `custom/plugins/${name}/src/Resources/app/administration/src/main.ts`), [
                 'export {};',
@@ -268,10 +248,7 @@ describe('scripts/extensionTooling/check checkExtensions', () => {
         ]);
         writePluginsConfig(
             projectRoot,
-            [
-                'Selected',
-                'Unwired',
-            ].map((name) => ({
+            ['Selected', 'Unwired'].map((name) => ({
                 technicalName: name,
                 basePath: `custom/plugins/${name}/src`,
                 administrationPath: 'Resources/app/administration/src',

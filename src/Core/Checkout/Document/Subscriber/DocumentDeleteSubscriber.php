@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,6 +26,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'Part of the legacy document generation pipeline. DocumentV2 handles this concern internally and exposes no counterpart.',
+)]
 class DocumentDeleteSubscriber implements EventSubscriberInterface
 {
     /**
@@ -70,14 +77,15 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
         $deletedDocuments = [];
 
         foreach ($documents as $document) {
-            // Legacy documents have a single media file and an optional accessibility media file
-            // We keep this logic for backward compatibility
-            if ($mediaId = $document->getDocumentMediaFileId()) {
-                $mediaIds[] = ['id' => $mediaId];
-            }
+            $legacyMediaIds = Feature::silent(
+                'v6.9.0.0',
+                static fn (): array => [$document->getDocumentMediaFileId(), $document->getDocumentA11yMediaFileId()],
+            );
 
-            if ($mediaId = $document->getDocumentA11yMediaFileId()) {
-                $mediaIds[] = ['id' => $mediaId];
+            foreach ($legacyMediaIds as $mediaId) {
+                if ($mediaId) {
+                    $mediaIds[] = ['id' => $mediaId];
+                }
             }
 
             // DocumentV2-generated documents
@@ -142,7 +150,7 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
         $dependentDocumentInformations = array_values(array_map(
             function (DocumentEntity $document) {
                 $id = $document->getId();
-                $type = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
+                $type = Feature::silent('v6.9.0.0', static fn (): ?string => $document->getDocumentType()?->getTechnicalName()) ?? 'unknown';
                 $number = $document->getDocumentNumber() ?? 'unknown';
 
                 return \sprintf('%s %s (%s)', $type, $number, $id);

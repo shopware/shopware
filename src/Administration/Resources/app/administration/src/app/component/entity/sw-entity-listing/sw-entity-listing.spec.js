@@ -25,9 +25,7 @@ async function createWrapper(propsData = {}, options = {}) {
 
     const wrapper = mount(await wrapTestComponent('sw-entity-listing', { sync: true }), {
         props: {
-            columns: [
-                { property: 'name', label: 'Name' },
-            ],
+            columns: [{ property: 'name', label: 'Name' }],
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
@@ -241,9 +239,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         await createWrapper(
             {
-                items: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                    { id: 'id1', name: 'item1' },
-                ]),
+                items: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
                 dataSource: null,
             },
             { suppressWarnings: false },
@@ -258,9 +254,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should prefer dataSource over items when both are provided', async () => {
-        const itemsData = new EntityCollection(null, null, null, new Criteria(1, 25), [
-            { id: 'id1', name: 'item1' },
-        ]);
+        const itemsData = new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]);
 
         const dataSourceData = new EntityCollection(null, null, null, new Criteria(1, 25), [
             { id: 'id2', name: 'item2' },
@@ -285,9 +279,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         await createWrapper(
             {
-                dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                    { id: 'id1', name: 'item1' },
-                ]),
+                dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
                 items: null,
             },
             { suppressWarnings: false },
@@ -304,9 +296,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
     it('should apply result when dataSource prop has been changed', async () => {
         const wrapper = await createWrapper({
-            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [
-                { id: 'id1', name: 'item1' },
-            ]),
+            dataSource: new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]),
             items: null,
         });
 
@@ -324,15 +314,11 @@ describe('src/app/component/entity/sw-entity-listing', () => {
     });
 
     it('should use internalDataSource for operations', async () => {
-        const dataSource = new EntityCollection(null, null, null, new Criteria(1, 25), [
-            { id: 'id1', name: 'item1' },
-        ]);
+        const dataSource = new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]);
         dataSource.context = { apiContext: true };
         dataSource.criteria = new Criteria(1, 25);
 
-        const mockSearchResult = new EntityCollection(null, null, null, new Criteria(1, 25), [
-            { id: 'id1', name: 'item1' },
-        ]);
+        const mockSearchResult = new EntityCollection(null, null, null, new Criteria(1, 25), [{ id: 'id1', name: 'item1' }]);
 
         const wrapper = await createWrapper({
             dataSource,

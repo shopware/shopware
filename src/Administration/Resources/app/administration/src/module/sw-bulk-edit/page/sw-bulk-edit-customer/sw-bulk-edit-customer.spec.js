@@ -24,9 +24,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-customer', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
@@ -284,9 +282,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = [Shopware.Utils.createId()];
     });
 
     it('should show all form fields', async () => {

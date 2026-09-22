@@ -62,9 +62,7 @@ async function createWrapper({
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('listing'),
-            ],
+            mixins: [Shopware.Mixin.getByName('listing')],
             data() {
                 return {
                     ...defaultData,
@@ -88,9 +86,7 @@ async function createWrapper({
         },
         {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 provide: {
                     searchRankingService: {
                         isValidTerm: (term) => {
@@ -117,9 +113,7 @@ async function createRouteWrapper() {
     Shopware.Component.register(componentName, {
         template: '<div class="listing-route-component"></div>',
         name: componentName,
-        mixins: [
-            Shopware.Mixin.getByName('listing'),
-        ],
+        mixins: [Shopware.Mixin.getByName('listing')],
         computed: {
             filters() {
                 return [];
@@ -167,9 +161,7 @@ async function createRouteWrapper() {
         },
         {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 provide: {
                     searchRankingService: {
                         isValidTerm: (term) => {
@@ -785,12 +777,7 @@ describe('src/app/mixin/listing.mixin.ts', () => {
             },
         };
 
-        expect(JSON.stringify(wrapper.vm.selectionArray)).toBe(
-            JSON.stringify([
-                { id: 1 },
-                { id: 2 },
-            ]),
-        );
+        expect(JSON.stringify(wrapper.vm.selectionArray)).toBe(JSON.stringify([{ id: 1 }, { id: 2 }]));
     });
 
     it('should have the correct selectionCount computed value', async () => {

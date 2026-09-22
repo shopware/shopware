@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
  * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, majorVersion?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class Feature
 {
     final public const ALL_MAJOR = 'major';
@@ -276,8 +278,12 @@ class Feature
         }
     }
 
-    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null, ?string $silentUntil = null): void
     {
+        if ($silentUntil !== null && !self::isActive($silentUntil)) {
+            return;
+        }
+
         if (!self::$emitDeprecations) {
             return;
         }
@@ -286,12 +292,18 @@ class Feature
             return;
         }
 
-        if (self::isActive($majorFlag)) {
-            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
-        }
+        // A silenced deprecation may name a major flag that is not registered yet, so a removal can be announced
+        // before the major that carries it exists. Enforcing the flag here would reject that pending major.
+        $majorFlagPending = $silentUntil !== null && self::$registeredFeatures !== [] && !self::has($majorFlag);
 
-        if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
-            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        if (!$majorFlagPending) {
+            if (self::isActive($majorFlag)) {
+                throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+            }
+
+            if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
+                throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+            }
         }
 
         if (\PHP_SAPI !== 'cli') {

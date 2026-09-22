@@ -11,6 +11,10 @@ use Symfony\Contracts\Service\ResetInterface;
  * services are reset between two requests handled by the same kernel instance.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\KernelServiceResetTest
  */
 #[Package('framework')]
 class TestResetCounter implements ResetInterface

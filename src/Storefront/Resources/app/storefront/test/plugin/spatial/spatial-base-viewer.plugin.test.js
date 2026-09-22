@@ -12,10 +12,7 @@ describe('SpatialBaseViewerPlugin tests', () => {
     let parentDivClassListRemoveSpy;
     let emitterPublishSpy;
     const mockDive = {
-        engine: {
-            start: jest.fn(),
-        },
-        start: jest.fn(),
+        startAsync: jest.fn(),
         stop: jest.fn(),
         model: {
             animations: [],
@@ -113,31 +110,31 @@ describe('SpatialBaseViewerPlugin tests', () => {
         expect(emitterPublishSpy).not.toHaveBeenCalled();
     });
 
-    test('startRendering if already rendered will makes no actions', () => {
+    test('startRendering if already rendered will makes no actions', async () => {
         spatialBaseViewerPlugin.rendering = true;
 
-        spatialBaseViewerPlugin.startRendering();
+        await spatialBaseViewerPlugin.startRendering();
 
-        expect(mockDive.engine.start).not.toHaveBeenCalled();
+        expect(mockDive.startAsync).not.toHaveBeenCalled();
     });
 
-    test('startRendering with `ready` property in false will not add the class `spatial-canvas-display`', () => {
+    test('startRendering with `ready` property in false will not add the class `spatial-canvas-display`', async () => {
         spatialBaseViewerPlugin.rendering = false;
         spatialBaseViewerPlugin.ready = false;
 
-        spatialBaseViewerPlugin.startRendering();
+        await spatialBaseViewerPlugin.startRendering();
 
-        expect(mockDive.engine.start).not.toHaveBeenCalled();
+        expect(mockDive.startAsync).toHaveBeenCalled();
         expect(parentDivClassListAddSpy).toHaveBeenCalledTimes(1);
         expect(parentDivClassListAddSpy).toHaveBeenCalledWith('spatial-canvas-rendering');
         expect(emitterPublishSpy).toHaveBeenCalled();
     });
 
-    test('startRendering with `ready` property in true will add the class `spatial-canvas-display`', () => {
+    test('startRendering with `ready` property in true will add the class `spatial-canvas-display`', async () => {
         spatialBaseViewerPlugin.rendering = false;
         spatialBaseViewerPlugin.ready = true;
 
-        spatialBaseViewerPlugin.startRendering();
+        await spatialBaseViewerPlugin.startRendering();
 
         expect(parentDivClassListAddSpy).toHaveBeenCalledTimes(2);
         expect(parentDivClassListAddSpy).toHaveBeenCalledWith('spatial-canvas-display');

@@ -2,6 +2,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
+import type { StateData } from '@shopware-ag/dive/state';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 
 /**
@@ -52,9 +53,9 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            if(this.options.sceneId) {
+            if (this.options.sceneId) {
                 const sceneState = this.options.sceneId ? await this.loadSceneState(this.options.sceneId) : null;
-                if(!sceneState) return;
+                if (!sceneState) return;
 
                 this.dive = await window.DIVEQuickViewPlugin.QuickView(sceneState, { autoStart: false, canvas: this.canvas });
             } else {
@@ -154,7 +155,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
      * serves it in DIVE's shape. Returns null when the scene is gone or the request fails, so the
      * viewer can fall back to `modelUrl`.
      */
-    protected async loadSceneState(id: string): Promise<import('@shopware-ag/dive/state').StateData | null> {
+    protected async loadSceneState(id: string): Promise<StateData | null> {
         try {
             const response = await fetch(`/spatial-scene/${encodeURIComponent(id)}/state`, {
                 headers: { Accept: 'application/json' },
@@ -164,7 +165,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                 return null;
             }
 
-            return await response.json() as import('@shopware-ag/dive/state').StateData;
+            return await response.json() as StateData;
         } catch {
             return null;
         }

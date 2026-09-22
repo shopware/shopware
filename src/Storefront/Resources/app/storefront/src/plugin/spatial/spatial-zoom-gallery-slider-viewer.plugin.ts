@@ -55,7 +55,7 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
             this.setReady(true);
 
             // start rendering when on the correct slide
-            this.SpatialZoomGallerySliderRenderUtil?.initViewer();
+            void this.SpatialZoomGallerySliderRenderUtil?.initViewer();
         }
     }
 }

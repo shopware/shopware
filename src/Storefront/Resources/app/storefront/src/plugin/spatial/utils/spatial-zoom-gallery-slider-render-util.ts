@@ -96,9 +96,8 @@ export default class SpatialZoomGallerySliderRenderUtil {
             `[${SpatialZoomGallerySliderRenderUtil.options.zoomSliderPositionAttribute}="${this.plugin.sliderIndex}"]`,
         );
 
-        this.initViewer();
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.plugin.initViewer();
+        void this.initViewer();
+        void this.plugin.initViewer();
     }
 
     /**

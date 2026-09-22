@@ -20,9 +20,10 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
      * auto-submit (data-form-auto-submit), which reloads the page after selection.
      * Listening to both change and page load would result in duplicate events.
      *
-     * The auto-submit reload runs this route again, so the event is reported at most once
-     * per checkout. Without that guard, changing the shipping method would report it again
-     * and push the count above `begin_checkout`.
+     * The auto-submit reload runs this route again, so the event is reported once per shipping
+     * method of a checkout: a reload that keeps the method stays silent, selecting a different
+     * one reports it. Reporting every load would push the count above `begin_checkout`, while
+     * reporting only the first load would report the preselected method and never the chosen one.
      *
      * This event only fires when shipping is available (physical products).
      * For digital-only orders, no shipping form exists and the event is skipped.
@@ -32,12 +33,13 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
             return;
         }
 
-        if (CheckoutStepHelper.hasReported('add_shipping_info')) {
+        // Don't fire for digital-only orders where no shipping is needed
+        if (!document.querySelector('.shipping-method-input')) {
             return;
         }
 
-        // Don't fire for digital-only orders where no shipping is needed
-        if (!document.querySelector('.shipping-method-input')) {
+        const shippingTier = this._getShippingTier();
+        if (CheckoutStepHelper.hasReported('add_shipping_info', shippingTier)) {
             return;
         }
 
@@ -46,7 +48,6 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
             return;
         }
 
-        const shippingTier = this._getShippingTier();
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
         this.pushEvent('add_shipping_info', {
@@ -57,7 +58,7 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
             'items': lineItems,
         });
 
-        CheckoutStepHelper.markReported('add_shipping_info');
+        CheckoutStepHelper.markReported('add_shipping_info', shippingTier);
     }
 
     /**

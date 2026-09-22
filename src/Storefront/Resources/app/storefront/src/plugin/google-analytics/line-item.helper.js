@@ -56,6 +56,9 @@ export default class LineItemHelper
     }
 
     /**
+     * A page that renders no cart has no container, so the properties are empty rather than a
+     * `TypeError` that takes the surrounding event down with it.
+     *
      * @returns { Object }
      */
     static getAdditionalProperties() {
@@ -68,10 +71,10 @@ export default class LineItemHelper
         }, 0);
 
         return {
-            currency: lineItemsContainer.getAttribute('data-currency'),
-            shipping: lineItemsContainer.getAttribute('data-shipping'),
+            currency: lineItemsContainer?.getAttribute('data-currency'),
+            shipping: lineItemsContainer?.getAttribute('data-shipping'),
             value,
-            tax: lineItemsContainer.getAttribute('data-tax'),
+            tax: lineItemsContainer?.getAttribute('data-tax'),
             coupon: LineItemHelper.getCoupon(),
         };
     }

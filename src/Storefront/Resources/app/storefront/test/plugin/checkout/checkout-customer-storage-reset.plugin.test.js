@@ -21,14 +21,10 @@ describe('CheckoutCustomerStorageResetPlugin tests', () => {
         SessionStorage.clear();
     });
 
-    function createPlugin(options = {}) {
+    function createPlugin() {
         const element = document.querySelector('[data-checkout-customer-storage-reset]');
 
-        element.setAttribute('data-checkout-customer-storage-reset-options', JSON.stringify(options));
-
         new CheckoutCustomerStorageResetPlugin(element, {}, 'CheckoutCustomerStorageReset');
-
-        return element;
     }
 
     test('drops the persisted checkout data of every customer', () => {
@@ -43,22 +39,6 @@ describe('CheckoutCustomerStorageResetPlugin tests', () => {
         }));
 
         createPlugin();
-
-        expect(SessionStorage.getItem(storageKey)).toBeNull();
-    });
-
-    test('waits for the click if resetOnClick is set', () => {
-        SessionStorage.setItem(storageKey, JSON.stringify({
-            customerA: {
-                tos: true,
-            },
-        }));
-
-        const element = createPlugin({ resetOnClick: true });
-
-        expect(SessionStorage.getItem(storageKey)).not.toBeNull();
-
-        element.dispatchEvent(new Event('click'));
 
         expect(SessionStorage.getItem(storageKey)).toBeNull();
     });

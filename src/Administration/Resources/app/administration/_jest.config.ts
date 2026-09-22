@@ -177,7 +177,9 @@ const config: Config = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
+        // `three` publishes `three/webgpu`, which DIVE requires, as ESM only - there is no CJS
+        // build to map it to, so it has to go through the transform like our own sources.
+        '/node_modules/(?!(@shopware-ag/meteor-component-library|@shopware-ag/meteor-icon-kit|uuidv7|three|other)/)',
     ],
 
     moduleNameMapper: {

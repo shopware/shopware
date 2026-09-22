@@ -9,7 +9,8 @@ const SHOPWARE_MODEL_EDITOR_ROOT_MARKER = 'isShopwareModelEditorRoot';
 
 // Mock QuickView from @shopware-ag/dive/quickview
 const mockQuickView = jest.fn();
-const mockQuickViewDispose = jest.fn();
+// DIVE 4 renamed the QuickView teardown to disposeAsync().
+const mockQuickViewDisposeAsync = jest.fn();
 jest.mock('@shopware-ag/dive/quickview', () => ({
     QuickView: mockQuickView,
 }));
@@ -38,6 +39,7 @@ interface MockVector3 {
     y: number;
     z: number;
     clone(): MockVector3;
+    copy(other: { x: number; y: number; z: number }): MockVector3;
     equals(other: { x: number; y: number; z: number }): boolean;
 }
 
@@ -46,6 +48,7 @@ interface MockEuler {
     y: number;
     z: number;
     clone(): MockEuler;
+    copy(other: { x: number; y: number; z: number }): MockEuler;
     equals(other: { x: number; y: number; z: number }): boolean;
 }
 
@@ -55,6 +58,13 @@ const createMockVector3 = (x = 0, y = 0, z = 0): MockVector3 => ({
     z,
     clone() {
         return createMockVector3(this.x, this.y, this.z);
+    },
+    copy(other: { x: number; y: number; z: number }) {
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
+
+        return this;
     },
     equals(other: { x: number; y: number; z: number }) {
         return this.x === other.x && this.y === other.y && this.z === other.z;
@@ -67,6 +77,13 @@ const createMockEuler = (x = 0, y = 0, z = 0): MockEuler => ({
     z,
     clone() {
         return createMockEuler(this.x, this.y, this.z);
+    },
+    copy(other: { x: number; y: number; z: number }) {
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
+
+        return this;
     },
     equals(other: { x: number; y: number; z: number }) {
         return this.x === other.x && this.y === other.y && this.z === other.z;
@@ -139,31 +156,45 @@ async function createWrapper(componentConfig: any = {}) {
 }
 
 describe('src/app/component/media/sw-model-editor', () => {
-    const mockScene = {
-        root: {
-            children: [
-                {
-                    [SHOPWARE_MODEL_EDITOR_ROOT_MARKER]: true,
-                    name: 'TestModel',
-                    position: createMockVector3(),
-                    rotation: createMockEuler(),
-                    scale: createMockVector3(1, 1, 1),
-                    setPosition: jest.fn(),
-                    setRotation: jest.fn(),
-                    setScale: jest.fn(),
-                },
-            ],
-        },
-    };
+    // The editor only forwards the scene to the Toolbox; the node it edits comes from `model`.
+    const mockScene = {};
 
-    const mockOrbitController = {};
+    const mockOrbitController = { focusObject: jest.fn() };
+
+    const createMockNode = (name: string, userData: Record<string, unknown> = {}) => ({
+        name,
+        userData,
+        children: [] as unknown[],
+        position: createMockVector3(),
+        rotation: createMockEuler(),
+        quaternion: createMockVector3(),
+        scale: createMockVector3(1, 1, 1),
+        add: jest.fn(),
+        removeFromParent: jest.fn(),
+        traverse: jest.fn(),
+        setPosition: jest.fn(),
+        setRotation: jest.fn(),
+        setScale: jest.fn(),
+    });
+
+    let mockModel: ReturnType<typeof createMockNode>;
 
     beforeEach(() => {
         jest.clearAllMocks();
+
+        // An exported model carries a marked root node that the editor flattens onto the model.
+        const mockEditorRoot = createMockNode('TestModelRoot', { [SHOPWARE_MODEL_EDITOR_ROOT_MARKER]: true });
+        mockModel = createMockNode('TestModel');
+        mockModel.traverse = jest.fn((visit: (node: unknown) => void) => {
+            visit(mockModel);
+            visit(mockEditorRoot);
+        });
+
         mockQuickView.mockResolvedValue({
             scene: mockScene,
+            model: mockModel,
             orbitController: mockOrbitController,
-            dispose: mockQuickViewDispose,
+            disposeAsync: mockQuickViewDisposeAsync,
         });
         mockMediaService.addUpload.mockClear();
         mockMediaService.runUploads.mockClear().mockResolvedValue(undefined);
@@ -379,7 +410,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            expect(mockSelect).toHaveBeenCalledWith(expect.objectContaining({ [SHOPWARE_MODEL_EDITOR_ROOT_MARKER]: true }));
+            expect(mockSelect).toHaveBeenCalledWith(mockModel);
         });
 
         it('should dispose toolbox on unmount', async () => {
@@ -398,7 +429,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             wrapper.unmount();
 
             expect(mockToolboxDispose).toHaveBeenCalled();
-            expect(mockQuickViewDispose).toHaveBeenCalled();
+            expect(mockQuickViewDisposeAsync).toHaveBeenCalled();
         });
     });
 
@@ -504,7 +535,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             await wrapper.setProps({ source: newMediaEntity } as any);
             await flushPromises();
 
-            expect(mockQuickViewDispose).toHaveBeenCalled();
+            expect(mockQuickViewDisposeAsync).toHaveBeenCalled();
             expect(mockQuickView.mock.calls.length).toBeGreaterThan(initialCallCount);
         });
 

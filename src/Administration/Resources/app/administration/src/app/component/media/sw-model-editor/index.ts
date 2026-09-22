@@ -5,7 +5,7 @@ import { DIVEMath, ModelComponent, type DIVENode } from '@shopware-ag/dive';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import { Toolbox } from '@shopware-ag/dive/toolbox';
 import { AssetExporter } from '@shopware-ag/dive/assetexporter';
-import { Euler, Object3D, Vector3 } from 'three';
+import { Euler, Object3D, type Vector3 } from 'three';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
 
@@ -306,7 +306,7 @@ export default Shopware.Component.wrapComponentConfig({
             const fileName = this.modelEntity.fileName ?? 'model';
             const fileExtension = this.modelEntity.fileExtension ?? 'glb';
 
-            const component = this.diveModel.requireComponent(ModelComponent) as ModelComponent;
+            const component = this.diveModel.requireComponent(ModelComponent);
 
             // the transform root: what a later load reads back off the file
             const exportRoot = new Object3D();

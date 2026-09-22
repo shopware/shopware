@@ -20,14 +20,9 @@ interface PromotionCodeItem {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;

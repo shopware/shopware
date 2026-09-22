@@ -20,9 +20,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         editor: {
@@ -213,14 +211,7 @@ export default Shopware.Component.wrapComponentConfig({
         }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (
-                link.startsWith(this.seoUrlReplacePrefix) &&
-                [
-                    'navigation',
-                    'detail',
-                    'mediaId',
-                ].includes(slicedLink[1])
-            ) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
                     this.categoryCollection = await this.getCategoryCollection(slicedLink[2] as EntityKey<'category'>);
                 } else if (slicedLink[1] === 'mediaId') {

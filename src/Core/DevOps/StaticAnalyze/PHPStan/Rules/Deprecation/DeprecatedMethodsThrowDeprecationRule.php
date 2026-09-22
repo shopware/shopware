@@ -31,12 +31,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-decorator',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
-        // Only the route on controller will be removed
-        'reason:remove-route',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // The replacement is still experimental, so the deprecation is announced but stays silent for now.
-        'reason:experimental-replacement',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
     ];

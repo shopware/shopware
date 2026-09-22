@@ -75,7 +75,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodDeprecation = $method->getDeprecatedDescription() ?? '';
 
         if ($classDeprecation && !$this->isServiceConstructor($node, $class)) {
-            $errors = $this->checkDeprecationPatterns($node, $scope, $class, $classDeprecation, true);
+            $errors = $this->checkDeprecationPatterns($node, $scope, $class, $classDeprecation, true, $methodContent);
             if ($errors !== null && $errors !== []) {
                 return $errors;
             }
@@ -98,7 +98,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $deprecationOfParentMethod = !str_contains($method->getDocComment() ?? '', $methodDeprecation) && !str_contains($method->getDocComment() ?? '', 'inheritdoc');
 
         if (!$deprecationOfParentMethod && $methodDeprecation) {
-            $errors = $this->checkDeprecationPatterns($node, $scope, $class, $methodDeprecation, false);
+            $errors = $this->checkDeprecationPatterns($node, $scope, $class, $methodDeprecation, false, $methodContent);
             if ($errors !== null) {
                 return $errors;
             }
@@ -161,11 +161,11 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     /**
      * @return list<IdentifierRuleError>|null
      */
-    private function checkDeprecationPatterns(ClassMethod $node, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation): ?array
+    private function checkDeprecationPatterns(ClassMethod $node, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation, \Closure $methodContent): ?array
     {
         foreach ($this->deprecationPatterns as $pattern) {
             if ($pattern->isSupported($node, $scope, $class, $deprecation, $isClassDeprecation)) {
-                return $pattern->check($node, $scope, $class, $deprecation, $isClassDeprecation);
+                return $pattern->check($node, $scope, $class, $deprecation, $isClassDeprecation, $methodContent);
             }
         }
 

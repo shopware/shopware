@@ -53,7 +53,7 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
     {
         $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], [
             [
-                'Class decorator "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but method "doesNotDelegateToInner" does not directly delegate to its inner service when feature flag "v6.8.0.0" is active.',
+                'Class decorator "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but method "doesNotDelegateToInner" does not call "Feature::triggerDeprecationOrThrow". Methods not declared by the decorated service need to trigger a deprecation warning.',
                 25,
             ],
             [
@@ -72,7 +72,7 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         $serviceMap = $factory->create();
 
         return new DeprecatedMethodsThrowDeprecationRule($serviceMap, [
-            new DeprecatedServiceDecoratorPattern($serviceMap),
+            new DeprecatedServiceDecoratorPattern($serviceMap, self::createReflectionProvider()),
         ]);
     }
 }

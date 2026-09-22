@@ -14,6 +14,7 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -27,7 +28,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedServiceDecoratorPattern implements DeprecationPattern
 {
-    public function __construct(private readonly ServiceMap $serviceMap)
+    public function __construct(
+        private readonly ServiceMap $serviceMap,
+        private readonly ReflectionProvider $reflectionProvider,
+    )
     {
     }
 
@@ -39,14 +43,30 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
     /**
      * @return list<IdentifierRuleError>
      */
-    public function check(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation): array
+    public function check(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation, \Closure $methodContent): array
     {
+        if ($this->delegatesToInnerWhenFeatureFlagIsActive($method, $scope, $deprecation)) {
+            return [];
+        }
+
         if ($class->getMethod($method->name->toString(), $scope)->getDeprecatedDescription() !== null) {
             return [];
         }
 
-        if ($this->delegatesToInnerWhenFeatureFlagIsActive($method, $scope, $deprecation)) {
-            return [];
+        if (!$this->isMethodOnDecoratedService($method, $class)) {
+            if (\str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(')) {
+                return [];
+            }
+
+            return [
+                RuleErrorBuilder::message(\sprintf(
+                    'Class decorator "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". Methods not declared by the decorated service need to trigger a deprecation warning.',
+                    $class->getName(),
+                    $method->name->toString(),
+                ))
+                    ->identifier('shopware.deprecatedClass')
+                    ->build(),
+            ];
         }
 
         return [
@@ -77,6 +97,31 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
         }
 
         return false;
+    }
+
+    private function isMethodOnDecoratedService(ClassMethod $method, ClassReflection $class): bool
+    {
+        $service = $this->serviceMap->getService($class->getName());
+        if ($service === null) {
+            return true;
+        }
+
+        foreach ($service->getTags() as $tag) {
+            /** @phpstan-ignore phpstanApi.method */
+            if ($tag->getName() !== 'container.decorator') {
+                continue;
+            }
+
+            /** @phpstan-ignore phpstanApi.method */
+            $decoratedServiceId = $tag->getAttributes()['id'] ?? null;
+            $decoratedClass = \is_string($decoratedServiceId) ? $this->serviceMap->getService($decoratedServiceId)?->getClass() : null;
+
+            return \is_string($decoratedClass)
+                && $this->reflectionProvider->hasClass($decoratedClass)
+                && $this->reflectionProvider->getClass($decoratedClass)->hasMethod($method->name->toString());
+        }
+
+        return true;
     }
 
     private function delegatesToInnerWhenFeatureFlagIsActive(ClassMethod $method, Scope $scope, string $deprecation): bool

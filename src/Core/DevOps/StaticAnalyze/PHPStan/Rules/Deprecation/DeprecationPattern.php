@@ -19,5 +19,5 @@ interface DeprecationPattern
     /**
      * @return list<IdentifierRuleError>
      */
-    public function check(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation): array;
+    public function check(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation, \Closure $methodContent): array;
 }

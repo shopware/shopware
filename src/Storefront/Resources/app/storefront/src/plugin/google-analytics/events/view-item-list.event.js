@@ -70,19 +70,29 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         const categories = ProductPageHelper.getCategories();
 
         productBoxes.forEach(item => {
-            if (item.dataset.productInformation) {
-                const productData = JSON.parse(item.dataset.productInformation);
-                const { sku, id, name, brand, variant, ...properties } = productData;
-                lineItems.push({
-                    ...properties,
-                    item_id: sku ?? id,
-                    item_name: name,
-                    item_brand: brand,
-                    item_variant: variant,
-                    index: lineItems.length,
-                    ...categories,
-                });
+            if (!item.dataset.productInformation) {
+                return;
             }
+
+            // The properties are mapped one by one on purpose. Spreading the parsed object would
+            // put every key a theme or a later feature adds to `data-product-information` into the
+            // GA4 item, where only documented properties belong.
+            let productData;
+            try {
+                productData = JSON.parse(item.dataset.productInformation);
+            } catch {
+                return;
+            }
+
+            lineItems.push({
+                item_id: productData.sku ?? productData.id,
+                item_name: productData.name,
+                item_brand: productData.brand,
+                item_variant: productData.variant,
+                price: productData.price,
+                index: lineItems.length,
+                ...categories,
+            });
         });
 
         return lineItems;

@@ -34,6 +34,44 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(1);
     });
 
+    test('fires again when the customer selects a different payment method', () => {
+        const markup = (type) => `
+            <div class="hidden-line-items-information" data-currency="EUR">
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="49.99">
+                </span>
+            </div>
+            <div class="payment-method-radio">
+                <input type="radio" class="payment-method-input" checked>
+                <div class="payment-method-description">
+                    <strong>${type}</strong>
+                </div>
+            </div>
+        `;
+
+        document.body.innerHTML = markup('Invoice');
+        new AddPaymentInfoEvent().execute();
+
+        // the auto-submit reload renders the confirm page with the newly selected method
+        document.body.innerHTML = markup('Credit Card');
+        new AddPaymentInfoEvent().execute();
+
+        // reloading again without changing anything stays silent
+        new AddPaymentInfoEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledTimes(2);
+        expect(window.gtag).toHaveBeenNthCalledWith(1, 'event', 'add_payment_info', expect.objectContaining({
+            'payment_type': 'Invoice',
+        }));
+        expect(window.gtag).toHaveBeenNthCalledWith(2, 'event', 'add_payment_info', expect.objectContaining({
+            'payment_type': 'Credit Card',
+        }));
+    });
+
     test('supports returns true on checkout confirm page', () => {
         expect(new AddPaymentInfoEvent().supports('', '', 'frontend.checkout.confirm.page')).toBe(true);
     });

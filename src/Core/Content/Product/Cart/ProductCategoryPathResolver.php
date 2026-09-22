@@ -10,8 +10,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * Resolves the category path of a product as a list of names, ordered from the top level down.
  *
- * Only data that {@see ProductGateway} already loads is used, so resolving a path costs no
- * additional queries.
+ * Resolving works purely on the loaded entity and issues no query of its own. It needs the
+ * `categories` and `mainCategories.category` associations, which {@see ProductGateway} loads for the
+ * cart. A caller that loads a product without them gets an empty path instead of an error, so a page
+ * that does not report categories does not pay for them.
  *
  * @internal
  */

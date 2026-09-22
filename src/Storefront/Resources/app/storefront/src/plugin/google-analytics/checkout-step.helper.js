@@ -35,30 +35,48 @@ function isStorageSupported() {
  * therefore sends them once per reload, which pushes their counts above `begin_checkout`
  * and breaks GA4 funnel reports.
  *
+ * A step is remembered together with the value it reported, so a reload that changes nothing
+ * stays silent while actually switching the shipping or payment method reports the new one.
+ * Reporting only the first load instead would describe the preselected method forever and
+ * leave the GA4 `shipping_tier` and `payment_type` dimensions reporting shop defaults.
+ *
  * The state is session scoped and cleared when a checkout starts (`begin_checkout`) and
- * when it completes (`purchase`), so every checkout reports each step at most once.
+ * when it completes (`purchase`).
  */
 export default class CheckoutStepHelper
 {
     /**
      * @param {string} step
+     * @param {string} value the reported `shipping_tier` or `payment_type`
      * @returns {boolean}
      */
-    static hasReported(step) {
-        return CheckoutStepHelper._read().includes(step);
+    static hasReported(step, value = '') {
+        return CheckoutStepHelper._read().includes(CheckoutStepHelper._key(step, value));
     }
 
     /**
      * @param {string} step
+     * @param {string} value the reported `shipping_tier` or `payment_type`
      */
-    static markReported(step) {
+    static markReported(step, value = '') {
         const steps = CheckoutStepHelper._read();
+        const key = CheckoutStepHelper._key(step, value);
 
-        if (steps.includes(step)) {
+        if (steps.includes(key)) {
             return;
         }
 
-        CheckoutStepHelper._write([...steps, step]);
+        CheckoutStepHelper._write([...steps, key]);
+    }
+
+    /**
+     * @param {string} step
+     * @param {string} value
+     * @returns {string}
+     * @private
+     */
+    static _key(step, value) {
+        return `${step}:${value}`;
     }
 
     /**

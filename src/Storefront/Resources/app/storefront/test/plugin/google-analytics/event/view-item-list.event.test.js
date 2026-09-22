@@ -158,4 +158,54 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         expect(event.getPluginName()).toBe('Listing');
         expect(event.getEvents()).toHaveProperty('Listing/afterRenderResponse');
     });
+
+    test('reports only documented item properties, whatever else the product box carries', () => {
+        const information = {
+            id: 'product-123',
+            sku: 'SW10000',
+            name: 'Test Product',
+            brand: 'Test Brand',
+            variant: 'Red, L',
+            price: '19.99',
+            // a theme or a later feature can add keys the GA4 item schema does not define
+            internalNote: 'not an item property',
+        };
+
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='${JSON.stringify(information)}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [{
+                'item_id': 'SW10000',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'item_variant': 'Red, L',
+                'price': 19.99,
+            }],
+        }));
+    });
+
+    test('skips a product box with an unreadable product information attribute', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{"broken'></div>
+                <div class="product-box" data-product-information='{"sku":"SW10000","name":"Test Product","price":"19.99"}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [{
+                'item_id': 'SW10000',
+                'item_name': 'Test Product',
+                'price': 19.99,
+            }],
+        }));
+    });
 });

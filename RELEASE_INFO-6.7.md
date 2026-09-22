@@ -61,7 +61,11 @@ With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecom
 
 Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 
-`add_shipping_info` and `add_payment_info` are now reported at most once per checkout. Both were reported on every load of the confirm page, and because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported them again. Expect lower counts for both events, no longer exceeding `begin_checkout`.
+`add_shipping_info` and `add_payment_info` are now reported once per selected method instead of on every load of the confirm page. Because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported the event again. A reload that keeps the method stays silent, while switching the method reports the new one, so the counts drop without losing the method the customer actually chose.
+
+`remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
+
+The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements.
 
 Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
 

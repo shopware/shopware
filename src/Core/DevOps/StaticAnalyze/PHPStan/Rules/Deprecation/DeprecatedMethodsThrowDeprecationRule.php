@@ -27,8 +27,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     private const RULE_EXCEPTIONS = [
         // Subscribers still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-subscriber',
-        // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
-        'reason:remove-decorator',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
@@ -68,7 +66,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isServiceDecorator($class) && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -165,5 +163,23 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     {
         return $node->name->toString() === '__construct'
             && $this->serviceMap->getService($class->getName()) !== null;
+    }
+
+    private function isServiceDecorator(ClassReflection $class): bool
+    {
+        $service = $this->serviceMap->getService($class->getName());
+
+        if ($service === null) {
+            return false;
+        }
+
+        foreach ($service->getTags() as $tag) {
+            /** @phpstan-ignore phpstanApi.method */
+            if ($tag->getName() === 'container.decorator') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -21,10 +21,28 @@ describe('plugin/google-analytics/checkout-step.helper', () => {
     });
 
     test('marking the same step twice does not duplicate it', () => {
-        CheckoutStepHelper.markReported('add_payment_info');
-        CheckoutStepHelper.markReported('add_payment_info');
+        CheckoutStepHelper.markReported('add_payment_info', 'Invoice');
+        CheckoutStepHelper.markReported('add_payment_info', 'Invoice');
 
-        expect(JSON.parse(window.sessionStorage.getItem('swGaReportedCheckoutSteps'))).toEqual(['add_payment_info']);
+        expect(JSON.parse(window.sessionStorage.getItem('swGaReportedCheckoutSteps'))).toEqual(['add_payment_info:Invoice']);
+    });
+
+    test('keeps a step reported per value, so a changed method is reported again', () => {
+        CheckoutStepHelper.markReported('add_shipping_info', 'Standard');
+
+        expect(CheckoutStepHelper.hasReported('add_shipping_info', 'Standard')).toBe(true);
+        expect(CheckoutStepHelper.hasReported('add_shipping_info', 'Express')).toBe(false);
+
+        CheckoutStepHelper.markReported('add_shipping_info', 'Express');
+
+        expect(CheckoutStepHelper.hasReported('add_shipping_info', 'Standard')).toBe(true);
+        expect(CheckoutStepHelper.hasReported('add_shipping_info', 'Express')).toBe(true);
+    });
+
+    test('keeps the same value of different steps independent', () => {
+        CheckoutStepHelper.markReported('add_shipping_info', 'Express');
+
+        expect(CheckoutStepHelper.hasReported('add_payment_info', 'Express')).toBe(false);
     });
 
     test('reset clears every reported step', () => {

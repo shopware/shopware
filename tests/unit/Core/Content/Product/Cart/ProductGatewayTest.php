@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -98,5 +99,46 @@ class ProductGatewayTest extends TestCase
         // the main category has to be preloaded, otherwise resolving it would query per product
         static::assertTrue($criteria->hasAssociation('mainCategories'));
         static::assertTrue($criteria->getAssociation('mainCategories')->hasAssociation('category'));
+    }
+
+    public function testPayloadAssociationsOnlyLoadRowsThePathCanUse(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $repository = static::createStub(SalesChannelRepository::class);
+        $repository->method('search')->willReturn(new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection(),
+            null,
+            new Criteria(),
+            $context->getContext()
+        ));
+
+        $criteria = null;
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())->method('dispatch')
+            ->with(static::callback(static function (ProductGatewayCriteriaEvent $event) use (&$criteria) {
+                $criteria = $event->getCriteria();
+
+                return true;
+            }));
+
+        (new ProductGateway($repository, $eventDispatcher))->get([Uuid::randomHex()], $context);
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        // a cart is recalculated on almost every storefront request, so a category that can never
+        // be part of a path is not hydrated in the first place
+        static::assertEquals(
+            [new EqualsFilter('active', true), new EqualsFilter('visible', true)],
+            $criteria->getAssociation('categories')->getFilters()
+        );
+
+        // only the main category of the current sales channel is ever selected
+        static::assertEquals(
+            [new EqualsFilter('salesChannelId', $context->getSalesChannelId())],
+            $criteria->getAssociation('mainCategories')->getFilters()
+        );
     }
 }

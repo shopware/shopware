@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Fuzz\Core\Framework\DataAbstractionLayer\Search\Filter;
 
 use Eris\Generators;
-use Eris\TestTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Fuzz\FuzzTestCase;
 
 /**
  * Property-based companion to RangeFilterTest: instead of a handful of example inputs, this
@@ -18,11 +16,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(RangeFilter::class)]
-class RangeFilterFuzzTest extends TestCase
+class RangeFilterTest extends FuzzTestCase
 {
-    use TestTrait;
-
     private const VALID_KEYS = [RangeFilter::LTE, RangeFilter::LT, RangeFilter::GTE, RangeFilter::GT];
 
     /**

@@ -17,6 +17,7 @@ Portable AI capabilities packaged in the [Anthropic Agent Skills](https://agents
 | [`shopware-php-code`](shopware-php-code/SKILL.md) | "edit PHP code", "add migration", "add API route", "deprecate this" | Applies Shopware PHP architecture, public surface, migration, API schema, and deprecation rules. |
 | [`shopware-admin-js`](shopware-admin-js/SKILL.md) | "edit Administration", "Admin UI", "Vue component", "Jest spec" | Applies Shopware Administration JS/TS/Vue architecture, ACL, Jest, and linting conventions. |
 | [`shopware-phpunit-tests`](shopware-phpunit-tests/SKILL.md) | "write PHPUnit tests", "add data provider", "feature flag test" | Applies Shopware PHPUnit structure, fixtures, feature-flag, DBAL, coverage, and data-provider rules. |
+| [`shopware-fuzz-tests`](shopware-fuzz-tests/SKILL.md) | "add a fuzz test", "is this a good fuzz target", "design an Eris generator", "why did this fuzz test fail" | Applies Shopware's property-based/fuzz testing conventions under `tests/fuzz` — invariant design, Eris generators, and reproducing failures. |
 
 ## How auto-loading works
 

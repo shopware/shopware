@@ -68,7 +68,6 @@ parameters:
         allowedUnitTestClassNamespaces:
             - Shopware\Tests\Unit\
             - Shopware\Tests\Migration\
-            - Shopware\Tests\Fuzz\
         # narrows NoCreateMockWithoutExpectationsRule enforcement; consumers rolling the rule out
         # domain by domain append their enabled test namespaces to this list
         createMockWithoutExpectationsEnabledNamespaces:

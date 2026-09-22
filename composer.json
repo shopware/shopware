@@ -631,7 +631,8 @@
             "Shopware\\Tests\\Integration\\": "tests/integration/",
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
             "Shopware\\Tests\\Migration\\": "tests/migration/",
-            "Shopware\\Tests\\DevOps\\": "tests/devops/"
+            "Shopware\\Tests\\DevOps\\": "tests/devops/",
+            "Shopware\\Tests\\Fuzz\\": "tests/fuzz/"
         }
     }
 }

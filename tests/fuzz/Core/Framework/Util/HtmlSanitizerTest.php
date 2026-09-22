@@ -4,11 +4,9 @@ namespace Shopware\Tests\Fuzz\Core\Framework\Util;
 
 use Eris\Generator;
 use Eris\Generators;
-use Eris\TestTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Tests\Fuzz\FuzzTestCase;
 
 /**
  * Fuzzes HtmlSanitizer with a corpus of known XSS attack shapes (OWASP XSS Filter Evasion
@@ -26,11 +24,8 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
  * @phpstan-import-type SetsArray from HtmlSanitizer
  */
 #[Package('framework')]
-#[CoversClass(HtmlSanitizer::class)]
-class HtmlSanitizerFuzzTest extends TestCase
+class HtmlSanitizerTest extends FuzzTestCase
 {
-    use TestTrait;
-
     public function testNeverOutputsALiveScriptVector(): void
     {
         $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets());

@@ -125,14 +125,18 @@ Two things make this practical rather than just noisy:
 
 ## What's covered today
 
-| Test | Component | What it checks |
+| Test file | Component | What it checks |
 |---|---|---|
-| `RangeFilterFuzzTest` | `RangeFilter` (DAL search filter) | Invalid input is always rejected, never silently accepted |
-| `QueryStringParserFuzzTest` | `QueryStringParser` (DAL filter parsing) | Serializing a parsed filter back to an array and re-parsing it never loses information |
-| `HtmlSanitizerFuzzTest` | `HtmlSanitizer` | Sanitized HTML never contains a live `<script>` element, event-handler attribute, or `javascript:` URI, even against a corpus of known XSS attack shapes |
-| `FieldSerializerFuzzTest` | `FieldSerializer` (ImportExport) | A single association value round-trips correctly; a value containing the `"|"` delimiter is rejected rather than silently corrupted |
+| `Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilterTest.php` | `RangeFilter` (DAL search filter) | Invalid input is always rejected, never silently accepted |
+| `Core/Framework/DataAbstractionLayer/Search/Parser/QueryStringParserTest.php` | `QueryStringParser` (DAL filter parsing) | Serializing a parsed filter back to an array and re-parsing it never loses information |
+| `Core/Framework/Util/HtmlSanitizerTest.php` | `HtmlSanitizer` | Sanitized HTML never contains a live `<script>` element, event-handler attribute, or `javascript:` URI, even against a corpus of known XSS attack shapes |
+| `Core/Content/ImportExport/DataAbstractionLayer/Serializer/Field/FieldSerializerTest.php` | `FieldSerializer` (ImportExport) | A single association value round-trips correctly; a value containing the `"|"` delimiter is rejected rather than silently corrupted |
 
-`FieldSerializerFuzzTest` currently has one **failing test on purpose** —
+Paths are relative to `tests/fuzz/`. The class names match their `tests/unit` counterparts —
+the `Shopware\Tests\Fuzz\` namespace (not a `Fuzz` suffix) is what distinguishes a property-based
+test from the example-based one covering the same class.
+
+`FieldSerializerTest` currently has one **failing test on purpose** —
 `testRejectsASingleIdentifierContainingThePipeDelimiter` documents the bug described above. It
 was left red rather than adjusted to pass, so it stays visible as a tracked, reproducible
 finding until someone decides how `FieldSerializer` should actually behave.
@@ -146,10 +150,11 @@ From the repository root:
 vendor/bin/phpunit --testsuite fuzz
 
 # one component
-vendor/bin/phpunit tests/fuzz/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilterFuzzTest.php
+vendor/bin/phpunit tests/fuzz/Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilterTest.php
 
-# by test name
-vendor/bin/phpunit --filter RangeFilterFuzzTest
+# by test name - combine with --testsuite fuzz, since the class name alone
+# (RangeFilterTest) also matches its tests/unit counterpart of the same name
+vendor/bin/phpunit --testsuite fuzz --filter RangeFilterTest
 ```
 
 If you're using the `php-tooling` MCP tool, use `phpunit_run` with `testsuite: fuzz` instead —
@@ -167,7 +172,7 @@ it handles environment detection (native/Docker/etc.) for you.
    - **A false assumption in the test itself.** Property-based tests can also be wrong — e.g.
      an assertion that's too strict, or a generator that produces input the code was never
      meant to handle. Fix the test, not the production code, in that case. (This happened once
-     already: an early version of `HtmlSanitizerFuzzTest` used a plain regex check that flagged
+     already: an early version of `HtmlSanitizerTest` (in this directory) used a plain regex check that flagged
      harmless leftover text as if it were a live attribute. The fix was to actually parse the
      output and check real attribute nodes, not to weaken the check.)
 
@@ -182,4 +187,5 @@ cases above), leave a comment explaining why, so the exclusion is visible rather
   high-value (parsing/encoding logic, security-sensitive sanitization) or already suspected of
   having bugs. It's not a blanket policy that every component needs one.
 - New tests are written the same way as the ones in this directory — read an existing file
-  (`RangeFilterFuzzTest.php` is the simplest starting point) as a template.
+  (`Core/Framework/DataAbstractionLayer/Search/Filter/RangeFilterTest.php` is the simplest
+  starting point) as a template.

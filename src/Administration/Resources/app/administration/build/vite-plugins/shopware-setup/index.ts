@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { Plugin } from 'vite';
+import type { Logger, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -59,6 +59,31 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
 }
 
 /**
+ * Renders a transform diagnostic as `file:line:column` plus its message.
+ *
+ * The shared transform reports an absolute source offset; a watcher line has to be a location the
+ * terminal can print and the editor can jump to, so the offset is resolved against the very source
+ * the error was thrown for.
+ */
+function formatTransformError(error: unknown, fileName: string, source: string): string {
+    const message = error instanceof Error ? error.message : String(error);
+    // Duck-typed instead of `instanceof`: the transform module is loaded lazily through `require`,
+    // so its error class is not statically available here.
+    const offset = (error as { index?: unknown } | null)?.index;
+    const index = typeof offset === 'number' ? Math.min(offset, source.length) : null;
+
+    if (index === null) {
+        return `[shopware-setup] ${fileName}\n${message}`;
+    }
+
+    const upToIndex = source.slice(0, index);
+    const line = upToIndex.split('\n').length;
+    const column = index - upToIndex.lastIndexOf('\n');
+
+    return `[shopware-setup] ${fileName}:${line}:${column}\n${message}`;
+}
+
+/**
  * @private
  *
  * Runs before @vitejs/plugin-vue so Vue only ever sees standard SFC syntax.
@@ -107,6 +132,28 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
         return transformShopwareSetupSfc(code, fileName);
+    }
+
+    /**
+     * Runs the transform purely for its diagnostics and logs a failure to the watcher output.
+     *
+     * A file that no longer reads is not reported: a delete or rename reaches this path as a change,
+     * and Vite already handles the removal.
+     */
+    async function reportTransformFailure(fileName: string, logger: Logger): Promise<void> {
+        let source: string;
+
+        try {
+            source = await fs.readFile(fileName, 'utf8');
+        } catch {
+            return;
+        }
+
+        try {
+            await transformSource(source, fileName);
+        } catch (error) {
+            logger.error(formatTransformError(error, fileName, source));
+        }
     }
 
     function assertUniqueBaseComponent(result: ShopwareSetupTransformResult, fileName: string): void {
@@ -260,11 +307,19 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * from `getModulesByFile(<changed file>)` - `addWatchFile` alone does not link file and module,
          * so without this hook an edit invalidated nothing until the dev server was restarted.
          * Returning the virtual module makes Vite invalidate it and push the update to the client.
+         *
+         * It is also where a transform failure gets reported. Otherwise the transform runs only in
+         * `load`, which the dev server reaches once a client requests the module - so saving a file
+         * that does not compile printed nothing at all (issue #19562). Logging rather than throwing:
+         * a hook that throws sends its error to the connected client's overlay, not to the terminal
+         * the developer is watching, and it would skip the invalidation below.
          */
-        hotUpdate({ file, modules }) {
+        async hotUpdate({ file, modules }) {
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
+
+            await reportTransformFailure(file, this.environment.logger);
 
             const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
 

@@ -32,13 +32,14 @@ type ProbeResult = {
     override: ProbeSide;
 };
 type HotUpdateModule = { id: string };
+type HotUpdateReturn = HotUpdateModule[] | undefined | Promise<HotUpdateModule[] | undefined>;
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
     resolveId(source: string, importer: string): Promise<string | null>;
     load(id: string): Promise<LoadedModule | null>;
     transform(code: string, id: string): Promise<LoadedModule | null>;
-    hotUpdate(options: { file: string; modules: HotUpdateModule[]; type: string }): HotUpdateModule[] | undefined;
+    hotUpdate(options: { file: string; modules: HotUpdateModule[]; type: string }): HotUpdateReturn;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
     generateBundle: unknown;
 };
@@ -300,11 +301,13 @@ swDefinePublic({ count });
                     moduleGraph: {
                         getModuleById: jest.fn((id: string) => (knownVirtualIds.includes(id) ? { id } : undefined)),
                     },
+                    // Vite prints watcher diagnostics through the environment logger.
+                    logger: { error: jest.fn<void, [message: unknown]>() },
                 },
             };
         }
 
-        it('maps a changed .vue file to its virtual module so the dev server invalidates it', () => {
+        it('maps a changed .vue file to its virtual module so the dev server invalidates it', async () => {
             const plugin = createPlugin();
             const virtualId = '/example/sw-my-component.vue.shopware-setup.vue';
             const context = createHotUpdateContext([virtualId]);
@@ -312,7 +315,7 @@ swDefinePublic({ count });
 
             // Vite keys hot updates by changed file, and the real file never becomes a module - without
             // this mapping an edit invalidated nothing (issue #19469).
-            const result = plugin.hotUpdate.call(context, {
+            const result = await plugin.hotUpdate.call(context, {
                 file: '/example/sw-my-component.vue',
                 modules: [otherModule],
                 type: 'update',
@@ -322,12 +325,12 @@ swDefinePublic({ count });
             expect(result).toEqual([otherModule, { id: virtualId }]);
         });
 
-        it('leaves a .vue file alone that was never redirected to a virtual module', () => {
+        it('leaves a .vue file alone that was never redirected to a virtual module', async () => {
             const plugin = createPlugin();
             const context = createHotUpdateContext([]);
 
             // A plain SFC stays a real module; @vitejs/plugin-vue handles its hot update natively.
-            const result = plugin.hotUpdate.call(context, {
+            const result = await plugin.hotUpdate.call(context, {
                 file: '/example/PlainComponent.vue',
                 modules: [],
                 type: 'update',
@@ -336,12 +339,12 @@ swDefinePublic({ count });
             expect(result).toBeUndefined();
         });
 
-        it('does not map a virtual module id onto itself', () => {
+        it('does not map a virtual module id onto itself', async () => {
             const plugin = createPlugin();
             const context = createHotUpdateContext([]);
 
             // The mapping's fixed point: the virtual id must not be mapped onto itself again.
-            const result = plugin.hotUpdate.call(context, {
+            const result = await plugin.hotUpdate.call(context, {
                 file: '/example/sw-my-component.vue.shopware-setup.vue',
                 modules: [],
                 type: 'update',
@@ -349,6 +352,33 @@ swDefinePublic({ count });
 
             expect(result).toBeUndefined();
             expect(context.environment.moduleGraph.getModuleById).not.toHaveBeenCalled();
+        });
+
+        it('reports a transform failure without skipping virtual-module invalidation', async () => {
+            const plugin = createPlugin();
+            const vueFile = await createVueFile(
+                `<script setup>
+const broken = { a: 1 b: 2 };
+
+swDefinePublic({});
+</script>`,
+                'sw-broken-component.vue',
+            );
+            const virtualId = `${vueFile}.shopware-setup.vue`;
+            const context = createHotUpdateContext([virtualId]);
+
+            const result = await plugin.hotUpdate.call(context, { file: vueFile, modules: [], type: 'update' });
+
+            expect(result).toEqual([{ id: virtualId }]);
+
+            // The transform only runs in `load`, which the dev server reaches when something requests the
+            // module - so a save with no browser attached reported nothing at all (issue #19562). Throwing
+            // instead of logging would not do: Vite sends that to the overlay, never to the watcher.
+            const reported = String(context.environment.logger.error.mock.calls[0]?.[0]);
+
+            expect(context.environment.logger.error).toHaveBeenCalledTimes(1);
+            expect(reported).toContain('Unable to parse Shopware setup script');
+            expect(reported).toContain(vueFile);
         });
     });
 

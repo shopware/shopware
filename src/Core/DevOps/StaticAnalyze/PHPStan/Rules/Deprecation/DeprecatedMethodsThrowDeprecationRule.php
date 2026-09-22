@@ -26,6 +26,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
      * This is mainly the reason if the deprecated code is still called from inside the core due to BC reasons.
      */
     private const RULE_EXCEPTIONS = [
+        // Subscribers still need to be called for BC reasons, therefore they do not trigger deprecations.
+        'reason:remove-subscriber',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.

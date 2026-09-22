@@ -42,14 +42,10 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
 
     -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\RemoveSubscriberDeprecationPattern
-
-    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
         arguments:
             deprecationPatterns:
                 - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
-                - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\RemoveSubscriberDeprecationPattern
         tags:
             - phpstan.rules.rule
 

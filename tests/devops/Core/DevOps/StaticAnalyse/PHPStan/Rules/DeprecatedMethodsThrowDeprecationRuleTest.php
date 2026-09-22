@@ -8,7 +8,6 @@ use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern;
-use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\RemoveSubscriberDeprecationPattern;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -74,7 +73,6 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
 
         return new DeprecatedMethodsThrowDeprecationRule($serviceMap, [
             new DeprecatedServiceDecoratorPattern($serviceMap),
-            new RemoveSubscriberDeprecationPattern(),
         ]);
     }
 }

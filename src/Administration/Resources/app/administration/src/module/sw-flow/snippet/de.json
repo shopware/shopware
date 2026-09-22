@@ -365,7 +365,11 @@
       "pending": "Ausstehend",
       "changed": "Geändert",
       "update": "Aktualisierung",
-      "password": "Passwort"
+      "password": "Passwort",
+      "confirm": "Bestätigung",
+      "document": "Dokument",
+      "generation": "Erzeugung",
+      "revocationRequest": "Widerrufsantrag"
     }
   },
   "sw-privileges": {

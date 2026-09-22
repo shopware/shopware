@@ -57,10 +57,7 @@ function todoBlock(entry: TodoEntry): string {
     ];
 
     if (entry.checks) {
-        return [
-            ...lines,
-            ...entry.checks.map((check) => `// - ${check}`),
-        ].join('\n');
+        return [...lines, ...entry.checks.map((check) => `// - ${check}`)].join('\n');
     }
 
     if (!entry.code) {
@@ -69,11 +66,7 @@ function todoBlock(entry: TodoEntry): string {
 
     const codeLines = entry.code.split('\n').map((line) => `// ${line}`);
 
-    return [
-        ...lines.slice(0, -1),
-        `${lines[lines.length - 1]} — original code:`,
-        ...codeLines,
-    ].join('\n');
+    return [...lines.slice(0, -1), `${lines[lines.length - 1]} — original code:`, ...codeLines].join('\n');
 }
 
 /**
@@ -112,12 +105,7 @@ function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], us
         // that reaches here always parses.
         const declared = collected.emitsNode ? (emitsEventNames(collected.emitsNode) as string[]) : ctx.inferredEmits;
 
-        return eventList([
-            ...new Set([
-                ...declared,
-                ...mixinEvents,
-            ]),
-        ]);
+        return eventList([...new Set([...declared, ...mixinEvents])]);
     }
 
     if (collected.emitsNode) {
@@ -173,9 +161,7 @@ function renderScript(
         ...(ctx.helpers.has('route') ? ['useRoute'] : []),
     ];
 
-    const mixinEvents = [
-        ...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {}))),
-    ];
+    const mixinEvents = [...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {})))];
     const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
     const propsText = propsArgument(ctx, collected, usesProps);
 
@@ -204,10 +190,7 @@ function renderScript(
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
     const composableBlock = composables
         .map(({ descriptor, entries, args, config }) => {
-            const callArgs = [
-                ...args,
-                ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`),
-            ];
+            const callArgs = [...args, ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`)];
             const call = `${descriptor.import.name}(${callArgs.length > 0 ? `{ ${callArgs.join(', ')} }` : ''});`;
             const destructured = entries
                 .map((entry) =>
@@ -290,6 +273,7 @@ function transformScript(
     transformOptions: {
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
+        templateComponentTags: ReadonlySet<string>;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -300,6 +284,7 @@ function transformScript(
         bindings: new Map(),
         renamedBindings: new Map(),
         templateIdentifiers: transformOptions.templateIdentifiers,
+        templateComponentTags: transformOptions.templateComponentTags,
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
@@ -363,6 +348,15 @@ function transformScript(
         }
     }
 
+    // A template resolves a component tag against setup bindings first, so a binding named after a
+    // tag the template renders replaces that component with the binding's value. Props are included
+    // because they become setup bindings too, and are where this shows up in practice.
+    for (const bindingName of [...setupBindingNames, ...collected.propNames]) {
+        if (ctx.templateComponentTags.has(bindingName)) {
+            report(ctx, 'skip', `binding '${bindingName}' shadows a component tag the template renders`);
+        }
+    }
+
     if (ctx.reports.some((entry) => entry.kind === 'skip')) {
         return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
     }
@@ -402,6 +396,14 @@ function transformScript(
 
     for (const node of collected.foreignNodes) {
         rewriteThis(ctx, node, false);
+    }
+
+    // Template refs are collected by the rewrite pass, so their tag collisions are only visible
+    // here. A ref cannot be renamed around one either: the `ref` attribute in the template names it.
+    for (const refName of ctx.templateRefs) {
+        if (ctx.templateComponentTags.has(refName)) {
+            report(ctx, 'skip', `template ref '${refName}' shadows a component tag the template renders`);
+        }
     }
 
     if (ctx.reports.some((entry) => entry.kind === 'skip')) {

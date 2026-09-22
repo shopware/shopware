@@ -19,21 +19,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'validationApiService',
-        'documentV2Service',
-        'documentV2ApiService',
-    ],
+    inject: ['repositoryFactory', 'validationApiService', 'documentV2Service'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -77,6 +67,13 @@ export default {
             return this.repositoryFactory.create('document_type');
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
+         */
+        documentTypeCriteria() {
+            return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+        },
+
         isDocumentGenerationReworkActive() {
             return Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK');
         },
@@ -85,7 +82,10 @@ export default {
             return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
                 return {
                     value: technicalName,
-                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                    label: this.documentV2Service.getDocumentTypeLabel(
+                        technicalName,
+                        this.supportedDocumentTypes[technicalName]?.label,
+                    ),
                 };
             });
         },
@@ -201,34 +201,17 @@ export default {
                 ];
             }
 
-            if (
-                [
-                    'newsletter.confirm',
-                    'newsletter.register',
-                    'newsletter.unsubscribe',
-                ].includes(this.triggerEvent.name)
-            ) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe'].includes(this.triggerEvent.name)) {
+                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
             }
 
             const hasEntityAware = allowAwareConverted.some((allowedAware) => this.entityAware.includes(allowedAware));
 
             if (hasEntityAware) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
+                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
             }
 
-            return [
-                ...this.recipientAdmin,
-                ...this.recipientCustom,
-            ];
+            return [...this.recipientAdmin, ...this.recipientCustom];
         },
 
         recipientColumns() {
@@ -248,17 +231,10 @@ export default {
 
         replyToOptions() {
             if (this.triggerEvent.name === 'contact_form.send') {
-                return [
-                    ...this.recipientDefault,
-                    ...this.recipientContactFormMail,
-                    ...this.recipientCustom,
-                ];
+                return [...this.recipientDefault, ...this.recipientContactFormMail, ...this.recipientCustom];
             }
 
-            return [
-                ...this.recipientDefault,
-                ...this.recipientCustom,
-            ];
+            return [...this.recipientDefault, ...this.recipientCustom];
         },
 
         replyToSelection() {
@@ -276,14 +252,7 @@ export default {
             return this.replyToSelection === 'custom';
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'mailTemplates',
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
     watch: {
@@ -312,21 +281,16 @@ export default {
                 this.mailRecipient = config.recipient?.type;
 
                 if (config.recipient?.type === 'custom') {
-                    Object.entries(config.recipient.data).forEach(
-                        ([
-                            key,
-                            value,
-                        ]) => {
-                            const newId = Utils.createId();
-                            this.recipients.push({
-                                id: newId,
-                                email: key,
-                                name: value,
-                                isNew: false,
-                                isMailValid: true,
-                            });
-                        },
-                    );
+                    Object.entries(config.recipient.data).forEach(([key, value]) => {
+                        const newId = Utils.createId();
+                        this.recipients.push({
+                            id: newId,
+                            email: key,
+                            name: value,
+                            isNew: false,
+                            isMailValid: true,
+                        });
+                    });
 
                     this.showRecipientEmails = true;
                 }
@@ -355,8 +319,7 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2ApiService.getAvailableTypes();
-                this.supportedDocumentTypes = response.documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,
@@ -478,10 +441,7 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.Store.get('swFlow').mailTemplates = [
-                    ...this.mailTemplates,
-                    mailTemplate,
-                ];
+                Shopware.Store.get('swFlow').mailTemplates = [...this.mailTemplates, mailTemplate];
             }
         },
 

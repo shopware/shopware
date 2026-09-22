@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class DeliveryTimeTranslationEntity extends TranslationEntity
 {

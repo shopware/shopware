@@ -4,6 +4,7 @@
 <mt-floating-ui
     v-if="useMeteorComponent"
     v-bind="$attrs"
+    :class="$attrs.popoverClass ?? $attrs['popover-class']"
     :is-opened="isOpened"
     :match-reference-width="computedMatchReferenceWidth"
 >

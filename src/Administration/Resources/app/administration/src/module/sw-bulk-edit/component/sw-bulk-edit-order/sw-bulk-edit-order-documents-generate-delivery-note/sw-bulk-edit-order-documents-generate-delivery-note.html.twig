@@ -1,14 +1,14 @@
 {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
 <template v-if="generateData?.custom">
     <mt-datepicker
-        v-model="generateData.custom.deliveryDate"
+        v-model="generateData.documentDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         hide-hint
         :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
         :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     <mt-datepicker
-        v-model="generateData.custom.deliveryNoteDate"
+        v-model="generateData.custom.deliveryDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         hide-hint
         :label="$t('sw-bulk-edit.order.documents.generateDeliveryNote.labelDeliveryDatePicker')"

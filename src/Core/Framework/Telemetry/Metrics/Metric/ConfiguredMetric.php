@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * The mapping is done via the `name` property as an identifier.
  *
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 readonly class ConfiguredMetric

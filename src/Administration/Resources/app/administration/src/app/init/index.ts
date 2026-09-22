@@ -37,6 +37,7 @@ import initializeTeaserPopovers from './teaser-popover.init';
 import initializeMediaModal from './media-modal.init';
 import initializeConsent from './consent.init';
 import initializeTelemetry from './telemetry.init';
+import initializeTheme from './theme.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -73,4 +74,5 @@ export default {
     mediaModal: initializeMediaModal,
     consent: initializeConsent,
     telemetry: initializeTelemetry,
+    theme: initializeTheme,
 };

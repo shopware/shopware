@@ -39,7 +39,11 @@ use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
+use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry as DocumentV2RendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -52,6 +56,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_closure;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -185,6 +190,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(ClockInterface::class),
             service(DocumentFileResolver::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(DocumentMerger::class)
@@ -194,6 +200,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentGenerator::class),
             service('pdf.merger'),
             service(Filesystem::class),
+            service(DocumentFileNameBuilder::class),
         ]);
 
     $services->set(DocumentController::class)
@@ -210,7 +217,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DocumentGenerator::class),
+            service(DocumentReader::class),
             service('document.repository'),
+            service('shopware.rate_limiter'),
             service(GuestAuthenticator::class),
             tagged_iterator('document_type.renderer', 'key'),
         ]);
@@ -303,6 +312,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service('media.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -315,6 +325,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DocumentBaseConfigValidator::class)
         ->args([
             service(ClockInterface::class),
+            service(Connection::class),
+            service(DocumentTypeRegistry::class),
+            service_closure(DocumentV2RendererRegistry::class),
         ])
         ->tag('kernel.event_subscriber');
 };

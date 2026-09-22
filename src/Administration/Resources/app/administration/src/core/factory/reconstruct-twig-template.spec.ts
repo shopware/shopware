@@ -51,11 +51,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
 
         it('concatenates multiple raw tokens in order', () => {
-            const tokens = [
-                rawToken('<div>'),
-                rawToken('<span>'),
-                rawToken('</span></div>'),
-            ];
+            const tokens = [rawToken('<div>'), rawToken('<span>'), rawToken('</span></div>')];
 
             expect(reconstructInnerTemplate(tokens)).toBe('<div><span></span></div>');
         });
@@ -67,21 +63,13 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
 
         it('correctly places <sw-block-parent /> between surrounding raw HTML', () => {
-            const tokens = [
-                rawToken('<div class="before">'),
-                parentToken(),
-                rawToken('</div>'),
-            ];
+            const tokens = [rawToken('<div class="before">'), parentToken(), rawToken('</div>')];
 
             expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"><sw-block-parent /></div>');
         });
 
         it('wraps a nested {% block %} token in <sw-block> preserving the block name', () => {
-            const tokens = [
-                blockToken('outer_block', [
-                    blockToken('inner_block', [rawToken('<div class="inner"></div>')]),
-                ]),
-            ];
+            const tokens = [blockToken('outer_block', [blockToken('inner_block', [rawToken('<div class="inner"></div>')])])];
 
             expect(reconstructInnerTemplate(tokens)).toBe(
                 '<sw-block name="outer_block"><sw-block name="inner_block"><div class="inner"></div></sw-block></sw-block>',
@@ -89,12 +77,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
 
         it('wraps a nested block in <sw-block> when it contains a parent token', () => {
-            const tokens = [
-                blockToken('nested_with_parent', [
-                    parentToken(),
-                    rawToken('<div class="extra"></div>'),
-                ]),
-            ];
+            const tokens = [blockToken('nested_with_parent', [parentToken(), rawToken('<div class="extra"></div>')])];
 
             expect(reconstructInnerTemplate(tokens)).toBe(
                 '<sw-block name="nested_with_parent"><sw-block-parent /><div class="extra"></div></sw-block>',
@@ -108,11 +91,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
         });
 
         it('preserves raw tokens before and after an unknown logic token', () => {
-            const tokens = [
-                rawToken('<div class="before">'),
-                unknownLogicToken(),
-                rawToken('</div>'),
-            ];
+            const tokens = [rawToken('<div class="before">'), unknownLogicToken(), rawToken('</div>')];
 
             expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"></div>');
         });

@@ -168,11 +168,7 @@ export default function createCustomFieldService() {
         const cacheService = Service('cacheService');
 
         return cacheService.query({
-            key: [
-                'custom-field-sets',
-                entityName,
-                Shopware.Context.api.languageId ?? 'default',
-            ],
+            key: ['custom-field-sets', entityName, Shopware.Context.api.languageId ?? 'default'],
             ttl: DEFAULT_TTL,
             forceReload,
             fn: () =>

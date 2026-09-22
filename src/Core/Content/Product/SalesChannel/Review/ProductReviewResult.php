@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -17,29 +18,19 @@ use Shopware\Core\Framework\Struct\Struct;
 #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntitySearchResult, but will keep extending Struct.', newParentClass: Struct::class)]
 class ProductReviewResult extends EntitySearchResult
 {
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?string $parentId = null;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected string $productId;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected RatingMatrix $matrix;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?ProductReviewEntity $customerReview = null;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected int $totalReviewsInCurrentLanguage;
 
     /**

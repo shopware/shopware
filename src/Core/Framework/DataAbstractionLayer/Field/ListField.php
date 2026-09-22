@@ -23,6 +23,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  *      // single type values
  *      [12,55,192,22]
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ListField extends JsonField

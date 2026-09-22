@@ -1,0 +1,5 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+
+{% block layout_head_title_inner -%}
+    {{ 'general.404ErrorPageHeader'|trans|sw_sanitize }} | {{ config('core.basicInformation.shopName') }}
+{%- endblock %}

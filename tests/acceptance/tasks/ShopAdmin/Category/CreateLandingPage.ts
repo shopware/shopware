@@ -21,7 +21,7 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.filtersResultPopoverItemList
                     .filter({ hasText: landingPageData.salesChannel })
                     .click();
-                await AdminLandingPageCreate.seoUrlInput.fill(landingPageData.seoUrl);
+                await ShopAdmin.fillsIn(AdminLandingPageCreate.seoUrlInput, landingPageData.seoUrl);
 
                 if (layoutName) {
                     await AdminLandingPageCreate.layoutTab.click();

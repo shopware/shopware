@@ -174,7 +174,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields());
+        $encoded = $structEncoder->encode($product, new ResponseFields([]));
 
         static::assertSame('Example text', $encoded['customFields']['custom_text_field']);
     }
@@ -202,7 +202,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields());
+        $encoded = $structEncoder->encode($product, new ResponseFields([]));
 
         static::assertSame('Visible text', $encoded['customFields']['visible_field']);
         static::assertArrayNotHasKey('blocked_field', $encoded['customFields']);

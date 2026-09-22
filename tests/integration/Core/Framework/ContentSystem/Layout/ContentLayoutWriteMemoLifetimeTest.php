@@ -143,8 +143,7 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
         $aborted = false;
 
         try {
-            // The second row's layout is not a list of elements, so normalize throws after the first row's
-            // resolvable tree is already memoized and before any command reaches the gate.
+            // Row two's layout is not a list, so normalize throws once row one is already memoized.
             $this->repository()->create([$resolvable, ['id' => $this->ids->get('broken'), 'name' => 'memo-test-broken', 'version' => '1.0.0', 'rootSource' => 'none', 'layout' => 'not-a-tree']], $context);
         } catch (\Throwable) {
             // The abort is the fixture; which exception carries it is the serializer's business, not this test's.
@@ -166,7 +165,6 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
             $this->repository()->upsert([$unresolvable], $context);
             static::fail('The second write carries an unresolvable tree and must be rejected on its own merits.');
         } catch (WriteException) {
-            // Judged against the tree it carries, not against the resolvable one the failed write left behind.
         }
 
         static::assertNull(

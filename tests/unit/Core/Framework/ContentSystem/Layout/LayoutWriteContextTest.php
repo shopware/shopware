@@ -23,7 +23,7 @@ class LayoutWriteContextTest extends TestCase
     public function testConsumeReturnsTheRememberedTree(): void
     {
         $tree = $this->tree('el-1');
-        $memo = self::memo();
+        $memo = $this->memo();
 
         $memo->remember('content_layout', 'layout-1', $tree);
 
@@ -33,7 +33,7 @@ class LayoutWriteContextTest extends TestCase
     #[TestDox('removes the entry as it hands it out, so a second read finds nothing')]
     public function testConsumeRemovesTheEntry(): void
     {
-        $memo = self::memo();
+        $memo = $this->memo();
         $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
 
         $memo->consume('content_layout', 'layout-1');
@@ -44,7 +44,7 @@ class LayoutWriteContextTest extends TestCase
     #[TestDox('is empty once the only entry has been consumed')]
     public function testMemoIsEmptyAfterItsOnlyEntryIsConsumed(): void
     {
-        $memo = self::memo();
+        $memo = $this->memo();
         $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
 
         $memo->consume('content_layout', 'layout-1');
@@ -55,7 +55,7 @@ class LayoutWriteContextTest extends TestCase
     #[TestDox('reports an absent entry as null rather than as an error')]
     public function testConsumeOfAnAbsentEntryReturnsNull(): void
     {
-        $memo = self::memo();
+        $memo = $this->memo();
 
         static::assertNull($memo->consume('content_layout', 'never-written'));
     }
@@ -69,7 +69,7 @@ class LayoutWriteContextTest extends TestCase
     {
         $first = $this->tree('el-1');
         $second = $this->tree('el-2');
-        $memo = self::memo();
+        $memo = $this->memo();
 
         $memo->remember('content_layout', 'layout-1', $first);
         $memo->remember('content_layout', 'layout-1', $second);
@@ -83,7 +83,7 @@ class LayoutWriteContextTest extends TestCase
     #[TestDox('stays non-empty until both trees remembered under one key are consumed')]
     public function testKeyRememberedTwiceIsEmptyOnlyAfterBothTreesAreConsumed(): void
     {
-        $memo = self::memo();
+        $memo = $this->memo();
         $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
         $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
 
@@ -99,7 +99,7 @@ class LayoutWriteContextTest extends TestCase
     #[TestDox('reports null on a third read of a key that was remembered twice')]
     public function testThirdConsumeOfAKeyRememberedTwiceReturnsNull(): void
     {
-        $memo = self::memo();
+        $memo = $this->memo();
         $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
         $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
 
@@ -113,7 +113,7 @@ class LayoutWriteContextTest extends TestCase
     public function testPrimaryKeyMatchingIgnoresHexCasing(): void
     {
         $tree = $this->tree('el-1');
-        $memo = self::memo();
+        $memo = $this->memo();
 
         $memo->remember('content_layout', 'AABBCCDD', $tree);
 
@@ -124,7 +124,7 @@ class LayoutWriteContextTest extends TestCase
     public function testEntriesOfDifferentEntitiesDoNotCollide(): void
     {
         $layoutTree = $this->tree('el-1');
-        $memo = self::memo();
+        $memo = $this->memo();
 
         $memo->remember('content_layout', 'shared-id', $layoutTree);
         $memo->remember('other_entity', 'shared-id', $this->tree('el-2'));
@@ -146,7 +146,7 @@ class LayoutWriteContextTest extends TestCase
         static::assertFalse($memo->ownedBy($laterWrite));
     }
 
-    private static function memo(): LayoutWriteContext
+    private function memo(): LayoutWriteContext
     {
         return new LayoutWriteContext(WriteContext::createFromContext(Context::createDefaultContext()));
     }

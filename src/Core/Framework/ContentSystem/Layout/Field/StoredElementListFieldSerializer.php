@@ -235,8 +235,9 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
 
     /**
      * Hands the boundary-processed tree to the write's {@see LayoutWriteContext}, creating it on the first
-     * layout row of the write. The id is already minted at this point: the extractor normalizes every
-     * primary-key field before any other field.
+     * layout row of the write and replacing one an earlier write left behind ({@see LayoutWriteContext::ownedBy()}).
+     * The id is already minted at this point: the extractor normalizes every primary-key field before any other
+     * field.
      */
     private function memoize(WriteParameterBag $parameters, mixed $id, StoredTree $tree): void
     {
@@ -248,9 +249,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         $context = $writeContext->getContext();
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
 
-        // A memo left by an earlier write on this reused Context is replaced, never appended to: its entries
-        // belong to that write and consume() hands out the oldest, so appending would gate this write's row
-        // against the stale tree.
         if (!$memo instanceof LayoutWriteContext || !$memo->ownedBy($writeContext)) {
             $memo = new LayoutWriteContext($writeContext);
             $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);

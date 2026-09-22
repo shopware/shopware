@@ -32,11 +32,11 @@ use Shopware\Core\Framework\Struct\Struct;
  * nth command under a key reads the nth tree remembered under it.
  *
  * That one-remember-per-command correspondence is what the pairing rests on, and one extractor path can break
- * it: `WriteCommandExtractor::createDataStack()` re-normalizes a whole created row when its definition
- * declares defaults, which would remember a second tree for a single command and leave every later command
- * under that key reading its predecessor's. `ContentLayoutDefinition` declares none and the base
- * `EntityDefinition::getDefaults()` is empty, so nothing takes that path today. Giving `content_layout` a
- * default would, and the pairing has to be revisited then rather than discovered through a mis-gated write.
+ * it: `WriteCommandExtractor::createDataStack()` re-normalizes a whole created row under a *cloned*
+ * `WriteContext` when its definition declares defaults, so the clone would open a memo of its own and the
+ * validator, holding the original, would find none — `layoutWriteMemoMissing` for every layout row of that
+ * write. `ContentLayoutDefinition` declares none and the base `EntityDefinition::getDefaults()` is empty, so
+ * nothing takes that path today; giving `content_layout` a default means revisiting the pairing first.
  *
  * Reads consume: an entry is removed as it is handed out, so a write that reaches the validator leaves
  * nothing behind by construction rather than by a cleanup pass.

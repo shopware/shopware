@@ -131,6 +131,43 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertTrue($this->memoOf($write->getContext())->isEmpty());
     }
 
+    #[TestDox('refuses to gate a layout command against a memo an earlier write opened')]
+    public function testForeignOwnedMemoIsNotConsumed(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
+        $earlierWrite = $this->writeWithMemoFor([$command]);
+        $memo = $this->memoOf($earlierWrite->getContext());
+
+        $currentWrite = WriteContext::createFromContext($earlierWrite->getContext());
+
+        $this->expectExceptionObject(
+            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
+        );
+
+        try {
+            $validator->preValidate(new PreWriteValidationEvent($currentWrite, [$command]));
+        } finally {
+            static::assertFalse($memo->isEmpty(), 'The earlier write\'s entry must survive untouched.');
+        }
+    }
+
+    #[TestDox('leaves a memo an earlier write opened alone on the skip path')]
+    public function testForeignOwnedMemoIsNotDrainedUnderTheSkipState(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
+        $earlierWrite = $this->writeWithMemoFor([$command]);
+        $context = $earlierWrite->getContext();
+        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
+
+        $validator->preValidate(new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]));
+
+        static::assertFalse($this->memoOf($context)->isEmpty());
+    }
+
     #[TestDox('leaves the memo untouched for a command that writes neither the layout nor the root source')]
     public function testCommandTouchingNeitherFieldConsumesNothing(): void
     {

@@ -14,8 +14,8 @@ use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
@@ -31,8 +31,7 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
     public function __construct(
         private readonly ServiceMap $serviceMap,
         private readonly ReflectionProvider $reflectionProvider,
-    )
-    {
+    ) {
     }
 
     public function isSupported(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation): bool
@@ -177,9 +176,7 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
 
         return $call->var instanceof PropertyFetch
             && $call->var->var instanceof Variable
-            && $call->var->var->name === 'this'
-            && $call->var->name instanceof Identifier
-            && $call->var->name->toString() === 'inner';
+            && $call->var->var->name === 'this';
     }
 
     /**

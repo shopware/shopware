@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Feature;
  */
 class DeprecatedDecorator
 {
-    public function __construct(private readonly DecoratedService $inner)
+    public function __construct(private readonly DecoratedService $decoratedService)
     {
     }
 
     public function delegatesToInner(string $value): string
     {
         if (Feature::isActive('v6.8.0.0')) {
-            return $this->inner->delegatesToInner($value);
+            return $this->decoratedService->delegatesToInner($value);
         }
 
         return $value;

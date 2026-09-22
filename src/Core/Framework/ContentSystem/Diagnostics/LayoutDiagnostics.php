@@ -214,10 +214,9 @@ class LayoutDiagnostics
     /**
      * A stored property value that disagrees with the primitive type its component declares for that key,
      * reported per key so a client can name and correct the one that broke. It is the diagnosis counterpart of
-     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary: only a key declared with
-     * one of {@see PropertyType::PRIMITIVE_TYPES}, or a union whose members are all primitive, is judged, and a
-     * stored null is admissible under every one of them (whether a key may be null is the required-input rule's
-     * business). Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
+     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary, which both take from
+     * {@see PropertyType::enforceableTypes()} and {@see PropertyType::admits()}. Like
+     * {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
      * refuses the tree inside `encode()`, before the gate that reaches this class.
      *
      * @return list<Violation>

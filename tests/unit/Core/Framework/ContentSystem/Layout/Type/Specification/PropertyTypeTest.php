@@ -10,9 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The primitive-conformance rule. `PropertyTypeConformanceValidator`, the `MismatchedPropertyType` arm of
- * `LayoutDiagnostics` and `ReplaceElement`'s property carry-over all answer through these two methods.
- *
  * @internal
  */
 #[Package('framework')]
@@ -41,9 +38,9 @@ class PropertyTypeTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{string|list<string>, list<string>|null}>
+     * @return iterable<string, array{string|list<string>, list<string>|null}>
      */
-    public static function enforceableTypesProvider(): \Generator
+    public static function enforceableTypesProvider(): iterable
     {
         yield 'the single type for a primitive' => ['string', ['string']];
         yield 'null for a bare object' => ['object', null];
@@ -54,9 +51,9 @@ class PropertyTypeTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{string|list<string>, mixed, bool}>
+     * @return iterable<string, array{string|list<string>, mixed, bool}>
      */
-    public static function admitsProvider(): \Generator
+    public static function admitsProvider(): iterable
     {
         yield 'true for a string under string' => ['string', 'hello', true];
         yield 'false for an integer under string' => ['string', 42, false];

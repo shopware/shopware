@@ -12,9 +12,10 @@ exist (`mutationTargetNotFound`); carries over a property whose key the new type
 type and whose value that type admits (`PropertyType::enforceableTypes()` / `admits()` — the same rule the write
 gate and the diagnostics apply, so a null and an all-primitive union both carry), wiring (data requirements,
 providers, consumers) keyed to a non-primitive new-type property, and children of slots present in the new type,
-then seeds the new type's stored defaults for any key it does not carry (a carried or authored value wins). A key
-the new type declares as `object` or an FQCN has no enforceable type, so nothing can vouch for the value's shape
-and it is dropped rather than carried across unexamined. The element's `style` carries over unconditionally, being universal and type-independent, and
+then seeds the new type's stored defaults for any key it does not carry (a carried or authored value wins).
+A key the new type declares as `object` or an FQCN has no enforceable type, so nothing can vouch for the
+value's shape and it is dropped rather than carried across unexamined. The element's `style` carries over
+unconditionally, being universal and type-independent, and
 `attributedSpecifications` survives only for keys whose carried data requirement survives.
 
 A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable: `carryProperties()`

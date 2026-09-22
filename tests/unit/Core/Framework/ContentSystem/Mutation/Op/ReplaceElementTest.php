@@ -410,7 +410,6 @@ class ReplaceElementTest extends TestCase
     #[TestDox('carries a null stored under a key the new type declares as a primitive')]
     public function testReplaceCarriesANullUnderADeclaredPrimitive(): void
     {
-        // The write gate admits a null under every primitive; the swap now agrees instead of dropping it.
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
@@ -423,7 +422,6 @@ class ReplaceElementTest extends TestCase
     #[TestDox('carries a value matching one member of an all-primitive union')]
     public function testReplaceCarriesAValueMatchingAnAllPrimitiveUnion(): void
     {
-        // isPrimitive() answers false for a union's array type, so the old rule dropped every union value.
         $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', 42)->build()]);
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
@@ -443,6 +441,18 @@ class ReplaceElementTest extends TestCase
 
         static::assertNull($result->roots[0]->property('flexible'));
         static::assertSame(['flexible' => true], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    #[TestDox('drops a value under a key the new type declares as a bare object')]
+    public function testReplaceDropsAValueUnderAnObjectKey(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('payload', ['a' => 1])->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('payload'));
+        static::assertSame(['payload' => ['a' => 1]], $this->rawDrops($replace->droppedProperties()));
     }
 
     #[TestDox('drops a value under a key the new type declares as a reference, which nothing can vouch for')]
@@ -568,6 +578,7 @@ class ReplaceElementTest extends TestCase
                 'ratio' => $this->primitive('number'),
                 'featured' => $this->primitive('boolean'),
                 'flexible' => $this->union(['string', 'integer']),
+                'payload' => $this->primitive('object'),
                 'product' => $this->reference(),
             ],
             [new SlotSpecification('content', null, [], '')],

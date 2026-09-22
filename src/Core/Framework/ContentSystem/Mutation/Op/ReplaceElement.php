@@ -19,9 +19,10 @@ use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Swaps $elementId's component to $newType, keeping the same id. Carries over properties the new type's
- * declaration admits ({@see PropertyType::admits()}), wiring, and slot children; surfaces anything the new type
- * cannot hold via {@see orphaned()}, {@see droppedWiring()}, and {@see droppedProperties()}.
+ * Swaps $elementId's component to $newType, keeping the same id. Carries over properties whose key the new type
+ * declares with an enforceable type that admits the value ({@see carryProperties()}), wiring, and slot children;
+ * surfaces anything the new type cannot hold via {@see orphaned()}, {@see droppedWiring()}, and
+ * {@see droppedProperties()}.
  *
  * The new type's default binding specification, when it has exactly one, is fill-applied after wiring carryover
  * (zero defaults is a no-op; more than one throws): fill-only semantics guarantee carried wiring is never
@@ -103,10 +104,10 @@ final class ReplaceElement extends AbstractLayoutMutation
      * that admits the value, or it is one of the new type's default specification's `resolvedBy` storage keys and the
      * stored value's shape matches that key's loader branch (a string for `entity`, a list of strings for
      * `entity_collection`) — deliberately stricter than the serve path's tolerant list filtering, so a partially
-     * valid stored list is dropped-and-reported here rather than silently shrunk downstream. Neither rule reuses
-     * {@see PropertyType::admits()}: a storage key is undeclared by design, so it is never a new-type property,
-     * and coupling "declared string property" to "entity storage key" by shape coincidence would coincidentally
-     * match a declared string property with the same name as an unrelated storage key.
+     * valid stored list is dropped-and-reported here rather than silently shrunk downstream. The storage-key rule
+     * does not reuse {@see PropertyType::admits()}: a storage key is undeclared by design, so it is never a
+     * new-type property, and coupling "declared string property" to "entity storage key" by shape coincidence
+     * would coincidentally match a declared string property with the same name as an unrelated storage key.
      *
      * @param array<string, StoredValue> $properties
      * @param array<string, PropertySpecification> $newTypeProperties

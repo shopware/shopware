@@ -95,9 +95,6 @@ final readonly class PropertyType
      * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
      * either, because that member alone accepts every value.
      *
-     * A union's declared type is an array, for which {@see isPrimitive()} always answers false, so the members
-     * are tested against {@see PRIMITIVE_TYPES} individually.
-     *
      * @return list<string>|null
      */
     public function enforceableTypes(): ?array
@@ -120,8 +117,8 @@ final readonly class PropertyType
     }
 
     /**
-     * Whether a raw value conforms to this declaration. A null is admissible under every primitive, because
-     * whether a key may be null is the required-input rule's business, not this one's.
+     * A null is admissible under every primitive, because whether a key may be null is the required-input
+     * rule's business, not this one's.
      */
     public function admits(mixed $value): bool
     {
@@ -141,8 +138,7 @@ final readonly class PropertyType
     }
 
     /**
-     * `number` admits an integer as well as a float — JSON carries no distinction a client can be held to —
-     * while `integer` admits only an integer.
+     * `number` admits an integer as well as a float: JSON carries no distinction a client can be held to.
      */
     private static function matchesPrimitive(mixed $value, string $type): bool
     {

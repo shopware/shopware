@@ -3,13 +3,23 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\If_;
+use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -66,19 +76,30 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->isServiceDecorator($class) && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        $methodDeprecation = $method->getDeprecatedDescription() ?? '';
+
+        $isServiceDecorator = $this->isServiceDecorator($class);
+        $handlesClassDeprecation = $this->handlesDeprecationCorrectly($classDeprecation ?? '', $methodContent)
+            || ($isServiceDecorator && ($methodDeprecation !== '' || $this->delegatesToInnerWhenFeatureFlagIsActive($node, $scope, $classDeprecation ?? '')));
+
+        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$handlesClassDeprecation) {
             return [
-                RuleErrorBuilder::message(\sprintf(
-                    'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
-                    $class->getName(),
-                    $method->getName()
-                ))
+                RuleErrorBuilder::message($isServiceDecorator
+                    ? \sprintf(
+                        'Class decorator "%s" is marked as deprecated, but method "%s" does not directly delegate to its inner service when feature flag "%s" is active.',
+                        $class->getName(),
+                        $method->getName(),
+                        $this->getFeatureFlag($classDeprecation),
+                    )
+                    : \sprintf(
+                        'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
+                        $class->getName(),
+                        $method->getName()
+                    ))
                     ->identifier('shopware.deprecatedClass')
                     ->build(),
             ];
         }
-
-        $methodDeprecation = $method->getDeprecatedDescription() ?? '';
 
         // by default deprecations from parent methods are also available on all implementing methods
         // we will copy the deprecation to the implementing method, if they also have an affect there
@@ -181,5 +202,90 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return false;
+    }
+
+    private function delegatesToInnerWhenFeatureFlagIsActive(ClassMethod $method, Scope $scope, string $deprecation): bool
+    {
+        $firstStatement = $method->stmts[0] ?? null;
+        if (!$firstStatement instanceof If_ || !$this->isFeatureFlagCheck($firstStatement, $scope, $deprecation)) {
+            return false;
+        }
+
+        $statements = $firstStatement->stmts;
+        if (\count($statements) !== 1) {
+            return false;
+        }
+
+        $statement = $statements[0];
+        $call = null;
+        if ($statement instanceof Return_) {
+            $call = $statement->expr;
+        } elseif ($statement instanceof Expression && $method->returnType instanceof Identifier && $method->returnType->toString() === 'void' && isset($method->stmts[1]) && $method->stmts[1] instanceof Return_ && $method->stmts[1]->expr === null) {
+            $call = $statement->expr;
+        }
+
+        return $call instanceof MethodCall
+            && $call->name instanceof Identifier
+            && $call->name->toString() === $method->name->toString()
+            && $this->isInnerServiceCall($call)
+            && $this->forwardsMethodParameters($call->args, $method);
+    }
+
+    private function isFeatureFlagCheck(If_ $node, Scope $scope, string $deprecation): bool
+    {
+        $condition = $node->cond;
+
+        return $condition instanceof StaticCall
+            && $condition->class instanceof Node\Name
+            && $scope->resolveName($condition->class) === Feature::class
+            && $condition->name instanceof Identifier
+            && $condition->name->toString() === 'isActive'
+            && isset($condition->args[0])
+            && $condition->args[0] instanceof Arg
+            && $condition->args[0]->value instanceof Node\Scalar\String_
+            && $condition->args[0]->value->value === $this->getFeatureFlag($deprecation);
+    }
+
+    private function isInnerServiceCall(MethodCall $call): bool
+    {
+        if ($call->var instanceof MethodCall) {
+            return $call->var->var instanceof Variable
+                && $call->var->var->name === 'this'
+                && $call->var->name instanceof Identifier
+                && $call->var->name->toString() === 'getDecorated';
+        }
+
+        return $call->var instanceof PropertyFetch
+            && $call->var->var instanceof Variable
+            && $call->var->var->name === 'this'
+            && $call->var->name instanceof Identifier
+            && $call->var->name->toString() === 'inner';
+    }
+
+    /**
+     * @param array<Arg|Node\ArgPlaceholder|Node\VariadicPlaceholder> $arguments
+     */
+    private function forwardsMethodParameters(array $arguments, ClassMethod $method): bool
+    {
+        $arguments = \array_values($arguments);
+        if (\count($arguments) !== \count($method->params)) {
+            return false;
+        }
+
+        foreach ($arguments as $index => $argument) {
+            $parameter = $method->params[$index];
+            if (!$argument instanceof Arg || !$argument->value instanceof Variable || !$parameter->var instanceof Variable || $argument->value->name !== $parameter->var->name) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function getFeatureFlag(string $deprecation): string
+    {
+        \preg_match('/tag:(v\d+\.\d+\.\d+)/', $deprecation, $matches);
+
+        return ($matches[1] ?? '') . '.0';
     }
 }

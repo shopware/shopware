@@ -199,7 +199,9 @@ export default Shopware.Component.wrapComponentConfig({
                 root.removeFromParent();
             }
 
-            this.quickView.orbitController.focusObject(this.diveModel);
+            // Vue's data typing flattens the class instance, so the DIVENode identity has to be
+            // restored wherever a call takes the class itself.
+            this.quickView.orbitController.focusObject(this.diveModel as DIVENode);
 
             this.saveInitialProperties(this.diveModel as DIVENode);
             this.syncProperties(this.diveModel as DIVENode);

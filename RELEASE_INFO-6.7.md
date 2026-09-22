@@ -2,6 +2,10 @@
 
 ## Core
 
+### Dompdf page count placeholder replaced for core and fallback fonts
+
+In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
+
 ### Moved PHP classes retain backwards-compatible aliases
 
 The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:
@@ -42,6 +46,37 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+## Administration
+
+### New extension points for the Shopping Experiences layout list
+
+The "Set as default" context menu item in `sw-cms-list` is now wrapped in its own Twig block, in both the grid and the list view:
+
+- `sw_cms_list_listing_list_item_option_set_as_default` (grid view)
+- `sw_cms_list_listing_list_data_grid_actions_set_as_default` (list view)
+
+It was previously the only context menu item in either view without a block, so extensions that had to change it were forced to replace the surrounding `sw_cms_list_listing_list_item` or `sw_cms_list_listing_list_data_grid_actions` block completely. That removed every other extension point inside those blocks for all other extensions.
+
+In addition, `sw-cms-list` has a new `isDefaultLayout(page)` method that decides whether a layout is a default layout. It backs the `is-default` property of `sw-cms-list-item`, the label built in `getPageType()`, and the visibility of the delete action in both views, all of which previously repeated the same check inline. Extensions that add their own default layout type can override this single method instead of the template, and their default layout is then marked and protected from deletion like the built-in ones:
+
+```js
+Shopware.Component.override('sw-cms-list', {
+    methods: {
+        isDefaultLayout(page) {
+            return this.myDefaultLayoutId === page.id || this.$super('isDefaultLayout', page);
+        },
+    },
+});
+```
+
+Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
+
+## Storefront
+
+### Separate legal guarantee notice
+
+The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
 # 6.7.15.0
 
@@ -664,6 +699,10 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
+
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Static theme compilation without a database
 

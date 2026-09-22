@@ -106,10 +106,7 @@ describe('core/factory/twig-block-index.ts', () => {
             `,
             );
 
-            const [
-                pluginOne,
-                pluginTwo,
-            ] = getBlockEntries('shared_condition_block');
+            const [pluginOne, pluginTwo] = getBlockEntries('shared_condition_block');
 
             expect(pluginOne.innerTemplate).toContain(
                 `v-if="$swLegacyBlockElseIf('shared_condition_block:0', condition2, ${options(0, false, 'shimExtension')})"`,
@@ -153,10 +150,7 @@ describe('core/factory/twig-block-index.ts', () => {
             `,
             );
 
-            const [
-                pluginOne,
-                pluginTwo,
-            ] = getBlockEntries('twig_started_condition_block');
+            const [pluginOne, pluginTwo] = getBlockEntries('twig_started_condition_block');
 
             expect(pluginOne.innerTemplate).toContain(
                 `v-if="$swLegacyBlockIf('twig_started_condition_block:0', conditionFromPluginOne, ${options(0, true, 'shimExtension')})"`,

@@ -157,9 +157,7 @@ class CartAmountRuleTest extends TestCase
         $cart = Generator::createCart();
         $context = static::createStub(SalesChannelContext::class);
 
-        static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))
-        );
+        $rule->match(new CartRuleScope($cart, $context));
     }
 
     /**

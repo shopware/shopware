@@ -51,10 +51,7 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        price: [
-            dollarPrice,
-            euroPrice,
-        ],
+        price: [dollarPrice, euroPrice],
         purchasePrices: [purchasePrices],
         taxRate,
         currency,

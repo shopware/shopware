@@ -16,10 +16,11 @@ use Shopware\Core\Service\ServiceLifecycle;
 #[CoversClass(UpdateServiceHandler::class)]
 class UpdateServiceHandlerTest extends TestCase
 {
-    public function testHandlerDelegatesToServiceLifecycle(): void
+    public function testHandlerUpdatesThenReevaluatesInstalledServices(): void
     {
         $serviceLifecycle = $this->createMock(ServiceLifecycle::class);
         $serviceLifecycle->expects($this->once())->method('update')->with('MyCoolService');
+        $serviceLifecycle->expects($this->once())->method('reevaluateInstalled');
 
         $handler = new UpdateServiceHandler($serviceLifecycle);
         $handler->__invoke(new UpdateServiceMessage('MyCoolService'));

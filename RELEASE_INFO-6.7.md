@@ -1,50 +1,5 @@
 # 6.7.16.0 (upcoming)
 
-## Core
-
-### Moved PHP classes retain backwards-compatible aliases
-
-The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:
-
-| Previous name | Canonical name |
-|---|---|
-| `Shopware\Administration\Controller\NotificationController` | `Shopware\Core\Framework\Notification\Api\NotificationController` |
-| `Shopware\Administration\Notification\NotificationCollection` | `Shopware\Core\Framework\Notification\NotificationCollection` |
-| `Shopware\Administration\Notification\NotificationDefinition` | `Shopware\Core\Framework\Notification\NotificationDefinition` |
-| `Shopware\Administration\Notification\NotificationEntity` | `Shopware\Core\Framework\Notification\NotificationEntity` |
-| `Shopware\Core\Framework\Plugin\Util\AssetService` | `Shopware\Core\Framework\Adapter\Asset\AssetService` |
-| `Shopware\Elasticsearch\Product\SearchConfigLoader` | `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` |
-
-Update imports, type declarations, static references, and service IDs to the canonical names.
-The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses.
-`NotificationController` remains internal, and `AssetService` becomes internal with 6.8.
-Neither should be introduced as a new extension dependency.
-
-### Merged document downloads have a speaking file name
-
-Downloading several order documents at once from the order bulk edit delivered one merged PDF named with a 32 character random string, so merchants could not tell their downloads apart in the download folder.
-
-The merged file is now named after its document type and the date of the download, for example `delivery_note_2026-09-10.pdf`. A download that mixes document types is called `documents_<date>.pdf`, and a single document keeps the name it was rendered with. Unlike the random string, that name is no longer unique per download.
-
-### An unset MCP allowlist no longer grants unrestricted MCP access
-
-`user.mcp_allowlist` and `integration.mcp_allowlist` used to mean "everything is allowed" when they were unset, so every existing integration and non-admin user could reach the full MCP capability surface without anyone selecting it. They now mean the opposite: nothing is allowed until capabilities are selected explicitly. Only administrator users still bypass the allowlist; integrations never do.
-
-Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
-
-## API
-
-### Store API OpenAPI schema matches the actual responses
-
-The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:
-
-- `aggregations`, `Cart.errors`, `paymentChangeable`, `validationData` and `OrderLineItem.translated` allow an empty array; order price `calculatedTaxes`/`taxRules` and `CmsSlot.fieldConfig` are arrays.
-- `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
-- `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
-- `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
-
-# 6.7.15.0
-
 ## Features
 
 ### System configuration tabs
@@ -90,6 +45,61 @@ With the newly added tabs feature, plugin developers can now add another layer o
     </tab>
 </config>
 ```
+
+## Core
+
+### System config schema endpoints now require system config read access
+
+The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
+### Deprecation of `ConfigurationService` class
+
+Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+
+### Moved PHP classes retain backwards-compatible aliases
+
+The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:
+
+| Previous name | Canonical name |
+|---|---|
+| `Shopware\Administration\Controller\NotificationController` | `Shopware\Core\Framework\Notification\Api\NotificationController` |
+| `Shopware\Administration\Notification\NotificationCollection` | `Shopware\Core\Framework\Notification\NotificationCollection` |
+| `Shopware\Administration\Notification\NotificationDefinition` | `Shopware\Core\Framework\Notification\NotificationDefinition` |
+| `Shopware\Administration\Notification\NotificationEntity` | `Shopware\Core\Framework\Notification\NotificationEntity` |
+| `Shopware\Core\Framework\Plugin\Util\AssetService` | `Shopware\Core\Framework\Adapter\Asset\AssetService` |
+| `Shopware\Elasticsearch\Product\SearchConfigLoader` | `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` |
+
+Update imports, type declarations, static references, and service IDs to the canonical names.
+The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses.
+`NotificationController` remains internal, and `AssetService` becomes internal with 6.8.
+Neither should be introduced as a new extension dependency.
+
+### Merged document downloads have a speaking file name
+
+Downloading several order documents at once from the order bulk edit delivered one merged PDF named with a 32 character random string, so merchants could not tell their downloads apart in the download folder.
+
+The merged file is now named after its document type and the date of the download, for example `delivery_note_2026-09-10.pdf`. A download that mixes document types is called `documents_<date>.pdf`, and a single document keeps the name it was rendered with. Unlike the random string, that name is no longer unique per download.
+
+### An unset MCP allowlist no longer grants unrestricted MCP access
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` used to mean "everything is allowed" when they were unset, so every existing integration and non-admin user could reach the full MCP capability surface without anyone selecting it. They now mean the opposite: nothing is allowed until capabilities are selected explicitly. Only administrator users still bypass the allowlist; integrations never do.
+
+Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
+
+## API
+
+### Store API OpenAPI schema matches the actual responses
+
+The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:
+
+- `aggregations`, `Cart.errors`, `paymentChangeable`, `validationData` and `OrderLineItem.translated` allow an empty array; order price `calculatedTaxes`/`taxRules` and `CmsSlot.fieldConfig` are arrays.
+- `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
+- `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
+- `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+# 6.7.15.0
+
+## Features
 
 ### Connect-time toolset selection for the MCP server
 
@@ -194,14 +204,6 @@ The legacy PHP document domain in `Shopware\Core\Checkout\Document` is supersede
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
-
-### System config schema endpoints now require system config read access
-
-The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
-
-### Deprecation of `ConfigurationService` class
-
-Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
 
 ### New `#[ExperimentalReplacement]` BC-change attribute
 

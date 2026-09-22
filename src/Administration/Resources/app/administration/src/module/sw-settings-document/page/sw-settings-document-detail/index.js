@@ -30,10 +30,7 @@ export const DOCUMENT_CONFIG_DEFAULTS = {
     pageSize: 'a4',
     pageOrientation: 'portrait',
     itemsPerPage: 10,
-    fileTypes: [
-        'pdf',
-        'html',
-    ],
+    fileTypes: ['pdf', 'html'],
     displayHeader: true,
     displayFooter: true,
     displayPageCount: true,
@@ -368,10 +365,7 @@ export default {
         'documentV2Service',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -547,10 +541,7 @@ export default {
             return this.repositoryFactory.create('document_base_config_sales_channel');
         },
 
-        ...mapPropertyErrors('documentConfig', [
-            'name',
-            'documentTypeId',
-        ]),
+        ...mapPropertyErrors('documentConfig', ['name', 'documentTypeId']),
 
         getPaymentDueDateError() {
             if (this.paymentDueDateIsValid) {
@@ -568,10 +559,7 @@ export default {
             this.isLoading = true;
 
             try {
-                const promises = [
-                    this.salesChannelRepository.search(new Criteria(1, 500)),
-                    this.loadCustomFieldSets(),
-                ];
+                const promises = [this.salesChannelRepository.search(new Criteria(1, 500)), this.loadCustomFieldSets()];
 
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
                     promises.push(this.loadAvailableDocumentTypes());

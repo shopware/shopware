@@ -53,12 +53,7 @@ describe('searchApiService', () => {
     });
 
     it('is request aborted correctly', async () => {
-        global.activeFeatureFlags = [
-            ...new Set([
-                ...global.activeFeatureFlags,
-                'V6_8_0_0',
-            ]),
-        ];
+        global.activeFeatureFlags = [...new Set([...global.activeFeatureFlags, 'V6_8_0_0'])];
         const { searchApiService, clientMock } = getSearchApiService();
 
         clientMock.onPost('/_admin/search').reply(200, { data: 'foo' });

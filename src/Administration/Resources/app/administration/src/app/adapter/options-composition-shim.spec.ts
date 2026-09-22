@@ -1078,10 +1078,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            expect(callOrder).toEqual([
-                'mixin-created',
-                'component-created',
-            ]);
+            expect(callOrder).toEqual(['mixin-created', 'component-created']);
         });
 
         it('should fire hooks from multiple mixins in order', async () => {
@@ -1110,10 +1107,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             mount(originalComponent);
 
             const overrideFn = convertWithSilencedWarning('originalComponent', {
-                mixins: [
-                    mixinA,
-                    mixinB,
-                ],
+                mixins: [mixinA, mixinB],
                 created() {
                     callOrder.push('component');
                 },
@@ -1123,11 +1117,7 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            expect(callOrder).toEqual([
-                'mixinA',
-                'mixinB',
-                'component',
-            ]);
+            expect(callOrder).toEqual(['mixinA', 'mixinB', 'component']);
         });
 
         it('should work together with watch and data overrides', async () => {
@@ -1630,10 +1620,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
-                inject: [
-                    'repositoryFactory',
-                    'acl',
-                ],
+                inject: ['repositoryFactory', 'acl'],
                 methods: { foo() {} },
             });
 
@@ -1836,11 +1823,7 @@ describe('src/app/adapter/options-composition-shim', () => {
             await flushPromises();
 
             // deep ancestor fires first, then shallow mixin, then component
-            expect(callOrder).toEqual([
-                'deep-mixin',
-                'shallow-mixin',
-                'component',
-            ]);
+            expect(callOrder).toEqual(['deep-mixin', 'shallow-mixin', 'component']);
         });
 
         it('should make methods from deeply nested mixins accessible via this', async () => {

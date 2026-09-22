@@ -17,9 +17,7 @@ export default Component.wrapComponentConfig({
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data(): { showMediaModal: boolean; initialFolderId: EntityKey<'media_folder'> | null } {
         return {

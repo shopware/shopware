@@ -12,7 +12,9 @@ test(
             timeout: 20000,
         });
 
-        (await (await AdminApiContext.get(`./_info/config`)).json()) as { version: string };
+        (await (await AdminApiContext.get(`./_info/config`)).json()) as {
+            version: string;
+        };
 
         await page.goto('#/sw/settings/shopware/updates/wizard');
 

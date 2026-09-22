@@ -33,5 +33,6 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-7q8q-rj6j-mhjq', // axios v0 nested option prototype pollution, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-cp6q-959q-f8rh', // @tiptap/core mergeAttributes prototype pollution, moderate. The 2.x copy is overridden to 2.27.3, which contains the mergeAttributes fix, but the published GHSA range is still >=2.0.0-alpha.0 <3.30.4 so npm audit keeps reporting it. Meteor 5.7.1 still depends on @tiptap ^2.22.3; forcing core 3.x here would be the same v2-to-v3 jump that shopware/meteor#1012 has not landed.
         'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Puppeteer browser downloads, devDep only; fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
+        'https://github.com/advisories/GHSA-7pqw-9j4j-h8q3', // extract-zip arbitrary file writes via symlink archive entries, devDep only; no fix in extract-zip itself and the fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
     ],
 });

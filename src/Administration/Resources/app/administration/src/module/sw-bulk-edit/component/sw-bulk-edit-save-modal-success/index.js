@@ -28,14 +28,9 @@ export default {
         feature: {},
     },
 
-    emits: [
-        'title-set',
-        'buttons-update',
-    ],
+    emits: ['title-set', 'buttons-update'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     data() {
         return {
@@ -195,10 +190,7 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
-            await Promise.all([
-                this.getLatestDocuments(),
-                this.loadFailedOrderNumbers(),
-            ]);
+            await Promise.all([this.getLatestDocuments(), this.loadFailedOrderNumbers()]);
             this.updateButtons();
         },
 
@@ -360,14 +352,9 @@ export default {
 
         downloadDocumentGenerationResult() {
             const objectUrl = URL.createObjectURL(
-                new Blob(
-                    [
-                        this.getDocumentGenerationResultFileContent(),
-                    ],
-                    {
-                        type: 'text/plain',
-                    },
-                ),
+                new Blob([this.getDocumentGenerationResultFileContent()], {
+                    type: 'text/plain',
+                }),
             );
             const link = document.createElement('a');
 
@@ -400,20 +387,11 @@ export default {
                 );
             });
 
-            return [
-                this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'),
-                '',
-                ...lines,
-            ].join('\n');
+            return [this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'), '', ...lines].join('\n');
         },
 
         getDocumentGenerationResultFileName() {
-            return (
-                [
-                    'bulk-edit-document-generation-result',
-                    this.getDateTimeForFileName(new Date()),
-                ].join('-') + '.txt'
-            );
+            return ['bulk-edit-document-generation-result', this.getDateTimeForFileName(new Date())].join('-') + '.txt';
         },
 
         getDateTimeForFileName(date) {

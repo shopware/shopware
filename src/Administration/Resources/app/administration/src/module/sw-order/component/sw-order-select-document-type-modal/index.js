@@ -33,14 +33,9 @@ export const REQUIRES_CREDIT_ITEMS = [
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'update:value',
-    ],
+    emits: ['modal-close', 'update:value'],
 
     props: {
         order: {

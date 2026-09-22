@@ -114,6 +114,7 @@ class DefinitionValidator
         'messenger_stats',
         'payment_token',
         'refresh_token',
+        'oauth_auth_code',
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',

@@ -121,10 +121,7 @@ function buildBaseScript(
         // the override-aware customRefs - that is what makes a parent's `treeItem.opened = false` reach
         // the component's own state.
         `defineExpose(${formatObjectProperties(
-            [
-                '...Shopware.Component.getExposedProps()',
-                ...analysis.publicEntries,
-            ],
+            ['...Shopware.Component.getExposedProps()', ...analysis.publicEntries],
             4,
         )});`,
     ].join('\n');
@@ -134,10 +131,7 @@ function buildBaseScript(
         {
             start: block.contentStart,
             end: block.contentEnd,
-            replacement: [
-                ...body,
-                generated(`\n\n${footer}\n`),
-            ],
+            replacement: [...body, generated(`\n\n${footer}\n`)],
         },
     ];
 }

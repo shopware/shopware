@@ -690,6 +690,10 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ## Storefront
 
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
+
 ### Static theme compilation without a database
 
 Theme compilation with `StaticFileConfigLoader` now refreshes runtime configuration values when a database is available, while continuing to work without a reachable database in build environments.

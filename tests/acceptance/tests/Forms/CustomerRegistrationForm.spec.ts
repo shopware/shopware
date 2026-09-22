@@ -42,7 +42,9 @@ test.describe('Customer Registration Form', () => {
             await ShopCustomer.expects(privacyNotice).toContainText(/Please note|Bitte beachten/i);
             await ShopCustomer.expects(StorefrontAccountLogin.registerButton).toContainText(/Register|Registrieren/i);
 
-            const legalGuaranteeNoticeLinkWithoutCheckbox = privacyNotice.locator('[data-bs-target="#legalGuaranteeNoticeModal"]');
+            const legalGuaranteeNoticeLinkWithoutCheckbox = privacyNotice.locator(
+                '[data-bs-target="#legalGuaranteeNoticeModal"]',
+            );
             await ShopCustomer.expects(legalGuaranteeNoticeLinkWithoutCheckbox).toBeVisible();
 
             await legalGuaranteeNoticeLinkWithoutCheckbox.click();

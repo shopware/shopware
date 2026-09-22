@@ -32,6 +32,14 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Media can represent a spatial scene
+
+`Shopware\Core\Content\Media\MediaType\SpatialSceneType` marks a media entity that stands for a spatial scene, and `MediaEntity::isSpatialScene()` tells it apart in PHP and in Twig.
+
+Media of this type carries no file of its own, so no `TypeDetectorInterface` ever assigns it — those only run on uploads. Set the type explicitly when you write such a media.
+
+Both are experimental and become stable with 6.8.0.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses
@@ -42,6 +50,16 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+## Administration
+
+### Media without a file no longer looks broken
+
+A media type that never carries a file, such as a spatial scene, used to be presented as a failed upload: `sw-media-preview-v2` showed the broken-file icon, `sw-media-quickinfo` showed the missing-file banner, and the item tooltip read `null.null`.
+
+Those surfaces now render the media by its type instead. If your own components make the same distinction, use `isFilelessMediaType()` and `isRepresentativeMediaType()` from `src/core/service/utils/media-type.utils.ts` rather than checking for a file name.
+
+These utilities are experimental and become stable with 6.8.0.
 
 # 6.7.15.0
 

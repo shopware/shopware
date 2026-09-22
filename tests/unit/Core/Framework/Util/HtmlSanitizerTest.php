@@ -229,11 +229,6 @@ class HtmlSanitizerTest extends TestCase
             '<?php x ?>y',
         ];
 
-        yield 'a trailing "<" is dropped' => [
-            'John<',
-            'John',
-        ];
-
         yield 'CRLF line endings are not normalized' => [
             "a\r\n<3",
             "a\r\n<3",

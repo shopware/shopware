@@ -460,7 +460,7 @@ The "Set as default" context menu item in `sw-cms-list` is now wrapped in its ow
 
 It was previously the only context menu item in either view without a block, so extensions that had to change it were forced to replace the surrounding `sw_cms_list_listing_list_item` or `sw_cms_list_listing_list_data_grid_actions` block completely. That removed every other extension point inside those blocks for all other extensions.
 
-In addition, `sw-cms-list` has a new `isDefaultLayout(page)` method that decides whether a layout is a default layout. It backs both the `is-default` property of `sw-cms-list-item` and the label built in `getPageType()`. Extensions that add their own default layout type can override this single method instead of the template:
+In addition, `sw-cms-list` has a new `isDefaultLayout(page)` method that decides whether a layout is a default layout. It backs the `is-default` property of `sw-cms-list-item`, the label built in `getPageType()`, and the visibility of the delete action in both views, all of which previously repeated the same check inline. Extensions that add their own default layout type can override this single method instead of the template, and their default layout is then marked and protected from deletion like the built-in ones:
 
 ```js
 Shopware.Component.override('sw-cms-list', {
@@ -473,6 +473,7 @@ Shopware.Component.override('sw-cms-list', {
 ```
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
+
 ### An empty string can be saved on fields that allow one
 
 The changeset generator turned an empty string into `null` for every field. Fields flagged `Required` and `AllowEmptyString` reject `null` but accept an empty string, so clearing such a field in the Administration always failed with "This value should not be null." The generator now keeps the empty string for exactly those fields; every other field is unchanged.

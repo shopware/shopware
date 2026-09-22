@@ -162,11 +162,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             return accumulator;
         }, []);
 
-        const wrapper = await createWrapper('en-GB', [
-            enGB,
-            deDE,
-            ...mockLanguages,
-        ]);
+        const wrapper = await createWrapper('en-GB', [enGB, deDE, ...mockLanguages]);
 
         await flushPromises();
 

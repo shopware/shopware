@@ -28,22 +28,10 @@ describe('src/app/composables/use-notification', () => {
     });
 
     it.each<[VoidNotificationMethod, { variant: string; title: string }]>([
-        [
-            'createNotificationSuccess',
-            { variant: 'success', title: 'global.default.success' },
-        ],
-        [
-            'createNotificationInfo',
-            { variant: 'info', title: 'global.default.info' },
-        ],
-        [
-            'createNotificationWarning',
-            { variant: 'warning', title: 'global.default.warning' },
-        ],
-        [
-            'createNotificationError',
-            { variant: 'error', title: 'global.default.error' },
-        ],
+        ['createNotificationSuccess', { variant: 'success', title: 'global.default.success' }],
+        ['createNotificationInfo', { variant: 'info', title: 'global.default.info' }],
+        ['createNotificationWarning', { variant: 'warning', title: 'global.default.warning' }],
+        ['createNotificationError', { variant: 'error', title: 'global.default.error' }],
     ])('%s applies its default variant and title', (method, defaults) => {
         const composable = useNotification();
 
@@ -53,22 +41,10 @@ describe('src/app/composables/use-notification', () => {
     });
 
     it.each<[VoidNotificationMethod, string]>([
-        [
-            'createSystemNotificationSuccess',
-            'success',
-        ],
-        [
-            'createSystemNotificationInfo',
-            'info',
-        ],
-        [
-            'createSystemNotificationWarning',
-            'warning',
-        ],
-        [
-            'createSystemNotificationError',
-            'error',
-        ],
+        ['createSystemNotificationSuccess', 'success'],
+        ['createSystemNotificationInfo', 'info'],
+        ['createSystemNotificationWarning', 'warning'],
+        ['createSystemNotificationError', 'error'],
     ])('%s sets system: true with its variant', (method, variant) => {
         const composable = useNotification();
 

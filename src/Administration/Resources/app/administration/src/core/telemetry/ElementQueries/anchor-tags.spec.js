@@ -48,10 +48,7 @@ describe('src/core/telemetry/ElementQueries/anchor-tags.js', () => {
         await flushPromises();
 
         expect(observedElements).toHaveLength(2);
-        expect(observedElements).toEqual([
-            first,
-            second,
-        ]);
+        expect(observedElements).toEqual([first, second]);
 
         mo.disconnect();
     });

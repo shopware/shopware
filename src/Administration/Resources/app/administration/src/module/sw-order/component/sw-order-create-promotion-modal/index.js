@@ -13,10 +13,7 @@ const { format } = Utils;
 export default {
     template,
 
-    emits: [
-        'close',
-        'save',
-    ],
+    emits: ['close', 'save'],
 
     props: {
         currency: {

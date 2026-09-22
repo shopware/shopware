@@ -168,6 +168,18 @@ SQL;
 
         foreach ($parameters as $parameter) {
             RetryableQuery::retryable($this->connection, function () use ($parameter): void {
+                // a confirmed double opt-in was given for the old address, it must not carry over to the new one
+                $this->connection->executeStatement(
+                    'UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']),
+                        'email' => $parameter['email'],
+                        'notSet' => NewsletterSubscribeRoute::STATUS_NOT_SET,
+                        'optIn' => NewsletterSubscribeRoute::STATUS_OPT_IN,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+
                 $this->connection->executeStatement(
                     'UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)',
                     [

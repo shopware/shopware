@@ -30,6 +30,7 @@
                     v-for="field in panel.fields"
                     :key="field.key"
                     class="sw-experience-studio-settings-fields__field"
+                    :class="{ 'is--error': getFieldViolation(field)?.severity === 'error' }"
                 >
                     <div
                         v-if="isFieldMapped(field)"
@@ -458,6 +459,14 @@
                             @update:model-value="onUpdateField(field.key, $event)"
                         />
                     </template>
+
+                    <div
+                        v-if="getFieldViolation(field)"
+                        class="sw-experience-studio-settings-fields__violation"
+                        role="alert"
+                    >
+                        {{ getFieldViolation(field).message }}
+                    </div>
 
                     <button
                         v-if="canMapField(field)"

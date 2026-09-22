@@ -199,7 +199,7 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
             contextType: 'single',
         });
 
-        expect(Object.keys(testLayout[0].slots!.content[0].acceptsContext!)).toEqual([
+        expect(Object.keys(testLayout[0].slots!.content[0].acceptsContext)).toEqual([
             'category.metaTitle',
             'category.name',
         ]);

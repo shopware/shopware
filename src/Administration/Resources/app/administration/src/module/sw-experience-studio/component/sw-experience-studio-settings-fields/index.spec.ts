@@ -107,6 +107,32 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         ]);
     });
 
+    it('prefers an error violation for the field', () => {
+        const warning = {
+            code: 'unresolved_optional',
+            severity: 'warning',
+            key: 'text',
+        };
+        const error = {
+            code: 'invalid_mapping',
+            severity: 'error',
+            key: 'text',
+        };
+
+        expect(
+            methods.getFieldViolation.call(
+                {
+                    violations: [
+                        warning,
+                        error,
+                        { code: 'invalid_mapping', severity: 'error', key: 'media' },
+                    ],
+                },
+                { key: 'text' },
+            ),
+        ).toBe(error);
+    });
+
     it('builds element-specific and default panel snippet keys', () => {
         expect(
             methods.getPanelSnippetKey.call(

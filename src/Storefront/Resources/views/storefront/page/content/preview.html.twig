@@ -60,6 +60,12 @@
                     return;
                 }
 
+                if (payload.type === 'cancel-inline-edit') {
+                    deactivateInlineEditing();
+
+                    return;
+                }
+
                 if (payload.type === 'capture-scroll' && typeof payload.requestId === 'number') {
                     emitPreviewMessage('scroll-position', {
                         requestId: payload.requestId,

@@ -2,6 +2,7 @@ import type { ContentElementNode } from 'src/core/service/content-element.types'
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
     getElementPropertyStorageKey,
@@ -79,6 +80,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
         mappingCandidates: {
             type: Array as PropType<ContentSystemMappingCandidate[]>,
+            required: false,
+            default: () => [],
+        },
+        violations: {
+            type: Array as PropType<ContentSystemViolation[]>,
             required: false,
             default: () => [],
         },

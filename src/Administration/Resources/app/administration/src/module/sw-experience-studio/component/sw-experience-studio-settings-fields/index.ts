@@ -4,6 +4,7 @@ import type {
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemMappingCandidate } from 'src/core/service/api/content-system-mapping-candidate.api.service';
+import type { ContentSystemViolation } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import {
     getAdminUiHelpText,
     getAdminUiProps as getPropertyAdminUiProps,
@@ -116,6 +117,11 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object as PropType<Record<string, string>>,
             required: false,
             default: () => ({}),
+        },
+        violations: {
+            type: Array as PropType<ContentSystemViolation[]>,
+            required: false,
+            default: () => [],
         },
     },
 
@@ -265,6 +271,12 @@ export default Shopware.Component.wrapComponentConfig({
 
         canMapField(field: SettingsFieldDefinition): boolean {
             return !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
+        },
+
+        getFieldViolation(field: SettingsFieldDefinition): ContentSystemViolation | null {
+            const violations = this.violations.filter((violation) => violation.key === field.key);
+
+            return violations.find((violation) => violation.severity === 'error') ?? violations[0] ?? null;
         },
 
         onOpenMappingModal(field: SettingsFieldDefinition): void {

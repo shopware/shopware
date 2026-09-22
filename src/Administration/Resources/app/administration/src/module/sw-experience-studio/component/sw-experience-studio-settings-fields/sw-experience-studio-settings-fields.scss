@@ -349,6 +349,17 @@
         cursor: default;
     }
 
+    &__field.is--error &__mapping-chip {
+        border-color: var(--color-border-critical-default);
+        background: var(--color-background-critical-default);
+    }
+
+    &__violation {
+        margin-top: var(--scale-size-4);
+        color: var(--color-text-critical-default);
+        font-size: var(--font-size-xs);
+    }
+
     // Controls carry their own 22px bottom margin, which lands between the input and the mapping action
     // belonging to it — the action reads as introducing the next field rather than describing this one. The
     // reset hands that gap to the field wrapper so it falls after the action instead. Matching the controls'

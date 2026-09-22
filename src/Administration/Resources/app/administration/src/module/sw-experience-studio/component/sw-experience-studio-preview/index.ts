@@ -1,5 +1,7 @@
 import template from './sw-experience-studio-preview.html.twig';
 import type { ContentLayoutEntity } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
+import { findElementLocation } from 'src/module/sw-experience-studio/util/content-element.util';
+import { findPropertyMapping } from 'src/module/sw-experience-studio/util/element-mapping.util';
 import './sw-experience-studio-preview.scss';
 
 const { cloneDeep } = Shopware.Utils.object;
@@ -120,6 +122,12 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (payload.type === 'inline-edit-start') {
+                if (!this.canInlineEditElement(payload.elementId)) {
+                    this.cancelActiveFrameInlineEditing();
+
+                    return;
+                }
+
                 this.$emit('inline-edit-start', {
                     elementId: payload.elementId,
                 });
@@ -208,6 +216,36 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        canInlineEditElement(elementId: string): boolean {
+            const elements = this.layout?.layout;
+
+            if (!Array.isArray(elements)) {
+                return false;
+            }
+
+            const location = findElementLocation(elements, elementId);
+            const element = location?.elements[location.index];
+
+            return element ? findPropertyMapping(element, 'text') === null : false;
+        },
+
+        cancelActiveFrameInlineEditing(): void {
+            const activeFrame = this.getActiveFrameElement();
+            const activeOrigin = this.getActiveFrameOrigin();
+
+            if (!activeFrame?.contentWindow || !activeOrigin) {
+                return;
+            }
+
+            activeFrame.contentWindow.postMessage(
+                {
+                    source: 'sw-experience-studio-admin',
+                    type: 'cancel-inline-edit',
+                },
+                activeOrigin,
+            );
+        },
+
         getActiveFrameElement(): HTMLIFrameElement | null {
             if (this.activeFrame === 'a') {
                 return this.$refs.iframeA as HTMLIFrameElement | null;

@@ -31,6 +31,34 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
+    it('does not start inline editing when text is mapped', () => {
+        const element = {
+            id: 'element-1',
+            component: 'content:text',
+            properties: { text: '<p>Fallback</p>' },
+            acceptsContext: {
+                'category.name': {
+                    type: 'single' as const,
+                    required: false,
+                    scope: 'root' as const,
+                    propertyAlias: 'text',
+                },
+            },
+        };
+        const vm = {
+            selectedElementId: null as string | null,
+            inlineEditSession: null,
+            findElementById: jest.fn().mockReturnValue(element),
+            isTextElement: jest.fn().mockReturnValue(true),
+            getElementTextValue: jest.fn(),
+        };
+
+        methods.onInlineEditStart.call(vm, { elementId: 'element-1' });
+
+        expect(vm.inlineEditSession).toBeNull();
+        expect(vm.getElementTextValue).not.toHaveBeenCalled();
+    });
+
     it('commits inline session only when value changed', () => {
         const applyLayoutMutation = jest.fn();
         const clearInlineEditSession = jest.fn();
@@ -101,6 +129,44 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
 
         expect(methods.resolveMutationRootSource.call(vm)).toBeNull();
+    });
+
+    it('stores violations returned by draft diagnosis', async () => {
+        const violation = {
+            code: 'invalid_mapping',
+            scope: 'binding',
+            severity: 'error',
+            elementId: 'element-1',
+            key: 'text',
+            message: 'Invalid mapping',
+            candidates: [],
+        };
+        const diagnose = jest.fn().mockResolvedValue({
+            resolutions: {},
+            diagnostics: {
+                wellFormed: true,
+                resolvable: false,
+                violations: [violation],
+            },
+        });
+        const vm = {
+            layout: {
+                layout: [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            },
+            diagnostics: [],
+            diagnoseRequestSequence: 0,
+            latestDiagnoseRequestId: 0,
+            draftMutationService: () => ({ diagnose }),
+            resolveMutationRootSource: () => 'category',
+        };
+
+        await methods.diagnoseLayout.call(vm);
+
+        expect(diagnose).toHaveBeenCalledWith({
+            layout: [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            rootSource: 'category',
+        });
+        expect(vm.diagnostics).toEqual([violation]);
     });
 
     it('creates draft mutation payload from typed layout elements and rootSource', () => {

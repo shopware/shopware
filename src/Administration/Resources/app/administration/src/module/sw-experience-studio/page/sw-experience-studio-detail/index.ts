@@ -1,12 +1,15 @@
 import type Repository from 'src/core/data/repository.data';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type {
+    ContentLayoutDiagnosePayload,
+    ContentLayoutDiagnoseResponse,
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
     ContentLayoutDraftInsertPresetPayload,
     ContentLayoutDraftMovePayload,
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
+    ContentSystemViolation,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-system-layout-preset.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
@@ -28,6 +31,7 @@ import {
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
+import { findPropertyMapping } from 'src/module/sw-experience-studio/util/element-mapping.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
@@ -99,6 +103,7 @@ type ContentSystemLayoutDraftMutationService = {
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
     moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     insertPreset: (payload: ContentLayoutDraftInsertPresetPayload) => Promise<ContentLayoutDraftMutationResponse>;
+    diagnose: (payload: ContentLayoutDiagnosePayload) => Promise<ContentLayoutDiagnoseResponse>;
 };
 
 type ContentSystemEntityTypeService = {
@@ -138,6 +143,9 @@ export default Shopware.Component.wrapComponentConfig({
         inlineEditSession: InlineEditSession;
         mutationRequestSequence: number;
         latestMutationRequestId: number;
+        diagnostics: ContentSystemViolation[];
+        diagnoseRequestSequence: number;
+        latestDiagnoseRequestId: number;
         availableLayoutTypes: string[];
         isLoadingLayoutTypes: boolean;
         layoutTypeLoadError: string | null;
@@ -160,6 +168,9 @@ export default Shopware.Component.wrapComponentConfig({
             inlineEditSession: null,
             mutationRequestSequence: 0,
             latestMutationRequestId: 0,
+            diagnostics: [],
+            diagnoseRequestSequence: 0,
+            latestDiagnoseRequestId: 0,
             availableLayoutTypes: [],
             isLoadingLayoutTypes: false,
             layoutTypeLoadError: null,
@@ -335,6 +346,14 @@ export default Shopware.Component.wrapComponentConfig({
         isInlineEditing(): boolean {
             return this.inlineEditSession?.isEditing ?? false;
         },
+
+        selectedElementViolations(): ContentSystemViolation[] {
+            if (this.selectedElementId === null) {
+                return [];
+            }
+
+            return this.diagnostics.filter((violation) => violation.elementId === this.selectedElementId);
+        },
     },
 
     created(): void {
@@ -385,6 +404,7 @@ export default Shopware.Component.wrapComponentConfig({
             await this.loadDefaultPreviewEntity();
             this.editorStore.initialize(this.layoutId);
             this.isLoading = false;
+            void this.diagnoseLayout();
         },
 
         onClickBack(): void {
@@ -632,7 +652,7 @@ export default Shopware.Component.wrapComponentConfig({
         onInlineEditStart(payload: { elementId: string }): void {
             const element = this.findElementById(payload.elementId);
 
-            if (!this.isTextElement(element)) {
+            if (!this.isTextElement(element) || findPropertyMapping(element, 'text') !== null) {
                 return;
             }
 
@@ -794,6 +814,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (result.selectedElementId !== undefined) {
                 this.selectedElementId = result.selectedElementId;
             }
+
+            void this.diagnoseLayout();
         },
 
         async onDuplicateElement(elementId: string): Promise<void> {
@@ -988,6 +1010,33 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Service('contentSystemLayoutDraftMutationService') as ContentSystemLayoutDraftMutationService;
         },
 
+        async diagnoseLayout(): Promise<void> {
+            if (!this.layout) {
+                this.diagnostics = [];
+
+                return;
+            }
+
+            const requestId = this.diagnoseRequestSequence + 1;
+            this.diagnoseRequestSequence = requestId;
+            this.latestDiagnoseRequestId = requestId;
+
+            try {
+                const response = await this.draftMutationService().diagnose({
+                    layout: cloneDeep(this.layout.layout),
+                    rootSource: this.resolveMutationRootSource(),
+                });
+
+                if (requestId === this.latestDiagnoseRequestId) {
+                    this.diagnostics = response.diagnostics.violations;
+                }
+            } catch {
+                if (requestId === this.latestDiagnoseRequestId) {
+                    this.diagnostics = [];
+                }
+            }
+        },
+
         resolveMutationRootSource(): string | null {
             return this.getLayoutRootSource(this.layout);
         },
@@ -1103,6 +1152,9 @@ export default Shopware.Component.wrapComponentConfig({
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
                 this.layout.layout = response.layout;
                 this.selectedElementId = resolveSelectedElementId(response);
+                this.diagnoseRequestSequence += 1;
+                this.latestDiagnoseRequestId = this.diagnoseRequestSequence;
+                this.diagnostics = response.diagnostics.violations;
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
                     return;
@@ -1275,6 +1327,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.layout.layout = previousEntry.layout;
             this.selectedElementId = previousEntry.selectedElementId;
+            void this.diagnoseLayout();
         },
 
         onRedo(): void {
@@ -1291,6 +1344,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.layout.layout = nextEntry.layout;
             this.selectedElementId = nextEntry.selectedElementId;
+            void this.diagnoseLayout();
         },
 
         onHistoryKeydown(event: KeyboardEvent): void {

@@ -61,6 +61,49 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
         expect(untrusted).toBe(false);
     });
 
+    it('disables inline editing for mapped text', () => {
+        const allowed = methods.canInlineEditElement.call(
+            {
+                layout: {
+                    layout: [
+                        {
+                            id: 'text',
+                            component: 'Sw:Content:Text',
+                            acceptsContext: {
+                                'category.name': {
+                                    type: 'single',
+                                    required: false,
+                                    scope: 'root',
+                                    propertyAlias: 'text',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+            'text',
+        );
+
+        expect(allowed).toBe(false);
+    });
+
+    it('asks the active preview frame to cancel inline editing', () => {
+        const postMessage = jest.fn();
+
+        methods.cancelActiveFrameInlineEditing.call({
+            getActiveFrameElement: () => ({ contentWindow: { postMessage } }),
+            getActiveFrameOrigin: () => 'https://storefront.local',
+        });
+
+        expect(postMessage).toHaveBeenCalledWith(
+            {
+                source: 'sw-experience-studio-admin',
+                type: 'cancel-inline-edit',
+            },
+            'https://storefront.local',
+        );
+    });
+
     it('captures current active frame scroll position', () => {
         const scrollPosition = methods.captureActiveFrameScrollPosition.call({
             getActiveFrameElement: () => ({

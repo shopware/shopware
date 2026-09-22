@@ -3,11 +3,18 @@
 namespace Shopware\Core\Checkout\Document\Struct;
 
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentGenerationRequest::class,
+)]
 final class DocumentGenerateOperation extends Struct
 {
     protected ?string $documentId = null;

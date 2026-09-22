@@ -120,10 +120,7 @@ export async function probeExtensionModes(context: {
     const modeJobs = projects.flatMap((project) =>
         project.targets.map((target) => async (): Promise<ProbedTarget> => {
             const sampleFile = findFirstSourceFile(projectRoot, [target.sourcePath]);
-            const [
-                tsResolution,
-                eslintResolution,
-            ] = await Promise.all([
+            const [tsResolution, eslintResolution] = await Promise.all([
                 limit(() => probeTsMode(target, projectRoot, administrationRoot)),
                 limit(() => probeEslintMode(target, projectRoot, administrationRoot, eslintBaseArguments, sampleFile)),
             ]);
@@ -136,10 +133,7 @@ export async function probeExtensionModes(context: {
         const targetResolutions = new Map(
             resolvedTargets
                 .filter((entry) => entry.projectName === project.name)
-                .map((entry) => [
-                    entry.target.sourcePath,
-                    entry,
-                ]),
+                .map((entry) => [entry.target.sourcePath, entry]),
         );
         const resolvedProject: ExtensionToolingProject = {
             ...project,
@@ -530,40 +524,20 @@ export function recordProjectBaseline(
     }
 
     const streams: Array<[string, ToolRunResult]> = [
-        [
-            'TypeScript',
-            result.typescript,
-        ],
-        [
-            'TS (specs)',
-            result.typescriptSpecs,
-        ],
-        [
-            'ESLint',
-            result.eslint,
-        ],
+        ['TypeScript', result.typescript],
+        ['TS (specs)', result.typescriptSpecs],
+        ['ESLint', result.eslint],
     ];
 
-    for (const [
-        name,
-        run,
-    ] of streams) {
-        if (
-            [
-                'unmanaged',
-                'blocked',
-                'tooling-error',
-            ].includes(run.status)
-        ) {
+    for (const [name, run] of streams) {
+        if (['unmanaged', 'blocked', 'tooling-error'].includes(run.status)) {
             incompleteStreamNames.add(name);
         }
     }
 
-    const parserMismatch = [
-        result.typescript,
-        result.typescriptSpecs,
-        result.eslint,
-    ].some((run) => run.parseMismatch === true);
+    const parserMismatch = [result.typescript, result.typescriptSpecs, result.eslint].some(
+        (run) => run.parseMismatch === true,
+    );
 
     if (incompleteStreamNames.size > 0 || parserMismatch) {
         return {
@@ -686,11 +660,9 @@ export function computeExitCode(
         if (
             options.failOnSkipped &&
             !result.project.vendor &&
-            [
-                result.typescript,
-                result.typescriptSpecs,
-                result.eslint,
-            ].some((run) => run.status === 'unmanaged' || run.status === 'blocked')
+            [result.typescript, result.typescriptSpecs, result.eslint].some(
+                (run) => run.status === 'unmanaged' || run.status === 'blocked',
+            )
         ) {
             exitCode = 1;
         }

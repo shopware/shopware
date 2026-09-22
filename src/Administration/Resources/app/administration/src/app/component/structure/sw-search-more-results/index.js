@@ -19,9 +19,7 @@ const { Application } = Shopware;
 export default {
     template,
 
-    inject: [
-        'searchTypeService',
-    ],
+    inject: ['searchTypeService'],
 
     props: {
         entity: {

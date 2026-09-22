@@ -144,10 +144,7 @@ describe('src/app/service/custom-entity-definition.service', () => {
     it('should return the correct collection of cms-aware definitions', () => {
         const cmsAwareDefinitions = service.getCmsAwareDefinitions();
 
-        expect(cmsAwareDefinitions).toStrictEqual([
-            customEntityDefinitionWithCmsAware,
-            customEntityDefinitionWithAllFlags,
-        ]);
+        expect(cmsAwareDefinitions).toStrictEqual([customEntityDefinitionWithCmsAware, customEntityDefinitionWithAllFlags]);
     });
 
     it('should produce menu entry definitions for each entity with admin-ui', () => {

@@ -7,6 +7,7 @@ use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -57,7 +58,7 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
             ],
             [
                 'Method "explicitlyDeprecatedMethod" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
-                37,
+                46,
             ],
         ]);
     }
@@ -70,8 +71,8 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         /** @phpstan-ignore phpstanApi.method */
         $serviceMap = $factory->create();
 
-        $reflectionProvider = self::createReflectionProvider();
-
-        return new DeprecatedMethodsThrowDeprecationRule($serviceMap, $reflectionProvider);
+        return new DeprecatedMethodsThrowDeprecationRule($serviceMap, [
+            new DeprecatedServiceDecoratorPattern($serviceMap, self::createReflectionProvider()),
+        ]);
     }
 }

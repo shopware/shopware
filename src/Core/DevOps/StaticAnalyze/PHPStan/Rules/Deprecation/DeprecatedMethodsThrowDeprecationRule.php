@@ -6,7 +6,6 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
-use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -38,16 +37,12 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     ];
 
     /**
-     * @var iterable<DeprecationPattern>
+     * @param iterable<DeprecationPattern> $deprecationPatterns
      */
-    private readonly iterable $deprecationPatterns;
-
-    /**
-     * @param iterable<DeprecationPattern>|null $deprecationPatterns
-     */
-    public function __construct(private readonly ServiceMap $serviceMap, ReflectionProvider $reflectionProvider, ?iterable $deprecationPatterns = null)
-    {
-        $this->deprecationPatterns = $deprecationPatterns ?? [new DeprecatedServiceDecoratorPattern($serviceMap, $reflectionProvider)];
+    public function __construct(
+        private readonly ServiceMap $serviceMap,
+        private readonly iterable $deprecationPatterns,
+    ) {
     }
 
     public function getNodeType(): string

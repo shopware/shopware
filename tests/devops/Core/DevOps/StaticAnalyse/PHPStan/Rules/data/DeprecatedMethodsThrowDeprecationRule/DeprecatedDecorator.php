@@ -31,6 +31,15 @@ class DeprecatedDecorator
         return $value;
     }
 
+    public function delegatesToInnerVoid(string $value): void
+    {
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->decoratedService->delegatesToInnerVoid($value);
+
+            return;
+        }
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Use another method instead
      */
@@ -55,5 +64,9 @@ class DecoratedService
     public function delegatesToInner(string $value): string
     {
         return $value;
+    }
+
+    public function delegatesToInnerVoid(string $value): void
+    {
     }
 }

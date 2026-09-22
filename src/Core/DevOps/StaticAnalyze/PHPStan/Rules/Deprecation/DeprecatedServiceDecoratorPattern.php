@@ -131,15 +131,11 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
         }
 
         $statements = $firstStatement->stmts;
-        if (\count($statements) !== 1) {
-            return false;
-        }
-
         $statement = $statements[0];
         $call = null;
-        if ($statement instanceof Return_) {
+        if (\count($statements) === 1 && $statement instanceof Return_) {
             $call = $statement->expr;
-        } elseif ($statement instanceof Expression && $method->returnType instanceof Identifier && $method->returnType->toString() === 'void' && isset($method->stmts[1]) && $method->stmts[1] instanceof Return_ && $method->stmts[1]->expr === null) {
+        } elseif (\count($statements) === 2 && $statement instanceof Expression && $method->returnType instanceof Identifier && $method->returnType->toString() === 'void' && $statements[1] instanceof Return_ && $statements[1]->expr === null) {
             $call = $statement->expr;
         }
 

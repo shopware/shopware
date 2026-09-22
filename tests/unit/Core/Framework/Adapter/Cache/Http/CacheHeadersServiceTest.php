@@ -148,30 +148,27 @@ class CacheHeadersServiceTest extends TestCase
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
     }
 
-    public function testStorefrontCacheHashDoesNotContainLanguageId(): void
+    public function testTheSameContextHashesTheSameInEveryScope(): void
     {
-        $event = $this->cacheHeadersService->applyCacheHash(
+        $storefront = $this->cacheHeadersService->applyCacheHash(
             new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]),
             $this->createCacheHashContext('language-a'),
             $this->createFilledCart(),
             new Response()
         );
 
-        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
-        static::assertNull($event->get(HttpCacheCookieEvent::LANGUAGE_ID));
-    }
-
-    public function testStoreApiCacheHashContainsLanguageId(): void
-    {
-        $event = $this->cacheHeadersService->applyCacheHash(
+        $storeApi = $this->cacheHeadersService->applyCacheHash(
             new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]),
             $this->createCacheHashContext('language-a'),
             $this->createFilledCart(),
             new Response()
         );
 
-        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
-        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $storefront);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $storeApi);
+        static::assertSame('language-a', $storefront->get(HttpCacheCookieEvent::LANGUAGE_ID));
+        static::assertSame('language-a', $storeApi->get(HttpCacheCookieEvent::LANGUAGE_ID));
+        static::assertSame($storefront->getHash(), $storeApi->getHash());
     }
 
     public function testStoreNonDefaultLanguageRequiresCacheHash(): void

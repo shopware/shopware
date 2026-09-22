@@ -97,13 +97,8 @@ class CacheHeadersService
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
         ];
-
-        // Storefront language is already encoded in the resolved domain URL, while Store API
-        // can serve different languages for the same URL through the sw-language-id header.
-        if ($this->isStoreApi($request)) {
-            $parts[HttpCacheCookieEvent::LANGUAGE_ID] = $context->getLanguageId();
-        }
 
         foreach ($this->cookies as $cookie) {
             if ($request->cookies->has($cookie)) {

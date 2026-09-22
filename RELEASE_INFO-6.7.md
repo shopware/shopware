@@ -36,6 +36,10 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### The cache hash no longer depends on the request scope
+
+`sw-cache-hash` now always includes the context language, where before it did so only for Store API requests. A storefront domain serves one language, so the hash keeps the same number of variants there and the hit rate is unaffected, but both scopes now compute the same hash for the same context. A client that uses both, such as a Store API client embedded in a storefront page, no longer overwrites the cookie the other one wrote. Existing `sw-cache-hash` cookies are recomputed once after the update.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

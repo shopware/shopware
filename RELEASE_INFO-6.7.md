@@ -2,6 +2,12 @@
 
 ## Core
 
+### Product line items expose the manufacturer and category names in their payload
+
+Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no visible category. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
+
+Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
+
 ### Moved PHP classes retain backwards-compatible aliases
 
 The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:
@@ -42,6 +48,26 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+## Storefront
+
+### Google Tag Manager events use the GA4 ecommerce data layer format
+
+Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
+
+With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+
+`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, not only for products added from the product detail page. The values come from the product line item payload instead of the buy widget's hidden `manufacturerName` and `categoryNames` inputs, which are deprecated and removed with Shopware 6.8. Themes that extend the `buy_widget_buy_product_buy_info` block and read those inputs should switch to the payload.
+
+Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
+
+`add_shipping_info` and `add_payment_info` are now reported at most once per checkout. Both were reported on every load of the confirm page, and because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported them again. Expect lower counts for both events, no longer exceeding `begin_checkout`.
+
+Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
+
+`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
+
+`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 
 # 6.7.15.0
 
@@ -151,11 +177,6 @@ Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag 
 
 ## Core
 
-### Product line items expose the manufacturer and category names in their payload
-
-Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no visible category. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
-
-Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
 ### New `#[ExperimentalReplacement]` BC-change attribute
 
 Core classes that are superseded by a feature which is still `@experimental` are no longer deprecated ahead of time. A `@deprecated` annotation asks you to migrate now, but an experimental replacement has no backwards-compatibility promise yet. Such classes now carry `#[ExperimentalReplacement]` from `Shopware\Core\Framework\Deprecation\BCChange` instead.
@@ -670,23 +691,6 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ## Storefront
 
-### Google Tag Manager events use the GA4 ecommerce data layer format
-
-Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
-
-With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
-
-`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, not only for products added from the product detail page. The values come from the product line item payload instead of the buy widget's hidden `manufacturerName` and `categoryNames` inputs, which are deprecated and removed with Shopware 6.8. Themes that extend the `buy_widget_buy_product_buy_info` block and read those inputs should switch to the payload.
-
-Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
-
-`add_shipping_info` and `add_payment_info` are now reported at most once per checkout. Both were reported on every load of the confirm page, and because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported them again. Expect lower counts for both events, no longer exceeding `begin_checkout`.
-
-Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
-
-`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
-
-`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 ### Static theme compilation without a database
 
 Theme compilation with `StaticFileConfigLoader` now refreshes runtime configuration values when a database is available, while continuing to work without a reachable database in build environments.

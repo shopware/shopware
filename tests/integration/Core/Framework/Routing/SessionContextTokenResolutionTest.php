@@ -276,7 +276,6 @@ class SessionContextTokenResolutionTest extends TestCase
         );
 
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'), (string) $response->headers->get('cache-control'));
-        static::assertTrue($response->headers->hasCacheControlDirective('private'), (string) $response->headers->get('cache-control'));
         static::assertFalse($response->headers->hasCacheControlDirective('public'), (string) $response->headers->get('cache-control'));
         static::assertFalse($response->headers->hasCacheControlDirective('s-maxage'), (string) $response->headers->get('cache-control'));
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));

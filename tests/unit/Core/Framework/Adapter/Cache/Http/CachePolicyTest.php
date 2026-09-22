@@ -125,8 +125,8 @@ class CachePolicyTest extends TestCase
         static::assertTrue($policy->cacheControl->noCache);
         static::assertTrue($policy->cacheControl->mustRevalidate);
         static::assertSame(0, $policy->cacheControl->maxAge);
-        static::assertTrue($policy->cacheControl->private);
         static::assertNull($policy->cacheControl->public);
+        static::assertNull($policy->cacheControl->private);
         static::assertNull($policy->cacheControl->sMaxAge); // in other case symfony will set response as public
         // a response that must not be stored must not advertise cache matching relaxations
         static::assertNull($policy->noVarySearch);

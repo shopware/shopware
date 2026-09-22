@@ -19,6 +19,7 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'customerVatIdService',
     ],
 
     mixins: [
@@ -32,6 +33,7 @@ export default {
             customerNumberPreview: '',
             isSaveSuccessful: false,
             isLoading: false,
+            billingCountry: null,
         };
     },
 
@@ -46,6 +48,14 @@ export default {
 
         validCompanyField() {
             return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ? this.address.company?.trim().length : true;
+        },
+
+        countryRepository() {
+            return this.repositoryFactory.create('country');
+        },
+
+        isVatIdRequired() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS && !!this.billingCountry?.vatIdRequired;
         },
 
         languageRepository() {
@@ -85,6 +95,10 @@ export default {
     },
 
     watch: {
+        async 'address.countryId'(countryId) {
+            this.billingCountry = countryId ? await this.countryRepository.get(countryId) : null;
+        },
+
         'customer.salesChannelId'(salesChannelId) {
             this.systemConfigApiService.getValues('core.systemWideLoginRegistration').then((response) => {
                 if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
@@ -204,12 +218,20 @@ export default {
                 hasError = true;
             }
 
+            if (!(await this.validVatIdField())) {
+                hasError = true;
+            }
+
             if (hasError) {
                 this.createNotificationError({
                     message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
+            }
+
+            if (this.customer.vatIds) {
+                this.customer.vatIds = this.customerVatIdService.normalizeVatIds(this.customer.vatIds);
             }
 
             const languageId = await this.languageId;
@@ -240,6 +262,12 @@ export default {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;
             });
+        },
+
+        async validVatIdField() {
+            const country = this.address.countryId ? await this.countryRepository.get(this.address.countryId) : null;
+
+            return this.customerVatIdService.validateVatIds(this.customer, country);
         },
 
         createErrorMessageForCompanyField() {

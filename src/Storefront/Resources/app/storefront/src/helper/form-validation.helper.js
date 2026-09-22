@@ -599,7 +599,8 @@ export default class FormValidation {
     /**
      * Sets the validation message within the feedback text of the form field.
      * Only the error message with the highest validation priority will be shown.
-     * Checks for a `data-form-validation-error-message` on the field to override.
+     * Checks for a rule `data-form-validation-<rule>-message` and then
+     * for a `data-form-validation-error-message` on the field to override.
      *
      * @param {HTMLElement} field
      * @param {string[]} validationErrors
@@ -639,7 +640,10 @@ export default class FormValidation {
          */
         const highestPriorityError = validationErrors[0];
 
-        let errorMessage = field.getAttribute('data-form-validation-error-message');
+        const ruleAttribute = highestPriorityError.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+
+        let errorMessage = field.getAttribute(`data-form-validation-${ruleAttribute}-message`)
+            || field.getAttribute('data-form-validation-error-message');
         if (!errorMessage) {
             errorMessage = this.errorMessages.get(highestPriorityError) || '';
         }

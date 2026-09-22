@@ -20,6 +20,7 @@ export default {
         'acl',
         'contextStoreService',
         'repositoryFactory',
+        'customerVatIdService',
     ],
 
     mixins: [
@@ -52,6 +53,7 @@ export default {
         return {
             showImitateCustomerModal: false,
             showConvertCustomerModal: false,
+            euVatIdPatterns: null,
         };
     },
 
@@ -118,6 +120,37 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        billingCountry() {
+            return this.customerVatIdService.getBillingCountry(this.customer);
+        },
+
+        isVatIdRequired() {
+            return this.isBusinessAccountType && !!this.billingCountry?.vatIdRequired;
+        },
+
+        vatIdIssue() {
+            return this.customerVatIdService.getVatIdIssue(
+                this.isBusinessAccountType,
+                this.customer?.vatIds,
+                this.billingCountry,
+                this.euVatIdPatterns,
+            );
+        },
+
+        vatIdWarning() {
+            if (this.vatIdIssue === 'required') {
+                return this.$t('sw-customer.card.warningVatIdRequired');
+            }
+
+            if (this.vatIdIssue !== 'format') {
+                return null;
+            }
+
+            return this.customerVatIdService.isBlockingVatIdIssue(this.vatIdIssue, this.billingCountry)
+                ? this.$t('sw-customer.card.warningVatIdFormatNotCorrect')
+                : this.$t('sw-customer.card.warningVatIdFormatUnusual');
         },
 
         canUseCustomerImitation() {
@@ -197,9 +230,28 @@ export default {
 
             Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
         },
+
+        'customer.vatIds': {
+            deep: true,
+            handler() {
+                if (!this.customerVatIdsError) {
+                    return;
+                }
+
+                Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.vatIds`);
+            },
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        async createdComponent() {
+            this.euVatIdPatterns = await this.customerVatIdService.loadEuVatIdPatterns();
+        },
+
         getMailTo(mail) {
             return `mailto:${mail}`;
         },

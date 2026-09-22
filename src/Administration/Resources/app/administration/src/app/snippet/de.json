@@ -4,6 +4,7 @@
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen.",
       "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen.",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein.",
+      "463d3548-1caf-11eb-adc1-0242ac120002": "Das Format der USt-IdNr. ist ungültig. Bitte prüfe den Ländercode sowie die eingegebenen Buchstaben und Ziffern.",
       "PARENT_MUST_NOT_BE_EMPTY": "Das vererbende Feld darf nicht leer sein.",
       "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",

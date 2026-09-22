@@ -2915,3 +2915,7 @@ If your extension relied on a restored `SalesChannelContext` (for example, custo
 `\Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface` and its `buildFilters()` method have been removed. Use `\Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria()` instead, which applies both the stream filters and the grouping state to the passed `Criteria`.
 
 If your extension decorates the `ProductStreamBuilder` service or applies variant grouping manually, `extends AbstractProductStreamBuilder` and respect `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::STATE_SKIP_ADD_GROUPING` on the `Criteria` to keep matching variants ungrouped.
+
+## `CountryStateSelectPlugin` no longer reacts to the shipping address toggle
+
+The Storefront `CountryStateSelectPlugin` stopped subscribing to the "different shipping address" toggle of the registration form, because the VAT ID field follows the billing country in every case. Its `_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` methods were removed. Plugins that overrode them to change the VAT ID rules should override `_updateVatIdField()` instead.

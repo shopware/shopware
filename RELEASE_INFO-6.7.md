@@ -296,12 +296,18 @@ Independently of the setting, a customer counts as a business based on `accountT
 
 `store-api/account/register` and `store-api/account/change-profile` now accept a VAT ID of any EU member state when the billing country is an EU member state with *Check VAT ID pattern* enabled.
 
+The Administration now checks the VAT ID of a Business customer against the billing country when saving on the customer detail page, customer create page and the new customer modal of an order. Saving is blocked if a required VAT ID is missing, or if there is no matching pattern with *Check VAT ID pattern* enabled.
+
+In the Storefront registration form, the VAT ID field always follows the billing country. For an EU member state, the browser no longer enforces the pattern, because VAT IDs of other member states are accepted too.
+
 For extension developers:
 
 - `CustomerVatIdentification` has a new optional `salesChannelId` argument. Given one, it also rejects a VAT ID of the shop's own member state.
 - `AbstractDocumentRenderer` has a new protected `isDomesticSupply()`. Custom invoice renderers should call it next to `isAllowIntraCommunityDelivery()` to omit the note on domestic deliveries.
 - `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
 - The document letter head prints the VAT ID stored on the order. Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
+- The Storefront form validation reads a message per rule from `data-form-validation-<rule>-message` (e.g. `data-form-validation-pattern-message`) before `data-form-validation-error-message`. The VAT ID input now uses `data-form-validation-pattern-message`. Themes overriding `address-personal-vat-id.html.twig` should rename the attribute accordingly.
+- `CountryStateSelectPlugin` no longer subscribes to the "different shipping address" toggle. Its `_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and will be removed in 6.8.0.
 
 ### Customers store the EU member state of their VAT ID
 

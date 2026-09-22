@@ -430,7 +430,8 @@
     "companyDepartmentLabel": "Abteilung",
     "companyDepartmentPlaceholder": "Abteilung eingeben ...",
     "companyVatLabel": "Umsatzsteuer-ID",
-    "companyVatPlaceholder": "Umsatzsteuer-ID"
+    "companyVatPlaceholder": "Umsatzsteuer-ID",
+    "companyVatFormatWarning": "Die Umsatzsteuer-ID entspricht nicht dem üblichen Format des gewählten Landes. Bitte überprüfen Sie sie."
   },
   "checkout": {
     "itemCounter": "{1} 1 Position|[0,Inf[ %count% Positionen",

@@ -69,6 +69,20 @@
 
     {% block sw_customer_card_rows %}
     <template #grid>
+        {% block sw_customer_card_vat_id_warning %}
+        <sw-card-section
+            v-if="vatIdWarning"
+            divider="bottom"
+        >
+            <mt-banner
+                class="sw-customer-card__vat-id-warning"
+                variant="attention"
+            >
+                {{ vatIdWarning }}
+            </mt-banner>
+        </sw-card-section>
+        {% endblock %}
+
         <sw-container rows="auto auto">
             {% block sw_customer_card_row_primary %}
             <sw-card-section divider="bottom">
@@ -209,6 +223,7 @@
                             v-if="editMode && isBusinessAccountType"
                             v-model="customer.vatIds[0]"
                             name="vatId"
+                            :required="isVatIdRequired"
                             :label="$t('sw-customer.card.labelVatId')"
                             :placeholder="$t('sw-customer.card.placeholderVatId')"
                             :error="customerVatIdsError"

@@ -430,7 +430,8 @@
     "companyDepartmentLabel": "Department",
     "companyDepartmentPlaceholder": "Enter department...",
     "companyVatLabel": "VAT Registration Number",
-    "companyVatPlaceholder": "VAT Reg.No."
+    "companyVatPlaceholder": "VAT Reg.No.",
+    "companyVatFormatWarning": "The VAT Reg.No. does not match the usual format of the selected country. Please check it."
   },
   "checkout": {
     "itemCounter": "{1} 1 item|[0,Inf[ %count% items",

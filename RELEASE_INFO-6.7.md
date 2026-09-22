@@ -36,6 +36,14 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Store API resolves the context from the storefront session on request
+
+A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
+
+The session is resumed, never created, so this only works alongside a storefront. When it cannot be used the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) instead of falling back to a new context, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header are unaffected. Deployments that widen the default CORS configuration must keep `sw-context-source` out of the allowed headers.
+
+Session-resolved responses are `private, no-store` and carry no `sw-context-token` header. `sw-context-source` is part of the `Vary` set; reverse proxies building their own cache key must include it or bypass these requests.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses
@@ -77,6 +85,10 @@ Together, these two changes remove the need to override the surrounding blocks, 
 ### Separate legal guarantee notice
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
+
+### Storefront session handling moved to Core
+
+`Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.
 
 # 6.7.15.0
 
@@ -477,14 +489,6 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
 
-### Store API resolves the context from the storefront session on request
-
-A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
-
-The session is resumed, never created, so this only works alongside a storefront. When it cannot be used the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) instead of falling back to a new context, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header are unaffected. Deployments that widen the default CORS configuration must keep `sw-context-source` out of the allowed headers.
-
-Session-resolved responses are `private, no-store` and carry no `sw-context-token` header. `sw-context-source` is part of the `Vary` set; reverse proxies building their own cache key must include it or bypass these requests.
-
 ### Remote media request timeouts are configurable
 
 Installations can configure `shopware.media.url_upload_timeout` and
@@ -771,10 +775,6 @@ Changing a quantity in the cart, off-canvas cart and checkout confirm no longer 
 The button is looked up with the plugin's existing `buyButtonSelector` option, which defaults to `button[type="submit"].btn-buy`. The new `loadingIndicatorPosition` option (`before`, `after` or `inner`, default `inner`) controls where the indicator is rendered. A buy button that does not match `buyButtonSelector` is left untouched.
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
-
-### Storefront session handling moved to Core
-
-`Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.
 
 ### Themes inherit snippets from every theme in `configInheritance`
 

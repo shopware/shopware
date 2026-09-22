@@ -30,11 +30,7 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
         await wrapper.get('button').trigger('click');
 
         expect(wrapper.text()).toBe('Transformed: 2');
-        expect(wrapper.emitted('save')).toEqual([
-            [
-                2,
-            ],
-        ]);
+        expect(wrapper.emitted('save')).toEqual([[2]]);
     });
 
     it('gives a parent holding a template ref the swDefinePublic bindings and the props', async () => {

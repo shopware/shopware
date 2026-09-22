@@ -89,9 +89,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         wrapper = await createWrapper();
         await flushPromises();
 
-        const deliveryFieldsClassName = [
-            '.product-deliverability-downloadable-form__delivery-time',
-        ];
+        const deliveryFieldsClassName = ['.product-deliverability-downloadable-form__delivery-time'];
 
         deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
@@ -114,9 +112,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             },
         };
 
-        const deliveryFieldsClassName = [
-            '.product-deliverability-downloadable-form__delivery-time',
-        ];
+        const deliveryFieldsClassName = ['.product-deliverability-downloadable-form__delivery-time'];
 
         await nextTick();
 

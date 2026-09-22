@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -122,15 +121,12 @@ class DocumentGeneratorTest extends TestCase
         $documentFile->setDocumentFormat(HtmlRenderer::FILE_EXTENSION);
         $documentFile->setMedia($v2Media);
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setTechnicalName(InvoiceRenderer::TYPE);
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName(InvoiceRenderer::TYPE);
         $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
 
         $documentRepository = new StaticEntityRepository([
@@ -179,17 +175,12 @@ class DocumentGeneratorTest extends TestCase
         $mediaA11y->setFileExtension(HtmlRenderer::FILE_EXTENSION);
         $mediaA11y->setMimeType(HtmlRenderer::FILE_CONTENT_TYPE);
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setName('invoice');
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDocumentMediaFileId($media->getId());
         $document->setDocumentMediaFile($media);
         $document->setDocumentA11yMediaFileId($mediaA11y->getId());
@@ -253,16 +244,12 @@ class DocumentGeneratorTest extends TestCase
         $xmlMedia->setFileName('invoice');
         $xmlMedia->setMimeType('application/xml');
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDocumentMediaFileId($xmlMedia->getId());
         $document->setDocumentMediaFile($xmlMedia);
 
@@ -573,17 +560,13 @@ class DocumentGeneratorTest extends TestCase
         $orderVersionId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId($documentId);
         $document->setOrderId($orderId);
         $document->setOrderVersionId($orderVersionId);
         $document->setStatic(true);
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDeepLinkCode('deepLinkCode');
         $document->setDocumentNumber('1000');
 

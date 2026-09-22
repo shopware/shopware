@@ -42,16 +42,9 @@ describe('src/module/sw-sales-channel/acl/index.js', () => {
 
         const registeredRoles = addPrivilegeMappingEntryMock.mock.calls[0][0].roles;
 
-        expect(registeredRoles.viewer.privileges).toEqual(
-            expect.arrayContaining([
-                'sales_channel_file:read',
-            ]),
-        );
+        expect(registeredRoles.viewer.privileges).toEqual(expect.arrayContaining(['sales_channel_file:read']));
         expect(registeredRoles.editor.privileges).toEqual(
-            expect.arrayContaining([
-                'sales_channel_file:create',
-                'sales_channel_file:update',
-            ]),
+            expect.arrayContaining(['sales_channel_file:create', 'sales_channel_file:update']),
         );
     });
 });

@@ -8,9 +8,7 @@ import './sw-extension-adding-failed.scss';
 export default {
     template,
 
-    inject: [
-        'shopwareExtensionService',
-    ],
+    inject: ['shopwareExtensionService'],
 
     emits: ['close'],
 

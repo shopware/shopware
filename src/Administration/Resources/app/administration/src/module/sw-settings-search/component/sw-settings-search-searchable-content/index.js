@@ -11,17 +11,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     emits: ['edit-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         searchConfigId: {
@@ -212,11 +206,7 @@ export default {
             if (this.defaultTab === this.tabNames.generalTab) {
                 criteria.addFilter(Criteria.equals('customFieldId', null));
             } else {
-                criteria.addFilter(
-                    Criteria.not('AND', [
-                        Criteria.equals('customFieldId', null),
-                    ]),
-                );
+                criteria.addFilter(Criteria.not('AND', [Criteria.equals('customFieldId', null)]));
             }
 
             return criteria;

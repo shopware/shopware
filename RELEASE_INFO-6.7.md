@@ -72,6 +72,10 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### Administration HTTP client runs on a single Axios 1.x transport
+
+The Administration `httpClient` is now one Axios 1.x instance (1.20.0). The legacy Axios 0.x dependency and the `axios-v1` package alias were removed, which drops the second Axios copy from the Administration bundle. Extensions keep using `httpClient` unchanged, and the opt-out survives the removal: `useAxiosV1: false` now selects a compatibility mode on the single client that restores the two behaviours which actually differ between the versions, the literal `[`, `]`, `:`, `$` and `,` query encoding and the plain `response.headers` object. The defaults are unchanged, legacy behaviour on 6.7 and Axios 1.x once `V6_8_0_0` is active. `useAxiosV1`, `httpClient.CancelToken` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases keep working, are deprecated and log a development-mode warning on first use. Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations. Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+
 ## Storefront
 
 ### Separate legal guarantee notice
@@ -486,9 +490,6 @@ preserves the previous unlimited behavior.
 
 ## Administration
 
-### Administration HTTP client runs on a single Axios 1.x transport
-
-The Administration `httpClient` is now one Axios 1.x instance (1.20.0). The legacy Axios 0.x dependency and the `axios-v1` package alias were removed, which drops the second Axios copy from the Administration bundle. Extensions keep using `httpClient` unchanged, and the opt-out survives the removal: `useAxiosV1: false` now selects a compatibility mode on the single client that restores the two behaviours which actually differ between the versions, the literal `[`, `]`, `:`, `$` and `,` query encoding and the plain `response.headers` object. The defaults are unchanged, legacy behaviour on 6.7 and Axios 1.x once `V6_8_0_0` is active. `useAxiosV1`, `httpClient.CancelToken` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases keep working, are deprecated and log a development-mode warning on first use. Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations. Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 ### An empty string can be saved on fields that allow one
 
 The changeset generator turned an empty string into `null` for every field. Fields flagged `Required` and `AllowEmptyString` reject `null` but accept an empty string, so clearing such a field in the Administration always failed with "This value should not be null." The generator now keeps the empty string for exactly those fields; every other field is unchanged.

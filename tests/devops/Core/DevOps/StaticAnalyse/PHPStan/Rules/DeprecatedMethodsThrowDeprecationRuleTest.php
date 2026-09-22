@@ -7,6 +7,8 @@ use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\RemoveSubscriberDeprecationPattern;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -68,6 +70,11 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         $factory = new XmlServiceMapFactory(__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/container.xml');
 
         /** @phpstan-ignore phpstanApi.method */
-        return new DeprecatedMethodsThrowDeprecationRule($factory->create());
+        $serviceMap = $factory->create();
+
+        return new DeprecatedMethodsThrowDeprecationRule($serviceMap, [
+            new DeprecatedServiceDecoratorPattern($serviceMap),
+            new RemoveSubscriberDeprecationPattern(),
+        ]);
     }
 }

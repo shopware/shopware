@@ -186,7 +186,7 @@ export default Shopware.Component.wrapComponentConfig({
                     if (!found && child.userData[SHOPWARE_MODEL_EDITOR_ROOT_MARKER]) found = child;
                 });
                 return found;
-            }
+            };
 
             const root = findEditorRoot(this.diveModel);
             if (root) {
@@ -268,7 +268,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.diveModel.setRotation({
                 x: DIVEMath.degToRad(rotation.x),
                 y: DIVEMath.degToRad(rotation.y),
-                z: DIVEMath.degToRad(rotation.z)
+                z: DIVEMath.degToRad(rotation.z),
             });
             this.syncProperties(this.diveModel as DIVENode);
         },

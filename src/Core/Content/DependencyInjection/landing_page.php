@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageMappingCandidateProvider;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageSpecificationSource;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageSalesChannel\LandingPageSalesChannelDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTag\LandingPageTagDefinition;
@@ -78,4 +79,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityLayoutContextFactory::class),
         ])
         ->tag('content_system.entity_specification_source', ['priority' => 100]);
+
+    $services->set(LandingPageMappingCandidateProvider::class)
+        ->args([
+            service(LandingPageContentLayoutDefinition::class),
+        ])
+        ->tag('content_system.mapping_candidate_provider', ['priority' => 100]);
 };

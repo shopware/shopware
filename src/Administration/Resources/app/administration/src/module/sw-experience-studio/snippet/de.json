@@ -67,6 +67,28 @@
           "label": "Produktbilder",
           "description": "Alle Bilder des Produkts, in der am Produkt festgelegten Reihenfolge."
         }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landingpage-Name",
+          "description": "Der Name der angezeigten Landingpage."
+        },
+        "url": {
+          "label": "Landingpage-URL",
+          "description": "Der für die Landingpage konfigurierte URL-Pfad."
+        },
+        "metaTitle": {
+          "label": "Meta-Titel",
+          "description": "Der SEO-Titel der Landingpage."
+        },
+        "metaDescription": {
+          "label": "Meta-Beschreibung",
+          "description": "Die SEO-Beschreibung der Landingpage."
+        },
+        "keywords": {
+          "label": "Schlagwörter",
+          "description": "Die SEO-Schlagwörter der Landingpage."
+        }
       }
     },
     "elements": {

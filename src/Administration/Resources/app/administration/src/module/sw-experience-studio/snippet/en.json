@@ -67,6 +67,28 @@
           "label": "Product images",
           "description": "All images of the product, in the order set on the product."
         }
+      },
+      "landingPage": {
+        "name": {
+          "label": "Landing page name",
+          "description": "The name of the landing page being shown."
+        },
+        "url": {
+          "label": "Landing page URL",
+          "description": "The URL path configured for the landing page."
+        },
+        "metaTitle": {
+          "label": "Meta title",
+          "description": "The SEO title of the landing page."
+        },
+        "metaDescription": {
+          "label": "Meta description",
+          "description": "The SEO description of the landing page."
+        },
+        "keywords": {
+          "label": "Keywords",
+          "description": "The SEO keywords of the landing page."
+        }
       }
     },
     "elements": {

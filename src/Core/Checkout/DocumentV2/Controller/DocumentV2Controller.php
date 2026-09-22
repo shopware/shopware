@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
@@ -49,6 +50,7 @@ final class DocumentV2Controller extends AbstractController
      * @internal
      *
      * @param EntityRepository<DocumentCollection> $documentRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
@@ -59,6 +61,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly DocumentPersister $documentPersister,
         private readonly MediaService $mediaService,
         private readonly FileNameProvider $fileNameProvider,
+        private readonly EntityRepository $mediaRepository,
     ) {
     }
 
@@ -153,36 +156,16 @@ final class DocumentV2Controller extends AbstractController
         $this->documentTypeRegistry->validateFormats($documentType, [$format]);
 
         $mediaId = $payload->getString('mediaId');
-        $documentNumber = $payload->getString('documentNumber');
 
-        if ($mediaId === '') {
-            $mediaId = $context->scope(
-                Context::SYSTEM_SCOPE,
-                function (Context $scopedContext) use ($request, $payload): string {
-                    $mediaFile = $this->mediaService->fetchFile($request);
-
-                    $fileName = $this->fileNameProvider->provide(
-                        $this->resolveUploadedFileName($payload),
-                        $mediaFile->getFileExtension(),
-                        null,
-                        $scopedContext,
-                    );
-
-                    return $this->mediaService->saveMediaFile(
-                        $mediaFile,
-                        $fileName,
-                        $scopedContext,
-                        DocumentPersister::MEDIA_FOLDER,
-                    );
-                },
-            );
-        }
+        $mediaId = $mediaId === ''
+            ? $this->storeUploadedMedia($request, $payload, $context)
+            : $this->resolveReferencedMedia($mediaId, $context);
 
         $document = $this->documentPersister->persistUploaded(
             $documentType,
             $this->requirePayloadString($payload, 'orderId'),
             $this->requirePayloadString($payload, 'orderVersionId'),
-            $documentNumber,
+            $payload->getString('documentNumber'),
             $format,
             $mediaId,
             $payload->getString('referencedDocumentId') ?: null,
@@ -288,6 +271,46 @@ final class DocumentV2Controller extends AbstractController
         }
 
         return $value;
+    }
+
+    /**
+     * @param InputBag<string|int|float|bool|null> $payload
+     */
+    private function storeUploadedMedia(Request $request, InputBag $payload, Context $context): string
+    {
+        return $context->scope(
+            Context::SYSTEM_SCOPE,
+            function (Context $scopedContext) use ($request, $payload): string {
+                $mediaFile = $this->mediaService->fetchFile($request);
+
+                $fileName = $this->fileNameProvider->provide(
+                    $this->resolveUploadedFileName($payload),
+                    $mediaFile->getFileExtension(),
+                    null,
+                    $scopedContext,
+                );
+
+                return $this->mediaService->saveMediaFile(
+                    $mediaFile,
+                    $fileName,
+                    $scopedContext,
+                    DocumentPersister::MEDIA_FOLDER,
+                );
+            },
+        );
+    }
+
+    private function resolveReferencedMedia(string $mediaId, Context $context): string
+    {
+        if (!$context->isAllowed('media:read')) {
+            throw DocumentV2Exception::missingPrivilege('media:read');
+        }
+
+        if ($this->mediaRepository->searchIds(new Criteria([$mediaId]), $context)->firstId() === null) {
+            throw DocumentV2Exception::mediaNotFound($mediaId);
+        }
+
+        return $mediaId;
     }
 
     /**

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,6 +28,8 @@ class DocumentV2Exception extends HttpException
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
+
+    public const MEDIA_NOT_FOUND = 'DOCUMENT_V2__MEDIA_NOT_FOUND';
 
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
@@ -157,6 +161,21 @@ class DocumentV2Exception extends HttpException
             'Document with id "{{ documentId }}" not found.',
             ['documentId' => $documentId],
         );
+    }
+
+    public static function mediaNotFound(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_NOT_FOUND,
+            'Media with id "{{ mediaId }}" not found.',
+            ['mediaId' => $mediaId],
+        );
+    }
+
+    public static function missingPrivilege(string $privilege): ShopwareHttpException
+    {
+        return new MissingPrivilegeException([$privilege]);
     }
 
     public static function rendererNotFound(string $format, ?string $documentType = null): self

@@ -289,6 +289,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentPersister::class),
             service(MediaService::class),
             service(FileNameProvider::class),
+            service('media.repository'),
         ])
         ->call('setContainer', [
             service('service_container'),

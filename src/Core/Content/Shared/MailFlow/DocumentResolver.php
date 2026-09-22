@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -123,7 +124,8 @@ final readonly class DocumentResolver
 
         // sorted ascending, so the newest document of a type overwrites the older ones
         foreach ($this->documentRepository->search($criteria, $context)->getEntities() as $document) {
-            $latestPerType[$document->getDocumentTypeId()] = $document->getId();
+            $typeId = Feature::silent('v6.9.0.0', static fn (): string => $document->getDocumentTypeId());
+            $latestPerType[$typeId] = $document->getId();
         }
 
         return array_values($latestPerType);

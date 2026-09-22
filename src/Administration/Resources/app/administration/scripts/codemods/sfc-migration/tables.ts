@@ -74,10 +74,7 @@ const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
 });
 
 // `this.$super` / `this.$parent` are structural — the component is skipped entirely.
-const SKIP_INSTANCE_PROPS = new Set([
-    '$super',
-    '$parent',
-]);
+const SKIP_INSTANCE_PROPS = new Set(['$super', '$parent']);
 
 // `this.$xyz` → replacement identifier; `helper` requests the matching setup declaration/import.
 const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName }> = sourceKeyed<{

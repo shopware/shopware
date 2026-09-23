@@ -7,7 +7,7 @@ meta:
     summary: "Tabbed content panel."
     hints:
       - "Only Tab elements can be placed in the tabs slot. Each tab brings its own title and content slot."
-      - "The tab that is opened first is chosen on the tab itself, not here."
+      - "The first tab is opened when the page loads."
 
 properties:
   variant:

@@ -20,15 +20,6 @@ properties:
       component: "text"
       panel: "general"
 
-  active:
-    type: boolean
-    title: "Open by default"
-    description: "Whether this tab is the one shown when the page is opened."
-    default: false
-    adminUI:
-      panel: "general"
-      helpText: "Only one tab of a panel should be open by default. If none is, the first tab opens."
-
 slots:
   - name: content
     description: "Elements rendered inside this tab."

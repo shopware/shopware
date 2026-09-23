@@ -8,7 +8,6 @@ layout:
         - component: Sw:Tabs:Tab
           properties:
             title: "Description"
-            active: true
           slots:
             content:
               - component: Sw:Content:Text

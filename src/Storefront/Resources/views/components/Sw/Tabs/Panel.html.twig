@@ -9,11 +9,7 @@
 %}
 
 {% set tabs = slots.tabs|default([]) %}
-
-{# The tab flagged as open by default wins, otherwise the first tab opens. Panel.scss mirrors this for the panes. #}
-{% set flaggedTabs = tabs|filter(tab => tab.properties.active ?? false) %}
-{% set openTabs = flaggedTabs is not empty ? flaggedTabs : tabs %}
-{% set activeTabId = openTabs is not empty ? (openTabs|first).id : null %}
+{% set activeTabId = tabs is not empty ? (tabs|first).id : null %}
 
 {% set panelCVA = cva({
     base: 'sw-tabs',

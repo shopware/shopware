@@ -25,9 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
  * layout was persisted with, so a panel that emits internally consistent but element-unrelated ids is
  * a failure rather than a passing round trip.
  *
- * The open tab is pinned on both sides at once, because the panel decides the navigation state from
- * the tabs' `active` property while each tab decides its own pane state from the same property, and
- * those two decisions are what can drift apart.
+ * The first tab is always the open one. The panel marks that tab's navigation item active, and
+ * the first pane is shown until Bootstrap takes over.
  *
  * @internal
  */
@@ -50,7 +49,7 @@ class TabPanelStorefrontRenderTest extends TestCase
     #[TestDox('addresses the tab pane of the same tab element from every navigation item')]
     public function testNavigationItemsAddressTheTabPaneOfTheirOwnTabElement(): void
     {
-        $this->persistTabPanelLayout(openTab: 'reviews');
+        $this->persistTabPanelLayout();
 
         $xpath = $this->renderedLayout();
 
@@ -73,7 +72,7 @@ class TabPanelStorefrontRenderTest extends TestCase
     #[TestDox('renders the title of each tab as the label of its navigation item')]
     public function testTabTitlesBecomeTheNavigationLabels(): void
     {
-        $this->persistTabPanelLayout(openTab: 'reviews');
+        $this->persistTabPanelLayout();
 
         $xpath = $this->renderedLayout();
 
@@ -87,29 +86,37 @@ class TabPanelStorefrontRenderTest extends TestCase
         );
     }
 
-    #[TestDox('opens the tab flagged as open by default on both the navigation and the pane')]
-    public function testTabFlaggedAsOpenByDefaultIsTheOpenOne(): void
+    #[TestDox('opens the first tab')]
+    public function testFirstTabIsTheOpenOne(): void
     {
-        $this->persistTabPanelLayout(openTab: 'reviews');
+        $this->persistTabPanelLayout();
 
         $xpath = $this->renderedLayout();
-        $reviews = $this->ids->get('reviews');
+        $description = $this->ids->get('description');
 
-        static::assertSame('sw-tab-' . $reviews, $this->openNavigationItem($xpath)->getAttribute('id'));
-        static::assertSame('sw-tab-pane-' . $reviews, $this->openTabPane($xpath)->getAttribute('id'));
-
+        static::assertSame('sw-tab-' . $description, $this->openNavigationItem($xpath)->getAttribute('id'));
         static::assertSame('true', $this->openNavigationItem($xpath)->getAttribute('aria-selected'));
         static::assertSame(
             'false',
-            $this->singleNode($xpath, \sprintf('//button[@id="sw-tab-%s"]', $this->ids->get('description')))
+            $this->singleNode($xpath, \sprintf('//button[@id="sw-tab-%s"]', $this->ids->get('reviews')))
                 ->getAttribute('aria-selected')
         );
     }
 
-    #[TestDox('opens the first tab when no tab is flagged as open by default')]
-    public function testFirstTabOpensWhenNoTabIsFlaggedAsOpenByDefault(): void
+    #[TestDox('opens the first tab even when a later tab still carries a leftover stored active flag')]
+    public function testFirstTabOpensEvenWhenALaterTabWasFlaggedActiveInStorage(): void
     {
-        $this->persistTabPanelLayout(openTab: null);
+        $this->persistLayout([[
+            'id' => $this->ids->get('panel'),
+            'component' => 'Sw:Tabs:Panel',
+            'properties' => [],
+            'slots' => [
+                'tabs' => [
+                    $this->tab('description', 'Description'),
+                    $this->tab('reviews', 'Reviews', leftoverActive: true),
+                ],
+            ],
+        ]]);
 
         $xpath = $this->renderedLayout();
 
@@ -156,15 +163,6 @@ class TabPanelStorefrontRenderTest extends TestCase
         );
     }
 
-    private function openTabPane(\DOMXPath $xpath): \DOMElement
-    {
-        return $this->singleNode(
-            $xpath,
-            '//div[contains(concat(" ", normalize-space(@class), " "), " sw-tab-pane ")]'
-            . '[contains(concat(" ", normalize-space(@class), " "), " active ")]'
-        );
-    }
-
     private function singleNode(\DOMXPath $xpath, string $query): \DOMElement
     {
         $nodes = $xpath->query($query);
@@ -197,10 +195,7 @@ class TabPanelStorefrontRenderTest extends TestCase
         return new \DOMXPath($document);
     }
 
-    /**
-     * @param 'description'|'reviews'|null $openTab the tab flagged `active`, or none at all
-     */
-    private function persistTabPanelLayout(?string $openTab): void
+    private function persistTabPanelLayout(): void
     {
         $this->persistLayout([[
             'id' => $this->ids->get('panel'),
@@ -208,8 +203,8 @@ class TabPanelStorefrontRenderTest extends TestCase
             'properties' => [],
             'slots' => [
                 'tabs' => [
-                    $this->tab('description', 'Description', $openTab === 'description'),
-                    $this->tab('reviews', 'Reviews', $openTab === 'reviews'),
+                    $this->tab('description', 'Description'),
+                    $this->tab('reviews', 'Reviews'),
                 ],
             ],
         ]]);
@@ -255,15 +250,17 @@ class TabPanelStorefrontRenderTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function tab(string $key, string $title, bool $active): array
+    private function tab(string $key, string $title, bool $leftoverActive = false): array
     {
+        $properties = ['title' => $title];
+        if ($leftoverActive) {
+            $properties['active'] = true;
+        }
+
         return [
             'id' => $this->ids->get($key),
             'component' => 'Sw:Tabs:Tab',
-            'properties' => [
-                'title' => $title,
-                'active' => $active,
-            ],
+            'properties' => $properties,
             'slots' => [
                 'content' => [[
                     'id' => $this->ids->get($key . '-text'),

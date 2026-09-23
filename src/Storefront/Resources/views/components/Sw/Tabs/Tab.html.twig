@@ -6,23 +6,13 @@
 {% props
     slots = [],
     title = '',
-    active = false,
 %}
 
 {# The content element id pairs this pane with its navigation item in Sw:Tabs:Panel, so no authored ids are needed. #}
 {% set elementId = attributes.all()['data-element-id']|default(null) %}
 
-{% set paneCVA = cva({
-    base: 'sw-tab-pane tab-pane fade',
-    variants: {
-        active: {
-            'true': 'show active',
-        },
-    },
-}) %}
-
 {% set attributeDefaults = {
-    class: paneCVA.apply({ active }),
+    class: 'sw-tab-pane tab-pane fade',
     role: 'tabpanel',
     tabindex: '0',
 } %}

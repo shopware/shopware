@@ -67,7 +67,6 @@
                                 },
                                 "required": [
                                     "manufacturer",
-                                    "navigationId",
                                     "price",
                                     "properties",
                                     "rating",

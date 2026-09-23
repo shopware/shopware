@@ -8,7 +8,6 @@ use League\Flysystem\UnableToCreateDirectory;
 use League\Flysystem\UnableToDeleteDirectory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Installer\Installer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

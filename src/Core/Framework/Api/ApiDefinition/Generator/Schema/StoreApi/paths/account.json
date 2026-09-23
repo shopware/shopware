@@ -17,11 +17,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -121,7 +117,7 @@
                                         "type": "integer"
                                     }
                                 },
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "required": [
                                             "firstName",
@@ -579,11 +575,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/NoneFieldsCriteria"
                             }
                         }
                     }
@@ -791,11 +783,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -1190,7 +1178,7 @@
                                     "storefrontUrl",
                                     "billingAddress"
                                 ],
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "required": [
                                             "firstName",

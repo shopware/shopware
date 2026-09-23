@@ -645,12 +645,54 @@ class OrderConverterTest extends TestCase
             function (string $randomId, string $salesChannelId, array $options): SalesChannelContext {
                 static::assertSame('billing-address-id', $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? null);
                 static::assertSame('shipping-address-id', $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? null);
+                static::assertArrayNotHasKey(SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID, $options);
 
                 return $this->getSalesChannelContext(true);
             }
         );
 
         $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
+    }
+
+    public function testAssembleSalesChannelContextPassesOrderShippingAddressWhenNoCustomerAddressMatches(): void
+    {
+        $shippingAddress = $this->getCustomerAddress();
+        $shippingAddress->setId('shipping-address-id');
+        $shippingAddress->setHash('shipping-address-hash');
+
+        $customer = $this->getCustomer(true);
+        $customer->setAddresses(new CustomerAddressCollection([$shippingAddress]));
+
+        $orderBillingAddress = $this->getOrderAddress();
+        $orderBillingAddress->setId('order-billing-address-id');
+        $orderBillingAddress->setHash('order-billing-address-hash');
+
+        $orderShippingAddress = $this->getOrderAddress();
+        $orderShippingAddress->setId('order-shipping-address-id');
+        $orderShippingAddress->setHash('changed-shipping-address-hash');
+
+        $order = $this->getOrder();
+        $order->setBillingAddressId('order-billing-address-id');
+        $delivery = $order->getDeliveries()?->first();
+        static::assertNotNull($delivery);
+        $order->setPrimaryOrderDelivery($delivery);
+        $delivery->setShippingOrderAddressId('order-shipping-address-id');
+
+        $options = [];
+        $converter = $this->getOrderConverter(
+            [$customer],
+            [$orderShippingAddress, $orderBillingAddress],
+            function (string $randomId, string $salesChannelId, array $createOptions) use (&$options): SalesChannelContext {
+                $options = $createOptions;
+
+                return $this->getSalesChannelContext(true);
+            }
+        );
+
+        $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
+
+        static::assertArrayNotHasKey(SalesChannelContextService::SHIPPING_ADDRESS_ID, $options);
+        static::assertSame('order-shipping-address-id', $options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID] ?? null);
     }
 
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): SalesChannelContext

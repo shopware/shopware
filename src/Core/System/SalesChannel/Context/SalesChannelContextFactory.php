@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
@@ -91,8 +92,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $customerGroup = $base->getCurrentCustomerGroup();
         }
 
-        if (\is_string($options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID] ?? null)) {
-            $shippingLocation = $this->loadOrderShippingLocation($options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID], $base->getContext()) ?? $shippingLocation;
+        // requested shipping address wins over the order's address
+        if (!isset($options[SalesChannelContextService::SHIPPING_ADDRESS_ID]) && \is_string($options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID] ?? null)) {
+            $shippingLocation = $this->loadOrderShippingLocation($options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID], $base->getContext(), $customer) ?? $shippingLocation;
         }
 
         // loads tax rules based on active customer and delivery address
@@ -291,7 +293,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         return $customer;
     }
-    private function loadOrderShippingLocation(string $orderAddressId, Context $context): ?ShippingLocation
+
+    private function loadOrderShippingLocation(string $orderAddressId, Context $context, ?CustomerEntity $customer): ?ShippingLocation
     {
         $criteria = new Criteria([$orderAddressId]);
         $criteria->setTitle('context-factory::order-shipping-address');
@@ -299,7 +302,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->addAssociation('countryState');
 
         $orderAddress = $this->orderAddressRepository->search($criteria, $context)->getEntities()->first();
-        if ($orderAddress?->getCountry() === null) {
+        if (!$orderAddress?->getCountry() instanceof CountryEntity) {
             return null;
         }
 
@@ -322,7 +325,13 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             'additionalAddressLine2' => $orderAddress->getAdditionalAddressLine2(),
             'country' => $orderAddress->getCountry(),
             'countryState' => $orderAddress->getCountryState(),
+            'customFields' => $orderAddress->getCustomFields(),
+            'hash' => $orderAddress->getHash(),
         ]);
+
+        if ($customer instanceof CustomerEntity) {
+            $address->setCustomerId($customer->getId());
+        }
 
         return ShippingLocation::createFromAddress($address);
     }

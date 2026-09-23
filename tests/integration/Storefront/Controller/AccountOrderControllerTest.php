@@ -659,6 +659,13 @@ class AccountOrderControllerTest extends TestCase
             $unavailableProductId => 'Deactivated product',
         ]);
 
+        // an order that still has at least one buyable product keeps its reorder entry
+        $partlyAvailableProductId = $this->createProduct($context, 'Second product', $salesChannelId);
+        $partlyAvailableOrderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $this->createProduct($context, 'Gone product', $salesChannelId) => 'Gone product',
+            $partlyAvailableProductId => 'Second product',
+        ]);
+
         static::getContainer()->get('product.repository')->update([
             ['id' => $unavailableProductId, 'active' => false],
         ], $context);
@@ -670,6 +677,8 @@ class AccountOrderControllerTest extends TestCase
 
         // the reorder form posts the order id only, instead of every line item as hidden inputs
         static::assertStringContainsString('/checkout/line-item/order/' . $reorderableOrderId, $content);
+        // one unavailable product among several does not take the reorder entry away
+        static::assertStringContainsString('/checkout/line-item/order/' . $partlyAvailableOrderId, $content);
         // the order whose only product was deactivated cannot be reordered, so it offers no form at all
         static::assertStringNotContainsString('/checkout/line-item/order/' . $unavailableOrderId, $content);
     }

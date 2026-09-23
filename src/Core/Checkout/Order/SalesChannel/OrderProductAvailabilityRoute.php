@@ -17,14 +17,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Order line items keep referencing products that were deactivated, hidden or deleted, so the order alone
- * cannot tell whether one is still buyable. Answers that as the `productAvailable` line item extension.
+ * cannot tell whether one is still shown in this sales channel. Answers that as the
+ * `productAvailability` line item extension.
  *
  * @internal
  */
 #[Package('checkout')]
 class OrderProductAvailabilityRoute extends AbstractOrderRoute
 {
-    public const LINE_ITEM_EXTENSION = 'productAvailable';
+    public const LINE_ITEM_EXTENSION = 'productAvailability';
 
     /**
      * @internal
@@ -70,7 +71,7 @@ class OrderProductAvailabilityRoute extends AbstractOrderRoute
             }
         }
 
-        $available = [];
+        $visible = [];
 
         // nothing to look up, but the line items below still need the extension
         if ($productIds !== []) {
@@ -84,7 +85,7 @@ class OrderProductAvailabilityRoute extends AbstractOrderRoute
 
             // one query, and searchIds() reads no entities so no price calculation runs.
             // the sales channel repository filters on active and visibility.
-            $available = array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
+            $visible = array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
         }
 
         foreach ($orders as $order) {
@@ -92,7 +93,7 @@ class OrderProductAvailabilityRoute extends AbstractOrderRoute
                 $productId = $lineItem->getProductId();
 
                 $lineItem->addExtension(self::LINE_ITEM_EXTENSION, new ArrayStruct([
-                    'available' => $productId !== null && isset($available[$productId]),
+                    'visible' => $productId !== null && isset($visible[$productId]),
                 ]));
             }
         }

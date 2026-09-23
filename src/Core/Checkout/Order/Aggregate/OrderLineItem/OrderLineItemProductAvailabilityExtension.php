@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Declares the runtime `productAvailable` extension so it is part of the Store API response.
+ * Declares the runtime `productAvailability` extension so it is part of the Store API response.
  *
  * @internal
  */
@@ -25,7 +25,7 @@ class OrderLineItemProductAvailabilityExtension extends EntityExtension
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new ObjectField('productAvailable', 'productAvailable'))->addFlags(new ApiAware(), new Runtime())
+            (new ObjectField('productAvailability', 'productAvailability'))->addFlags(new ApiAware(), new Runtime())
         );
     }
 

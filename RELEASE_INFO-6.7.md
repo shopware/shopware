@@ -89,6 +89,8 @@ With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecom
 
 Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 
+`add_to_cart` on the product detail page reports the unit price of the graduated price that applies to the added quantity. It used the `product:price:amount` meta tag, which carries the cheapest tier. The buy widget exposes the tiers as `data-product-prices`.
+
 `add_shipping_info` and `add_payment_info` are now reported once per selected method instead of on every load of the confirm page. Because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported the event again. A reload that keeps the method stays silent, while switching the method reports the new one, so the counts drop without losing the method the customer actually chose.
 
 `remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.

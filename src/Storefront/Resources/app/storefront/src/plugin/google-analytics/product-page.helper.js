@@ -151,6 +151,41 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The unit price a graduated price table charges for a quantity. The `product:price:amount`
+     * meta tag carries the cheapest tier for search engines, so it is the wrong price for most
+     * quantities of a product with graduated prices.
+     *
+     * Every tier but the last applies up to and including its quantity, the last from its quantity.
+     *
+     * @param {HTMLElement|null} element an element inside the buy widget
+     * @param {number|string} quantity
+     * @returns {number|undefined} undefined without graduated prices
+     */
+    static getGraduatedPrice(element, quantity) {
+        const pricesElement = element?.closest('[data-product-prices]');
+        if (!pricesElement) {
+            return undefined;
+        }
+
+        let tiers;
+        try {
+            tiers = JSON.parse(pricesElement.getAttribute('data-product-prices'));
+        } catch {
+            return undefined;
+        }
+
+        if (!Array.isArray(tiers) || tiers.length === 0) {
+            return undefined;
+        }
+
+        const amount = Number(quantity) || 1;
+        const tier = tiers.find((candidate, index) => index < tiers.length - 1 && amount <= candidate.quantity)
+            ?? tiers[tiers.length - 1];
+
+        return tier.price;
+    }
+
+    /**
      * Gets the selected variant options from the product detail page, e.g. `Red, L`
      * @returns {string|undefined}
      */

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecut
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -158,7 +159,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\InAppPurchase;
@@ -167,6 +167,7 @@ use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
@@ -247,6 +248,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(HookableValidator::class)
         ->args([
             service(HookableEventCollector::class),
+            service(PolicyRegistry::class),
         ])
         ->tag('shopware.app_manifest.validator');
 
@@ -653,6 +655,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'timeout' => 5,
                 'connect_timeout' => 1,
                 'proxy' => [],
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->call('after', [

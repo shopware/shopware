@@ -39,9 +39,7 @@ type BindingPatternResult = {
     offset: number;
 };
 
-const EXPRESSION_PLUGINS: ParserPlugin[] = [
-    'typescript',
-];
+const EXPRESSION_PLUGINS: ParserPlugin[] = ['typescript'];
 
 /**
  * Parses one template JS snippet into a Babel node.
@@ -133,15 +131,7 @@ function collectPatternReferences(
     }
 
     if (pattern.type === 'AssignmentPattern') {
-        collectBabelReferences(
-            pattern.right,
-            [
-                patternScope,
-                ...outerScopes,
-            ],
-            references,
-            pattern,
-        );
+        collectBabelReferences(pattern.right, [patternScope, ...outerScopes], references, pattern);
         collectPatternReferences(pattern.left, outerScopes, references, patternScope);
         return;
     }
@@ -159,15 +149,7 @@ function collectPatternReferences(
             }
 
             if (property.computed) {
-                collectBabelReferences(
-                    property.key,
-                    [
-                        patternScope,
-                        ...outerScopes,
-                    ],
-                    references,
-                    property,
-                );
+                collectBabelReferences(property.key, [patternScope, ...outerScopes], references, property);
             }
 
             collectPatternReferences(property.value, outerScopes, references, patternScope);
@@ -215,10 +197,7 @@ function collectBabelReferences(
 
     if (node.type === 'BlockStatement') {
         const blockScope = new Set<string>();
-        const nextScopes = [
-            blockScope,
-            ...scopes,
-        ];
+        const nextScopes = [blockScope, ...scopes];
 
         node.body.forEach((statement) => collectBabelReferences(statement, nextScopes, references, node));
         return;
@@ -251,15 +230,7 @@ function collectBabelReferences(
             collectBabelReferences(node.key, scopes, references, node);
         }
 
-        collectBabelReferences(
-            node.body,
-            [
-                functionScope,
-                ...scopes,
-            ],
-            references,
-            node,
-        );
+        collectBabelReferences(node.body, [functionScope, ...scopes], references, node);
         return;
     }
 
@@ -274,15 +245,7 @@ function collectBabelReferences(
         }
 
         collectBabelReferences(node.superClass, scopes, references, node);
-        collectBabelReferences(
-            node.body,
-            [
-                classScope,
-                ...scopes,
-            ],
-            references,
-            node,
-        );
+        collectBabelReferences(node.body, [classScope, ...scopes], references, node);
         return;
     }
 
@@ -308,15 +271,7 @@ function collectBabelReferences(
     if (node.type === 'CatchClause') {
         const catchScope = new Set<string>();
         addPatternNames(node.param, catchScope);
-        collectBabelReferences(
-            node.body,
-            [
-                catchScope,
-                ...scopes,
-            ],
-            references,
-            node,
-        );
+        collectBabelReferences(node.body, [catchScope, ...scopes], references, node);
         return;
     }
 
@@ -385,13 +340,7 @@ function collectExpressionReferences(expression: string | undefined, templateSco
         return references;
     }
 
-    collectBabelReferences(
-        parseTemplateExpression(expression),
-        [
-            new Set(templateScope),
-        ],
-        references,
-    );
+    collectBabelReferences(parseTemplateExpression(expression), [new Set(templateScope)], references);
 
     return references;
 }

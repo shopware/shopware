@@ -38,9 +38,7 @@ export default {
 
     methods: {
         getNestingClasses(nestingLevel) {
-            return [
-                `nesting-level-${nestingLevel}`,
-            ];
+            return [`nesting-level-${nestingLevel}`];
         },
     },
 };

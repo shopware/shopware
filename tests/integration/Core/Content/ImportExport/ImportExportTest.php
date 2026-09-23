@@ -932,7 +932,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'records' => 5,
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
         $importExport = new ImportExport(
@@ -941,12 +941,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             static::getContainer()->get('shopware.filesystem.private'),
             $this->listener,
             static::getContainer()->get(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $pipe,
             $reader,
             $writer,
             static::getContainer()->get(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(ImportStrategyService::class)
         );
 
         $importExportService->method('getProgress')

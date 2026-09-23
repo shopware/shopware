@@ -36,6 +36,11 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order transaction state machine gained a transition
+
+The order transaction state machine now allows transitions from the state "unconfirmed" to "in_progress".
+This will allow async payment methods to leave the order transaction in "unconfirmed" after the pay step and transition to "in_progress" in the finalize step.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses
@@ -252,11 +257,6 @@ When database replicas are configured (`DATABASE_REPLICA_*_URL`), the connection
 ### State machine transitions resolve deterministically
 
 When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
-
-### Order transaction state machine gained a transition
-
-The order transaction state machine now allows transitions from the state "unconfirmed" to "in_progress".
-This will allow async payment methods to leave the order transaction in "unconfirmed" after the pay step and transition to "in_progress" in the finalize step.
 
 ### `translation:install --all` no longer installs pseudo-locales
 

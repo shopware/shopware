@@ -47,6 +47,12 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### New Store API route to add the products of an order to the cart
+
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds the product line items of an existing order to the current cart. The request carries the order id only: the order is resolved for the logged-in customer and the current sales channel, products that are no longer available are skipped and reported as errors on the returned cart, and the recalculated cart is returned. Clients that reorder no longer have to read the order and send every line item themselves.
+
+Decorate `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute`, or listen to `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`, to change which line items a reorder adds.
+
 ## Administration
 
 ### New extension points for the Shopping Experiences layout list
@@ -93,6 +99,17 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+### Unavailable products are no longer linked in order line items
+
+Product line items rendered in order display mode link to the product detail page and offer the wishlist button only while the product is still active and visible in the sales channel, and the reorder entry of an order is hidden when none of its products can be bought any more. Previously a deactivated or deleted product still rendered a link that ran into a 404.
+
+Availability is resolved once per page in PHP with a single sales-channel-aware query and exposed as the order line item extension `productAvailable` and the order extension `reorderable`, both carrying an `available` boolean, so templates only read a boolean. Read them in your own templates if you render order line items yourself; when the extension is absent the item is treated as available.
+
+### Reorder posts only the order id
+
+The reorder form in `@Storefront/storefront/page/account/order-history/order-item.html.twig` now posts to `frontend.checkout.line-item.order.add` instead of `frontend.checkout.line-item.add`, which delegates to the Store API route `POST /store-api/checkout/cart/line-item/order/{orderId}` and derives the line items from the order on the PHP side.
+
+The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` still render their hidden inputs, but the new route ignores them. If you override either block to change what a reorder adds, move that logic into a decorator of `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute` or a listener on `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`.
 
 # 6.7.15.0
 

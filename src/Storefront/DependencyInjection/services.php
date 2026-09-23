@@ -71,6 +71,7 @@ use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
 use Shopware\Storefront\Event\CartMergedSubscriber;
+use Shopware\Storefront\Event\OrderProductAvailabilitySubscriber;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber;
@@ -757,6 +758,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('translator'),
             service('request_stack'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderProductAvailabilitySubscriber::class)
+        ->args([
+            service('sales_channel.product.repository'),
         ])
         ->tag('kernel.event_subscriber');
 

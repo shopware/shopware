@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
@@ -228,6 +229,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlSanitizer::class),
             service(ProductListRoute::class),
             service(LineItemFactoryRegistry::class),
+            service(CartOrderLineItemsAddRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

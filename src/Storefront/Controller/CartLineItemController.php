@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -19,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -363,7 +363,9 @@ class CartLineItemController extends StorefrontController
                         '%count%' => $cart->getLineItems()->getTotalQuantity() - $quantityBefore,
                     ]));
                 }
-            } catch (OrderException|CartException|ProductNotFoundException|RoutingException) {
+            } catch (RateLimitExceededException $exception) {
+                $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]));
+            } catch (CartException|ProductNotFoundException|RoutingException) {
                 $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
             }
 

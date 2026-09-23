@@ -27,6 +27,54 @@ index 470779f..61c1804 100644
 +                    new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInternal($classAliases)),
                      new ClassBased\SkipClassBasedErrors(new ClassBased\EnumCasesChanged()),
                      new ClassBased\SkipClassBasedErrors(new ClassBased\OpenClassChanged(
+@@ -159,7 +173,7 @@ use const E_DEPRECATED;
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+@@ -182,7 +196,7 @@ use const E_DEPRECATED;
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+@@ -231,5 +245,5 @@ use const E_DEPRECATED;
+                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+-                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
++                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
+                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+                                            ),
+                                        )),
+@@ -266,7 +280,7 @@ use const E_DEPRECATED;
+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
++                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+@@ -311,7 +325,7 @@ use const E_DEPRECATED;
+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
++                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
 @@ -305,7 +319,7 @@ use const E_DEPRECATED;
                  new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\MethodAdded()),
                  new InterfaceBased\SkipInterfaceBasedErrors(new InterfaceBased\UseClassBasedChecksOnAnInterface(
@@ -52,54 +100,6 @@ index 470779f..61c1804 100644
 +            $classAliases,
          ),
      );
-@@ -159,8 +173,8 @@ use const E_DEPRECATED;
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
--                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
--                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
-+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
-+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
-@@ -182,8 +196,8 @@ use const E_DEPRECATED;
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
--                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
--                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
-+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
-+                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
-@@ -231,7 +245,7 @@ use const E_DEPRECATED;
-                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
-                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
--                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
-+                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
-                                                new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
-                                            ),
-                                        )),
-@@ -266,8 +280,8 @@ use const E_DEPRECATED;
-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
--                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
--                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
-+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
-+                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
-@@ -311,8 +325,8 @@ use const E_DEPRECATED;
-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
--                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
--                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
-+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant(), $classAliases)),
-+                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged($classAliases)),
-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
 diff --git a/src/CompareClasses.php b/src/CompareClasses.php
 index e4e2c3b..489833d 100644
 --- a/src/CompareClasses.php
@@ -225,7 +225,7 @@ diff --git a/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php b/src
 index 2c719bb..f18fd4d 100644
 --- a/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php
 +++ b/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php
-@@ -20,8 +20,11 @@ final class ReturnTypeChanged implements FunctionBased
+@@ -21,7 +21,8 @@ final class ReturnTypeChanged implements FunctionBased
  {
      private FunctionName $formatFunction;
 -
@@ -236,7 +236,7 @@ index 2c719bb..f18fd4d 100644
      {
          $this->formatFunction = new FunctionName();
      }
-@@ -31,7 +34,7 @@ final class ReturnTypeChanged implements FunctionBased
+@@ -33,6 +35,6 @@ final class ReturnTypeChanged implements FunctionBased
          $fromReturnType = $this->typeToString($fromFunction->getReturnType());
          $toReturnType   = $this->typeToString($toFunction->getReturnType());
 -
@@ -269,7 +269,7 @@ index 158c3b4..16b641a 100644
      {
          $this->formatFunction = new FunctionName();
      }
-@@ -34,7 +35,10 @@ final class ReturnTypeCovarianceChanged implements FunctionBased
+@@ -34,6 +35,9 @@ final class ReturnTypeCovarianceChanged implements FunctionBased
          $fromReturnType = $fromFunction->getReturnType();
          $toReturnType   = $toFunction->getReturnType();
 -

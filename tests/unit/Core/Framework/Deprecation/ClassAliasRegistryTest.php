@@ -21,9 +21,7 @@ class ClassAliasRegistryTest extends TestCase
         require \dirname(__DIR__, 5) . '/src/Core/Framework/Deprecation/class_aliases.php';
 
         foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
-            // @phpstan-ignore function.impossibleType (Aliases are registered by the Composer bootstrap.)
             static::assertTrue(class_exists($previousClassName, autoload: false));
-            // @phpstan-ignore argument.unresolvableType, method.unresolvableReturnType (Aliases are registered by the Composer bootstrap.)
             static::assertTrue($currentClassName === (new \ReflectionClass($previousClassName))->getName());
         }
     }

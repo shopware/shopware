@@ -38,9 +38,9 @@ Existing integrations and non-admin users therefore lose MCP access until an all
 
 ### Promotion redemptions are recounted with a covering index
 
-A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so recounting a promotion's redemptions on order placement no longer reads a table row per past order. The recount still grows in proportion to the orders that used the promotion. Building the index scans the whole table and can take several minutes on a large shop; `innodb_ddl_buffer_size`, 1 MB by default and per thread, is the most effective way to shorten it.
+Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a narrower query. The migration builds that index across the whole table and can take several minutes on a large shop; `innodb_ddl_buffer_size`, 1 MB by default and per thread, shortens it.
 
-Promotion line items are recognised by `promotion_id` alone now, rather than by their `type`, and redemptions count orders. An integration that sets `promotionId` on a line item of another type through the Admin API therefore has that order counted towards the promotion, and deleting such a line item releases the individual code named in its payload.
+Promotion line items are recognised by `promotion_id` alone now, rather than by their `type`. An integration that sets `promotionId` on a line item of another type through the Admin API therefore has that order counted towards the promotion, and deleting such a line item releases the individual code named in its payload.
 
 ## API
 

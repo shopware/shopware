@@ -111,7 +111,7 @@ class ProductReviewRouteTest extends TestCase
 
     public function testLoadAppliesConfiguredReviewsPerPageWhenRequestHasNoLimit(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('test');
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
@@ -147,7 +147,7 @@ class ProductReviewRouteTest extends TestCase
 
     public function testLoadRecomputesOffsetForConfiguredReviewsPerPage(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('test');
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
@@ -184,7 +184,7 @@ class ProductReviewRouteTest extends TestCase
 
     public function testLoadKeepsExplicitRequestLimit(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('test');
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 

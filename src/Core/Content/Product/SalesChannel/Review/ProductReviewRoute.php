@@ -85,12 +85,6 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         return new ProductReviewRouteResponse($result);
     }
 
-    /**
-     * When the request contains no explicit limit, the Store API falls back to its
-     * configured maximum limit. Apply the merchant-configured page size
-     * (core.listing.reviewsPerPage) instead, mirroring how product listings apply
-     * core.listing.productsPerPage. An explicit limit in the request takes precedence.
-     */
     private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId): void
     {
         if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {

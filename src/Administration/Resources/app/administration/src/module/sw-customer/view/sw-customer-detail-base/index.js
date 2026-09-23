@@ -46,7 +46,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },

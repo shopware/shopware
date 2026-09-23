@@ -442,7 +442,7 @@ export default {
             const criteria = new Criteria(1, 100);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
                 this.customFieldSets = searchResult;

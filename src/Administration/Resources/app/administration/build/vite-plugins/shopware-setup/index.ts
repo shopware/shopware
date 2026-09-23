@@ -58,29 +58,19 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
-/**
- * Renders a transform diagnostic as `file:line:column` plus its message.
- *
- * The shared transform reports an absolute source offset; a watcher line has to be a location the
- * terminal can print and the editor can jump to, so the offset is resolved against the very source
- * the error was thrown for.
- */
+/** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
 function formatTransformError(error: unknown, fileName: string, source: string): string {
     const message = error instanceof Error ? error.message : String(error);
-    // Duck-typed instead of `instanceof`: the transform module is loaded lazily through `require`,
-    // so its error class is not statically available here.
-    const offset = (error as { index?: unknown } | null)?.index;
-    const index = typeof offset === 'number' ? Math.min(offset, source.length) : null;
+    // Duck-typed: `ShopwareSetupTransformError` lives in the lazily required transform module.
+    const index = (error as { index?: unknown } | null)?.index;
 
-    if (index === null) {
+    if (typeof index !== 'number') {
         return `[shopware-setup] ${fileName}\n${message}`;
     }
 
-    const upToIndex = source.slice(0, index);
-    const line = upToIndex.split('\n').length;
-    const column = index - upToIndex.lastIndexOf('\n');
+    const lines = source.slice(0, index).split('\n');
 
-    return `[shopware-setup] ${fileName}:${line}:${column}\n${message}`;
+    return `[shopware-setup] ${fileName}:${lines.length}:${lines[lines.length - 1].length + 1}\n${message}`;
 }
 
 /**
@@ -95,10 +85,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
     const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
-    // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
-    // the matching load(). Keyed by source content: Vite's import-analysis re-resolves watched files after
-    // every transform and re-stashes, so an entry can predate the user's next edit - reusing it unverified
-    // would serve every edit one save late.
+    // resolveId has to run the transform to detect a setup SFC at all, and hotUpdate runs it for its
+    // diagnostics, so the result is stashed here for the matching load(). Keyed by source content: Vite's
+    // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
+    // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
@@ -135,22 +125,17 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     /**
-     * Runs the transform purely for its diagnostics and logs a failure to the watcher output.
+     * Transforms a saved file so a failure reaches the watcher output.
      *
-     * A file that no longer reads is not reported: a delete or rename reaches this path as a change,
-     * and Vite already handles the removal.
+     * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
      */
-    async function reportTransformFailure(fileName: string, logger: Logger): Promise<void> {
-        let source: string;
-
+    async function transformChangedFile(fileName: string, source: string, logger: Logger): Promise<void> {
         try {
-            source = await fs.readFile(fileName, 'utf8');
-        } catch {
-            return;
-        }
+            const result = await transformSource(source, fileName);
 
-        try {
-            await transformSource(source, fileName);
+            if (result) {
+                resolvedTransforms.set(fileName, { source, result });
+            }
         } catch (error) {
             logger.error(formatTransformError(error, fileName, source));
         }
@@ -308,18 +293,20 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * so without this hook an edit invalidated nothing until the dev server was restarted.
          * Returning the virtual module makes Vite invalidate it and push the update to the client.
          *
-         * It is also where a transform failure gets reported. Otherwise the transform runs only in
-         * `load`, which the dev server reaches once a client requests the module - so saving a file
-         * that does not compile printed nothing at all (issue #19562). Logging rather than throwing:
-         * a hook that throws sends its error to the connected client's overlay, not to the terminal
-         * the developer is watching, and it would skip the invalidation below.
+         * It is also where a transform failure gets reported. Otherwise the transform runs only once a
+         * client requests the module (`resolveId`/`load`), so saving a file that does not compile printed
+         * nothing at all (issue #19562). Logging rather than throwing: a hook that throws sends its error
+         * to the connected client's overlay, not to the terminal, and it would skip the invalidation below.
          */
-        async hotUpdate({ file, modules }) {
+        async hotUpdate({ type, file, modules, read }) {
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
 
-            await reportTransformFailure(file, this.environment.logger);
+            // Vite runs this hook once per environment (client and ssr); report only once.
+            if (type !== 'delete' && this.environment.name === 'client') {
+                await transformChangedFile(file, await read(), this.environment.logger);
+            }
 
             const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
 

@@ -5,19 +5,10 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { SourceMap } from 'rollup';
-import shopwareSetupPlugin from './index';
+import { createPlugin, createVueFile, resolveAndLoadVueFile, spyOnTransform } from './helpers';
 
-/**
- * The plugin's hooks as the spec drives them: plain callables.
- *
- * Vite types every hook as an optional `ObjectHook` - a union of function and `{ handler }` - so hooks
- * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
- */
-type LoadedModule = { code: string; map: SourceMap };
 type ProbePosition = { line: number; column: number };
 type ProbeSide = {
     generatedIndex: number;
@@ -31,59 +22,8 @@ type ProbeResult = {
     base: ProbeSide;
     override: ProbeSide;
 };
-type HotUpdateModule = { id: string };
-type HotUpdateReturn = HotUpdateModule[] | undefined | Promise<HotUpdateModule[] | undefined>;
-type CallableSetupPlugin = {
-    name: string;
-    enforce: string;
-    resolveId(source: string, importer: string): Promise<string | null>;
-    load(id: string): Promise<LoadedModule | null>;
-    transform(code: string, id: string): Promise<LoadedModule | null>;
-    hotUpdate(options: { file: string; modules: HotUpdateModule[]; type: string }): HotUpdateReturn;
-    watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
-    generateBundle: unknown;
-};
 
-const pluginOptions = {
-    administrationRoot: process.cwd(),
-};
-
-function createPlugin(options: { administrationRoot: string } = pluginOptions): CallableSetupPlugin {
-    return shopwareSetupPlugin(options) as unknown as CallableSetupPlugin;
-}
 const execFileAsync = promisify(execFile);
-
-async function createVueFile(source: string, fileName = 'component.vue') {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-plugin-'));
-    const vueFile = path.join(root, fileName);
-
-    await fs.writeFile(vueFile, source);
-
-    return vueFile;
-}
-
-async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
-    const context = {
-        resolve: jest.fn().mockResolvedValue({ id: vueFile }),
-    };
-    const resolvedId = await plugin.resolveId.call(
-        context,
-        `./${path.basename(vueFile)}`,
-        path.join(path.dirname(vueFile), 'entry.js'),
-    );
-    expect(resolvedId).not.toBeNull();
-
-    const loadContext = {
-        addWatchFile: jest.fn(),
-    };
-    const loaded = await plugin.load.call(loadContext, resolvedId as string);
-
-    return {
-        loaded,
-        resolvedId,
-        loadContext,
-    };
-}
 
 describe('build/vite-plugins/shopware-setup', () => {
     it('returns a pre-load Vite plugin', () => {
@@ -134,13 +74,7 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
         const vueFile = await createVueFile(source, 'sw-cached-component.vue');
-        // The plugin requires the shared transform through node's module cache, so spying on the
-        // cached export intercepts its calls.
-        const nodeRequire = createRequire(path.join(process.cwd(), 'package.json'));
-        const transformModule = nodeRequire(path.join(process.cwd(), 'build/vue-setup-transform/index.js')) as {
-            transformShopwareSetupSfc: (code: string, fileName: string) => unknown;
-        };
-        const transformSpy = jest.spyOn(transformModule, 'transformShopwareSetupSfc');
+        const transformSpy = spyOnTransform();
 
         const { loaded } = await resolveAndLoadVueFile(plugin, vueFile);
 
@@ -294,98 +228,10 @@ swDefinePublic({ count });
         );
     });
 
-    describe('hot updates', () => {
-        function createHotUpdateContext(knownVirtualIds: string[]) {
-            return {
-                environment: {
-                    moduleGraph: {
-                        getModuleById: jest.fn((id: string) => (knownVirtualIds.includes(id) ? { id } : undefined)),
-                    },
-                    // Vite prints watcher diagnostics through the environment logger.
-                    logger: { error: jest.fn<void, [message: unknown]>() },
-                },
-            };
-        }
-
-        it('maps a changed .vue file to its virtual module so the dev server invalidates it', async () => {
-            const plugin = createPlugin();
-            const virtualId = '/example/sw-my-component.vue.shopware-setup.vue';
-            const context = createHotUpdateContext([virtualId]);
-            const otherModule = { id: '/example/other-module.ts' };
-
-            // Vite keys hot updates by changed file, and the real file never becomes a module - without
-            // this mapping an edit invalidated nothing (issue #19469).
-            const result = await plugin.hotUpdate.call(context, {
-                file: '/example/sw-my-component.vue',
-                modules: [otherModule],
-                type: 'update',
-            });
-
-            // Appended to the modules Vite already considers affected, not substituted.
-            expect(result).toEqual([otherModule, { id: virtualId }]);
-        });
-
-        it('leaves a .vue file alone that was never redirected to a virtual module', async () => {
-            const plugin = createPlugin();
-            const context = createHotUpdateContext([]);
-
-            // A plain SFC stays a real module; @vitejs/plugin-vue handles its hot update natively.
-            const result = await plugin.hotUpdate.call(context, {
-                file: '/example/PlainComponent.vue',
-                modules: [],
-                type: 'update',
-            });
-
-            expect(result).toBeUndefined();
-        });
-
-        it('does not map a virtual module id onto itself', async () => {
-            const plugin = createPlugin();
-            const context = createHotUpdateContext([]);
-
-            // The mapping's fixed point: the virtual id must not be mapped onto itself again.
-            const result = await plugin.hotUpdate.call(context, {
-                file: '/example/sw-my-component.vue.shopware-setup.vue',
-                modules: [],
-                type: 'update',
-            });
-
-            expect(result).toBeUndefined();
-            expect(context.environment.moduleGraph.getModuleById).not.toHaveBeenCalled();
-        });
-
-        it('reports a transform failure without skipping virtual-module invalidation', async () => {
-            const plugin = createPlugin();
-            const vueFile = await createVueFile(
-                `<script setup>
-const broken = { a: 1 b: 2 };
-
-swDefinePublic({});
-</script>`,
-                'sw-broken-component.vue',
-            );
-            const virtualId = `${vueFile}.shopware-setup.vue`;
-            const context = createHotUpdateContext([virtualId]);
-
-            const result = await plugin.hotUpdate.call(context, { file: vueFile, modules: [], type: 'update' });
-
-            expect(result).toEqual([{ id: virtualId }]);
-
-            // The transform only runs in `load`, which the dev server reaches when something requests the
-            // module - so a save with no browser attached reported nothing at all (issue #19562). Throwing
-            // instead of logging would not do: Vite sends that to the overlay, never to the watcher.
-            const reported = String(context.environment.logger.error.mock.calls[0]?.[0]);
-
-            expect(context.environment.logger.error).toHaveBeenCalledTimes(1);
-            expect(reported).toContain('Unable to parse Shopware setup script');
-            expect(reported).toContain(vueFile);
-        });
-    });
-
     it('maps the written sourcemap back to the authored SFCs, for base and override alike', async () => {
         expect.hasAssertions();
 
-        const fixtureDirectory = path.join(__dirname, 'fixtures/sourcemap-composition');
+        const fixtureDirectory = path.join(__dirname, '../fixtures/sourcemap-composition');
         const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-map-'));
 
         await fs.cp(fixtureDirectory, root, { recursive: true });

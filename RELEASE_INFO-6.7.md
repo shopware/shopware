@@ -233,7 +233,16 @@ The GARAN label that 6.7.14.0 added to the `order_confirmation_mail` template (s
 
 As with the original change, a migration re-applies the template only for shops that never edited their order confirmation mail template. If you customized that template and copied the label markup from 6.7.14.0, replace your `<tr><td colspan="6">` label row with the markup from `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
 
-Note that the label is embedded as an SVG `data:` URI, which Gmail and Outlook do not render at all. Recipients on those clients see the `alt` text; the label remains visible in the storefront and in the customer account.
+### GARAN label in the order confirmation mail is embedded as an inline PNG
+
+The order confirmation mail embedded the GARAN label as an SVG `data:` URI (`sw_garan_label_nested_uri`), which Gmail, Outlook for Windows and Windows Mail do not display. The label is now attached to the mail as an inline PNG and referenced via `cid:`:
+
+* The new Twig filter `sw_garan_label_mail` takes a product ID and returns `null` for products without a GARAN label, otherwise an array with `cid` and `duration`.
+* The images are pre-rendered for every valid guarantee duration (30 to 600 months). For durations without an image, such as legacy values above 600 months, `cid` is `null` and the default template prints the `alt` text instead of the image.
+
+A migration re-applies the template only for shops that never edited their order confirmation mail template. If you customized that template, replace `sw_garan_label_nested_uri` with `sw_garan_label_mail` as shown in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`. `sw_garan_label_nested_uri` remains available.
+
+The mail template preview in the Administration does not attach images, so it shows the `alt` text instead.
 
 ### Primary/replica connections switch back to the replica between requests
 

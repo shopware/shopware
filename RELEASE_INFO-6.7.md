@@ -38,11 +38,9 @@ Existing integrations and non-admin users therefore lose MCP access until an all
 
 ### Promotion redemptions are recounted with a covering index
 
-Placing an order that redeems a promotion recounts that promotion's redemptions across all of its past orders. A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so the recount reads that index instead of one table row per past order. On a promotion with a long order history the row lookups were slow enough to exceed the payment timeout and fail the checkout. The recount still grows in proportion to the orders that used the promotion, so this raises that ceiling rather than removing it.
+A migration adds the index `idx.order_line_item.promotion_redemption` on `order_line_item`, so recounting a promotion's redemptions on order placement no longer reads a table row per past order. The recount still grows in proportion to the orders that used the promotion. Building the index scans the whole table and can take several minutes on a large shop; `innodb_ddl_buffer_size`, 1 MB by default and per thread, is the most effective way to shorten it.
 
-The migration builds the index across the whole `order_line_item` table and can run for several minutes on a large shop. `innodb_ddl_buffer_size`, 1 MB by default and allocated per thread, is the most effective way to shorten it.
-
-Promotion line items are recognised by `promotion_id` alone now, rather than by their `type`, because the column is only ever written for them. Redemptions are counted per order, so an integration that sets `promotionId` on a line item of another type through the Admin API has that order counted towards the promotion's redemptions, unless a real promotion line item already links the two. Deleting such a line item likewise releases the individual code named in its payload, where before only a promotion line item did.
+Promotion line items are recognised by `promotion_id` alone now, rather than by their `type`, and redemptions count orders. An integration that sets `promotionId` on a line item of another type through the Admin API therefore has that order counted towards the promotion, and deleting such a line item releases the individual code named in its payload.
 
 ## API
 

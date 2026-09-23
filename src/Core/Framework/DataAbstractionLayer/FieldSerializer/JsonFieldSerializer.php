@@ -180,6 +180,12 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             }
         }
 
-        return $stack->getResultAsArray();
+        $result = $stack->getResultAsArray();
+
+        if ($field->allowsAdditionalProperties()) {
+            return array_replace($data, $result);
+        }
+
+        return $result;
     }
 }

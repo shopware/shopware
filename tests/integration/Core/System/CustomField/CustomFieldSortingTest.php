@@ -51,6 +51,9 @@ class CustomFieldSortingTest extends TestCase
 
         static::assertSame([$ids[2], $ids[1], $ids[0]], $fields->getKeys());
         static::assertInstanceOf(CustomFieldEntity::class, $fields->get($ids[0]));
-        static::assertSame(['enabled' => true], $fields->get($ids[0])->getConfig()['extensionConfiguration']);
+        $config = $fields->get($ids[0])->getConfig();
+        static::assertIsArray($config);
+        static::assertArrayHasKey('extensionConfiguration', $config);
+        static::assertSame(['enabled' => true], $config['extensionConfiguration']);
     }
 }

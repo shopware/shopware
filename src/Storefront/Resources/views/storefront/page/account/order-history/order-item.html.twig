@@ -96,7 +96,7 @@
                                     {% endif %}
 
                                     {% block page_account_order_item_context_menu_reorder %}
-                                        {# the reorder entry is pure UI shorthand: an order can be reordered while any of its products is still buyable #}
+                                        {# reorderable as long as any product can still be bought #}
                                         {% set reorderable = order.lineItems is null or order.lineItems.firstWhere(item =>
                                             item.type == PRODUCT_LINE_ITEM_TYPE and (item.extensions.productAvailable.available ?? true)
                                         ) is not null %}

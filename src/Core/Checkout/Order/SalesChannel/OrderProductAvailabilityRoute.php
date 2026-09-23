@@ -14,9 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Order line items keep referencing their product after it was deactivated, made invisible for the sales channel
- * or deleted, so a consumer cannot tell from the order alone whether the product can still be bought. This adds
- * that answer as the `productAvailable` extension of every product line item.
+ * Order line items keep referencing products that were deactivated, hidden or deleted, so the order alone
+ * cannot tell whether one is still buyable. Answers that as the `productAvailable` line item extension.
  *
  * @internal
  */
@@ -69,15 +68,13 @@ class OrderProductAvailabilityRoute extends AbstractOrderRoute
 
         $available = [];
 
-        // an order whose products were all deleted has nothing left to look up, but its line items still
-        // need the extension, otherwise consumers fall back to treating them as available
+        // nothing to look up, but the line items below still need the extension
         if ($productIds !== []) {
             $criteria = new Criteria(array_keys($productIds));
             $criteria->setTitle('order-line-item::product-availability');
 
-            // one query per request, and searchIds() never reads entities, so no product price calculation is
-            // triggered. the sales channel repository applies the product available filter, which covers
-            // the active flag and the sales channel visibility.
+            // one query, and searchIds() reads no entities so no price calculation runs.
+            // the sales channel repository filters on active and visibility.
             $available = array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
         }
 

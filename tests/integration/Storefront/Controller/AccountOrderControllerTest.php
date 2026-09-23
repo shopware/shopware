@@ -602,7 +602,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
-        // the label is wrapped in a link carrying a `title` attribute only when the product is still available
+        // only an available product gets a link, and only a link carries `title`
         static::assertStringContainsString('title="Available product"', $content);
         static::assertStringNotContainsString('title="Deactivated product"', $content);
         static::assertStringNotContainsString('title="Deleted product"', $content);
@@ -638,7 +638,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
-        // the overview renders the newest order through the same shared line item template
+        // the overview renders the newest order through the same template
         static::assertStringContainsString('title="Available product"', $content);
         static::assertStringNotContainsString('title="Deactivated product"', $content);
     }
@@ -675,11 +675,11 @@ class AccountOrderControllerTest extends TestCase
 
         $content = (string) $browser->getResponse()->getContent();
 
-        // the reorder form posts the order id only, instead of every line item as hidden inputs
+        // the form posts the order id instead of every line item
         static::assertStringContainsString('/checkout/line-item/order/' . $reorderableOrderId, $content);
-        // one unavailable product among several does not take the reorder entry away
+        // one unavailable product does not remove the entry
         static::assertStringContainsString('/checkout/line-item/order/' . $partlyAvailableOrderId, $content);
-        // the order whose only product was deactivated cannot be reordered, so it offers no form at all
+        // nothing buyable left, so no form at all
         static::assertStringNotContainsString('/checkout/line-item/order/' . $unavailableOrderId, $content);
     }
 
@@ -710,7 +710,7 @@ class AccountOrderControllerTest extends TestCase
         $browser->request('GET', '/checkout/cart');
         $cartContent = (string) $browser->getResponse()->getContent();
 
-        // the still available product is in the cart, the deactivated one was skipped by the cart pipeline
+        // the deactivated product was skipped by the cart pipeline
         static::assertStringContainsString($availableProductId, $cartContent);
         static::assertStringNotContainsString($deactivatedProductId, $cartContent);
     }
@@ -732,7 +732,7 @@ class AccountOrderControllerTest extends TestCase
         $browser = $this->login($customer->getEmail());
         $browser->request('POST', '/checkout/line-item/order/' . $foreignOrderId);
 
-        // the order does not belong to the logged-in customer, so nothing is added and the shopper sees an error
+        // not the logged-in customer's order, so nothing is added
         $browser->request('GET', '/checkout/cart');
         static::assertStringNotContainsString($productId, (string) $browser->getResponse()->getContent());
     }

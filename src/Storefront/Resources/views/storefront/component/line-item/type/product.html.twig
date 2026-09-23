@@ -13,8 +13,7 @@
     {% set showSubtotal = true %}
 {% endif %}
 
-{# order line items keep referencing their product after it was deactivated, made invisible or deleted.
-   `productAvailable` is resolved once per page in PHP; it is absent outside order display mode, hence the default. #}
+{# `productAvailable` comes from the order route and is absent outside order display mode, hence the default #}
 {% set isProductAvailable = displayMode !== 'order' or (lineItem.productId and (lineItem.extensions.productAvailable.available ?? true)) %}
 
 {% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}

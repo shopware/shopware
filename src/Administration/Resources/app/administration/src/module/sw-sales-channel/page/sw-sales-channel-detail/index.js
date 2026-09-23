@@ -226,6 +226,11 @@ export default {
             return this.repositoryFactory.create('sales_channel_analytics');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
         productExportRepository() {
             return this.repositoryFactory.create('product_export');
         },

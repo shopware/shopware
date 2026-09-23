@@ -183,7 +183,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         $result = $stack->getResultAsArray();
 
         if ($field->allowsAdditionalProperties()) {
-            // The stack contains normalized mapped values; merge them into the original data to retain extension properties.
+            // The result stack contains only normalized mapped values; merge them into the original data to retain additional extension properties, while keeping normalized values for typed properties.
             return array_replace($data, $result);
         }
 

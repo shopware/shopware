@@ -101,8 +101,8 @@ class PromotionDefinition extends EntityDefinition
             new BoolField('customer_restriction', 'customerRestriction'),
             (new BoolField('prevent_combination', 'preventCombination'))->addFlags(new Required()),
 
-            (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone())->setDescription('The number of times the promotion was used.'),
-            (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone())->setDescription('The number of times the customer has used the code.'),
+            (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone()),
+            (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new ResetOnClone()),
 
             (new OneToManyAssociationField('setgroups', PromotionSetGroupDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),
 

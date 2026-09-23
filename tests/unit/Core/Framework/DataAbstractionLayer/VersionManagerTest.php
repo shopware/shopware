@@ -707,7 +707,6 @@ class VersionManagerTest extends TestCase
             'versionCommitDataDefinition' => static::createStub(VersionCommitDataDefinition::class),
             'versionDefinition' => static::createStub(VersionDefinition::class),
             'lockFactory' => static::createStub(LockFactory::class),
-            'clock' => new NativeClock(),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -723,8 +722,7 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDefinition'],
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
-            $params['lockFactory'],
-            $params['clock']
+            $params['lockFactory']
         );
     }
 }

@@ -117,9 +117,6 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
-        // A written promotion_id is what the recount aggregates, so it is also what has to
-        // trigger it. An update payload carries only the fields the writer supplied, so gating
-        // on the type as well would miss a write that changes promotion_id on its own.
         $promotionIds = [];
         foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
             $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
@@ -139,7 +136,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
-        // promotion_id is only ever written for promotion line items, so it already implies the type
+        // promotion_id is ApiAware, so this counts every line item carrying one, not only the ones core writes
         $sql = <<<'SQL'
             SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
                    COUNT(DISTINCT order_line_item.order_id) as total,

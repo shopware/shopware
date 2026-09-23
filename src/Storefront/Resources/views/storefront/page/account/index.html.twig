@@ -51,15 +51,19 @@
                                         {% endblock %}
 
                                         {% block page_account_overview_profile_content %}
-                                            <p>
-                                                {% if context.customer.salutation and context.customer.salutation.salutationKey != 'not_specified' %}
-                                                    {{ context.customer.salutation.translated.displayName }}
-                                                {% endif %}
-                                                {% if context.customer.title %}
-                                                    {{ context.customer.title }}<br>
-                                                {% endif %}
-                                                {{ context.customer.displayName }}
-                                            </p>
+                                            {% set contactPerson = (context.customer.firstName ~ ' ' ~ context.customer.lastName)|trim %}
+
+                                            {% if contactPerson %}
+                                                <p>
+                                                    {% if context.customer.salutation and context.customer.salutation.salutationKey != 'not_specified' %}
+                                                        {{ context.customer.salutation.translated.displayName }}
+                                                    {% endif %}
+                                                    {% if context.customer.title %}
+                                                        {{ context.customer.title }}<br>
+                                                    {% endif %}
+                                                    {{ context.customer.displayName }}
+                                                </p>
+                                            {% endif %}
                                         {% endblock %}
 
                                         {% block page_account_overview_profile_company %}

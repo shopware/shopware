@@ -49,6 +49,9 @@ test.describe('Commercial accounts without a contact person', () => {
                 await ShopCustomer.expects(StorefrontAccount.personalDataCardTitle).toBeVisible();
                 await ShopCustomer.expects(StorefrontAccount.page.getByText(account.company).first()).toBeVisible();
                 await ShopCustomer.expects(
+                    StorefrontAccount.page.locator('.account-overview-profile').getByText(account.company),
+                ).toHaveCount(1);
+                await ShopCustomer.expects(
                     StorefrontAccount.page.getByText(account.email, {
                         exact: true,
                     }),

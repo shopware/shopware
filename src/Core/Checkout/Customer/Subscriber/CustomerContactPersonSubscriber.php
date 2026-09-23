@@ -108,7 +108,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $key = self::commandKey($command);
+            $key = $this->commandKey($command);
 
             if (isset($commands[$key])) {
                 $commands[$key]['payload'] = array_merge($commands[$key]['payload'], $command->getPayload());
@@ -122,7 +122,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
         return $commands;
     }
 
-    private static function commandKey(WriteCommand $command): string
+    private function commandKey(WriteCommand $command): string
     {
         $id = strtolower($command->getDecodedPrimaryKey()['id']);
         $versionId = $command->getPrimaryKey()['version_id'] ?? null;
@@ -133,7 +133,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
     /**
      * @param array<string, string|null> $row
      */
-    private static function rowKey(array $row): string
+    private function rowKey(array $row): string
     {
         $id = strtolower((string) $row['id']);
         $versionId = $row['version_id'] ?? null;
@@ -165,7 +165,7 @@ class CustomerContactPersonSubscriber implements EventSubscriberInterface
 
         $stored = [];
         foreach ($rows as $row) {
-            $stored[self::rowKey($row)] = $row;
+            $stored[$this->rowKey($row)] = $row;
         }
 
         return $stored;

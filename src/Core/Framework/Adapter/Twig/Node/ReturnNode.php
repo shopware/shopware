@@ -17,9 +17,9 @@ class ReturnNode extends Node implements NodeOutputInterface
         $compiler->addDebugInfo($this);
 
         if ($this->hasNode('expr')) {
-            $compiler->raw('SwTwigFunction::$macroResult = ');
+            $compiler->raw('\\Shopware\\Core\\Framework\\Adapter\\Twig\\SwTwigFunction::returnFromMacro(');
             $compiler->subcompile($this->getNode('expr'));
-            $compiler->raw(";\n");
+            $compiler->raw(");\n");
         }
         $compiler->write("return;\n");
     }

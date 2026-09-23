@@ -49,7 +49,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, skipping the unavailable ones; decorate `AbstractCartOrderLineItemsAddRoute` or listen to `BeforeOrderLineItemsAddedToCartEvent` to change what it adds.
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart; decorate `AbstractCartOrderLineItemsAddRoute` to change what it adds.
 
 ## Administration
 
@@ -105,7 +105,7 @@ Availability is resolved once per page in PHP with a single sales-channel-aware 
 
 ### Reorder posts only the order id
 
-The reorder form posts only the order id and the hidden-input blocks are ignored, so move overrides of them into a decorator of `AbstractCartOrderLineItemsAddRoute`; order line items now link to the product only while it is still buyable, exposed as the `productAvailable` extension.
+Reorder posts only the order id, so overrides of the hidden-input blocks no longer apply; unavailable products lose their link, see the `productAvailable` line item extension.
 
 # 6.7.15.0
 

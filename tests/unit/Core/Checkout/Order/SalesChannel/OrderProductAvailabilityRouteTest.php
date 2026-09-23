@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderProductAvailabilityRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -35,7 +37,7 @@ class OrderProductAvailabilityRouteTest extends TestCase
     public function testGetDecoratedReturnsTheInnerRoute(): void
     {
         $decorated = static::createStub(AbstractOrderRoute::class);
-        $route = new OrderProductAvailabilityRoute($decorated, static::createStub(SalesChannelRepository::class));
+        $route = new OrderProductAvailabilityRoute($decorated, static::createStub(SalesChannelRepository::class), $this->config(), static::createStub(AbstractProductCloseoutFilterFactory::class));
 
         static::assertSame($decorated, $route->getDecorated());
     }
@@ -141,7 +143,13 @@ class OrderProductAvailabilityRouteTest extends TestCase
             )
         ));
 
-        (new OrderProductAvailabilityRoute($decorated, $repository))->load(new Request(), $context, new Criteria());
+        (new OrderProductAvailabilityRoute($decorated, $repository, $this->config(), static::createStub(AbstractProductCloseoutFilterFactory::class)))
+            ->load(new Request(), $context, new Criteria());
+    }
+
+    private function config(): StaticSystemConfigService
+    {
+        return new StaticSystemConfigService(['core.listing.hideCloseoutProductsWhenOutOfStock' => false]);
     }
 
     /**

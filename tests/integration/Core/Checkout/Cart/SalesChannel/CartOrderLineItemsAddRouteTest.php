@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -160,14 +161,46 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         static::assertFalse($availability[$deactivatedId]);
     }
 
-    private function createProduct(bool $active = true, bool $visible = true): string
+    public function testSoldOutCloseoutProductsCountAsUnavailableWhenTheyAreHidden(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true, $this->salesChannelId);
+
+        $inStockId = $this->createProduct();
+        $soldOutId = $this->createProduct(stock: 0, closeout: true);
+
+        $this->createOrder($this->ids->get('customer'), [$inStockId, $soldOutId]);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/order',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['associations' => ['lineItems' => []]], \JSON_THROW_ON_ERROR)
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $availability = [];
+        foreach ($response['orders']['elements'][0]['lineItems'] as $lineItem) {
+            $availability[$lineItem['referencedId']] = $lineItem['extensions']['productAvailable']['available'];
+        }
+
+        // its detail page is filtered out by the same config, so linking to it would run into a 404
+        static::assertTrue($availability[$inStockId]);
+        static::assertFalse($availability[$soldOutId]);
+    }
+
+    private function createProduct(bool $active = true, bool $visible = true, int $stock = 10, bool $closeout = false): string
     {
         $id = Uuid::randomHex();
 
         $data = [
             'id' => $id,
             'productNumber' => Uuid::randomHex(),
-            'stock' => 10,
+            'stock' => $stock,
+            'isCloseout' => $closeout,
             'name' => 'Test product',
             'active' => $active,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],

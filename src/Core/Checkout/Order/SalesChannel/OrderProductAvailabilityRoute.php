@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -31,7 +33,9 @@ class OrderProductAvailabilityRoute extends AbstractOrderRoute
      */
     public function __construct(
         private readonly AbstractOrderRoute $decorated,
-        private readonly SalesChannelRepository $productRepository
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
     }
 
@@ -72,6 +76,11 @@ class OrderProductAvailabilityRoute extends AbstractOrderRoute
         if ($productIds !== []) {
             $criteria = new Criteria(array_keys($productIds));
             $criteria->setTitle('order-line-item::product-availability');
+
+            // mirrors ProductDetailRoute, so the answer matches whether the detail page resolves
+            if ($this->systemConfigService->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannelId())) {
+                $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
+            }
 
             // one query, and searchIds() reads no entities so no price calculation runs.
             // the sales channel repository filters on active and visibility.
